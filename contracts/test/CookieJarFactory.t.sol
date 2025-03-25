@@ -21,19 +21,27 @@ contract CookieJarFactoryTest is Test {
         // Deploy the registry first.
         registry = new CookieJarRegistry();
         // Deploy the factory with the registry's address.
-        factory = new CookieJarFactory(feeCollector, address(registry),1 ether);
+        factory = new CookieJarFactory(
+            feeCollector,
+            address(registry),
+            1 ether,
+            admin
+        );
         // Let the registry know which factory is authorized.
         registry.setCookieJarFactory(address(factory));
-                vm.deal(user, 100 ether);
-
+        vm.deal(user, 100 ether);
     }
 
-    /// @notice Test creating a CookieJar in Whitelist mode and verifying registry creator.
-    function testCreateCookieJarWhitelist() public {
+    /// @notice Test creating a cookie jar by a blacklisted person
+    function testCreateCookieJarByBlacklistedPerson() public {
         address[] memory emptyAddresses = new address[](0);
         uint8[] memory emptyTypes = new uint8[](0);
+        vm.prank(admin);
+        factory.updateGlobalBlacklist(user, true);
         vm.prank(user);
-        address jarAddress = factory.createCookieJar{value:1 ether}(
+        vm.expectRevert(CookieJarFactory.Blacklisted.selector);
+
+        address jarAddress = factory.createCookieJar{value: 1 ether}(
             admin,
             CookieJar.AccessType.Whitelist,
             emptyAddresses,
@@ -46,12 +54,38 @@ contract CookieJarFactoryTest is Test {
             true, // emergencyWithdrawalEnabled
             "Test Metadata"
         );
+    }
+
+    /// @notice Test creating a CookieJar in Whitelist mode and verifying registry creator.
+    function testCreateCookieJarWhitelist() public {
+            uint256 initialBalance = address(feeCollector).balance;
+
+        address[] memory emptyAddresses = new address[](0);
+        uint8[] memory emptyTypes = new uint8[](0);
+        vm.prank(user);
+        address jarAddress = factory.createCookieJar{value: 1 ether}(
+            admin,
+            CookieJar.AccessType.Whitelist,
+            emptyAddresses,
+            emptyTypes,
+            CookieJar.WithdrawalTypeOptions.Fixed,
+            fixedAmount,
+            maxWithdrawal,
+            withdrawalInterval,
+            strictPurpose,
+            true, // emergencyWithdrawalEnabled
+            "Test Metadata"
+        );
+            uint256 finalBalance = address(feeCollector).balance;
+    assertEq(finalBalance, initialBalance + 1 ether, "Fee collector should receive the exact fee amount");
+
         string memory meta = factory.cookieJarMetadata(jarAddress);
         assertEq(meta, "Test Metadata");
 
         // Verify that the registry recorded the correct creator.
         uint256 count = registry.getRegisteredCookieJarsCount();
-        (address recordedJar, address creator, , ) = registry.registeredCookieJars(count - 1);
+        (address recordedJar, address creator, , ) = registry
+            .registeredCookieJars(count - 1);
         assertEq(recordedJar, jarAddress);
         assertEq(creator, user);
     }
@@ -63,7 +97,7 @@ contract CookieJarFactoryTest is Test {
         uint8[] memory nftTypes = new uint8[](1);
         nftTypes[0] = uint8(CookieJar.NFTType.ERC721);
         vm.prank(user);
-        address jarAddress = factory.createCookieJar{value:1 ether}(
+        address jarAddress = factory.createCookieJar{value: 1 ether}(
             admin,
             CookieJar.AccessType.NFTGated,
             nftAddresses,
@@ -81,16 +115,19 @@ contract CookieJarFactoryTest is Test {
 
         // Verify that the registry recorded the correct creator.
         uint256 count = registry.getRegisteredCookieJarsCount();
-        (address recordedJar, address creator, , ) = registry.registeredCookieJars(count - 1);
+        (address recordedJar, address creator, , ) = registry
+            .registeredCookieJars(count - 1);
         assertEq(recordedJar, jarAddress);
         assertEq(creator, user);
     }
+
     function testWithoutFeeForCreatingCookieJar() public {
         address[] memory emptyAddresses = new address[](0);
         uint8[] memory emptyTypes = new uint8[](0);
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(CookieJarFactory.FeeNotEnough.selector));
-        factory.createCookieJar{value:0.5 ether}(
+        vm.expectRevert(CookieJarFactory.FeeNotEnough.selector);
+
+        factory.createCookieJar{value: 0.5 ether}(
             admin,
             CookieJar.AccessType.NFTGated,
             emptyAddresses,
@@ -105,13 +142,46 @@ contract CookieJarFactoryTest is Test {
         );
     }
 
+    /// @notice The fee can be optional
+    function testWithOptionalFee() public {
+        address[] memory emptyAddresses = new address[](0);
+        uint8[] memory emptyTypes = new uint8[](0);
+        vm.prank(feeCollector);
+        factory.setDefaultFee(0);
+        vm.prank(user);
+        address jarAddress = factory.createCookieJar(
+            admin,
+            CookieJar.AccessType.Whitelist,
+            emptyAddresses,
+            emptyTypes,
+            CookieJar.WithdrawalTypeOptions.Fixed,
+            fixedAmount,
+            maxWithdrawal,
+            withdrawalInterval,
+            strictPurpose,
+            true, // emergencyWithdrawalEnabled
+            "Test Metadata"
+        );
+        string memory meta = factory.cookieJarMetadata(jarAddress);
+        assertEq(meta, "Test Metadata");
+
+        // Verify that the registry recorded the correct creator.
+        uint256 count = registry.getRegisteredCookieJarsCount();
+        (address recordedJar, address creator, , ) = registry
+            .registeredCookieJars(count - 1);
+        assertEq(recordedJar, jarAddress);
+        assertEq(creator, user);
+    }
+
     /// @notice Test that NFTGated mode must have at least one NFT address.
     function testCreateCookieJarNFTModeNoAddresses() public {
         address[] memory emptyAddresses = new address[](0);
         uint8[] memory emptyTypes = new uint8[](0);
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(CookieJar.NoNFTAddressesProvided.selector));
-        factory.createCookieJar{value:1 ether}(
+        vm.expectRevert(
+            abi.encodeWithSelector(CookieJar.NoNFTAddressesProvided.selector)
+        );
+        factory.createCookieJar{value: 1 ether}(
             admin,
             CookieJar.AccessType.NFTGated,
             emptyAddresses,
@@ -138,7 +208,9 @@ contract CookieJarFactoryTest is Test {
     function testUpdateDefaultFeeCollectorNotAuthorized() public {
         address newCollector = address(0x12345);
         vm.prank(address(0xABCD));
-        vm.expectRevert(abi.encodeWithSelector(CookieJarFactory.NotFeeCollector.selector));
+        vm.expectRevert(
+            abi.encodeWithSelector(CookieJarFactory.NotFeeCollector.selector)
+        );
         factory.updateDefaultFeeCollector(newCollector);
     }
 
@@ -147,8 +219,10 @@ contract CookieJarFactoryTest is Test {
         address[] memory emptyAddresses = new address[](0);
         uint8[] memory emptyTypes = new uint8[](0);
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(CookieJar.AdminCannotBeZeroAddress.selector));
-        factory.createCookieJar{value:1 ether}(
+        vm.expectRevert(
+            abi.encodeWithSelector(CookieJar.AdminCannotBeZeroAddress.selector)
+        );
+        factory.createCookieJar{value: 1 ether}(
             address(0),
             CookieJar.AccessType.Whitelist,
             emptyAddresses,
@@ -170,8 +244,10 @@ contract CookieJarFactoryTest is Test {
         uint8[] memory nftTypes = new uint8[](1);
         nftTypes[0] = 3; // invalid NFT type
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(CookieJar.InvalidNFTType.selector));
-        factory.createCookieJar{value:1 ether}(
+        vm.expectRevert(
+            abi.encodeWithSelector(CookieJar.InvalidNFTType.selector)
+        );
+        factory.createCookieJar{value: 1 ether}(
             admin,
             CookieJar.AccessType.NFTGated,
             nftAddresses,

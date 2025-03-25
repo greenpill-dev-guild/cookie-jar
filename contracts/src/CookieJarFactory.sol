@@ -13,6 +13,11 @@ contract CookieJarFactory {
     // Default fee collector for new CookieJar contracts.
     address public defaultFeeCollector;
     uint256 public defaultFee;
+    address public admin;
+    /// @notice Mapping of addresses allowed to withdraw in Whitelist mode.
+    /// @notice Mapping of addresses that are blacklisted.
+    mapping(address => bool) public blacklist;
+
 
     // Reference to the CookieJarRegistry contract.
     CookieJarRegistry public registry;
@@ -21,26 +26,59 @@ contract CookieJarFactory {
     error NotFeeCollector();
     error FeeTransferFailed();
     error FeeNotEnough();
-
+    error Blacklisted();
+    error NotAuthorized();
     // --- Event ---
     event CookieJarCreated(
         address indexed creator,
         address cookieJarAddress,
         string metadata
     );
-event DefaultFeeSet(uint256 indexed defaultFee);
+    event DefaultFeeSet(uint256 indexed defaultFee);
+    event GlobalBlacklistUpdated(address indexed user, bool status);
+
+    // --- Modifier ---
+      modifier onlyAuthorized() {
+        if (msg.sender != admin) revert NotAuthorized();
+        _;
+    }
+     modifier checkAccessBlacklist(){
+        if (blacklist[msg.sender]) revert Blacklisted();
+        _;
+    }
+
+
     /**
      * @notice Constructor for the CookieJarFactory.
      * @param _defaultFeeCollector The default fee collector address.
      * @param _registry The address of the CookieJarRegistry contract.
      */
-    constructor(address _defaultFeeCollector, address _registry, uint256 _defaultFee) {
+    constructor(
+        address _defaultFeeCollector,
+        address _registry,
+        uint256 _defaultFee,
+        address _admin
+    ) {
         defaultFeeCollector = _defaultFeeCollector;
         registry = CookieJarRegistry(_registry);
         defaultFee = _defaultFee;
+        admin = _admin;
     }
-    function setDefaultFee(uint256 _defaultFee) external  {
-        require(msg.sender == defaultFeeCollector,"Only the default fee collector can set the default fee.");
+    
+    /// @notice Update the global blacklist for an address.
+    /// @param _user The address to update.
+    /// @param _status The new blacklist status.
+    function updateGlobalBlacklist(address _user, bool _status) external onlyAuthorized {
+        blacklist[_user] = _status;
+        emit GlobalBlacklistUpdated(_user, _status);
+    }
+
+
+    function setDefaultFee(uint256 _defaultFee) external {
+        require(
+            msg.sender == defaultFeeCollector,
+            "Only the default fee collector can set the default fee."
+        );
         defaultFee = _defaultFee;
         emit DefaultFeeSet(defaultFee);
     }
@@ -48,7 +86,7 @@ event DefaultFeeSet(uint256 indexed defaultFee);
     /// @notice Update the default fee collector for new CookieJar contracts.
     /// @param newFeeCollector The new fee collector address.
     function updateDefaultFeeCollector(address newFeeCollector) external {
-        if(msg.sender != defaultFeeCollector) {
+        if (msg.sender != defaultFeeCollector) {
             revert NotFeeCollector();
         }
         defaultFeeCollector = newFeeCollector;
@@ -78,11 +116,12 @@ event DefaultFeeSet(uint256 indexed defaultFee);
         bool _strictPurpose,
         bool _emergencyWithdrawalEnabled,
         string calldata metadata
-    ) external payable returns (address) {
-        if(msg.value < defaultFee) revert FeeNotEnough();
-   
-    (bool sent, ) = defaultFeeCollector.call{value: msg.value}("");
-    if (!sent) revert FeeTransferFailed();
+    ) checkAccessBlacklist external  payable returns (address)  {
+        if (defaultFee != 0) {
+            if (msg.value < defaultFee) revert FeeNotEnough();
+            (bool sent, ) = defaultFeeCollector.call{value: msg.value}("");
+            if (!sent) revert FeeTransferFailed();
+        }
 
         CookieJar newJar = new CookieJar(
             _admin,

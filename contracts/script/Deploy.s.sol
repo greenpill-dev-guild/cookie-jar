@@ -65,7 +65,7 @@ contract DeployCookieJarFactory is Script {
         // Start broadcast for transaction
         vm.startBroadcast(deployerPrivateKey);
         CookieJarRegistry cookieJarRegistry = new CookieJarRegistry();
-        CookieJarFactory cookieJarFactory = new CookieJarFactory(defaultFeeCollector, address(cookieJarRegistry),1);
+        CookieJarFactory cookieJarFactory = new CookieJarFactory(defaultFeeCollector, address(cookieJarRegistry),1,msg.sender);
         cookieJarRegistry.setCookieJarFactory(address(cookieJarFactory));
         token = new DummyERC20();
         dummyERC721 = new DummyERC721();
