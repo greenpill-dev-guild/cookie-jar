@@ -85,6 +85,25 @@ contract CookieJarFactoryTest is Test {
         assertEq(recordedJar, jarAddress);
         assertEq(creator, user);
     }
+    function testWithoutFeeForCreatingCookieJar() public {
+        address[] memory emptyAddresses = new address[](0);
+        uint8[] memory emptyTypes = new uint8[](0);
+        vm.prank(user);
+        vm.expectRevert(abi.encodeWithSelector(CookieJarFactory.FeeNotEnough.selector));
+        factory.createCookieJar{value:0.5 ether}(
+            admin,
+            CookieJar.AccessType.NFTGated,
+            emptyAddresses,
+            emptyTypes,
+            CookieJar.WithdrawalTypeOptions.Fixed,
+            fixedAmount,
+            maxWithdrawal,
+            withdrawalInterval,
+            strictPurpose,
+            true, // emergencyWithdrawalEnabled
+            "NFT Mode Metadata"
+        );
+    }
 
     /// @notice Test that NFTGated mode must have at least one NFT address.
     function testCreateCookieJarNFTModeNoAddresses() public {
