@@ -38,7 +38,7 @@ contract DeployCookie is Script {
 
         // Deploy contracts
         CookieJarRegistry cookieJarRegistry = new CookieJarRegistry();
-        CookieJarFactory cookieJarFactory = new CookieJarFactory(defaultFeeCollector, address(cookieJarRegistry), 0, admin);
+        CookieJarFactory cookieJarFactory = new CookieJarFactory(defaultFeeCollector, address(cookieJarRegistry), admin);
         cookieJarRegistry.setCookieJarFactory(address(cookieJarFactory));
 
         // Deploy dummy tokens

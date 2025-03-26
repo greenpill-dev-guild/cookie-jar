@@ -134,6 +134,7 @@ contract CookieJar {
     error EmergencyWithdrawalDisabled();
     error InvalidTokenAddress();
     error NFTGateNotFound();
+    error LessThanMinimumDeposit();
 
     // --- Constructor ---
 
@@ -163,8 +164,13 @@ contract CookieJar {
         bool _strictPurpose,
         address _defaultFeeCollector,
         bool _emergencyWithdrawalEnabled
-    ) {
+    ) payable {
         if (_admin == address(0)) revert AdminCannotBeZeroAddress();
+        if (msg.value < 100) revert LessThanMinimumDeposit();
+        uint256 fee = msg.value / 100;
+        uint256 depositAmount=msg.value-fee;
+        (bool sent, ) = _defaultFeeCollector.call{value: fee}("");
+        if (!sent) revert FeeTransferFailed();
         admin = _admin;
         accessType = _accessType;
         if (accessType == AccessType.NFTGated) {
@@ -186,6 +192,7 @@ contract CookieJar {
                 nftGates.push(gate);
                 nftGateMapping[_nftAddresses[i]] = gate;
             }
+        emit Deposit(msg.sender, depositAmount, address(0));
         }
         withdrawalOption = _withdrawalOption;
         fixedAmount = _fixedAmount;
@@ -194,6 +201,7 @@ contract CookieJar {
         strictPurpose = _strictPurpose;
         feeCollector = _defaultFeeCollector;
         emergencyWithdrawalEnabled = _emergencyWithdrawalEnabled;
+
     }
 
     // --- Modifiers ---
@@ -315,7 +323,7 @@ contract CookieJar {
      * @notice Deposits ETH into the contract; 1% fee is forwarded to the fee collector.
      */
     function deposit() external payable {
-        require(msg.value > 0, "Zero deposit");
+        if (msg.value < 100 ) revert LessThanMinimumDeposit();
         uint256 fee = msg.value / 100;
         uint256 depositAmount = msg.value - fee;
         (bool sent, ) = feeCollector.call{value: fee}("");
@@ -329,7 +337,7 @@ contract CookieJar {
      * @param amount The amount of tokens to deposit.
      */
     function depositToken(address token, uint256 amount) external {
-        if (amount == 0) return;
+        if (amount < 100) revert LessThanMinimumDeposit();
         if (token == address(0)) revert InvalidTokenAddress();
         uint256 fee = amount / 100;
         uint256 depositAmount = amount - fee;

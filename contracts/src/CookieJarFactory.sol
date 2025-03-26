@@ -25,7 +25,7 @@ contract CookieJarFactory {
     // --- Custom Error ---
     error NotFeeCollector();
     error FeeTransferFailed();
-    error FeeNotEnough();
+    error LessThanMinimumDeposit();
     error Blacklisted();
     error NotAuthorized();
 
@@ -35,7 +35,6 @@ contract CookieJarFactory {
         address cookieJarAddress,
         string metadata
     );
-    event DefaultFeeSet(uint256 indexed defaultFee);
     event GlobalBlacklistUpdated(address indexed user, bool status);
     event AdminUpdated(address indexed previous, address indexed current);
 
@@ -58,12 +57,10 @@ contract CookieJarFactory {
     constructor(
         address _defaultFeeCollector,
         address _registry,
-        uint256 _defaultFee,
         address _admin
     ) {
         defaultFeeCollector = _defaultFeeCollector;
         registry = CookieJarRegistry(_registry);
-        defaultFee = _defaultFee;
         admin = _admin;
     }
     
@@ -80,24 +77,6 @@ contract CookieJarFactory {
         emit AdminUpdated(msg.sender, _admin);
     }
 
-
-    function setDefaultFee(uint256 _defaultFee) external {
-        require(
-            msg.sender == defaultFeeCollector,
-            "Only the default fee collector can set the default fee."
-        );
-        defaultFee = _defaultFee;
-        emit DefaultFeeSet(defaultFee);
-    }
-
-    /// @notice Update the default fee collector for new CookieJar contracts.
-    /// @param newFeeCollector The new fee collector address.
-    function updateDefaultFeeCollector(address newFeeCollector) external {
-        if (msg.sender != defaultFeeCollector) {
-            revert NotFeeCollector();
-        }
-        defaultFeeCollector = newFeeCollector;
-    }
 
     /// @notice Deploy a new CookieJar contract.
     /// @param _admin The admin address.
@@ -123,14 +102,9 @@ contract CookieJarFactory {
         bool _strictPurpose,
         bool _emergencyWithdrawalEnabled,
         string calldata metadata
-    ) onlyNotBlacklisted external  payable returns (address)  {
-        if (defaultFee != 0) {
-            if (msg.value < defaultFee) revert FeeNotEnough();
-            (bool sent, ) = defaultFeeCollector.call{value: msg.value}("");
-            if (!sent) revert FeeTransferFailed();
-        }
-
-        CookieJar newJar = new CookieJar(
+    ) onlyNotBlacklisted external payable returns (address)  {
+        if (msg.value < 100) revert LessThanMinimumDeposit();
+        CookieJar newJar = new CookieJar{value: msg.value}(
             _admin,
             _accessType,
             _nftAddresses,
@@ -143,7 +117,6 @@ contract CookieJarFactory {
             defaultFeeCollector,
             _emergencyWithdrawalEnabled
         );
-
         cookieJars.push(newJar);
         cookieJarMetadata[address(newJar)] = metadata;
         // Register the new CookieJar in the registry with msg.sender as the creator.

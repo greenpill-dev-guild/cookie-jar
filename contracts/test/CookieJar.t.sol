@@ -63,7 +63,7 @@ contract CookieJarTest is Test {
         // For Whitelist mode, NFT arrays are ignored.
         address[] memory emptyAddresses = new address[](0);
         uint8[] memory emptyTypes = new uint8[](0);
-        jarWhitelist = new CookieJar(
+        jarWhitelist = new CookieJar{value: 100 wei}(
             admin,
             CookieJar.AccessType.Whitelist,
             emptyAddresses,
@@ -82,7 +82,7 @@ contract CookieJarTest is Test {
         nftAddresses[0] = address(dummyERC721);
         uint8[] memory nftTypes = new uint8[](1);
         nftTypes[0] = uint8(CookieJar.NFTType.ERC721);
-        jarNFT = new CookieJar(
+        jarNFT = new CookieJar{value: 100 wei}(
             admin,
             CookieJar.AccessType.NFTGated,
             nftAddresses,
@@ -101,22 +101,25 @@ contract CookieJarTest is Test {
 
     // Test deposit ETH with fee deduction (1% fee)
     function testDepositETH() public {
-        uint256 depositValue = 1 ether;
+        uint256 depositValue = 100 wei;
         vm.deal(user, 10 ether);
         vm.prank(user);
         uint256 feeBalanceBefore = feeCollector.balance;
+        uint256 jarwhitebalanceinit=address(jarWhitelist).balance;
         jarWhitelist.deposit{value: depositValue}();
         // Contract receives deposit minus fee
-        assertEq(address(jarWhitelist).balance, depositValue - (depositValue / 100));
+        assertEq(address(jarWhitelist).balance,jarwhitebalanceinit+ depositValue - 1,"error in contract recieving money");
         // Fee collector gets fee
-        assertEq(feeCollector.balance, feeBalanceBefore + depositValue / 100);
+        assertEq(feeCollector.balance, feeBalanceBefore + 1 ,"error in fee collector getting fee");
     }
 
     // Zero-value ETH deposit should do nothing.
     function testDepositETHZero() public {
         vm.prank(user);
-        jarWhitelist.deposit{value: 0}();
-        assertEq(address(jarWhitelist).balance, 0);
+        vm.deal(user, 10 ether);
+
+    vm.expectRevert(abi.encodeWithSelector(CookieJar.LessThanMinimumDeposit.selector));
+        jarWhitelist.deposit{value: 99 wei}();
     }
 
     // Test deposit token using DummyERC20 (fee deducted as 1%)
@@ -199,20 +202,29 @@ contract CookieJarTest is Test {
         vm.expectRevert(abi.encodeWithSelector(CookieJar.MaxNFTGatesReached.selector));
         jarNFT.addNFTGate(address(5), uint8(CookieJar.NFTType.ERC1155));
     }
-        function testRemovingNFT() public {
-             // In jarNFT (NFT mode) add a new NFT gate using dummyERC1155.
-        vm.prank(admin);
-        jarNFT.addNFTGate(address(1), uint8(CookieJar.NFTType.ERC1155));
-        // Add additional NFT gates to reach the limit.
-        jarNFT.addNFTGate(address(2), uint8(CookieJar.NFTType.ERC1155));
-        jarNFT.addNFTGate(address(3), uint8(CookieJar.NFTType.ERC1155));
-        jarNFT.addNFTGate(address(4), uint8(CookieJar.NFTType.ERC1155));
-        jarNFT.removeNFTGate(address(2));
-        vm.expectRevert(abi.encodeWithSelector(CookieJar.NFTGateNotFound.selector));
-         jarNFT.removeNFTGate(address(2)); // This would be the 6th gate so it must revert.
+     function testRemovingNFT() public {
+    // Ensure first gate addition is by admin
+    vm.prank(admin);
+    jarNFT.addNFTGate(address(1), uint8(CookieJar.NFTType.ERC1155));
 
-        // This would be the 6th gate so it must revert.
-        }
+    // Potential issue: this subsequent call might not have admin context
+    // Either prank again or ensure this is called within admin context
+    vm.prank(admin);  // Add this line to ensure admin context
+    jarNFT.addNFTGate(address(2), uint8(CookieJar.NFTType.ERC1155));
+
+    vm.prank(admin);
+    jarNFT.addNFTGate(address(3), uint8(CookieJar.NFTType.ERC1155));
+
+    vm.prank(admin);
+    jarNFT.addNFTGate(address(4), uint8(CookieJar.NFTType.ERC1155));
+
+    vm.prank(admin);
+    jarNFT.removeNFTGate(address(2));
+
+    vm.prank(admin);
+    vm.expectRevert(abi.encodeWithSelector(CookieJar.NFTGateNotFound.selector));
+    jarNFT.removeNFTGate(address(2)); // This should revert
+}
 
 
     // ===== Constructor Edge Cases =====
@@ -225,7 +237,7 @@ contract CookieJarTest is Test {
         nftTypes[0] = uint8(CookieJar.NFTType.ERC721);
         nftTypes[1] = uint8(CookieJar.NFTType.ERC1155);
         vm.expectRevert(abi.encodeWithSelector(CookieJar.NFTArrayLengthMismatch.selector));
-        new CookieJar(
+        new CookieJar{value:100 wei}(
             admin,
             CookieJar.AccessType.NFTGated,
             nftAddresses,
@@ -249,7 +261,7 @@ contract CookieJarTest is Test {
             nftTypes[i] = uint8(CookieJar.NFTType.ERC721);
         }
         vm.expectRevert(abi.encodeWithSelector(CookieJar.MaxNFTGatesReached.selector));
-        new CookieJar(
+        new CookieJar{value: 100 wei}(
             admin,
             CookieJar.AccessType.NFTGated,
             nftAddresses,
@@ -271,7 +283,7 @@ contract CookieJarTest is Test {
         uint8[] memory nftTypes = new uint8[](1);
         nftTypes[0] = uint8(CookieJar.NFTType.ERC721);
         vm.expectRevert(abi.encodeWithSelector(CookieJar.InvalidNFTGate.selector));
-        new CookieJar(
+        new CookieJar{value: 100 wei}(
             admin,
             CookieJar.AccessType.NFTGated,
             nftAddresses,
@@ -293,7 +305,7 @@ contract CookieJarTest is Test {
         address[] memory emptyAddresses = new address[](0);
         uint8[] memory emptyTypes = new uint8[](0);
         vm.expectRevert(abi.encodeWithSelector(CookieJar.AdminCannotBeZeroAddress.selector));
-        new CookieJar(
+        new CookieJar{value: 100 wei}(
             address(0),
             CookieJar.AccessType.Whitelist,
             emptyAddresses,
@@ -315,7 +327,7 @@ contract CookieJarTest is Test {
         uint8[] memory nftTypes = new uint8[](1);
         nftTypes[0] = 3; // Invalid NFT type
         vm.expectRevert(abi.encodeWithSelector(CookieJar.InvalidNFTType.selector));
-        new CookieJar(
+        new CookieJar{value: 100 wei}(
             admin,
             CookieJar.AccessType.NFTGated,
             nftAddresses,
@@ -722,7 +734,7 @@ contract CookieJarTest is Test {
         nftTypes[0] = uint8(CookieJar.NFTType.ERC721);
         nftTypes[1] = uint8(CookieJar.NFTType.ERC721);
         vm.expectRevert(abi.encodeWithSelector(CookieJar.DuplicateNFTGate.selector));
-        new CookieJar(
+        new CookieJar{value: 100 ether}(
             admin,
             CookieJar.AccessType.NFTGated,
             nftAddresses,
@@ -769,7 +781,7 @@ contract CookieJarTest is Test {
         // Create a jar with emergency withdrawal disabled.
         address[] memory emptyAddresses = new address[](0);
         uint8[] memory emptyTypes = new uint8[](0);
-        CookieJar jarDisabled = new CookieJar(
+        CookieJar jarDisabled = new CookieJar{value: 100 wei}(
             admin,
             CookieJar.AccessType.Whitelist,
             emptyAddresses,
