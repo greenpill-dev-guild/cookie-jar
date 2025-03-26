@@ -28,6 +28,7 @@ contract CookieJarFactory {
     error FeeNotEnough();
     error Blacklisted();
     error NotAuthorized();
+
     // --- Event ---
     event CookieJarCreated(
         address indexed creator,
@@ -36,13 +37,14 @@ contract CookieJarFactory {
     );
     event DefaultFeeSet(uint256 indexed defaultFee);
     event GlobalBlacklistUpdated(address indexed user, bool status);
+    event AdminUpdated(address indexed previous, address indexed current);
 
     // --- Modifier ---
       modifier onlyAuthorized() {
         if (msg.sender != admin) revert NotAuthorized();
         _;
     }
-     modifier checkAccessBlacklist(){
+     modifier onlyNotBlacklisted(){
         if (blacklist[msg.sender]) revert Blacklisted();
         _;
     }
@@ -71,6 +73,11 @@ contract CookieJarFactory {
     function updateGlobalBlacklist(address _user, bool _status) external onlyAuthorized {
         blacklist[_user] = _status;
         emit GlobalBlacklistUpdated(_user, _status);
+    }
+    function updateAdmin(address _admin) external onlyAuthorized {
+        require(_admin != address(0), "Admin cannot be the zero address");
+        admin = _admin;
+        emit AdminUpdated(msg.sender, _admin);
     }
 
 
@@ -116,7 +123,7 @@ contract CookieJarFactory {
         bool _strictPurpose,
         bool _emergencyWithdrawalEnabled,
         string calldata metadata
-    ) checkAccessBlacklist external  payable returns (address)  {
+    ) onlyNotBlacklisted external  payable returns (address)  {
         if (defaultFee != 0) {
             if (msg.value < defaultFee) revert FeeNotEnough();
             (bool sent, ) = defaultFeeCollector.call{value: msg.value}("");
@@ -144,4 +151,5 @@ contract CookieJarFactory {
         emit CookieJarCreated(msg.sender, address(newJar), metadata);
         return address(newJar);
     }
+
 }

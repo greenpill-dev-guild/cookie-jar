@@ -199,6 +199,21 @@ contract CookieJarTest is Test {
         vm.expectRevert(abi.encodeWithSelector(CookieJar.MaxNFTGatesReached.selector));
         jarNFT.addNFTGate(address(5), uint8(CookieJar.NFTType.ERC1155));
     }
+        function testRemovingNFT() public {
+             // In jarNFT (NFT mode) add a new NFT gate using dummyERC1155.
+        vm.prank(admin);
+        jarNFT.addNFTGate(address(1), uint8(CookieJar.NFTType.ERC1155));
+        // Add additional NFT gates to reach the limit.
+        jarNFT.addNFTGate(address(2), uint8(CookieJar.NFTType.ERC1155));
+        jarNFT.addNFTGate(address(3), uint8(CookieJar.NFTType.ERC1155));
+        jarNFT.addNFTGate(address(4), uint8(CookieJar.NFTType.ERC1155));
+        jarNFT.removeNFTGate(address(2));
+        vm.expectRevert(abi.encodeWithSelector(CookieJar.NFTGateNotFound.selector));
+         jarNFT.removeNFTGate(address(2)); // This would be the 6th gate so it must revert.
+
+        // This would be the 6th gate so it must revert.
+        }
+
 
     // ===== Constructor Edge Cases =====
 

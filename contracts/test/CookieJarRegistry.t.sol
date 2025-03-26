@@ -60,3 +60,10 @@ contract CookieJarRegistryTest is Test {
         registry.registerCookieJar(address(0xABCD), attacker, "Test Metadata");
     }
 }
+
+// 2. Security concerns:
+// - The `cookieJarFactory` address is set only once, but there is no check to ensure that it is a trusted factory address.
+// - The `updateGlobalWhitelist` and `updateGlobalBlacklist` functions allow anyone to update the global whitelist and blacklist mappings. Consider adding access control checks to restrict these functions to authorized addresses.
+// - In the `registerCookieJar` function, there is no validation or security checks for the provided `_jarAddress` and `_creator` variables. Consider adding checks to ensure these addresses are valid and authorized.
+// - The `registeredCookieJars` array is publicly accessible and can be read by anyone. Consider adding access control checks or a getter function with proper access control to protect the privacy of the registered CookieJar instances.
+// - Consider adding input validation and error handling to prevent potential issues caused by invalid inputs or malicious actions.

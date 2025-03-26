@@ -16,11 +16,21 @@ contract CookieJar {
 
     // --- Enums ---
     /// @notice The mode for access control.
-    enum AccessType { Whitelist, NFTGated }
+    enum AccessType {
+        Whitelist,
+        NFTGated
+    }
     /// @notice Specifies the withdrawal type.
-    enum WithdrawalTypeOptions { Fixed, Variable }
+    enum WithdrawalTypeOptions {
+        Fixed,
+        Variable
+    }
     /// @notice Supported NFT types for gating.
-    enum NFTType { ERC721, ERC1155, Soulbound }
+    enum NFTType {
+        ERC721,
+        ERC1155,
+        Soulbound
+    }
 
     // --- Constants ---
     uint256 private constant MAX_NFT_GATES = 5;
@@ -29,7 +39,7 @@ contract CookieJar {
     /// @notice Represents an NFT gate with a contract address and its NFT type.
     struct NFTGate {
         address nftAddress; // Address of the NFT contract.
-        NFTType nftType;    // NFT type: ERC721, ERC1155, or Soulbound.
+        NFTType nftType; // NFT type: ERC721, ERC1155, or Soulbound.
     }
 
     // --- Storage for NFT gates ---
@@ -74,17 +84,31 @@ contract CookieJar {
     /// @notice Emitted when a deposit is made.
     event Deposit(address indexed sender, uint256 amount, address token);
     /// @notice Emitted when a withdrawal occurs.
-    event Withdrawal(address indexed recipient, uint256 amount, string purpose, address token);
+    event Withdrawal(
+        address indexed recipient,
+        uint256 amount,
+        string purpose,
+        address token
+    );
     /// @notice Emitted when a whitelist entry is updated.
     event WhitelistUpdated(address indexed user, bool status);
     /// @notice Emitted when a blacklist entry is updated.
     event BlacklistUpdated(address indexed user, bool status);
     /// @notice Emitted when the fee collector address is updated.
-    event FeeCollectorUpdated(address indexed oldFeeCollector, address indexed newFeeCollector);
+    event FeeCollectorUpdated(
+        address indexed oldFeeCollector,
+        address indexed newFeeCollector
+    );
     /// @notice Emitted when an NFT gate is added.
     event NFTGateAdded(address nftAddress, uint8 nftType);
     /// @notice Emitted when an emergency withdrawal is executed.
-    event EmergencyWithdrawal(address indexed admin, address token, uint256 amount);
+    event EmergencyWithdrawal(
+        address indexed admin,
+        address token,
+        uint256 amount
+    );
+    /// @notice Emitted when an NFT gate is removed.
+    event NFTGateRemoved(address nftAddress);
     /// @notice Emitted when admin rights are transferred.
     event AdminUpdated(address indexed oldAdmin, address indexed newAdmin);
 
@@ -109,6 +133,7 @@ contract CookieJar {
     error AdminCannotBeZeroAddress();
     error EmergencyWithdrawalDisabled();
     error InvalidTokenAddress();
+    error NFTGateNotFound();
 
     // --- Constructor ---
 
@@ -144,13 +169,16 @@ contract CookieJar {
         accessType = _accessType;
         if (accessType == AccessType.NFTGated) {
             if (_nftAddresses.length == 0) revert NoNFTAddressesProvided();
-            if (_nftAddresses.length != _nftTypes.length) revert NFTArrayLengthMismatch();
-            if (_nftAddresses.length > MAX_NFT_GATES) revert MaxNFTGatesReached();
+            if (_nftAddresses.length != _nftTypes.length)
+                revert NFTArrayLengthMismatch();
+            if (_nftAddresses.length > MAX_NFT_GATES)
+                revert MaxNFTGatesReached();
             // Add NFT gates using mapping for duplicate checks.
             for (uint256 i = 0; i < _nftAddresses.length; i++) {
                 if (_nftTypes[i] > 2) revert InvalidNFTType();
                 if (_nftAddresses[i] == address(0)) revert InvalidNFTGate();
-                if (nftGateMapping[_nftAddresses[i]].nftAddress != address(0)) revert DuplicateNFTGate();
+                if (nftGateMapping[_nftAddresses[i]].nftAddress != address(0))
+                    revert DuplicateNFTGate();
                 NFTGate memory gate = NFTGate({
                     nftAddress: _nftAddresses[i],
                     nftType: NFTType(_nftTypes[i])
@@ -217,12 +245,16 @@ contract CookieJar {
      * @param _nftAddress The NFT contract address.
      * @param _nftType The NFT type.
      */
-    function addNFTGate(address _nftAddress, uint8 _nftType) external onlyAdmin {
+    function addNFTGate(
+        address _nftAddress,
+        uint8 _nftType
+    ) external onlyAdmin {
         if (accessType != AccessType.NFTGated) revert InvalidAccessType();
         if (nftGates.length >= MAX_NFT_GATES) revert MaxNFTGatesReached();
         if (_nftAddress == address(0)) revert InvalidNFTGate();
         if (_nftType > 2) revert InvalidNFTType();
-        if (nftGateMapping[_nftAddress].nftAddress != address(0)) revert DuplicateNFTGate();
+        if (nftGateMapping[_nftAddress].nftAddress != address(0))
+            revert DuplicateNFTGate();
         NFTGate memory gate = NFTGate({
             nftAddress: _nftAddress,
             nftType: NFTType(_nftType)
@@ -230,6 +262,40 @@ contract CookieJar {
         nftGates.push(gate);
         nftGateMapping[_nftAddress] = gate;
         emit NFTGateAdded(_nftAddress, _nftType);
+    }
+
+    /**
+     * @notice Removes an NFT gate.
+     * @param _nftAddress The NFT contract address.
+     */
+    function removeNFTGate(address _nftAddress) external onlyAdmin {
+        // Check if the access type is NFT gated
+        if (accessType != AccessType.NFTGated) revert InvalidAccessType();
+
+        // Find the index of the NFT gate to remove
+        uint256 gateIndex = type(uint256).max;
+        for (uint256 i = 0; i < nftGates.length; i++) {
+            if (nftGates[i].nftAddress == _nftAddress) {
+                gateIndex = i;
+                break;
+            }
+        }
+
+        // Revert if the NFT gate was not found
+        if (gateIndex == type(uint256).max) revert NFTGateNotFound();
+
+        // Remove the NFT gate from the mapping
+        delete nftGateMapping[_nftAddress];
+
+        // If the gate to remove is not the last element,
+        // replace it with the last element and then pop
+        if (gateIndex < nftGates.length - 1) {
+            nftGates[gateIndex] = nftGates[nftGates.length - 1];
+        }
+        nftGates.pop();
+
+        // Emit an event for the removal
+        emit NFTGateRemoved(_nftAddress);
     }
 
     /**
@@ -249,7 +315,7 @@ contract CookieJar {
      * @notice Deposits ETH into the contract; 1% fee is forwarded to the fee collector.
      */
     function deposit() external payable {
-        if (msg.value == 0) return;
+        require(msg.value > 0, "Zero deposit");
         uint256 fee = msg.value / 100;
         uint256 depositAmount = msg.value - fee;
         (bool sent, ) = feeCollector.call{value: fee}("");
@@ -268,7 +334,11 @@ contract CookieJar {
         uint256 fee = amount / 100;
         uint256 depositAmount = amount - fee;
         IERC20(token).safeTransferFrom(msg.sender, feeCollector, fee);
-        IERC20(token).safeTransferFrom(msg.sender, address(this), depositAmount);
+        IERC20(token).safeTransferFrom(
+            msg.sender,
+            address(this),
+            depositAmount
+        );
         emit Deposit(msg.sender, depositAmount, token);
     }
 
@@ -289,14 +359,21 @@ contract CookieJar {
      * @param tokenId The NFT token id.
      * @return gate The NFTGate struct corresponding to the provided gate.
      */
-    function _checkAccessNFT(address gateAddress, uint256 tokenId) internal view returns (NFTGate memory gate) {
+    function _checkAccessNFT(
+        address gateAddress,
+        uint256 tokenId
+    ) internal view returns (NFTGate memory gate) {
         if (blacklist[msg.sender]) revert Blacklisted();
         gate = nftGateMapping[gateAddress];
         if (gate.nftAddress == address(0)) revert InvalidNFTGate();
-        if (gate.nftType == NFTType.ERC721 || gate.nftType == NFTType.Soulbound) {
-            if (IERC721(gate.nftAddress).ownerOf(tokenId) != msg.sender) revert NotAuthorized();
+        if (
+            gate.nftType == NFTType.ERC721 || gate.nftType == NFTType.Soulbound
+        ) {
+            if (IERC721(gate.nftAddress).ownerOf(tokenId) != msg.sender)
+                revert NotAuthorized();
         } else if (gate.nftType == NFTType.ERC1155) {
-            if (IERC1155(gate.nftAddress).balanceOf(msg.sender, tokenId) == 0) revert NotAuthorized();
+            if (IERC1155(gate.nftAddress).balanceOf(msg.sender, tokenId) == 0)
+                revert NotAuthorized();
         }
     }
 
@@ -316,16 +393,21 @@ contract CookieJar {
         if (amount == 0) revert ZeroWithdrawal();
         if (accessType != AccessType.Whitelist) revert InvalidAccessType();
         _checkAccessWhitelist(msg.sender);
-        if (strictPurpose && bytes(purpose).length < 20) revert InvalidPurpose();
+        if (strictPurpose && bytes(purpose).length < 20)
+            revert InvalidPurpose();
 
-        uint256 nextAllowed = lastWithdrawalWhitelist[msg.sender] + withdrawalInterval;
-        if (block.timestamp < nextAllowed) revert WithdrawalTooSoon(nextAllowed);
+        uint256 nextAllowed = lastWithdrawalWhitelist[msg.sender] +
+            withdrawalInterval;
+        if (block.timestamp < nextAllowed)
+            revert WithdrawalTooSoon(nextAllowed);
         lastWithdrawalWhitelist[msg.sender] = block.timestamp;
 
         if (withdrawalOption == WithdrawalTypeOptions.Fixed) {
-            if (amount != fixedAmount) revert WithdrawalAmountNotAllowed(amount, fixedAmount);
+            if (amount != fixedAmount)
+                revert WithdrawalAmountNotAllowed(amount, fixedAmount);
         } else {
-            if (amount > maxWithdrawal) revert WithdrawalAmountNotAllowed(amount, maxWithdrawal);
+            if (amount > maxWithdrawal)
+                revert WithdrawalAmountNotAllowed(amount, maxWithdrawal);
         }
 
         if (token == address(0)) {
@@ -360,17 +442,21 @@ contract CookieJar {
         if (accessType != AccessType.NFTGated) revert InvalidAccessType();
         if (gateAddress == address(0)) revert InvalidNFTGate();
         _checkAccessNFT(gateAddress, tokenId);
-        if (strictPurpose && bytes(purpose).length < 20) revert InvalidPurpose();
+        if (strictPurpose && bytes(purpose).length < 20)
+            revert InvalidPurpose();
 
         bytes32 key = keccak256(abi.encodePacked(gateAddress, tokenId));
         uint256 nextAllowed = lastWithdrawalNFT[key] + withdrawalInterval;
-        if (block.timestamp < nextAllowed) revert WithdrawalTooSoon(nextAllowed);
+        if (block.timestamp < nextAllowed)
+            revert WithdrawalTooSoon(nextAllowed);
         lastWithdrawalNFT[key] = block.timestamp;
 
         if (withdrawalOption == WithdrawalTypeOptions.Fixed) {
-            if (amount != fixedAmount) revert WithdrawalAmountNotAllowed(amount, fixedAmount);
+            if (amount != fixedAmount)
+                revert WithdrawalAmountNotAllowed(amount, fixedAmount);
         } else {
-            if (amount > maxWithdrawal) revert WithdrawalAmountNotAllowed(amount, maxWithdrawal);
+            if (amount > maxWithdrawal)
+                revert WithdrawalAmountNotAllowed(amount, maxWithdrawal);
         }
 
         if (token == address(0)) {
@@ -391,7 +477,10 @@ contract CookieJar {
      * @param token If zero address then ETH is withdrawn; otherwise, ERC20 token address.
      * @param amount The amount to withdraw.
      */
-    function emergencyWithdraw(address token, uint256 amount) external onlyAdmin {
+    function emergencyWithdraw(
+        address token,
+        uint256 amount
+    ) external onlyAdmin {
         if (!emergencyWithdrawalEnabled) revert EmergencyWithdrawalDisabled();
         if (amount == 0) revert ZeroWithdrawal();
         if (token == address(0)) {

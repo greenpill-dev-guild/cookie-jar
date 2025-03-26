@@ -64,3 +64,25 @@ $ forge --help
 $ anvil --help
 $ cast --help
 ```
+
+
+
+### .env
+PRIVATE_KEY=
+SEPOLIA_URL=
+SEPOLIA_ETHERSCAN_KEY=
+
+
+
+### To Deploy and verify 
+source .env
+forge script script/Deploy.s.sol:DeployCookie \
+  --via-ir \
+  --rpc-url $SEPOLIA_URL \
+  --broadcast \
+  --verify \
+  --etherscan-api-key $SEPOLIA_ETHERSCAN_KEY \
+  --verifier-url https://api-sepolia.etherscan.io/api \
+  -vvvv
+
+
