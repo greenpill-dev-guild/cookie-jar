@@ -91,9 +91,9 @@ contract CookieJar {
         address token
     );
     /// @notice Emitted when a whitelist entry is updated.
-    event WhitelistUpdated(address indexed user, bool status);
+event WhitelistUpdated(address[] users, bool[] statuses);
     /// @notice Emitted when a blacklist entry is updated.
-    event BlacklistUpdated(address indexed user, bool status);
+event BlacklistUpdated(address[] users, bool[] statuses);
     /// @notice Emitted when the fee collector address is updated.
     event FeeCollectorUpdated(
         address indexed oldFeeCollector,
@@ -135,6 +135,7 @@ contract CookieJar {
     error InvalidTokenAddress();
     error NFTGateNotFound();
     error LessThanMinimumDeposit();
+    error MismatchedArrayLengths();
 
     // --- Constructor ---
 
@@ -218,24 +219,37 @@ contract CookieJar {
 
     /**
      * @notice Updates the whitelist status of a user.
-     * @param _user The address of the user.
-     * @param _status The new whitelist status.
+     * @param _users The address of the user.
+     * @param _statuses The new whitelist status.
      */
-    function updateWhitelist(address _user, bool _status) external onlyAdmin {
-        if (accessType != AccessType.Whitelist) revert InvalidAccessType();
-        whitelist[_user] = _status;
-        emit WhitelistUpdated(_user, _status);
+ function updateWhitelist(address[] calldata _users, bool[] calldata _statuses) external onlyAdmin {
+    if (accessType != AccessType.Whitelist) revert InvalidAccessType();
+    if (_users.length != _statuses.length) revert MismatchedArrayLengths();
+
+    for (uint256 i = 0; i < _users.length; i++) {
+        whitelist[_users[i]] = _statuses[i];
     }
+
+    // Emit the event after updating all addresses
+    emit WhitelistUpdated(_users, _statuses);
+}
 
     /**
      * @notice Updates the blacklist status of a user.
-     * @param _user The address of the user.
-     * @param _status The new blacklist status.
+     * @param _users The address of the user.
+     * @param _statuses The new blacklist status.
      */
-    function updateBlacklist(address _user, bool _status) external onlyAdmin {
-        blacklist[_user] = _status;
-        emit BlacklistUpdated(_user, _status);
+
+function updateBlacklist(address[] calldata _users, bool[] calldata _statuses) external onlyAdmin {
+    if (_users.length != _statuses.length) revert MismatchedArrayLengths();
+
+    for (uint256 i = 0; i < _users.length; i++) {
+        blacklist[_users[i]] = _statuses[i];
     }
+
+    // Emit the event after updating all addresses
+    emit BlacklistUpdated(_users, _statuses);
+}
 
     /**
      * @notice Updates the fee collector address.

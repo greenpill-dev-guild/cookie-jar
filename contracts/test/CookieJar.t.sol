@@ -43,6 +43,7 @@ contract CookieJarTest is Test {
     address public admin = address(0xABCD);
     address public feeCollector = address(0xFEED);
     address public user = address(0xBEEF);
+    address public user2 = address(0xC0DE);
     address public attacker = address(0xBAD);
     uint256 public withdrawalInterval = 1 days;
     uint256 public fixedAmount = 1 ether;
@@ -52,12 +53,21 @@ contract CookieJarTest is Test {
     DummyERC20 public token;
     DummyERC721 public dummyERC721;
     DummyERC1155 public dummyERC1155;
+     address[] public users;
+    bool[] public statuses;
 
     function setUp() public {
         // Deploy dummy tokens
         token = new DummyERC20();
         dummyERC721 = new DummyERC721();
         dummyERC1155 = new DummyERC1155();
+        users = new address[](2);
+        users[0] = user;
+        users[1]=user2;
+        
+        statuses = new bool[](2);
+        statuses[0] = true;
+        statuses[1]=true;
 
         // --- Create a CookieJar in Whitelist mode ---
         // For Whitelist mode, NFT arrays are ignored.
@@ -142,7 +152,7 @@ contract CookieJarTest is Test {
     // updateWhitelist (only admin, in Whitelist mode)
     function testUpdateWhitelist() public {
         vm.prank(admin);
-        jarWhitelist.updateWhitelist(user, true);
+        jarWhitelist.updateWhitelist(users, statuses);
         bool allowed = jarWhitelist.whitelist(user);
         assertTrue(allowed);
     }
@@ -151,20 +161,20 @@ contract CookieJarTest is Test {
     function testUpdateWhitelistNonAdmin() public {
         vm.prank(attacker);
         vm.expectRevert(abi.encodeWithSelector(CookieJar.NotAdmin.selector));
-        jarWhitelist.updateWhitelist(user, true);
+        jarWhitelist.updateWhitelist(users, statuses);
     }
 
     // In NFT mode, updateWhitelist should revert (invalid access type).
     function testUpdateWhitelistNFTMode() public {
         vm.prank(admin);
         vm.expectRevert(abi.encodeWithSelector(CookieJar.InvalidAccessType.selector));
-        jarNFT.updateWhitelist(user, true);
+        jarNFT.updateWhitelist(users, statuses);
     }
 
     // updateBlacklist (only admin)
     function testUpdateBlacklist() public {
         vm.prank(admin);
-        jarWhitelist.updateBlacklist(user, true);
+        jarWhitelist.updateBlacklist(users, statuses);
         bool isBlacklisted = jarWhitelist.blacklist(user);
         assertTrue(isBlacklisted);
     }
@@ -383,7 +393,7 @@ contract CookieJarTest is Test {
     function testWithdrawWhitelistETHFixed() public {
         vm.deal(address(jarWhitelist), 10 ether);
         vm.prank(admin);
-        jarWhitelist.updateWhitelist(user, true);
+        jarWhitelist.updateWhitelist(users, statuses);
         vm.warp(block.timestamp + withdrawalInterval + 1);
         string memory purpose = "Withdrawal for a legitimate purpose!";
         vm.prank(user);
@@ -405,9 +415,9 @@ contract CookieJarTest is Test {
     function testWithdrawWhitelistBlacklisted() public {
         vm.deal(address(jarWhitelist), 10 ether);
         vm.prank(admin);
-        jarWhitelist.updateWhitelist(user, true);
+        jarWhitelist.updateWhitelist(users, statuses);
         vm.prank(admin);
-        jarWhitelist.updateBlacklist(user, true);
+        jarWhitelist.updateBlacklist(users, statuses);
         vm.warp(block.timestamp + withdrawalInterval + 1);
         string memory purpose = "Valid purpose description exceeding 20.";
         vm.prank(user);
@@ -419,7 +429,7 @@ contract CookieJarTest is Test {
     function testWithdrawWhitelistShortPurpose() public {
         vm.deal(address(jarWhitelist), 10 ether);
         vm.prank(admin);
-        jarWhitelist.updateWhitelist(user, true);
+        jarWhitelist.updateWhitelist(users, statuses);
         vm.warp(block.timestamp + withdrawalInterval + 1);
         string memory shortPurpose = "Too short";
         vm.prank(user);
@@ -431,7 +441,7 @@ contract CookieJarTest is Test {
     function testWithdrawWhitelistTooSoon() public {
         vm.deal(address(jarWhitelist), 10 ether);
         vm.prank(admin);
-        jarWhitelist.updateWhitelist(user, true);
+        jarWhitelist.updateWhitelist(users, statuses);
         string memory purpose = "Valid purpose description exceeding 20.";
         vm.prank(user);
         vm.warp(block.timestamp + withdrawalInterval + 1);
@@ -447,7 +457,7 @@ contract CookieJarTest is Test {
     function testWithdrawWhitelistWrongAmountFixed() public {
         vm.deal(address(jarWhitelist), 10 ether);
         vm.prank(admin);
-        jarWhitelist.updateWhitelist(user, true);
+        jarWhitelist.updateWhitelist(users, statuses);
         vm.warp(block.timestamp + withdrawalInterval + 1);
         string memory purpose = "Valid purpose description exceeding 20.";
         uint256 wrongAmount = fixedAmount + 1;
@@ -460,7 +470,7 @@ contract CookieJarTest is Test {
     function testWithdrawWhitelistInsufficientBalance() public {
         vm.deal(address(jarWhitelist), fixedAmount - 0.1 ether);
         vm.prank(admin);
-        jarWhitelist.updateWhitelist(user, true);
+        jarWhitelist.updateWhitelist(users, statuses);
         vm.warp(block.timestamp + withdrawalInterval + 1);
         string memory purpose = "Valid purpose description exceeding 20.";
         vm.prank(user);
@@ -473,7 +483,7 @@ contract CookieJarTest is Test {
         uint256 tokenFund = fixedAmount - 100;
         token.mint(address(jarWhitelist), tokenFund);
         vm.prank(admin);
-        jarWhitelist.updateWhitelist(user, true);
+        jarWhitelist.updateWhitelist(users, statuses);
         vm.warp(block.timestamp + withdrawalInterval + 1);
         string memory purpose = "Valid purpose description exceeding 20.";
         vm.prank(user);
@@ -486,7 +496,7 @@ contract CookieJarTest is Test {
         uint256 tokenAmount = 1000 * 1e18;
         token.mint(address(jarWhitelist), tokenAmount);
         vm.prank(admin);
-        jarWhitelist.updateWhitelist(user, true);
+        jarWhitelist.updateWhitelist(users, statuses);
         vm.warp(block.timestamp + withdrawalInterval + 1);
         string memory purpose = "Valid purpose description exceeding 20.";
         vm.prank(user);
@@ -500,7 +510,7 @@ contract CookieJarTest is Test {
     function testWithdrawWhitelistZeroAmountETH() public {
         vm.deal(address(jarWhitelist), 10 ether);
         vm.prank(admin);
-        jarWhitelist.updateWhitelist(user, true);
+        jarWhitelist.updateWhitelist(users, statuses);
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJar.ZeroWithdrawal.selector));
@@ -512,7 +522,7 @@ contract CookieJarTest is Test {
         uint256 tokenAmount = 1000 * 1e18;
         token.mint(address(jarWhitelist), tokenAmount);
         vm.prank(admin);
-        jarWhitelist.updateWhitelist(user, true);
+        jarWhitelist.updateWhitelist(users, statuses);
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJar.ZeroWithdrawal.selector));

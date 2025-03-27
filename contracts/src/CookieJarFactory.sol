@@ -28,6 +28,7 @@ contract CookieJarFactory {
     error LessThanMinimumDeposit();
     error Blacklisted();
     error NotAuthorized();
+    error MismatchedArrayLengths();
 
     // --- Event ---
     event CookieJarCreated(
@@ -35,7 +36,7 @@ contract CookieJarFactory {
         address cookieJarAddress,
         string metadata
     );
-    event GlobalBlacklistUpdated(address indexed user, bool status);
+    event GlobalBlacklistUpdated(address[] users, bool[] statuses);
     event AdminUpdated(address indexed previous, address indexed current);
 
     // --- Modifier ---
@@ -65,11 +66,16 @@ contract CookieJarFactory {
     }
     
     /// @notice Update the global blacklist for an address.
-    /// @param _user The address to update.
-    /// @param _status The new blacklist status.
-    function updateGlobalBlacklist(address _user, bool _status) external onlyAuthorized {
-        blacklist[_user] = _status;
-        emit GlobalBlacklistUpdated(_user, _status);
+    /// @param _users The address to update.
+    /// @param _statuses The new blacklist status.
+    function updateGlobalBlacklist(address[] calldata _users, bool[] calldata _statuses) external onlyAuthorized {
+        if (_users.length != _statuses.length) revert MismatchedArrayLengths();
+
+    for (uint256 i = 0; i < _users.length; i++) {
+        blacklist[_users[i]] = _statuses[i];
+    }
+
+        emit GlobalBlacklistUpdated(_users, _statuses);
     }
     function updateAdmin(address _admin) external onlyAuthorized {
         require(_admin != address(0), "Admin cannot be the zero address");
