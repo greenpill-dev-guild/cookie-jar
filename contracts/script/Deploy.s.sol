@@ -52,37 +52,39 @@ contract DeployCookie is Script {
         // Create CookieJars (same as before)
         address[] memory emptyAddresses = new address[](0);
         uint8[] memory emptyTypes = new uint8[](0);
-        jarWhitelist = new CookieJar(
-            admin,
-            CookieJar.AccessType.Whitelist,
-            emptyAddresses,
-            emptyTypes,
-            CookieJar.WithdrawalTypeOptions.Fixed,
-            fixedAmount,
-            maxWithdrawal,
-            withdrawalInterval,
-            strictPurpose,
-            feeCollector,
-            true
-        );
+    jarWhitelist = CookieJar(cookieJarFactory.createCookieJar{value:100 wei}(
+    admin,
+    CookieJar.AccessType.Whitelist,
+    emptyAddresses,
+    emptyTypes,
+    CookieJar.WithdrawalTypeOptions.Fixed,
+    fixedAmount,
+    maxWithdrawal,
+    withdrawalInterval,
+    strictPurpose,
+    true,
+    "White listed cookiejar"
+));
+
 
         address[] memory nftAddresses = new address[](1);
         nftAddresses[0] = address(dummyERC721);
         uint8[] memory nftTypes = new uint8[](1);
         nftTypes[0] = uint8(CookieJar.NFTType.ERC721);
-        jarNFT = new CookieJar(
-            admin,
-            CookieJar.AccessType.NFTGated,
-            nftAddresses,
-            nftTypes,
-            CookieJar.WithdrawalTypeOptions.Fixed,
-            fixedAmount,
-            maxWithdrawal,
-            withdrawalInterval,
-            strictPurpose,
-            feeCollector,
-            true
-        );
+
+jarNFT = CookieJar(cookieJarFactory.createCookieJar{value:100 wei}(
+    admin,
+    CookieJar.AccessType.NFTGated,
+    nftAddresses,
+    nftTypes,
+    CookieJar.WithdrawalTypeOptions.Fixed,
+    fixedAmount,
+    maxWithdrawal,
+    withdrawalInterval,
+    strictPurpose,
+    true,
+    "NFT Cookie jar"
+));
 
         // Log deployed contract addresses
         console.log("CookieJarRegistry deployed at:", address(cookieJarRegistry));
