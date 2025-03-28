@@ -12,12 +12,11 @@ contract CookieJarFactory {
 
     // Default fee collector for new CookieJar contracts.
     address public defaultFeeCollector;
-    uint256 public defaultFee;
+    uint256 public defaultFee; 
     address public admin;
     /// @notice Mapping of addresses allowed to withdraw in Whitelist mode.
     /// @notice Mapping of addresses that are blacklisted.
     mapping(address => bool) public blacklist;
-
 
     // Reference to the CookieJarRegistry contract.
     CookieJarRegistry public registry;
@@ -64,7 +63,7 @@ contract CookieJarFactory {
         registry = CookieJarRegistry(_registry);
         admin = _admin;
     }
-    
+
     /// @notice Update the global blacklist for an address.
     /// @param _users The address to update.
     /// @param _statuses The new blacklist status.

@@ -52,7 +52,7 @@ contract DeployCookie is Script {
         // Create CookieJars (same as before)
         address[] memory emptyAddresses = new address[](0);
         uint8[] memory emptyTypes = new uint8[](0);
-    jarWhitelist = CookieJar(cookieJarFactory.createCookieJar{value:100 wei}(
+    jarWhitelist = CookieJar(payable(cookieJarFactory.createCookieJar{value:100 wei}(
     admin,
     CookieJar.AccessType.Whitelist,
     emptyAddresses,
@@ -64,7 +64,7 @@ contract DeployCookie is Script {
     strictPurpose,
     true,
     "White listed cookiejar"
-));
+)));
 
 
         address[] memory nftAddresses = new address[](1);
@@ -72,7 +72,7 @@ contract DeployCookie is Script {
         uint8[] memory nftTypes = new uint8[](1);
         nftTypes[0] = uint8(CookieJar.NFTType.ERC721);
 
-jarNFT = CookieJar(cookieJarFactory.createCookieJar{value:100 wei}(
+jarNFT = CookieJar(payable(cookieJarFactory.createCookieJar{value:100 wei}(
     admin,
     CookieJar.AccessType.NFTGated,
     nftAddresses,
@@ -84,7 +84,7 @@ jarNFT = CookieJar(cookieJarFactory.createCookieJar{value:100 wei}(
     strictPurpose,
     true,
     "NFT Cookie jar"
-));
+)));
 
         // Log deployed contract addresses
         console.log("CookieJarRegistry deployed at:", address(cookieJarRegistry));

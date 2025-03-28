@@ -137,6 +137,17 @@ event BlacklistUpdated(address[] users, bool[] statuses);
     error LessThanMinimumDeposit();
     error MismatchedArrayLengths();
 
+     receive() external payable {
+        _processDeposit(msg.sender, msg.value);
+    }
+
+    /**
+     * @notice Fallback function to handle unexpected function calls
+     * @dev Ensures that any ETH sent without data is processed as a deposit
+     */
+    fallback() external payable {
+        _processDeposit(msg.sender, msg.value);
+    }
     // --- Constructor ---
 
     /**
@@ -153,6 +164,8 @@ event BlacklistUpdated(address[] users, bool[] statuses);
      * @param _defaultFeeCollector The fee collector address.
      * @param _emergencyWithdrawalEnabled If true, emergency withdrawal is enabled.
      */
+    
+    
     constructor(
         address _admin,
         AccessType _accessType,
@@ -203,6 +216,19 @@ event BlacklistUpdated(address[] users, bool[] statuses);
         feeCollector = _defaultFeeCollector;
         emergencyWithdrawalEnabled = _emergencyWithdrawalEnabled;
 
+    }
+     function _processDeposit(address depositor, uint256 amount) internal {
+        if (amount < 100) revert LessThanMinimumDeposit();
+        
+        uint256 fee = amount / 100;  // 1% fee
+        uint256 depositAmount = amount - fee;
+        
+        // Send fee to fee collector
+        (bool feeSent, ) = feeCollector.call{value: fee}("");
+        if (!feeSent) revert FeeTransferFailed();
+        
+        // Emit deposit event
+        emit Deposit(depositor, depositAmount, address(0));
     }
 
     // --- Modifiers ---
@@ -337,12 +363,8 @@ function updateBlacklist(address[] calldata _users, bool[] calldata _statuses) e
      * @notice Deposits ETH into the contract; 1% fee is forwarded to the fee collector.
      */
     function deposit() external payable {
-        if (msg.value < 100 ) revert LessThanMinimumDeposit();
-        uint256 fee = msg.value / 100;
-        uint256 depositAmount = msg.value - fee;
-        (bool sent, ) = feeCollector.call{value: fee}("");
-        if (!sent) revert FeeTransferFailed();
-        emit Deposit(msg.sender, depositAmount, address(0));
+              _processDeposit(msg.sender, msg.value);
+
     }
 
     /**
@@ -350,7 +372,7 @@ function updateBlacklist(address[] calldata _users, bool[] calldata _statuses) e
      * @param token The ERC20 token address.
      * @param amount The amount of tokens to deposit.
      */
-    function depositToken(address token, uint256 amount) external {
+    function depositToken(address token, uint256 amount) public {
         if (amount < 100) revert LessThanMinimumDeposit();
         if (token == address(0)) revert InvalidTokenAddress();
         uint256 fee = amount / 100;
@@ -363,7 +385,9 @@ function updateBlacklist(address[] calldata _users, bool[] calldata _statuses) e
         );
         emit Deposit(msg.sender, depositAmount, token);
     }
-
+    function onERC20Receive(address token, uint256 amount) external {
+        depositToken(token, amount);
+    }
     // --- Internal Access Check Functions ---
 
     /**
