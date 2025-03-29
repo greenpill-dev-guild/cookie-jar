@@ -7,11 +7,7 @@ import {ERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/ERC20P
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract DummyERC20 is ERC20, Ownable, ERC20Permit {
-    constructor() 
-        ERC20("Test", "TST")
-        Ownable(msg.sender)
-        ERC20Permit("Test")
-    {
+    constructor() ERC20("Test", "TST") Ownable(msg.sender) ERC20Permit("Test") {
         mint(msg.sender, 100);
     }
 

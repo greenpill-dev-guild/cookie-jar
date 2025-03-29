@@ -8,10 +8,7 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 contract DummyERC721 is ERC721, Ownable {
     uint256 private _nextTokenId;
 
-    constructor()
-        ERC721("Test", "MTK")
-        Ownable(msg.sender)
-    {
+    constructor() ERC721("Test", "MTK") Ownable(msg.sender) {
         safeMint(msg.sender);
     }
 

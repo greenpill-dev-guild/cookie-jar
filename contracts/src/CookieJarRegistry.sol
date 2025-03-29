@@ -2,90 +2,136 @@
 pragma solidity ^0.8.24;
 
 import "./CookieJar.sol";
+import "./CookieJarFactory.sol";
 
+/**
+ * @title CookieJarRegistry.
+ * @notice Handles registering deployed "cookie jars" and stores all the jar's data into this contract.
+ */
 contract CookieJarRegistry {
-    // The designated factory that is allowed to update the registry.
-    address public cookieJarFactory;
-
-    // Global whitelist and blacklist mappings.
-    mapping(address => bool) public globalWhitelist;
-    mapping(address => bool) public globalBlacklist;
+    /// @dev The designated factory instance that is allowed to update the registry.
+    CookieJarFactory public cookieJarFactory;
 
     // --- Custom Errors ---
-    error NotAuthorized();
-    error AlreadySet();
+    error CookieJarRegistry__OnlyFactoryCanCall();
+    error CookieJarRegistry__FactoryAlreadySet();
+    error CookieJarRegistry__NotValidJarAddress();
+    error CookieJarRegistry__NotOwner();
 
     // --- Events ---
     event GlobalWhitelistUpdated(address indexed user, bool status);
     event GlobalBlacklistUpdated(address indexed user, bool status);
-    event CookieJarRegistered(
-        address indexed jarAddress,
-        address indexed creator,
-        string metadata,
-        uint256 registrationTime
-    );
+    event CookieJarRegistered(CookieJar jarInstance);
     event CookieJarFactorySet(address factory);
 
-    // Struct to store detailed data about each CookieJar.
+    /// @dev Struct to store detailed data about each CookieJar.
     struct CookieJarInfo {
         address jarAddress;
-        address creator;
+        address currency;
+        address jarCreator;
         string metadata;
         uint256 registrationTime;
+        CookieJar.AccessType accessType;
+        CookieJar.NFTGate[] nftGates;
+        CookieJar.WithdrawalTypeOptions withdrawalOption;
+        uint256 fixedAmount;
+        uint256 maxWithdrawal;
+        uint256 withdrawalInterval;
+        bool strictPurpose;
+        bool emergencyWithdrawalEnabled;
     }
 
-    // Array to track registered CookieJar instances.
+    /// @dev Array to track registered CookieJar structs.
     CookieJarInfo[] public registeredCookieJars;
 
-    // No owner constructor.
+    /// @dev Mapping from creator address to their respective CookieJarInfo struct.
+    mapping(address => CookieJarInfo) public jarCreatorToJar;
+
     constructor() {}
 
-    // Modifier to restrict functions to the authorized factory.
-    modifier onlyAuthorized() {
-        if (msg.sender != cookieJarFactory) revert NotAuthorized();
+    // --- Modifiers ---
+    /// @dev Modifier to restrict functions to the authorized factory.
+    modifier onlyCookieJarFactory() {
+        if (msg.sender != address(cookieJarFactory)) {
+            revert CookieJarRegistry__OnlyFactoryCanCall();
+        }
         _;
     }
 
-    /// @notice Set the CookieJarFactory address. Can only be set once.
-    /// @param _factory The address of the CookieJarFactory.
+    /// @dev Modifier to restrict functions to the owner of the jar.
+    modifier onlyOwner(address _user) {
+        if (cookieJarFactory.hasRole(cookieJarFactory.OWNER(), _user) != true) {
+            revert CookieJarRegistry__NotOwner();
+        }
+        _;
+    }
+
+    /**
+     * @notice Sets the factory instance that is allowed to update the registry.
+     * @param _factory Address of the factory contract.
+     */
     function setCookieJarFactory(address _factory) external {
-        if (cookieJarFactory != address(0)) revert AlreadySet();
-        cookieJarFactory = _factory;
+        if (address(cookieJarFactory) != address(0)) {
+            revert CookieJarRegistry__FactoryAlreadySet();
+        }
+        cookieJarFactory = CookieJarFactory(_factory);
         emit CookieJarFactorySet(_factory);
     }
 
-    /// @notice Update the global whitelist for an address.
-    /// @param _user The address to update.
-    /// @param _status The new whitelist status.
-    function updateGlobalWhitelist(address _user, bool _status) external onlyAuthorized {
-        globalWhitelist[_user] = _status;
-        emit GlobalWhitelistUpdated(_user, _status);
-    }
+    /**
+     * @notice Registers a new CookieJar contract and stores its data in the registry.
+     * @param _jarInstance Instance of the CookieJar contract.
+     * @param _metadata Optional metadata for off-chain tracking.
+     */
+    function registerAndStoreCookieJar(CookieJar _jarInstance, string memory _metadata) external onlyCookieJarFactory {
+        if (address(_jarInstance) == address(0)) {
+            revert CookieJarRegistry__NotValidJarAddress();
+        }
 
-    /// @notice Update the global blacklist for an address.
-    /// @param _user The address to update.
-    /// @param _status The new blacklist status.
-    function updateGlobalBlacklist(address _user, bool _status) external onlyAuthorized {
-        globalBlacklist[_user] = _status;
-        emit GlobalBlacklistUpdated(_user, _status);
-    }
-
-    /// @notice Registers a new CookieJar in the registry with associated metadata.
-    /// @param _jarAddress The deployed CookieJar contract address.
-    /// @param _creator The address that created the CookieJar.
-    /// @param _metadata Optional metadata for off-chain tracking.
-    function registerCookieJar(address _jarAddress, address _creator, string calldata _metadata) external onlyAuthorized {
-        registeredCookieJars.push(CookieJarInfo({
-            jarAddress: _jarAddress,
-            creator: _creator,
+        CookieJarInfo memory tempJar = CookieJarInfo({
+            jarAddress: address(_jarInstance),
+            currency: _jarInstance.currency(),
+            jarCreator: _jarInstance.admin(),
             metadata: _metadata,
-            registrationTime: block.timestamp
-        }));
-        emit CookieJarRegistered(_jarAddress, _creator, _metadata, block.timestamp);
+            registrationTime: block.timestamp,
+            accessType: _jarInstance.accessType(),
+            nftGates: _jarInstance.getNFTGatesArray(),
+            withdrawalOption: _jarInstance.withdrawalOption(),
+            fixedAmount: _jarInstance.fixedAmount(),
+            maxWithdrawal: _jarInstance.maxWithdrawal(),
+            withdrawalInterval: _jarInstance.withdrawalInterval(),
+            strictPurpose: _jarInstance.strictPurpose(),
+            emergencyWithdrawalEnabled: _jarInstance.emergencyWithdrawalEnabled()
+        });
+        registeredCookieJars.push(tempJar);
+        jarCreatorToJar[_jarInstance.admin()] = tempJar;
+        emit CookieJarRegistered(_jarInstance);
     }
 
-    /// @notice Get the number of registered CookieJar contracts.
+    /**
+     * @notice Unregisters a CookieJar contract and deletes stored struct from the registry.
+     */
+    function unRegisterCookieJar() external {}
+
+    /**
+     * @return Number of registered CookieJars in the protocol..
+     */
     function getRegisteredCookieJarsCount() external view returns (uint256) {
         return registeredCookieJars.length;
+    }
+
+    /**
+     * @return Array of all registered CookieJars in the protocol.
+     */
+    function getAllJars() external view returns (CookieJarInfo[] memory) {
+        return registeredCookieJars;
+    }
+
+    /**
+     * @param _jarCreator Address of the jar creator.
+     * @return Jar details for the given creator.
+     */
+    function getJarByCreatorAddress(address _jarCreator) external view returns (CookieJarInfo memory) {
+        return jarCreatorToJar[_jarCreator];
     }
 }
