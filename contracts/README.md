@@ -1,78 +1,99 @@
-## Foundry
+# Cookie Jar Smart Contracts
 
-**Foundry is a blazing fast, portable and modular toolkit for Ethereum application development written in Rust.**
+A decentralized protocol for controlled fund withdrawals with support for both whitelist and NFT-gated access modes. The protocol enables users to create "cookie jars" - smart contracts that manage deposits and withdrawals with configurable rules and fee mechanisms.
 
-Foundry consists of:
+## Features
 
-- **Forge**: Ethereum testing framework (like Truffle, Hardhat and DappTools).
-- **Cast**: Swiss army knife for interacting with EVM smart contracts, sending transactions and getting chain data.
-- **Anvil**: Local Ethereum node, akin to Ganache, Hardhat Network.
-- **Chisel**: Fast, utilitarian, and verbose solidity REPL.
+- **Flexible Access Control**: Support for both whitelist and NFT-gated access modes
+- **Configurable Withdrawals**: Fixed or variable withdrawal amounts with customizable intervals
+- **Multi-Token Support**: Handle both ETH and ERC20 tokens
+- **Fee Mechanism**: 1% fee on deposits for protocol sustainability
+- **Emergency Controls**: Optional emergency withdrawal functionality
+- **Purpose Tracking**: Optional requirement for withdrawal purpose documentation
 
-## Documentation
+## Deployments
 
-https://book.getfoundry.sh/
+- CookieJarRegistry deployed at: 0xfab27767C80390cE1bc36c25ba08065652622c3A
+- CookieJarFactory deployed at: 0xD8b02E8e25aE3c97b4D0a2A479d5569f0991C372
 
-## Usage
+## Smart Contract Architecture
+
+### Core Contracts
+
+1. **CookieJarFactory**
+
+   - Handles protocol access control
+   - Manages jar deployments
+   - Controls minimum deposit requirements
+   - Maintains protocol-level blacklist
+
+2. **CookieJar**
+
+   - Manages individual jar logic
+   - Handles deposits and withdrawals
+   - Implements access control rules
+   - Processes withdrawal requests
+
+3. **CookieJarRegistry**
+
+   - Stores all deployed jar data
+   - Maintains jar metadata
+   - Provides jar lookup functionality
+
+4. **CookieJarLib**
+   - Contains shared data structures
+   - Defines common types and events
+   - Implements reusable functions
+
+## Setup and Development
+
+### Prerequisites
+
+- [Foundry](https://book.getfoundry.sh/)
+- Ethereum wallet with test ETH (for deployment)
+
+### Installation
+
+```shell
+# Clone the repository
+git clone <repository-url>
+cd cookie-jar-v2/contracts
+
+# Install dependencies
+forge install
+```
 
 ### Build
 
 ```shell
-$ forge build
+forge build
 ```
 
 ### Test
 
 ```shell
-$ forge test
+forge test
 ```
 
 ### Format
 
 ```shell
-$ forge fmt
+forge fmt
 ```
 
-### Gas Snapshots
+### Deployment
+
+1. Set up your environment variables:
 
 ```shell
-$ forge snapshot
-```
-
-### Anvil
-
-```shell
-$ anvil
-```
-
-### Deploy
-
-```shell
-$ forge script script/Counter.s.sol:CounterScript --rpc-url <your_rpc_url> --private-key <your_private_key>
-```
-
-### Cast
-
-```shell
-$ cast <subcommand>
-```
-
-### Help
-
-```shell
-$ forge --help
-$ anvil --help
-$ cast --help
-```
-
-### .env
-
 PRIVATE_KEY=
 SEPOLIA_URL=
 SEPOLIA_ETHERSCAN_KEY=
+```
 
-### To Deploy and verify
+2. Deploy and verify:
 
+```shell
 source .env
 forge script script/Deploy.s.sol:DeployCookie \
  --via-ir \
@@ -82,34 +103,46 @@ forge script script/Deploy.s.sol:DeployCookie \
  --etherscan-api-key $SEPOLIA_ETHERSCAN_KEY \
  --verifier-url https://api-sepolia.etherscan.io/api \
  -vvvv
+```
 
-consistent natspec
-added openzeppelin roles
-updated error names to include contract name, for easier debugging(better practics)
-removed unnecessary black and whitelist in cookieJarRegistery.
-Added getters and mappings to cookieJarRegistery.
-Used ownable by openzeppein in all contracts.
-Added some if-revert statements
-Cookie jar data is stored both in factory and registery, make it to store only in registry. (why the tf it was in factory, even no getters for that)
+## Changes Since Last Release
 
-Current Setup
-AccessControl(Protocol) + Creating jars = CookieJarFactory
+### Code Quality & Standards
 
-Added Fee percentage to be passed in constructor of jar so we can change it with new jars(exclusivity)
+- Implemented consistent natspec documentation across all contracts
+- Integrated OpenZeppelin's Role-Based Access Control
+- Updated error naming convention to include contract names for easier debugging
+- Added comprehensive getters for improved contract interaction
 
-Changed terms to be clear
+### Architecture Improvements
 
-Added a new constructor, fee on withdrawal
+- Streamlined data storage by consolidating jar data in the Registry
+- Implemented OpenZeppelin's Ownable pattern across contracts
+- Enhanced security with additional validation checks
+- Separated ETH and ERC20 jar creation functions for better clarity
 
-Added a new constructor element for jar, the supported ERC20
+### Feature Enhancements
 
-Added getters
-Separated createETHJar and createERC20Jar functions
+- Added configurable fee percentage in jar constructor
+- Implemented support for multiple ERC20 tokens
+- Enhanced deposit tracking mechanism
+- Added withdrawal history tracking
+- Improved fee calculation logic with 1% fee on all deposit transactions
 
-Added deposit functions before creating a jar
+### Testing & Documentation
 
-Removed deposit amount restrictions to depositing in existing jars
+- Restructured test suite for better coverage
+- Created CookieJarLibrary for shared functionality
+- Added comprehensive documentation for all features
+- Implemented helper configurations for testing
 
-Setup Helperconfig
+## Documentation
 
-Removed some tests, created useful tests
+For detailed documentation about Foundry's capabilities, visit the [Foundry Book](https://book.getfoundry.sh/).
+
+## Security
+
+- Do not send funds directly to the factory contract
+- Always use the provided deposit functions
+- Verify contract addresses before interaction
+- Review withdrawal rules and access controls before deployment

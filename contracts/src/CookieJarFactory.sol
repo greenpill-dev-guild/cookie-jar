@@ -17,7 +17,8 @@ contract CookieJarFactory is AccessControl {
     /// @dev Openzeppelin AccessControl role instances.
     bytes32 public constant OWNER = keccak256("OWNER");
     bytes32 public constant PROTOCOL_ADMIN = keccak256("PROTOCOL_ADMIN");
-    bytes32 public constant BLACKLISTED_JAR_CREATORS = keccak256("BLACKLISTED_JAR_CREATORS");
+    bytes32 public constant BLACKLISTED_JAR_CREATORS =
+        keccak256("BLACKLISTED_JAR_CREATORS");
 
     /// @dev Default fee collector for new CookieJar contracts.
     address public defaultFeeCollector;
@@ -45,10 +46,20 @@ contract CookieJarFactory is AccessControl {
     error CookieJarFactory__WithdrawingMoreThanDeposited();
 
     // --- Events ---
-    event CookieJarCreated(address indexed creator, address cookieJarAddress, string metadata);
+    event CookieJarCreated(
+        address indexed creator,
+        address cookieJarAddress,
+        string metadata
+    );
     event BlacklistRoleGranted(address[] users);
-    event ProtocolAdminUpdated(address indexed previous, address indexed current);
-    event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
+    event ProtocolAdminUpdated(
+        address indexed previous,
+        address indexed current
+    );
+    event OwnershipTransferred(
+        address indexed previousOwner,
+        address indexed newOwner
+    );
 
     modifier onlyNotBlacklisted(address _user) {
         if (hasRole(BLACKLISTED_JAR_CREATORS, _user) == true) {
@@ -59,11 +70,17 @@ contract CookieJarFactory is AccessControl {
 
     modifier onlyDepositedMinAmount(address _currency, address _jarCreator) {
         if (_currency == address(3)) {
-            if (jarOwnerToCurrencyAddressToAmount[_jarCreator][address(3)] < minETHDeposit) {
+            if (
+                jarOwnerToCurrencyAddressToAmount[_jarCreator][address(3)] <
+                minETHDeposit
+            ) {
                 revert CookieJarFactory__LessThanMinimumDeposit();
             }
         } else {
-            if (jarOwnerToCurrencyAddressToAmount[_jarCreator][_currency] < minERC20Deposit) {
+            if (
+                jarOwnerToCurrencyAddressToAmount[_jarCreator][_currency] <
+                minERC20Deposit
+            ) {
                 revert CookieJarFactory__LessThanMinimumDeposit();
             }
         }
@@ -103,7 +120,9 @@ contract CookieJarFactory is AccessControl {
      * @dev Restricts the ability to create new CookieJars for a given address.
      * @param _users The address to update.
      */
-    function grantBlacklistedJarCreatorsRole(address[] calldata _users) external onlyRole(PROTOCOL_ADMIN) {
+    function grantBlacklistedJarCreatorsRole(
+        address[] calldata _users
+    ) external onlyRole(PROTOCOL_ADMIN) {
         if (_users.length < 1) {
             revert CookieJarFactory__MismatchedArrayLengths();
         }
@@ -119,7 +138,9 @@ contract CookieJarFactory is AccessControl {
      * @notice Removes a user from blacklist.
      * @param _users The address to update.
      */
-    function revokeBlacklistedJarCreatorsRole(address[] calldata _users) external onlyRole(PROTOCOL_ADMIN) {
+    function revokeBlacklistedJarCreatorsRole(
+        address[] calldata _users
+    ) external onlyRole(PROTOCOL_ADMIN) {
         if (hasRole(BLACKLISTED_JAR_CREATORS, msg.sender) != true) {
             revert CookieJarFactory__UserIsNotBlacklisted();
         }
@@ -142,6 +163,19 @@ contract CookieJarFactory is AccessControl {
     }
 
     /**
+     * @notice Revokes the protocol admin role from a given address.
+     * @notice Only the owner can revoke the protocol admin role.
+     * @param _admin The address to revoke.
+     */
+    function revokeProtocolAdminRole(address _admin) external onlyRole(OWNER) {
+        if (hasRole(PROTOCOL_ADMIN, _admin) != true) {
+            revert CookieJarFactory__NotAuthorized();
+        }
+        _revokeRole(PROTOCOL_ADMIN, _admin);
+        emit ProtocolAdminUpdated(msg.sender, _admin);
+    }
+
+    /**
      * @notice Grants owner role to a new address, and revokes previous owner with the owner role.
      * @param _newOwner Address of the new owner.
      */
@@ -160,8 +194,13 @@ contract CookieJarFactory is AccessControl {
         if (msg.value < minETHDeposit) {
             revert CookieJarFactory__LessThanMinimumDeposit();
         }
-        uint256 amountRemaining = _calculateAndTransferFeeToCollector(msg.value, address(3));
-        jarOwnerToCurrencyAddressToAmount[msg.sender][address(3)] += amountRemaining;
+        uint256 amountRemaining = _calculateAndTransferFeeToCollector(
+            msg.value,
+            address(3)
+        );
+        jarOwnerToCurrencyAddressToAmount[msg.sender][
+            address(3)
+        ] += amountRemaining;
     }
 
     /**
@@ -171,11 +210,10 @@ contract CookieJarFactory is AccessControl {
      * @param _currency Token address of ERC20 to deposit.
      * @return success Boolean indicating success or failure.
      */
-    function depositMinERC20(uint256 _amount, address _currency)
-        external
-        onlyNotBlacklisted(msg.sender)
-        returns (bool success)
-    {
+    function depositMinERC20(
+        uint256 _amount,
+        address _currency
+    ) external onlyNotBlacklisted(msg.sender) returns (bool success) {
         if (ERC20(_currency).decimals() < 1) {
             revert CookieJarFactory__NotValidERC20();
         }
@@ -185,20 +223,33 @@ contract CookieJarFactory is AccessControl {
         if (_amount < minERC20Deposit) {
             revert CookieJarFactory__LessThanMinimumDeposit();
         }
-        success = ERC20(_currency).transferFrom(msg.sender, address(this), _amount);
-        uint256 amountRemaining = _calculateAndTransferFeeToCollector(_amount, _currency);
-        jarOwnerToCurrencyAddressToAmount[msg.sender][_currency] += amountRemaining;
+        success = ERC20(_currency).transferFrom(
+            msg.sender,
+            address(this),
+            _amount
+        );
+        uint256 amountRemaining = _calculateAndTransferFeeToCollector(
+            _amount,
+            _currency
+        );
+        jarOwnerToCurrencyAddressToAmount[msg.sender][
+            _currency
+        ] += amountRemaining;
     }
 
     /**
      * @notice This function is called to withdraw deposited funds, in ETH.
      * @param _amount Amount of ETH to withdraw.
      */
-    function withdrawDepositedETH(uint256 _amount) external onlyDepositedMinAmount(address(3), msg.sender) {
-        if (_amount > jarOwnerToCurrencyAddressToAmount[msg.sender][address(3)]) {
+    function withdrawDepositedETH(
+        uint256 _amount
+    ) external onlyDepositedMinAmount(address(3), msg.sender) {
+        if (
+            _amount > jarOwnerToCurrencyAddressToAmount[msg.sender][address(3)]
+        ) {
             revert CookieJarFactory__WithdrawingMoreThanDeposited();
         }
-        (bool success,) = payable(msg.sender).call{value: _amount}("");
+        (bool success, ) = payable(msg.sender).call{value: _amount}("");
         if (!success) revert CookieJarFactory__TransferFailed();
         jarOwnerToCurrencyAddressToAmount[msg.sender][address(3)] -= _amount;
     }
@@ -208,11 +259,13 @@ contract CookieJarFactory is AccessControl {
      * @param _amount Amount of ERC20 to withdraw.
      * @param _currency Token address of ERC20 to withdraw.
      */
-    function withdrawDepositedERC20(uint256 _amount, address _currency)
-        external
-        onlyDepositedMinAmount(_currency, msg.sender)
-    {
-        if (_amount > jarOwnerToCurrencyAddressToAmount[msg.sender][_currency]) {
+    function withdrawDepositedERC20(
+        uint256 _amount,
+        address _currency
+    ) external onlyDepositedMinAmount(_currency, msg.sender) {
+        if (
+            _amount > jarOwnerToCurrencyAddressToAmount[msg.sender][_currency]
+        ) {
             revert CookieJarFactory__WithdrawingMoreThanDeposited();
         }
         bool success = ERC20(_currency).transfer(msg.sender, _amount);
@@ -239,10 +292,10 @@ contract CookieJarFactory is AccessControl {
     function createCookieJar(
         address _cookieJarOwner,
         address _supportedCurrency,
-        CookieJar.AccessType _accessType,
+        CookieJarLib.AccessType _accessType,
         address[] calldata _nftAddresses,
         uint8[] calldata _nftTypes,
-        CookieJar.WithdrawalTypeOptions _withdrawalOption,
+        CookieJarLib.WithdrawalTypeOptions _withdrawalOption,
         uint256 _fixedAmount,
         uint256 _maxWithdrawal,
         uint256 _withdrawalInterval,
@@ -290,27 +343,38 @@ contract CookieJarFactory is AccessControl {
     /**
      * @notice Internal function to handle funds sending to individual jars while creation.
      */
-    function _transferCurrencyToJar(address _jar, address _currency, address _onBehalfOf)
-        internal
-        returns (bool success)
-    {
-        uint256 mappedValue = jarOwnerToCurrencyAddressToAmount[_onBehalfOf][_currency];
+    function _transferCurrencyToJar(
+        address _jar,
+        address _currency,
+        address _onBehalfOf
+    ) internal returns (bool success) {
+        uint256 mappedValue = jarOwnerToCurrencyAddressToAmount[_onBehalfOf][
+            _currency
+        ];
         if (_currency == address(3)) {
-            (success,) = _jar.call{value: mappedValue}("");
+            (success, ) = _jar.call{value: mappedValue}("");
         } else {
             ERC20(_currency).approve(_jar, mappedValue);
             success = ERC20(_currency).transfer(_jar, mappedValue);
         }
+        CookieJar(payable(_jar)).updateCurrencyHeldByJar(mappedValue);
     }
 
-    function _calculateAndTransferFeeToCollector(uint256 _principalAmount, address _token)
-        internal
-        returns (uint256 amountRemaining)
-    {
+    /**
+     * @notice Internal helper function to calculate and transfer fee to fee collector.
+     * @param _principalAmount Incoming amount.
+     * @param _token Token address.
+     */
+    function _calculateAndTransferFeeToCollector(
+        uint256 _principalAmount,
+        address _token
+    ) internal returns (uint256 amountRemaining) {
         uint256 fee = (_principalAmount * defaultFeePercentage) / 100;
 
         if (_token == address(3)) {
-            (bool success,) = payable(defaultFeeCollector).call{value: fee}("");
+            (bool success, ) = payable(defaultFeeCollector).call{value: fee}(
+                ""
+            );
             if (!success) revert CookieJarFactory__TransferFailed();
         } else {
             bool success = ERC20(_token).transfer(defaultFeeCollector, fee);
@@ -324,7 +388,10 @@ contract CookieJarFactory is AccessControl {
      * @param _token Address of the token, address(3) in case of ETH.
      * @return amount Amount of token deposited in this contract.
      */
-    function getUserDepositAmount(address _user, address _token) external view returns (uint256 amount) {
+    function getUserDepositAmount(
+        address _user,
+        address _token
+    ) external view returns (uint256 amount) {
         return jarOwnerToCurrencyAddressToAmount[_user][_token];
     }
 }

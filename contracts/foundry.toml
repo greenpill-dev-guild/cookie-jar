@@ -11,7 +11,5 @@ remappings = [
 # [rpc_endpoints]
 # sepolia = "${SEPOLIA_URL}"
 
-[etherscan]
-sepolia = { key = "${SEPOLIA_ETHERSCAN_KEY}" ,chain=11155111,url="https://eth-sepolia.public.blastapi.io" }
 
 # See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

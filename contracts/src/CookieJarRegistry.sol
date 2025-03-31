@@ -31,9 +31,9 @@ contract CookieJarRegistry {
         address jarCreator;
         string metadata;
         uint256 registrationTime;
-        CookieJar.AccessType accessType;
-        CookieJar.NFTGate[] nftGates;
-        CookieJar.WithdrawalTypeOptions withdrawalOption;
+        CookieJarLib.AccessType accessType;
+        CookieJarLib.NFTGate[] nftGates;
+        CookieJarLib.WithdrawalTypeOptions withdrawalOption;
         uint256 fixedAmount;
         uint256 maxWithdrawal;
         uint256 withdrawalInterval;
@@ -83,7 +83,10 @@ contract CookieJarRegistry {
      * @param _jarInstance Instance of the CookieJar contract.
      * @param _metadata Optional metadata for off-chain tracking.
      */
-    function registerAndStoreCookieJar(CookieJar _jarInstance, string memory _metadata) external onlyCookieJarFactory {
+    function registerAndStoreCookieJar(
+        CookieJar _jarInstance,
+        string memory _metadata
+    ) external onlyCookieJarFactory {
         if (address(_jarInstance) == address(0)) {
             revert CookieJarRegistry__NotValidJarAddress();
         }
@@ -91,7 +94,7 @@ contract CookieJarRegistry {
         CookieJarInfo memory tempJar = CookieJarInfo({
             jarAddress: address(_jarInstance),
             currency: _jarInstance.currency(),
-            jarCreator: _jarInstance.admin(),
+            jarCreator: _jarInstance.jarOwner(),
             metadata: _metadata,
             registrationTime: block.timestamp,
             accessType: _jarInstance.accessType(),
@@ -104,7 +107,7 @@ contract CookieJarRegistry {
             emergencyWithdrawalEnabled: _jarInstance.emergencyWithdrawalEnabled()
         });
         registeredCookieJars.push(tempJar);
-        jarCreatorToJar[_jarInstance.admin()] = tempJar;
+        jarCreatorToJar[_jarInstance.jarOwner()] = tempJar;
         emit CookieJarRegistered(_jarInstance);
     }
 
@@ -131,7 +134,9 @@ contract CookieJarRegistry {
      * @param _jarCreator Address of the jar creator.
      * @return Jar details for the given creator.
      */
-    function getJarByCreatorAddress(address _jarCreator) external view returns (CookieJarInfo memory) {
+    function getJarByCreatorAddress(
+        address _jarCreator
+    ) external view returns (CookieJarInfo memory) {
         return jarCreatorToJar[_jarCreator];
     }
 }

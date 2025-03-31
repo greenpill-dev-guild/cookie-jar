@@ -54,29 +54,82 @@ contract CookieJarFactoryTest is Test {
         vm.stopPrank();
     }
 
+    function testBlacklistedJarCreatorsAccessControl() public {
+        vm.prank(user);
+        vm.expectRevert();
+        // CookieJarFactory.CookieJarFactory__Blacklisted.selector
+        factory.grantBlacklistedJarCreatorsRole(users);
+
+        vm.prank(owner);
+        factory.grantBlacklistedJarCreatorsRole(users);
+        vm.prank(user);
+        vm.expectRevert(
+            CookieJarFactory.CookieJarFactory__Blacklisted.selector
+        );
+        factory.depositMinETH{value: 1 ether}();
+    }
+
+    function testOnlyOwnerGrantsAndRevokesProtocolAdminRoles() public {
+        vm.startPrank(owner);
+        factory.grantProtocolAdminRole(user);
+        factory.grantProtocolAdminRole(user2);
+        vm.stopPrank();
+        vm.expectRevert();
+        vm.prank(user);
+        factory.revokeProtocolAdminRole(user2);
+        vm.expectRevert();
+        vm.prank(user2);
+        factory.revokeProtocolAdminRole(owner);
+    }
+
+    function testTransferOwnership() public {
+        vm.prank(owner);
+        factory.transferOwnership(user);
+        assertEq(factory.hasRole(keccak256("OWNER"), user), true);
+        assertEq(factory.hasRole(keccak256("OWNER"), owner), false);
+    }
+
     function testDepositMinETH() public {
         vm.prank(user);
+        uint256 collectorBalanceBefore = config.defaultFeeCollector.balance;
         factory.depositMinETH{value: 0.01 ether}();
         uint256 amount = factory.getUserDepositAmount(user, address(3));
         assertGt(amount, 0.009 ether);
         assertGt(config.defaultFeeCollector.balance, 0);
+        assertEq(
+            config.defaultFeeCollector.balance,
+            collectorBalanceBefore +
+                (factory.defaultFeePercentage() * 0.01 ether) /
+                100
+        );
     }
 
     function testDepositMinERC20() public {
         vm.startPrank(user);
         testToken.approve(address(factory), 50e18);
+        uint256 collectorBalanceBefore = ERC20(testToken).balanceOf(
+            config.defaultFeeCollector
+        );
+
         factory.depositMinERC20(50e18, address(testToken));
         vm.stopPrank();
         uint256 amount = factory.getUserDepositAmount(user, address(testToken));
         assertGt(amount, 49e18);
-        assertGt(ERC20(testToken).balanceOf(config.defaultFeeCollector), 0);
+        assertEq(
+            ERC20(testToken).balanceOf(config.defaultFeeCollector),
+            collectorBalanceBefore +
+                (factory.defaultFeePercentage() * 50e18) /
+                100
+        );
     }
 
     function testDepositMinERC20ByBlacklistedPerson() public {
         vm.prank(owner);
         factory.grantBlacklistedJarCreatorsRole(users);
         vm.startPrank(users[0]);
-        vm.expectRevert(CookieJarFactory.CookieJarFactory__Blacklisted.selector);
+        vm.expectRevert(
+            CookieJarFactory.CookieJarFactory__Blacklisted.selector
+        );
         factory.depositMinERC20(100, address(3));
     }
 
@@ -87,14 +140,16 @@ contract CookieJarFactoryTest is Test {
         vm.prank(owner);
         factory.grantBlacklistedJarCreatorsRole(users);
         vm.startPrank(users[0]);
-        vm.expectRevert(CookieJarFactory.CookieJarFactory__Blacklisted.selector);
+        vm.expectRevert(
+            CookieJarFactory.CookieJarFactory__Blacklisted.selector
+        );
         factory.createCookieJar(
             owner,
             address(3),
-            CookieJar.AccessType.Whitelist,
+            CookieJarLib.AccessType.Whitelist,
             emptyAddresses,
             emptyTypes,
-            CookieJar.WithdrawalTypeOptions.Fixed,
+            CookieJarLib.WithdrawalTypeOptions.Fixed,
             fixedAmount,
             maxWithdrawal,
             withdrawalInterval,
@@ -116,10 +171,10 @@ contract CookieJarFactoryTest is Test {
             user,
             address(3),
             /// @dev address(3) for ETH jars.
-            CookieJar.AccessType.Whitelist,
+            CookieJarLib.AccessType.Whitelist,
             emptyAddresses,
             emptyTypes,
-            CookieJar.WithdrawalTypeOptions.Fixed,
+            CookieJarLib.WithdrawalTypeOptions.Fixed,
             fixedAmount,
             maxWithdrawal,
             withdrawalInterval,
@@ -135,15 +190,25 @@ contract CookieJarFactoryTest is Test {
             initialBalance + (50e18 * config.feePercentageOnDeposit) / 100,
             "Fee collector should receive the exact fee amount"
         );
-
-        CookieJarRegistry.CookieJarInfo memory temp = registry.getJarByCreatorAddress(user);
+        assertEq(
+            CookieJar(payable(jarAddress)).currencyHeldByJar(),
+            50e18 - ((50e18 * config.feePercentageOnDeposit) / 100)
+        );
+        assertEq(
+            jarAddress.balance,
+            50e18 - ((50e18 * config.feePercentageOnDeposit) / 100)
+        );
+        CookieJarRegistry.CookieJarInfo memory temp = registry
+            .getJarByCreatorAddress(user);
         assertEq(temp.metadata, "Test Metadata");
 
         vm.stopPrank();
     }
 
     function testCreateERC20CookieJarWhitelist() public {
-        uint256 initialBalance = ERC20(address(testToken)).balanceOf(address(config.defaultFeeCollector));
+        uint256 initialBalance = ERC20(address(testToken)).balanceOf(
+            address(config.defaultFeeCollector)
+        );
         address[] memory emptyAddresses = new address[](0);
         uint8[] memory emptyTypes = new uint8[](0);
         vm.startPrank(user);
@@ -153,10 +218,10 @@ contract CookieJarFactoryTest is Test {
             user,
             address(testToken),
             /// @dev address(3) for ETH jars.
-            CookieJar.AccessType.Whitelist,
+            CookieJarLib.AccessType.Whitelist,
             emptyAddresses,
             emptyTypes,
-            CookieJar.WithdrawalTypeOptions.Fixed,
+            CookieJarLib.WithdrawalTypeOptions.Fixed,
             fixedAmount,
             maxWithdrawal,
             withdrawalInterval,
@@ -167,35 +232,41 @@ contract CookieJarFactoryTest is Test {
         assertGt(ERC20(testToken).balanceOf(jarAddress), 9e18);
         assertLt(ERC20(testToken).balanceOf(jarAddress), 10e18);
         assertNotEq(jarAddress, address(0));
-        uint256 finalBalance = ERC20(address(testToken)).balanceOf(address(config.defaultFeeCollector));
+        uint256 finalBalance = ERC20(address(testToken)).balanceOf(
+            address(config.defaultFeeCollector)
+        );
         assertEq(
             finalBalance,
             initialBalance + (10e18 * config.feePercentageOnDeposit) / 100,
             "Fee collector should receive the exact fee amount"
         );
-
-        CookieJarRegistry.CookieJarInfo memory temp = registry.getJarByCreatorAddress(user);
+        assertEq(
+            CookieJar(payable(jarAddress)).currencyHeldByJar(),
+            10e18 - ((10e18 * config.feePercentageOnDeposit) / 100)
+        );
+        CookieJarRegistry.CookieJarInfo memory temp = registry
+            .getJarByCreatorAddress(user);
         assertEq(temp.metadata, "Test Metadata");
 
         vm.stopPrank();
     }
 
     /// @notice Test creating a CookieJar in NFTGated mode and verifying registry creator.
-    function testCreateCookieJarNFTMode() public {
+    function testCreateETHCookieJarNFTMode() public {
         address[] memory nftAddresses = new address[](1);
         nftAddresses[0] = address(0x1234);
         uint8[] memory nftTypes = new uint8[](1);
-        nftTypes[0] = uint8(CookieJar.NFTType.ERC721);
+        nftTypes[0] = uint8(CookieJarLib.NFTType.ERC721);
         vm.startPrank(user);
         factory.depositMinETH{value: 50e18}();
         address jarAddress = factory.createCookieJar(
             user,
             address(3),
             /// @dev address(3) for ETH jars.
-            CookieJar.AccessType.Whitelist,
+            CookieJarLib.AccessType.NFTGated,
             nftAddresses,
             nftTypes,
-            CookieJar.WithdrawalTypeOptions.Fixed,
+            CookieJarLib.WithdrawalTypeOptions.Fixed,
             fixedAmount,
             maxWithdrawal,
             withdrawalInterval,
@@ -203,33 +274,86 @@ contract CookieJarFactoryTest is Test {
             true, // emergencyWithdrawalEnabled
             "Test Metadata"
         );
-        CookieJarRegistry.CookieJarInfo memory temp = registry.getJarByCreatorAddress(user);
+        CookieJarRegistry.CookieJarInfo memory temp = registry
+            .getJarByCreatorAddress(user);
+        assertEq(
+            CookieJar(payable(jarAddress)).currencyHeldByJar(),
+            50e18 - ((50e18 * config.feePercentageOnDeposit) / 100)
+        );
+        assertEq(
+            jarAddress.balance,
+            50e18 - ((50e18 * config.feePercentageOnDeposit) / 100)
+        );
+        assertEq(temp.metadata, "Test Metadata");
+    }
+
+    function testCreateERC20CookieJarNFTMode() public {
+        address[] memory nftAddresses = new address[](1);
+        nftAddresses[0] = address(0x1234);
+        uint8[] memory nftTypes = new uint8[](1);
+        nftTypes[0] = uint8(CookieJarLib.NFTType.ERC721);
+        vm.startPrank(user);
+        ERC20(address(testToken)).approve(address(factory), 10e18);
+        factory.depositMinERC20(10e18, address(testToken));
+        address jarAddress = factory.createCookieJar(
+            user,
+            address(testToken),
+            /// @dev address(3) for ETH jars.
+            CookieJarLib.AccessType.NFTGated,
+            nftAddresses,
+            nftTypes,
+            CookieJarLib.WithdrawalTypeOptions.Fixed,
+            fixedAmount,
+            maxWithdrawal,
+            withdrawalInterval,
+            strictPurpose,
+            true, // emergencyWithdrawalEnabled
+            "Test Metadata"
+        );
+        CookieJarRegistry.CookieJarInfo memory temp = registry
+            .getJarByCreatorAddress(user);
+        assertEq(
+            CookieJar(payable(jarAddress)).currencyHeldByJar(),
+            10e18 - ((10e18 * config.feePercentageOnDeposit) / 100)
+        );
+        assertEq(
+            ERC20(testToken).balanceOf(jarAddress),
+            10e18 - ((10e18 * config.feePercentageOnDeposit) / 100)
+        );
         assertEq(temp.metadata, "Test Metadata");
     }
 
     function testWithoutFeeForCreatingCookieJar() public {
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(CookieJarFactory.CookieJarFactory__LessThanMinimumDeposit.selector));
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                CookieJarFactory
+                    .CookieJarFactory__LessThanMinimumDeposit
+                    .selector
+            )
+        );
         factory.depositMinETH{value: 99}();
     }
 
     /// @notice Test that NFTGated mode must have at least one NFT address.
-    function testCreateCookieJarNFTModeNoAddresses() public {
+    function testCreateETHCookieJarNFTModeNoAddresses() public {
         address[] memory emptyAddresses = new address[](0);
         uint8[] memory emptyTypes = new uint8[](0);
 
         vm.startPrank(user);
 
         factory.depositMinETH{value: 50e18}();
-        vm.expectRevert(abi.encodeWithSelector(CookieJar.NoNFTAddressesProvided.selector));
+        vm.expectRevert(
+            abi.encodeWithSelector(CookieJarLib.NoNFTAddressesProvided.selector)
+        );
         factory.createCookieJar(
             user,
             address(3),
             /// @dev address(3) for ETH jars.
-            CookieJar.AccessType.NFTGated,
+            CookieJarLib.AccessType.NFTGated,
             emptyAddresses,
             emptyTypes,
-            CookieJar.WithdrawalTypeOptions.Fixed,
+            CookieJarLib.WithdrawalTypeOptions.Fixed,
             fixedAmount,
             maxWithdrawal,
             withdrawalInterval,
@@ -250,15 +374,17 @@ contract CookieJarFactoryTest is Test {
         vm.startPrank(user);
 
         factory.depositMinETH{value: 50e18}();
-        vm.expectRevert(abi.encodeWithSelector(CookieJar.InvalidNFTType.selector));
+        vm.expectRevert(
+            abi.encodeWithSelector(CookieJarLib.InvalidNFTType.selector)
+        );
         factory.createCookieJar(
             user,
             address(3),
             /// @dev address(3) for ETH jars.
-            CookieJar.AccessType.NFTGated,
+            CookieJarLib.AccessType.NFTGated,
             nftAddresses,
             nftTypes,
-            CookieJar.WithdrawalTypeOptions.Fixed,
+            CookieJarLib.WithdrawalTypeOptions.Fixed,
             fixedAmount,
             maxWithdrawal,
             withdrawalInterval,

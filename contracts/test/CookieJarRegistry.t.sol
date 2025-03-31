@@ -15,16 +15,17 @@ contract CookieJarRegistryTest is Test {
 
     function setUp() public {
         config = new HelperConfig();
-        HelperConfig.NetworkConfig memory currentConfig = config.getAnvilConfig();
+        HelperConfig.NetworkConfig memory currentConfig = config
+            .getAnvilConfig();
         vm.deal(address(this), 1 ether);
         jar = new CookieJar(
             address(this),
             address(this),
             address(3),
-            CookieJar.AccessType.Whitelist,
+            CookieJarLib.AccessType.Whitelist,
             new address[](0),
             new uint8[](0),
-            CookieJar.WithdrawalTypeOptions.Fixed,
+            CookieJarLib.WithdrawalTypeOptions.Fixed,
             10, // fixedAmount
             100, // maxWithdrawal
             86400, // withdrawalInterval (1 day in seconds)
@@ -46,10 +47,12 @@ contract CookieJarRegistryTest is Test {
         // Register
         registry.registerAndStoreCookieJar(jar, "Test");
         // Verify registration.
-        CookieJarRegistry.CookieJarInfo memory info = registry.getJarByCreatorAddress(address(this));
+        CookieJarRegistry.CookieJarInfo memory info = registry
+            .getJarByCreatorAddress(address(this));
         assertNotEq(info.jarAddress, address(0));
         assertEq(info.currency, address(3)); // ETH jar
-        CookieJarRegistry.CookieJarInfo[] memory tempArr = registry.getAllJars();
+        CookieJarRegistry.CookieJarInfo[] memory tempArr = registry
+            .getAllJars();
         assertGt(tempArr.length, 0);
     }
 }
