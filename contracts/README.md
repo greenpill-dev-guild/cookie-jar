@@ -13,8 +13,8 @@ A decentralized protocol for controlled fund withdrawals with support for both w
 
 ## Deployments
 
-- CookieJarRegistry deployed at: 0xfab27767C80390cE1bc36c25ba08065652622c3A
-- CookieJarFactory deployed at: 0xD8b02E8e25aE3c97b4D0a2A479d5569f0991C372
+- CookieJarRegistry deployed at: https://base-sepolia.blockscout.com/address/0xc837835Ca2a1386C81198a592aD8B68eC2442533?tab=contract
+- CookieJarFactory deployed at: https://sepolia.basescan.org/address/0xaa15433c45745042dff6173f5605b61cd1bc6a94
 
 ## Smart Contract Architecture
 
@@ -146,3 +146,5 @@ For detailed documentation about Foundry's capabilities, visit the [Foundry Book
 - Always use the provided deposit functions
 - Verify contract addresses before interaction
 - Review withdrawal rules and access controls before deployment
+
+fix emergency withdrawal

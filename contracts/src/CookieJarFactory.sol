@@ -30,9 +30,6 @@ contract CookieJarFactory is AccessControl {
     /// @dev Instance of the CookieJarRegistry contract.
     CookieJarRegistry public registry;
 
-    /// @dev Mapping to store user deposited amounts for jar creation.
-    mapping(address => mapping(address => uint256)) jarOwnerToCurrencyAddressToAmount;
-
     // --- Custom Error ---
     error CookieJarFactory__NotFeeCollector();
     error CookieJarFactory__TransferFailed();
@@ -64,25 +61,6 @@ contract CookieJarFactory is AccessControl {
     modifier onlyNotBlacklisted(address _user) {
         if (hasRole(BLACKLISTED_JAR_CREATORS, _user) == true) {
             revert CookieJarFactory__Blacklisted();
-        }
-        _;
-    }
-
-    modifier onlyDepositedMinAmount(address _currency, address _jarCreator) {
-        if (_currency == address(3)) {
-            if (
-                jarOwnerToCurrencyAddressToAmount[_jarCreator][address(3)] <
-                minETHDeposit
-            ) {
-                revert CookieJarFactory__LessThanMinimumDeposit();
-            }
-        } else {
-            if (
-                jarOwnerToCurrencyAddressToAmount[_jarCreator][_currency] <
-                minERC20Deposit
-            ) {
-                revert CookieJarFactory__LessThanMinimumDeposit();
-            }
         }
         _;
     }
@@ -185,92 +163,6 @@ contract CookieJarFactory is AccessControl {
         emit OwnershipTransferred(msg.sender, _newOwner);
     }
 
-    /**
-     * @notice This function is called to deposit minimum jar creation funds, in ETH.
-     * @notice NO FEE ON FIRST TIME DEPOSITS i.e. USING THIS CONTRACT TO CREATE A NEW JAR.
-     * @notice This needs to be called before createCookieJar, in order to create a jar.
-     */
-    function depositMinETH() external payable onlyNotBlacklisted(msg.sender) {
-        if (msg.value < minETHDeposit) {
-            revert CookieJarFactory__LessThanMinimumDeposit();
-        }
-        uint256 amountRemaining = _calculateAndTransferFeeToCollector(
-            msg.value,
-            address(3)
-        );
-        jarOwnerToCurrencyAddressToAmount[msg.sender][
-            address(3)
-        ] += amountRemaining;
-    }
-
-    /**
-     * @notice This function is called to deposit minimum jar creation funds, in ERC20.
-     * @notice NO FEE ON FIRST TIME DEPOSITS i.e. USING THIS CONTRACT TO CREATE A NEW JAR.
-     * @param _amount Amount of ERC20 to deposit.
-     * @param _currency Token address of ERC20 to deposit.
-     * @return success Boolean indicating success or failure.
-     */
-    function depositMinERC20(
-        uint256 _amount,
-        address _currency
-    ) external onlyNotBlacklisted(msg.sender) returns (bool success) {
-        if (ERC20(_currency).decimals() < 1) {
-            revert CookieJarFactory__NotValidERC20();
-        }
-        if (ERC20(_currency).allowance(msg.sender, address(this)) < _amount) {
-            revert CookieJarFactory__NotSufficientAllowance();
-        }
-        if (_amount < minERC20Deposit) {
-            revert CookieJarFactory__LessThanMinimumDeposit();
-        }
-        success = ERC20(_currency).transferFrom(
-            msg.sender,
-            address(this),
-            _amount
-        );
-        uint256 amountRemaining = _calculateAndTransferFeeToCollector(
-            _amount,
-            _currency
-        );
-        jarOwnerToCurrencyAddressToAmount[msg.sender][
-            _currency
-        ] += amountRemaining;
-    }
-
-    /**
-     * @notice This function is called to withdraw deposited funds, in ETH.
-     * @param _amount Amount of ETH to withdraw.
-     */
-    function withdrawDepositedETH(
-        uint256 _amount
-    ) external onlyDepositedMinAmount(address(3), msg.sender) {
-        if (
-            _amount > jarOwnerToCurrencyAddressToAmount[msg.sender][address(3)]
-        ) {
-            revert CookieJarFactory__WithdrawingMoreThanDeposited();
-        }
-        (bool success, ) = payable(msg.sender).call{value: _amount}("");
-        if (!success) revert CookieJarFactory__TransferFailed();
-        jarOwnerToCurrencyAddressToAmount[msg.sender][address(3)] -= _amount;
-    }
-
-    /**
-     * @notice This function is called to withdraw deposited funds, in ERC20.
-     * @param _amount Amount of ERC20 to withdraw.
-     * @param _currency Token address of ERC20 to withdraw.
-     */
-    function withdrawDepositedERC20(
-        uint256 _amount,
-        address _currency
-    ) external onlyDepositedMinAmount(_currency, msg.sender) {
-        if (
-            _amount > jarOwnerToCurrencyAddressToAmount[msg.sender][_currency]
-        ) {
-            revert CookieJarFactory__WithdrawingMoreThanDeposited();
-        }
-        bool success = ERC20(_currency).transfer(msg.sender, _amount);
-    }
-
     // --- Public Functions ---
     /**
      * @notice Creates a new CookieJar contract and updates jar data in CookieJarRegistry.
@@ -301,13 +193,9 @@ contract CookieJarFactory is AccessControl {
         uint256 _withdrawalInterval,
         bool _strictPurpose,
         bool _emergencyWithdrawalEnabled,
+        bool _oneTimeWithdrawal,
         string calldata metadata
-    )
-        external
-        onlyNotBlacklisted(msg.sender)
-        onlyDepositedMinAmount(_supportedCurrency, _cookieJarOwner)
-        returns (address)
-    {
+    ) external onlyNotBlacklisted(msg.sender) returns (address) {
         /// @dev Checks if the address is a valid ERC20 contract, in case the currency is not native ETH.
         if (_supportedCurrency != address(3)) {
             if (ERC20(_supportedCurrency).decimals() < 1) {
@@ -315,7 +203,6 @@ contract CookieJarFactory is AccessControl {
             }
         }
         CookieJar newJar = new CookieJar(
-            address(this),
             _cookieJarOwner,
             _supportedCurrency,
             _accessType,
@@ -330,68 +217,13 @@ contract CookieJarFactory is AccessControl {
             defaultFeePercentage,
             _strictPurpose,
             defaultFeeCollector,
-            _emergencyWithdrawalEnabled
+            _emergencyWithdrawalEnabled,
+            _oneTimeWithdrawal
         );
 
         /// @dev Registers and updates the new CookieJar in the registry with msg.sender as the creator.
         registry.registerAndStoreCookieJar(newJar, metadata);
-        _transferCurrencyToJar(address(newJar), _supportedCurrency, msg.sender);
         emit CookieJarCreated(msg.sender, address(newJar), metadata);
         return address(newJar);
-    }
-
-    /**
-     * @notice Internal function to handle funds sending to individual jars while creation.
-     */
-    function _transferCurrencyToJar(
-        address _jar,
-        address _currency,
-        address _onBehalfOf
-    ) internal returns (bool success) {
-        uint256 mappedValue = jarOwnerToCurrencyAddressToAmount[_onBehalfOf][
-            _currency
-        ];
-        if (_currency == address(3)) {
-            (success, ) = _jar.call{value: mappedValue}("");
-        } else {
-            ERC20(_currency).approve(_jar, mappedValue);
-            success = ERC20(_currency).transfer(_jar, mappedValue);
-        }
-        CookieJar(payable(_jar)).updateCurrencyHeldByJar(mappedValue);
-    }
-
-    /**
-     * @notice Internal helper function to calculate and transfer fee to fee collector.
-     * @param _principalAmount Incoming amount.
-     * @param _token Token address.
-     */
-    function _calculateAndTransferFeeToCollector(
-        uint256 _principalAmount,
-        address _token
-    ) internal returns (uint256 amountRemaining) {
-        uint256 fee = (_principalAmount * defaultFeePercentage) / 100;
-
-        if (_token == address(3)) {
-            (bool success, ) = payable(defaultFeeCollector).call{value: fee}(
-                ""
-            );
-            if (!success) revert CookieJarFactory__TransferFailed();
-        } else {
-            bool success = ERC20(_token).transfer(defaultFeeCollector, fee);
-            if (!success) revert CookieJarFactory__TransferFailed();
-        }
-        amountRemaining = _principalAmount - fee;
-    }
-
-    /**
-     * @param _user Address of the account.
-     * @param _token Address of the token, address(3) in case of ETH.
-     * @return amount Amount of token deposited in this contract.
-     */
-    function getUserDepositAmount(
-        address _user,
-        address _token
-    ) external view returns (uint256 amount) {
-        return jarOwnerToCurrencyAddressToAmount[_user][_token];
     }
 }

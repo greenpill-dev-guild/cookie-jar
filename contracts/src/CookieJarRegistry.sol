@@ -112,11 +112,6 @@ contract CookieJarRegistry {
     }
 
     /**
-     * @notice Unregisters a CookieJar contract and deletes stored struct from the registry.
-     */
-    function unRegisterCookieJar() external {}
-
-    /**
      * @return Number of registered CookieJars in the protocol..
      */
     function getRegisteredCookieJarsCount() external view returns (uint256) {

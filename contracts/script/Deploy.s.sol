@@ -24,7 +24,7 @@ contract Deploy is Script {
         CookieJarFactory factory = new CookieJarFactory(
             config.defaultFeeCollector,
             address(registry),
-            msg.sender,
+            0x12B2434a1022d5787bf06056F2885Fe35De62Bf8,
             config.feePercentageOnDeposit,
             config.minETHDeposit,
             config.minERC20Deposit
@@ -33,6 +33,10 @@ contract Deploy is Script {
 
         // Set Factory in Registry
         registry.setCookieJarFactory(address(factory));
+
+        factory.grantProtocolAdminRole(
+            0x603fbF99674B8ed3305Eb6EA5f3491F634A402A6
+        );
 
         vm.stopBroadcast();
     }

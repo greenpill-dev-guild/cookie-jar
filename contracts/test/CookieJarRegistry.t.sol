@@ -20,7 +20,6 @@ contract CookieJarRegistryTest is Test {
         vm.deal(address(this), 1 ether);
         jar = new CookieJar(
             address(this),
-            address(this),
             address(3),
             CookieJarLib.AccessType.Whitelist,
             new address[](0),
@@ -34,7 +33,8 @@ contract CookieJarRegistryTest is Test {
             500, // defaultFeePercentage (5%)
             true, // strictPurpose
             address(4), // defaultFeeCollector
-            true // emergencyWithdrawalEnabled
+            true, // emergencyWithdrawalEnabled
+            false
         );
         registry = new CookieJarRegistry();
 
@@ -54,5 +54,6 @@ contract CookieJarRegistryTest is Test {
         CookieJarRegistry.CookieJarInfo[] memory tempArr = registry
             .getAllJars();
         assertGt(tempArr.length, 0);
+        assertGt(registry.getAllJars().length, 0);
     }
 }

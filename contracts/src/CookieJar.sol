@@ -22,13 +22,13 @@ contract CookieJar is AccessControl {
     CookieJarLib.NFTGate[] public nftGates;
 
     CookieJarLib.WithdrawalData[] public withdrawalData;
+
     /// @notice Mapping for optimized NFT gate lookup.
     mapping(address => CookieJarLib.NFTGate) private nftGateMapping;
 
     // --- Core Configuration Variables ---
     uint256 public currencyHeldByJar;
     address public currency;
-    address public cookieJarFactory;
     uint256 public minETHDeposit;
     uint256 public minERC20Deposit;
     uint256 public feePercentageOnDeposit;
@@ -38,6 +38,10 @@ contract CookieJar is AccessControl {
     CookieJarLib.AccessType public accessType;
     /// @notice Withdrawal option: Fixed or Variable.
     CookieJarLib.WithdrawalTypeOptions public withdrawalOption;
+
+    /// @notice If true, each recipient can only claim from the jar once.
+    bool public oneTimeWithdrawal;
+    /// @notice Array of approved NFT gates (used in NFTGated mode).
     /// @notice Fixed withdrawal amount (used if withdrawalOption is Fixed).
     uint256 public fixedAmount;
     /// @notice Maximum withdrawal amount (used if withdrawalOption is Variable).
@@ -59,6 +63,9 @@ contract CookieJar is AccessControl {
     /// @notice Stores the last withdrawal timestamp for NFT-gated withdrawals using a composite key (nftAddress, tokenId).
     mapping(bytes32 => uint256) public lastWithdrawalNFT;
 
+    /// @notice Only in the case of one time withdrawals.
+    mapping(address => bool) public isWithdrawnByUser;
+
     // --- Constructor ---
 
     /**
@@ -76,7 +83,6 @@ contract CookieJar is AccessControl {
      * @param _emergencyWithdrawalEnabled If true, emergency withdrawal is enabled.
      */
     constructor(
-        address _cookieJarFactory,
         address _jarOwner,
         address _supportedCurrency,
         CookieJarLib.AccessType _accessType,
@@ -91,7 +97,8 @@ contract CookieJar is AccessControl {
         uint256 _feePercentageOnDeposit,
         bool _strictPurpose,
         address _defaultFeeCollector,
-        bool _emergencyWithdrawalEnabled
+        bool _emergencyWithdrawalEnabled,
+        bool _oneTimeWithdrawal
     ) {
         if (_jarOwner == address(0))
             revert CookieJarLib.AdminCannotBeZeroAddress();
@@ -123,7 +130,6 @@ contract CookieJar is AccessControl {
         }
         jarOwner = _jarOwner;
         withdrawalOption = _withdrawalOption;
-        cookieJarFactory = _cookieJarFactory;
         minETHDeposit = _minETHDeposit;
         minERC20Deposit = _minERC20Deposit;
         fixedAmount = _fixedAmount;
@@ -134,6 +140,7 @@ contract CookieJar is AccessControl {
         feeCollector = _defaultFeeCollector;
         feePercentageOnDeposit = _feePercentageOnDeposit;
         emergencyWithdrawalEnabled = _emergencyWithdrawalEnabled;
+        oneTimeWithdrawal = _oneTimeWithdrawal;
         _setRoleAdmin(CookieJarLib.JAR_WHITELISTED, CookieJarLib.JAR_OWNER);
         _setRoleAdmin(CookieJarLib.JAR_BLACKLISTED, CookieJarLib.JAR_OWNER);
         _grantRole(CookieJarLib.JAR_OWNER, _jarOwner);
@@ -166,11 +173,6 @@ contract CookieJar is AccessControl {
     modifier onlyJarWhiteListed(address _user) {
         if (!hasRole(CookieJarLib.JAR_WHITELISTED, _user))
             revert CookieJarLib.NotAuthorized();
-        _;
-    }
-
-    modifier onlyCookieJarFactory(address _user) {
-        if (_user != cookieJarFactory) revert CookieJarLib.NotAuthorized();
         _;
     }
 
@@ -409,12 +411,6 @@ contract CookieJar is AccessControl {
         }
     }
 
-    function updateCurrencyHeldByJar(
-        uint256 amount
-    ) external onlyCookieJarFactory(msg.sender) {
-        currencyHeldByJar += amount;
-    }
-
     // --- Withdrawal Functions ---
 
     /**
@@ -435,6 +431,11 @@ contract CookieJar is AccessControl {
             revert CookieJarLib.InvalidAccessType();
         if (strictPurpose && bytes(purpose).length < 20) {
             revert CookieJarLib.InvalidPurpose();
+        }
+        if (
+            oneTimeWithdrawal == true && isWithdrawnByUser[msg.sender] == true
+        ) {
+            revert CookieJarLib.CookieJar__WithdrawalAlreadyDone();
         }
 
         uint256 nextAllowed = lastWithdrawalWhitelist[msg.sender] +
@@ -483,6 +484,9 @@ contract CookieJar is AccessControl {
             purpose: purpose
         });
         withdrawalData.push(temp); // push the data
+        if (oneTimeWithdrawal == true) {
+            isWithdrawnByUser[msg.sender] = true;
+        }
     }
 
     /**
@@ -505,6 +509,11 @@ contract CookieJar is AccessControl {
         _checkAccessNFT(gateAddress, tokenId);
         if (strictPurpose && bytes(purpose).length < 20) {
             revert CookieJarLib.InvalidPurpose();
+        }
+        if (
+            oneTimeWithdrawal == true && isWithdrawnByUser[msg.sender] == true
+        ) {
+            revert CookieJarLib.CookieJar__WithdrawalAlreadyDone();
         }
 
         bytes32 key = keccak256(abi.encodePacked(gateAddress, tokenId));
@@ -553,6 +562,9 @@ contract CookieJar is AccessControl {
             purpose: purpose
         });
         withdrawalData.push(temp); // push the data
+        if (oneTimeWithdrawal == true) {
+            isWithdrawnByUser[msg.sender] = true;
+        }
     }
 
     /**
