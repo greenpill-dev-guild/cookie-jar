@@ -193,7 +193,6 @@ export const ConfigView: React.FC<ConfigViewProps> = ({
         <Button onClick={() => onSubmit(amount)} className="w-full">
           Fund CookieJar with Currency
         </Button>
-        FIXED WITHDRAWALS
         {showUserFunctionsWhitelisted &&
           config.strictPurpose &&
           config.withdrawalOption == "FIXED" && (
@@ -244,7 +243,6 @@ export const ConfigView: React.FC<ConfigViewProps> = ({
             </>
           )}
         <>
-          VARIABLE WITHDRAWALS
           {showUserFunctionsWhitelisted &&
             config.strictPurpose &&
             config.withdrawalOption == "Variable" && (

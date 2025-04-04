@@ -337,7 +337,7 @@ const CreateCookieJarForm: React.FC = () => {
           {/* Max Withdrawal (show if Range is selected) */}
           {withdrawalOption === WithdrawalTypeOptions.Variable && (
             <div className="space-y-2">
-              <Label htmlFor="maxWithdrawal">Maximum Withdrawal (ETH)</Label>
+              <Label htmlFor="maxWithdrawal">Maximum Withdrawal </Label>
               <Input
                 id="maxWithdrawal"
                 type="text"
@@ -346,7 +346,8 @@ const CreateCookieJarForm: React.FC = () => {
                 onChange={(e) => setMaxWithdrawal(e.target.value)}
               />
               <p className="text-sm text-muted-foreground">
-                Maximum withdrawal amount in ETH
+                Maximum withdrawal amount in wei, so we can support erc20
+                withdrawals too.
               </p>
             </div>
           )}
