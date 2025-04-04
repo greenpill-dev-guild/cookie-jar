@@ -39,6 +39,7 @@ contract CookieJarRegistry {
         uint256 withdrawalInterval;
         bool strictPurpose;
         bool emergencyWithdrawalEnabled;
+        bool oneTimeWithdrawal;
     }
 
     /// @dev Array to track registered CookieJar structs.
@@ -104,7 +105,9 @@ contract CookieJarRegistry {
             maxWithdrawal: _jarInstance.maxWithdrawal(),
             withdrawalInterval: _jarInstance.withdrawalInterval(),
             strictPurpose: _jarInstance.strictPurpose(),
-            emergencyWithdrawalEnabled: _jarInstance.emergencyWithdrawalEnabled()
+            emergencyWithdrawalEnabled: _jarInstance
+                .emergencyWithdrawalEnabled(),
+            oneTimeWithdrawal: _jarInstance.oneTimeWithdrawal()
         });
         registeredCookieJars.push(tempJar);
         jarCreatorToJar[_jarInstance.jarOwner()] = tempJar;

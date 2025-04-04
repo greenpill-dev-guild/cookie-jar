@@ -573,7 +573,7 @@ contract CookieJar is AccessControl {
      * @param token If zero address then ETH is withdrawn; otherwise, ERC20 token address.
      * @param amount The amount to withdraw.
      */
-    function emergencyWithdraw(
+    function emergencyWithdrawWithoutState(
         address token,
         uint256 amount
     ) external onlyJarOwner(msg.sender) {
@@ -593,6 +593,28 @@ contract CookieJar is AccessControl {
             IERC20(token).safeTransfer(msg.sender, amount);
             emit CookieJarLib.EmergencyWithdrawal(msg.sender, token, amount);
         }
+    }
+
+    function emergencyWithdrawCurrencyWithState(
+        uint256 amount
+    ) external onlyJarOwner(msg.sender) {
+        if (!emergencyWithdrawalEnabled)
+            revert CookieJarLib.EmergencyWithdrawalDisabled();
+        if (amount == 0) revert CookieJarLib.ZeroWithdrawal();
+        if (currency == address(3)) {
+            if (address(this).balance < amount)
+                revert CookieJarLib.InsufficientBalance();
+            (bool sent, ) = msg.sender.call{value: amount}("");
+            if (!sent) revert CookieJarLib.FeeTransferFailed();
+            emit CookieJarLib.EmergencyWithdrawal(msg.sender, currency, amount);
+        } else {
+            uint256 tokenBalance = IERC20(currency).balanceOf(address(this));
+            if (tokenBalance < amount)
+                revert CookieJarLib.InsufficientBalance();
+            IERC20(currency).safeTransfer(msg.sender, amount);
+            emit CookieJarLib.EmergencyWithdrawal(msg.sender, currency, amount);
+        }
+        currencyHeldByJar -= amount;
     }
 
     function getNFTGatesArray()

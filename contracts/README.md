@@ -13,8 +13,8 @@ A decentralized protocol for controlled fund withdrawals with support for both w
 
 ## Deployments
 
-- CookieJarRegistry deployed at: https://base-sepolia.blockscout.com/address/0xc837835Ca2a1386C81198a592aD8B68eC2442533?tab=contract
-- CookieJarFactory deployed at: https://sepolia.basescan.org/address/0xaa15433c45745042dff6173f5605b61cd1bc6a94
+- CookieJarRegistry deployed at: https://base-sepolia.blockscout.com/address/0xDB06e99f0e5Ed8C412c582516D38D2fAdC07eD3C
+- CookieJarFactory deployed at: https://base-sepolia.blockscout.com/address/0x5fE4fF0d6cdF621888F7B1db62460b9876229c0d
 
 ## Smart Contract Architecture
 
