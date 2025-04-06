@@ -1018,7 +1018,7 @@ contract CookieJarTest is Test {
         vm.expectRevert(
             abi.encodeWithSelector(CookieJarLib.InsufficientBalance.selector)
         );
-        jarWhitelistETH.emergencyWithdraw(address(dummyToken), 600 * 1e18);
+        jarWhitelistETH.emergencyWithdrawWithoutState(address(dummyToken), 600 * 1e18);
     }
 
     // // ===== Emergency Withdrawal Zero Amount Tests =====
