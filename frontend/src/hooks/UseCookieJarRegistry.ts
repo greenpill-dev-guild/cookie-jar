@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useReadCookieJarRegistryCookieJars } from "../generated";
+import { useReadCookieJarRegistryGetAllJars } from "../generated";
 
 interface JarData {
   jarAddress: string;
@@ -27,13 +27,13 @@ export function useCookieJarData() {
     isSuccess: isJarSuccess,
     isLoading: isJarLoading,
     error: jarError,
-  } = useReadCookieJarRegistryCookieJars({
+  } = useReadCookieJarRegistryGetAllJars({
     args: [],
     query: {
       enabled: shouldFetchJar,
     },
   });
-
+  console.log(jarResponse);
   useEffect(() => {
     if (isJarSuccess && jarResponse) {
       try {
