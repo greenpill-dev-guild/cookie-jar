@@ -46,7 +46,7 @@ export const CountdownTimer: React.FC<CountdownTimerProps> = ({
           timeLeft === 0 ? "bg-green-500" : "bg-blue-500"
         }`}
       >
-        {timeLeft === 0 ? "Ready to withdraw" : formatTimeLeft(timeLeft)}
+        {timeLeft === 0 ? "unknown" : formatTimeLeft(timeLeft)}
       </span>
     </div>
   );
