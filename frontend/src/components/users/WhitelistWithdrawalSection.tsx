@@ -23,7 +23,7 @@ export const WhitelistWithdrawalSection: React.FC<WhitelistWithdrawalSectionProp
   handleWithdrawWhitelistVariable
 }) => {
   // Fixed amount withdrawal with purpose
-  if (config.strictPurpose && config.withdrawalOption === "FIXED") {
+  if (config.strictPurpose && config.withdrawalOption === "Fixed") {
     return (
       <div className="flex flex-col gap-4">
         <Input
@@ -41,7 +41,7 @@ export const WhitelistWithdrawalSection: React.FC<WhitelistWithdrawalSectionProp
   }
   
   // Fixed amount withdrawal without purpose
-  if (!config.strictPurpose && config.withdrawalOption === "FIXED") {
+  if (!config.strictPurpose && config.withdrawalOption === "Fixed") {
     return (
       <div className="flex flex-col gap-4">
         <Button onClick={handleWithdrawWhitelist} className="w-full">

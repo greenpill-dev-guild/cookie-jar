@@ -76,7 +76,6 @@ const CookieJarConfigDetails: React.FC = () => {
   const [pendingDepositAmount, setPendingDepositAmount] = useState<bigint>(0n);
 
   useEffect(() => {
-    console.log("hitt");
 
     if (isApprovalSuccess && approvalCompleted) {
       console.log("hitt");
@@ -96,7 +95,7 @@ const CookieJarConfigDetails: React.FC = () => {
   ]);
 
   const onSubmit = (value: string) => {
-    const amountBigInt = BigInt(value || "0");
+    const amountBigInt = parseEther(value || "0");
 
     if (config.currency == "0x0000000000000000000000000000000000000003") {
       DepositEth({

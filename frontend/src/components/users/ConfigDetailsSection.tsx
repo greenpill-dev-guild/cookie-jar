@@ -4,6 +4,8 @@ import { Separator } from "@/components/ui/separator";
 import { ConfigItem } from "./ConfigItem";
 import { formatEther } from "viem";
 import { formatTime, formatValue, formatAddress } from "../../utils";
+import { CountdownTimer } from "./CountdownTimer"; // adjust path as needed
+
 
 interface ConfigDetailsSectionProps {
   config: any; // Ideally this would be more specifically typed
@@ -23,17 +25,24 @@ export const ConfigDetailsSection: React.FC<ConfigDetailsSectionProps> = ({ conf
         value={formatValue(config.withdrawalOption)}
         highlight
       />
-      <ConfigItem label="Fixed Amount" value={Number(config.fixedAmount)} />
-      <ConfigItem
-        label="Balance"
-        value={formatValue(config.balance.toString())}
-        highlight
-      />
-      <ConfigItem
-        label="Currency"
-        value={formatAddress(config.currency)}
-        highlight
-      />
+   <ConfigItem
+  label="Fixed Amount"
+  value={
+    config.currency === "0x0000000000000000000000000000000000000003"
+      ? `${formatEther(BigInt(config.fixedAmount))} ETH`
+      : `${formatValue(config.fixedAmount)} Tokens`
+  }
+/>
+<ConfigItem
+  label="Currency"
+  value={
+    config.currency === "0x0000000000000000000000000000000000000003"
+      ? "ETH (Native)"
+      : formatAddress(config.currency)
+  }
+  highlight
+/>
+
 
       <Separator className="col-span-1 md:col-span-2 my-2" />
       <ConfigItem
@@ -72,20 +81,35 @@ export const ConfigDetailsSection: React.FC<ConfigDetailsSectionProps> = ({ conf
         label="Fee Collector"
         value={formatAddress(config.feeCollector || "")}
       />
-      <ConfigItem
-        label="Whitelisted"
-        value={formatValue(config.whitelist)}
-        boolean
-      />
+ <div className="flex flex-col gap-1">
+  <span className="text-sm text-muted-foreground">Whitelisted</span>
+  <span
+    className={`text-base font-medium break-words px-3 py-1 rounded-md text-white ${
+      config.whitelist ? "bg-green-500" : "bg-red-500"
+    }`}
+  >
+    {config.whitelist ? "You are whitelisted" : "You are not whitelisted"}
+  </span>
+</div>
       <ConfigItem
         label="Blacklisted"
         value={formatValue(config.blacklist)}
         boolean
       />
-      <ConfigItem
-        label="Last Withdrawal Whitelist"
-        value={formatValue(config.lastWithdrawalWhitelist?.toString())}
-      />
+   <ConfigItem
+  label="Last Withdrawal Whitelist"
+  value={new Date(Number(config.lastWithdrawalWhitelist) * 1000).toLocaleString('en-IN', {
+    timeZone: 'Asia/Kolkata',
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  })}
+/>
+
+<CountdownTimer
+  lastWithdrawalTimestamp={Number(config.lastWithdrawalWhitelist)}
+  interval={Number(config.withdrawalInterval)}
+/>
+
       <ConfigItem
         label="Last Withdrawal NFT"
         value={formatValue(config.lastWithdrawalNft?.toString())}

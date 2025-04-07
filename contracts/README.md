@@ -161,7 +161,6 @@ forge script script/Deploy.s.sol:DeployCookie \
   --verifier-url https://https://sepolia.basescan.org//api \
   -vvvv
 
-  CookieJarRegistry deployed at:  0x194d1E0AFFDB9B1C6d54fd8b1F25C4895F13184B
-  Test ERC 0xefd3AbfA6b98CAe27cC503343eB7F1292005B68B
-  CookieJarFactory deployed at:  0x3ad37b0EFAe787B8Ad88d9F19BB1B6Af7B9E46ad
-  check
+   CookieJarRegistry deployed at:  0x39C111839b038aAca7f8f59A74017Ab37ffCF2AF
+  Test ERC 0x68007C6A58E6D7C8054261F33614FC781F46DFC2
+  CookieJarFactory deployed at:  0xa004A762FC3dcDaBdB0392707bD25ff8d428403f

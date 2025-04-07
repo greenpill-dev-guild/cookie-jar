@@ -45,23 +45,6 @@ contract Deploy is Script {
         factory.grantProtocolAdminRole(
             0x9ED3f77Bb53C2b37Cf86BfBed0Df8D0867a7F9dc
         );
-
-        address cookieJarAddr = factory.createCookieJar(
-            deployer, // cookieJarOwner
-            address(testtoken), // supportedCurrency
-            CookieJarLib.AccessType.Whitelist, // accessType
-            nftAddresses,
-            nftTypes,
-            CookieJarLib.WithdrawalTypeOptions.Fixed, // withdrawalOption
-            10, // fixedAmount
-            0, // maxWithdrawal (ignored for Fixed)
-            1 days, // withdrawalInterval
-            false, // strictPurpose
-            true,  // emergencyWithdrawalEnabled
-            false, // oneTimeWithdrawal
-            "Test metadata" // metadata
-        );
-        testtoken.approve(address(cookieJarAddr,))
         vm.stopBroadcast();
     }
 }
