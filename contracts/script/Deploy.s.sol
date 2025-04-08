@@ -6,6 +6,16 @@ import {CookieJarRegistry} from "../src/CookieJarRegistry.sol";
 import {CookieJarFactory} from "../src/CookieJarFactory.sol";
 import {HelperConfig} from "./HelperConfig.s.sol";
 import "@openzeppelin/contracts/mocks/token/ERC20Mock.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+
+contract ERC721Mock is ERC721 {
+    constructor(string memory name, string memory symbol) ERC721(name, symbol) {}
+
+    function mint(address to, uint256 tokenId) public {
+        _mint(to, tokenId);
+    }
+}
+
 
 
 
@@ -19,6 +29,11 @@ contract Deploy is Script {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         address deployer = vm.addr(deployerPrivateKey);
         vm.startBroadcast(deployerPrivateKey);
+  
+
+
+
+
       
 
         // Deploy Registry
@@ -45,23 +60,12 @@ contract Deploy is Script {
         factory.grantProtocolAdminRole(
             0x9ED3f77Bb53C2b37Cf86BfBed0Df8D0867a7F9dc
         );
+              ERC721Mock erc721 = new ERC721Mock("TestNFT", "TNFT");
+                address recipient = 0x487a30c88900098b765d76285c205c7c47582512;
+                        erc721.mint(recipient, 1);
+                                console.log("ERC721Mock deployed at:", address(erc721));
+                                        console.log("Token ID 1 minted to:", recipient);
 
-        address cookieJarAddr = factory.createCookieJar(
-            deployer, // cookieJarOwner
-            address(testtoken), // supportedCurrency
-            CookieJarLib.AccessType.Whitelist, // accessType
-            nftAddresses,
-            nftTypes,
-            CookieJarLib.WithdrawalTypeOptions.Fixed, // withdrawalOption
-            10, // fixedAmount
-            0, // maxWithdrawal (ignored for Fixed)
-            1 days, // withdrawalInterval
-            false, // strictPurpose
-            true,  // emergencyWithdrawalEnabled
-            false, // oneTimeWithdrawal
-            "Test metadata" // metadata
-        );
-        testtoken.approve(address(cookieJarAddr,))
         vm.stopBroadcast();
     }
 }

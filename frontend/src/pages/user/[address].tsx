@@ -15,13 +15,14 @@ import { ShieldAlert, Users, Coins } from "lucide-react";
 import { useSendTransaction, useAccount } from "wagmi";
 import { parseEther } from "viem";
 import { type ReadContractErrorType } from "viem";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import {
-  useWriteCookieJarDepositETH,
+  useWriteCookieJarDepositEth,
   useWriteCookieJarDepositCurrency,
+  useWriteErc20Approve
 } from "../../generated";
 
 import { LoadingState } from "../../components/Loading";
@@ -37,8 +38,9 @@ const CookieJarConfigDetails: React.FC = () => {
   const { address } = router.query;
   const { data: hash, sendTransaction } = useSendTransaction();
   const { address: userAddress } = useAccount();
+  const [tokenAddress, setTokenAddress] = useState("");
 
-  const addressString = address as string;
+  const addressString = address as `0x${string}`;
   const isValidAddress =
     typeof address === "string" && address.startsWith("0x");
 
@@ -48,40 +50,76 @@ const CookieJarConfigDetails: React.FC = () => {
       : "0x0000000000000000000000000000000000000000"
   );
 
-  // Check if the current user is the admin
   const isAdmin =
     userAddress &&
     config?.admin &&
     userAddress.toLowerCase() === config.admin.toLowerCase();
 
-  // Check if the current CookieJar is whitelisted and access type is whitelisted
   const showUserFunctions =
     config?.whitelist === true && config?.accessType === "Whitelist";
 
-  // Check if the current user is the fee collector
   const isFeeCollector =
     userAddress &&
     config?.feeCollector &&
     userAddress.toLowerCase() === config.feeCollector.toLowerCase();
 
-  const { writeContract: DepositETH } = useWriteCookieJarDepositETH();
+  const { writeContract: DepositEth } = useWriteCookieJarDepositEth();
   const { writeContract: DepositCurrency } = useWriteCookieJarDepositCurrency();
+  const {
+    writeContract: Approve,
+    isPending: isApprovalPending,
+    isSuccess: isApprovalSuccess,
+    isError:isApprovalerror
+  } = useWriteErc20Approve();
 
-  const onSubmit = (value: string) => {
-    if (config.currency == "0x0000000000000000000000000000000000000003") {
-      DepositETH({
-        address: addressString as `0x${string}`,
-        value: BigInt(value),
-      });
-    } else {
+  const [approvalCompleted, setApprovalCompleted] = useState(false);
+  const [pendingDepositAmount, setPendingDepositAmount] = useState<bigint>(0n);
+
+  useEffect(() => {
+
+    if (isApprovalSuccess && approvalCompleted) {
+      console.log("hitt");
       DepositCurrency({
         address: addressString as `0x${string}`,
-        args: [BigInt(value || "0")],
+        args: [pendingDepositAmount],
       });
+      setApprovalCompleted(false);
+      setPendingDepositAmount(0n);
+    }
+  }, [
+    isApprovalSuccess,
+    approvalCompleted,
+    DepositCurrency,
+    addressString,
+    pendingDepositAmount,
+  ]);
+
+  const onSubmit = (value: string) => {
+    const amountBigInt = parseEther(value || "0");
+
+    if (config.currency == "0x0000000000000000000000000000000000000003") {
+      DepositEth({
+        address: addressString as `0x${string}`,
+        value: amountBigInt,
+      });
+    } else {
+
+      setApprovalCompleted(true);
+      setPendingDepositAmount(amountBigInt);
+      try {
+        console.log("Calling approve with", tokenAddress);
+
+         Approve({
+          address: config.currency as `0x${string}`,
+          args: [addressString as `0x${string}`, amountBigInt],
+        });
+      } catch (error) {
+        console.error("Approve error:", error);
+      }
+      
     }
   };
 
-  // Ensure the address is valid before proceeding
   if (!isValidAddress) {
     return (
       <ErrorAlert
@@ -91,12 +129,10 @@ const CookieJarConfigDetails: React.FC = () => {
     );
   }
 
-  // Handle loading state
   if (isLoading) {
     return <LoadingState />;
   }
 
-  // Handle errors
   if (hasError) {
     const formattedErrors = errors
       .filter((error): error is ReadContractErrorType => error !== null)
@@ -165,12 +201,18 @@ const CookieJarConfigDetails: React.FC = () => {
                 amount={amount}
                 setAmount={setAmount}
                 onSubmit={onSubmit}
+                tokenAddress={tokenAddress}
+                setTokenAddress={setTokenAddress}
               />
+              {isApprovalPending && (
+                <p className="text-sm text-muted-foreground mt-2">
+                  Waiting for token approval...
+                </p>
+              )}
             </TabsContent>
 
             {isFeeCollector && (
               <TabsContent value="feeCollector">
-                {/* Fee Collector Functions Content */}
                 <div className="space-y-4">
                   <DefaultFeeCollector
                     contractAddress={address as `0x${string}`}

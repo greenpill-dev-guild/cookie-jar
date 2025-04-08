@@ -9,6 +9,7 @@ export default defineConfig({
       project: '../contracts',
       artifacts: 'out',
       include: [
+        'ERC20.sol/ERC20.json',
         'CookieJar.sol/CookieJar.json',
         'CookieJarFactory.sol/CookieJarFactory.json',
         'CookieJarRegistry.sol/CookieJarRegistry.json'

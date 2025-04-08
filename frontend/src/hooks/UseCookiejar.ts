@@ -1,10 +1,10 @@
 import { keccak256, toUtf8Bytes } from "ethers";
 import {
   useReadCookieJar,
-  useReadCookieJarGetCurrency,
-  useReadCookieJarGetCurrencyHeldByJar,
+  useReadCookieJarCurrency,
+  useReadCookieJarCurrencyHeldByJar,
   useReadCookieJarAccessType,
-  useReadCookieJarOwner,
+  useReadCookieJarJarOwner,
   useReadCookieJarWithdrawalOption,
   useReadCookieJarFixedAmount,
   useReadCookieJarMaxWithdrawal,
@@ -16,7 +16,7 @@ import {
   useReadCookieJarLastWithdrawalWhitelist,
   useReadCookieJarLastWithdrawalNft,
   useReadCookieJarOneTimeWithdrawal,
-  useReadCookieJarGetPastWithdrawals,
+  useReadCookieJarGetWithdrawalDataArray
 } from "../generated";
 import { useAccount, useBalance } from "wagmi";
 
@@ -45,7 +45,7 @@ export const useCookieJarConfig = (address: `0x${string}`) => {
   const userAddress = account.address as `0x${string}`;
 
   const accessType = useReadCookieJarAccessType({ address });
-  const admin = useReadCookieJarOwner({ address });
+  const admin = useReadCookieJarJarOwner({ address });
   const withdrawalOption = useReadCookieJarWithdrawalOption({ address });
   const fixedAmount = useReadCookieJarFixedAmount({ address });
   const maxWithdrawal = useReadCookieJarMaxWithdrawal({ address });
@@ -58,7 +58,7 @@ export const useCookieJarConfig = (address: `0x${string}`) => {
     address,
   });
 
-  const pastWithdrawals = useReadCookieJarGetPastWithdrawals({
+  const pastWithdrawals = useReadCookieJarGetWithdrawalDataArray({
     address,
   });
   const feeCollector = useReadCookieJarFeeCollector({ address });
@@ -89,10 +89,10 @@ export const useCookieJarConfig = (address: `0x${string}`) => {
     address,
     args: [userAddress],
   });
-  const balance = useReadCookieJarGetCurrencyHeldByJar({
+  const balance = useReadCookieJarCurrencyHeldByJar({
     address,
   });
-  const currency = useReadCookieJarGetCurrency({ address });
+  const currency = useReadCookieJarCurrency({ address });
 
   const isLoading = [
     accessType.isLoading,
@@ -152,6 +152,7 @@ export const useCookieJarConfig = (address: `0x${string}`) => {
   ].filter(Boolean);
   return {
     config: {
+      JAR_OWNER: JAR_OWNER,
       contractAddress: address as `0x${string}`,
       accessType:
         accessType.data !== undefined ? AccessType[accessType.data] : undefined,
