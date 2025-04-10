@@ -27,7 +27,8 @@ export const NFTGatedWithdrawalSection: React.FC<NFTGatedWithdrawalSectionProps>
   handleWithdrawNFTVariable
 }) => {
   // Fixed amount NFT-gated withdrawal
-  if (config.strictPurpose && config.withdrawalOption === "FIXED") {
+  console.log("config")
+  if ( config.withdrawalOption === "Fixed") {
     return (
       <div className="flex flex-col gap-4">
         <Input

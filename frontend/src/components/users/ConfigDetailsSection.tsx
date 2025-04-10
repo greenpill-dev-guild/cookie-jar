@@ -42,6 +42,14 @@ export const ConfigDetailsSection: React.FC<ConfigDetailsSectionProps> = ({ conf
   }
   highlight
 />
+<ConfigItem
+  label="Balance"
+  value={
+    config.currency === "0x0000000000000000000000000000000000000003"
+      ? `${formatEther(BigInt(config.balance))} ETH`
+      : `${formatValue(config.balance)} Tokens`
+  }
+/>
 
 
       <Separator className="col-span-1 md:col-span-2 my-2" />

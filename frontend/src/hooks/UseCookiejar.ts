@@ -92,6 +92,7 @@ export const useCookieJarConfig = (address: `0x${string}`) => {
   const balance = useReadCookieJarCurrencyHeldByJar({
     address,
   });
+  console.log(balance.data);
   const currency = useReadCookieJarCurrency({ address });
 
   const isLoading = [

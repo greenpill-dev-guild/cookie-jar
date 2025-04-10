@@ -43,7 +43,9 @@ export const AccessTypeSection: React.FC<AccessTypeSectionProps> = ({
 
   // Add an NFT address and type
   const addNft = () => {
+    console.log("hitt")
     if (newNftAddress) {
+      console.log("Adding NFT:", newNftAddress, newNftType);
       setNftAddresses([...nftAddresses, newNftAddress]);
       setNftTypes([...nftTypes, newNftType]);
       setNewNftAddress("");

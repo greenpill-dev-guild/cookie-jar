@@ -109,7 +109,8 @@ const CreateCookieJarForm: React.FC = () => {
         accessType === AccessType.NFTGated ? nftAddresses : [];
       const effectiveNftTypes =
         accessType === AccessType.NFTGated ? nftTypes : [];
-
+      console.log("Effective NFT Addresses:", effectiveNftAddresses)
+      console.log("Effective NFT Types:", effectiveNftTypes)
       try {
         createCookieJar({
           args: [
