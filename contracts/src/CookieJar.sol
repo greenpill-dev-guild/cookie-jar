@@ -226,7 +226,7 @@ contract CookieJar is AccessControl {
         address[] calldata _users
     ) external onlyJarOwner(msg.sender) {
         for (uint256 i = 0; i < _users.length; i++) {
-            _grantRole(CookieJarLib.JAR_BLACKLISTED, _users[i]);
+            _revokeRole(CookieJarLib.JAR_BLACKLISTED, _users[i]);
         }
         // Emit the event after updating all addresses
         emit CookieJarLib.BlacklistUpdated(_users, false);

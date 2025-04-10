@@ -43,7 +43,7 @@ export const ConfigView: React.FC<ConfigViewProps> = ({
   // Check conditions for showing different UI sections
   const showUserFunctionsWhitelisted =
     config?.whitelist === true && config?.accessType === "Whitelist";
-  const showUserFunctionsNFTGated = config?.accessType === "";
+  const showUserFunctionsNFTGated = config?.accessType === "NFTGated";
 
   // Contract hooks
   const {
