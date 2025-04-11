@@ -102,6 +102,8 @@ contract CookieJar is AccessControl {
     ) {
         if (_jarOwner == address(0))
             revert CookieJarLib.AdminCannotBeZeroAddress();
+        if (_defaultFeeCollector == address(0))
+            revert CookieJarLib.FeeCollectorAddressCannotBeZeroAddress();
         accessType = _accessType;
         if (accessType == CookieJarLib.AccessType.NFTGated) {
             if (_nftAddresses.length == 0)
@@ -238,6 +240,8 @@ contract CookieJar is AccessControl {
      */
     function updateFeeCollector(address _newFeeCollector) external {
         if (msg.sender != feeCollector) revert CookieJarLib.NotFeeCollector();
+        if (_newFeeCollector == address(0))
+            revert CookieJarLib.FeeCollectorAddressCannotBeZeroAddress();
         address old = feeCollector;
         feeCollector = _newFeeCollector;
         emit CookieJarLib.FeeCollectorUpdated(old, _newFeeCollector);

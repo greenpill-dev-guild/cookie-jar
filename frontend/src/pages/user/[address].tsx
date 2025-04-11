@@ -22,7 +22,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   useWriteCookieJarDepositEth,
   useWriteCookieJarDepositCurrency,
-  useWriteErc20Approve
+  useWriteErc20Approve,
 } from "../../generated";
 
 import { LoadingState } from "../../components/Loading";
@@ -69,14 +69,13 @@ const CookieJarConfigDetails: React.FC = () => {
     writeContract: Approve,
     isPending: isApprovalPending,
     isSuccess: isApprovalSuccess,
-    isError:isApprovalerror
+    isError: isApprovalerror,
   } = useWriteErc20Approve();
 
   const [approvalCompleted, setApprovalCompleted] = useState(false);
   const [pendingDepositAmount, setPendingDepositAmount] = useState<bigint>(0n);
 
   useEffect(() => {
-
     if (isApprovalSuccess && approvalCompleted) {
       console.log("hitt");
       DepositCurrency({
@@ -103,20 +102,18 @@ const CookieJarConfigDetails: React.FC = () => {
         value: amountBigInt,
       });
     } else {
-
       setApprovalCompleted(true);
       setPendingDepositAmount(amountBigInt);
       try {
         console.log("Calling approve with", tokenAddress);
 
-         Approve({
+        Approve({
           address: config.currency as `0x${string}`,
           args: [addressString as `0x${string}`, amountBigInt],
         });
       } catch (error) {
         console.error("Approve error:", error);
       }
-      
     }
   };
 

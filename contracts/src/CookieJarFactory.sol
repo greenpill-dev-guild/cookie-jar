@@ -80,6 +80,9 @@ contract CookieJarFactory is AccessControl {
         uint256 _minETHDeposit,
         uint256 _minERC20Deposit
     ) {
+        if (_defaultFeeCollector == address(0)) {
+            revert CookieJarLib.FeeCollectorAddressCannotBeZeroAddress();
+        }
         defaultFeeCollector = _defaultFeeCollector;
         registry = CookieJarRegistry(_registry);
         defaultFeePercentage = _feePercentage;
