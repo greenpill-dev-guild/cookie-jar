@@ -69,11 +69,13 @@ const CookieJarConfigDetails: React.FC = () => {
 
   const onSubmit = (value: string) => {
     if (config.currency == "0x0000000000000000000000000000000000000003") {
+      // Identifier address for ETH.
       DepositETH({
         address: addressString as `0x${string}`,
         value: BigInt(value),
       });
     } else {
+      // approve the amount to jar.
       DepositCurrency({
         address: addressString as `0x${string}`,
         args: [BigInt(value || "0")],
