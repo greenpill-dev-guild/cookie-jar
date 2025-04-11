@@ -89,6 +89,7 @@ library CookieJarLib {
     error DuplicateNFTGate();
     error InvalidNFTType();
     error AdminCannotBeZeroAddress();
+    error FeeCollectorAddressCannotBeZeroAddress();
     error EmergencyWithdrawalDisabled();
     error InvalidTokenAddress();
     error NFTGateNotFound();
