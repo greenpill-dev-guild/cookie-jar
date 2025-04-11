@@ -101,7 +101,7 @@ forge script script/Deploy.s.sol:DeployCookie \
  --broadcast \
  --verify \
  --etherscan-api-key $SEPOLIA_ETHERSCAN_KEY \
- --verifier-url https://api-sepolia.etherscan.io/api \
+ --verifier-url https://api.basescan.org.io/api \
  -vvvv
 ```
 
@@ -148,3 +148,20 @@ For detailed documentation about Foundry's capabilities, visit the [Foundry Book
 - Review withdrawal rules and access controls before deployment
 
 fix emergency withdrawal
+
+
+### To Deploy and verify 
+source .env
+forge script script/Deploy.s.sol:DeployCookie \
+  --via-ir \
+  --rpc-url $SEPOLIA_URL \
+  --broadcast \
+  --verify \
+  --etherscan-api-key $SEPOLIA_ETHERSCAN_KEY \
+  --verifier-url https://https://sepolia.basescan.org//api \
+  -vvvv
+
+   CookieJarRegistry deployed at:  0x39C111839b038aAca7f8f59A74017Ab37ffCF2AF
+  Test ERC 0x68007C6A58E6D7C8054261F33614FC781F46DFC2
+  CookieJarFactory deployed at:  0xa004A762FC3dcDaBdB0392707bD25ff8d428403f
+    ERC721Mock deployed at: 0x68C7C7511959c2C5Dada81e697a7e7FF8800C7fb
