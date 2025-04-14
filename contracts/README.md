@@ -13,8 +13,8 @@ A decentralized protocol for controlled fund withdrawals with support for both w
 
 ## Deployments
 
-- CookieJarRegistry deployed at: https://base-sepolia.blockscout.com/address/0x4446c9BB484e085dBb2798ed02418118A09F269F
-- CookieJarFactory deployed at: https://base-sepolia.blockscout.com/address/0x4D1AC233c9ff288066014D960a85b41EA896c4a5
+- CookieJarRegistry deployed at: https://base-sepolia.blockscout.com/address/0xE9c62c210E6d56EbB0718f79DCE2883b8e38B356
+- CookieJarFactory deployed at: https://base-sepolia.blockscout.com/address/0x010CE87d0E7F8E818805a27C95E09cb4961C8c6f
 
 ## Smart Contract Architecture
 
@@ -149,19 +149,14 @@ For detailed documentation about Foundry's capabilities, visit the [Foundry Book
 
 fix emergency withdrawal
 
+### To Deploy and verify
 
-### To Deploy and verify 
 source .env
 forge script script/Deploy.s.sol:DeployCookie \
-  --via-ir \
-  --rpc-url $SEPOLIA_URL \
-  --broadcast \
-  --verify \
-  --etherscan-api-key $SEPOLIA_ETHERSCAN_KEY \
-  --verifier-url https://https://sepolia.basescan.org//api \
-  -vvvv
-
-   CookieJarRegistry deployed at:  0x39C111839b038aAca7f8f59A74017Ab37ffCF2AF
-  Test ERC 0x68007C6A58E6D7C8054261F33614FC781F46DFC2
-  CookieJarFactory deployed at:  0xa004A762FC3dcDaBdB0392707bD25ff8d428403f
-    ERC721Mock deployed at: 0x68C7C7511959c2C5Dada81e697a7e7FF8800C7fb
+ --via-ir \
+ --rpc-url $BASE_SEPOLIA_RPC_URL \
+ --broadcast \
+ --verify \ --verifier
+--etherscan-api-key $SEPOLIA_ETHERSCAN_KEY \
+ --verifier-url https://https://sepolia.basescan.org/api/ \
+ -vvvv

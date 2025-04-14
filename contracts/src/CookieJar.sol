@@ -321,8 +321,9 @@ contract CookieJar is AccessControl {
     ) external onlyJarOwner(msg.sender) {
         if (_newAdmin == address(0))
             revert CookieJarLib.AdminCannotBeZeroAddress();
-        _revokeRole(CookieJarLib.JAR_OWNER, msg.sender);
+        _revokeRole(CookieJarLib.JAR_OWNER, jarOwner);
         _grantRole(CookieJarLib.JAR_OWNER, _newAdmin);
+        jarOwner = _newAdmin;
         emit CookieJarLib.AdminUpdated(_newAdmin);
     }
 
