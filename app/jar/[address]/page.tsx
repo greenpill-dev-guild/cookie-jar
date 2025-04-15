@@ -26,6 +26,7 @@ import { Clock, ArrowUpToLine } from "lucide-react"
 import { BackButton } from "@/components/design/back-button"
 import { useWriteCookieJarWithdrawWhitelistMode, useWriteCookieJarWithdrawNftMode } from "@/generated"
 import { CountdownTimer } from "@/components/users/CountdownTimer"
+import { WithdrawalHistorySection, type Withdrawal } from "@/components/users/WithdrawlHistorySection"
 
 export default function CookieJarConfigDetails() {
   const params = useParams()
@@ -680,6 +681,21 @@ export default function CookieJarConfigDetails() {
             )}
           </Tabs>
         </div>
+      </div>
+
+      {/* Withdrawal History Section */}
+      <div className="mt-8">
+        <Card className="border-none shadow-md">
+          <CardHeader className="bg-[#fff8f0] rounded-t-lg">
+            <CardTitle className="text-xl text-[#3c2a14]">Withdrawal History</CardTitle>
+            <CardDescription className="text-[#8b7355]">Past withdrawals from this cookie jar</CardDescription>
+          </CardHeader>
+          <CardContent className="p-6">
+            <WithdrawalHistorySection
+              pastWithdrawals={config.pastWithdrawals ? ([...config.pastWithdrawals] as Withdrawal[]) : undefined}
+            />
+          </CardContent>
+        </Card>
       </div>
     </div>
   )

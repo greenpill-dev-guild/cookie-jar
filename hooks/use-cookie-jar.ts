@@ -1,30 +1,9 @@
 "use client"
 
 import { keccak256, toUtf8Bytes } from "ethers"
-import {
-  useReadCookieJarCurrency,
-  useReadCookieJarCurrencyHeldByJar,
-  useReadCookieJarAccessType,
-  useReadCookieJarJarOwner,
-  useReadCookieJarWithdrawalOption,
-  useReadCookieJarFixedAmount,
-  useReadCookieJarMaxWithdrawal,
-  useReadCookieJarWithdrawalInterval,
-  useReadCookieJarStrictPurpose,
-  useReadCookieJarEmergencyWithdrawalEnabled,
-  useReadCookieJarFeeCollector,
-  useReadCookieJarHasRole,
-  useReadCookieJarLastWithdrawalWhitelist,
-  useReadCookieJarLastWithdrawalNft,
-  useReadCookieJarOneTimeWithdrawal,
-  useReadCookieJarGetWithdrawalDataArray,
-} from "../generated"
 import { useAccount } from "wagmi"
-import { useRef, useEffect } from "react"
-import { useReadContracts } from 'wagmi'
-import { cookieJarAbi } from '../generated' // assuming this exists
-
-
+import { useReadContracts } from "wagmi"
+import { cookieJarAbi } from "../generated" // assuming this exists
 
 /**
  * Enum for Access Type
@@ -252,14 +231,10 @@ enum WithdrawalTypeOptions {
 //   }
 // }
 
-
-
-
 /**
- * 
+ *
  * Optimised
  */
-
 
 export const useCookieJarConfig = (address: `0x${string}`) => {
   const { address: userAddress } = useAccount()
@@ -270,29 +245,29 @@ export const useCookieJarConfig = (address: `0x${string}`) => {
 
   const { data, isLoading, isError, error } = useReadContracts({
     contracts: [
-      { address, abi: cookieJarAbi, functionName: 'accessType' },
-      { address, abi: cookieJarAbi, functionName: 'jarOwner' },
-      { address, abi: cookieJarAbi, functionName: 'withdrawalOption' },
-      { address, abi: cookieJarAbi, functionName: 'fixedAmount' },
-      { address, abi: cookieJarAbi, functionName: 'maxWithdrawal' },
-      { address, abi: cookieJarAbi, functionName: 'withdrawalInterval' },
-      { address, abi: cookieJarAbi, functionName: 'strictPurpose' },
-      { address, abi: cookieJarAbi, functionName: 'emergencyWithdrawalEnabled' },
-      { address, abi: cookieJarAbi, functionName: 'oneTimeWithdrawal' },
-      { address, abi: cookieJarAbi, functionName: 'getWithdrawalDataArray' },
-      { address, abi: cookieJarAbi, functionName: 'feeCollector' },
-      { address, abi: cookieJarAbi, functionName: 'hasRole', args: [JAR_WHITELISTED, userAddress!] },
-      { address, abi: cookieJarAbi, functionName: 'hasRole', args: [JAR_BLACKLISTED, userAddress!] },
-      { address, abi: cookieJarAbi, functionName: 'lastWithdrawalWhitelist', args: [userAddress!] },
-      { address, abi: cookieJarAbi, functionName: 'lastWithdrawalNFT', args: [userAddress!] },
-      { address, abi: cookieJarAbi, functionName: 'currencyHeldByJar' },
-      { address, abi: cookieJarAbi, functionName: 'currency' },
+      { address, abi: cookieJarAbi, functionName: "accessType" },
+      { address, abi: cookieJarAbi, functionName: "jarOwner" },
+      { address, abi: cookieJarAbi, functionName: "withdrawalOption" },
+      { address, abi: cookieJarAbi, functionName: "fixedAmount" },
+      { address, abi: cookieJarAbi, functionName: "maxWithdrawal" },
+      { address, abi: cookieJarAbi, functionName: "withdrawalInterval" },
+      { address, abi: cookieJarAbi, functionName: "strictPurpose" },
+      { address, abi: cookieJarAbi, functionName: "emergencyWithdrawalEnabled" },
+      { address, abi: cookieJarAbi, functionName: "oneTimeWithdrawal" },
+      { address, abi: cookieJarAbi, functionName: "getWithdrawalDataArray" },
+      { address, abi: cookieJarAbi, functionName: "feeCollector" },
+      { address, abi: cookieJarAbi, functionName: "hasRole", args: [JAR_WHITELISTED, userAddress!] },
+      { address, abi: cookieJarAbi, functionName: "hasRole", args: [JAR_BLACKLISTED, userAddress!] },
+      { address, abi: cookieJarAbi, functionName: "lastWithdrawalWhitelist", args: [userAddress!] },
+      { address, abi: cookieJarAbi, functionName: "lastWithdrawalNFT", args: [userAddress!] },
+      { address, abi: cookieJarAbi, functionName: "currencyHeldByJar" },
+      { address, abi: cookieJarAbi, functionName: "currency" },
     ],
     allowFailure: true,
   })
 
-  const AccessType = ['Whitelist', 'NFTGated']
-  const WithdrawalTypeOptions = ['Fixed', 'Variable']
+  const AccessType = ["Whitelist", "NFTGated"]
+  const WithdrawalTypeOptions = ["Fixed", "Variable"]
 
   return {
     config: {
@@ -315,6 +290,7 @@ export const useCookieJarConfig = (address: `0x${string}`) => {
       lastWithdrawalNft: data?.[14]?.result,
       balance: data?.[15]?.result,
       currency: data?.[16]?.result,
+      metadata: undefined,
     },
     isLoading,
     hasError: isError,
