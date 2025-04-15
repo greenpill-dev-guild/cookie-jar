@@ -1,6 +1,6 @@
-# 🍪 Cookie Jar DAO v2
+# 🍪 Cookie Jar
 
-Cookie Jar DAO v2 is a decentralized application (dApp) that allows a set of whitelisted members to withdraw ETH or ERC20 tokens periodically from a communal jar. This system operates under a DAO structure, where the rules and the distribution process are controlled and executed by smart contracts.
+Cookie Jar is a decentralized application (dApp) that allows a set of whitelisted members to withdraw ETH or ERC20 tokens periodically from a communal jar. This system operates under a DAO structure, where the rules and the distribution process are controlled and executed by smart contracts.
 
 The primary purpose of Cookie Jar is to create a transparent and permissioned mechanism for distributing ETH or ERC20 tokens from a shared pool among a group of participants in a decentralized manner.
 
@@ -24,19 +24,3 @@ The primary purpose of Cookie Jar is to create a transparent and permissioned me
 
 - **`frontend/`**: The frontend interface for users to interact with the Cookie Jar, check their eligibility, and withdraw ETH or ERC20 tokens.
 - **`contracts/`**: The smart contract logic for managing the communal jar, whitelisted members, withdrawal rules and the tests .
-
-## Getting Started
-
-### Prerequisites
-
-- Node.js
-- Yarn or npm
-- foundry
-
-### Installation
-
-#### 1. Clone the Repository
-
-```bash
-git clone https://github.com/HoomanDigital/cookie-jar-v2.git
-cd cookie-jar-v2
