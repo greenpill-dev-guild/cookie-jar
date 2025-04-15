@@ -18,12 +18,11 @@ The primary purpose of Cookie Jar is to create a transparent and permissioned me
 
 - **Whitelisted Access**: Only approved participants can interact with the Cookie Jar, ensuring a controlled environment.
 - **Periodic Withdrawals**: Withdrawals are allowed periodically, helping to ensure fair distribution over time.
-- **Decentralized & Transparent**: All withdrawals and interactions are governed by smart contracts on the Optimism network, ensuring transparency.
-- **Customizable Rules**: The amount of ETH available for withdrawal and the frequency of withdrawals can be customized and adjusted through DAO governance.
+- **Decentralized & Transparent**: All withdrawals and interactions are governed by smart contracts ensuring transparency.
 
 ## Folder Structure
 
-- **`frontend/`**: The frontend interface for users to interact with the Cookie Jar, check their eligibility, and withdraw ETH.
+- **`frontend/`**: The frontend interface for users to interact with the Cookie Jar, check their eligibility, and withdraw ETH or ERC20 tokens.
 - **`contracts/`**: The smart contract logic for managing the communal jar, whitelisted members, withdrawal rules and the tests .
 
 ## Getting Started
