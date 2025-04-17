@@ -6,8 +6,8 @@ import { useCookieJarConfig } from "@/hooks/use-cookie-jar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ShieldAlert, Users, Coins, Copy, ExternalLink } from "lucide-react"
-import { useSendTransaction, useAccount, useChainId } from "wagmi"
-import { parseEther } from "viem"
+import { useSendTransaction, useAccount, useChainId, useContractReads } from "wagmi"
+import { parseEther, formatUnits, parseUnits } from "viem"
 import type { ReadContractErrorType } from "viem"
 import { useState, useEffect, useRef } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
@@ -28,6 +28,24 @@ import { useWriteCookieJarWithdrawWhitelistMode, useWriteCookieJarWithdrawNftMod
 import { CountdownTimer } from "@/components/users/CountdownTimer"
 import { WithdrawalHistorySection, type Withdrawal } from "@/components/users/WithdrawlHistorySection"
 
+// ERC20 ABI fragments for reading token info
+const erc20ABI = [
+  {
+    inputs: [],
+    name: "symbol",
+    outputs: [{ internalType: "string", name: "", type: "string" }],
+    stateMutability: "view",
+    type: "function",
+  },
+  {
+    inputs: [],
+    name: "decimals",
+    outputs: [{ internalType: "uint8", name: "", type: "uint8" }],
+    stateMutability: "view",
+    type: "function",
+  },
+] as const
+
 export default function CookieJarConfigDetails() {
   const params = useParams()
   const router = useRouter()
@@ -36,6 +54,8 @@ export default function CookieJarConfigDetails() {
   const { data: hash, sendTransaction } = useSendTransaction()
   const { address: userAddress } = useAccount()
   const [tokenAddress, setTokenAddress] = useState("")
+  const [tokenSymbol, setTokenSymbol] = useState<string>("")
+  const [tokenDecimals, setTokenDecimals] = useState<number>(18)
   const { toast } = useToast()
   const pageRef = useRef<HTMLDivElement>(null)
   const [withdrawAmount, setWithdrawAmount] = useState<string>("")
@@ -138,6 +158,37 @@ export default function CookieJarConfigDetails() {
     }
   }, [])
 
+  // Fetch token information when config.currency changes and it's not ETH
+  const { data: tokenInfo } = useContractReads({
+    contracts: [
+      {
+        address: config?.currency && config.currency !== "0x0000000000000000000000000000000000000003"
+          ? (config.currency as `0x${string}`)
+          : undefined,
+        abi: erc20ABI,
+        functionName: "symbol",
+      },
+      {
+        address: config?.currency && config.currency !== "0x0000000000000000000000000000000000000003"
+          ? (config.currency as `0x${string}`)
+          : undefined,
+        abi: erc20ABI,
+        functionName: "decimals",
+      },
+    ],
+    query: {
+      enabled: !!config?.currency && config.currency !== "0x0000000000000000000000000000000000000003",
+    },
+  })
+
+  // Update token info when data is available
+  useEffect(() => {
+    if (tokenInfo && tokenInfo[0] && tokenInfo[1]) {
+      if (tokenInfo[0].result) setTokenSymbol(tokenInfo[0].result as string)
+      if (tokenInfo[1].result) setTokenDecimals(Number(tokenInfo[1].result))
+    }
+  }, [tokenInfo])
+
   useEffect(() => {
     if (isApprovalSuccess && approvalCompleted) {
       console.log("Approval completed, proceeding with deposit")
@@ -151,9 +202,12 @@ export default function CookieJarConfigDetails() {
   }, [isApprovalSuccess, approvalCompleted, DepositCurrency, addressString, pendingDepositAmount])
 
   const onSubmit = (value: string) => {
-    const amountBigInt = parseEther(value || "0")
+    // Parse amount considering the token decimals
+    const amountBigInt = config.currency === "0x0000000000000000000000000000000000000003"
+      ? parseEther(value || "0") // ETH uses 18 decimals
+      : parseUnits(value || "0", tokenDecimals)
 
-    if (config.currency == "0x0000000000000000000000000000000000000003") {
+    if (config.currency === "0x0000000000000000000000000000000000000003") {
       DepositEth({
         address: addressString as `0x${string}`,
         value: amountBigInt,
@@ -162,7 +216,7 @@ export default function CookieJarConfigDetails() {
       setApprovalCompleted(true)
       setPendingDepositAmount(amountBigInt)
       try {
-        console.log("Calling approve with", tokenAddress)
+        console.log("Calling approve with", config.currency)
 
         Approve({
           address: config.currency as `0x${string}`,
@@ -194,9 +248,14 @@ export default function CookieJarConfigDetails() {
   const handleWithdrawWhitelistVariable = () => {
     if (!config.contractAddress || !withdrawAmount) return
 
+    // Parse amount considering the token decimals
+    const parsedAmount = config.currency === "0x0000000000000000000000000000000000000003"
+      ? parseEther(withdrawAmount)
+      : parseUnits(withdrawAmount, tokenDecimals)
+
     withdrawWhitelistMode({
       address: config.contractAddress,
-      args: [parseEther(withdrawAmount), withdrawPurpose],
+      args: [parsedAmount, withdrawPurpose],
     })
   }
 
@@ -212,9 +271,14 @@ export default function CookieJarConfigDetails() {
   const handleWithdrawNFTVariable = () => {
     if (!config.contractAddress || !withdrawAmount || !gateAddress) return
 
+    // Parse amount considering the token decimals
+    const parsedAmount = config.currency === "0x0000000000000000000000000000000000000003"
+      ? parseEther(withdrawAmount)
+      : parseUnits(withdrawAmount, tokenDecimals)
+
     withdrawNFTMode({
       address: config.contractAddress,
-      args: [parseEther(withdrawAmount), withdrawPurpose, gateAddress as `0x${string}`, BigInt(tokenId || "0")],
+      args: [parsedAmount, withdrawPurpose, gateAddress as `0x${string}`, BigInt(tokenId || "0")],
     })
   }
 
@@ -276,16 +340,25 @@ export default function CookieJarConfigDetails() {
     )
   }
 
-  // Format balance for display
+  // Format balance for display using the token decimals
   const formattedBalance = () => {
     if (!config.balance) return "0"
 
-    if (config.currency === "0x0000000000000000000000000000000000000003") {
-      // Convert to number and use toFixed(4) to get exactly 4 decimal places
-      const ethBalance = Number(config.balance) / 1e18
-      return ethBalance.toFixed(4) + " ETH"
-    } else {
-      return config.balance.toString() + " Tokens"
+    try {
+      if (config.currency === "0x0000000000000000000000000000000000000003") {
+        // Use formatUnits with 18 decimals for ETH
+        const formatted = formatUnits(config.balance, 18)
+        // Use Number to convert and format with 4 decimal places
+        return Number(formatted).toFixed(4) + " ETH"
+      } else {
+        // Use the detected token decimals and symbol
+        const formatted = formatUnits(config.balance, tokenDecimals)
+        // Format with appropriate decimal places (max 4)
+        return Number(formatted).toFixed(4) + " " + tokenSymbol
+      }
+    } catch (error) {
+      console.error("Error formatting balance:", error, "Balance:", config.balance)
+      return `${config.balance || 0} ${tokenSymbol || "Tokens"}`
     }
   }
 
@@ -379,7 +452,11 @@ export default function CookieJarConfigDetails() {
                       <div className="flex items-center">
                         <ArrowUpToLine className="h-4 w-4 text-[#ff5e14] mr-2" />
                         <span className="text-[#1a1a1a] font-medium">
-                          {config.maxWithdrawal ? (Number(config.maxWithdrawal) / 1e18).toFixed(4) + " ETH" : "N/A"}
+                          {config.maxWithdrawal
+                            ? config.currency === "0x0000000000000000000000000000000000000003"
+                              ? Number(formatUnits(config.maxWithdrawal, 18)).toFixed(4) + " ETH"
+                              : Number(formatUnits(config.maxWithdrawal, tokenDecimals)).toFixed(4) + " " + tokenSymbol
+                            : "N/A"}
                         </span>
                       </div>
                     </div>
@@ -424,7 +501,9 @@ export default function CookieJarConfigDetails() {
                           {config.withdrawalOption === "Fixed" ? "Yes" : "No"}
                           {config.withdrawalOption === "Fixed" && config.fixedAmount && (
                             <span className="block text-xs text-[#ff5e14]">
-                              {(Number(config.fixedAmount) / 1e18).toFixed(4)} ETH
+                              {config.currency === "0x0000000000000000000000000000000000000003"
+                                ? Number(formatUnits(config.fixedAmount || BigInt(0), 18)).toFixed(4) + " ETH"
+                                : Number(formatUnits(config.fixedAmount || BigInt(0), tokenDecimals)).toFixed(4) + " " + tokenSymbol}
                             </span>
                           )}
                         </p>
@@ -544,7 +623,9 @@ export default function CookieJarConfigDetails() {
                           id="fundAmount"
                           type="text"
                           placeholder={
-                            config.currency === "0x0000000000000000000000000000000000000003" ? "0.1 ETH" : "1000 Tokens"
+                            config.currency === "0x0000000000000000000000000000000000000003" 
+                              ? "0.1 ETH" 
+                              : `1${"." + "0".repeat(tokenDecimals > 0 ? 0 : tokenDecimals)} ${tokenSymbol || "Tokens"}`
                           }
                           value={amount}
                           onChange={(e) => setAmount(e.target.value)}
