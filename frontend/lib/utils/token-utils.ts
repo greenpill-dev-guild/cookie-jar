@@ -1,4 +1,4 @@
-import { useContractReads } from 'wagmi';
+import { useReadContracts } from 'wagmi';
 import { parseUnits, formatUnits } from 'viem';
 
 // ERC20 ABI fragments for reading token info
@@ -30,7 +30,7 @@ export const ETH_ADDRESS = "0x0000000000000000000000000000000000000003";
 export function useTokenInfo(tokenAddress?: `0x${string}`) {
   const isERC20 = tokenAddress && tokenAddress !== ETH_ADDRESS;
   
-  const { data: tokenInfo } = useContractReads({
+  const { data: tokenInfo } = useReadContracts({
     contracts: [
       {
         address: isERC20 ? tokenAddress : undefined,
