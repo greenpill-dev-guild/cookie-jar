@@ -519,11 +519,7 @@ export default function CreateCookieJarForm() {
                     step="any"
                     className="border-[#e2c7a9] focus-visible:ring-[#ff5e14] text-[#3c2a14]"
                   />
-                  {isERC20 && (
-                    <p className="text-xs text-[#8b7355] mt-1">
-                      Using {tokenDecimals} decimals for {tokenSymbol}
-                    </p>
-                  )}
+                 
                 </div>
               </div>
             )}
@@ -545,11 +541,7 @@ export default function CreateCookieJarForm() {
                     step="any"
                     className="border-[#e2c7a9] focus-visible:ring-[#ff5e14] text-[#3c2a14]"
                   />
-                  {isERC20 && (
-                    <p className="text-xs text-[#8b7355] mt-1">
-                      Using {tokenDecimals} decimals for {tokenSymbol}
-                    </p>
-                  )}
+                  
                 </div>
               </div>
             )}
@@ -636,7 +628,7 @@ export default function CreateCookieJarForm() {
                   {jarOwnerAddress === address ? "Your wallet" : jarOwnerAddress}
                 </li>
                 <li className="text-[#3c2a14]">
-                  <span className="font-medium">Currency:</span> {isEthCurrency ? "ETH (Native)" : supportedCurrency}
+                  <span className="font-medium">Currency:</span> {isEthCurrency ? "ETH (Native)" : tokenSymbol}
                 </li>
                 <li className="text-[#3c2a14]">
                   <span className="font-medium">Access Type:</span>{" "}
@@ -648,7 +640,7 @@ export default function CreateCookieJarForm() {
                 </li>
                 <li className="text-[#3c2a14]">
                   <span className="font-medium">Amount:</span>{" "}
-                  {withdrawalOption === WithdrawalTypeOptions.Fixed ? fixedAmount : `Up to ${maxWithdrawal}`}
+                  {withdrawalOption === WithdrawalTypeOptions.Fixed ? `${fixedAmount} ${isERC20 ? tokenSymbol : "ETH"}`: `Up to ${maxWithdrawal} ${isERC20 ? tokenSymbol : "ETH"}`}
                 </li>
                 <li className="text-[#3c2a14]">
                   <span className="font-medium">Interval:</span> {(Number(withdrawalInterval) / 86400).toString()} days
@@ -794,7 +786,7 @@ export default function CreateCookieJarForm() {
                     {jarOwnerAddress === address ? "Your wallet" : jarOwnerAddress}
                   </li>
                   <li className="text-[#3c2a14]">
-                    <span className="font-medium">Currency:</span> {isEthCurrency ? "ETH (Native)" : `${tokenSymbol} (${supportedCurrency})`}
+                    <span className="font-medium">Currency:</span> {isEthCurrency ? "ETH (Native)" : `${tokenSymbol}`}
                   </li>
                   <li className="text-[#3c2a14]">
                     <span className="font-medium">Access Type:</span>{" "}
