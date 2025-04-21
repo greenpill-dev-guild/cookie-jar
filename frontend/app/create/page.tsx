@@ -400,7 +400,8 @@ export default function CreateCookieJarForm() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="0">Whitelist</SelectItem>
-                  <SelectItem value="1">NFT Gated</SelectItem>
+                  {/* removed NFT Gated option for MVP launch to reduce complexity <3msg */}
+                  {/* <SelectItem value="1">NFT Gated</SelectItem> */}
                 </SelectContent>
               </Select>
               <p className="text-sm text-[#8b7355]">Determine who can access this cookie jar</p>
