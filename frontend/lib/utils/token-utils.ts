@@ -1,5 +1,6 @@
 import { useReadContracts } from 'wagmi';
 import { parseUnits, formatUnits, erc20Abi } from 'viem';
+import type {Address} from 'viem';
 
 // Known address constants
 export const ETH_ADDRESS = "0x0000000000000000000000000000000000000003";
@@ -9,7 +10,7 @@ export const ETH_ADDRESS = "0x0000000000000000000000000000000000000003";
  * @param tokenAddress The address of the ERC20 token
  * @returns Token information including symbol and decimals
  */
-export function useTokenInfo(tokenAddress?: `0x${string}`) {
+export function useTokenInfo(tokenAddress: Address) {
   const isERC20 = tokenAddress && tokenAddress !== ETH_ADDRESS;
   
   const { data: tokenInfo } = useReadContracts({
