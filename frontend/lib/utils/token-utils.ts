@@ -1,23 +1,5 @@
 import { useReadContracts } from 'wagmi';
-import { parseUnits, formatUnits } from 'viem';
-
-// ERC20 ABI fragments for reading token info
-export const erc20ABI = [
-  {
-    inputs: [],
-    name: "symbol",
-    outputs: [{ internalType: "string", name: "", type: "string" }],
-    stateMutability: "view",
-    type: "function",
-  },
-  {
-    inputs: [],
-    name: "decimals",
-    outputs: [{ internalType: "uint8", name: "", type: "uint8" }],
-    stateMutability: "view",
-    type: "function",
-  },
-] as const;
+import { parseUnits, formatUnits, erc20Abi } from 'viem';
 
 // Known address constants
 export const ETH_ADDRESS = "0x0000000000000000000000000000000000000003";
@@ -34,12 +16,12 @@ export function useTokenInfo(tokenAddress?: `0x${string}`) {
     contracts: [
       {
         address: isERC20 ? tokenAddress : undefined,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: "symbol",
       },
       {
         address: isERC20 ? tokenAddress : undefined,
-        abi: erc20ABI,
+        abi: erc20Abi,
         functionName: "decimals",
       },
     ],
