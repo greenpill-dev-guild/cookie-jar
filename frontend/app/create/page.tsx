@@ -71,7 +71,7 @@ export default function CreateCookieJarForm() {
   const [currencyType, setCurrencyType] = useState<"eth" | "token">("eth")
   
   // Token information using the useTokenInfo hook
-  const { symbol: tokenSymbol, decimals: tokenDecimals, isERC20 } = useTokenInfo(
+  const { symbol: tokenSymbol, decimals: tokenDecimals, isERC20, error: tokenError, errorMessage: tokenErrorMessage } = useTokenInfo(
     currencyType === "token" ? supportedCurrency : undefined
   )
 
@@ -360,14 +360,20 @@ export default function CreateCookieJarForm() {
                 <Input
                   id="supportedCurrency"
                   placeholder="0x..."
-                  className="bg-white border-gray-300 placeholder:text-[#3c2a14] text-[#3c2a14]"
+                  className={`bg-white placeholder:text-[#3c2a14] text-[#3c2a14] ${tokenError ? 'border-red-500' : 'border-gray-300'}`}
                   defaultValue=""
                   onChange={(e) => {
                     const value = e.target.value
                     setSupportedCurrency(value as `0x${string}`)
                   }}
                 />
-                <p className="text-sm text-[#8b7355]">Address of the ERC20 token contract</p>
+                {tokenError && supportedCurrency && supportedCurrency !== '0x' ? (
+                  <p className="text-sm text-red-500 flex items-center">
+                    <AlertCircle className="h-4 w-4 mr-1" /> {tokenErrorMessage}
+                  </p>
+                ) : (
+                  <p className="text-sm text-[#8b7355]">Address of the ERC20 token contract</p>
+                )}
               </div>
             )}
 
