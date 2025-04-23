@@ -124,6 +124,10 @@ export default function CreateCookieJarForm() {
         // For ETH, convert from ETH to wei
         return parseEther(amountStr)
       } else {
+        // For tokens, ensure we have valid token data before attempting to parse
+        if (tokenError || tokenDecimals === undefined) {
+          throw new Error("Invalid token data: " + (tokenErrorMessage || "Unknown token error"))
+        }
         // For tokens, convert from human-readable to smallest unit using token decimals
         return parseTokenAmount(amountStr, tokenDecimals)
       }
@@ -233,6 +237,12 @@ export default function CreateCookieJarForm() {
 
   // Navigation functions
   const nextStep = () => {
+    // Check token error in step 1 when using token currency
+    if (currentStep === 1 && currencyType === "token" && tokenError) {
+      setErrorMessage("Please enter a valid ERC20 token address before proceeding.  " + tokenErrorMessage)
+      return
+    }
+    
     if (currentStep < totalSteps) {
       setCurrentStep(currentStep + 1)
     }
