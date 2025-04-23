@@ -72,7 +72,7 @@ export default function CreateCookieJarForm() {
   
   // Token information using the useTokenInfo hook
   const { symbol: tokenSymbol, decimals: tokenDecimals, isERC20, error: tokenError, errorMessage: tokenErrorMessage } = useTokenInfo(
-    currencyType === "token" ? supportedCurrency : undefined
+     supportedCurrency 
   )
 
   // Then, add state variables for the confirmation dialog and loading overlay
