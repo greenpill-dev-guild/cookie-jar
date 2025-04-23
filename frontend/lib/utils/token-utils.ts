@@ -1,6 +1,7 @@
 import { useReadContracts } from 'wagmi';
-import { parseUnits, formatUnits, erc20Abi } from 'viem';
+import { parseUnits, formatUnits, erc20Abi,isAddress, ethAddress } from 'viem';
 import type {Address} from 'viem';
+import { log } from 'console';
 
 // Known address constants
 export const ETH_ADDRESS = "0x0000000000000000000000000000000000000003";
@@ -8,20 +9,20 @@ export const ETH_ADDRESS = "0x0000000000000000000000000000000000000003";
 /**
  * Hook to fetch token information (symbol and decimals)
  * @param tokenAddress The address of the ERC20 token
- * @returns Token information including symbol and decimals
+ * @returns Token information including symbol, decimals, and error states
  */
 export function useTokenInfo(tokenAddress: Address) {
-  const isERC20 = tokenAddress && tokenAddress !== ETH_ADDRESS;
+  const isERC20 = isAddress(tokenAddress)  && tokenAddress !== ETH_ADDRESS;
   
   const { data: tokenInfo } = useReadContracts({
     contracts: [
       {
-        address: isERC20 ? tokenAddress : undefined,
+        address: tokenAddress,
         abi: erc20Abi,
         functionName: "symbol",
       },
       {
-        address: isERC20 ? tokenAddress : undefined,
+        address: tokenAddress,
         abi: erc20Abi,
         functionName: "decimals",
       },
@@ -31,20 +32,44 @@ export function useTokenInfo(tokenAddress: Address) {
     },
   });
 
-  // Default values and process results
-  const symbol = isERC20 ? 
-    (tokenInfo?.[0]?.result as string || "TOKEN") : 
-    "ETH";
-  
-  const decimals = isERC20 ? 
-    (tokenInfo?.[1]?.result ? Number(tokenInfo[1].result) : 18) : 
-    18;
+  // For ETH, use default values
+  if (tokenAddress===ethAddress) {
+    return {
+      symbol: "ETH",
+      decimals: 18,
+      isERC20: false,
+      isEth: true,
+      error: false,
+      errorMessage: ""
+    };
+  }
+
+  // Check if we have valid token data
+  const hasSymbol = tokenInfo?.[0]?.result !== undefined;
+  const hasDecimals = tokenInfo?.[1]?.result !== undefined;
+  const error = isERC20 && (!hasSymbol || !hasDecimals);
+  const symbol = hasSymbol ? (tokenInfo[0].result as string) : undefined;
+  const decimals = hasDecimals ? Number(tokenInfo[1].result) : undefined;
+
+  // Generate appropriate error message
+  let errorMessage = "";
+  if (error) {
+    if (!hasSymbol && !hasDecimals) {
+      errorMessage = "Invalid ERC20 token address or contract doesn't implement ERC20 standard";
+    } else if (!hasSymbol) {
+      errorMessage = "Token contract doesn't implement symbol() method";
+    } else if (!hasDecimals) {
+      errorMessage = "Token contract doesn't implement decimals() method";
+    }
+  }
 
   return {
     symbol,
     decimals,
     isERC20,
-    isEth: !isERC20 || tokenAddress === ETH_ADDRESS,
+    isEth: false,
+    error,
+    errorMessage
   };
 }
 
