@@ -144,12 +144,11 @@ export default function CookieJarConfigDetails() {
   // Use token utilities hook to get token information
   const isERC20 = config?.currency && config.currency !== ETH_ADDRESS
   const { symbol: tokenSymbol, decimals: tokenDecimals } = useTokenInfo(
-    isERC20 ? (config?.currency as `0x${string}`) : undefined
+    isERC20 && config?.currency ? (config.currency) : ETH_ADDRESS
   )
 
   useEffect(() => {
     if (isApprovalSuccess && approvalCompleted) {
-      console.log("Approval completed, proceeding with deposit")
       DepositCurrency({
         address: addressString as `0x${string}`,
         args: [pendingDepositAmount],
@@ -172,8 +171,6 @@ export default function CookieJarConfigDetails() {
       setApprovalCompleted(true)
       setPendingDepositAmount(amountBigInt)
       try {
-        console.log("Calling approve with", config.currency)
-
         Approve({
           address: config.currency as `0x${string}`,
           args: [addressString as `0x${string}`, amountBigInt],
