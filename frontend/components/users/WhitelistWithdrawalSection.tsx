@@ -1,7 +1,7 @@
 "use client"
 
 // WhitelistWithdrawalSection.tsx
-import type React from "react"
+import React from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
@@ -31,6 +31,9 @@ export const WhitelistWithdrawalSection: React.FC<WhitelistWithdrawalSectionProp
   const { symbol: tokenSymbol, decimals: tokenDecimals } = useTokenInfo(
     config?.currency !== ETH_ADDRESS ? config?.currency : undefined
   );
+  
+  // State for validation errors
+  const [amountError, setAmountError] = React.useState<string | null>(null);
   // Fixed amount withdrawal with purpose
   if (config.strictPurpose && config.withdrawalOption === "Fixed") {
     return (
@@ -123,16 +126,21 @@ export const WhitelistWithdrawalSection: React.FC<WhitelistWithdrawalSectionProp
             onChange={(e) => {
               // Only allow numbers and decimal points with validation based on decimal precision
               const value = e.target.value;
-              const validatedValue = checkDecimals(value, tokenDecimals); 
-              if (validatedValue !== null) {
-                setWithdrawAmount(validatedValue);
+              const result = checkDecimals(value, tokenDecimals); 
+              setAmountError(result.error);
+              if (result.value !== null) {
+                setWithdrawAmount(result.value);
               }
             }}
-            className="border-[#f0e6d8] bg-white text-[#3c2a14]"
+            className={`border-[#f0e6d8] bg-white text-[#3c2a14] ${amountError ? 'border-red-500' : ''}`}
           />
-          <p className="text-sm text-[#8b7355]">
-            Maximum withdrawal: {config.maxWithdrawal ? formatTokenAmount(BigInt(config.maxWithdrawal), tokenDecimals, tokenSymbol) : `0 ${tokenSymbol}`}
-          </p>
+          {amountError ? (
+            <p className="text-sm text-red-500">{amountError}</p>
+          ) : (
+            <p className="text-sm text-[#8b7355]">
+              Maximum withdrawal: {config.maxWithdrawal ? formatTokenAmount(BigInt(config.maxWithdrawal), tokenDecimals, tokenSymbol) : `0 ${tokenSymbol}`}
+            </p>
+          )}
         </div>
 
         <div className="space-y-2">
@@ -193,23 +201,28 @@ export const WhitelistWithdrawalSection: React.FC<WhitelistWithdrawalSectionProp
             onChange={(e) => {
               // Only allow numbers and decimal points with validation based on decimal precision
               const value = e.target.value;
-              const validatedValue = checkDecimals(value, tokenDecimals); 
-              if (validatedValue !== null) {
-                setWithdrawAmount(validatedValue);
+              const result = checkDecimals(value, tokenDecimals); 
+              setAmountError(result.error);
+              if (result.value !== null) {
+                setWithdrawAmount(result.value);
               }
             }}
-            className="border-[#f0e6d8] bg-white text-[#3c2a14]"
+            className={`border-[#f0e6d8] bg-white text-[#3c2a14] ${amountError ? 'border-red-500' : ''}`}
           />
-          <p className="text-sm text-[#8b7355]">
-            Maximum withdrawal: {config.maxWithdrawal ? formatTokenAmount(BigInt(config.maxWithdrawal), tokenDecimals, tokenSymbol) : `0 ${tokenSymbol }`}
-          </p>
+          {amountError ? (
+            <p className="text-sm text-red-500">{amountError}</p>
+          ) : (
+            <p className="text-sm text-[#8b7355]">
+              Maximum withdrawal: {config.maxWithdrawal ? formatTokenAmount(BigInt(config.maxWithdrawal), tokenDecimals, tokenSymbol) : `0 ${tokenSymbol }`}
+            </p>
+          )}
         </div>
 
         <div className="pt-2">
           <Button
             onClick={handleWithdrawWhitelistVariable}
             className="w-full bg-[#ff5e14] hover:bg-[#e54d00] text-white"
-            disabled={!withdrawAmount || Number(withdrawAmount) <= 0 || config.isWithdrawPending}
+            disabled={!withdrawAmount || Number(withdrawAmount) <= 0 || !!amountError || config.isWithdrawPending}
           >
             {config.isWithdrawPending ? (
               <>
