@@ -598,9 +598,9 @@ export default function CreateCookieJarForm() {
               />
               <div className="grid gap-1.5">
                 <Label htmlFor="strictPurpose" className="text-[#3c2a14] text-base">
-                  Strict Purpose
+                  Withdrawal Reason
                 </Label>
-                <p className="text-sm text-[#8b7355]">Enforce strict purpose for withdrawals</p>
+                <p className="text-sm text-[#8b7355]">Require users to enter the reason for their withdrawal</p>
               </div>
             </div>
 
