@@ -86,7 +86,7 @@ export function formatTokenAmount(
   decimals: number, 
   symbol: string,
   maxDecimals: number = 4
-): string {
+) {
   if (!amount) return `0 ${symbol}`;
 
   try {
@@ -104,15 +104,9 @@ export function formatTokenAmount(
  * @param decimals Number of decimals for the token
  * @returns Amount in smallest unit as BigInt
  */
-export function parseTokenAmount(amountStr: string, decimals: number): bigint {
+export function parseTokenAmount(amountStr: string, decimals: number) {
   if (!amountStr || amountStr === "0") return BigInt(0);
-
-  try {
-    return parseUnits(amountStr || "0", decimals);
-  } catch (error) {
-    console.error("Error parsing amount:", error);
-    return BigInt(0);
-  }
+  return parseUnits(amountStr, decimals) || "0";
 }
 
 /**
