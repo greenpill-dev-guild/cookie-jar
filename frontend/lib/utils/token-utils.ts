@@ -114,3 +114,23 @@ export function parseTokenAmount(amountStr: string, decimals: number): bigint {
     return BigInt(0);
   }
 }
+
+/**
+ * Validates if a string value represents a valid number with decimal places that don't exceed the token's decimal precision
+ * @param value The string value to validate
+ * @param tokenDecimals The number of decimal places allowed for the token
+ * @returns The validated value if valid, null otherwise
+ */
+export function checkDecimals(value: string, tokenDecimals: number): string | null {
+  if (value === "" || /^[0-9]*\.?[0-9]*$/.test(value)) {
+    // Validate that the number of decimal places doesn't exceed the token's decimal precision
+    const parts = value.split('.');
+    if (
+      parts.length === 1 || // No decimal point
+      parts[1].length <= tokenDecimals // Has decimal point but not exceeding max decimals
+    ) {
+      return value;
+    }
+  }
+  return null; // Return null if validation fails
+}
