@@ -283,8 +283,10 @@ export default function CreateCookieJarForm() {
         }
 
         // Validate jar description
-        if (!metadata || metadata.length < 20) {
-          newErrors.metadata = "Description must be at least 20 characters long";
+        if (!metadata) {
+          newErrors.metadata = "Description is required";
+        } else if (metadata.length < 10) {
+          newErrors.metadata = `Description must be at least 10 characters (${metadata.length}/10)`;
         }
         break;
 
@@ -533,7 +535,24 @@ export default function CreateCookieJarForm() {
                 placeholder="Provide a description or any additional information"
                 className={`min-h-24 bg-white ${formErrors.metadata ? 'border-red-500' : 'border-gray-300'} placeholder:text-[#3c2a14] text-[#3c2a14]`}
                 value={metadata}
-                onChange={(e) => setMetadata(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setMetadata(value);
+                  
+                  // Validate description length in real-time
+                  if (value.length > 0 && value.length < 10) {
+                    setFormErrors(prev => ({
+                      ...prev,
+                      metadata: `Description must be at least 10 characters (${value.length}/10)`
+                    }));
+                  } else {
+                    // Clear error when valid or empty
+                    setFormErrors(prev => ({
+                      ...prev,
+                      metadata: undefined
+                    }));
+                  }
+                }}
               />
               {formErrors.metadata ? (
                 <p className="text-sm text-red-500 flex items-center">
