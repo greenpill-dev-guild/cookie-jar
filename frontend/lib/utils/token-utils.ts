@@ -48,8 +48,8 @@ export function useTokenInfo(tokenAddress: Address) {
   const hasSymbol = tokenInfo?.[0]?.result !== undefined;
   const hasDecimals = tokenInfo?.[1]?.result !== undefined;
   const error = isERC20 && (!hasSymbol || !hasDecimals);
-  const symbol = hasSymbol ? (tokenInfo[0].result as string) : undefined;
-  const decimals = hasDecimals ? Number(tokenInfo[1].result) : undefined;
+  const symbol = hasSymbol ? (tokenInfo[0].result as string) : "ERROR";
+  const decimals = hasDecimals ? Number(tokenInfo[1].result) : 0;
 
   // Generate appropriate error message
   let errorMessage = "";
@@ -106,7 +106,7 @@ export function formatTokenAmount(
  */
 export function parseTokenAmount(amountStr: string, decimals: number) {
   if (!amountStr || amountStr === "0") return BigInt(0);
-  return parseUnits(amountStr, decimals) || "0";
+  return parseUnits(amountStr, decimals) || BigInt(0);
 }
 
 /**
