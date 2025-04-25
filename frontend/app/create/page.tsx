@@ -90,6 +90,7 @@ export default function CreateCookieJarForm() {
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [isFormError, setIsFormError] = useState<boolean>(false)
 
   // Contract write hook
   const {
@@ -172,12 +173,14 @@ export default function CreateCookieJarForm() {
   // Add a new function to handle the actual submission after confirmation
   const confirmSubmit = () => {
     // Validate all steps before submitting
-    if (!validateAll()) {
+    const { isValid, errors } = validateAll();
+    if (!isValid) {
       setShowConfirmDialog(false);
-      // Format error messages for popup
-      const errorMessages = Object.values(formErrors).filter(Boolean);
+      // Format error messages for popup using the errors directly returned from validateAll
+      const errorMessages = Object.values(errors).filter(Boolean);
       const formattedErrors = errorMessages.map(error => `• ${error}`).join('\n');
       setErrorMessage(`Please fix the following validation errors before creating your Cookie Jar:\n${formattedErrors}`);
+      setIsFormError(true);
       return;
     }
 
@@ -211,6 +214,7 @@ export default function CreateCookieJarForm() {
       } catch (error) {
         console.error("Error creating cookie jar:", error)
         setErrorMessage("Failed to create Cookie Jar. Please try again.")
+        setIsFormError(false)
         setIsCreating(false)
       }
     })
@@ -244,132 +248,126 @@ export default function CreateCookieJarForm() {
     }
   }, [txConfirmed, receipt])
 
-  // Update the useEffect for createError to handle transaction rejection
-  // Replace the existing useEffect for createError with this one
+  
+  // Update the useEffect for create errors to show the error message
   useEffect(() => {
     if (createError) {
       console.error("Transaction error:", createError)
-      // Simplify the error message to just "Transaction rejected" instead of showing the full error
       setErrorMessage("Transaction rejected")
+      setIsFormError(false)
       setIsCreating(false)
     }
   }, [createError])
 
   // Form validation functions
-  const validateStep = (step: number): boolean => {
-    let isValid = true;
+  const validateStep = (step: number): { isValid: boolean; errors: Record<string, string> } => {
+    let newErrors: Record<string, string> = {};
 
     switch (step) {
       case 1:
-        // Clear step 1 errors first
-        setFormErrors(prev => ({
-          ...prev, 
-          jarOwnerAddress: undefined, 
-          supportedCurrency: undefined, 
-          metadata: undefined
-        }));
-
         // Validate owner address if not the connected address
         if (jarOwnerAddress !== address) {
           if (!jarOwnerAddress || !isAddress(jarOwnerAddress)) {
-            setFormErrors(prev => ({ 
-              ...prev, 
-              jarOwnerAddress: "Please enter a valid Ethereum address" 
-            }));
-            isValid = false;
+            newErrors.jarOwnerAddress = "Please enter a valid Ethereum address";
           }
         }
 
         // Validate token address if ERC20 is selected
         if (currencyType === "token") {
           if (!supportedCurrency || !isAddress(supportedCurrency)) {
-            setFormErrors(prev => ({ 
-              ...prev, 
-              supportedCurrency: "Please enter a valid ERC20 token address" 
-            }));
-            isValid = false;
+            newErrors.supportedCurrency = "Please enter a valid ERC20 token address";
           } else if (tokenError) {
             // Use the existing token error
-            setFormErrors(prev => ({ 
-              ...prev, 
-              supportedCurrency: tokenErrorMessage 
-            }));
-            isValid = false;
+            newErrors.supportedCurrency = tokenErrorMessage;
           }
         }
 
         // Validate jar description
         if (!metadata || metadata.length < 20) {
-          setFormErrors(prev => ({ 
-            ...prev, 
-            metadata: "Description must be at least 20 characters long" 
-          }));
-          isValid = false;
+          newErrors.metadata = "Description must be at least 20 characters long";
         }
         break;
 
       case 3:
-        // Clear step 3 errors first
-        setFormErrors(prev => ({
-          ...prev, 
-          fixedAmount: undefined, 
-          maxWithdrawal: undefined, 
-          withdrawalInterval: undefined
-        }));
-
         // Validate fixed amount if fixed withdrawal is selected
         if (withdrawalOption === WithdrawalTypeOptions.Fixed) {
           if (!fixedAmount || parseFloat(fixedAmount) <= 0) {
-            setFormErrors(prev => ({ 
-              ...prev, 
-              fixedAmount: "Please enter a valid amount greater than 0" 
-            }));
-            isValid = false;
+            newErrors.fixedAmount = "Please enter a valid amount greater than 0";
           }
         }
 
         // Validate max withdrawal if variable withdrawal is selected
         if (withdrawalOption === WithdrawalTypeOptions.Variable) {
           if (!maxWithdrawal || parseFloat(maxWithdrawal) <= 0) {
-            setFormErrors(prev => ({ 
-              ...prev, 
-              maxWithdrawal: "Please enter a valid amount greater than 0" 
-            }));
-            isValid = false;
+            newErrors.maxWithdrawal = "Please enter a valid amount greater than 0";
           }
         }
 
         // Validate withdrawal interval
         if (!withdrawalInterval || Number(withdrawalInterval) <= 0) {
-          setFormErrors(prev => ({ 
-            ...prev, 
-            withdrawalInterval: "Please enter a valid interval greater than 0" 
-          }));
-          isValid = false;
+          newErrors.withdrawalInterval = "Please enter a valid interval greater than 0";
         }
         break;
     }
 
-    return isValid;
+    // Update form errors state
+    if (Object.keys(newErrors).length > 0) {
+      setFormErrors(prev => ({
+        ...prev,
+        ...newErrors
+      }));
+    } else if (step === 1) {
+      // Clear step 1 errors
+      setFormErrors(prev => ({
+        ...prev,
+        jarOwnerAddress: undefined,
+        supportedCurrency: undefined,
+        metadata: undefined
+      }));
+    } else if (step === 3) {
+      // Clear step 3 errors
+      setFormErrors(prev => ({
+        ...prev,
+        fixedAmount: undefined,
+        maxWithdrawal: undefined,
+        withdrawalInterval: undefined
+      }));
+    }
+
+    return { 
+      isValid: Object.keys(newErrors).length === 0,
+      errors: newErrors
+    };
   };
 
   // Function to validate all steps before final submission
-  const validateAll = (): boolean => {
+  const validateAll = (): { isValid: boolean; errors: Record<string, string> } => {
     // Validate each step
-    let step1Valid = validateStep(1);
-    let step3Valid = validateStep(3);
+    const step1Result = validateStep(1);
+    const step3Result = validateStep(3);
     
-    return step1Valid && step3Valid;
+    // Combine errors
+    const allErrors = {
+      ...step1Result.errors,
+      ...step3Result.errors
+    };
+    
+    return { 
+      isValid: step1Result.isValid && step3Result.isValid,
+      errors: allErrors
+    };
   };
 
   // Navigation functions
   const nextStep = () => {
     // Validate current step
-    if (!validateStep(currentStep)) {
-      // Format error messages for popup
-      const errorMessages = Object.values(formErrors).filter(Boolean);
+    const { isValid, errors } = validateStep(currentStep);
+    if (!isValid) {
+      // Format error messages for popup using the errors directly returned from validateStep
+      const errorMessages = Object.values(errors).filter(Boolean);
       const formattedErrors = errorMessages.map(error => `• ${error}`).join('\n');
       setErrorMessage(`Please fix the following validation errors:\n${formattedErrors}`);
+      setIsFormError(true);
       return;
     }
     
@@ -1010,22 +1008,30 @@ export default function CreateCookieJarForm() {
 
       {/* Error message */}
       {errorMessage && (
-        <Dialog open={!!errorMessage} onOpenChange={() => setErrorMessage(null)}>
+        <Dialog open={!!errorMessage} onOpenChange={() => {
+          setErrorMessage(null);
+          setIsFormError(false);
+        }}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle className="flex items-center text-red-600">
                 <AlertCircle className="h-5 w-5 mr-2" />
-                Transaction Failed
+                {isFormError ? "Problem with Form Data" : "Transaction Failed"}
               </DialogTitle>
             </DialogHeader>
             <div className="py-4">
-              <p className="text-white font-bold whitespace-pre-line">{errorMessage}</p>
-              <p className="text-[#8b7355] mt-2 text-sm">Please try again or check your wallet for more details.</p>
+              <p className="text-[#8b7355] whitespace-pre-line">{errorMessage}</p>
+              {!isFormError && (
+                <p className="text-[#8b7355] mt-2 text-sm">Please try again or check your wallet for more details.</p>
+              )}
             </div>
             <DialogFooter>
               <Button
                 type="button"
-                onClick={() => setErrorMessage(null)}
+                onClick={() => {
+                  setErrorMessage(null);
+                  setIsFormError(false);
+                }}
                 className="bg-[#ff5e14] hover:bg-[#e54d00] text-white"
               >
                 Close
