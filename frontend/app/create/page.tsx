@@ -819,8 +819,9 @@ export default function CreateCookieJarForm() {
               </div>
             </div>
 
+            {/* removed for MVP launch <3 MSG */}
             {/* One Time Withdrawal */}
-            <div className="flex items-center space-x-2">
+            {/* <div className="flex items-center space-x-2">
               <Checkbox
                 id="oneTimeWithdrawal"
                 checked={oneTimeWithdrawal}
@@ -833,7 +834,7 @@ export default function CreateCookieJarForm() {
                 </Label>
                 <p className="text-sm text-[#8b7355]">If whitelisted users can only withdraw once.</p>
               </div>
-            </div>
+            </div> */}
 
             {/* Summary */}
             <div className="mt-6 p-4 bg-[#f8f5f0] rounded-lg">
