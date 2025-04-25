@@ -174,7 +174,10 @@ export default function CreateCookieJarForm() {
     // Validate all steps before submitting
     if (!validateAll()) {
       setShowConfirmDialog(false);
-      setErrorMessage(`Please fix all validation errors before creating your Cookie Jar. ${formErrors}`);
+      // Format error messages for popup
+      const errorMessages = Object.values(formErrors).filter(Boolean);
+      const formattedErrors = errorMessages.map(error => `• ${error}`).join('\n');
+      setErrorMessage(`Please fix the following validation errors before creating your Cookie Jar:\n${formattedErrors}`);
       return;
     }
 
@@ -363,8 +366,10 @@ export default function CreateCookieJarForm() {
   const nextStep = () => {
     // Validate current step
     if (!validateStep(currentStep)) {
-      // Show error summary
-      setErrorMessage(`Please fix the following validation errors: ${formErrors}.`);
+      // Format error messages for popup
+      const errorMessages = Object.values(formErrors).filter(Boolean);
+      const formattedErrors = errorMessages.map(error => `• ${error}`).join('\n');
+      setErrorMessage(`Please fix the following validation errors:\n${formattedErrors}`);
       return;
     }
     
@@ -433,23 +438,7 @@ export default function CreateCookieJarForm() {
               <p className="text-sm text-[#8b7355]">Select the network where you want to deploy your jar</p>
             </div>
 
-            {/* Error Summary for Step 1 */}
-            {Object.keys(formErrors).some(key => 
-              ["jarOwnerAddress", "supportedCurrency", "metadata"].includes(key) && !!formErrors[key as keyof typeof formErrors]
-            ) && (
-              <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md mb-4">
-                <h3 className="font-bold flex items-center">
-                  <AlertCircle className="h-4 w-4 mr-2" /> Please fix the following errors:
-                </h3>
-                <ul className="list-disc pl-5 mt-2">
-                  {Object.entries(formErrors)
-                    .filter(([key]) => ["jarOwnerAddress", "supportedCurrency", "metadata"].includes(key))
-                    .map(([field, error]) => 
-                      error ? <li key={field}>{error}</li> : null
-                    )}
-                </ul>
-              </div>
-            )}
+
             
             {/* Jar Owner */}
             <div className="space-y-2">
@@ -654,23 +643,7 @@ export default function CreateCookieJarForm() {
       case 3:
         return (
           <div className="space-y-6">
-            {/* Error Summary for Step 3 */}
-            {Object.keys(formErrors).some(key => 
-              ["fixedAmount", "maxWithdrawal", "withdrawalInterval"].includes(key) && !!formErrors[key as keyof typeof formErrors]
-            ) && (
-              <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-md mb-4">
-                <h3 className="font-bold flex items-center">
-                  <AlertCircle className="h-4 w-4 mr-2" /> Please fix the following errors:
-                </h3>
-                <ul className="list-disc pl-5 mt-2">
-                  {Object.entries(formErrors)
-                    .filter(([key]) => ["fixedAmount", "maxWithdrawal", "withdrawalInterval"].includes(key))
-                    .map(([field, error]) => 
-                      error ? <li key={field}>{error}</li> : null
-                    )}
-                </ul>
-              </div>
-            )}
+
             
             {/* Withdrawal Option */}
             <div className="space-y-2">
@@ -1046,7 +1019,7 @@ export default function CreateCookieJarForm() {
               </DialogTitle>
             </DialogHeader>
             <div className="py-4">
-              <p className="text-white font-bold">{errorMessage}</p>
+              <p className="text-white font-bold whitespace-pre-line">{errorMessage}</p>
               <p className="text-[#8b7355] mt-2 text-sm">Please try again or check your wallet for more details.</p>
             </div>
             <DialogFooter>
