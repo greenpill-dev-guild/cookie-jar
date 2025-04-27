@@ -71,7 +71,6 @@ library CookieJarLib {
     event AdminUpdated(address indexed newAdmin);
 
     // --- Custom Errors ---
-    error NotAdmin();
     error NotAuthorized();
     error InvalidAccessType();
     error InvalidPurpose();

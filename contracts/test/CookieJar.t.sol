@@ -6,6 +6,7 @@ import "../src/CookieJarFactory.sol";
 import "../src/CookieJarRegistry.sol";
 import "../src/CookieJar.sol";
 import "../script/HelperConfig.s.sol";
+import "@openzeppelin/contracts/access/IAccessControl.sol";
 
 // --- Mock ERC20 ---
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -351,7 +352,7 @@ contract CookieJarTest is Test {
     // updateWhitelist should revert if called by non-admin.
     function testUpdateWhitelistNonAdmin() public {
         vm.prank(attacker);
-        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAdmin.selector));
+        vm.expectRevert(abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, attacker, CookieJarLib.JAR_OWNER));
         jarWhitelistETH.grantJarWhitelistRole(users);
     }
 
@@ -1110,7 +1111,7 @@ contract CookieJarTest is Test {
     function testUpdateAdminNotAuthorized() public {
         address newAdmin = address(0xC0DE);
         vm.prank(attacker);
-        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAdmin.selector));
+        vm.expectRevert(abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, attacker, CookieJarLib.JAR_OWNER));
         jarWhitelistETH.transferJarOwnership(newAdmin);
     }
 

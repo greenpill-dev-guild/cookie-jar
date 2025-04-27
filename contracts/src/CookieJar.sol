@@ -150,14 +150,6 @@ contract CookieJar is AccessControl {
 
     // --- Modifiers ---
 
-    /**
-     * @notice Restricts access to functions to the admin.
-     */
-    modifier onlyJarOwner(address _user) {
-        if (!hasRole(CookieJarLib.JAR_OWNER, _user))
-            revert CookieJarLib.NotAdmin();
-        _;
-    }
 
     modifier onlySupportedCurrency(address _token) {
         if (currency != _token) {
@@ -186,7 +178,7 @@ contract CookieJar is AccessControl {
      */
     function grantJarWhitelistRole(
         address[] calldata _users
-    ) external onlyJarOwner(msg.sender) {
+    ) external onlyRole(CookieJarLib.JAR_OWNER) {
         if (accessType != CookieJarLib.AccessType.Whitelist)
             revert CookieJarLib.InvalidAccessType();
 
@@ -199,7 +191,7 @@ contract CookieJar is AccessControl {
 
     function revokeJarWhitelistRole(
         address[] calldata _users
-    ) external onlyJarOwner(msg.sender) {
+    ) external onlyRole(CookieJarLib.JAR_OWNER) {
         if (accessType != CookieJarLib.AccessType.Whitelist)
             revert CookieJarLib.InvalidAccessType();
 
@@ -216,7 +208,7 @@ contract CookieJar is AccessControl {
      */
     function grantJarBlacklistRole(
         address[] calldata _users
-    ) external onlyJarOwner(msg.sender) {
+    ) external onlyRole(CookieJarLib.JAR_OWNER) {
         for (uint256 i = 0; i < _users.length; i++) {
             _grantRole(CookieJarLib.JAR_BLACKLISTED, _users[i]);
         }
@@ -226,7 +218,7 @@ contract CookieJar is AccessControl {
 
     function revokeJarBlacklistRole(
         address[] calldata _users
-    ) external onlyJarOwner(msg.sender) {
+    ) external onlyRole(CookieJarLib.JAR_OWNER) {
         for (uint256 i = 0; i < _users.length; i++) {
             _revokeRole(CookieJarLib.JAR_BLACKLISTED, _users[i]);
         }
@@ -255,7 +247,7 @@ contract CookieJar is AccessControl {
     function addNFTGate(
         address _nftAddress,
         uint8 _nftType
-    ) external onlyJarOwner(msg.sender) {
+    ) external onlyRole(CookieJarLib.JAR_OWNER) {
         if (accessType != CookieJarLib.AccessType.NFTGated)
             revert CookieJarLib.InvalidAccessType();
         if (nftGates.length >= CookieJarLib.MAX_NFT_GATES)
@@ -280,7 +272,7 @@ contract CookieJar is AccessControl {
      */
     function removeNFTGate(
         address _nftAddress
-    ) external onlyJarOwner(msg.sender) {
+    ) external onlyRole(CookieJarLib.JAR_OWNER) {
         // Check if the access type is NFT gated
         if (accessType != CookieJarLib.AccessType.NFTGated)
             revert CookieJarLib.InvalidAccessType();
@@ -318,7 +310,7 @@ contract CookieJar is AccessControl {
      */
     function transferJarOwnership(
         address _newAdmin
-    ) external onlyJarOwner(msg.sender) {
+    ) external onlyRole(CookieJarLib.JAR_OWNER) {
         if (_newAdmin == address(0))
             revert CookieJarLib.AdminCannotBeZeroAddress();
         _revokeRole(CookieJarLib.JAR_OWNER, jarOwner);
@@ -581,7 +573,7 @@ contract CookieJar is AccessControl {
     function emergencyWithdrawWithoutState(
         address token,
         uint256 amount
-    ) external onlyJarOwner(msg.sender) {
+    ) external onlyRole(CookieJarLib.JAR_OWNER) {
         if (!emergencyWithdrawalEnabled)
             revert CookieJarLib.EmergencyWithdrawalDisabled();
         if (amount == 0) revert CookieJarLib.ZeroWithdrawal();
@@ -602,7 +594,7 @@ contract CookieJar is AccessControl {
 
     function emergencyWithdrawCurrencyWithState(
         uint256 amount
-    ) external onlyJarOwner(msg.sender) {
+    ) external onlyRole(CookieJarLib.JAR_OWNER) {
         if (!emergencyWithdrawalEnabled)
             revert CookieJarLib.EmergencyWithdrawalDisabled();
         if (amount == 0) revert CookieJarLib.ZeroWithdrawal();
