@@ -267,34 +267,23 @@ contract CookieJar is AccessControl {
     function removeNFTGate(
         address _nftAddress
     ) external onlyRole(CookieJarLib.JAR_OWNER) {
-        // Check if the access type is NFT gated
         if (accessType != CookieJarLib.AccessType.NFTGated)
             revert CookieJarLib.InvalidAccessType();
+        if (nftGateMapping[_nftAddress].nftAddress == address(0))
+            revert CookieJarLib.NFTGateNotFound();
 
-        // Find the index of the NFT gate to remove
-        uint256 gateIndex = type(uint256).max;
+        delete nftGateMapping[_nftAddress];
+
+        uint256 gateIndex;
         for (uint256 i = 0; i < nftGates.length; i++) {
             if (nftGates[i].nftAddress == _nftAddress) {
                 gateIndex = i;
                 break;
             }
         }
-
-        // Revert if the NFT gate was not found
-        if (gateIndex == type(uint256).max)
-            revert CookieJarLib.NFTGateNotFound();
-
-        // Remove the NFT gate from the mapping
-        delete nftGateMapping[_nftAddress];
-
-        // If the gate to remove is not the last element,
-        // replace it with the last element and then pop
-        if (gateIndex < nftGates.length - 1) {
-            nftGates[gateIndex] = nftGates[nftGates.length - 1];
-        }
+        nftGates[gateIndex] = nftGates[nftGates.length - 1];
         nftGates.pop();
 
-        // Emit an event for the removal
         emit CookieJarLib.NFTGateRemoved(_nftAddress);
     }
 
