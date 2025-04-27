@@ -606,7 +606,7 @@ contract CookieJarTest is Test {
         string memory purpose = "Valid purpose description exceeding 20.";
         vm.prank(user);
         vm.expectRevert(
-            abi.encodeWithSelector(CookieJarLib.NotAuthorized.selector)
+            abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, user, CookieJarLib.JAR_WHITELISTED)
         );
         jarWhitelistETH.withdrawWhitelistMode(fixedAmount, purpose);
     }

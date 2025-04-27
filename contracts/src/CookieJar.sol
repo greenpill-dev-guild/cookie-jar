@@ -164,12 +164,6 @@ contract CookieJar is AccessControl {
         _;
     }
 
-    modifier onlyJarWhiteListed(address _user) {
-        if (!hasRole(CookieJarLib.JAR_WHITELISTED, _user))
-            revert CookieJarLib.NotAuthorized();
-        _;
-    }
-
     // --- Admin Functions ---
 
     /**
@@ -420,8 +414,8 @@ contract CookieJar is AccessControl {
         string calldata purpose
     )
         external
+        onlyRole(CookieJarLib.JAR_WHITELISTED)
         onlyNotJarBlacklisted(msg.sender)
-        onlyJarWhiteListed(msg.sender)
     {
         if (amount == 0) revert CookieJarLib.ZeroWithdrawal();
         if (accessType != CookieJarLib.AccessType.Whitelist)
