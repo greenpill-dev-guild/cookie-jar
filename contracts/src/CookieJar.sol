@@ -383,7 +383,6 @@ contract CookieJar is AccessControl {
     )
         internal
         view
-        onlyNotJarBlacklisted(msg.sender)
         returns (CookieJarLib.NFTGate memory gate)
     {
         gate = nftGateMapping[gateAddress];
