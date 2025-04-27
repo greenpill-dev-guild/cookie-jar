@@ -48,6 +48,7 @@ export default function CreateCookieJarForm() {
   const totalSteps = 4
 
   // Form state
+  const [selectedNetwork, setSelectedNetwork] = useState<string>("baseSepolia")
   const [jarOwnerAddress, setJarOwnerAddress] = useState<`0x${string}`>("0x0000000000000000000000000000000000000000")
   const [supportedCurrency, setSupportedCurrency] = useState<`0x${string}`>(ETH_ADDRESS)
   const [accessType, setAccessType] = useState<AccessType>(AccessType.Whitelist)
@@ -63,6 +64,7 @@ export default function CreateCookieJarForm() {
   
   // Form validation errors
   const [formErrors, setFormErrors] = useState<{
+    network?: string;
     jarOwnerAddress?: string;
     supportedCurrency?: string;
     metadata?: string;
@@ -265,6 +267,11 @@ export default function CreateCookieJarForm() {
 
     switch (step) {
       case 1:
+        // Validate network selection
+        if (!selectedNetwork) {
+          newErrors.network = "Please select a network";
+        }
+        
         // Validate owner address if not the connected address
         if (jarOwnerAddress !== address) {
           if (!jarOwnerAddress || !isAddress(jarOwnerAddress)) {
@@ -322,6 +329,7 @@ export default function CreateCookieJarForm() {
       // Clear step 1 errors
       setFormErrors(prev => ({
         ...prev,
+        network: undefined,
         jarOwnerAddress: undefined,
         supportedCurrency: undefined,
         metadata: undefined
@@ -421,8 +429,11 @@ export default function CreateCookieJarForm() {
               <Label htmlFor="network" className="text-[#3c2a14] text-base">
                 Network
               </Label>
-              <Select defaultValue="baseSepolia">
-                <SelectTrigger className="w-full bg-white border-gray-300 placeholder:text-[#3c2a14]">
+              <Select 
+                value={selectedNetwork} 
+                onValueChange={(value) => setSelectedNetwork(value)}
+              >
+                <SelectTrigger className={`w-full bg-white ${formErrors.network ? 'border-red-500' : 'border-gray-300'} placeholder:text-[#3c2a14]`}>
                   <SelectValue placeholder="Select network" />
                 </SelectTrigger>
                 <SelectContent>
@@ -435,7 +446,13 @@ export default function CreateCookieJarForm() {
                   </SelectItem>
                 </SelectContent>
               </Select>
-              <p className="text-sm text-[#8b7355]">Select the network where you want to deploy your jar</p>
+              {formErrors.network ? (
+                <p className="text-sm text-red-500 flex items-center">
+                  <AlertCircle className="h-4 w-4 mr-1" /> {formErrors.network}
+                </p>
+              ) : (
+                <p className="text-sm text-[#8b7355]">Select the network where you want to deploy your jar</p>
+              )}
             </div>
 
 
@@ -744,6 +761,8 @@ export default function CreateCookieJarForm() {
               <Input
                 id="withdrawalInterval"
                 type="number"
+                inputMode="decimal"
+                min="0"
                 placeholder="1"
                 className={`bg-white ${formErrors.withdrawalInterval ? 'border-red-500' : 'border-gray-300'} placeholder:text-[#3c2a14] text-[#3c2a14]`}
                 value={(Number(withdrawalInterval) / 86400).toString()}
