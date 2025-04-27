@@ -1073,7 +1073,6 @@ contract CookieJarTest is Test {
             maxWithdrawal,
             withdrawalInterval,
             config.minETHDeposit,
-            config.minERC20Deposit,
             config.feePercentageOnDeposit,
             true,
             config.defaultFeeCollector,

@@ -29,8 +29,7 @@ contract CookieJar is AccessControl {
     // --- Core Configuration Variables ---
     uint256 public currencyHeldByJar;
     address public currency;
-    uint256 public minETHDeposit;
-    uint256 public minERC20Deposit;
+    uint256 public minDeposit;
     uint256 public feePercentageOnDeposit;
     address public jarOwner;
     /// @notice The admin of the contract.
@@ -92,8 +91,7 @@ contract CookieJar is AccessControl {
         uint256 _fixedAmount,
         uint256 _maxWithdrawal,
         uint256 _withdrawalInterval,
-        uint256 _minETHDeposit,
-        uint256 _minERC20Deposit,
+        uint256 _minDeposit,
         uint256 _feePercentageOnDeposit,
         bool _strictPurpose,
         address _defaultFeeCollector,
@@ -132,8 +130,7 @@ contract CookieJar is AccessControl {
         }
         jarOwner = _jarOwner;
         withdrawalOption = _withdrawalOption;
-        minETHDeposit = _minETHDeposit;
-        minERC20Deposit = _minERC20Deposit;
+        minDeposit = _minDeposit;
         fixedAmount = _fixedAmount;
         maxWithdrawal = _maxWithdrawal;
         currency = _supportedCurrency;
@@ -309,7 +306,7 @@ contract CookieJar is AccessControl {
      * @notice Only works if the currency is ETH, which is address(3).
      */
     function depositETH() public payable onlySupportedCurrency(address(3)) {
-        if (msg.value < minETHDeposit)
+        if (msg.value < minDeposit)
             revert CookieJarLib.LessThanMinimumDeposit();
 
         // Send fee to fee collector
@@ -324,7 +321,7 @@ contract CookieJar is AccessControl {
      * @param amount The amount of tokens to deposit.
      */
     function depositCurrency(uint256 amount) public {
-        if (amount < minERC20Deposit)
+        if (amount < minDeposit)
             revert CookieJarLib.LessThanMinimumDeposit();
 
         if (IERC20(currency).allowance(msg.sender, address(this)) < amount) {
