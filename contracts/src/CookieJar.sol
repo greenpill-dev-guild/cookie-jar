@@ -16,7 +16,7 @@ import {CookieJarLib} from "./libraries/CookieJarLib.sol";
  */
 contract CookieJar is AccessControl {
     using SafeERC20 for IERC20;
-    using CookieJarLib for *;
+
     // --- Storage for NFT gates ---
     /// @notice Array of approved NFT gates (used in NFTGated mode).
     CookieJarLib.NFTGate[] public nftGates;
