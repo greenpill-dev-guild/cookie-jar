@@ -430,6 +430,7 @@ export default function CreateCookieJarForm() {
                 Network
               </Label>
               <Select 
+                key="network-selector-stable"
                 value={selectedNetwork} 
                 onValueChange={(value) => setSelectedNetwork(value)}
               >
