@@ -158,8 +158,8 @@ contract CookieJar is AccessControl {
         _;
     }
 
-    modifier onlyNotJarBlacklisted(address _user) {
-        if (hasRole(CookieJarLib.JAR_BLACKLISTED, _user))
+    modifier onlyNotJarBlacklisted() {
+        if (hasRole(CookieJarLib.JAR_BLACKLISTED, msg.sender))
             revert CookieJarLib.Blacklisted();
         _;
     }
@@ -414,7 +414,7 @@ contract CookieJar is AccessControl {
     )
         external
         onlyRole(CookieJarLib.JAR_WHITELISTED)
-        onlyNotJarBlacklisted(msg.sender)
+        onlyNotJarBlacklisted()
     {
         if (amount == 0) revert CookieJarLib.ZeroWithdrawal();
         if (accessType != CookieJarLib.AccessType.Whitelist)
@@ -491,7 +491,7 @@ contract CookieJar is AccessControl {
         string calldata purpose,
         address gateAddress,
         uint256 tokenId
-    ) external onlyNotJarBlacklisted(msg.sender) {
+    ) external onlyNotJarBlacklisted() {
         if (amount == 0) revert CookieJarLib.ZeroWithdrawal();
         if (accessType != CookieJarLib.AccessType.NFTGated)
             revert CookieJarLib.InvalidAccessType();
