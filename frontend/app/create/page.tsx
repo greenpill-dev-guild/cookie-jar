@@ -714,7 +714,7 @@ export default function CreateCookieJarForm() {
                     placeholder="0"
                     min="0"
                     step="any"
-                    className={`${formErrors.fixedAmount ? 'border-red-500' : 'border-[#e2c7a9]'} focus-visible:ring-[#ff5e14] text-[#3c2a14]`}
+                    className={`bg-white ${formErrors.fixedAmount ? 'border-red-500' : 'border-[#e2c7a9]'} focus-visible:ring-[#ff5e14] text-[#3c2a14]`}
                   />
                   {formErrors.fixedAmount && (
                     <p className="text-sm text-red-500 flex items-center mt-1">
@@ -741,7 +741,7 @@ export default function CreateCookieJarForm() {
                     placeholder="0"
                     min="0"
                     step="any"
-                    className={`${formErrors.maxWithdrawal ? 'border-red-500' : 'border-[#e2c7a9]'} focus-visible:ring-[#ff5e14] text-[#3c2a14]`}
+                    className={`bg-white ${formErrors.maxWithdrawal ? 'border-red-500' : 'border-[#e2c7a9]'} focus-visible:ring-[#ff5e14] text-[#3c2a14]`}
                   />
                   {formErrors.maxWithdrawal && (
                     <p className="text-sm text-red-500 flex items-center mt-1">
