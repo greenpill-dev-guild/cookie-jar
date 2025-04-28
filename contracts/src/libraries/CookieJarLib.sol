@@ -94,6 +94,5 @@ library CookieJarLib {
     error NFTGateNotFound();
     error LessThanMinimumDeposit();
     error MismatchedArrayLengths();
-    error CookieJar__CurrencyNotApproved();
     error CookieJar__WithdrawalAlreadyDone();
 }

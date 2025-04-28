@@ -308,9 +308,6 @@ contract CookieJar is AccessControl {
         if (amount < minDeposit)
             revert CookieJarLib.LessThanMinimumDeposit();
 
-        if (IERC20(currency).allowance(msg.sender, address(this)) < amount) {
-            revert CookieJarLib.CookieJar__CurrencyNotApproved();
-        }
         IERC20(currency).safeTransferFrom(msg.sender, address(this), amount);
         uint256 remainingAmount = _calculateAndTransferFeeToCollector(amount);
         currencyHeldByJar += remainingAmount;
