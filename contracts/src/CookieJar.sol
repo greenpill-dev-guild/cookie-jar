@@ -172,10 +172,7 @@ contract CookieJar is AccessControl {
     ) external onlyRole(CookieJarLib.JAR_OWNER) {
         if (accessType != CookieJarLib.AccessType.Whitelist)
             revert CookieJarLib.InvalidAccessType();
-
-        for (uint256 i = 0; i < _users.length; i++) {
-            _grantRole(CookieJarLib.JAR_WHITELISTED, _users[i]);
-        }
+        _grantRoles(CookieJarLib.JAR_WHITELISTED, _users);
         // Emit the event after updating all addresses
         emit CookieJarLib.WhitelistUpdated(_users, true);
     }
@@ -185,10 +182,7 @@ contract CookieJar is AccessControl {
     ) external onlyRole(CookieJarLib.JAR_OWNER) {
         if (accessType != CookieJarLib.AccessType.Whitelist)
             revert CookieJarLib.InvalidAccessType();
-
-        for (uint256 i = 0; i < _users.length; i++) {
-            _revokeRole(CookieJarLib.JAR_WHITELISTED, _users[i]);
-        }
+        _revokeRoles(CookieJarLib.JAR_WHITELISTED, _users);
         // Emit the event after updating all addresses
         emit CookieJarLib.WhitelistUpdated(_users, false);
     }
@@ -200,9 +194,7 @@ contract CookieJar is AccessControl {
     function grantJarBlacklistRole(
         address[] calldata _users
     ) external onlyRole(CookieJarLib.JAR_OWNER) {
-        for (uint256 i = 0; i < _users.length; i++) {
-            _grantRole(CookieJarLib.JAR_BLACKLISTED, _users[i]);
-        }
+        _grantRoles(CookieJarLib.JAR_BLACKLISTED, _users);
         // Emit the event after updating all addresses
         emit CookieJarLib.BlacklistUpdated(_users, true);
     }
@@ -210,9 +202,7 @@ contract CookieJar is AccessControl {
     function revokeJarBlacklistRole(
         address[] calldata _users
     ) external onlyRole(CookieJarLib.JAR_OWNER) {
-        for (uint256 i = 0; i < _users.length; i++) {
-            _revokeRole(CookieJarLib.JAR_BLACKLISTED, _users[i]);
-        }
+        _revokeRoles(CookieJarLib.JAR_BLACKLISTED, _users);
         // Emit the event after updating all addresses
         emit CookieJarLib.BlacklistUpdated(_users, false);
     }
@@ -602,6 +592,18 @@ contract CookieJar is AccessControl {
         return withdrawalData;
     }
 
+    function _grantRoles(bytes32 role, address[] memory users) internal {
+        for (uint256 i = 0; i < users.length; i++) {
+            _grantRole(role, users[i]);
+        }
+    }
+
+    function _revokeRoles(bytes32 role, address[] memory users) internal {
+        for (uint256 i = 0; i < users.length; i++) {
+            _revokeRole(role, users[i]);
+        }
+    }
+    
     fallback() external payable {}
 
     receive() external payable {}
