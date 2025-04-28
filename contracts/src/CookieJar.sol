@@ -147,14 +147,6 @@ contract CookieJar is AccessControl {
 
     // --- Modifiers ---
 
-
-    modifier onlySupportedCurrency(address _token) {
-        if (currency != _token) {
-            revert CookieJarLib.InvalidTokenAddress();
-        }
-        _;
-    }
-
     modifier onlyNotJarBlacklisted() {
         if (hasRole(CookieJarLib.JAR_BLACKLISTED, msg.sender))
             revert CookieJarLib.Blacklisted();
@@ -295,7 +287,9 @@ contract CookieJar is AccessControl {
      * @notice Deposits ETH into the contract, deducting depositFee.
      * @notice Only works if the currency is ETH, which is address(3).
      */
-    function depositETH() public payable onlySupportedCurrency(address(3)) {
+    function depositETH() public payable {
+        if (currency != address(3))
+            revert CookieJarLib.InvalidTokenAddress();
         if (msg.value < minDeposit)
             revert CookieJarLib.LessThanMinimumDeposit();
 
