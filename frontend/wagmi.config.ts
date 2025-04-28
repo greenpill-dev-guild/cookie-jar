@@ -36,6 +36,7 @@ export default defineConfig({
       deployments: {
         cookieJarFactory: contractAddresses.cookieJarFactory,
         cookieJarRegistry: contractAddresses.cookieJarRegistry
+        
       }
     }),
     react({
