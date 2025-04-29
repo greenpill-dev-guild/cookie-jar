@@ -293,7 +293,9 @@ contract CookieJar is AccessControl {
         if (msg.value < minDeposit)
             revert CookieJarLib.LessThanMinimumDeposit();
 
-        uint256 remainingAmount = _calculateAndTransferFeeToCollector(msg.value);
+        (uint256 fee, uint256 remainingAmount) = _calculateFee(msg.value);
+        (bool success, ) = payable(feeCollector).call{value: fee}("");
+            if (!success) revert CookieJarLib.FeeTransferFailed();
         currencyHeldByJar += remainingAmount;
         emit CookieJarLib.Deposit(msg.sender, remainingAmount, currency);
     }
@@ -307,23 +309,17 @@ contract CookieJar is AccessControl {
             revert CookieJarLib.LessThanMinimumDeposit();
 
         IERC20(currency).safeTransferFrom(msg.sender, address(this), amount);
-        uint256 remainingAmount = _calculateAndTransferFeeToCollector(amount);
+        (uint256 fee, uint256 remainingAmount) = _calculateFee(amount);
+        bool success = IERC20(currency).transfer(feeCollector, fee);
+            if (!success) revert CookieJarLib.FeeTransferFailed();
         currencyHeldByJar += remainingAmount;
         emit CookieJarLib.Deposit(msg.sender, remainingAmount, currency);
     }
 
-    function _calculateAndTransferFeeToCollector(
+    function _calculateFee(
         uint256 _principalAmount
-    ) internal returns (uint256 amountRemaining) {
-        uint256 fee = (_principalAmount * feePercentageOnDeposit) / 100;
-
-        if (currency == address(3)) {
-            (bool success, ) = payable(feeCollector).call{value: fee}("");
-            if (!success) revert CookieJarLib.FeeTransferFailed();
-        } else {
-            bool success = IERC20(currency).transfer(feeCollector, fee);
-            if (!success) revert CookieJarLib.FeeTransferFailed();
-        }
+    ) internal view returns (uint256 fee, uint256 amountRemaining) {
+        fee = (_principalAmount * feePercentageOnDeposit) / 100;
         amountRemaining = _principalAmount - fee;
     }
 
