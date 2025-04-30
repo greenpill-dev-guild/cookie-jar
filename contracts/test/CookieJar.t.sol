@@ -1017,10 +1017,23 @@ contract CookieJarTest is Test {
         dummyToken.mint(address(jarWhitelistETH), dummyTokenFund);
         vm.prank(owner);
         vm.expectRevert(
-            abi.encodeWithSelector(CookieJarLib.InsufficientBalance.selector)
+            abi.encodeWithSelector(IERC20Errors.ERC20InsufficientBalance.selector, address(jarWhitelistETH), 500 * 1e18, 600 * 1e18)
         );
         jarWhitelistETH.emergencyWithdrawWithoutState(
             address(dummyToken),
+            600 * 1e18
+        );
+    }
+
+    function testEmergencyWithdrawInsufficientBalanceETH() public {
+        uint256 dummyTokenFund = 500 * 1e18;
+        vm.deal(address(jarWhitelistETH), dummyTokenFund);
+        vm.prank(owner);
+        vm.expectRevert(
+            abi.encodeWithSelector(CookieJarLib.InsufficientBalance.selector)
+        );
+        jarWhitelistETH.emergencyWithdrawWithoutState(
+            address(3),
             600 * 1e18
         );
     }

@@ -414,15 +414,10 @@ contract CookieJar is AccessControl {
             revert CookieJarLib.EmergencyWithdrawalDisabled();
         if (amount == 0) revert CookieJarLib.ZeroWithdrawal();
         if (token == address(3)) {
-            if (address(this).balance < amount)
-                revert CookieJarLib.InsufficientBalance();
             (bool sent, ) = msg.sender.call{value: amount}("");
-            if (!sent) revert CookieJarLib.FeeTransferFailed();
+            if (!sent) revert CookieJarLib.InsufficientBalance();
             emit CookieJarLib.EmergencyWithdrawal(msg.sender, token, amount);
         } else {
-            uint256 tokenBalance = IERC20(token).balanceOf(address(this));
-            if (tokenBalance < amount)
-                revert CookieJarLib.InsufficientBalance();
             IERC20(token).safeTransfer(msg.sender, amount);
             emit CookieJarLib.EmergencyWithdrawal(msg.sender, token, amount);
         }
@@ -435,15 +430,10 @@ contract CookieJar is AccessControl {
             revert CookieJarLib.EmergencyWithdrawalDisabled();
         if (amount == 0) revert CookieJarLib.ZeroWithdrawal();
         if (currency == address(3)) {
-            if (address(this).balance < amount)
-                revert CookieJarLib.InsufficientBalance();
             (bool sent, ) = msg.sender.call{value: amount}("");
-            if (!sent) revert CookieJarLib.FeeTransferFailed();
+            if (!sent) revert CookieJarLib.InsufficientBalance();
             emit CookieJarLib.EmergencyWithdrawal(msg.sender, currency, amount);
         } else {
-            uint256 tokenBalance = IERC20(currency).balanceOf(address(this));
-            if (tokenBalance < amount)
-                revert CookieJarLib.InsufficientBalance();
             IERC20(currency).safeTransfer(msg.sender, amount);
             emit CookieJarLib.EmergencyWithdrawal(msg.sender, currency, amount);
         }
