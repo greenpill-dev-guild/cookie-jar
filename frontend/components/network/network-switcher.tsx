@@ -34,15 +34,68 @@ export function NetworkSwitcher() {
     }
   }, [config])
 
-  // Check if current chain is in the list of supported chains
-  const isChainSupported = chainId ? supportedChains.some(chain => chain.id === chainId) : false
+  // Get the actual connected chain from the browser's ethereum provider
+  const [actualChainId, setActualChainId] = useState<number | null>(null)
+
+  // Effect to get the actual chain ID from the browser's ethereum provider
+  useEffect(() => {
+    const getActualChainId = async () => {
+      if (typeof window !== 'undefined' && window.ethereum) {
+        try {
+          // Get the actual chainId from the ethereum provider
+          const id = await window.ethereum.request({ method: 'eth_chainId' }) as string
+          const parsedId = parseInt(id, 16)
+          setActualChainId(parsedId)
+          console.log('Actual chainId from provider:', parsedId)
+        } catch (error) {
+          console.error('Error getting chainId from provider:', error)
+        }
+      }
+    }
+    
+    getActualChainId()
+    
+    // Set up listener for chain changes
+    if (typeof window !== 'undefined' && window.ethereum) {
+      window.ethereum.on('chainChanged', (chainId: string) => {
+        const parsedId = parseInt(chainId, 16)
+        setActualChainId(parsedId)
+        console.log('Chain changed to:', parsedId)
+      })
+    }
+    
+    return () => {
+      // Clean up listeners
+      if (typeof window !== 'undefined' && window.ethereum) {
+        window.ethereum.removeListener('chainChanged', () => {})
+      }
+    }
+  }, [])
+  
+  // Check if wagmi's chainId is showing Sepolia (11155111) but the actual chainId is different
+  // This would indicate a fallback mechanism is active
+  const isFallbackActive = chainId === 11155111 as unknown as number && actualChainId !== null && actualChainId !== 11155111
+  
+  // Check if the actual chain is supported
+  const isActualChainSupported = actualChainId ? supportedChains.some(chain => chain.id === actualChainId) : false
+
+  // Debug logs
+  console.log('Wagmi chainId:', chainId)
+  console.log('Actual chainId:', actualChainId)
+  console.log('Is fallback active:', isFallbackActive)
+  console.log('Is actual chain supported:', isActualChainSupported)
+  console.log('Supported chains:', supportedChains.map(chain => ({ id: chain.id, name: chain.name })))
 
   if (!mounted) return null
 
-  // If user is not connected or on a supported chain, don't show anything
-  if (!isConnected || isChainSupported) {
+  // Show network switcher when:
+  // 1. User is connected AND
+  // 2. Either the fallback is active OR the actual chain is not supported
+  if (!isConnected || (!isFallbackActive && isActualChainSupported)) {
     return null
   }
+  
+  // At this point we know the user is connected and on an unsupported network
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
