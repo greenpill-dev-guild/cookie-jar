@@ -1,17 +1,17 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { useChainId, useSwitchChain, useConfig } from "wagmi"
+import { useAccount, useChainId, useConfig } from "wagmi"
 import { Button } from "@/components/ui/button"
+import { useChainModal } from "@rainbow-me/rainbowkit"
+import { supportedChains } from "@/config/supported-networks"
 
 export function NetworkSwitcher() {
+  const { isConnected } = useAccount()
   const chainId = useChainId()
-  const { switchChain, isPending } = useSwitchChain()
   const [mounted, setMounted] = useState(false)
   const config = useConfig()
-
-  // Base Sepolia chain ID
-  const BASE_SEPOLIA_CHAIN_ID = 84532
+  const { openChainModal } = useChainModal()
 
   // Prevent hydration mismatch
   useEffect(() => {
@@ -34,10 +34,13 @@ export function NetworkSwitcher() {
     }
   }, [config])
 
+  // Check if current chain is in the list of supported chains
+  const isChainSupported = chainId ? supportedChains.some(chain => chain.id === chainId) : false
+
   if (!mounted) return null
 
-  // If user is on Base Sepolia, don't show anything
-  if (chainId === BASE_SEPOLIA_CHAIN_ID) {
+  // If user is not connected or on a supported chain, don't show anything
+  if (!isConnected || isChainSupported) {
     return null
   }
 
@@ -56,18 +59,18 @@ export function NetworkSwitcher() {
             </svg>
           </div>
 
-          <h3 className="text-xl font-bold text-[#3c2a14] mb-2">Wrong Network Detected</h3>
+          <h3 className="text-xl font-bold text-[#3c2a14] mb-2">Unsupported Network</h3>
           <p className="text-[#8b7355] mb-6">
-            Cookie Jar currently only supports Base Sepolia network. Please switch your network to continue.
+            The network you're currently connected to is not supported by Cookie Jar. 
+            Please switch to a supported network to continue.
           </p>
 
           <div className="flex flex-col gap-3">
             <Button
-              onClick={() => switchChain({ chainId: BASE_SEPOLIA_CHAIN_ID })}
-              disabled={isPending}
+              onClick={openChainModal}
               className="w-full bg-[#ff5e14] hover:bg-[#e54d00] text-white"
             >
-              {isPending ? "Switching..." : "Switch to Base Sepolia"}
+              Switch to a Supported Network
             </Button>
           </div>
         </div>
