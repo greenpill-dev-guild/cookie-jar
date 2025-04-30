@@ -60,7 +60,8 @@ git clone <repository-url>
 cd cookie-jar-v2/contracts
 
 # Install dependencies
-forge install
+forge install foundry-rs/forge-std
+forge install OpenZeppelin/openzeppelin-contracts
 ```
 
 ### Build
