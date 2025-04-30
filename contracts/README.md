@@ -88,21 +88,14 @@ forge fmt
 ```shell
 PRIVATE_KEY=
 SEPOLIA_URL=
+RPC_URL=${SEPOLIA_URL}
 SEPOLIA_ETHERSCAN_KEY=
 ```
 
 2. Deploy and verify:
 
 ```shell
-source .env
-forge script script/Deploy.s.sol:DeployCookie \
- --via-ir \
- --rpc-url $SEPOLIA_URL \
- --broadcast \
- --verify \
- --etherscan-api-key $SEPOLIA_ETHERSCAN_KEY \
- --verifier-url https://api.basescan.org.io/api \
- -vvvv
+./deploy.sh
 ```
 
 ## Changes Since Last Release
@@ -148,15 +141,3 @@ For detailed documentation about Foundry's capabilities, visit the [Foundry Book
 - Review withdrawal rules and access controls before deployment
 
 fix emergency withdrawal
-
-### To Deploy and verify
-
-source .env
-forge script script/Deploy.s.sol:DeployCookie \
- --via-ir \
- --rpc-url $BASE_SEPOLIA_RPC_URL \
- --broadcast \
- --verify \ --verifier
---etherscan-api-key $SEPOLIA_ETHERSCAN_KEY \
- --verifier-url https://https://sepolia.basescan.org/api/ \
- -vvvv
