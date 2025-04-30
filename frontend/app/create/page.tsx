@@ -5,8 +5,9 @@ import { DialogFooter } from "@/components/ui/dialog"
 import React from "react"
 
 import { useState, useTransition, useEffect } from "react"
-import { useWriteCookieJarFactoryCreateCookieJar } from "@/generated"
-import { useWaitForTransactionReceipt, useAccount } from "wagmi"
+import { cookieJarFactoryAbi } from "@/generated"
+import { useWaitForTransactionReceipt, useAccount, useChainId, useWriteContract } from "wagmi"
+import { contractAddresses } from "@/config/supported-networks"
 import { parseEther, isAddress } from "viem"
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -15,6 +16,7 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
+import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { Loader2, CheckCircle2, ArrowLeft, ArrowRight } from "lucide-react"
 import { PlusCircle, Trash2 } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
@@ -61,6 +63,7 @@ export default function CreateCookieJarForm() {
   const [oneTimeWithdrawal, setOneTimeWithdrawal] = useState(false)
   const [metadata, setMetadata] = useState("")
   const { isConnected, address } = useAccount()
+  const chainId = useChainId()
   
   // Form validation errors
   const [formErrors, setFormErrors] = useState<{
@@ -87,21 +90,23 @@ export default function CreateCookieJarForm() {
      supportedCurrency 
   )
 
-  // Then, add state variables for the confirmation dialog and loading overlay
-  // Add these after the existing state declarations (around line 60)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [isFormError, setIsFormError] = useState<boolean>(false)
 
-  // Contract write hook
+  // Get the factory address for the current chain
+  const factoryAddress = chainId 
+    ? (contractAddresses.cookieJarFactory[chainId as keyof typeof contractAddresses.cookieJarFactory] as `0x${string}` | undefined) 
+    : undefined
+
   const {
-    writeContract: createCookieJar,
+    writeContract,
     data: txHash,
     isPending: isCreatingContract,
     isSuccess: isSubmitted,
     error: createError,
-  } = useWriteCookieJarFactoryCreateCookieJar()
+  } = useWriteContract()
 
   // Transaction receipt hook
   const {
@@ -196,7 +201,16 @@ export default function CreateCookieJarForm() {
       const effectiveNftTypes = accessType === AccessType.NFTGated ? nftTypes : []
 
       try {
-        createCookieJar({
+        // Check if we have a valid factory address for this chain
+        if (!factoryAddress) {
+          throw new Error(`No contract address found for the current network (Chain ID: ${chainId}). Please switch to a supported network.`)
+        }
+        
+       
+        writeContract({
+          address: factoryAddress,
+          abi: cookieJarFactoryAbi,
+          functionName: 'createCookieJar',
           args: [
             jarOwnerAddress,
             supportedCurrency,
@@ -429,30 +443,71 @@ export default function CreateCookieJarForm() {
               <Label htmlFor="network" className="text-[#3c2a14] text-base">
                 Network
               </Label>
-              <Select 
-                key="network-selector-stable"
-                value={selectedNetwork} 
-                onValueChange={(value) => setSelectedNetwork(value)}
-              >
-                <SelectTrigger className={`w-full bg-white ${formErrors.network ? 'border-red-500' : 'border-gray-300'} placeholder:text-[#3c2a14]`}>
-                  <SelectValue placeholder="Select network" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="baseSepolia">Base Sepolia</SelectItem>
-                  <SelectItem value="base" disabled>
-                    Base (Coming Soon)
-                  </SelectItem>
-                  <SelectItem value="optimism" disabled>
-                    Optimism (Coming Soon)
-                  </SelectItem>
-                </SelectContent>
-              </Select>
+              <ConnectButton.Custom>
+                {({ account, chain, openAccountModal, openChainModal, openConnectModal, authenticationStatus, mounted }) => {
+                  const ready = mounted && authenticationStatus !== "loading"
+                  const connected =
+                    ready && account && chain && (!authenticationStatus || authenticationStatus === "authenticated")
+
+                  if (!connected) {
+                    return (
+                      <Button 
+                        onClick={openConnectModal} 
+                        className="w-full bg-white border border-gray-300 text-[#3c2a14] hover:bg-gray-50"
+                      >
+                        Connect Wallet to Select Network
+                      </Button>
+                    )
+                  }
+
+                  if (chain?.unsupported) {
+                    return (
+                      <Button 
+                        onClick={openChainModal} 
+                        variant="destructive" 
+                        className="w-full"
+                      >
+                        Switch to Supported Network
+                      </Button>
+                    )
+                  }
+                  
+                  return (
+                    <Button 
+                      onClick={(e) => {
+                        // Prevent event propagation
+                        e.stopPropagation();
+                        e.preventDefault();
+                        openChainModal();
+                      }} 
+                      variant="outline" 
+                      className="w-full flex items-center justify-between bg-white"
+                    >
+                      <div className="flex items-center gap-2 text-gray-500">
+                        {chain.hasIcon && (
+                          <div className="w-5 h-5">
+                            {chain.iconUrl && (
+                              <img
+                                alt={chain.name ?? "Chain icon"}
+                                src={chain.iconUrl || "/placeholder.svg"}
+                                className="w-5 h-5"
+                              />
+                            )}
+                          </div>
+                        )}
+                        <span>{chain.name}</span>
+                      </div>
+                      <span className="text-xs text-gray-500">Click to Change</span>
+                    </Button>
+                  )
+                }}
+              </ConnectButton.Custom>
               {formErrors.network ? (
                 <p className="text-sm text-red-500 flex items-center">
                   <AlertCircle className="h-4 w-4 mr-1" /> {formErrors.network}
                 </p>
               ) : (
-                <p className="text-sm text-[#8b7355]">Select the network where you want to deploy your jar</p>
+                <p className="text-sm text-[#8b7355]">Your jar will be deployed on the selected network</p>
               )}
             </div>
 

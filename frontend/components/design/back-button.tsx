@@ -21,8 +21,6 @@ export function BackButton({ className = "", showWalletInfo = false, children }:
   // Don't show on home page
   if (pathname === "/") return null
 
-  // Don't need getNetworkInfo anymore as we use RainbowKit's chain information
-
   return (
     <div className={cn("flex items-center justify-between w-full bg-white rounded-xl py-2 px-4 shadow-sm", className)}>
       <button
