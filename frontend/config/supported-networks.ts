@@ -33,13 +33,13 @@ export const contractAddresses = {
     [sepolia.id]: "0x010CE87d0E7F8E818805a27C95E09cb4961C8c6f" as `0x${string}`,
     [baseSepolia.id]: "0x010CE87d0E7F8E818805a27C95E09cb4961C8c6f" as `0x${string}`,
     [optimismSepolia.id]: "0x010CE87d0E7F8E818805a27C95E09cb4961C8c6f" as `0x${string}`,
-    [celoAlfajores.id]: "0x010CE87d0E7F8E818805a27C95E09cb4961C8c6f" as `0x${string}`
+    [celoAlfajores.id]: "0x5FC650F378475d1fF0E608964529E4863A339CD2" as `0x${string}`
   },
   cookieJarRegistry: {
     [sepolia.id]: "0xE9c62c210E6d56EbB0718f79DCE2883b8e38B356" as `0x${string}`,
     [baseSepolia.id]: "0xE9c62c210E6d56EbB0718f79DCE2883b8e38B356" as `0x${string}`,
     [optimismSepolia.id]: "0xE9c62c210E6d56EbB0718f79DCE2883b8e38B356" as `0x${string}`,
-    [celoAlfajores.id]: "0xE9c62c210E6d56EbB0718f79DCE2883b8e38B356" as `0x${string}`
+    [celoAlfajores.id]: "0x8FF4E393D983fb2EEdCfcFcB55a0aaB9250d0AE6" as `0x${string}`,
   }
 }
 // Get environment variables
