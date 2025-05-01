@@ -23,6 +23,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { LoadingOverlay } from "@/components/design/loading-overlay"
 import { AlertCircle } from "lucide-react"
 import { BackButton } from "@/components/design/back-button"
+import { MemoizedCustomConnectButton } from "@/components/wallet/custom-connect-button"
 
 // Import token utilities
 import { ETH_ADDRESS, useTokenInfo, parseTokenAmount, formatTokenAmount } from "@/lib/utils/token-utils"
@@ -934,7 +935,7 @@ export default function CreateCookieJarForm() {
         <div className="bg-white p-8 rounded-xl shadow-lg max-w-md text-center">
           <h2 className="text-2xl font-bold text-[#3c2a14] mb-4">Connect Your Wallet</h2>
           <p className="text-lg text-[#8b7355] mb-6">Please connect your wallet to create a Cookie Jar.</p>
-          <div className="text-[#8b7355]">Use the connect button in the sidebar to get started.</div>
+          <MemoizedCustomConnectButton className="w-full mx-auto mt-4" />
         </div>
       </div>
     )
