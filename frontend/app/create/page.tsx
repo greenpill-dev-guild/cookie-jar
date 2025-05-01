@@ -98,8 +98,7 @@ export default function CreateCookieJarForm() {
 
   // Get the factory address for the current chain
   const factoryAddress = chainId 
-    ? (contractAddresses.cookieJarFactory[chainId as keyof typeof contractAddresses.cookieJarFactory] as `0x${string}` | undefined) 
-    : undefined
+    ? contractAddresses.cookieJarFactory[chainId] : undefined
 
   const {
     writeContract,

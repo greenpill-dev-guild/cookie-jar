@@ -30,9 +30,9 @@ export function useCookieJarData() {
 
   // Get the registry address for the current chain ID
   // Check if the current chainId has a registry address configured
-  const registryAddress = chainId && Object.prototype.hasOwnProperty.call(contractAddresses.cookieJarRegistry, chainId)
-    ? contractAddresses.cookieJarRegistry[chainId as keyof typeof contractAddresses.cookieJarRegistry]
-    : undefined
+
+    const registryAddress = chainId 
+    ? contractAddresses.cookieJarRegistry[chainId] : undefined
     
   // Log if no registry address is found for the current chain
   useEffect(() => {
