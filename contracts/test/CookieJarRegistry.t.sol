@@ -29,7 +29,6 @@ contract CookieJarRegistryTest is Test {
             100, // maxWithdrawal
             86400, // withdrawalInterval (1 day in seconds)
             1 ether, // minETHDeposit
-            100, // minERC20Deposit
             500, // defaultFeePercentage (5%)
             true, // strictPurpose
             address(4), // defaultFeeCollector
