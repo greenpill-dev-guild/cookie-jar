@@ -11,6 +11,16 @@ function getChainById(chainId: number): Chain | undefined {
 }
 
 /**
+ * Gets the network name for a given chain ID
+ * @param chainId The chain ID to find
+ * @returns The network name or 'Unknown Network' if not found
+ */
+export function getNetworkName(chainId: number): string {
+  const chain = getChainById(chainId)
+  return chain?.name || 'Unknown Network'
+}
+
+/**
  * Gets the block explorer URL for an address based on the chain ID
  * @param address The address to link to
  * @param chainId The current chain ID
