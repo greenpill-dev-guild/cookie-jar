@@ -6,6 +6,7 @@ import "../src/CookieJarFactory.sol";
 import "../src/CookieJarRegistry.sol";
 import "../src/CookieJar.sol";
 import "../script/HelperConfig.s.sol";
+import "@openzeppelin/contracts/access/IAccessControl.sol";
 
 // --- Mock ERC20 ---
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
@@ -351,7 +352,7 @@ contract CookieJarTest is Test {
     // updateWhitelist should revert if called by non-admin.
     function testUpdateWhitelistNonAdmin() public {
         vm.prank(attacker);
-        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAdmin.selector));
+        vm.expectRevert(abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, attacker, CookieJarLib.JAR_OWNER));
         jarWhitelistETH.grantJarWhitelistRole(users);
     }
 
@@ -605,7 +606,7 @@ contract CookieJarTest is Test {
         string memory purpose = "Valid purpose description exceeding 20.";
         vm.prank(user);
         vm.expectRevert(
-            abi.encodeWithSelector(CookieJarLib.NotAuthorized.selector)
+            abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, user, CookieJarLib.JAR_WHITELISTED)
         );
         jarWhitelistETH.withdrawWhitelistMode(fixedAmount, purpose);
     }
@@ -1016,10 +1017,23 @@ contract CookieJarTest is Test {
         dummyToken.mint(address(jarWhitelistETH), dummyTokenFund);
         vm.prank(owner);
         vm.expectRevert(
-            abi.encodeWithSelector(CookieJarLib.InsufficientBalance.selector)
+            abi.encodeWithSelector(IERC20Errors.ERC20InsufficientBalance.selector, address(jarWhitelistETH), 500 * 1e18, 600 * 1e18)
         );
         jarWhitelistETH.emergencyWithdrawWithoutState(
             address(dummyToken),
+            600 * 1e18
+        );
+    }
+
+    function testEmergencyWithdrawInsufficientBalanceETH() public {
+        uint256 dummyTokenFund = 500 * 1e18;
+        vm.deal(address(jarWhitelistETH), dummyTokenFund);
+        vm.prank(owner);
+        vm.expectRevert(
+            abi.encodeWithSelector(CookieJarLib.InsufficientBalance.selector)
+        );
+        jarWhitelistETH.emergencyWithdrawWithoutState(
+            address(3),
             600 * 1e18
         );
     }
@@ -1072,7 +1086,6 @@ contract CookieJarTest is Test {
             maxWithdrawal,
             withdrawalInterval,
             config.minETHDeposit,
-            config.minERC20Deposit,
             config.feePercentageOnDeposit,
             true,
             config.defaultFeeCollector,
@@ -1110,7 +1123,7 @@ contract CookieJarTest is Test {
     function testUpdateAdminNotAuthorized() public {
         address newAdmin = address(0xC0DE);
         vm.prank(attacker);
-        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAdmin.selector));
+        vm.expectRevert(abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, attacker, CookieJarLib.JAR_OWNER));
         jarWhitelistETH.transferJarOwnership(newAdmin);
     }
 
