@@ -19,7 +19,8 @@ contract CookieJarFactory is AccessControl {
     bytes32 public constant BLACKLISTED_JAR_CREATORS =
         keccak256("BLACKLISTED_JAR_CREATORS");
 
-    /// @dev Default fee collector for new CookieJar contracts.
+    address[] public cookieJars;
+
     address public defaultFeeCollector;
     uint256 public defaultFeePercentage;
 
@@ -217,8 +218,15 @@ contract CookieJarFactory is AccessControl {
             _oneTimeWithdrawal
         );
 
+        address jarAddress = address(newJar);
+        cookieJars.push(jarAddress);
+
         /// @dev Registers and updates the new CookieJar in the registry with msg.sender as the creator.
-        emit CookieJarCreated(msg.sender, address(newJar), metadata);
-        return address(newJar);
+        emit CookieJarCreated(msg.sender, jarAddress, metadata);
+        return jarAddress;
+    }
+
+    function getCookieJars() external view returns (address[] memory) {
+        return cookieJars;
     }
 }

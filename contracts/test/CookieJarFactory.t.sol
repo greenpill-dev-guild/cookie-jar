@@ -73,6 +73,8 @@ contract CookieJarFactoryTest is Test {
             false,
             "Test Metadata"
         );
+        address[] memory cookieJars = factory.getCookieJars();
+        assertEq(cookieJars.length, 0);
     }
 
     function testOnlyOwnerGrantsAndRevokesProtocolAdminRoles() public {
@@ -99,7 +101,7 @@ contract CookieJarFactoryTest is Test {
     function testCreateCookieJarByBlacklistedPerson() public {
         vm.prank(owner);
         factory.grantBlacklistedJarCreatorsRole(users);
-        vm.startPrank(users[0]);
+        vm.prank(users[0]);
         vm.expectRevert(
             CookieJarFactory.CookieJarFactory__Blacklisted.selector
         );
@@ -118,12 +120,12 @@ contract CookieJarFactoryTest is Test {
             false,
             "Test Metadata"
         );
-        vm.stopPrank();
+        address[] memory cookieJars = factory.getCookieJars();
+        assertEq(cookieJars.length, 0);
     }
 
     /// @notice Test creating a CookieJar in Whitelist mode and verifying registry creator.
     function testCreateETHCookieJarWhitelist() public {
-        uint256 initialBalance = address(config.defaultFeeCollector).balance;
         vm.prank(user);
         address jarAddress = factory.createCookieJar(
             user,
@@ -142,6 +144,9 @@ contract CookieJarFactoryTest is Test {
             "Test Metadata"
         );
         assertTrue(CookieJar(payable(jarAddress)).accessType() == CookieJarLib.AccessType.Whitelist);
+        address[] memory cookieJars = factory.getCookieJars();
+        assertEq(cookieJars.length, 1);
+        assertEq(cookieJars[0], jarAddress);
     }
 
     function testCreateERC20CookieJarWhitelist() public {
@@ -163,6 +168,9 @@ contract CookieJarFactoryTest is Test {
             "Test Metadata"
         );
         assertTrue(CookieJar(payable(jarAddress)).accessType() == CookieJarLib.AccessType.Whitelist);
+        address[] memory cookieJars = factory.getCookieJars();
+        assertEq(cookieJars.length, 1);
+        assertEq(cookieJars[0], jarAddress);
     }
 
     /// @notice Test creating a CookieJar in NFTGated mode and verifying registry creator.
@@ -189,6 +197,9 @@ contract CookieJarFactoryTest is Test {
             "Test Metadata"
         );
         assertTrue(CookieJar(payable(jarAddress)).accessType() == CookieJarLib.AccessType.NFTGated);
+        address[] memory cookieJars = factory.getCookieJars();
+        assertEq(cookieJars.length, 1);
+        assertEq(cookieJars[0], jarAddress);
     }
 
     function testCreateERC20CookieJarNFTMode() public {
@@ -214,7 +225,9 @@ contract CookieJarFactoryTest is Test {
             "Test Metadata"
         );
         assertTrue(CookieJar(payable(jarAddress)).accessType() == CookieJarLib.AccessType.NFTGated);
-
+        address[] memory cookieJars = factory.getCookieJars();
+        assertEq(cookieJars.length, 1);
+        assertEq(cookieJars[0], jarAddress);
     }
 
     /// @notice Test that NFTGated mode must have at least one NFT address.
@@ -239,6 +252,8 @@ contract CookieJarFactoryTest is Test {
             false,
             "Test Metadata"
         );
+        address[] memory cookieJars = factory.getCookieJars();
+        assertEq(cookieJars.length, 0);
     }
 
     /// @notice Test that factory creation reverts if an invalid NFT type (>2) is provided.
@@ -268,5 +283,7 @@ contract CookieJarFactoryTest is Test {
             false, // oneTimeWithdrawal
             "Test Metadata"
         );
+        address[] memory cookieJars = factory.getCookieJars();
+        assertEq(cookieJars.length, 0);
     }
 }
