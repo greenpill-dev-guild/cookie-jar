@@ -2,7 +2,6 @@
 pragma solidity ^0.8.19;
 
 import {Script, console} from "forge-std/Script.sol";
-import {CookieJarRegistry} from "../src/CookieJarRegistry.sol";
 import {CookieJarFactory} from "../src/CookieJarFactory.sol";
 import {HelperConfig} from "./HelperConfig.s.sol";
 import "@openzeppelin/contracts/mocks/token/ERC20Mock.sol";
@@ -30,17 +29,13 @@ contract Deploy is Script {
         address deployer = vm.addr(deployerPrivateKey);
         vm.startBroadcast(deployerPrivateKey);
 
-        // Deploy Registry
-        CookieJarRegistry registry = new CookieJarRegistry();
         ERC20Mock testtoken = new ERC20Mock();
         testtoken.mint(deployer, 100e18);
-        console.log("CookieJarRegistry deployed at: ", address(registry));
         console.log("Test ERC", address(testtoken));
 
         // Deploy Factory with Registry address
         CookieJarFactory factory = new CookieJarFactory(
             config.defaultFeeCollector,
-            address(registry),
             0x487a30c88900098b765d76285c205c7c47582512,
             config.feePercentageOnDeposit,
             config.minETHDeposit,
@@ -48,9 +43,6 @@ contract Deploy is Script {
         );
 
         console.log("CookieJarFactory deployed at: ", address(factory));
-
-        // Set Factory in Registry
-        registry.setCookieJarFactory(address(factory));
 
         ERC721Mock erc721 = new ERC721Mock("TestNFT", "TNFT");
         erc721.mint(deployer, 1);

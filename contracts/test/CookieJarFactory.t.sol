@@ -4,7 +4,6 @@ pragma solidity ^0.8.24;
 import "forge-std/Test.sol";
 import "../src/CookieJarFactory.sol";
 import "../src/CookieJar.sol";
-import "../src/CookieJarRegistry.sol";
 import "../script/HelperConfig.s.sol";
 import "@openzeppelin/contracts/mocks/token/ERC20Mock.sol";
 
@@ -13,7 +12,6 @@ contract CookieJarFactoryTest is Test {
     address[] emptyAddresses = new address[](0);
     uint8[] emptyTypes = new uint8[](0);
     CookieJarFactory public factory;
-    CookieJarRegistry public registry;
     address public owner = address(0xABCD);
     address public user = address(0x1234);
     address public user2 = address(0x5678);
@@ -29,8 +27,6 @@ contract CookieJarFactoryTest is Test {
         helperConfig = new HelperConfig();
         config = helperConfig.getAnvilConfig();
         vm.startPrank(owner);
-        // Deploy the registry first.
-        registry = new CookieJarRegistry();
         users = new address[](2);
         users[0] = user;
         users[1] = user2;
@@ -41,14 +37,11 @@ contract CookieJarFactoryTest is Test {
         // Deploy the factory with the registry's address.
         factory = new CookieJarFactory(
             config.defaultFeeCollector,
-            address(registry),
             owner,
             config.feePercentageOnDeposit,
             config.minETHDeposit,
             config.minERC20Deposit
         );
-        // Let the registry know which factory is authorized.
-        registry.setCookieJarFactory(address(factory));
         vm.deal(user, 100 ether);
         vm.stopPrank();
     }
@@ -131,7 +124,7 @@ contract CookieJarFactoryTest is Test {
     /// @notice Test creating a CookieJar in Whitelist mode and verifying registry creator.
     function testCreateETHCookieJarWhitelist() public {
         uint256 initialBalance = address(config.defaultFeeCollector).balance;
-        vm.startPrank(user);
+        vm.prank(user);
         address jarAddress = factory.createCookieJar(
             user,
             address(3),
@@ -148,18 +141,11 @@ contract CookieJarFactoryTest is Test {
             false,
             "Test Metadata"
         );
-        assertNotEq(jarAddress, address(0));
-
-        CookieJarRegistry.CookieJarInfo memory temp = registry
-            .getJarByCreatorAddress(user);
-        assertEq(temp.metadata, "Test Metadata");
-        assertEq(temp.currency, address(3));
-        vm.stopPrank();
+        assertTrue(CookieJar(payable(jarAddress)).accessType() == CookieJarLib.AccessType.Whitelist);
     }
 
     function testCreateERC20CookieJarWhitelist() public {
-        vm.startPrank(user);
-
+        vm.prank(user);
         address jarAddress = factory.createCookieJar(
             user,
             address(testToken),
@@ -176,13 +162,7 @@ contract CookieJarFactoryTest is Test {
             false,
             "Test Metadata"
         );
-
-        CookieJarRegistry.CookieJarInfo memory temp = registry
-            .getJarByCreatorAddress(user);
-        assertEq(temp.metadata, "Test Metadata");
-        assertEq(temp.currency, address(testToken));
-
-        vm.stopPrank();
+        assertTrue(CookieJar(payable(jarAddress)).accessType() == CookieJarLib.AccessType.Whitelist);
     }
 
     /// @notice Test creating a CookieJar in NFTGated mode and verifying registry creator.
@@ -191,7 +171,7 @@ contract CookieJarFactoryTest is Test {
         nftAddresses[0] = address(0x1234);
         uint8[] memory nftTypes = new uint8[](1);
         nftTypes[0] = uint8(CookieJarLib.NFTType.ERC721);
-        vm.startPrank(user);
+        vm.prank(user);
         address jarAddress = factory.createCookieJar(
             user,
             address(3),
@@ -208,11 +188,7 @@ contract CookieJarFactoryTest is Test {
             false,
             "Test Metadata"
         );
-        CookieJarRegistry.CookieJarInfo memory temp = registry
-            .getJarByCreatorAddress(user);
-
-        assertEq(temp.metadata, "Test Metadata");
-        assert(temp.accessType == CookieJarLib.AccessType.NFTGated);
+        assertTrue(CookieJar(payable(jarAddress)).accessType() == CookieJarLib.AccessType.NFTGated);
     }
 
     function testCreateERC20CookieJarNFTMode() public {
@@ -220,7 +196,7 @@ contract CookieJarFactoryTest is Test {
         nftAddresses[0] = address(0x1234);
         uint8[] memory nftTypes = new uint8[](1);
         nftTypes[0] = uint8(CookieJarLib.NFTType.ERC721);
-        vm.startPrank(user);
+        vm.prank(user);
         address jarAddress = factory.createCookieJar(
             user,
             address(testToken),
@@ -237,17 +213,13 @@ contract CookieJarFactoryTest is Test {
             false,
             "Test Metadata"
         );
-        CookieJarRegistry.CookieJarInfo memory temp = registry
-            .getJarByCreatorAddress(user);
+        assertTrue(CookieJar(payable(jarAddress)).accessType() == CookieJarLib.AccessType.NFTGated);
 
-        assertEq(temp.metadata, "Test Metadata");
-        assert(temp.accessType == CookieJarLib.AccessType.NFTGated);
-        assertEq(temp.currency, address(testToken));
     }
 
     /// @notice Test that NFTGated mode must have at least one NFT address.
     function testCreateETHCookieJarNFTModeNoAddresses() public {
-        vm.startPrank(user);
+        vm.prank(user);
         vm.expectRevert(
             abi.encodeWithSelector(CookieJarLib.NoNFTAddressesProvided.selector)
         );
@@ -267,7 +239,6 @@ contract CookieJarFactoryTest is Test {
             false,
             "Test Metadata"
         );
-        vm.stopPrank();
     }
 
     /// @notice Test that factory creation reverts if an invalid NFT type (>2) is provided.
@@ -277,8 +248,7 @@ contract CookieJarFactoryTest is Test {
         uint8[] memory nftTypes = new uint8[](1);
         nftTypes[0] = 3; // invalid NFT type
 
-        vm.startPrank(user);
-
+        vm.prank(user);
         vm.expectRevert(
             abi.encodeWithSelector(CookieJarLib.InvalidNFTType.selector)
         );
@@ -298,6 +268,5 @@ contract CookieJarFactoryTest is Test {
             false, // oneTimeWithdrawal
             "Test Metadata"
         );
-        vm.stopPrank();
     }
 }
