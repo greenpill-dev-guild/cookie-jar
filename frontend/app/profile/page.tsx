@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { useAccount } from "wagmi"
+import { useAccount, useChainId } from "wagmi"
 import { useRouter } from "next/navigation"
 import { useCookieJarData } from "@/hooks/use-cookie-jar-registry"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
@@ -11,10 +11,12 @@ import { Skeleton } from "@/components/ui/skeleton"
 import { Badge } from "@/components/ui/badge"
 import { ArrowUpRight, Copy, ExternalLink, User, Clock, Cookie } from "lucide-react"
 import { shortenAddress } from "@/lib/utils/utils"
+import { getExplorerAddressUrl, getNetworkName } from "@/lib/utils/network-utils"
 import { BackButton } from "@/components/design/back-button"
 
 export default function ProfilePage() {
   const { address, isConnected } = useAccount()
+  const chainId = useChainId()
   const router = useRouter()
   const { cookieJarsData, isLoading, error } = useCookieJarData()
   const [mounted, setMounted] = useState(false)
@@ -86,7 +88,7 @@ export default function ProfilePage() {
                   asChild
                 >
                   <a
-                    href={`https://sepolia-explorer.base.org/address/${address}`}
+                    href={address ? getExplorerAddressUrl(address, chainId) : '#'}
                     target="_blank"
                     rel="noopener noreferrer"
                   >
@@ -98,7 +100,7 @@ export default function ProfilePage() {
 
             <div className="flex flex-col space-y-2">
               <span className="text-sm text-[#8b7355]">Network</span>
-              <span className="font-medium text-[#3c2a14]">Base Sepolia</span>
+              <span className="font-medium text-[#3c2a14]">{getNetworkName(chainId)}</span>
             </div>
 
             <div className="flex flex-col space-y-2">

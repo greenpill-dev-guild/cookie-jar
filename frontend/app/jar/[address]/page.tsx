@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useWriteCookieJarDepositEth, useWriteCookieJarDepositCurrency, useWriteErc20Approve } from "@/generated"
 import { AdminFunctions } from "@/components/admin/AdminFunctions"
 import { formatAddress } from "@/lib/utils/format"
+import { getExplorerAddressUrl } from "@/lib/utils/network-utils"
 import DefaultFeeCollector from "@/components/FeeCollector/DefaultFeeCollector"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/design/use-toast"
@@ -343,7 +344,7 @@ export default function CookieJarConfigDetails() {
                           asChild
                         >
                           <a
-                            href={`https://sepolia-explorer.base.org/address/${addressString}`}
+                            href={getExplorerAddressUrl(addressString, chainId)}
                             target="_blank"
                             rel="noopener noreferrer"
                           >

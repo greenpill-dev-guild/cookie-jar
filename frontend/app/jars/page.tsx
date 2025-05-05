@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { keccak256, toUtf8Bytes } from "ethers"
 import { ethers } from "ethers"
+import { MemoizedCustomConnectButton } from "@/components/wallet/custom-connect-button"
 
 export default function CookieJarPage() {
   const { cookieJarsData, isLoading, error } = useCookieJarData()
@@ -121,7 +122,7 @@ export default function CookieJarPage() {
         <div className="bg-white p-8 rounded-xl shadow-lg max-w-md text-center">
           <h2 className="text-2xl font-bold text-[#3c2a14] mb-4">Connect Your Wallet</h2>
           <p className="text-lg text-[#4a3520] mb-6">Please connect your wallet to view Cookie Jars.</p>
-          <div className="jar-card-description">Use the connect button in the sidebar to get started.</div>
+          <MemoizedCustomConnectButton className="w-full mx-auto mt-4" />
         </div>
       </div>
     )

@@ -193,11 +193,13 @@ contract CookieJarFactory is AccessControl {
         bool _oneTimeWithdrawal,
         string calldata metadata
     ) external onlyNotBlacklisted(msg.sender) returns (address) {
+        uint256 minDeposit = minETHDeposit;
         /// @dev Checks if the address is a valid ERC20 contract, in case the currency is not native ETH.
         if (_supportedCurrency != address(3)) {
             if (ERC20(_supportedCurrency).decimals() < 1) {
                 revert CookieJarFactory__NotValidERC20();
             }
+            minDeposit = minERC20Deposit;
         }
         CookieJar newJar = new CookieJar(
             _cookieJarOwner,
@@ -209,8 +211,7 @@ contract CookieJarFactory is AccessControl {
             _fixedAmount,
             _maxWithdrawal,
             _withdrawalInterval,
-            minETHDeposit,
-            minERC20Deposit,
+            minDeposit,
             defaultFeePercentage,
             _strictPurpose,
             defaultFeeCollector,

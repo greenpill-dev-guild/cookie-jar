@@ -149,7 +149,7 @@ Nonce: ${nonce}`
 
                 return (
                   <div className="flex items-center gap-2">
-                    <Button onClick={openChainModal} variant="outline" size="sm" className="flex items-center gap-1">
+                    <Button onClick={openAccountModal} variant="outline" size="sm" className="flex items-center gap-1">
                       {chain.hasIcon && (
                         <div className="w-4 h-4">
                           {chain.iconUrl && (
@@ -164,12 +164,8 @@ Nonce: ${nonce}`
                       {chain.name}
                     </Button>
 
-                    <Button onClick={openAccountModal} variant="outline" size="sm" className="flex items-center gap-1">
-                      {/* Replace ENS display with truncated address */}
-                      {account.address
-                        ? `${account.address.substring(0, 6)}...${account.address.substring(account.address.length - 4)}`
-                        : "Unknown"}
-                      {account.displayBalance ? ` (${account.displayBalance})` : ""}
+                    <Button onClick={openChainModal} variant="outline" size="sm" className="flex items-center gap-1">
+                      Change Networks
                     </Button>
                   </div>
                 )
