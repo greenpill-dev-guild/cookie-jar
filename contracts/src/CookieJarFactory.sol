@@ -2,7 +2,6 @@
 pragma solidity ^0.8.24;
 
 import "./CookieJar.sol";
-import "./CookieJarRegistry.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
@@ -20,15 +19,13 @@ contract CookieJarFactory is AccessControl {
     bytes32 public constant BLACKLISTED_JAR_CREATORS =
         keccak256("BLACKLISTED_JAR_CREATORS");
 
-    /// @dev Default fee collector for new CookieJar contracts.
+    address[] public cookieJars;
+
     address public defaultFeeCollector;
     uint256 public defaultFeePercentage;
 
     uint256 public minETHDeposit;
     uint256 public minERC20Deposit;
-
-    /// @dev Instance of the CookieJarRegistry contract.
-    CookieJarRegistry public registry;
 
     // --- Custom Error ---
     error CookieJarFactory__NotFeeCollector();
@@ -67,14 +64,12 @@ contract CookieJarFactory is AccessControl {
 
     /**
      * @param _defaultFeeCollector The default fee collector address.
-     * @param _registry The address of the CookieJarRegistry contract.
      * @param _owner The contract owner address.
      * @param _feePercentage The default fee percentage for all deposits on all vaults.
      * Fee is calculated inside Jar contract whenever a deposit is made, according to the decimals of the currency.
      */
     constructor(
         address _defaultFeeCollector,
-        address _registry,
         address _owner,
         uint256 _feePercentage,
         uint256 _minETHDeposit,
@@ -84,7 +79,6 @@ contract CookieJarFactory is AccessControl {
             revert CookieJarLib.FeeCollectorAddressCannotBeZeroAddress();
         }
         defaultFeeCollector = _defaultFeeCollector;
-        registry = CookieJarRegistry(_registry);
         defaultFeePercentage = _feePercentage;
         minETHDeposit = _minETHDeposit;
         minERC20Deposit = _minERC20Deposit;
@@ -225,9 +219,15 @@ contract CookieJarFactory is AccessControl {
             _oneTimeWithdrawal
         );
 
+        address jarAddress = address(newJar);
+        cookieJars.push(jarAddress);
+
         /// @dev Registers and updates the new CookieJar in the registry with msg.sender as the creator.
-        registry.registerAndStoreCookieJar(newJar, metadata);
-        emit CookieJarCreated(msg.sender, address(newJar), metadata);
-        return address(newJar);
+        emit CookieJarCreated(msg.sender, jarAddress, metadata);
+        return jarAddress;
+    }
+
+    function getCookieJars() external view returns (address[] memory) {
+        return cookieJars;
     }
 }

@@ -3,7 +3,6 @@ pragma solidity ^0.8.24;
 
 import "forge-std/Test.sol";
 import "../src/CookieJarFactory.sol";
-import "../src/CookieJarRegistry.sol";
 import "../src/CookieJar.sol";
 import "../script/HelperConfig.s.sol";
 import "@openzeppelin/contracts/access/IAccessControl.sol";
@@ -53,8 +52,6 @@ contract CookieJarTest is Test {
     HelperConfig.NetworkConfig config;
 
     CookieJarFactory public factory;
-
-    CookieJarRegistry public registry;
 
     CookieJar public jarWhitelistETH;
     CookieJar public jarWhitelistERC20;
@@ -108,17 +105,13 @@ contract CookieJarTest is Test {
         dummyToken.mint(owner, 100_000 * 1e18);
         vm.startPrank(owner);
 
-        registry = new CookieJarRegistry();
         factory = new CookieJarFactory(
             config.defaultFeeCollector,
-            address(registry),
             owner,
             config.feePercentageOnDeposit,
             config.minETHDeposit,
             config.minERC20Deposit
         );
-        // Let the registry know which factory is authorized.
-        registry.setCookieJarFactory(address(factory));
 
         // --- Create a CookieJar in Whitelist mode ---
         // For Whitelist mode, NFT arrays are ignored.
