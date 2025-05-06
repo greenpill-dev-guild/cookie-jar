@@ -713,6 +713,7 @@ export default function CookieJarConfigDetails() {
           <CardContent className="p-6">
             <WithdrawalHistorySection
               pastWithdrawals={config.pastWithdrawals ? ([...config.pastWithdrawals] as Withdrawal[]) : undefined}
+              tokenAddress={isERC20 && config?.currency ? (config.currency) : ETH_ADDRESS}
             />
           </CardContent>
         </Card>
