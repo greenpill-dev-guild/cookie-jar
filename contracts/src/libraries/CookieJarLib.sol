@@ -23,7 +23,6 @@ library CookieJarLib {
     // --- Constants ---
     uint256 internal constant MAX_NFT_GATES = 5;
     bytes32 public constant JAR_OWNER = keccak256("JAR_OWNER");
-    bytes32 public constant JAR_BLACKLISTED = keccak256("JAR_BLACKLISTED");
     bytes32 public constant JAR_WHITELISTED = keccak256("JAR_WHITELISTED");
 
     // --- Structs ---
@@ -50,8 +49,7 @@ library CookieJarLib {
     );
     /// @notice Emitted when a whitelist entry is updated.
     event WhitelistUpdated(address[] users, bool statuses);
-    /// @notice Emitted when a blacklist entry is updated.
-    event BlacklistUpdated(address[] users, bool statuses);
+    
     /// @notice Emitted when the fee collector address is updated.
     event FeeCollectorUpdated(
         address indexed oldFeeCollector,
@@ -80,7 +78,6 @@ library CookieJarLib {
     error ZeroWithdrawal();
     error NotFeeCollector();
     error FeeTransferFailed();
-    error Blacklisted();
     error MaxNFTGatesReached();
     error InvalidNFTGate();
     error NoNFTAddressesProvided();

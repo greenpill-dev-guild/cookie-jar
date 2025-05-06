@@ -141,16 +141,7 @@ contract CookieJar is AccessControl {
         emergencyWithdrawalEnabled = _emergencyWithdrawalEnabled;
         oneTimeWithdrawal = _oneTimeWithdrawal;
         _setRoleAdmin(CookieJarLib.JAR_WHITELISTED, CookieJarLib.JAR_OWNER);
-        _setRoleAdmin(CookieJarLib.JAR_BLACKLISTED, CookieJarLib.JAR_OWNER);
         _grantRole(CookieJarLib.JAR_OWNER, _jarOwner);
-    }
-
-    // --- Modifiers ---
-
-    modifier onlyNotJarBlacklisted() {
-        if (hasRole(CookieJarLib.JAR_BLACKLISTED, msg.sender))
-            revert CookieJarLib.Blacklisted();
-        _;
     }
 
     // --- Admin Functions ---
@@ -177,26 +168,6 @@ contract CookieJar is AccessControl {
         _revokeRoles(CookieJarLib.JAR_WHITELISTED, _users);
         // Emit the event after updating all addresses
         emit CookieJarLib.WhitelistUpdated(_users, false);
-    }
-
-    /**
-     * @notice Updates the blacklist status of a user.
-     * @param _users The address of the user.
-     */
-    function grantJarBlacklistRole(
-        address[] calldata _users
-    ) external onlyRole(CookieJarLib.JAR_OWNER) {
-        _grantRoles(CookieJarLib.JAR_BLACKLISTED, _users);
-        // Emit the event after updating all addresses
-        emit CookieJarLib.BlacklistUpdated(_users, true);
-    }
-
-    function revokeJarBlacklistRole(
-        address[] calldata _users
-    ) external onlyRole(CookieJarLib.JAR_OWNER) {
-        _revokeRoles(CookieJarLib.JAR_BLACKLISTED, _users);
-        // Emit the event after updating all addresses
-        emit CookieJarLib.BlacklistUpdated(_users, false);
     }
 
     /**
@@ -368,7 +339,6 @@ contract CookieJar is AccessControl {
     )
         external
         onlyRole(CookieJarLib.JAR_WHITELISTED)
-        onlyNotJarBlacklisted()
     {
         if (accessType != CookieJarLib.AccessType.Whitelist)
             revert CookieJarLib.InvalidAccessType();
@@ -389,7 +359,7 @@ contract CookieJar is AccessControl {
         string calldata purpose,
         address gateAddress,
         uint256 tokenId
-    ) external onlyNotJarBlacklisted() {
+    ) external {
         if (accessType != CookieJarLib.AccessType.NFTGated)
             revert CookieJarLib.InvalidAccessType();
         if (gateAddress == address(0)) revert CookieJarLib.InvalidNFTGate();

@@ -358,17 +358,6 @@ contract CookieJarTest is Test {
         jarNFTETH.grantJarWhitelistRole(users);
     }
 
-    // updateBlacklist (only admin)
-    function testUpdateBlacklist() public {
-        vm.prank(owner);
-        jarWhitelistETH.grantJarBlacklistRole(users);
-        bool isBlacklisted = jarWhitelistETH.hasRole(
-            keccak256("JAR_BLACKLISTED"),
-            user
-        );
-        assertTrue(isBlacklisted);
-    }
-
     // updateFeeCollector: only feeCollector can update.
     function testUpdateFeeCollector() public {
         address newCollector = address(0x1234);
@@ -600,21 +589,6 @@ contract CookieJarTest is Test {
         vm.prank(user);
         vm.expectRevert(
             abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, user, CookieJarLib.JAR_WHITELISTED)
-        );
-        jarWhitelistETH.withdrawWhitelistMode(fixedAmount, purpose);
-    }
-
-    // Revert if user is blacklisted.
-    function testWithdrawWhitelistBlacklisted() public {
-        vm.prank(owner);
-        jarWhitelistETH.grantJarWhitelistRole(users);
-        vm.prank(owner);
-        jarWhitelistETH.grantJarBlacklistRole(users);
-        vm.warp(block.timestamp + withdrawalInterval + 1);
-        string memory purpose = "Valid purpose description exceeding 20.";
-        vm.prank(user);
-        vm.expectRevert(
-            abi.encodeWithSelector(CookieJarLib.Blacklisted.selector)
         );
         jarWhitelistETH.withdrawWhitelistMode(fixedAmount, purpose);
     }
