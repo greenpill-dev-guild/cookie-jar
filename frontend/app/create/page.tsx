@@ -872,7 +872,7 @@ export default function CreateCookieJarForm() {
                   <AlertCircle className="h-4 w-4 mr-1" /> {formErrors.withdrawalInterval}
                 </p>
               ) : (
-                <p className="text-sm text-[#8b7355]">Time between allowed withdrawals</p>
+                <p className="text-sm text-[#8b7355]">Time between withdrawals for each user</p>
               )}
             </div>
           </div>
