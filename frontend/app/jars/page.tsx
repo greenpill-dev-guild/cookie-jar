@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input"
 import { RefreshCw, ArrowUpRight, Search, ChevronLeft, ChevronRight, CheckCircle } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRouter } from "next/navigation"
-import { useAccount } from "wagmi"
+import { useAccount, useChainId } from "wagmi"
+import { getNetworkName } from "@/lib/utils/network-utils"
 import { useState, useEffect, useMemo } from "react"
 import { BackButton } from "@/components/design/back-button"
 import { Badge } from "@/components/ui/badge"
@@ -19,6 +20,7 @@ export default function CookieJarPage() {
   const { cookieJarsData, isLoading, error } = useCookieJarData()
   const router = useRouter()
   const { isConnected, address: userAddress } = useAccount()
+  const chainId = useChainId()
   const [searchTerm, setSearchTerm] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const jarsPerPage = 9
@@ -136,8 +138,8 @@ export default function CookieJarPage() {
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-4xl font-bold text-white">Explore Cookie Jars</h1>
-          <p className="text-xl text-[#a89a8c] mt-2">View all deployed cookie jars and their details</p>
+          <h1 className="text-4xl font-bold text-white">Cookie Jars on {getNetworkName(chainId)}</h1>
+          <p className="text-xl text-[#a89a8c] mt-2">To view jars on another network, change to that network.</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
           <div className="flex gap-2 w-full sm:w-auto">
