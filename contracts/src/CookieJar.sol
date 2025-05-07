@@ -17,9 +17,10 @@ import {CookieJarLib} from "./libraries/CookieJarLib.sol";
 contract CookieJar is AccessControl {
     using SafeERC20 for IERC20;
 
-    // --- Storage for NFT gates ---
     /// @notice Array of approved NFT gates (used in NFTGated mode).
     CookieJarLib.NFTGate[] public nftGates;
+
+    address[] public whitelist;
 
     CookieJarLib.WithdrawalData[] public withdrawalData;
 
@@ -424,6 +425,34 @@ contract CookieJar is AccessControl {
         returns (CookieJarLib.WithdrawalData[] memory)
     {
         return withdrawalData;
+    }
+
+    /**
+     * @notice Returns the whitelist of addresses.
+     * @return address[] The array of whitelisted addresses.
+     */
+    function getWhitelist() external view returns (address[] memory) {
+        return whitelist;
+    }
+
+    function _grantRole(bytes32 role, address account) internal override returns (bool success) {
+        success = super._grantRole(role, account);
+        if (role == CookieJarLib.JAR_WHITELISTED && success) {
+            whitelist.push(account);
+        }
+    }
+
+    function _revokeRole(bytes32 role, address account) internal override returns (bool success) {
+        success = super._revokeRole(role, account);
+        if (role == CookieJarLib.JAR_WHITELISTED && success) {
+            for (uint256 i = 0; i < whitelist.length; i++) {
+                if (whitelist[i] == account) {
+                    whitelist[i] = whitelist[whitelist.length - 1];
+                    whitelist.pop();
+                    break;
+                }
+            }
+        }
     }
 
     function _grantRoles(bytes32 role, address[] memory users) internal {
