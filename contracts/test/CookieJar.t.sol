@@ -335,11 +335,32 @@ contract CookieJarTest is Test {
     function testUpdateWhitelist() public {
         vm.prank(owner);
         jarWhitelistETH.grantJarWhitelistRole(users);
-        bool allowed = jarWhitelistETH.hasRole(
+        assertTrue(jarWhitelistETH.hasRole(
             keccak256("JAR_WHITELISTED"),
             user
-        );
-        assertTrue(allowed);
+        ));
+        assertTrue(jarWhitelistETH.hasRole(
+            keccak256("JAR_WHITELISTED"),
+            user2
+        ));
+        assertEq(jarWhitelistETH.getWhitelist().length, 2);
+        assertEq(jarWhitelistETH.getWhitelist()[0], user);
+        assertEq(jarWhitelistETH.getWhitelist()[1], user2);
+    }
+
+    function testRevokeWhitelist() public {
+        vm.startPrank(owner);
+        jarWhitelistETH.grantJarWhitelistRole(users);
+        jarWhitelistETH.revokeJarWhitelistRole(users);
+        assertFalse(jarWhitelistETH.hasRole(
+            keccak256("JAR_WHITELISTED"),
+            user
+        ));
+        assertFalse(jarWhitelistETH.hasRole(
+            keccak256("JAR_WHITELISTED"),
+            user2
+        ));
+        assertEq(jarWhitelistETH.getWhitelist().length, 0);
     }
 
     // updateWhitelist should revert if called by non-admin.
