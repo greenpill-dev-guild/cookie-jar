@@ -5,6 +5,7 @@ import { DialogFooter } from "@/components/ui/dialog"
 import React from "react"
 
 import { useState, useTransition, useEffect } from "react"
+import { useRouter } from "next/navigation"
 import { cookieJarFactoryAbi } from "@/generated"
 import { useWaitForTransactionReceipt, useAccount, useChainId, useWriteContract } from "wagmi"
 import { contractAddresses } from "@/config/supported-networks"
@@ -46,6 +47,7 @@ enum NFTType {
 }
 
 export default function CreateCookieJarForm() {
+  const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [currentStep, setCurrentStep] = useState(1)
   const totalSteps = 4
@@ -254,15 +256,52 @@ export default function CreateCookieJarForm() {
     setCurrentStep(1)
   }
 
-  // Update the useEffect for transaction confirmation to hide the loading overlay
-  // Replace the existing useEffect for txConfirmed with this one
+  // Update the useEffect for transaction confirmation to extract jar address and redirect
   useEffect(() => {
     if (txConfirmed && receipt) {
+      console.log("Transaction confirmed:", receipt)
+
+      // Extract the created jar address from the transaction receipt
+      try {
+        if (receipt.logs && receipt.logs.length > 0) {
+          // The jar address is in the address field of the first log
+          const jarAddress = receipt.logs[0].address
+
+          console.log("Extracted jar address:", jarAddress)
+
+          // Add a small delay before redirecting to ensure the success message is seen
+          setTimeout(() => {
+            // Redirect to the specific jar page
+            router.push(`/jar/${jarAddress}`)
+          }, 100)
+
+          setIsCreating(false)
+          resetForm()
+          return
+        }
+
+        // If we couldn't find the address, fall back to the jars listing page
+        console.log("Could not extract jar address, redirecting to jars page")
+        
+        // Fallback to jars listing
+        setTimeout(() => {
+          router.push("/jars")
+        }, 100)
+
+      } catch (error) {
+        console.error("Error extracting jar address:", error)
+        
+        // Fallback to jars listing
+        setTimeout(() => {
+          router.push("/jars")
+        }, 100)
+      }
+
       // Reset form after successful creation
       setIsCreating(false)
       resetForm()
     }
-  }, [txConfirmed, receipt])
+  }, [txConfirmed, receipt, router])
 
   
   // Update the useEffect for create errors to show the error message
@@ -995,7 +1034,7 @@ export default function CreateCookieJarForm() {
                 <CheckCircle2 className="h-4 w-4 mr-2" />
                 <div>
                   <p className="font-medium">Cookie Jar Created!</p>
-                  <p className="text-sm">Your cookie jar has been created successfully.</p>
+                  <p className="text-sm">Your cookie jar has been created successfully. Redirecting to your jar...</p>
                 </div>
               </div>
             )}
