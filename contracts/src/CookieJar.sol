@@ -109,9 +109,6 @@ contract CookieJar is AccessControl {
             if (_nftAddresses.length != _nftTypes.length) {
                 revert CookieJarLib.NFTArrayLengthMismatch();
             }
-            if (_nftAddresses.length > CookieJarLib.MAX_NFT_GATES) {
-                revert CookieJarLib.MaxNFTGatesReached();
-            }
             // Add NFT gates using mapping for duplicate checks.
             for (uint256 i = 0; i < _nftAddresses.length; i++) {
                 if (_nftTypes[i] > 2) revert CookieJarLib.InvalidNFTType();
@@ -193,8 +190,6 @@ contract CookieJar is AccessControl {
     ) external onlyRole(CookieJarLib.JAR_OWNER) {
         if (accessType != CookieJarLib.AccessType.NFTGated)
             revert CookieJarLib.InvalidAccessType();
-        if (nftGates.length >= CookieJarLib.MAX_NFT_GATES)
-            revert CookieJarLib.MaxNFTGatesReached();
         if (_nftAddress == address(0)) revert CookieJarLib.InvalidNFTGate();
         if (_nftType > 2) revert CookieJarLib.InvalidNFTType();
         if (nftGateMapping[_nftAddress].nftAddress != address(0)) {

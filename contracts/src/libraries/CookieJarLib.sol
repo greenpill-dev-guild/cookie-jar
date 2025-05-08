@@ -20,7 +20,6 @@ library CookieJarLib {
     }
 
     // --- Constants ---
-    uint256 internal constant MAX_NFT_GATES = 5;
     bytes32 public constant JAR_OWNER = keccak256("JAR_OWNER");
     bytes32 public constant JAR_WHITELISTED = keccak256("JAR_WHITELISTED");
 
@@ -77,7 +76,6 @@ library CookieJarLib {
     error ZeroWithdrawal();
     error NotFeeCollector();
     error FeeTransferFailed();
-    error MaxNFTGatesReached();
     error InvalidNFTGate();
     error NoNFTAddressesProvided();
     error NFTArrayLengthMismatch();
