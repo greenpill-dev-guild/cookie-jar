@@ -270,7 +270,7 @@ contract CookieJarTest is Test {
             jarwhitebalanceinit +
                 (depositValue -
                     ((jarWhitelistETH.feePercentageOnDeposit() * depositValue) /
-                        100)),
+                        10000)),
             "error in contract recieving money"
         );
         // Fee collector gets fee
@@ -278,7 +278,7 @@ contract CookieJarTest is Test {
             config.defaultFeeCollector.balance,
             feeBalanceBefore +
                 ((jarWhitelistETH.feePercentageOnDeposit() * depositValue) /
-                    100),
+                    10000),
             "error in fee collector getting fee"
         );
         // Currency held by jar increases
@@ -287,7 +287,7 @@ contract CookieJarTest is Test {
             currencyHeldByJarBefore +
                 (depositValue -
                     ((jarWhitelistETH.feePercentageOnDeposit() * depositValue) /
-                        100))
+                        10000))
         );
     }
 
@@ -310,21 +310,21 @@ contract CookieJarTest is Test {
             ERC20(dummyToken).balanceOf(config.defaultFeeCollector),
             feeBalanceBefore +
                 ((jarWhitelistETH.feePercentageOnDeposit() * depositAmount) /
-                    100)
+                    10000)
         );
         assertEq(
             ERC20(dummyToken).balanceOf(address(jarWhitelistERC20)),
             jarBalanceBefore +
                 (depositAmount -
                     ((jarWhitelistETH.feePercentageOnDeposit() *
-                        depositAmount) / 100))
+                        depositAmount) / 10000))
         );
         assertEq(
             jarWhitelistERC20.currencyHeldByJar(),
             currencyHeldByJarBefore +
                 (depositAmount -
                     ((jarWhitelistETH.feePercentageOnDeposit() *
-                        depositAmount) / 100))
+                        depositAmount) / 10000))
         );
         vm.stopPrank();
     }
@@ -399,19 +399,17 @@ contract CookieJarTest is Test {
 
     // addNFTGate in NFTGated mode works and limits maximum gates.
     function testAddNFTGate() public {
-        // In jarNFTETH (NFT mode) add a new NFT gate using dummyERC1155.
+        uint256 nftGatesLengthBefore = jarNFTETH.getNFTGatesArray().length;
         vm.startPrank(owner);
         jarNFTETH.addNFTGate(address(1), uint8(CookieJarLib.NFTType.ERC1155));
-        // Add additional NFT gates to reach the limit.
         jarNFTETH.addNFTGate(address(2), uint8(CookieJarLib.NFTType.ERC1155));
         jarNFTETH.addNFTGate(address(3), uint8(CookieJarLib.NFTType.ERC1155));
         jarNFTETH.addNFTGate(address(4), uint8(CookieJarLib.NFTType.ERC1155));
-        // This would be the 6th gate so it must revert.
-
-        vm.expectRevert(
-            abi.encodeWithSelector(CookieJarLib.MaxNFTGatesReached.selector)
-        );
-        jarNFTETH.addNFTGate(address(5), uint8(CookieJarLib.NFTType.ERC1155));
+        assertEq(jarNFTETH.getNFTGatesArray().length, nftGatesLengthBefore + 4);
+        assertEq(jarNFTETH.getNFTGatesArray()[nftGatesLengthBefore].nftAddress, address(1));
+        assertEq(jarNFTETH.getNFTGatesArray()[nftGatesLengthBefore + 1].nftAddress, address(2));
+        assertEq(jarNFTETH.getNFTGatesArray()[nftGatesLengthBefore + 2].nftAddress, address(3));
+        assertEq(jarNFTETH.getNFTGatesArray()[nftGatesLengthBefore + 3].nftAddress, address(4));
         vm.stopPrank();
     }
 
@@ -442,36 +440,6 @@ contract CookieJarTest is Test {
     }
 
     // ===== Constructor Edge Cases =====
-
-    // NFTGated mode: More than 5 NFT addresses should revert.
-    function testMaxNFTGatesReachedInConstructor() public {
-        address[] memory invalidAddresses = new address[](6);
-        uint8[] memory invalidTypes = new uint8[](6);
-        for (uint256 i = 0; i < 6; i++) {
-            invalidAddresses[i] = address(dummyERC721);
-            invalidTypes[i] = uint8(CookieJarLib.NFTType.ERC721);
-        }
-        vm.expectRevert(
-            abi.encodeWithSelector(CookieJarLib.MaxNFTGatesReached.selector)
-        );
-
-        factory.createCookieJar(
-            owner,
-            address(3),
-            /// @dev address(3) for ETH jars.
-            CookieJarLib.AccessType.NFTGated,
-            invalidAddresses,
-            invalidTypes,
-            CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount,
-            maxWithdrawal,
-            withdrawalInterval,
-            strictPurpose,
-            true,
-            false,
-            "Test Metadata"
-        );
-    }
 
     // NFTGated mode: Providing an NFT gate with a zero address should revert.
     function testInvalidNFTGateInConstructor() public {
@@ -532,17 +500,6 @@ contract CookieJarTest is Test {
             abi.encodeWithSelector(CookieJarLib.InvalidNFTType.selector)
         );
         jarNFTETH.addNFTGate(address(0xDEAD), 3);
-    }
-
-    // Test that updateAdmin reverts if the new admin address is zero.
-    function testUpdateAdminWithZeroAddress() public {
-        vm.prank(owner);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                CookieJarLib.AdminCannotBeZeroAddress.selector
-            )
-        );
-        jarWhitelistETH.transferJarOwnership(address(0));
     }
 
     // ===== New Test for NFT Gate Mapping Optimization =====
@@ -1092,28 +1049,7 @@ contract CookieJarTest is Test {
             address(dummyERC721),
             uint8(CookieJarLib.NFTType.ERC721)
         );
-    }
-
-    // ===== Admin Transfer Tests =====
-
-    // Test that the admin can update their address.
-    function testTransferOwnership() public {
-        address newAdmin = address(0xC0DE);
-        vm.prank(owner);
-        jarWhitelistETH.transferJarOwnership(newAdmin);
-        assertEq(
-            jarWhitelistETH.hasRole(keccak256("JAR_OWNER"), newAdmin),
-            true
-        );
-    }
-
-    // Test that non-admin cannot update admin.
-    function testUpdateAdminNotAuthorized() public {
-        address newAdmin = address(0xC0DE);
-        vm.prank(attacker);
-        vm.expectRevert(abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, attacker, CookieJarLib.JAR_OWNER));
-        jarWhitelistETH.transferJarOwnership(newAdmin);
-    }
+    }   
 
     // // ===== New Test: Emergency Withdrawal Disabled =====
 

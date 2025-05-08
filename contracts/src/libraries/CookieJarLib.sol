@@ -16,12 +16,10 @@ library CookieJarLib {
     /// @notice Supported NFT types for gating.
     enum NFTType {
         ERC721,
-        ERC1155,
-        Soulbound
+        ERC1155
     }
 
     // --- Constants ---
-    uint256 internal constant MAX_NFT_GATES = 5;
     bytes32 public constant JAR_OWNER = keccak256("JAR_OWNER");
     bytes32 public constant JAR_WHITELISTED = keccak256("JAR_WHITELISTED");
 
@@ -29,7 +27,7 @@ library CookieJarLib {
     /// @notice Represents an NFT gate with a contract address and its NFT type.
     struct NFTGate {
         address nftAddress; // Address of the NFT contract.
-        NFTType nftType; // NFT type: ERC721, ERC1155, or Soulbound.
+        NFTType nftType; // NFT type: ERC721 or ERC1155
     }
 
     struct WithdrawalData {
@@ -78,7 +76,6 @@ library CookieJarLib {
     error ZeroWithdrawal();
     error NotFeeCollector();
     error FeeTransferFailed();
-    error MaxNFTGatesReached();
     error InvalidNFTGate();
     error NoNFTAddressesProvided();
     error NFTArrayLengthMismatch();
