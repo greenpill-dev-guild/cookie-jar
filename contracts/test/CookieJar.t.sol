@@ -270,7 +270,7 @@ contract CookieJarTest is Test {
             jarwhitebalanceinit +
                 (depositValue -
                     ((jarWhitelistETH.feePercentageOnDeposit() * depositValue) /
-                        100)),
+                        10000)),
             "error in contract recieving money"
         );
         // Fee collector gets fee
@@ -278,7 +278,7 @@ contract CookieJarTest is Test {
             config.defaultFeeCollector.balance,
             feeBalanceBefore +
                 ((jarWhitelistETH.feePercentageOnDeposit() * depositValue) /
-                    100),
+                    10000),
             "error in fee collector getting fee"
         );
         // Currency held by jar increases
@@ -287,7 +287,7 @@ contract CookieJarTest is Test {
             currencyHeldByJarBefore +
                 (depositValue -
                     ((jarWhitelistETH.feePercentageOnDeposit() * depositValue) /
-                        100))
+                        10000))
         );
     }
 
@@ -310,21 +310,21 @@ contract CookieJarTest is Test {
             ERC20(dummyToken).balanceOf(config.defaultFeeCollector),
             feeBalanceBefore +
                 ((jarWhitelistETH.feePercentageOnDeposit() * depositAmount) /
-                    100)
+                    10000)
         );
         assertEq(
             ERC20(dummyToken).balanceOf(address(jarWhitelistERC20)),
             jarBalanceBefore +
                 (depositAmount -
                     ((jarWhitelistETH.feePercentageOnDeposit() *
-                        depositAmount) / 100))
+                        depositAmount) / 10000))
         );
         assertEq(
             jarWhitelistERC20.currencyHeldByJar(),
             currencyHeldByJarBefore +
                 (depositAmount -
                     ((jarWhitelistETH.feePercentageOnDeposit() *
-                        depositAmount) / 100))
+                        depositAmount) / 10000))
         );
         vm.stopPrank();
     }

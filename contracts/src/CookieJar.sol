@@ -31,6 +31,7 @@ contract CookieJar is AccessControl {
     uint256 public currencyHeldByJar;
     address public currency;
     uint256 public minDeposit;
+    /// @notice Fee percentage, 10000 = 100%
     uint256 public feePercentageOnDeposit;
     /// @notice Access control mode: Whitelist or NFTGated.
     CookieJarLib.AccessType public accessType;
@@ -238,8 +239,7 @@ contract CookieJar is AccessControl {
     // --- Deposit Functions ---
 
     /**
-     * @notice Deposits ETH into the contract, deducting depositFee.
-     * @notice Only works if the currency is ETH, which is address(3).
+     * @notice Deposits ETH into the contract, deducting deposit fee. Only works if the jar's currency is ETH.
      */
     function depositETH() public payable {
         if (currency != address(3))
@@ -255,7 +255,8 @@ contract CookieJar is AccessControl {
     }
 
     /**
-     * @notice Deposits Currency tokens into the contract; 1% fee is forwarded to the fee collector.
+     * @notice Deposits Currency tokens into the contract, deducting deposit fee. Only works if the jar's currency is
+     *  an ERC20 token.
      * @param amount The amount of tokens to deposit.
      */
     function depositCurrency(uint256 amount) public {
@@ -273,7 +274,7 @@ contract CookieJar is AccessControl {
     function _calculateFee(
         uint256 _principalAmount
     ) internal view returns (uint256 fee, uint256 amountRemaining) {
-        fee = (_principalAmount * feePercentageOnDeposit) / 100;
+        fee = (_principalAmount * feePercentageOnDeposit) / 10000;
         amountRemaining = _principalAmount - fee;
     }
 
