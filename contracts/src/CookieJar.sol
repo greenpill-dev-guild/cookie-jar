@@ -296,8 +296,7 @@ contract CookieJar is AccessControl {
         gate = nftGateMapping[gateAddress];
         if (gate.nftAddress == address(0)) revert CookieJarLib.InvalidNFTGate();
         if (
-            gate.nftType == CookieJarLib.NFTType.ERC721 ||
-            gate.nftType == CookieJarLib.NFTType.Soulbound
+            gate.nftType == CookieJarLib.NFTType.ERC721
         ) {
             if (IERC721(gate.nftAddress).ownerOf(tokenId) != msg.sender) {
                 revert CookieJarLib.NotAuthorized();

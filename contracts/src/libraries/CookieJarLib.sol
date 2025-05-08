@@ -16,8 +16,7 @@ library CookieJarLib {
     /// @notice Supported NFT types for gating.
     enum NFTType {
         ERC721,
-        ERC1155,
-        Soulbound
+        ERC1155
     }
 
     // --- Constants ---
@@ -29,7 +28,7 @@ library CookieJarLib {
     /// @notice Represents an NFT gate with a contract address and its NFT type.
     struct NFTGate {
         address nftAddress; // Address of the NFT contract.
-        NFTType nftType; // NFT type: ERC721, ERC1155, or Soulbound.
+        NFTType nftType; // NFT type: ERC721 or ERC1155
     }
 
     struct WithdrawalData {
