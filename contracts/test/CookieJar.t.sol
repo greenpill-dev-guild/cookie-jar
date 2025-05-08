@@ -534,17 +534,6 @@ contract CookieJarTest is Test {
         jarNFTETH.addNFTGate(address(0xDEAD), 3);
     }
 
-    // Test that updateAdmin reverts if the new admin address is zero.
-    function testUpdateAdminWithZeroAddress() public {
-        vm.prank(owner);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                CookieJarLib.AdminCannotBeZeroAddress.selector
-            )
-        );
-        jarWhitelistETH.transferJarOwnership(address(0));
-    }
-
     // ===== New Test for NFT Gate Mapping Optimization =====
 
     // Test that after adding a new NFT gate via addNFTGate, the optimized mapping lookup works
@@ -1092,28 +1081,7 @@ contract CookieJarTest is Test {
             address(dummyERC721),
             uint8(CookieJarLib.NFTType.ERC721)
         );
-    }
-
-    // ===== Admin Transfer Tests =====
-
-    // Test that the admin can update their address.
-    function testTransferOwnership() public {
-        address newAdmin = address(0xC0DE);
-        vm.prank(owner);
-        jarWhitelistETH.transferJarOwnership(newAdmin);
-        assertEq(
-            jarWhitelistETH.hasRole(keccak256("JAR_OWNER"), newAdmin),
-            true
-        );
-    }
-
-    // Test that non-admin cannot update admin.
-    function testUpdateAdminNotAuthorized() public {
-        address newAdmin = address(0xC0DE);
-        vm.prank(attacker);
-        vm.expectRevert(abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, attacker, CookieJarLib.JAR_OWNER));
-        jarWhitelistETH.transferJarOwnership(newAdmin);
-    }
+    }   
 
     // // ===== New Test: Emergency Withdrawal Disabled =====
 

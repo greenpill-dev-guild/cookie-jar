@@ -32,8 +32,6 @@ contract CookieJar is AccessControl {
     address public currency;
     uint256 public minDeposit;
     uint256 public feePercentageOnDeposit;
-    address public jarOwner;
-    /// @notice The admin of the contract.
     /// @notice Access control mode: Whitelist or NFTGated.
     CookieJarLib.AccessType public accessType;
     /// @notice Withdrawal option: Fixed or Variable.
@@ -129,7 +127,6 @@ contract CookieJar is AccessControl {
                 nftGateMapping[_nftAddresses[i]] = gate;
             }
         }
-        jarOwner = _jarOwner;
         withdrawalOption = _withdrawalOption;
         minDeposit = _minDeposit;
         fixedAmount = _fixedAmount;
@@ -236,21 +233,6 @@ contract CookieJar is AccessControl {
         nftGates.pop();
 
         emit CookieJarLib.NFTGateRemoved(_nftAddress);
-    }
-
-    /**
-     * @notice Transfers admin rights to a new address.
-     * @param _newAdmin The new admin address.
-     */
-    function transferJarOwnership(
-        address _newAdmin
-    ) external onlyRole(CookieJarLib.JAR_OWNER) {
-        if (_newAdmin == address(0))
-            revert CookieJarLib.AdminCannotBeZeroAddress();
-        _revokeRole(CookieJarLib.JAR_OWNER, jarOwner);
-        _grantRole(CookieJarLib.JAR_OWNER, _newAdmin);
-        jarOwner = _newAdmin;
-        emit CookieJarLib.AdminUpdated(_newAdmin);
     }
 
     // --- Deposit Functions ---
