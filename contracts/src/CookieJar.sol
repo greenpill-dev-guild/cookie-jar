@@ -231,6 +231,28 @@ contract CookieJar is AccessControl {
         emit CookieJarLib.NFTGateRemoved(_nftAddress);
     }
 
+    /**
+     * @notice Updates the maximum withdrawal amount.
+     * @param _maxWithdrawal The new maximum withdrawal amount.
+     */
+    function updateMaxWithdrawal(uint256 _maxWithdrawal) external onlyRole(CookieJarLib.JAR_OWNER) {
+        if (withdrawalOption == CookieJarLib.WithdrawalTypeOptions.Fixed) revert CookieJarLib.InvalidWithdrawalType();
+        if (_maxWithdrawal == 0) revert CookieJarLib.ZeroAmount();
+        maxWithdrawal = _maxWithdrawal;
+        emit CookieJarLib.MaxWithdrawalUpdated(_maxWithdrawal);
+    }
+
+    /**
+     * @notice Updates the withdrawal interval.
+     * @param _withdrawalInterval The new withdrawal interval.
+     */
+    function updateWithdrawalInterval(uint256 _withdrawalInterval) external onlyRole(CookieJarLib.JAR_OWNER) {
+        if (_withdrawalInterval == 0) revert CookieJarLib.ZeroAmount();
+        withdrawalInterval = _withdrawalInterval;
+        emit CookieJarLib.WithdrawalIntervalUpdated(_withdrawalInterval);
+    }
+
+
     // --- Deposit Functions ---
 
     /**
@@ -358,7 +380,7 @@ contract CookieJar is AccessControl {
         uint256 amount
     ) external onlyRole(CookieJarLib.JAR_OWNER) {
         if (!emergencyWithdrawalEnabled) revert CookieJarLib.EmergencyWithdrawalDisabled();
-        if (amount == 0) revert CookieJarLib.ZeroWithdrawal();
+        if (amount == 0) revert CookieJarLib.ZeroAmount();
         if (token == currency) currencyHeldByJar -= amount;
         emit CookieJarLib.EmergencyWithdrawal(msg.sender, token, amount);
         if (token == address(3)) {
@@ -426,7 +448,7 @@ contract CookieJar is AccessControl {
     }
 
     function _checkAndUpdateWithdraw(uint256 amount, string calldata purpose, uint256 lastWithdrawal) internal {
-        if (amount == 0) revert CookieJarLib.ZeroWithdrawal();
+        if (amount == 0) revert CookieJarLib.ZeroAmount();
         if (strictPurpose && bytes(purpose).length < 20) {
             revert CookieJarLib.InvalidPurpose();
         }

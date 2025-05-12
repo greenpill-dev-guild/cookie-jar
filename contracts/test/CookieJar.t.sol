@@ -188,7 +188,7 @@ contract CookieJarTest is Test {
                     CookieJarLib.AccessType.NFTGated,
                     nftAddresses,
                     nftTypes,
-                    CookieJarLib.WithdrawalTypeOptions.Fixed,
+                    CookieJarLib.WithdrawalTypeOptions.Variable,
                     fixedAmount,
                     maxWithdrawal,
                     withdrawalInterval,
@@ -471,7 +471,7 @@ contract CookieJarTest is Test {
     // Test that the constructor reverts if an invalid NFT type (>2) is provided.
     function testConstructorInvalidNFTType() public {
         uint8[] memory nftTypesTemp = new uint8[](1);
-        nftTypes[0] = 3; // Invalid NFT type
+        nftTypesTemp[0] = 3; // Invalid NFT type
         vm.expectRevert(
             abi.encodeWithSelector(CookieJarLib.InvalidNFTType.selector)
         );
@@ -481,7 +481,7 @@ contract CookieJarTest is Test {
             /// @dev address(3) for ETH jars.
             CookieJarLib.AccessType.NFTGated,
             nftAddresses,
-            nftTypes,
+            nftTypesTemp,
             CookieJarLib.WithdrawalTypeOptions.Fixed,
             fixedAmount,
             maxWithdrawal,
@@ -500,6 +500,50 @@ contract CookieJarTest is Test {
             abi.encodeWithSelector(CookieJarLib.InvalidNFTType.selector)
         );
         jarNFTETH.addNFTGate(address(0xDEAD), 3);
+    }
+
+    function testUpdateMaxWithdrawal() public {
+        vm.prank(owner);
+        jarNFTERC20.updateMaxWithdrawal(1000 * 1e18);
+        assertEq(jarNFTERC20.maxWithdrawal(), 1000 * 1e18);
+    }
+
+    function test_RevertWhen_UpdateMaxWithdrawalCalledByNonOwner() public {
+        vm.prank(user);
+        vm.expectRevert(
+            abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, user, CookieJarLib.JAR_OWNER)
+        );
+        jarNFTERC20.updateMaxWithdrawal(1000 * 1e18);
+    }
+
+    function test_RevertWhen_UpdateMaxWithdrawalCalledWithZeroAmount() public {
+        vm.prank(owner);
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.ZeroAmount.selector));
+        jarNFTERC20.updateMaxWithdrawal(0);
+    }
+
+    function test_RevertWhen_UpdateMaxWithdrawalCalledWithFixedWithdrawal() public {
+        vm.prank(owner);
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidWithdrawalType.selector));
+        jarNFTETH.updateMaxWithdrawal(1000 * 1e18);
+    }
+
+    function test_UpdateWithdrawalInterval() public {
+        vm.prank(owner);
+        jarNFTETH.updateWithdrawalInterval(1000 * 1e18);
+        assertEq(jarNFTETH.withdrawalInterval(), 1000 * 1e18);
+    }
+
+    function test_RevertWhen_UpdateWithdrawalIntervalCalledWithZeroAmount() public {    
+        vm.prank(owner);
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.ZeroAmount.selector));
+        jarNFTETH.updateWithdrawalInterval(0);
+    }
+
+    function test_RevertWhen_UpdateWithdrawalIntervalCalledByNonOwner() public {
+        vm.prank(user);
+        vm.expectRevert(abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, user, CookieJarLib.JAR_OWNER));
+        jarNFTETH.updateWithdrawalInterval(1000 * 1e18);
     }
 
     // ===== New Test for NFT Gate Mapping Optimization =====
@@ -928,7 +972,7 @@ contract CookieJarTest is Test {
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
         vm.expectRevert(
-            abi.encodeWithSelector(CookieJarLib.ZeroWithdrawal.selector)
+            abi.encodeWithSelector(CookieJarLib.ZeroAmount.selector)
         );
         jarNFTETH.withdrawNFTMode(
             0,
@@ -946,7 +990,7 @@ contract CookieJarTest is Test {
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
         vm.expectRevert(
-            abi.encodeWithSelector(CookieJarLib.ZeroWithdrawal.selector)
+            abi.encodeWithSelector(CookieJarLib.ZeroAmount.selector)
         );
         jarNFTETH.withdrawNFTMode(
             0,
@@ -990,7 +1034,7 @@ contract CookieJarTest is Test {
     //     vm.deal(address(jarWhitelistETH), 5 ether);
     //     vm.prank(admin);
     //     vm.expectRevert(
-    //         abi.encodeWithSelector(CookieJar.ZeroWithdrawal.selector)
+    //         abi.encodeWithSelector(CookieJar.ZeroAmount.selector)
     //     );
     //     jarWhitelistETH.emergencyWithdraw(address(0), 0);
     // }
@@ -1001,7 +1045,7 @@ contract CookieJarTest is Test {
     //     dummyToken.mint(address(jarWhitelistETH), dummyTokenFund);
     //     vm.prank(admin);
     //     vm.expectRevert(
-    //         abi.encodeWithSelector(CookieJar.ZeroWithdrawal.selector)
+    //         abi.encodeWithSelector(CookieJar.ZeroAmount.selector)
     //     );
     //     jarWhitelistETH.emergencyWithdraw(address(dummyToken), 0);
     // }
