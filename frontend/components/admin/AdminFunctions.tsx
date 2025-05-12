@@ -6,9 +6,10 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { parseEther } from "viem"
+import { keccak256, toUtf8Bytes } from "ethers"
 import {
   useWriteCookieJarTransferJarOwnership,
-  useReadCookieJarJarOwner,
+  useReadCookieJarHasRole,
   useWriteCookieJarGrantJarWhitelistRole,
   useWriteCookieJarRevokeJarWhitelistRole,
   useWriteCookieJarGrantJarBlacklistRole,
@@ -23,6 +24,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AlertCircle, Shield, UserPlus, UserMinus, AlertTriangle, Tag, Loader2 } from "lucide-react"
 import { useToast } from "@/hooks/design/use-toast"
 import { useAccount } from "wagmi"
+import WhitelistManagement from "./WhiteListManagement"
 
 enum NFTType {
   ERC721 = 0,
@@ -33,6 +35,9 @@ enum NFTType {
 interface AdminFunctionsProps {
   address: `0x${string}`
 }
+
+// Hash the JAR_OWNER role
+const JAR_OWNER_ROLE = keccak256(toUtf8Bytes("JAR_OWNER")) as `0x${string}`
 
 export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
   const [newJarOwner, setNewJarOwner] = useState("")
@@ -45,9 +50,10 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
   const { toast } = useToast()
   const { address: currentUserAddress } = useAccount()
 
-  // Read the current jar owner
-  const { data: currentOwner, refetch: refetchOwner } = useReadCookieJarJarOwner({
+  // Check if current user has the JAR_OWNER role
+  const { data: hasJarOwnerRole, refetch: refetchOwnerRole } = useReadCookieJarHasRole({
     address,
+    args: [JAR_OWNER_ROLE, currentUserAddress || '0x0000000000000000000000000000000000000000' as `0x${string}`],
   })
 
   // Transfer jar ownership hook
@@ -124,9 +130,9 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
       setIsTransferring(false)
       setNewJarOwner("")
 
-      // Refresh the owner data after successful transfer
+      // Refresh the owner role data after successful transfer
       setTimeout(() => {
-        refetchOwner()
+        refetchOwnerRole()
         // Force page refresh to update all UI components
         window.location.reload()
       }, 2000)
@@ -184,7 +190,7 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
     isNftGateSuccess,
     isRemoveNftGateSuccess,
     toast,
-    refetchOwner,
+    refetchOwnerRole,
   ])
 
   // Handle transfer error
@@ -300,12 +306,8 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
     })
   }
 
-  // Format the current owner address for display
-  const formattedCurrentOwner = currentOwner ? `${currentOwner.slice(0, 6)}...${currentOwner.slice(-4)}` : "Loading..."
-
-  // Check if current user is the owner
-  const isCurrentUserOwner =
-    currentUserAddress && currentOwner && currentUserAddress.toLowerCase() === currentOwner.toLowerCase()
+  // Check if current user has the JAR_OWNER role
+  const isCurrentUserOwner = hasJarOwnerRole === true
 
   return (
     <div className="space-y-6 bg-[#2b1d0e] p-4 rounded-lg">
@@ -355,11 +357,11 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
             <CardContent className="p-6">
               <div className="space-y-4">
                 <div className="bg-[#fff8f0] p-4 rounded-lg mb-4">
-                  <p className="text-[#3c2a14] font-medium">Current Owner: {formattedCurrentOwner}</p>
+                  <p className="text-[#3c2a14] font-medium">Jar Administration</p>
                   <p className="text-sm text-[#8b7355] mt-1">
                     {isCurrentUserOwner
-                      ? "You are currently the owner of this jar"
-                      : "You are not the current owner of this jar"}
+                      ? "You have JAR_OWNER role for this jar"
+                      : "You do not have JAR_OWNER role for this jar"}
                   </p>
                 </div>
 
@@ -399,82 +401,21 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
         </TabsContent>
 
         <TabsContent value="access" className="mt-0">
-          <Card className="border-none shadow-sm">
-            <CardHeader className="bg-[#fff8f0] rounded-t-lg">
-              <CardTitle className="text-xl text-[#3c2a14] flex items-center">
-                <UserPlus className="h-5 w-5 mr-2 text-[#ff5e14]" />
-                Whitelist & Blacklist Management
-              </CardTitle>
-              <CardDescription className="text-[#8b7355]">
-                Control who can access and withdraw from this jar
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label htmlFor="addressToUpdate" className="text-[#ff5e14] font-medium">
-                    Address to Update
-                  </label>
-                  <Input
-                    id="addressToUpdate"
-                    placeholder="0x..."
-                    value={addressToUpdate}
-                    onChange={(e) => setAddressToUpdate(e.target.value)}
-                    className="border-[#f0e6d8] bg-white text-[#3c2a14]"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 pt-4">
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-[#ff5e14]">Whitelist</h3>
-                    <div className="flex flex-col gap-2">
-                      <Button
-                        onClick={handleGrantJarWhitelistRole}
-                        className="bg-[#e6f7e6] text-[#2e7d32] hover:bg-[#c8e6c9] hover:text-[#1b5e20] border border-[#c8e6c9]"
-                        disabled={!addressToUpdate || !addressToUpdate.startsWith("0x")}
-                      >
-                        <UserPlus className="h-4 w-4 mr-2" />
-                        Add to Whitelist
-                      </Button>
-                      <Button
-                        onClick={handleRevokeJarWhitelistRole}
-                        variant="outline"
-                        className="text-[#2e7d32] hover:bg-[#e6f7e6] border-[#c8e6c9]"
-                        disabled={!addressToUpdate || !addressToUpdate.startsWith("0x")}
-                      >
-                        <UserMinus className="h-4 w-4 mr-2" />
-                        Remove from Whitelist
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-[#ff5e14]">Blacklist</h3>
-                    <div className="flex flex-col gap-2">
-                      <Button
-                        onClick={handleGrantJarBlacklistRole}
-                        className="bg-[#ffebee] text-[#c62828] hover:bg-[#ffcdd2] hover:text-[#b71c1c] border border-[#ffcdd2]"
-                        disabled={!addressToUpdate || !addressToUpdate.startsWith("0x")}
-                      >
-                        <UserPlus className="h-4 w-4 mr-2" />
-                        Add to Blacklist
-                      </Button>
-                      <Button
-                        onClick={handleRevokeJarBlacklistRole}
-                        variant="outline"
-                        className="text-[#c62828] hover:bg-[#ffebee] border-[#ffcdd2]"
-                        disabled={!addressToUpdate || !addressToUpdate.startsWith("0x")}
-                      >
-                        <UserMinus className="h-4 w-4 mr-2" />
-                        Remove from Blacklist
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+  <Card className="border-none shadow-sm">
+    <CardHeader className="bg-[#fff8f0] rounded-t-lg">
+      <CardTitle className="text-xl text-[#3c2a14] flex items-center">
+        <UserPlus className="h-5 w-5 mr-2 text-[#ff5e14]" />
+        Whitelist Management
+      </CardTitle>
+      <CardDescription className="text-[#8b7355]">
+        Control who can access and withdraw from this jar
+      </CardDescription>
+    </CardHeader>
+    <CardContent className="p-6">
+      <WhitelistManagement cookieJarAddress={address as `0x${string}`} />
+    </CardContent>
+  </Card>
+</TabsContent>
 
         <TabsContent value="emergency" className="mt-0">
           <Card className="border-none shadow-sm">
