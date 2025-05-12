@@ -528,6 +528,24 @@ contract CookieJarTest is Test {
         jarNFTETH.updateMaxWithdrawal(1000 * 1e18);
     }
 
+    function test_UpdateWithdrawalInterval() public {
+        vm.prank(owner);
+        jarNFTETH.updateWithdrawalInterval(1000 * 1e18);
+        assertEq(jarNFTETH.withdrawalInterval(), 1000 * 1e18);
+    }
+
+    function test_RevertWhen_UpdateWithdrawalIntervalCalledWithZeroAmount() public {    
+        vm.prank(owner);
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.ZeroAmount.selector));
+        jarNFTETH.updateWithdrawalInterval(0);
+    }
+
+    function test_RevertWhen_UpdateWithdrawalIntervalCalledByNonOwner() public {
+        vm.prank(user);
+        vm.expectRevert(abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, user, CookieJarLib.JAR_OWNER));
+        jarNFTETH.updateWithdrawalInterval(1000 * 1e18);
+    }
+
     // ===== New Test for NFT Gate Mapping Optimization =====
 
     // Test that after adding a new NFT gate via addNFTGate, the optimized mapping lookup works

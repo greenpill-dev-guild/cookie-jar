@@ -242,6 +242,17 @@ contract CookieJar is AccessControl {
         emit CookieJarLib.MaxWithdrawalUpdated(_maxWithdrawal);
     }
 
+    /**
+     * @notice Updates the withdrawal interval.
+     * @param _withdrawalInterval The new withdrawal interval.
+     */
+    function updateWithdrawalInterval(uint256 _withdrawalInterval) external onlyRole(CookieJarLib.JAR_OWNER) {
+        if (_withdrawalInterval == 0) revert CookieJarLib.ZeroAmount();
+        withdrawalInterval = _withdrawalInterval;
+        emit CookieJarLib.WithdrawalIntervalUpdated(_withdrawalInterval);
+    }
+
+
     // --- Deposit Functions ---
 
     /**
