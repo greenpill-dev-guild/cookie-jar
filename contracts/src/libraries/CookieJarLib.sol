@@ -88,5 +88,6 @@ library CookieJarLib {
     error NFTGateNotFound();
     error LessThanMinimumDeposit();
     error MismatchedArrayLengths();
-    error CookieJar__WithdrawalAlreadyDone();
+    error WithdrawalAlreadyDone();
+    error TransferFailed();
 }

@@ -349,43 +349,24 @@ contract CookieJar is AccessControl {
     }
 
     /**
-     * SECURITY CONCERN, UPDATE STATE OR NOT?
-     * @notice Allows the admin to perform an emergency withdrawal of funds (ETH or ERC20).
-     * @param token If zero address then ETH is withdrawn; otherwise, ERC20 token address.
+     * @notice Allows the admin to perform an emergency withdrawal of funds from the jar.
+     * @param token If address(3) then ETH is withdrawn; otherwise, ERC20 token address.
      * @param amount The amount to withdraw.
      */
-    function emergencyWithdrawWithoutState(
+    function emergencyWithdraw(
         address token,
         uint256 amount
     ) external onlyRole(CookieJarLib.JAR_OWNER) {
-        if (!emergencyWithdrawalEnabled)
-            revert CookieJarLib.EmergencyWithdrawalDisabled();
+        if (!emergencyWithdrawalEnabled) revert CookieJarLib.EmergencyWithdrawalDisabled();
         if (amount == 0) revert CookieJarLib.ZeroWithdrawal();
+        if (token == currency) currencyHeldByJar -= amount;
+        emit CookieJarLib.EmergencyWithdrawal(msg.sender, token, amount);
         if (token == address(3)) {
             (bool sent, ) = msg.sender.call{value: amount}("");
-            if (!sent) revert CookieJarLib.InsufficientBalance();
-            emit CookieJarLib.EmergencyWithdrawal(msg.sender, token, amount);
+            if (!sent) revert CookieJarLib.TransferFailed();
         } else {
             IERC20(token).safeTransfer(msg.sender, amount);
-            emit CookieJarLib.EmergencyWithdrawal(msg.sender, token, amount);
         }
-    }
-
-    function emergencyWithdrawCurrencyWithState(
-        uint256 amount
-    ) external onlyRole(CookieJarLib.JAR_OWNER) {
-        if (!emergencyWithdrawalEnabled)
-            revert CookieJarLib.EmergencyWithdrawalDisabled();
-        if (amount == 0) revert CookieJarLib.ZeroWithdrawal();
-        if (currency == address(3)) {
-            (bool sent, ) = msg.sender.call{value: amount}("");
-            if (!sent) revert CookieJarLib.InsufficientBalance();
-            emit CookieJarLib.EmergencyWithdrawal(msg.sender, currency, amount);
-        } else {
-            IERC20(currency).safeTransfer(msg.sender, amount);
-            emit CookieJarLib.EmergencyWithdrawal(msg.sender, currency, amount);
-        }
-        currencyHeldByJar -= amount;
     }
 
     function getNFTGatesArray()
@@ -450,7 +431,7 @@ contract CookieJar is AccessControl {
             revert CookieJarLib.InvalidPurpose();
         }
         if (oneTimeWithdrawal == true && isWithdrawnByUser[msg.sender] == true) {
-            revert CookieJarLib.CookieJar__WithdrawalAlreadyDone();
+            revert CookieJarLib.WithdrawalAlreadyDone();
         }
         uint256 nextAllowed = lastWithdrawal + withdrawalInterval;
         if (block.timestamp < nextAllowed) {
@@ -488,7 +469,7 @@ contract CookieJar is AccessControl {
     function _withdraw(uint256 amount, string calldata purpose) internal {
         if (currency == address(3)) {
             (bool sent, ) = msg.sender.call{value: amount}("");
-            if (!sent) revert CookieJarLib.InsufficientBalance();
+            if (!sent) revert CookieJarLib.TransferFailed();
             emit CookieJarLib.Withdrawal(
                 msg.sender,
                 amount,
