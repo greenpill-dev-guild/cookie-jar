@@ -492,8 +492,4 @@ contract CookieJar is AccessControl {
             IERC20(currency).safeTransfer(msg.sender, amount);
         }
     }
-
-    fallback() external payable {}
-
-    receive() external payable {}
 }
