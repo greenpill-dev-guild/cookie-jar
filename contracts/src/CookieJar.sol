@@ -493,18 +493,12 @@ contract CookieJar is AccessControl {
     }
 
     function _withdraw(uint256 amount, string calldata purpose) internal {
+        emit CookieJarLib.Withdrawal(msg.sender, amount, purpose);
         if (currency == address(3)) {
             (bool sent, ) = msg.sender.call{value: amount}("");
             if (!sent) revert CookieJarLib.TransferFailed();
-            emit CookieJarLib.Withdrawal(
-                msg.sender,
-                amount,
-                purpose,
-                address(0)
-            );
         } else {
             IERC20(currency).safeTransfer(msg.sender, amount);
-            emit CookieJarLib.Withdrawal(msg.sender, amount, purpose, currency);
         }
     }
 

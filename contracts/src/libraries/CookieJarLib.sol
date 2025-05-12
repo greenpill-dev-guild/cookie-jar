@@ -42,8 +42,7 @@ library CookieJarLib {
     event Withdrawal(
         address indexed recipient,
         uint256 amount,
-        string purpose,
-        address token
+        string purpose
     );
     /// @notice Emitted when a whitelist entry is updated.
     event WhitelistUpdated(address[] users, bool statuses);
