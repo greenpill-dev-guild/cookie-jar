@@ -20,6 +20,7 @@ contract CookieJarFactoryTest is Test {
     uint256 public withdrawalInterval = 1 days;
     bool public strictPurpose = true;
     address[] public users;
+    address[] public emptyWhitelist;
     HelperConfig.NetworkConfig config;
     ERC20Mock testToken;
 
@@ -30,6 +31,7 @@ contract CookieJarFactoryTest is Test {
         users = new address[](2);
         users[0] = user;
         users[1] = user2;
+        emptyWhitelist = new address[](0);
 
         testToken = new ERC20Mock();
         testToken.mint(user, 100e18);
@@ -71,6 +73,7 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true, // emergencyWithdrawalEnabled
             false,
+            emptyWhitelist,
             "Test Metadata"
         );
         address[] memory cookieJars = factory.getCookieJars();
@@ -118,6 +121,7 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true, // emergencyWithdrawalEnabled
             false,
+            emptyWhitelist,
             "Test Metadata"
         );
         address[] memory cookieJars = factory.getCookieJars();
@@ -141,6 +145,7 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true, // emergencyWithdrawalEnabled
             false,
+            emptyWhitelist,
             "Test Metadata"
         );
         assertTrue(CookieJar(payable(jarAddress)).accessType() == CookieJarLib.AccessType.Whitelist);
@@ -165,6 +170,7 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true, // emergencyWithdrawalEnabled
             false,
+            emptyWhitelist,
             "Test Metadata"
         );
         assertTrue(CookieJar(payable(jarAddress)).accessType() == CookieJarLib.AccessType.Whitelist);
@@ -194,6 +200,7 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true, // emergencyWithdrawalEnabled
             false,
+            emptyWhitelist,
             "Test Metadata"
         );
         assertTrue(CookieJar(payable(jarAddress)).accessType() == CookieJarLib.AccessType.NFTGated);
@@ -222,6 +229,7 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true, // emergencyWithdrawalEnabled
             false,
+            emptyWhitelist,
             "Test Metadata"
         );
         assertTrue(CookieJar(payable(jarAddress)).accessType() == CookieJarLib.AccessType.NFTGated);
@@ -250,6 +258,7 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true, // emergencyWithdrawalEnabled
             false,
+            emptyWhitelist,
             "Test Metadata"
         );
         address[] memory cookieJars = factory.getCookieJars();
@@ -281,6 +290,7 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true, // emergencyWithdrawalEnabled
             false, // oneTimeWithdrawal
+            emptyWhitelist,
             "Test Metadata"
         );
         address[] memory cookieJars = factory.getCookieJars();

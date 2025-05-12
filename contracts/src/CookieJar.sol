@@ -80,6 +80,8 @@ contract CookieJar is AccessControl {
      * @param _strictPurpose If true, the withdrawal purpose must be at least 20 characters.
      * @param _defaultFeeCollector The fee collector address.
      * @param _emergencyWithdrawalEnabled If true, emergency withdrawal is enabled.
+     * @param _oneTimeWithdrawal If true, each recipient can only claim from the jar once.
+     * @param _whitelist Array of whitelisted addresses. Must be empty if _accessType is NFTGated, as whitelist is not used in this mode.
      */
     constructor(
         address _jarOwner,
@@ -96,7 +98,8 @@ contract CookieJar is AccessControl {
         bool _strictPurpose,
         address _defaultFeeCollector,
         bool _emergencyWithdrawalEnabled,
-        bool _oneTimeWithdrawal
+        bool _oneTimeWithdrawal,
+        address[] memory _whitelist
     ) {
         if (_jarOwner == address(0))
             revert CookieJarLib.AdminCannotBeZeroAddress();
@@ -106,9 +109,10 @@ contract CookieJar is AccessControl {
         if (accessType == CookieJarLib.AccessType.NFTGated) {
             if (_nftAddresses.length == 0)
                 revert CookieJarLib.NoNFTAddressesProvided();
-            if (_nftAddresses.length != _nftTypes.length) {
+            if (_nftAddresses.length != _nftTypes.length)
                 revert CookieJarLib.NFTArrayLengthMismatch();
-            }
+            if (_whitelist.length > 0)
+                revert CookieJarLib.WhitelistNotAllowedForNFTGated();
             // Add NFT gates using mapping for duplicate checks.
             for (uint256 i = 0; i < _nftAddresses.length; i++) {
                 if (_nftTypes[i] > 2) revert CookieJarLib.InvalidNFTType();
@@ -138,6 +142,7 @@ contract CookieJar is AccessControl {
         oneTimeWithdrawal = _oneTimeWithdrawal;
         _setRoleAdmin(CookieJarLib.JAR_WHITELISTED, CookieJarLib.JAR_OWNER);
         _grantRole(CookieJarLib.JAR_OWNER, _jarOwner);
+        _grantRoles(CookieJarLib.JAR_WHITELISTED, _whitelist);
     }
 
     // --- Admin Functions ---
