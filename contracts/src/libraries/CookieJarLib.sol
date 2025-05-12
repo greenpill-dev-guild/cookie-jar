@@ -67,6 +67,8 @@ library CookieJarLib {
     event AdminUpdated(address indexed newAdmin);
     /// @notice Emitted when the max withdrawal is updated.
     event MaxWithdrawalUpdated(uint256 newMaxWithdrawal);
+    /// @notice Emitted when the fixed withdrawal amount is updated.
+    event FixedWithdrawalAmountUpdated(uint256 newFixedWithdrawalAmount);
     /// @notice Emitted when the withdrawal interval is updated.
     event WithdrawalIntervalUpdated(uint256 newWithdrawalInterval);
 
