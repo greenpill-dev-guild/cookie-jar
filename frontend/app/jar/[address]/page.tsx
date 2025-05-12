@@ -9,9 +9,10 @@ import { ShieldAlert, Users, Coins, Copy, ExternalLink } from "lucide-react"
 import { useSendTransaction, useAccount, useChainId, useContractReads } from "wagmi"
 import { parseEther, formatUnits, parseUnits } from "viem"
 import type { ReadContractErrorType } from "viem"
+import { keccak256, toUtf8Bytes } from "ethers"
 import { useState, useEffect, useRef } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useWriteCookieJarDepositEth, useWriteCookieJarDepositCurrency, useWriteErc20Approve } from "@/generated"
+import { useWriteCookieJarDepositEth, useWriteCookieJarDepositCurrency, useWriteErc20Approve, useReadCookieJarHasRole } from "@/generated"
 import { AdminFunctions } from "@/components/admin/AdminFunctions"
 import { formatAddress } from "@/lib/utils/format"
 import { getExplorerAddressUrl } from "@/lib/utils/network-utils"
@@ -31,6 +32,9 @@ import { WithdrawalHistorySection, type Withdrawal } from "@/components/users/Wi
 
 // Import token utilities
 import { ETH_ADDRESS, useTokenInfo, parseTokenAmount, formatTokenAmount } from "@/lib/utils/token-utils"
+
+// Hash the JAR_OWNER role
+const JAR_OWNER_ROLE = keccak256(toUtf8Bytes("JAR_OWNER")) as `0x${string}`
 
 export default function CookieJarConfigDetails() {
   const params = useParams()
@@ -55,7 +59,14 @@ export default function CookieJarConfigDetails() {
     isValidAddress ? (address as `0x${string}`) : "0x0000000000000000000000000000000000000000",
   )
 
-  const isAdmin = userAddress && config?.admin && userAddress.toLowerCase() === config.admin.toLowerCase()
+  // Check if current user has the JAR_OWNER role
+  const { data: hasJarOwnerRole } = useReadCookieJarHasRole({
+    address: isValidAddress ? (address as `0x${string}`) : undefined,
+    args: userAddress ? [JAR_OWNER_ROLE, userAddress as `0x${string}`] : undefined,
+    enabled: !!userAddress && isValidAddress,
+  })
+  
+  const isAdmin = hasJarOwnerRole === true
   const showUserFunctions = config?.whitelist === true && config?.accessType === "Whitelist"
   const showNFTGatedFunctions = config?.accessType === "NFTGated"
   const isFeeCollector =
