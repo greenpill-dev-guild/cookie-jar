@@ -537,6 +537,30 @@ contract CookieJarTest is Test {
         jarNFTETH.updateMaxWithdrawal(1000 * 1e18);
     }
 
+    function test_UpdateFixedWithdrawalAmount() public {
+        vm.prank(owner);
+        jarNFTETH.updateFixedWithdrawalAmount(1000 * 1e18);
+        assertEq(jarNFTETH.fixedAmount(), 1000 * 1e18);
+    }
+    
+    function test_RevertWhen_UpdateFixedWithdrawalAmountCalledWithVariableWithdrawal() public {
+        vm.prank(owner);
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidWithdrawalType.selector));
+        jarNFTERC20.updateFixedWithdrawalAmount(1000 * 1e18);
+    }
+    
+    function test_RevertWhen_UpdateFixedWithdrawalAmountCalledWithZeroAmount() public {
+        vm.prank(owner);
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.ZeroAmount.selector));
+        jarNFTETH.updateFixedWithdrawalAmount(0);
+    }
+    
+    function test_RevertWhen_UpdateFixedWithdrawalAmountCalledByNonOwner() public {
+        vm.prank(user);
+        vm.expectRevert(abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, user, CookieJarLib.JAR_OWNER));
+        jarNFTETH.updateFixedWithdrawalAmount(1000 * 1e18);
+    }
+    
     function test_UpdateWithdrawalInterval() public {
         vm.prank(owner);
         jarNFTETH.updateWithdrawalInterval(1000 * 1e18);

@@ -237,7 +237,7 @@ contract CookieJar is AccessControl {
     }
 
     /**
-     * @notice Updates the maximum withdrawal amount.
+     * @notice Updates the maximum withdrawal amount, only works if withdrawalOption is Variable.
      * @param _maxWithdrawal The new maximum withdrawal amount.
      */
     function updateMaxWithdrawal(uint256 _maxWithdrawal) external onlyRole(CookieJarLib.JAR_OWNER) {
@@ -245,6 +245,17 @@ contract CookieJar is AccessControl {
         if (_maxWithdrawal == 0) revert CookieJarLib.ZeroAmount();
         maxWithdrawal = _maxWithdrawal;
         emit CookieJarLib.MaxWithdrawalUpdated(_maxWithdrawal);
+    }
+
+    /**
+     * @notice Updates the fixed withdrawal amount, only works if withdrawalOption is Fixed.
+     * @param _fixedAmount The new fixed withdrawal amount.
+     */
+    function updateFixedWithdrawalAmount(uint256 _fixedAmount) external onlyRole(CookieJarLib.JAR_OWNER) {
+        if (withdrawalOption == CookieJarLib.WithdrawalTypeOptions.Variable) revert CookieJarLib.InvalidWithdrawalType();
+        if (_fixedAmount == 0) revert CookieJarLib.ZeroAmount();
+        fixedAmount = _fixedAmount;
+        emit CookieJarLib.FixedWithdrawalAmountUpdated(_fixedAmount);
     }
 
     /**
@@ -256,7 +267,6 @@ contract CookieJar is AccessControl {
         withdrawalInterval = _withdrawalInterval;
         emit CookieJarLib.WithdrawalIntervalUpdated(_withdrawalInterval);
     }
-
 
     // --- Deposit Functions ---
 
