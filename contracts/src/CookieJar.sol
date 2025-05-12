@@ -240,7 +240,7 @@ contract CookieJar is AccessControl {
      * @notice Updates the maximum withdrawal amount, only works if withdrawalOption is Variable.
      * @param _maxWithdrawal The new maximum withdrawal amount.
      */
-    function updateMaxWithdrawal(uint256 _maxWithdrawal) external onlyRole(CookieJarLib.JAR_OWNER) {
+    function UpdateMaxWithdrawalAmount(uint256 _maxWithdrawal) external onlyRole(CookieJarLib.JAR_OWNER) {
         if (withdrawalOption == CookieJarLib.WithdrawalTypeOptions.Fixed) revert CookieJarLib.InvalidWithdrawalType();
         if (_maxWithdrawal == 0) revert CookieJarLib.ZeroAmount();
         maxWithdrawal = _maxWithdrawal;

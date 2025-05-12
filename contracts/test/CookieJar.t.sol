@@ -511,30 +511,30 @@ contract CookieJarTest is Test {
         jarNFTETH.addNFTGate(address(0xDEAD), 3);
     }
 
-    function testUpdateMaxWithdrawal() public {
+    function test_UpdateMaxWithdrawalAmount() public {
         vm.prank(owner);
-        jarNFTERC20.updateMaxWithdrawal(1000 * 1e18);
+        jarNFTERC20.UpdateMaxWithdrawalAmount(1000 * 1e18);
         assertEq(jarNFTERC20.maxWithdrawal(), 1000 * 1e18);
     }
 
-    function test_RevertWhen_UpdateMaxWithdrawalCalledByNonOwner() public {
+    function test_RevertWhen_UpdateMaxWithdrawalAmountCalledByNonOwner() public {
         vm.prank(user);
         vm.expectRevert(
             abi.encodeWithSelector(IAccessControl.AccessControlUnauthorizedAccount.selector, user, CookieJarLib.JAR_OWNER)
         );
-        jarNFTERC20.updateMaxWithdrawal(1000 * 1e18);
+        jarNFTERC20.UpdateMaxWithdrawalAmount(1000 * 1e18);
     }
 
-    function test_RevertWhen_UpdateMaxWithdrawalCalledWithZeroAmount() public {
+    function test_RevertWhen_UpdateMaxWithdrawalAmountCalledWithZeroAmount() public {
         vm.prank(owner);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.ZeroAmount.selector));
-        jarNFTERC20.updateMaxWithdrawal(0);
+        jarNFTERC20.UpdateMaxWithdrawalAmount(0);
     }
 
-    function test_RevertWhen_UpdateMaxWithdrawalCalledWithFixedWithdrawal() public {
+    function test_RevertWhen_UpdateMaxWithdrawalAmountCalledWithFixedWithdrawal() public {
         vm.prank(owner);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidWithdrawalType.selector));
-        jarNFTETH.updateMaxWithdrawal(1000 * 1e18);
+        jarNFTETH.UpdateMaxWithdrawalAmount(1000 * 1e18);
     }
 
     function test_UpdateFixedWithdrawalAmount() public {
