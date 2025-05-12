@@ -28,16 +28,11 @@ contract CookieJarFactory is AccessControl {
     uint256 public minERC20Deposit;
 
     // --- Custom Error ---
-    error CookieJarFactory__NotFeeCollector();
-    error CookieJarFactory__TransferFailed();
-    error CookieJarFactory__LessThanMinimumDeposit();
     error CookieJarFactory__Blacklisted();
     error CookieJarFactory__NotAuthorized();
     error CookieJarFactory__MismatchedArrayLengths();
     error CookieJarFactory__UserIsNotBlacklisted();
     error CookieJarFactory__NotValidERC20();
-    error CookieJarFactory__NotSufficientAllowance();
-    error CookieJarFactory__WithdrawingMoreThanDeposited();
 
     // --- Events ---
     event CookieJarCreated(
