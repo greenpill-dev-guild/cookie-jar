@@ -41,7 +41,7 @@ export const WhitelistManagement: React.FC<WhitelistManagementProps> = ({
   const { writeContractAsync: revokeWhitelistRole } = useWriteCookieJarRevokeJarWhitelistRole();
 
   // Handle adding addresses to whitelist
-  const handleAddToWhitelist = async (addresses: string[]) => {
+  const handleAddToWhitelist = async (addresses: `0x${string}`[]) => {
     try {
       await grantWhitelistRole({
         address: cookieJarAddress,
@@ -66,7 +66,7 @@ export const WhitelistManagement: React.FC<WhitelistManagementProps> = ({
   };
 
   // Handle removing addresses from whitelist
-  const handleRemoveFromWhitelist = async (addresses: string[]) => {
+  const handleRemoveFromWhitelist = async (addresses: `0x${string}`[]) => {
     try {
       await revokeWhitelistRole({
         address: cookieJarAddress,

@@ -10,7 +10,7 @@ import { Loader2 } from "lucide-react";
 interface WhiteListAddressInputProps {
   mode: 'add' | 'remove';
   currentWhitelist: string[];
-  onSubmit: (addresses: string[]) => Promise<void>;
+  onSubmit: (addresses: `0x${string}`[]) => Promise<void>;
   buttonLabel?: string;
   placeholder?: string;
 }
@@ -32,13 +32,13 @@ export const WhiteListAddressInput: React.FC<WhiteListAddressInputProps> = ({
       .map(s => s.trim())
       .filter(Boolean);
 
-    const valid: string[] = [];
+    const valid: `0x${string}`[] = [];
     const invalid: string[] = [];
 
     // Check if each part is a valid address
     for (const p of parts) {
       if (isAddress(p)) {
-        valid.push(p.toLowerCase());
+        valid.push(p.toLowerCase() as `0x${string}`);
       } else {
         invalid.push(p);
       }
@@ -49,7 +49,7 @@ export const WhiteListAddressInput: React.FC<WhiteListAddressInputProps> = ({
     return { valid: uniqueValid, invalid };
   }, []);
 
-  const filterByMode = useCallback((addrs: string[]) => {
+  const filterByMode = useCallback((addrs: `0x${string}`[]) => {
     if (mode === 'add') {
       return addrs.filter(a => !currentWhitelist.includes(a));
     } else {
