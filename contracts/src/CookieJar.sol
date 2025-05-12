@@ -81,7 +81,7 @@ contract CookieJar is AccessControl {
      * @param _defaultFeeCollector The fee collector address.
      * @param _emergencyWithdrawalEnabled If true, emergency withdrawal is enabled.
      * @param _oneTimeWithdrawal If true, each recipient can only claim from the jar once.
-     * @param _whitelist Array of whitelisted addresses.
+     * @param _whitelist Array of whitelisted addresses. Must be empty if _accessType is NFTGated, as whitelist is not used in this mode.
      */
     constructor(
         address _jarOwner,
