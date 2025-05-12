@@ -191,6 +191,7 @@ contract CookieJarFactory is AccessControl {
         bool _strictPurpose,
         bool _emergencyWithdrawalEnabled,
         bool _oneTimeWithdrawal,
+        address[] calldata _whitelist,
         string calldata metadata
     ) external onlyNotBlacklisted(msg.sender) returns (address) {
         uint256 minDeposit = minETHDeposit;
@@ -216,7 +217,8 @@ contract CookieJarFactory is AccessControl {
             _strictPurpose,
             defaultFeeCollector,
             _emergencyWithdrawalEnabled,
-            _oneTimeWithdrawal
+            _oneTimeWithdrawal,
+            _whitelist
         );
 
         address jarAddress = address(newJar);

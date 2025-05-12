@@ -80,6 +80,8 @@ contract CookieJar is AccessControl {
      * @param _strictPurpose If true, the withdrawal purpose must be at least 20 characters.
      * @param _defaultFeeCollector The fee collector address.
      * @param _emergencyWithdrawalEnabled If true, emergency withdrawal is enabled.
+     * @param _oneTimeWithdrawal If true, each recipient can only claim from the jar once.
+     * @param _whitelist Array of whitelisted addresses. Must be empty if _accessType is NFTGated, as whitelist is not used in this mode.
      */
     constructor(
         address _jarOwner,
@@ -96,7 +98,8 @@ contract CookieJar is AccessControl {
         bool _strictPurpose,
         address _defaultFeeCollector,
         bool _emergencyWithdrawalEnabled,
-        bool _oneTimeWithdrawal
+        bool _oneTimeWithdrawal,
+        address[] memory _whitelist
     ) {
         if (_jarOwner == address(0))
             revert CookieJarLib.AdminCannotBeZeroAddress();
@@ -106,9 +109,10 @@ contract CookieJar is AccessControl {
         if (accessType == CookieJarLib.AccessType.NFTGated) {
             if (_nftAddresses.length == 0)
                 revert CookieJarLib.NoNFTAddressesProvided();
-            if (_nftAddresses.length != _nftTypes.length) {
+            if (_nftAddresses.length != _nftTypes.length)
                 revert CookieJarLib.NFTArrayLengthMismatch();
-            }
+            if (_whitelist.length > 0)
+                revert CookieJarLib.WhitelistNotAllowedForNFTGated();
             // Add NFT gates using mapping for duplicate checks.
             for (uint256 i = 0; i < _nftAddresses.length; i++) {
                 if (_nftTypes[i] > 2) revert CookieJarLib.InvalidNFTType();
@@ -138,6 +142,7 @@ contract CookieJar is AccessControl {
         oneTimeWithdrawal = _oneTimeWithdrawal;
         _setRoleAdmin(CookieJarLib.JAR_WHITELISTED, CookieJarLib.JAR_OWNER);
         _grantRole(CookieJarLib.JAR_OWNER, _jarOwner);
+        _grantRoles(CookieJarLib.JAR_WHITELISTED, _whitelist);
     }
 
     // --- Admin Functions ---
@@ -230,6 +235,28 @@ contract CookieJar is AccessControl {
 
         emit CookieJarLib.NFTGateRemoved(_nftAddress);
     }
+
+    /**
+     * @notice Updates the maximum withdrawal amount.
+     * @param _maxWithdrawal The new maximum withdrawal amount.
+     */
+    function updateMaxWithdrawal(uint256 _maxWithdrawal) external onlyRole(CookieJarLib.JAR_OWNER) {
+        if (withdrawalOption == CookieJarLib.WithdrawalTypeOptions.Fixed) revert CookieJarLib.InvalidWithdrawalType();
+        if (_maxWithdrawal == 0) revert CookieJarLib.ZeroAmount();
+        maxWithdrawal = _maxWithdrawal;
+        emit CookieJarLib.MaxWithdrawalUpdated(_maxWithdrawal);
+    }
+
+    /**
+     * @notice Updates the withdrawal interval.
+     * @param _withdrawalInterval The new withdrawal interval.
+     */
+    function updateWithdrawalInterval(uint256 _withdrawalInterval) external onlyRole(CookieJarLib.JAR_OWNER) {
+        if (_withdrawalInterval == 0) revert CookieJarLib.ZeroAmount();
+        withdrawalInterval = _withdrawalInterval;
+        emit CookieJarLib.WithdrawalIntervalUpdated(_withdrawalInterval);
+    }
+
 
     // --- Deposit Functions ---
 
@@ -349,43 +376,24 @@ contract CookieJar is AccessControl {
     }
 
     /**
-     * SECURITY CONCERN, UPDATE STATE OR NOT?
-     * @notice Allows the admin to perform an emergency withdrawal of funds (ETH or ERC20).
-     * @param token If zero address then ETH is withdrawn; otherwise, ERC20 token address.
+     * @notice Allows the admin to perform an emergency withdrawal of funds from the jar.
+     * @param token If address(3) then ETH is withdrawn; otherwise, ERC20 token address.
      * @param amount The amount to withdraw.
      */
-    function emergencyWithdrawWithoutState(
+    function emergencyWithdraw(
         address token,
         uint256 amount
     ) external onlyRole(CookieJarLib.JAR_OWNER) {
-        if (!emergencyWithdrawalEnabled)
-            revert CookieJarLib.EmergencyWithdrawalDisabled();
-        if (amount == 0) revert CookieJarLib.ZeroWithdrawal();
+        if (!emergencyWithdrawalEnabled) revert CookieJarLib.EmergencyWithdrawalDisabled();
+        if (amount == 0) revert CookieJarLib.ZeroAmount();
+        if (token == currency) currencyHeldByJar -= amount;
+        emit CookieJarLib.EmergencyWithdrawal(msg.sender, token, amount);
         if (token == address(3)) {
             (bool sent, ) = msg.sender.call{value: amount}("");
-            if (!sent) revert CookieJarLib.InsufficientBalance();
-            emit CookieJarLib.EmergencyWithdrawal(msg.sender, token, amount);
+            if (!sent) revert CookieJarLib.TransferFailed();
         } else {
             IERC20(token).safeTransfer(msg.sender, amount);
-            emit CookieJarLib.EmergencyWithdrawal(msg.sender, token, amount);
         }
-    }
-
-    function emergencyWithdrawCurrencyWithState(
-        uint256 amount
-    ) external onlyRole(CookieJarLib.JAR_OWNER) {
-        if (!emergencyWithdrawalEnabled)
-            revert CookieJarLib.EmergencyWithdrawalDisabled();
-        if (amount == 0) revert CookieJarLib.ZeroWithdrawal();
-        if (currency == address(3)) {
-            (bool sent, ) = msg.sender.call{value: amount}("");
-            if (!sent) revert CookieJarLib.InsufficientBalance();
-            emit CookieJarLib.EmergencyWithdrawal(msg.sender, currency, amount);
-        } else {
-            IERC20(currency).safeTransfer(msg.sender, amount);
-            emit CookieJarLib.EmergencyWithdrawal(msg.sender, currency, amount);
-        }
-        currencyHeldByJar -= amount;
     }
 
     function getNFTGatesArray()
@@ -445,12 +453,12 @@ contract CookieJar is AccessControl {
     }
 
     function _checkAndUpdateWithdraw(uint256 amount, string calldata purpose, uint256 lastWithdrawal) internal {
-        if (amount == 0) revert CookieJarLib.ZeroWithdrawal();
+        if (amount == 0) revert CookieJarLib.ZeroAmount();
         if (strictPurpose && bytes(purpose).length < 20) {
             revert CookieJarLib.InvalidPurpose();
         }
         if (oneTimeWithdrawal == true && isWithdrawnByUser[msg.sender] == true) {
-            revert CookieJarLib.CookieJar__WithdrawalAlreadyDone();
+            revert CookieJarLib.WithdrawalAlreadyDone();
         }
         uint256 nextAllowed = lastWithdrawal + withdrawalInterval;
         if (block.timestamp < nextAllowed) {
@@ -488,7 +496,7 @@ contract CookieJar is AccessControl {
     function _withdraw(uint256 amount, string calldata purpose) internal {
         if (currency == address(3)) {
             (bool sent, ) = msg.sender.call{value: amount}("");
-            if (!sent) revert CookieJarLib.InsufficientBalance();
+            if (!sent) revert CookieJarLib.TransferFailed();
             emit CookieJarLib.Withdrawal(
                 msg.sender,
                 amount,

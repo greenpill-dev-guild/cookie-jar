@@ -65,15 +65,20 @@ library CookieJarLib {
     event NFTGateRemoved(address nftAddress);
     /// @notice Emitted when admin rights are transferred.
     event AdminUpdated(address indexed newAdmin);
+    /// @notice Emitted when the max withdrawal is updated.
+    event MaxWithdrawalUpdated(uint256 newMaxWithdrawal);
+    /// @notice Emitted when the withdrawal interval is updated.
+    event WithdrawalIntervalUpdated(uint256 newWithdrawalInterval);
 
     // --- Custom Errors ---
     error NotAuthorized();
     error InvalidAccessType();
     error InvalidPurpose();
+    error InvalidWithdrawalType();
     error WithdrawalTooSoon(uint256 nextAllowed);
     error WithdrawalAmountNotAllowed(uint256 requested, uint256 allowed);
     error InsufficientBalance();
-    error ZeroWithdrawal();
+    error ZeroAmount();
     error NotFeeCollector();
     error FeeTransferFailed();
     error InvalidNFTGate();
@@ -88,5 +93,7 @@ library CookieJarLib {
     error NFTGateNotFound();
     error LessThanMinimumDeposit();
     error MismatchedArrayLengths();
-    error CookieJar__WithdrawalAlreadyDone();
+    error WithdrawalAlreadyDone();
+    error TransferFailed();
+    error WhitelistNotAllowedForNFTGated();
 }
