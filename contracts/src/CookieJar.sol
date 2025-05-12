@@ -304,7 +304,6 @@ contract CookieJar is AccessControl {
      * @notice Checks if the caller has NFT-gated access via the specified gate.
      * @param gateAddress The NFT contract address used for gating.
      * @param tokenId The NFT token id.
-     * @return gate The NFTGate struct corresponding to the provided gate.
      */
     function _checkAccessNFT(
         address gateAddress,
@@ -312,9 +311,8 @@ contract CookieJar is AccessControl {
     )
         internal
         view
-        returns (CookieJarLib.NFTGate memory gate)
     {
-        gate = nftGateMapping[gateAddress];
+        CookieJarLib.NFTGate memory gate = nftGateMapping[gateAddress];
         if (gate.nftAddress == address(0)) revert CookieJarLib.InvalidNFTGate();
         if (
             gate.nftType == CookieJarLib.NFTType.ERC721
