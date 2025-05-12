@@ -95,4 +95,5 @@ library CookieJarLib {
     error MismatchedArrayLengths();
     error WithdrawalAlreadyDone();
     error TransferFailed();
+    error WhitelistNotAllowedForNFTGated();
 }

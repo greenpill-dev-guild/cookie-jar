@@ -79,7 +79,7 @@ contract CookieJarTest is Test {
     uint8[] public emptyTypes;
     address[] public nftAddresses;
     uint8[] public nftTypes;
-
+    address[] public emptyWhitelist;
     function setUp() public {
         helperConfig = new HelperConfig();
         config = helperConfig.getAnvilConfig();
@@ -95,6 +95,7 @@ contract CookieJarTest is Test {
 
         emptyAddresses = new address[](0);
         emptyTypes = new uint8[](0);
+        emptyWhitelist = new address[](0);
 
         nftAddresses = new address[](1);
         nftAddresses[0] = address(dummyERC721);
@@ -131,6 +132,7 @@ contract CookieJarTest is Test {
                     strictPurpose,
                     true, // emergencyWithdrawalEnabled
                     false, // oneTimeWithdrawalEnabled
+                    emptyWhitelist,
                     "Test Metadata"
                 )
             )
@@ -152,6 +154,7 @@ contract CookieJarTest is Test {
                     strictPurpose,
                     true, // emergencyWithdrawalEnabled
                     false,
+                    emptyWhitelist,
                     "Test Metadata"
                 )
             )
@@ -174,6 +177,7 @@ contract CookieJarTest is Test {
                     strictPurpose,
                     true, // emergencyWithdrawalEnabled
                     false,
+                    emptyWhitelist,
                     "Test Metadata"
                 )
             )
@@ -195,6 +199,7 @@ contract CookieJarTest is Test {
                     strictPurpose,
                     true, // emergencyWithdrawalEnabled
                     false,
+                    emptyWhitelist,
                     "Test Metadata"
                 )
             )
@@ -216,6 +221,7 @@ contract CookieJarTest is Test {
                     strictPurpose,
                     true, // emergencyWithdrawalEnabled
                     true,
+                    emptyWhitelist,
                     "Test Metadata"
                 )
             )
@@ -237,6 +243,7 @@ contract CookieJarTest is Test {
                     strictPurpose,
                     true, // emergencyWithdrawalEnabled
                     true,
+                    emptyWhitelist,
                     "Test Metadata"
                 )
             )
@@ -462,6 +469,7 @@ contract CookieJarTest is Test {
             strictPurpose,
             true, // emergencyWithdrawalEnabled
             false,
+            emptyWhitelist,
             "Test Metadata"
         );
     }
@@ -489,6 +497,7 @@ contract CookieJarTest is Test {
             strictPurpose,
             true, // emergencyWithdrawalEnabled
             false,
+            emptyWhitelist,
             "Test Metadata"
         );
     }
@@ -875,11 +884,11 @@ contract CookieJarTest is Test {
                     strictPurpose,
                     true, // emergencyWithdrawalEnabled
                     true,
+                    users,
                     "Test Metadata"
                 )
             )
         );
-        variableJar.grantJarWhitelistRole(users);
         variableJar.depositETH{value: 3 ether}();
         vm.stopPrank();
         vm.warp(block.timestamp + withdrawalInterval + 1);
@@ -1079,7 +1088,8 @@ contract CookieJarTest is Test {
             true,
             config.defaultFeeCollector,
             true, // emergencyWithdrawalEnabled
-            true
+            true,
+            emptyWhitelist
         );
     }
 
