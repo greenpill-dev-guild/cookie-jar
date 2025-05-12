@@ -63,7 +63,6 @@ export default function CookieJarConfigDetails() {
   const { data: hasJarOwnerRole } = useReadCookieJarHasRole({
     address: isValidAddress ? (address as `0x${string}`) : undefined,
     args: userAddress ? [JAR_OWNER_ROLE, userAddress as `0x${string}`] : undefined,
-    enabled: !!userAddress && isValidAddress,
   })
   
   const isAdmin = hasJarOwnerRole === true

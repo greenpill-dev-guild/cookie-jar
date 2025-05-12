@@ -8,14 +8,15 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { parseEther } from "viem"
 import { keccak256, toUtf8Bytes } from "ethers"
 import {
-  useWriteCookieJarTransferJarOwnership,
+  // Commented out missing hooks
+  // useWriteCookieJarTransferJarOwnership,
   useReadCookieJarHasRole,
   useWriteCookieJarGrantJarWhitelistRole,
   useWriteCookieJarRevokeJarWhitelistRole,
-  useWriteCookieJarGrantJarBlacklistRole,
-  useWriteCookieJarRevokeJarBlacklistRole,
-  useWriteCookieJarEmergencyWithdrawWithoutState,
-  useWriteCookieJarEmergencyWithdrawCurrencyWithState,
+  // useWriteCookieJarGrantJarBlacklistRole,
+  // useWriteCookieJarRevokeJarBlacklistRole,
+  // useWriteCookieJarEmergencyWithdrawWithoutState,
+  // useWriteCookieJarEmergencyWithdrawCurrencyWithState,
   useWriteCookieJarAddNftGate,
   useWriteCookieJarRemoveNftGate,
 } from "../../generated"
@@ -56,7 +57,8 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
     args: [JAR_OWNER_ROLE, currentUserAddress || '0x0000000000000000000000000000000000000000' as `0x${string}`],
   })
 
-  // Transfer jar ownership hook
+  // Transfer jar ownership hook - commented out due to missing hook
+  /*
   const {
     writeContract: transferJarOwnership,
     data: transferData,
@@ -64,7 +66,16 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
     isSuccess: isTransferSuccess,
     isPending: isTransferPending,
   } = useWriteCookieJarTransferJarOwnership()
+  */
+  // Mock values for the commented out hook
+  const transferJarOwnership = undefined;
+  const transferData = undefined;
+  const transferError = undefined;
+  const isTransferSuccess = false;
+  const isTransferPending = false;
 
+  // Emergency withdraw hooks - commented out due to missing hooks
+  /*
   const {
     writeContract: emergencyWithdrawWithoutState,
     data: emergencyWithdrawWithoutStateData,
@@ -77,6 +88,16 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
     data: emergencyWithdrawWithStateData,
     error: emergencyWithdrawWithStateError,
   } = useWriteCookieJarEmergencyWithdrawCurrencyWithState()
+  */
+  // Mock values for commented out hooks
+  const emergencyWithdrawWithoutState = undefined;
+  const emergencyWithdrawWithoutStateData = undefined;
+  const emergencyWithdrawWithoutStateError = undefined;
+  const isEmergencyWithdrawSuccess = false;
+  
+  const emergencyWithdrawCurrencyWithState = undefined;
+  const emergencyWithdrawWithStateData = undefined;
+  const emergencyWithdrawWithStateError = undefined;
 
   const {
     writeContract: grantJarWhitelistRole,
@@ -92,6 +113,8 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
     isSuccess: isWhitelistRevokeSuccess,
   } = useWriteCookieJarRevokeJarWhitelistRole()
 
+  // Blacklist role hooks - commented out due to missing hooks
+  /*
   const {
     writeContract: grantJarBlacklistRole,
     data: blacklistGrantData,
@@ -105,6 +128,17 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
     error: blacklistRevokeError,
     isSuccess: isBlacklistRevokeSuccess,
   } = useWriteCookieJarRevokeJarBlacklistRole()
+  */
+  // Mock values for commented out hooks
+  const grantJarBlacklistRole = undefined;
+  const blacklistGrantData = undefined;
+  const blacklistGrantError = undefined;
+  const isBlacklistGrantSuccess = false;
+  
+  const revokeJarBlacklistRole = undefined;
+  const blacklistRevokeData = undefined;
+  const blacklistRevokeError = undefined;
+  const isBlacklistRevokeSuccess = false;
 
   const {
     writeContract: addNftGate,
@@ -206,35 +240,57 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
   }, [transferError, toast])
 
   // Admin functions
-  const handleTransferJarOwnership = () => {
+  const handleTransferJarOwnership = async () => {
+    toast({
+      title: "Feature Unavailable",
+      description: "Transfer jar ownership is currently unavailable.",
+      variant: "destructive",
+    });
+    return;
+
+    /*
     if (!newJarOwner || !newJarOwner.startsWith("0x")) {
       toast({
         title: "Invalid Address",
-        description: "Please enter a valid Ethereum address starting with 0x",
+        description: "Please enter a valid Ethereum address",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    setIsTransferring(true)
+    setIsTransferring(true);
 
     try {
-      transferJarOwnership({
-        address: address,
+      await transferJarOwnership({
+        address,
         args: [newJarOwner as `0x${string}`],
-      })
+      });
+
+      // Success message shown when isTransferSuccess becomes true
     } catch (error) {
-      console.error("Error transferring ownership:", error)
-      setIsTransferring(false)
+      console.error("Error transferring jar ownership:", error);
       toast({
         title: "Transfer Failed",
-        description: "An error occurred while transferring ownership",
+        description: "Failed to transfer ownership. Please try again.",
         variant: "destructive",
-      })
+      });
+    } finally {
+      setIsTransferring(false);
     }
+    */
   }
 
+  // Emergency withdraw function - commented out due to missing hooks
   const handleEmergencyWithdraw = () => {
+    // Function commented out due to missing hooks
+    toast({
+      title: "Feature Unavailable",
+      description: "Emergency withdraw is currently unavailable.",
+      variant: "destructive",
+    });
+    return;
+    
+    /*
     if (!withdrawalAmount) return
     console.log("Emergency withdrawal amount:", withdrawalAmount)
     if (tokenAddress.length > 3) {
@@ -250,24 +306,47 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
         ],
       })
     }
+    */
   }
 
+  // Grant blacklist role function - commented out due to missing hook
   const handleGrantJarBlacklistRole = () => {
+    // Function commented out due to missing hook
+    toast({
+      title: "Feature Unavailable",
+      description: "Granting blacklist role is currently unavailable.",
+      variant: "destructive",
+    });
+    return;
+    
+    /*
     if (!addressToUpdate) return
     console.log(`"Adding addresses to blacklist:`, addressToUpdate)
     grantJarBlacklistRole({
       address: address,
       args: [[addressToUpdate as `0x${string}`]],
     })
+    */
   }
 
+  // Revoke blacklist role function - commented out due to missing hook
   const handleRevokeJarBlacklistRole = () => {
+    // Function commented out due to missing hook
+    toast({
+      title: "Feature Unavailable",
+      description: "Revoking blacklist role is currently unavailable.",
+      variant: "destructive",
+    });
+    return;
+    
+    /*
     if (!addressToUpdate) return
     console.log(`Removing address from blacklist:`, addressToUpdate)
     revokeJarBlacklistRole({
       address: address,
       args: [[addressToUpdate as `0x${string}`]],
     })
+    */
   }
 
   const handleGrantJarWhitelistRole = () => {
