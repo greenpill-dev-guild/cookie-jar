@@ -761,7 +761,7 @@ contract CookieJarTest is Test {
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
         vm.expectRevert(
-            abi.encodeWithSelector(CookieJarLib.InsufficientBalance.selector)
+            abi.encodeWithSelector(CookieJarLib.TransferFailed.selector)
         );
         jarNFTETH.withdrawNFTMode(
             fixedAmount,
@@ -780,7 +780,7 @@ contract CookieJarTest is Test {
             fixedAmount,
             "Valid purpose string exceeding 20 characters"
         );
-        vm.expectRevert(CookieJarLib.CookieJar__WithdrawalAlreadyDone.selector);
+        vm.expectRevert(CookieJarLib.WithdrawalAlreadyDone.selector);
         jarWhitelistETHOneTimeWithdrawal.withdrawWhitelistMode(
             fixedAmount,
             "Valid purpose string exceeding 20 characters"
@@ -803,7 +803,7 @@ contract CookieJarTest is Test {
             address(dummyERC721),
             dummyTokenId
         );
-        vm.expectRevert(CookieJarLib.CookieJar__WithdrawalAlreadyDone.selector);
+        vm.expectRevert(CookieJarLib.WithdrawalAlreadyDone.selector);
         jarNFTERC20OneTimeWithdrawal.withdrawNFTMode(
             fixedAmount,
             "Valid purpose string exceeding 20 characters",
@@ -964,7 +964,7 @@ contract CookieJarTest is Test {
         vm.expectRevert(
             abi.encodeWithSelector(IERC20Errors.ERC20InsufficientBalance.selector, address(jarWhitelistETH), 500 * 1e18, 600 * 1e18)
         );
-        jarWhitelistETH.emergencyWithdrawWithoutState(
+        jarWhitelistETH.emergencyWithdraw(
             address(dummyToken),
             600 * 1e18
         );
@@ -975,9 +975,9 @@ contract CookieJarTest is Test {
         vm.deal(address(jarWhitelistETH), dummyTokenFund);
         vm.prank(owner);
         vm.expectRevert(
-            abi.encodeWithSelector(CookieJarLib.InsufficientBalance.selector)
+            abi.encodeWithSelector(CookieJarLib.TransferFailed.selector)
         );
-        jarWhitelistETH.emergencyWithdrawWithoutState(
+        jarWhitelistETH.emergencyWithdraw(
             address(3),
             600 * 1e18
         );
