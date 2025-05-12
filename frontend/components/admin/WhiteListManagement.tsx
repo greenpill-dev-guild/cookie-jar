@@ -101,7 +101,7 @@ export const WhitelistManagement: React.FC<WhitelistManagementProps> = ({
       >
         {/* View Current Whitelist */}
         <AccordionItem value="view-whitelist">
-          <AccordionTrigger>View Current Whitelist</AccordionTrigger>
+          <AccordionTrigger className="text-base">View Current Whitelist</AccordionTrigger>
           <AccordionContent>
             <Card>
               <CardContent className="pt-6">
@@ -131,7 +131,7 @@ export const WhitelistManagement: React.FC<WhitelistManagementProps> = ({
 
         {/* Add to Whitelist */}
         <AccordionItem value="add-whitelist">
-          <AccordionTrigger>Add Addresses to Whitelist</AccordionTrigger>
+          <AccordionTrigger className="text-base">Add Addresses to Whitelist</AccordionTrigger>
           <AccordionContent>
             <Card>
               <CardContent className="pt-6">
@@ -148,7 +148,7 @@ export const WhitelistManagement: React.FC<WhitelistManagementProps> = ({
 
         {/* Remove from Whitelist */}
         <AccordionItem value="remove-whitelist">
-          <AccordionTrigger>Remove Addresses from Whitelist</AccordionTrigger>
+          <AccordionTrigger className="text-base">Remove Addresses from Whitelist</AccordionTrigger>
           <AccordionContent>
             <Card>
               <CardContent className="pt-6">
