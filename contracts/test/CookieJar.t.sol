@@ -766,8 +766,7 @@ contract CookieJarTest is Test {
             address(dummyERC721),
             dummyTokenId
         );
-        bytes32 key = keccak256(abi.encodePacked(dummyERC721, dummyTokenId));
-        uint nextAllowed = jarNFTETH.lastWithdrawalNFT(key) +
+        uint nextAllowed = jarNFTETH.lastWithdrawalNFT(address(dummyERC721), dummyTokenId) +
             withdrawalInterval;
         vm.prank(user);
         skip(100);

@@ -57,10 +57,10 @@ contract CookieJar is AccessControl {
     // --- Access Control Mappings ---
 
     // --- Timelock Mappings ---
-    /// @notice Stores the last withdrawal timestamp for each whitelisted address.
-    mapping(address => uint256) public lastWithdrawalWhitelist;
-    /// @notice Stores the last withdrawal timestamp for NFT-gated withdrawals using a composite key (nftAddress, tokenId).
-    mapping(bytes32 => uint256) public lastWithdrawalNFT;
+    /// @notice Stores the last withdrawal timestamp for each whitelisted address for whitelist mode.
+    mapping(address user => uint256 lastWithdrawalTimestamp) public lastWithdrawalWhitelist;
+    /// @notice Stores the last withdrawal timestamp for each NFT token for NFT-gated mode.
+    mapping(address nftGate => mapping(uint256 tokenId => uint256 lastWithdrawlTimestamp)) public lastWithdrawalNFT;
 
     /// @notice Only in the case of one time withdrawals.
     mapping(address => bool) public isWithdrawnByUser;
@@ -369,9 +369,8 @@ contract CookieJar is AccessControl {
             revert CookieJarLib.InvalidAccessType();
         if (gateAddress == address(0)) revert CookieJarLib.InvalidNFTGate();
         _checkAccessNFT(gateAddress, tokenId);        
-        bytes32 key = keccak256(abi.encodePacked(gateAddress, tokenId));
-        _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalNFT[key]);
-        lastWithdrawalNFT[key] = block.timestamp;
+        _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalNFT[gateAddress][tokenId]);
+        lastWithdrawalNFT[gateAddress][tokenId] = block.timestamp;
         _withdraw(amount, purpose);
     }
 
