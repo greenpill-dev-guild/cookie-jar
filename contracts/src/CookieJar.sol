@@ -282,6 +282,7 @@ contract CookieJar is AccessControl {
      * @param amount The amount of tokens to deposit.
      */
     function depositCurrency(uint256 amount) public {
+        if (currency == address(3)) revert CookieJarLib.InvalidTokenAddress();
         if (amount < minDeposit)
             revert CookieJarLib.LessThanMinimumDeposit();
 
