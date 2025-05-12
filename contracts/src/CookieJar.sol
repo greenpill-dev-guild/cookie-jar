@@ -62,9 +62,6 @@ contract CookieJar is AccessControl {
     /// @notice Stores the last withdrawal timestamp for each NFT token for NFT-gated mode.
     mapping(address nftGate => mapping(uint256 tokenId => uint256 lastWithdrawlTimestamp)) public lastWithdrawalNFT;
 
-    /// @notice Only in the case of one time withdrawals.
-    mapping(address => bool) public isWithdrawnByUser;
-
     // --- Constructor ---
 
     /**
@@ -369,7 +366,7 @@ contract CookieJar is AccessControl {
         if (accessType != CookieJarLib.AccessType.NFTGated)
             revert CookieJarLib.InvalidAccessType();
         if (gateAddress == address(0)) revert CookieJarLib.InvalidNFTGate();
-        _checkAccessNFT(gateAddress, tokenId);        
+        _checkAccessNFT(gateAddress, tokenId);
         _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalNFT[gateAddress][tokenId]);
         lastWithdrawalNFT[gateAddress][tokenId] = block.timestamp;
         _withdraw(amount, purpose);
@@ -457,9 +454,7 @@ contract CookieJar is AccessControl {
         if (strictPurpose && bytes(purpose).length < 20) {
             revert CookieJarLib.InvalidPurpose();
         }
-        if (oneTimeWithdrawal == true && isWithdrawnByUser[msg.sender] == true) {
-            revert CookieJarLib.WithdrawalAlreadyDone();
-        }
+        if (oneTimeWithdrawal == true && lastWithdrawal != 0) revert CookieJarLib.WithdrawalAlreadyDone();
         uint256 nextAllowed = lastWithdrawal + withdrawalInterval;
         if (block.timestamp < nextAllowed) {
             revert CookieJarLib.WithdrawalTooSoon(nextAllowed);
@@ -488,9 +483,6 @@ contract CookieJar is AccessControl {
             purpose: purpose
         });
         withdrawalData.push(temp);
-        if (oneTimeWithdrawal == true) {
-            isWithdrawnByUser[msg.sender] = true;
-        }
     }
 
     function _withdraw(uint256 amount, string calldata purpose) internal {
