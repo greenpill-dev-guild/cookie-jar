@@ -411,14 +411,14 @@ contract CookieJar is AccessControl {
 
     function _grantRole(bytes32 role, address account) internal override returns (bool success) {
         success = super._grantRole(role, account);
-        if (role == CookieJarLib.JAR_WHITELISTED && success) {
+        if (success && role == CookieJarLib.JAR_WHITELISTED) {
             whitelist.push(account);
         }
     }
 
     function _revokeRole(bytes32 role, address account) internal override returns (bool success) {
         success = super._revokeRole(role, account);
-        if (role == CookieJarLib.JAR_WHITELISTED && success) {
+        if (success && role == CookieJarLib.JAR_WHITELISTED) {
             for (uint256 i = 0; i < whitelist.length; i++) {
                 if (whitelist[i] == account) {
                     whitelist[i] = whitelist[whitelist.length - 1];
