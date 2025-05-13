@@ -44,9 +44,6 @@ library CookieJarLib {
         uint256 amount,
         string purpose
     );
-    /// @notice Emitted when a whitelist entry is updated.
-    event WhitelistUpdated(address[] users, bool statuses);
-    
     /// @notice Emitted when the fee collector address is updated.
     event FeeCollectorUpdated(
         address indexed oldFeeCollector,

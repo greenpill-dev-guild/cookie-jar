@@ -143,8 +143,6 @@ contract CookieJar is AccessControl {
         if (accessType != CookieJarLib.AccessType.Whitelist)
             revert CookieJarLib.InvalidAccessType();
         _grantRoles(CookieJarLib.JAR_WHITELISTED, _users);
-        // Emit the event after updating all addresses
-        emit CookieJarLib.WhitelistUpdated(_users, true);
     }
 
     function revokeJarWhitelistRole(
@@ -153,8 +151,6 @@ contract CookieJar is AccessControl {
         if (accessType != CookieJarLib.AccessType.Whitelist)
             revert CookieJarLib.InvalidAccessType();
         _revokeRoles(CookieJarLib.JAR_WHITELISTED, _users);
-        // Emit the event after updating all addresses
-        emit CookieJarLib.WhitelistUpdated(_users, false);
     }
 
     /**
