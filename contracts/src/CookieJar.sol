@@ -112,18 +112,7 @@ contract CookieJar is AccessControl {
                 revert CookieJarLib.WhitelistNotAllowedForNFTGated();
             // Add NFT gates using mapping for duplicate checks.
             for (uint256 i = 0; i < _nftAddresses.length; i++) {
-                if (_nftTypes[i] > 2) revert CookieJarLib.InvalidNFTType();
-                if (_nftAddresses[i] == address(0))
-                    revert CookieJarLib.InvalidNFTGate();
-                if (nftGateMapping[_nftAddresses[i]].nftAddress != address(0)) {
-                    revert CookieJarLib.DuplicateNFTGate();
-                }
-                CookieJarLib.NFTGate memory gate = CookieJarLib.NFTGate({
-                    nftAddress: _nftAddresses[i],
-                    nftType: CookieJarLib.NFTType(_nftTypes[i])
-                });
-                nftGates.push(gate);
-                nftGateMapping[_nftAddresses[i]] = gate;
+                _addNFTGate(_nftAddresses[i], _nftTypes[i]);
             }
         }
         withdrawalOption = _withdrawalOption;
@@ -181,17 +170,26 @@ contract CookieJar is AccessControl {
         emit CookieJarLib.FeeCollectorUpdated(old, _newFeeCollector);
     }
 
+    /// @notice Adds a new NFT gate if it is not already registered.
+    /// @param _nftAddress The NFT contract address.
+    /// @param _nftType The NFT type.
+    function addNFTGate(
+        address _nftAddress,
+        uint8 _nftType
+    ) external onlyRole(CookieJarLib.JAR_OWNER) {
+        if (accessType != CookieJarLib.AccessType.NFTGated) revert CookieJarLib.InvalidAccessType();
+        _addNFTGate(_nftAddress, _nftType);
+    }
+
     /**
      * @notice Adds a new NFT gate if it is not already registered.
      * @param _nftAddress The NFT contract address.
      * @param _nftType The NFT type.
      */
-    function addNFTGate(
+    function _addNFTGate(
         address _nftAddress,
         uint8 _nftType
-    ) external onlyRole(CookieJarLib.JAR_OWNER) {
-        if (accessType != CookieJarLib.AccessType.NFTGated)
-            revert CookieJarLib.InvalidAccessType();
+    ) internal {
         if (_nftAddress == address(0)) revert CookieJarLib.InvalidNFTGate();
         if (_nftType > 2) revert CookieJarLib.InvalidNFTType();
         if (nftGateMapping[_nftAddress].nftAddress != address(0)) {
