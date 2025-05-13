@@ -9,7 +9,7 @@ import { Loader2 } from "lucide-react";
 
 interface WhiteListAddressInputProps {
   mode: 'add' | 'remove';
-  currentWhitelist: `0x${string}`;
+  currentWhitelist: readonly `0x${string}`[];
   onSubmit: (addresses: `0x${string}`[]) => Promise<void>;
   buttonLabel?: string;
   placeholder?: string;
