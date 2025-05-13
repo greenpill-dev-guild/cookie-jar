@@ -87,7 +87,7 @@ export function useCookieJarFactory() {
           fetchJarDetails(address as Address)
         )
         
-        const jarDetails = await Promise.all(jarDetailsPromises)
+        const jarDetails = await Promise.all(jarDetailsPromises) //may wnat to use promise.allsettled instead
         const validJarDetails = jarDetails.filter(jar => jar !== null) as CookieJarInfo[]
         
         setJars(validJarDetails)
