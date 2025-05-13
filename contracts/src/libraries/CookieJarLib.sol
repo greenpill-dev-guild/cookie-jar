@@ -15,6 +15,7 @@ library CookieJarLib {
     }
     /// @notice Supported NFT types for gating.
     enum NFTType {
+        None,
         ERC721,
         ERC1155
     }

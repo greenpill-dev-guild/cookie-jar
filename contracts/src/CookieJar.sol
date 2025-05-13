@@ -25,7 +25,7 @@ contract CookieJar is AccessControl {
     CookieJarLib.WithdrawalData[] public withdrawalData;
 
     /// @notice Mapping for optimized NFT gate lookup.
-    mapping(address => CookieJarLib.NFTGate) private nftGateMapping;
+    mapping(address => CookieJarLib.NFTType) private nftGateMapping;
 
     // --- Core Configuration Variables ---
     uint256 public currencyHeldByJar;
@@ -188,7 +188,7 @@ contract CookieJar is AccessControl {
     ) internal {
         if (_nftAddress == address(0)) revert CookieJarLib.InvalidNFTGate();
         if (_nftType > 2) revert CookieJarLib.InvalidNFTType();
-        if (nftGateMapping[_nftAddress].nftAddress != address(0)) {
+        if (nftGateMapping[_nftAddress] != CookieJarLib.NFTType.None) {
             revert CookieJarLib.DuplicateNFTGate();
         }
         CookieJarLib.NFTGate memory gate = CookieJarLib.NFTGate({
@@ -196,7 +196,7 @@ contract CookieJar is AccessControl {
             nftType: CookieJarLib.NFTType(_nftType)
         });
         nftGates.push(gate);
-        nftGateMapping[_nftAddress] = gate;
+        nftGateMapping[_nftAddress] = CookieJarLib.NFTType(_nftType);
         emit CookieJarLib.NFTGateAdded(_nftAddress, _nftType);
     }
 
@@ -209,7 +209,7 @@ contract CookieJar is AccessControl {
     ) external onlyRole(CookieJarLib.JAR_OWNER) {
         if (accessType != CookieJarLib.AccessType.NFTGated)
             revert CookieJarLib.InvalidAccessType();
-        if (nftGateMapping[_nftAddress].nftAddress == address(0))
+        if (nftGateMapping[_nftAddress] == CookieJarLib.NFTType.None)
             revert CookieJarLib.NFTGateNotFound();
 
         delete nftGateMapping[_nftAddress];
@@ -306,16 +306,14 @@ contract CookieJar is AccessControl {
         internal
         view
     {
-        CookieJarLib.NFTGate memory gate = nftGateMapping[gateAddress];
-        if (gate.nftAddress == address(0)) revert CookieJarLib.InvalidNFTGate();
-        if (
-            gate.nftType == CookieJarLib.NFTType.ERC721
-        ) {
-            if (IERC721(gate.nftAddress).ownerOf(tokenId) != msg.sender) {
+        CookieJarLib.NFTType nftType = nftGateMapping[gateAddress];
+        if (nftType == CookieJarLib.NFTType.None) revert CookieJarLib.InvalidNFTGate();
+        if (nftType == CookieJarLib.NFTType.ERC721) {
+            if (IERC721(gateAddress).ownerOf(tokenId) != msg.sender) {
                 revert CookieJarLib.NotAuthorized();
             }
-        } else if (gate.nftType == CookieJarLib.NFTType.ERC1155) {
-            if (IERC1155(gate.nftAddress).balanceOf(msg.sender, tokenId) == 0) {
+        } else if (nftType == CookieJarLib.NFTType.ERC1155) {
+            if (IERC1155(gateAddress).balanceOf(msg.sender, tokenId) == 0) {
                 revert CookieJarLib.NotAuthorized();
             }
         }
