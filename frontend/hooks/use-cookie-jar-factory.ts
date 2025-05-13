@@ -1,10 +1,11 @@
 import { useCallback, useEffect, useState } from 'react'
-import { usePublicClient } from 'wagmi'
+import { useChainId, usePublicClient } from 'wagmi'
 import type { Address } from 'viem'
 import { 
   useReadCookieJarFactoryGetCookieJars,
   cookieJarAbi
 } from '../generated'
+import { contractAddresses } from '../config/supported-networks'
 
 // Define a type that includes important jar information
 export type CookieJarInfo = {
@@ -30,11 +31,18 @@ export function useCookieJarFactory() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
   
+  const chainId = useChainId()
   const publicClient = usePublicClient()
+  
+  // Get the factory address for the current chain
+  const factoryAddress = chainId 
+    ? contractAddresses.cookieJarFactory[chainId] : undefined
   
   // Get all jar addresses from the factory
   const { data: jarAddresses, isLoading: isLoadingAddresses, error: addressesError } = 
-    useReadCookieJarFactoryGetCookieJars()
+    useReadCookieJarFactoryGetCookieJars({
+      address: factoryAddress as Address
+    })
   
   // Function to fetch all details for a single jar
   const fetchJarDetails = useCallback(async (jarAddress: Address): Promise<CookieJarInfo | null> => {
@@ -128,6 +136,7 @@ export function useCookieJarByAddress(jarAddress?: Address) {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
   
+  const chainId = useChainId()
   const publicClient = usePublicClient()
   
   // Function to fetch details for a single jar
