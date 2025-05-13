@@ -226,6 +226,7 @@ export default function CreateCookieJarForm() {
             strictPurpose,
             emergencyWithdrawalEnabled,
             oneTimeWithdrawal,
+            [] as readonly `0x${string}`[], // Adding empty whitelist array TODO integrate w/ FE so users can pass an intiial whitelist on jar creaton
             metadata,
           ],
         })
