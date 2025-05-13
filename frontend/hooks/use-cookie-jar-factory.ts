@@ -11,6 +11,8 @@ import { contractAddresses } from '../config/supported-networks'
 export type CookieJarInfo = {
   jarAddress: Address
   currency: Address
+  jarCreator?: Address // Added for compatibility with JarData
+  metadata?: string // Added for compatibility with JarData
   accessType: number
   withdrawalOption: number
   fixedAmount: bigint
@@ -119,8 +121,15 @@ export function useCookieJarFactory() {
     }
   }, [addressesError])
 
+  // Prepare jar data in the same format expected by the jars page
+  const cookieJarsData = jars.map(jar => ({
+    ...jar,
+    jarCreator: '0x0000000000000000000000000000000000000000' as Address, // Placeholder
+    metadata: 'Jar Info' // Placeholder until actual metadata is available
+  }))
+  
   return {
-    jars,
+    cookieJarsData, // Named to match useCookieJarData interface
     isLoading: isLoading || isLoadingAddresses,
     error
   }
@@ -136,7 +145,6 @@ export function useCookieJarByAddress(jarAddress?: Address) {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState<Error | null>(null)
   
-  const chainId = useChainId()
   const publicClient = usePublicClient()
   
   // Function to fetch details for a single jar
