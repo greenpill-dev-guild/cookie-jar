@@ -24,7 +24,7 @@ const contractAddresses = {
 }
 
 export default defineConfig({
-  out: 'generated2.ts',
+  out: 'generated.ts',
   // Add ERC20 to the root level contracts array
   contracts: [
     {
