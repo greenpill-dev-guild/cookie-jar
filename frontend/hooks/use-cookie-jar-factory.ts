@@ -1,0 +1,199 @@
+import { useCallback, useEffect, useState } from 'react'
+import { usePublicClient } from 'wagmi'
+import type { Address } from 'viem'
+import { 
+  useReadCookieJarFactoryGetCookieJars,
+  cookieJarAbi
+} from '../generated'
+
+// Define a type that includes important jar information
+export type CookieJarInfo = {
+  jarAddress: Address
+  currency: Address
+  accessType: number
+  withdrawalOption: number
+  fixedAmount: bigint
+  maxWithdrawal: bigint
+  withdrawalInterval: bigint
+  strictPurpose: boolean
+  emergencyWithdrawalEnabled: boolean
+  oneTimeWithdrawal: boolean
+  currencyHeldByJar?: bigint
+}
+
+/**
+ * Hook to get all jar information directly from the factory and jar contracts
+ * @returns Array of jars with their details
+ */
+export function useCookieJarFactory() {
+  const [jars, setJars] = useState<CookieJarInfo[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
+  
+  const publicClient = usePublicClient()
+  
+  // Get all jar addresses from the factory
+  const { data: jarAddresses, isLoading: isLoadingAddresses, error: addressesError } = 
+    useReadCookieJarFactoryGetCookieJars()
+  
+  // Function to fetch all details for a single jar
+  const fetchJarDetails = useCallback(async (jarAddress: Address): Promise<CookieJarInfo | null> => {
+    try {
+      // Use multicall to fetch multiple values in a single request
+      const [currency, accessType, withdrawalOption, fixedAmount, maxWithdrawal, withdrawalInterval, 
+             strictPurpose, emergencyWithdrawalEnabled, oneTimeWithdrawal, currencyHeldByJar] = 
+        await publicClient.multicall({
+          contracts: [
+            { address: jarAddress, abi: cookieJarAbi, functionName: 'currency' },
+            { address: jarAddress, abi: cookieJarAbi, functionName: 'accessType' },
+            { address: jarAddress, abi: cookieJarAbi, functionName: 'withdrawalOption' },
+            { address: jarAddress, abi: cookieJarAbi, functionName: 'fixedAmount' },
+            { address: jarAddress, abi: cookieJarAbi, functionName: 'maxWithdrawal' },
+            { address: jarAddress, abi: cookieJarAbi, functionName: 'withdrawalInterval' },
+            { address: jarAddress, abi: cookieJarAbi, functionName: 'strictPurpose' },
+            { address: jarAddress, abi: cookieJarAbi, functionName: 'emergencyWithdrawalEnabled' },
+            { address: jarAddress, abi: cookieJarAbi, functionName: 'oneTimeWithdrawal' },
+            { address: jarAddress, abi: cookieJarAbi, functionName: 'currencyHeldByJar' }
+          ]
+        })
+      
+      return {
+        jarAddress,
+        currency: currency.result as Address,
+        accessType: accessType.result as number,
+        withdrawalOption: withdrawalOption.result as number,
+        fixedAmount: fixedAmount.result as bigint,
+        maxWithdrawal: maxWithdrawal.result as bigint,
+        withdrawalInterval: withdrawalInterval.result as bigint,
+        strictPurpose: strictPurpose.result as boolean,
+        emergencyWithdrawalEnabled: emergencyWithdrawalEnabled.result as boolean,
+        oneTimeWithdrawal: oneTimeWithdrawal.result as boolean,
+        currencyHeldByJar: currencyHeldByJar.result as bigint
+      }
+    } catch (err) {
+      console.error(`Error fetching details for jar ${jarAddress}:`, err)
+      return null
+    }
+  }, [publicClient])
+
+  // Fetch all jars when addresses are available
+  useEffect(() => {
+    const fetchAllJars = async () => {
+      if (!jarAddresses || jarAddresses.length === 0) return
+      
+      setIsLoading(true)
+      try {
+        const jarDetailsPromises = jarAddresses.map(address => 
+          fetchJarDetails(address as Address)
+        )
+        
+        const jarDetails = await Promise.all(jarDetailsPromises)
+        const validJarDetails = jarDetails.filter(jar => jar !== null) as CookieJarInfo[]
+        
+        setJars(validJarDetails)
+        setError(null)
+      } catch (err) {
+        setError(err instanceof Error ? err : new Error(String(err)))
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
+    fetchAllJars()
+  }, [jarAddresses, fetchJarDetails])
+
+  // Error handling
+  useEffect(() => {
+    if (addressesError) {
+      setError(addressesError instanceof Error 
+        ? addressesError 
+        : new Error(String(addressesError)))
+    }
+  }, [addressesError])
+
+  return {
+    jars,
+    isLoading: isLoading || isLoadingAddresses,
+    error
+  }
+}
+
+/**
+ * Hook to get information about a specific jar by its address
+ * @param jarAddress The address of the jar to fetch details for
+ * @returns Jar details
+ */
+export function useCookieJarByAddress(jarAddress?: Address) {
+  const [jar, setJar] = useState<CookieJarInfo | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [error, setError] = useState<Error | null>(null)
+  
+  const publicClient = usePublicClient()
+  
+  // Function to fetch details for a single jar
+  const fetchJarDetails = useCallback(async (address: Address): Promise<CookieJarInfo | null> => {
+    try {
+      const [currency, accessType, withdrawalOption, fixedAmount, maxWithdrawal, withdrawalInterval, 
+             strictPurpose, emergencyWithdrawalEnabled, oneTimeWithdrawal, currencyHeldByJar] = 
+        await publicClient.multicall({
+          contracts: [
+            { address, abi: cookieJarAbi, functionName: 'currency' },
+            { address, abi: cookieJarAbi, functionName: 'accessType' },
+            { address, abi: cookieJarAbi, functionName: 'withdrawalOption' },
+            { address, abi: cookieJarAbi, functionName: 'fixedAmount' },
+            { address, abi: cookieJarAbi, functionName: 'maxWithdrawal' },
+            { address, abi: cookieJarAbi, functionName: 'withdrawalInterval' },
+            { address, abi: cookieJarAbi, functionName: 'strictPurpose' },
+            { address, abi: cookieJarAbi, functionName: 'emergencyWithdrawalEnabled' },
+            { address, abi: cookieJarAbi, functionName: 'oneTimeWithdrawal' },
+            { address, abi: cookieJarAbi, functionName: 'currencyHeldByJar' }
+          ]
+        })
+      
+      return {
+        jarAddress: address,
+        currency: currency.result as Address,
+        accessType: accessType.result as number,
+        withdrawalOption: withdrawalOption.result as number,
+        fixedAmount: fixedAmount.result as bigint,
+        maxWithdrawal: maxWithdrawal.result as bigint,
+        withdrawalInterval: withdrawalInterval.result as bigint,
+        strictPurpose: strictPurpose.result as boolean,
+        emergencyWithdrawalEnabled: emergencyWithdrawalEnabled.result as boolean,
+        oneTimeWithdrawal: oneTimeWithdrawal.result as boolean,
+        currencyHeldByJar: currencyHeldByJar.result as bigint
+      }
+    } catch (err) {
+      console.error(`Error fetching details for jar ${address}:`, err)
+      return null
+    }
+  }, [publicClient])
+
+  useEffect(() => {
+    if (!jarAddress) {
+      setJar(null)
+      setIsLoading(false)
+      return
+    }
+    
+    setIsLoading(true)
+    
+    fetchJarDetails(jarAddress)
+      .then(jarInfo => {
+        setJar(jarInfo)
+        setError(null)
+      })
+      .catch(err => {
+        setError(err instanceof Error ? err : new Error(String(err)))
+      })
+      .finally(() => {
+        setIsLoading(false)
+      })
+  }, [jarAddress, fetchJarDetails])
+
+  return {
+    jar,
+    isLoading,
+    error
+  }
+}
