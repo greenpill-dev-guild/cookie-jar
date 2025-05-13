@@ -63,6 +63,15 @@ export const cookieJarAbi = [
   },
   {
     type: 'function',
+    inputs: [
+      { name: '_maxWithdrawal', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'UpdateMaxWithdrawalAmount',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
     inputs: [],
     name: 'accessType',
     outputs: [
@@ -341,9 +350,9 @@ export const cookieJarAbi = [
   {
     type: 'function',
     inputs: [
-      { name: '_maxWithdrawal', internalType: 'uint256', type: 'uint256' },
+      { name: '_fixedAmount', internalType: 'uint256', type: 'uint256' },
     ],
-    name: 'updateMaxWithdrawal',
+    name: 'updateFixedWithdrawalAmount',
     outputs: [],
     stateMutability: 'nonpayable',
   },
@@ -483,6 +492,19 @@ export const cookieJarAbi = [
       },
     ],
     name: 'FeeCollectorUpdated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'newFixedWithdrawalAmount',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'FixedWithdrawalAmountUpdated',
   },
   {
     type: 'event',
@@ -1702,6 +1724,15 @@ export const useWriteCookieJar = /*#__PURE__*/ createUseWriteContract({
 })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"UpdateMaxWithdrawalAmount"`
+ */
+export const useWriteCookieJarUpdateMaxWithdrawalAmount =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: cookieJarAbi,
+    functionName: 'UpdateMaxWithdrawalAmount',
+  })
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"addNFTGate"`
  */
 export const useWriteCookieJarAddNftGate = /*#__PURE__*/ createUseWriteContract(
@@ -1794,12 +1825,12 @@ export const useWriteCookieJarUpdateFeeCollector =
   })
 
 /**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"updateMaxWithdrawal"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"updateFixedWithdrawalAmount"`
  */
-export const useWriteCookieJarUpdateMaxWithdrawal =
+export const useWriteCookieJarUpdateFixedWithdrawalAmount =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarAbi,
-    functionName: 'updateMaxWithdrawal',
+    functionName: 'updateFixedWithdrawalAmount',
   })
 
 /**
@@ -1835,6 +1866,15 @@ export const useWriteCookieJarWithdrawWhitelistMode =
 export const useSimulateCookieJar = /*#__PURE__*/ createUseSimulateContract({
   abi: cookieJarAbi,
 })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"UpdateMaxWithdrawalAmount"`
+ */
+export const useSimulateCookieJarUpdateMaxWithdrawalAmount =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: cookieJarAbi,
+    functionName: 'UpdateMaxWithdrawalAmount',
+  })
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"addNFTGate"`
@@ -1936,12 +1976,12 @@ export const useSimulateCookieJarUpdateFeeCollector =
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"updateMaxWithdrawal"`
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"updateFixedWithdrawalAmount"`
  */
-export const useSimulateCookieJarUpdateMaxWithdrawal =
+export const useSimulateCookieJarUpdateFixedWithdrawalAmount =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
-    functionName: 'updateMaxWithdrawal',
+    functionName: 'updateFixedWithdrawalAmount',
   })
 
 /**
@@ -2003,6 +2043,15 @@ export const useWatchCookieJarFeeCollectorUpdatedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarAbi,
     eventName: 'FeeCollectorUpdated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"FixedWithdrawalAmountUpdated"`
+ */
+export const useWatchCookieJarFixedWithdrawalAmountUpdatedEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: cookieJarAbi,
+    eventName: 'FixedWithdrawalAmountUpdated',
   })
 
 /**
