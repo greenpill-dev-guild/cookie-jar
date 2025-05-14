@@ -1,3 +1,5 @@
+"use client"
+
 import { useCallback, useEffect, useState } from 'react'
 import { useChainId, usePublicClient } from 'wagmi'
 import type { Address } from 'viem'
