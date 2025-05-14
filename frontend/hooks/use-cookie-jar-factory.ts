@@ -3,6 +3,7 @@ import { useChainId, usePublicClient } from 'wagmi'
 import type { Address } from 'viem'
 import { 
   useReadCookieJarFactoryGetCookieJars,
+  useReadCookieJarFactoryGetMetadatas,
   cookieJarAbi
 } from '../generated'
 import { contractAddresses } from '../config/supported-networks'
@@ -45,6 +46,15 @@ export function useCookieJarFactory() {
     useReadCookieJarFactoryGetCookieJars({
       address: factoryAddress as Address
     })
+    
+  // Get the metadata for all jars
+  const { 
+    data: jarMetadatas, 
+    isLoading: isLoadingMetadatas, 
+    error: metadatasError 
+  } = useReadCookieJarFactoryGetMetadatas({
+    address: factoryAddress as Address
+  })
   
   // Function to fetch all details for a single jar
   const fetchJarDetails = useCallback(async (jarAddress: Address): Promise<CookieJarInfo | null> => {
@@ -100,7 +110,13 @@ export function useCookieJarFactory() {
         const jarDetails = await Promise.all(jarDetailsPromises) //may wnat to use promise.allsettled instead
         const validJarDetails = jarDetails.filter(jar => jar !== null) as CookieJarInfo[]
         
-        setJars(validJarDetails)
+        // Update jar data to include metadata
+        const updatedJars = validJarDetails.map((jar, index) => ({
+          ...jar,
+          metadata: jarMetadatas && index < jarMetadatas.length ? jarMetadatas[index] : 'Jar Info'
+        }))
+        
+        setJars(updatedJars)
         setError(null)
       } catch (err) {
         setError(err instanceof Error ? err : new Error(String(err)))
@@ -109,28 +125,34 @@ export function useCookieJarFactory() {
       }
     }
 
-    fetchAllJars()
-  }, [jarAddresses, fetchJarDetails])
+    // Only fetch jars when both addresses and metadatas are loaded (or if metadatas failed)
+    if (jarAddresses && (!isLoadingMetadatas || metadatasError)) {
+      fetchAllJars()
+    }
+  }, [jarAddresses, isLoadingMetadatas, metadatasError, fetchJarDetails, jarMetadatas])
 
-  // Error handling
+  // Error handling for addresses and metadata errors
   useEffect(() => {
     if (addressesError) {
       setError(addressesError instanceof Error 
         ? addressesError 
         : new Error(String(addressesError)))
+    } else if (metadatasError) {
+      setError(metadatasError instanceof Error 
+        ? metadatasError 
+        : new Error(String(metadatasError)))
     }
-  }, [addressesError])
+  }, [addressesError, metadatasError])
 
-  // Prepare jar data in the same format expected by the jars page
+  // For compatibility with the jars page interface
   const cookieJarsData = jars.map(jar => ({
     ...jar,
-    jarCreator: '0x0000000000000000000000000000000000000000' as Address, // Placeholder
-    metadata: 'Jar Info' // Placeholder until actual metadata is available
+    jarCreator: '0x0000000000000000000000000000000000000000' as Address // placeholder address
   }))
   
   return {
     cookieJarsData, // Named to match useCookieJarData interface
-    isLoading: isLoading || isLoadingAddresses,
+    isLoading: isLoading || isLoadingAddresses || isLoadingMetadatas,
     error
   }
 }
