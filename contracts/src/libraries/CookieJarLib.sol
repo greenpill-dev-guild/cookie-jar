@@ -15,6 +15,7 @@ library CookieJarLib {
     }
     /// @notice Supported NFT types for gating.
     enum NFTType {
+        None,
         ERC721,
         ERC1155
     }
@@ -42,19 +43,15 @@ library CookieJarLib {
     event Withdrawal(
         address indexed recipient,
         uint256 amount,
-        string purpose,
-        address token
+        string purpose
     );
-    /// @notice Emitted when a whitelist entry is updated.
-    event WhitelistUpdated(address[] users, bool statuses);
-    
     /// @notice Emitted when the fee collector address is updated.
     event FeeCollectorUpdated(
         address indexed oldFeeCollector,
         address indexed newFeeCollector
     );
     /// @notice Emitted when an NFT gate is added.
-    event NFTGateAdded(address nftAddress, uint8 nftType);
+    event NFTGateAdded(address nftAddress, NFTType nftType);
     /// @notice Emitted when an emergency withdrawal is executed.
     event EmergencyWithdrawal(
         address indexed admin,

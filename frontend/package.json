@@ -8,7 +8,11 @@
     "start": "next start",
     "lint": "next lint",
     "generate": "wagmi generate --config config/wagmi.config.ts",
+<<<<<<< HEAD
     "generate:watch": "wagmi generate --config config/wagmi.config.ts --watch"
+=======
+    "generate:watch": "wagmi generate --config config/wagmi.config.ts"
+>>>>>>> origin/dev
   },
   "dependencies": {
     "@hookform/resolvers": "^3.3.2",

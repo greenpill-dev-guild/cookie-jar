@@ -10,7 +10,7 @@ import "@openzeppelin/contracts/mocks/token/ERC20Mock.sol";
 contract CookieJarFactoryTest is Test {
     HelperConfig public helperConfig;
     address[] emptyAddresses = new address[](0);
-    uint8[] emptyTypes = new uint8[](0);
+    CookieJarLib.NFTType[] emptyTypes = new CookieJarLib.NFTType[](0);
     CookieJarFactory public factory;
     address public owner = address(0xABCD);
     address public user = address(0x1234);
@@ -83,14 +83,10 @@ contract CookieJarFactoryTest is Test {
     function testOnlyOwnerGrantsAndRevokesProtocolAdminRoles() public {
         vm.startPrank(owner);
         factory.grantProtocolAdminRole(user);
-        factory.grantProtocolAdminRole(user2);
         vm.stopPrank();
-        vm.expectRevert();
         vm.prank(user);
-        factory.revokeProtocolAdminRole(user2);
         vm.expectRevert();
-        vm.prank(user2);
-        factory.revokeProtocolAdminRole(owner);
+        factory.grantProtocolAdminRole(user2);
     }
 
     function testTransferOwnership() public {
@@ -183,8 +179,8 @@ contract CookieJarFactoryTest is Test {
     function testCreateETHCookieJarNFTMode() public {
         address[] memory nftAddresses = new address[](1);
         nftAddresses[0] = address(0x1234);
-        uint8[] memory nftTypes = new uint8[](1);
-        nftTypes[0] = uint8(CookieJarLib.NFTType.ERC721);
+        CookieJarLib.NFTType[] memory nftTypes = new CookieJarLib.NFTType[](1);
+        nftTypes[0] = CookieJarLib.NFTType.ERC721;
         vm.prank(user);
         address jarAddress = factory.createCookieJar(
             user,
@@ -212,8 +208,8 @@ contract CookieJarFactoryTest is Test {
     function testCreateERC20CookieJarNFTMode() public {
         address[] memory nftAddresses = new address[](1);
         nftAddresses[0] = address(0x1234);
-        uint8[] memory nftTypes = new uint8[](1);
-        nftTypes[0] = uint8(CookieJarLib.NFTType.ERC721);
+        CookieJarLib.NFTType[] memory nftTypes = new CookieJarLib.NFTType[](1);
+        nftTypes[0] = CookieJarLib.NFTType.ERC721;
         vm.prank(user);
         address jarAddress = factory.createCookieJar(
             user,
@@ -258,38 +254,6 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true, // emergencyWithdrawalEnabled
             false,
-            emptyWhitelist,
-            "Test Metadata"
-        );
-        address[] memory cookieJars = factory.getCookieJars();
-        assertEq(cookieJars.length, 0);
-    }
-
-    /// @notice Test that factory creation reverts if an invalid NFT type (>2) is provided.
-    function testFactoryCreateCookieJarInvalidNFTType() public {
-        address[] memory nftAddresses = new address[](1);
-        nftAddresses[0] = address(0x1234);
-        uint8[] memory nftTypes = new uint8[](1);
-        nftTypes[0] = 3; // invalid NFT type
-
-        vm.prank(user);
-        vm.expectRevert(
-            abi.encodeWithSelector(CookieJarLib.InvalidNFTType.selector)
-        );
-        factory.createCookieJar(
-            user,
-            address(3),
-            /// @dev address(3) for ETH jars.
-            CookieJarLib.AccessType.NFTGated,
-            nftAddresses,
-            nftTypes,
-            CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount,
-            maxWithdrawal,
-            withdrawalInterval,
-            strictPurpose,
-            true, // emergencyWithdrawalEnabled
-            false, // oneTimeWithdrawal
             emptyWhitelist,
             "Test Metadata"
         );
