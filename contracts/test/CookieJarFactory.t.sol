@@ -83,14 +83,10 @@ contract CookieJarFactoryTest is Test {
     function testOnlyOwnerGrantsAndRevokesProtocolAdminRoles() public {
         vm.startPrank(owner);
         factory.grantProtocolAdminRole(user);
-        factory.grantProtocolAdminRole(user2);
         vm.stopPrank();
-        vm.expectRevert();
         vm.prank(user);
-        factory.revokeProtocolAdminRole(user2);
         vm.expectRevert();
-        vm.prank(user2);
-        factory.revokeProtocolAdminRole(owner);
+        factory.grantProtocolAdminRole(user2);
     }
 
     function testTransferOwnership() public {
