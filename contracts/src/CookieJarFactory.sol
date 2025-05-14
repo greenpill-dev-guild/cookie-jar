@@ -113,9 +113,6 @@ contract CookieJarFactory is AccessControl {
     function revokeBlacklistedJarCreatorsRole(
         address[] calldata _users
     ) external onlyRole(PROTOCOL_ADMIN) {
-        if (hasRole(BLACKLISTED_JAR_CREATORS, msg.sender) != true) {
-            revert CookieJarFactory__UserIsNotBlacklisted();
-        }
         if (_users.length == 0) {
             revert CookieJarFactory__MismatchedArrayLengths();
         }
