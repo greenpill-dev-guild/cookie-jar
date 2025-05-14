@@ -28,16 +28,11 @@ contract CookieJarFactory is AccessControl {
     uint256 public minERC20Deposit;
 
     // --- Custom Error ---
-    error CookieJarFactory__NotFeeCollector();
-    error CookieJarFactory__TransferFailed();
-    error CookieJarFactory__LessThanMinimumDeposit();
     error CookieJarFactory__Blacklisted();
     error CookieJarFactory__NotAuthorized();
     error CookieJarFactory__MismatchedArrayLengths();
     error CookieJarFactory__UserIsNotBlacklisted();
     error CookieJarFactory__NotValidERC20();
-    error CookieJarFactory__NotSufficientAllowance();
-    error CookieJarFactory__WithdrawingMoreThanDeposited();
 
     // --- Events ---
     event CookieJarCreated(
@@ -63,10 +58,11 @@ contract CookieJarFactory is AccessControl {
     }
 
     /**
-     * @param _defaultFeeCollector The default fee collector address.
+     * @param _defaultFeeCollector The address that will receive the fees from all deposits on all jars.
      * @param _owner The contract owner address.
-     * @param _feePercentage The default fee percentage for all deposits on all vaults.
-     * Fee is calculated inside Jar contract whenever a deposit is made, according to the decimals of the currency.
+     * @param _feePercentage The default fee percentage for all deposits on all jars. 100% = 10000.
+     * @param _minETHDeposit The minimum ETH deposit amount.
+     * @param _minERC20Deposit The minimum ERC20 deposit amount.
      */
     constructor(
         address _defaultFeeCollector,
@@ -138,19 +134,6 @@ contract CookieJarFactory is AccessControl {
     }
 
     /**
-     * @notice Revokes the protocol admin role from a given address.
-     * @notice Only the owner can revoke the protocol admin role.
-     * @param _admin The address to revoke.
-     */
-    function revokeProtocolAdminRole(address _admin) external onlyRole(OWNER) {
-        if (hasRole(PROTOCOL_ADMIN, _admin) != true) {
-            revert CookieJarFactory__NotAuthorized();
-        }
-        _revokeRole(PROTOCOL_ADMIN, _admin);
-        emit ProtocolAdminUpdated(msg.sender, _admin);
-    }
-
-    /**
      * @notice Grants owner role to a new address, and revokes previous owner with the owner role.
      * @param _newOwner Address of the new owner.
      */
@@ -183,7 +166,7 @@ contract CookieJarFactory is AccessControl {
         address _supportedCurrency,
         CookieJarLib.AccessType _accessType,
         address[] calldata _nftAddresses,
-        uint8[] calldata _nftTypes,
+        CookieJarLib.NFTType[] calldata _nftTypes,
         CookieJarLib.WithdrawalTypeOptions _withdrawalOption,
         uint256 _fixedAmount,
         uint256 _maxWithdrawal,
