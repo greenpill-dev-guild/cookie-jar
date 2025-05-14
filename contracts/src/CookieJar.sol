@@ -85,7 +85,7 @@ contract CookieJar is AccessControl {
         address _supportedCurrency,
         CookieJarLib.AccessType _accessType,
         address[] memory _nftAddresses,
-        uint8[] memory _nftTypes,
+        CookieJarLib.NFTType[] memory _nftTypes,
         CookieJarLib.WithdrawalTypeOptions _withdrawalOption,
         uint256 _fixedAmount,
         uint256 _maxWithdrawal,
@@ -110,7 +110,6 @@ contract CookieJar is AccessControl {
                 revert CookieJarLib.NFTArrayLengthMismatch();
             if (_whitelist.length > 0)
                 revert CookieJarLib.WhitelistNotAllowedForNFTGated();
-            // Add NFT gates using mapping for duplicate checks.
             for (uint256 i = 0; i < _nftAddresses.length; i++) {
                 _addNFTGate(_nftAddresses[i], _nftTypes[i]);
             }
@@ -171,7 +170,7 @@ contract CookieJar is AccessControl {
     /// @param _nftType The NFT type.
     function addNFTGate(
         address _nftAddress,
-        uint8 _nftType
+        CookieJarLib.NFTType _nftType
     ) external onlyRole(CookieJarLib.JAR_OWNER) {
         if (accessType != CookieJarLib.AccessType.NFTGated) revert CookieJarLib.InvalidAccessType();
         _addNFTGate(_nftAddress, _nftType);
@@ -184,19 +183,18 @@ contract CookieJar is AccessControl {
      */
     function _addNFTGate(
         address _nftAddress,
-        uint8 _nftType
+        CookieJarLib.NFTType _nftType
     ) internal {
         if (_nftAddress == address(0)) revert CookieJarLib.InvalidNFTGate();
-        if (_nftType > 2) revert CookieJarLib.InvalidNFTType();
         if (nftGateMapping[_nftAddress] != CookieJarLib.NFTType.None) {
             revert CookieJarLib.DuplicateNFTGate();
         }
         CookieJarLib.NFTGate memory gate = CookieJarLib.NFTGate({
             nftAddress: _nftAddress,
-            nftType: CookieJarLib.NFTType(_nftType)
+            nftType: _nftType
         });
         nftGates.push(gate);
-        nftGateMapping[_nftAddress] = CookieJarLib.NFTType(_nftType);
+        nftGateMapping[_nftAddress] = _nftType;
         emit CookieJarLib.NFTGateAdded(_nftAddress, _nftType);
     }
 

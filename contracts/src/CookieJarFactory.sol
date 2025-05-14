@@ -178,7 +178,7 @@ contract CookieJarFactory is AccessControl {
         address _supportedCurrency,
         CookieJarLib.AccessType _accessType,
         address[] calldata _nftAddresses,
-        uint8[] calldata _nftTypes,
+        CookieJarLib.NFTType[] calldata _nftTypes,
         CookieJarLib.WithdrawalTypeOptions _withdrawalOption,
         uint256 _fixedAmount,
         uint256 _maxWithdrawal,

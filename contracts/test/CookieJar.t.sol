@@ -76,9 +76,9 @@ contract CookieJarTest is Test {
 
     address[] public users;
     address[] public emptyAddresses;
-    uint8[] public emptyTypes;
+    CookieJarLib.NFTType[] public emptyTypes;
     address[] public nftAddresses;
-    uint8[] public nftTypes;
+    CookieJarLib.NFTType[] public nftTypes;
     address[] public emptyWhitelist;
     function setUp() public {
         helperConfig = new HelperConfig();
@@ -94,13 +94,13 @@ contract CookieJarTest is Test {
         users[1] = user2;
 
         emptyAddresses = new address[](0);
-        emptyTypes = new uint8[](0);
+        emptyTypes = new CookieJarLib.NFTType[](0);
         emptyWhitelist = new address[](0);
 
         nftAddresses = new address[](1);
         nftAddresses[0] = address(dummyERC721);
-        nftTypes = new uint8[](1);
-        nftTypes[0] = uint8(CookieJarLib.NFTType.ERC721);
+        nftTypes = new CookieJarLib.NFTType[](1);
+        nftTypes[0] = CookieJarLib.NFTType.ERC721;
 
         vm.deal(owner, 100_000 ether);
         dummyToken.mint(owner, 100_000 * 1e18);
@@ -408,10 +408,10 @@ contract CookieJarTest is Test {
     function testAddNFTGate() public {
         uint256 nftGatesLengthBefore = jarNFTETH.getNFTGatesArray().length;
         vm.startPrank(owner);
-        jarNFTETH.addNFTGate(address(1), uint8(CookieJarLib.NFTType.ERC1155));
-        jarNFTETH.addNFTGate(address(2), uint8(CookieJarLib.NFTType.ERC1155));
-        jarNFTETH.addNFTGate(address(3), uint8(CookieJarLib.NFTType.ERC1155));
-        jarNFTETH.addNFTGate(address(4), uint8(CookieJarLib.NFTType.ERC1155));
+        jarNFTETH.addNFTGate(address(1), CookieJarLib.NFTType.ERC1155);
+        jarNFTETH.addNFTGate(address(2), CookieJarLib.NFTType.ERC1155);
+        jarNFTETH.addNFTGate(address(3), CookieJarLib.NFTType.ERC1155);
+        jarNFTETH.addNFTGate(address(4), CookieJarLib.NFTType.ERC1155);
         assertEq(jarNFTETH.getNFTGatesArray().length, nftGatesLengthBefore + 4);
         assertEq(jarNFTETH.getNFTGatesArray()[nftGatesLengthBefore].nftAddress, address(1));
         assertEq(jarNFTETH.getNFTGatesArray()[nftGatesLengthBefore + 1].nftAddress, address(2));
@@ -423,18 +423,18 @@ contract CookieJarTest is Test {
     function testRemovingNFT() public {
         // Ensure first gate addition is by admin
         vm.prank(owner);
-        jarNFTETH.addNFTGate(address(1), uint8(CookieJarLib.NFTType.ERC1155));
+        jarNFTETH.addNFTGate(address(1), CookieJarLib.NFTType.ERC1155);
 
         // Potential issue: this subsequent call might not have admin context
         // Either prank again or ensure this is called within admin context
         vm.prank(owner); // Add this line to ensure admin context
-        jarNFTETH.addNFTGate(address(2), uint8(CookieJarLib.NFTType.ERC1155));
+        jarNFTETH.addNFTGate(address(2), CookieJarLib.NFTType.ERC1155);
 
         vm.prank(owner);
-        jarNFTETH.addNFTGate(address(3), uint8(CookieJarLib.NFTType.ERC1155));
+        jarNFTETH.addNFTGate(address(3), CookieJarLib.NFTType.ERC1155);
 
         vm.prank(owner);
-        jarNFTETH.addNFTGate(address(4), uint8(CookieJarLib.NFTType.ERC1155));
+        jarNFTETH.addNFTGate(address(4), CookieJarLib.NFTType.ERC1155);
 
         vm.prank(owner);
         jarNFTETH.removeNFTGate(address(2));
@@ -475,41 +475,6 @@ contract CookieJarTest is Test {
     }
 
     // ===== New Test Cases for New Validations =====
-
-    // Test that the constructor reverts if an invalid NFT type (>2) is provided.
-    function testConstructorInvalidNFTType() public {
-        uint8[] memory nftTypesTemp = new uint8[](1);
-        nftTypesTemp[0] = 3; // Invalid NFT type
-        vm.expectRevert(
-            abi.encodeWithSelector(CookieJarLib.InvalidNFTType.selector)
-        );
-        factory.createCookieJar(
-            owner,
-            address(3),
-            /// @dev address(3) for ETH jars.
-            CookieJarLib.AccessType.NFTGated,
-            nftAddresses,
-            nftTypesTemp,
-            CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount,
-            maxWithdrawal,
-            withdrawalInterval,
-            strictPurpose,
-            true, // emergencyWithdrawalEnabled
-            false,
-            emptyWhitelist,
-            "Test Metadata"
-        );
-    }
-
-    // Test that addNFTGate reverts if an invalid NFT type (>2) is provided.
-    function testAddNFTGateInvalidNFTType() public {
-        vm.prank(owner);
-        vm.expectRevert(
-            abi.encodeWithSelector(CookieJarLib.InvalidNFTType.selector)
-        );
-        jarNFTETH.addNFTGate(address(0xDEAD), 3);
-    }
 
     function testUpdateMaxWithdrawal() public {
         vm.prank(owner);
@@ -564,7 +529,7 @@ contract CookieJarTest is Test {
         vm.prank(owner);
         jarNFTETH.addNFTGate(
             address(dummyERC1155),
-            uint8(CookieJarLib.NFTType.ERC1155)
+            CookieJarLib.NFTType.ERC1155
         );
 
         // Mint an NFT dummyToken (ERC1155) for the user.
@@ -1065,9 +1030,9 @@ contract CookieJarTest is Test {
         address[] memory dupAddresses = new address[](2);
         dupAddresses[0] = address(dummyERC721);
         dupAddresses[1] = address(dummyERC721); // duplicate
-        uint8[] memory dupTypes = new uint8[](2);
-        dupTypes[0] = uint8(CookieJarLib.NFTType.ERC721);
-        dupTypes[1] = uint8(CookieJarLib.NFTType.ERC721);
+        CookieJarLib.NFTType[] memory dupTypes = new CookieJarLib.NFTType[](2);
+        dupTypes[0] = CookieJarLib.NFTType.ERC721;
+        dupTypes[1] = CookieJarLib.NFTType.ERC721;
         vm.expectRevert(
             abi.encodeWithSelector(CookieJarLib.DuplicateNFTGate.selector)
         );
@@ -1100,7 +1065,7 @@ contract CookieJarTest is Test {
         );
         jarNFTETH.addNFTGate(
             address(dummyERC721),
-            uint8(CookieJarLib.NFTType.ERC721)
+            CookieJarLib.NFTType.ERC721
         );
     }   
 

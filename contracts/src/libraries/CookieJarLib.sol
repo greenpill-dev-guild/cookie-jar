@@ -51,7 +51,7 @@ library CookieJarLib {
         address indexed newFeeCollector
     );
     /// @notice Emitted when an NFT gate is added.
-    event NFTGateAdded(address nftAddress, uint8 nftType);
+    event NFTGateAdded(address nftAddress, NFTType nftType);
     /// @notice Emitted when an emergency withdrawal is executed.
     event EmergencyWithdrawal(
         address indexed admin,
