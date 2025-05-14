@@ -75,7 +75,7 @@ contract CookieJar is AccessControl {
      * @param _maxWithdrawal Maximum allowed withdrawal (if _withdrawalOption is Variable).
      * @param _withdrawalInterval Time interval between withdrawals.
      * @param _strictPurpose If true, the withdrawal purpose must be at least 20 characters.
-     * @param _defaultFeeCollector The fee collector address.
+     * @param _feeCollector The fee collector address.
      * @param _emergencyWithdrawalEnabled If true, emergency withdrawal is enabled.
      * @param _oneTimeWithdrawal If true, each recipient can only claim from the jar once.
      * @param _whitelist Array of whitelisted addresses. Must be empty if _accessType is NFTGated, as whitelist is not used in this mode.
@@ -93,14 +93,14 @@ contract CookieJar is AccessControl {
         uint256 _minDeposit,
         uint256 _feePercentageOnDeposit,
         bool _strictPurpose,
-        address _defaultFeeCollector,
+        address _feeCollector,
         bool _emergencyWithdrawalEnabled,
         bool _oneTimeWithdrawal,
         address[] memory _whitelist
     ) {
         if (_jarOwner == address(0))
             revert CookieJarLib.AdminCannotBeZeroAddress();
-        if (_defaultFeeCollector == address(0))
+        if (_feeCollector == address(0))
             revert CookieJarLib.FeeCollectorAddressCannotBeZeroAddress();
         accessType = _accessType;
         if (accessType == CookieJarLib.AccessType.NFTGated) {
@@ -121,7 +121,7 @@ contract CookieJar is AccessControl {
         currency = _supportedCurrency;
         withdrawalInterval = _withdrawalInterval;
         strictPurpose = _strictPurpose;
-        feeCollector = _defaultFeeCollector;
+        feeCollector = _feeCollector;
         feePercentageOnDeposit = _feePercentageOnDeposit;
         emergencyWithdrawalEnabled = _emergencyWithdrawalEnabled;
         oneTimeWithdrawal = _oneTimeWithdrawal;

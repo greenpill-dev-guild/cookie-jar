@@ -58,10 +58,11 @@ contract CookieJarFactory is AccessControl {
     }
 
     /**
-     * @param _defaultFeeCollector The default fee collector address.
+     * @param _defaultFeeCollector The address that will receive the fees from all deposits on all jars.
      * @param _owner The contract owner address.
-     * @param _feePercentage The default fee percentage for all deposits on all vaults.
-     * Fee is calculated inside Jar contract whenever a deposit is made, according to the decimals of the currency.
+     * @param _feePercentage The default fee percentage for all deposits on all jars. 100% = 10000.
+     * @param _minETHDeposit The minimum ETH deposit amount.
+     * @param _minERC20Deposit The minimum ERC20 deposit amount.
      */
     constructor(
         address _defaultFeeCollector,
@@ -129,19 +130,6 @@ contract CookieJarFactory is AccessControl {
      */
     function grantProtocolAdminRole(address _admin) external onlyRole(OWNER) {
         _grantRole(PROTOCOL_ADMIN, _admin);
-        emit ProtocolAdminUpdated(msg.sender, _admin);
-    }
-
-    /**
-     * @notice Revokes the protocol admin role from a given address.
-     * @notice Only the owner can revoke the protocol admin role.
-     * @param _admin The address to revoke.
-     */
-    function revokeProtocolAdminRole(address _admin) external onlyRole(OWNER) {
-        if (hasRole(PROTOCOL_ADMIN, _admin) != true) {
-            revert CookieJarFactory__NotAuthorized();
-        }
-        _revokeRole(PROTOCOL_ADMIN, _admin);
         emit ProtocolAdminUpdated(msg.sender, _admin);
     }
 
