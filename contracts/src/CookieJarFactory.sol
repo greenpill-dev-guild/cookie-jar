@@ -20,6 +20,7 @@ contract CookieJarFactory is AccessControl {
         keccak256("BLACKLISTED_JAR_CREATORS");
 
     address[] public cookieJars;
+    string[] public metadatas;
 
     address public defaultFeeCollector;
     uint256 public defaultFeePercentage;
@@ -28,16 +29,11 @@ contract CookieJarFactory is AccessControl {
     uint256 public minERC20Deposit;
 
     // --- Custom Error ---
-    error CookieJarFactory__NotFeeCollector();
-    error CookieJarFactory__TransferFailed();
-    error CookieJarFactory__LessThanMinimumDeposit();
     error CookieJarFactory__Blacklisted();
     error CookieJarFactory__NotAuthorized();
     error CookieJarFactory__MismatchedArrayLengths();
     error CookieJarFactory__UserIsNotBlacklisted();
     error CookieJarFactory__NotValidERC20();
-    error CookieJarFactory__NotSufficientAllowance();
-    error CookieJarFactory__WithdrawingMoreThanDeposited();
 
     // --- Events ---
     event CookieJarCreated(
@@ -63,10 +59,11 @@ contract CookieJarFactory is AccessControl {
     }
 
     /**
-     * @param _defaultFeeCollector The default fee collector address.
+     * @param _defaultFeeCollector The address that will receive the fees from all deposits on all jars.
      * @param _owner The contract owner address.
-     * @param _feePercentage The default fee percentage for all deposits on all vaults.
-     * Fee is calculated inside Jar contract whenever a deposit is made, according to the decimals of the currency.
+     * @param _feePercentage The default fee percentage for all deposits on all jars. 100% = 10000.
+     * @param _minETHDeposit The minimum ETH deposit amount.
+     * @param _minERC20Deposit The minimum ERC20 deposit amount.
      */
     constructor(
         address _defaultFeeCollector,
@@ -98,7 +95,7 @@ contract CookieJarFactory is AccessControl {
     function grantBlacklistedJarCreatorsRole(
         address[] calldata _users
     ) external onlyRole(PROTOCOL_ADMIN) {
-        if (_users.length < 1) {
+        if (_users.length == 0) {
             revert CookieJarFactory__MismatchedArrayLengths();
         }
 
@@ -116,10 +113,7 @@ contract CookieJarFactory is AccessControl {
     function revokeBlacklistedJarCreatorsRole(
         address[] calldata _users
     ) external onlyRole(PROTOCOL_ADMIN) {
-        if (hasRole(BLACKLISTED_JAR_CREATORS, msg.sender) != true) {
-            revert CookieJarFactory__UserIsNotBlacklisted();
-        }
-        if (_users.length < 1) {
+        if (_users.length == 0) {
             revert CookieJarFactory__MismatchedArrayLengths();
         }
         for (uint256 i = 0; i < _users.length; i++) {
@@ -134,19 +128,6 @@ contract CookieJarFactory is AccessControl {
      */
     function grantProtocolAdminRole(address _admin) external onlyRole(OWNER) {
         _grantRole(PROTOCOL_ADMIN, _admin);
-        emit ProtocolAdminUpdated(msg.sender, _admin);
-    }
-
-    /**
-     * @notice Revokes the protocol admin role from a given address.
-     * @notice Only the owner can revoke the protocol admin role.
-     * @param _admin The address to revoke.
-     */
-    function revokeProtocolAdminRole(address _admin) external onlyRole(OWNER) {
-        if (hasRole(PROTOCOL_ADMIN, _admin) != true) {
-            revert CookieJarFactory__NotAuthorized();
-        }
-        _revokeRole(PROTOCOL_ADMIN, _admin);
         emit ProtocolAdminUpdated(msg.sender, _admin);
     }
 
@@ -183,7 +164,7 @@ contract CookieJarFactory is AccessControl {
         address _supportedCurrency,
         CookieJarLib.AccessType _accessType,
         address[] calldata _nftAddresses,
-        uint8[] calldata _nftTypes,
+        CookieJarLib.NFTType[] calldata _nftTypes,
         CookieJarLib.WithdrawalTypeOptions _withdrawalOption,
         uint256 _fixedAmount,
         uint256 _maxWithdrawal,
@@ -197,7 +178,7 @@ contract CookieJarFactory is AccessControl {
         uint256 minDeposit = minETHDeposit;
         /// @dev Checks if the address is a valid ERC20 contract, in case the currency is not native ETH.
         if (_supportedCurrency != address(3)) {
-            if (ERC20(_supportedCurrency).decimals() < 1) {
+            if (ERC20(_supportedCurrency).decimals() == 0) {
                 revert CookieJarFactory__NotValidERC20();
             }
             minDeposit = minERC20Deposit;
@@ -223,7 +204,8 @@ contract CookieJarFactory is AccessControl {
 
         address jarAddress = address(newJar);
         cookieJars.push(jarAddress);
-
+        metadatas.push(metadata);
+        
         /// @dev Registers and updates the new CookieJar in the registry with msg.sender as the creator.
         emit CookieJarCreated(msg.sender, jarAddress, metadata);
         return jarAddress;
@@ -231,5 +213,9 @@ contract CookieJarFactory is AccessControl {
 
     function getCookieJars() external view returns (address[] memory) {
         return cookieJars;
+    }
+
+    function getMetadatas() external view returns (string[] memory) {
+        return metadatas;
     }
 }
