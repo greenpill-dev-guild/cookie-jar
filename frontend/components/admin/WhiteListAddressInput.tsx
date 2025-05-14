@@ -50,10 +50,12 @@ export const WhiteListAddressInput: React.FC<WhiteListAddressInputProps> = ({
   }, []);
 
   const filterByMode = useCallback((addrs: `0x${string}`[]) => {
+    const normalizedWhitelist = currentWhitelist.map(addr => addr.toLowerCase());
+    
     if (mode === 'add') {
-      return addrs.filter(a => !currentWhitelist.includes(a));
+      return addrs.filter(a => !normalizedWhitelist.includes(a.toLowerCase()));
     } else {
-      return addrs.filter(a => currentWhitelist.includes(a));
+      return addrs.filter(a => normalizedWhitelist.includes(a.toLowerCase()));
     }
   }, [currentWhitelist, mode]);
 
