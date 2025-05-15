@@ -9,11 +9,9 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 
 import {CookieJarLib} from "./libraries/CookieJarLib.sol";
 
-/**
- * @title CookieJar
- * @notice A decentralized smart contract for controlled fund withdrawals. Supports both whitelist and NFT‐gated access modes.
- * @dev Deposits accept ETH and ERC20 tokens (deducting a 1% fee) and withdrawals are subject to configurable rules.
- */
+/// @title CookieJar
+/// @notice A decentralized smart contract for controlled fund withdrawals. Supports both whitelist and NFT‐gated access modes.
+/// @dev Deposits accept ETH and ERC20 tokens (deducting a 1% fee) and withdrawals are subject to configurable rules.
 contract CookieJar is AccessControl {
     using SafeERC20 for IERC20;
 
@@ -64,22 +62,20 @@ contract CookieJar is AccessControl {
 
     // --- Constructor ---
 
-    /**
-     * @notice Initializes a new CookieJar contract.
-     * @param _jarOwner The admin address.
-     * @param _accessType Access mode: Whitelist or NFTGated.
-     * @param _nftAddresses Array of NFT contract addresses (only used if _accessType is NFTGated).
-     * @param _nftTypes Array of NFT types corresponding to _nftAddresses.
-     * @param _withdrawalOption Withdrawal type: Fixed or Variable.
-     * @param _fixedAmount Fixed withdrawal amount (if _withdrawalOption is Fixed).
-     * @param _maxWithdrawal Maximum allowed withdrawal (if _withdrawalOption is Variable).
-     * @param _withdrawalInterval Time interval between withdrawals.
-     * @param _strictPurpose If true, the withdrawal purpose must be at least 20 characters.
-     * @param _feeCollector The fee collector address.
-     * @param _emergencyWithdrawalEnabled If true, emergency withdrawal is enabled.
-     * @param _oneTimeWithdrawal If true, each recipient can only claim from the jar once.
-     * @param _whitelist Array of whitelisted addresses. Must be empty if _accessType is NFTGated, as whitelist is not used in this mode.
-     */
+    /// @notice Initializes a new CookieJar contract.
+    /// @param _jarOwner The admin address.
+    /// @param _accessType Access mode: Whitelist or NFTGated.
+    /// @param _nftAddresses Array of NFT contract addresses (only used if _accessType is NFTGated).
+    /// @param _nftTypes Array of NFT types corresponding to _nftAddresses.
+    /// @param _withdrawalOption Withdrawal type: Fixed or Variable.
+    /// @param _fixedAmount Fixed withdrawal amount (if _withdrawalOption is Fixed).
+    /// @param _maxWithdrawal Maximum allowed withdrawal (if _withdrawalOption is Variable).
+    /// @param _withdrawalInterval Time interval between withdrawals.
+    /// @param _strictPurpose If true, the withdrawal purpose must be at least 20 characters.
+    /// @param _feeCollector The fee collector address.
+    /// @param _emergencyWithdrawalEnabled If true, emergency withdrawal is enabled.
+    /// @param _oneTimeWithdrawal If true, each recipient can only claim from the jar once.
+    /// @param _whitelist Array of whitelisted addresses. Must be empty if _accessType is NFTGated, as whitelist is not used in this mode.
     constructor(
         address _jarOwner,
         address _supportedCurrency,
@@ -127,10 +123,8 @@ contract CookieJar is AccessControl {
 
     // --- Admin Functions ---
 
-    /**
-     * @notice Updates the jar whitelist status of a user.
-     * @param _users The address of the user.
-     */
+    /// @notice Updates the jar whitelist status of a user.
+    /// @param _users The address of the user.
     function grantJarWhitelistRole(address[] calldata _users) external onlyRole(CookieJarLib.JAR_OWNER) {
         if (accessType != CookieJarLib.AccessType.Whitelist) revert CookieJarLib.InvalidAccessType();
         _grantRoles(CookieJarLib.JAR_WHITELISTED, _users);
@@ -141,10 +135,8 @@ contract CookieJar is AccessControl {
         _revokeRoles(CookieJarLib.JAR_WHITELISTED, _users);
     }
 
-    /**
-     * @notice Updates the fee collector address.
-     * @param _newFeeCollector The new fee collector address.
-     */
+    /// @notice Updates the fee collector address.
+    /// @param _newFeeCollector The new fee collector address.
     function updateFeeCollector(address _newFeeCollector) external {
         if (msg.sender != feeCollector) revert CookieJarLib.NotFeeCollector();
         if (_newFeeCollector == address(0)) revert CookieJarLib.FeeCollectorAddressCannotBeZeroAddress();
@@ -161,11 +153,9 @@ contract CookieJar is AccessControl {
         _addNFTGate(_nftAddress, _nftType);
     }
 
-    /**
-     * @notice Adds a new NFT gate if it is not already registered.
-     * @param _nftAddress The NFT contract address.
-     * @param _nftType The NFT type.
-     */
+    /// @notice Adds a new NFT gate if it is not already registered.
+    /// @param _nftAddress The NFT contract address.
+    /// @param _nftType The NFT type.
     function _addNFTGate(address _nftAddress, CookieJarLib.NFTType _nftType) internal {
         if (_nftAddress == address(0)) revert CookieJarLib.InvalidNFTGate();
         if (nftGateMapping[_nftAddress] != CookieJarLib.NFTType.None) revert CookieJarLib.DuplicateNFTGate();
@@ -175,10 +165,8 @@ contract CookieJar is AccessControl {
         emit CookieJarLib.NFTGateAdded(_nftAddress, _nftType);
     }
 
-    /**
-     * @notice Removes an NFT gate.
-     * @param _nftAddress The NFT contract address.
-     */
+    /// @notice Removes an NFT gate.
+    /// @param _nftAddress The NFT contract address.
     function removeNFTGate(address _nftAddress) external onlyRole(CookieJarLib.JAR_OWNER) {
         if (accessType != CookieJarLib.AccessType.NFTGated) revert CookieJarLib.InvalidAccessType();
         if (nftGateMapping[_nftAddress] == CookieJarLib.NFTType.None) revert CookieJarLib.NFTGateNotFound();
@@ -198,10 +186,8 @@ contract CookieJar is AccessControl {
         emit CookieJarLib.NFTGateRemoved(_nftAddress);
     }
 
-    /**
-     * @notice Updates the maximum withdrawal amount, only works if withdrawalOption is Variable.
-     * @param _maxWithdrawal The new maximum withdrawal amount.
-     */
+    /// @notice Updates the maximum withdrawal amount, only works if withdrawalOption is Variable.
+    /// @param _maxWithdrawal The new maximum withdrawal amount.
     function UpdateMaxWithdrawalAmount(uint256 _maxWithdrawal) external onlyRole(CookieJarLib.JAR_OWNER) {
         if (withdrawalOption == CookieJarLib.WithdrawalTypeOptions.Fixed) revert CookieJarLib.InvalidWithdrawalType();
         if (_maxWithdrawal == 0) revert CookieJarLib.ZeroAmount();
@@ -209,10 +195,8 @@ contract CookieJar is AccessControl {
         emit CookieJarLib.MaxWithdrawalUpdated(_maxWithdrawal);
     }
 
-    /**
-     * @notice Updates the fixed withdrawal amount, only works if withdrawalOption is Fixed.
-     * @param _fixedAmount The new fixed withdrawal amount.
-     */
+    /// @notice Updates the fixed withdrawal amount, only works if withdrawalOption is Fixed.
+    /// @param _fixedAmount The new fixed withdrawal amount.
     function updateFixedWithdrawalAmount(uint256 _fixedAmount) external onlyRole(CookieJarLib.JAR_OWNER) {
         if (withdrawalOption == CookieJarLib.WithdrawalTypeOptions.Variable) revert CookieJarLib.InvalidWithdrawalType();
         if (_fixedAmount == 0) revert CookieJarLib.ZeroAmount();
@@ -220,10 +204,8 @@ contract CookieJar is AccessControl {
         emit CookieJarLib.FixedWithdrawalAmountUpdated(_fixedAmount);
     }
 
-    /**
-     * @notice Updates the withdrawal interval.
-     * @param _withdrawalInterval The new withdrawal interval.
-     */
+    /// @notice Updates the withdrawal interval.
+    /// @param _withdrawalInterval The new withdrawal interval.
     function updateWithdrawalInterval(uint256 _withdrawalInterval) external onlyRole(CookieJarLib.JAR_OWNER) {
         if (_withdrawalInterval == 0) revert CookieJarLib.ZeroAmount();
         withdrawalInterval = _withdrawalInterval;
@@ -232,9 +214,7 @@ contract CookieJar is AccessControl {
 
     // --- Deposit Functions ---
 
-    /**
-     * @notice Deposits ETH into the contract, deducting deposit fee. Only works if the jar's currency is ETH.
-     */
+    /// @notice Deposits ETH into the contract, deducting deposit fee. Only works if the jar's currency is ETH.
     function depositETH() public payable {
         if (currency != address(3)) revert CookieJarLib.InvalidTokenAddress();
         if (msg.value < minDeposit) revert CookieJarLib.LessThanMinimumDeposit();
@@ -246,11 +226,9 @@ contract CookieJar is AccessControl {
         emit CookieJarLib.Deposit(msg.sender, remainingAmount, currency);
     }
 
-    /**
-     * @notice Deposits Currency tokens into the contract, deducting deposit fee. Only works if the jar's currency is
-     *  an ERC20 token.
-     * @param amount The amount of tokens to deposit.
-     */
+    /// @notice Deposits Currency tokens into the contract, deducting deposit fee. Only works if the jar's currency is
+    ///  an ERC20 token.
+    /// @param amount The amount of tokens to deposit.
     function depositCurrency(uint256 amount) public {
         if (currency == address(3)) revert CookieJarLib.InvalidTokenAddress();
         if (amount < minDeposit) revert CookieJarLib.LessThanMinimumDeposit();
@@ -270,11 +248,9 @@ contract CookieJar is AccessControl {
 
     // --- Internal Access Check Functions ---
 
-    /**
-     * @notice Checks if the caller has NFT-gated access via the specified gate.
-     * @param gateAddress The NFT contract address used for gating.
-     * @param tokenId The NFT token id.
-     */
+    /// @notice Checks if the caller has NFT-gated access via the specified gate.
+    /// @param gateAddress The NFT contract address used for gating.
+    /// @param tokenId The NFT token id.
     function _checkAccessNFT(address gateAddress, uint256 tokenId) internal view {
         CookieJarLib.NFTType nftType = nftGateMapping[gateAddress];
         if (nftType == CookieJarLib.NFTType.None) revert CookieJarLib.InvalidNFTGate();
@@ -291,11 +267,9 @@ contract CookieJar is AccessControl {
 
     // --- Withdrawal Functions ---
 
-    /**
-     * @notice Withdraws funds (ETH or ERC20) for whitelisted users.
-     * @param amount The amount to withdraw.
-     * @param purpose A description for the withdrawal.
-     */
+    /// @notice Withdraws funds (ETH or ERC20) for whitelisted users.
+    /// @param amount The amount to withdraw.
+    /// @param purpose A description for the withdrawal.
     function withdrawWhitelistMode(uint256 amount, string calldata purpose)
         external
         onlyRole(CookieJarLib.JAR_WHITELISTED)
@@ -306,13 +280,11 @@ contract CookieJar is AccessControl {
         _withdraw(amount, purpose);
     }
 
-    /**
-     * @notice Withdraws funds (ETH or ERC20) for NFT-gated users.
-     * @param amount The amount to withdraw.
-     * @param purpose A description for the withdrawal.
-     * @param gateAddress The NFT contract address used for gating.
-     * @param tokenId The NFT token id used for gating.
-     */
+    /// @notice Withdraws funds (ETH or ERC20) for NFT-gated users.
+    /// @param amount The amount to withdraw.
+    /// @param purpose A description for the withdrawal.
+    /// @param gateAddress The NFT contract address used for gating.
+    /// @param tokenId The NFT token id used for gating.
     function withdrawNFTMode(uint256 amount, string calldata purpose, address gateAddress, uint256 tokenId) external {
         if (accessType != CookieJarLib.AccessType.NFTGated) revert CookieJarLib.InvalidAccessType();
         if (gateAddress == address(0)) revert CookieJarLib.InvalidNFTGate();
@@ -322,11 +294,9 @@ contract CookieJar is AccessControl {
         _withdraw(amount, purpose);
     }
 
-    /**
-     * @notice Allows the admin to perform an emergency withdrawal of funds from the jar.
-     * @param token If address(3) then ETH is withdrawn; otherwise, ERC20 token address.
-     * @param amount The amount to withdraw.
-     */
+    /// @notice Allows the admin to perform an emergency withdrawal of funds from the jar.
+    /// @param token If address(3) then ETH is withdrawn; otherwise, ERC20 token address.
+    /// @param amount The amount to withdraw.
     function emergencyWithdraw(address token, uint256 amount) external onlyRole(CookieJarLib.JAR_OWNER) {
         if (!emergencyWithdrawalEnabled) revert CookieJarLib.EmergencyWithdrawalDisabled();
         if (amount == 0) revert CookieJarLib.ZeroAmount();
@@ -348,10 +318,8 @@ contract CookieJar is AccessControl {
         return withdrawalData;
     }
 
-    /**
-     * @notice Returns the whitelist of addresses.
-     * @return address[] The array of whitelisted addresses.
-     */
+    /// @notice Returns the whitelist of addresses.
+    /// @return address[] The array of whitelisted addresses.
     function getWhitelist() external view returns (address[] memory) {
         return whitelist;
     }

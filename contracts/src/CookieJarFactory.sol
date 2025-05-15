@@ -5,13 +5,11 @@ import "./CookieJar.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
-/**
- * @title CookieJarFactory
- * @notice A factory contract to deploy "cookie jars" for users.
- * @notice A cookie jar is a contract that allows users to deposit funds, and create a whitelist for users that can "claim", example airdrops.
- * @notice DO NOT DIRECTLY SEND FUNDS TO THIS CONTRACT, USE DEPOSIT FUNCTIONS TO DEPOSIT AND STORE THE DATA IN THIS CONTRACT.
- * @dev Handles Protocol Access Control and jar deployments.
- */
+/// @title CookieJarFactory
+/// @notice A factory contract to deploy "cookie jars" for users.
+/// @notice A cookie jar is a contract that allows users to deposit funds, and create a whitelist for users that can "claim", example airdrops.
+/// @notice DO NOT DIRECTLY SEND FUNDS TO THIS CONTRACT, USE DEPOSIT FUNCTIONS TO DEPOSIT AND STORE THE DATA IN THIS CONTRACT.
+/// @dev Handles Protocol Access Control and jar deployments.
 contract CookieJarFactory is AccessControl {
     /// @dev Openzeppelin AccessControl role instances.
     bytes32 public constant OWNER = keccak256("OWNER");
@@ -45,13 +43,11 @@ contract CookieJarFactory is AccessControl {
         _;
     }
 
-    /**
-     * @param _defaultFeeCollector The address that will receive the fees from all deposits on all jars.
-     * @param _owner The contract owner address.
-     * @param _feePercentage The default fee percentage for all deposits on all jars. 100% = 10000.
-     * @param _minETHDeposit The minimum ETH deposit amount.
-     * @param _minERC20Deposit The minimum ERC20 deposit amount.
-     */
+    /// @param _defaultFeeCollector The address that will receive the fees from all deposits on all jars.
+    /// @param _owner The contract owner address.
+    /// @param _feePercentage The default fee percentage for all deposits on all jars. 100% = 10000.
+    /// @param _minETHDeposit The minimum ETH deposit amount.
+    /// @param _minERC20Deposit The minimum ERC20 deposit amount.
     constructor(
         address _defaultFeeCollector,
         address _owner,
@@ -72,11 +68,9 @@ contract CookieJarFactory is AccessControl {
 
     // --- Restricted Functions ---
 
-    /**
-     * @notice Update the global blacklist for an address.
-     * @dev Restricts the ability to create new CookieJars for a given address.
-     * @param _users The address to update.
-     */
+    /// @notice Update the global blacklist for an address.
+    /// @dev Restricts the ability to create new CookieJars for a given address.
+    /// @param _users The address to update.
     function grantBlacklistedJarCreatorsRole(address[] calldata _users) external onlyRole(PROTOCOL_ADMIN) {
         if (_users.length == 0) revert CookieJarFactory__MismatchedArrayLengths();
 
@@ -87,10 +81,8 @@ contract CookieJarFactory is AccessControl {
         emit BlacklistRoleGranted(_users);
     }
 
-    /**
-     * @notice Removes a user from blacklist.
-     * @param _users The address to update.
-     */
+    /// @notice Removes a user from blacklist.
+    /// @param _users The address to update.
     function revokeBlacklistedJarCreatorsRole(address[] calldata _users) external onlyRole(PROTOCOL_ADMIN) {
         if (_users.length == 0) revert CookieJarFactory__MismatchedArrayLengths();
         for (uint256 i = 0; i < _users.length; i++) {
@@ -99,19 +91,15 @@ contract CookieJarFactory is AccessControl {
         emit BlacklistRoleGranted(_users);
     }
 
-    /**
-     * @notice Grants the protocol admin role to a new address.
-     * @param _admin The address to update.
-     */
+    /// @notice Grants the protocol admin role to a new address.
+    /// @param _admin The address to update.
     function grantProtocolAdminRole(address _admin) external onlyRole(OWNER) {
         _grantRole(PROTOCOL_ADMIN, _admin);
         emit ProtocolAdminUpdated(msg.sender, _admin);
     }
 
-    /**
-     * @notice Grants owner role to a new address, and revokes previous owner with the owner role.
-     * @param _newOwner Address of the new owner.
-     */
+    /// @notice Grants owner role to a new address, and revokes previous owner with the owner role.
+    /// @param _newOwner Address of the new owner.
     function transferOwnership(address _newOwner) public onlyRole(OWNER) {
         _revokeRole(OWNER, msg.sender);
         _grantRole(OWNER, _newOwner);
@@ -119,23 +107,21 @@ contract CookieJarFactory is AccessControl {
     }
 
     // --- Public Functions ---
-    /**
-     * @notice Creates a new CookieJar contract and updates jar data in CookieJarRegistry.
-     * @notice Currently only one currency ERC20 is supported.
-     * @notice Creator needs to call deposit function before creating a jar, and all the funds deposited will be sent to new jar.
-     * @param _cookieJarOwner Address of the new CookieJar owner.
-     * @param _supportedCurrency Address of the supported currency for the jar address(3) if native ETH.
-     * @param _accessType Claim mode: Whitelist or NFTGated.
-     * @param _nftAddresses Array of NFT contract addresses (only for NFTGated mode).
-     * @param _nftTypes Array of NFT types corresponding to _nftAddresses.
-     * @param _withdrawalOption Fixed or Variable withdrawal type.
-     * @param _fixedAmount Withdrawal amount if Fixed.
-     * @param _maxWithdrawal Maximum allowed withdrawal if Variable.
-     * @param _withdrawalInterval Time interval between withdrawals.
-     * @param _strictPurpose If true, requires a purpose length ≥20 characters.
-     * @param _emergencyWithdrawalEnabled If true, emergency withdrawal is enabled.
-     * @param metadata Optional metadata for off-chain tracking.
-     */
+    /// @notice Creates a new CookieJar contract and updates jar data in CookieJarRegistry.
+    /// @notice Currently only one currency ERC20 is supported.
+    /// @notice Creator needs to call deposit function before creating a jar, and all the funds deposited will be sent to new jar.
+    /// @param _cookieJarOwner Address of the new CookieJar owner.
+    /// @param _supportedCurrency Address of the supported currency for the jar address(3) if native ETH.
+    /// @param _accessType Claim mode: Whitelist or NFTGated.
+    /// @param _nftAddresses Array of NFT contract addresses (only for NFTGated mode).
+    /// @param _nftTypes Array of NFT types corresponding to _nftAddresses.
+    /// @param _withdrawalOption Fixed or Variable withdrawal type.
+    /// @param _fixedAmount Withdrawal amount if Fixed.
+    /// @param _maxWithdrawal Maximum allowed withdrawal if Variable.
+    /// @param _withdrawalInterval Time interval between withdrawals.
+    /// @param _strictPurpose If true, requires a purpose length ≥20 characters.
+    /// @param _emergencyWithdrawalEnabled If true, emergency withdrawal is enabled.
+    /// @param metadata Optional metadata for off-chain tracking.
     function createCookieJar(
         address _cookieJarOwner,
         address _supportedCurrency,
