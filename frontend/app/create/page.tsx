@@ -61,7 +61,7 @@ export default function CreateCookieJarForm() {
   const [fixedAmount, setFixedAmount] = useState("0")
   const [maxWithdrawal, setMaxWithdrawal] = useState("0")
   const [withdrawalInterval, setWithdrawalInterval] = useState("0")
-  const [strictPurpose, setStrictPurpose] = useState(false)
+  const [strictPurpose, setStrictPurpose] = useState(true)
   const [emergencyWithdrawalEnabled, setEmergencyWithdrawalEnabled] = useState(true)
   const [oneTimeWithdrawal, setOneTimeWithdrawal] = useState(false)
   const [metadata, setMetadata] = useState("")
@@ -897,9 +897,9 @@ export default function CreateCookieJarForm() {
                 <p className="text-sm text-[#8b7355]">Require users to enter the reason for their withdrawal</p>
               </div>
             </div>
-
+            {/* removed for MVP launch <3 MSG */}
             {/* Emergency Withdrawal */}
-            <div className="flex items-center space-x-2">
+            {/* <div className="flex items-center space-x-2">
               <Checkbox
                 id="emergencyWithdrawal"
                 checked={emergencyWithdrawalEnabled}
@@ -912,7 +912,7 @@ export default function CreateCookieJarForm() {
                 </Label>
                 <p className="text-sm text-[#8b7355]">Allow emergency withdrawals by jar owner</p>
               </div>
-            </div>
+            </div> */}
 
             {/* removed for MVP launch <3 MSG */}
             {/* One Time Withdrawal */}
