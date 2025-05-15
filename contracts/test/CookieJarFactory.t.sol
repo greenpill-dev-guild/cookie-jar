@@ -56,9 +56,7 @@ contract CookieJarFactoryTest is Test {
 
         vm.prank(owner);
         factory.grantBlacklistedJarCreatorsRole(users);
-        vm.expectRevert(
-            CookieJarFactory.CookieJarFactory__Blacklisted.selector
-        );
+        vm.expectRevert(CookieJarFactory.CookieJarFactory__Blacklisted.selector);
         vm.prank(user);
         factory.createCookieJar(
             owner,
@@ -101,9 +99,7 @@ contract CookieJarFactoryTest is Test {
         vm.prank(owner);
         factory.grantBlacklistedJarCreatorsRole(users);
         vm.prank(users[0]);
-        vm.expectRevert(
-            CookieJarFactory.CookieJarFactory__Blacklisted.selector
-        );
+        vm.expectRevert(CookieJarFactory.CookieJarFactory__Blacklisted.selector);
         factory.createCookieJar(
             owner,
             address(3),
@@ -237,9 +233,7 @@ contract CookieJarFactoryTest is Test {
     /// @notice Test that NFTGated mode must have at least one NFT address.
     function testCreateETHCookieJarNFTModeNoAddresses() public {
         vm.prank(user);
-        vm.expectRevert(
-            abi.encodeWithSelector(CookieJarLib.NoNFTAddressesProvided.selector)
-        );
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NoNFTAddressesProvided.selector));
         factory.createCookieJar(
             user,
             address(3),
