@@ -390,15 +390,9 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
 
   return (
     <div className="space-y-6 bg-[#2b1d0e] p-4 rounded-lg">
-      <Tabs defaultValue="ownership" className="w-full">
+      <Tabs defaultValue="access" className="w-full">
         <TabsList className="mb-6 bg-[#fff8f0] p-1">
-          <TabsTrigger
-            value="ownership"
-            className="data-[state=active]:bg-white data-[state=active]:text-[#ff5e14] data-[state=active]:shadow-sm text-[#4a3520]"
-          >
-            <Shield className="h-4 w-4 mr-2" />
-            Ownership
-          </TabsTrigger>
+        
           <TabsTrigger
             value="access"
             className="data-[state=active]:bg-white data-[state=active]:text-[#ff5e14] data-[state=active]:shadow-sm text-[#4a3520]"
@@ -413,6 +407,14 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
             <AlertTriangle className="h-4 w-4 mr-2" />
             Emergency
           </TabsTrigger>
+          {/* no longer possible w/ updated scs. <3MSG may15-25 */}
+          {/* <TabsTrigger
+            value="ownership"
+            className="data-[state=active]:bg-white data-[state=active]:text-[#ff5e14] data-[state=active]:shadow-sm text-[#4a3520]"
+          >
+            <Shield className="h-4 w-4 mr-2" />
+            Ownership
+          </TabsTrigger> */}
           {/* <TabsTrigger
             value="nft"
             className="data-[state=active]:bg-white data-[state=active]:text-[#ff5e14] data-[state=active]:shadow-sm text-[#4a3520]"
@@ -421,8 +423,8 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
             NFT Gates
           </TabsTrigger> */}
         </TabsList>
-
-        <TabsContent value="ownership" className="mt-0">
+          {/* no longer possible w/ updated scs. <3MSG may15-25 */}
+        {/* <TabsContent value="ownership" className="mt-0">
           <Card className="border-none shadow-sm">
             <CardHeader className="bg-[#fff8f0] rounded-t-lg">
               <CardTitle className="text-xl text-[#3c2a14] flex items-center">
@@ -477,7 +479,7 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
               </Button>
             </CardFooter>
           </Card>
-        </TabsContent>
+        </TabsContent> */}
 
         <TabsContent value="access" className="mt-0">
   <Card className="border-none shadow-sm">
