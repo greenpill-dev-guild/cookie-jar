@@ -40,24 +40,13 @@ library CookieJarLib {
     /// @notice Emitted when a deposit is made.
     event Deposit(address indexed sender, uint256 amount, address token);
     /// @notice Emitted when a withdrawal occurs.
-    event Withdrawal(
-        address indexed recipient,
-        uint256 amount,
-        string purpose
-    );
+    event Withdrawal(address indexed recipient, uint256 amount, string purpose);
     /// @notice Emitted when the fee collector address is updated.
-    event FeeCollectorUpdated(
-        address indexed oldFeeCollector,
-        address indexed newFeeCollector
-    );
+    event FeeCollectorUpdated(address indexed oldFeeCollector, address indexed newFeeCollector);
     /// @notice Emitted when an NFT gate is added.
     event NFTGateAdded(address nftAddress, NFTType nftType);
     /// @notice Emitted when an emergency withdrawal is executed.
-    event EmergencyWithdrawal(
-        address indexed admin,
-        address token,
-        uint256 amount
-    );
+    event EmergencyWithdrawal(address indexed admin, address token, uint256 amount);
     /// @notice Emitted when an NFT gate is removed.
     event NFTGateRemoved(address nftAddress);
     /// @notice Emitted when admin rights are transferred.
