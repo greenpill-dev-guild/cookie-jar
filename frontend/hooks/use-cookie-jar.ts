@@ -246,7 +246,7 @@ export const useCookieJarConfig = (address: `0x${string}`) => {
   const { data, isLoading, isError, error } = useReadContracts({
     contracts: [
       { address, abi: cookieJarAbi, functionName: "accessType" },
-      { address, abi: cookieJarAbi, functionName: "jarOwner" },
+      { address, abi: cookieJarAbi, functionName: "jarOwner" }, //likely could be updated to "hasRole", args:[JAR_OWNER, userAddress!]
       { address, abi: cookieJarAbi, functionName: "withdrawalOption" },
       { address, abi: cookieJarAbi, functionName: "fixedAmount" },
       { address, abi: cookieJarAbi, functionName: "maxWithdrawal" },
@@ -259,7 +259,7 @@ export const useCookieJarConfig = (address: `0x${string}`) => {
       { address, abi: cookieJarAbi, functionName: "hasRole", args: [JAR_WHITELISTED, userAddress!] },
       { address, abi: cookieJarAbi, functionName: "hasRole", args: [JAR_BLACKLISTED, userAddress!] },
       { address, abi: cookieJarAbi, functionName: "lastWithdrawalWhitelist", args: [userAddress!] },
-      { address, abi: cookieJarAbi, functionName: "lastWithdrawalNFT", args: [userAddress!] },
+      { address, abi: cookieJarAbi, functionName: "lastWithdrawalNFT", args: [userAddress!] }, //likely needs to be updated to reflect SC changes that disallow NFTS to be passed around to drain jar
       { address, abi: cookieJarAbi, functionName: "currencyHeldByJar" },
       { address, abi: cookieJarAbi, functionName: "currency" },
     ],
