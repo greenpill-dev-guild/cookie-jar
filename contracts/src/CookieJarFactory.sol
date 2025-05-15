@@ -107,6 +107,7 @@ contract CookieJarFactory is AccessControl {
     }
 
     // --- Public Functions ---
+
     /// @notice Creates a new CookieJar contract and updates jar data in CookieJarRegistry.
     /// @notice Currently only one currency ERC20 is supported.
     /// @notice Creator needs to call deposit function before creating a jar, and all the funds deposited will be sent to new jar.
@@ -139,7 +140,6 @@ contract CookieJarFactory is AccessControl {
         string calldata metadata
     ) external onlyNotBlacklisted(msg.sender) returns (address) {
         uint256 minDeposit = minETHDeposit;
-        /// @dev Checks if the address is a valid ERC20 contract, in case the currency is not native ETH.
         if (_supportedCurrency != address(3)) {
             if (ERC20(_supportedCurrency).decimals() == 0) revert CookieJarFactory__NotValidERC20();
             minDeposit = minERC20Deposit;
@@ -167,7 +167,6 @@ contract CookieJarFactory is AccessControl {
         cookieJars.push(jarAddress);
         metadatas.push(metadata);
 
-        /// @dev Registers and updates the new CookieJar in the registry with msg.sender as the creator.
         emit CookieJarCreated(msg.sender, jarAddress, metadata);
         return jarAddress;
     }

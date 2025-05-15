@@ -25,7 +25,6 @@ contract CookieJar is AccessControl {
     /// @notice Mapping for optimized NFT gate lookup.
     mapping(address => CookieJarLib.NFTType) private nftGateMapping;
 
-    // --- Core Configuration Variables ---
     uint256 public currencyHeldByJar;
     address public currency;
     uint256 public minDeposit;
@@ -38,7 +37,6 @@ contract CookieJar is AccessControl {
 
     /// @notice If true, each recipient can only claim from the jar once.
     bool public oneTimeWithdrawal;
-    /// @notice Array of approved NFT gates (used in NFTGated mode).
     /// @notice Fixed withdrawal amount (used if withdrawalOption is Fixed).
     uint256 public fixedAmount;
     /// @notice Maximum withdrawal amount (used if withdrawalOption is Variable).
@@ -52,15 +50,11 @@ contract CookieJar is AccessControl {
     /// @notice If true, emergency withdrawal is enabled.
     bool public emergencyWithdrawalEnabled;
 
-    // --- Access Control Mappings ---
-
     // --- Timelock Mappings ---
     /// @notice Stores the last withdrawal timestamp for each whitelisted address for whitelist mode.
     mapping(address user => uint256 lastWithdrawalTimestamp) public lastWithdrawalWhitelist;
     /// @notice Stores the last withdrawal timestamp for each NFT token for NFT-gated mode.
     mapping(address nftGate => mapping(uint256 tokenId => uint256 lastWithdrawlTimestamp)) public lastWithdrawalNFT;
-
-    // --- Constructor ---
 
     /// @notice Initializes a new CookieJar contract.
     /// @param _jarOwner The admin address.
@@ -135,7 +129,7 @@ contract CookieJar is AccessControl {
         _revokeRoles(CookieJarLib.JAR_WHITELISTED, _users);
     }
 
-    /// @notice Updates the fee collector address.
+    /// @notice Updates the fee collector address. Only the fee collector can call this function.
     /// @param _newFeeCollector The new fee collector address.
     function updateFeeCollector(address _newFeeCollector) external {
         if (msg.sender != feeCollector) revert CookieJarLib.NotFeeCollector();
@@ -151,18 +145,6 @@ contract CookieJar is AccessControl {
     function addNFTGate(address _nftAddress, CookieJarLib.NFTType _nftType) external onlyRole(CookieJarLib.JAR_OWNER) {
         if (accessType != CookieJarLib.AccessType.NFTGated) revert CookieJarLib.InvalidAccessType();
         _addNFTGate(_nftAddress, _nftType);
-    }
-
-    /// @notice Adds a new NFT gate if it is not already registered.
-    /// @param _nftAddress The NFT contract address.
-    /// @param _nftType The NFT type.
-    function _addNFTGate(address _nftAddress, CookieJarLib.NFTType _nftType) internal {
-        if (_nftAddress == address(0)) revert CookieJarLib.InvalidNFTGate();
-        if (nftGateMapping[_nftAddress] != CookieJarLib.NFTType.None) revert CookieJarLib.DuplicateNFTGate();
-        CookieJarLib.NFTGate memory gate = CookieJarLib.NFTGate({nftAddress: _nftAddress, nftType: _nftType});
-        nftGates.push(gate);
-        nftGateMapping[_nftAddress] = _nftType;
-        emit CookieJarLib.NFTGateAdded(_nftAddress, _nftType);
     }
 
     /// @notice Removes an NFT gate.
@@ -198,7 +180,9 @@ contract CookieJar is AccessControl {
     /// @notice Updates the fixed withdrawal amount, only works if withdrawalOption is Fixed.
     /// @param _fixedAmount The new fixed withdrawal amount.
     function updateFixedWithdrawalAmount(uint256 _fixedAmount) external onlyRole(CookieJarLib.JAR_OWNER) {
-        if (withdrawalOption == CookieJarLib.WithdrawalTypeOptions.Variable) revert CookieJarLib.InvalidWithdrawalType();
+        if (withdrawalOption == CookieJarLib.WithdrawalTypeOptions.Variable) {
+            revert CookieJarLib.InvalidWithdrawalType();
+        }
         if (_fixedAmount == 0) revert CookieJarLib.ZeroAmount();
         fixedAmount = _fixedAmount;
         emit CookieJarLib.FixedWithdrawalAmountUpdated(_fixedAmount);
@@ -212,7 +196,23 @@ contract CookieJar is AccessControl {
         emit CookieJarLib.WithdrawalIntervalUpdated(_withdrawalInterval);
     }
 
-    // --- Deposit Functions ---
+    /// @notice Allows the admin to perform an emergency withdrawal of funds from the jar.
+    /// @param token If address(3) then ETH is withdrawn; otherwise, ERC20 token address.
+    /// @param amount The amount to withdraw.
+    function emergencyWithdraw(address token, uint256 amount) external onlyRole(CookieJarLib.JAR_OWNER) {
+        if (!emergencyWithdrawalEnabled) revert CookieJarLib.EmergencyWithdrawalDisabled();
+        if (amount == 0) revert CookieJarLib.ZeroAmount();
+        if (token == currency) currencyHeldByJar -= amount;
+        emit CookieJarLib.EmergencyWithdrawal(msg.sender, token, amount);
+        if (token == address(3)) {
+            (bool sent,) = msg.sender.call{value: amount}("");
+            if (!sent) revert CookieJarLib.TransferFailed();
+        } else {
+            IERC20(token).safeTransfer(msg.sender, amount);
+        }
+    }
+
+    // --- User Functions ---
 
     /// @notice Deposits ETH into the contract, deducting deposit fee. Only works if the jar's currency is ETH.
     function depositETH() public payable {
@@ -241,32 +241,6 @@ contract CookieJar is AccessControl {
         emit CookieJarLib.Deposit(msg.sender, remainingAmount, currency);
     }
 
-    function _calculateFee(uint256 _principalAmount) internal view returns (uint256 fee, uint256 amountRemaining) {
-        fee = (_principalAmount * feePercentageOnDeposit) / 10000;
-        amountRemaining = _principalAmount - fee;
-    }
-
-    // --- Internal Access Check Functions ---
-
-    /// @notice Checks if the caller has NFT-gated access via the specified gate.
-    /// @param gateAddress The NFT contract address used for gating.
-    /// @param tokenId The NFT token id.
-    function _checkAccessNFT(address gateAddress, uint256 tokenId) internal view {
-        CookieJarLib.NFTType nftType = nftGateMapping[gateAddress];
-        if (nftType == CookieJarLib.NFTType.None) revert CookieJarLib.InvalidNFTGate();
-        if (nftType == CookieJarLib.NFTType.ERC721) {
-            if (IERC721(gateAddress).ownerOf(tokenId) != msg.sender) {
-                revert CookieJarLib.NotAuthorized();
-            }
-        } else if (nftType == CookieJarLib.NFTType.ERC1155) {
-            if (IERC1155(gateAddress).balanceOf(msg.sender, tokenId) == 0) {
-                revert CookieJarLib.NotAuthorized();
-            }
-        }
-    }
-
-    // --- Withdrawal Functions ---
-
     /// @notice Withdraws funds (ETH or ERC20) for whitelisted users.
     /// @param amount The amount to withdraw.
     /// @param purpose A description for the withdrawal.
@@ -294,26 +268,16 @@ contract CookieJar is AccessControl {
         _withdraw(amount, purpose);
     }
 
-    /// @notice Allows the admin to perform an emergency withdrawal of funds from the jar.
-    /// @param token If address(3) then ETH is withdrawn; otherwise, ERC20 token address.
-    /// @param amount The amount to withdraw.
-    function emergencyWithdraw(address token, uint256 amount) external onlyRole(CookieJarLib.JAR_OWNER) {
-        if (!emergencyWithdrawalEnabled) revert CookieJarLib.EmergencyWithdrawalDisabled();
-        if (amount == 0) revert CookieJarLib.ZeroAmount();
-        if (token == currency) currencyHeldByJar -= amount;
-        emit CookieJarLib.EmergencyWithdrawal(msg.sender, token, amount);
-        if (token == address(3)) {
-            (bool sent,) = msg.sender.call{value: amount}("");
-            if (!sent) revert CookieJarLib.TransferFailed();
-        } else {
-            IERC20(token).safeTransfer(msg.sender, amount);
-        }
-    }
+    // --- View Functions ---
 
+    /// @notice Returns the NFT gates array.
+    /// @return CookieJarLib.NFTGate[] The array of approvedNFT gates.
     function getNFTGatesArray() external view returns (CookieJarLib.NFTGate[] memory) {
         return nftGates;
     }
 
+    /// @notice Returns the withdrawal data array.
+    /// @return CookieJarLib.WithdrawalData[] The array of withdrawal data.
     function getWithdrawalDataArray() external view returns (CookieJarLib.WithdrawalData[] memory) {
         return withdrawalData;
     }
@@ -323,6 +287,8 @@ contract CookieJar is AccessControl {
     function getWhitelist() external view returns (address[] memory) {
         return whitelist;
     }
+
+    // --- Internal Functions ---
 
     function _grantRole(bytes32 role, address account) internal override returns (bool success) {
         success = super._grantRole(role, account);
@@ -353,6 +319,40 @@ contract CookieJar is AccessControl {
     function _revokeRoles(bytes32 role, address[] memory users) internal {
         for (uint256 i = 0; i < users.length; i++) {
             _revokeRole(role, users[i]);
+        }
+    }
+
+    /// @notice Adds a new NFT gate if it is not already registered.
+    /// @param _nftAddress The NFT contract address.
+    /// @param _nftType The NFT type.
+    function _addNFTGate(address _nftAddress, CookieJarLib.NFTType _nftType) internal {
+        if (_nftAddress == address(0)) revert CookieJarLib.InvalidNFTGate();
+        if (nftGateMapping[_nftAddress] != CookieJarLib.NFTType.None) revert CookieJarLib.DuplicateNFTGate();
+        CookieJarLib.NFTGate memory gate = CookieJarLib.NFTGate({nftAddress: _nftAddress, nftType: _nftType});
+        nftGates.push(gate);
+        nftGateMapping[_nftAddress] = _nftType;
+        emit CookieJarLib.NFTGateAdded(_nftAddress, _nftType);
+    }
+
+    function _calculateFee(uint256 _principalAmount) internal view returns (uint256 fee, uint256 amountRemaining) {
+        fee = (_principalAmount * feePercentageOnDeposit) / 10000;
+        amountRemaining = _principalAmount - fee;
+    }
+
+    /// @notice Checks if the caller has NFT-gated access via the specified gate.
+    /// @param gateAddress The NFT contract address used for gating.
+    /// @param tokenId The NFT token id.
+    function _checkAccessNFT(address gateAddress, uint256 tokenId) internal view {
+        CookieJarLib.NFTType nftType = nftGateMapping[gateAddress];
+        if (nftType == CookieJarLib.NFTType.None) revert CookieJarLib.InvalidNFTGate();
+        if (nftType == CookieJarLib.NFTType.ERC721) {
+            if (IERC721(gateAddress).ownerOf(tokenId) != msg.sender) {
+                revert CookieJarLib.NotAuthorized();
+            }
+        } else if (nftType == CookieJarLib.NFTType.ERC1155) {
+            if (IERC1155(gateAddress).balanceOf(msg.sender, tokenId) == 0) {
+                revert CookieJarLib.NotAuthorized();
+            }
         }
     }
 
