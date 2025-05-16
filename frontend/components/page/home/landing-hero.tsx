@@ -52,9 +52,9 @@ export function LandingHero() {
               <Link href="/create" className="text-lg font-medium text-[#3c2a14] hover:text-primary transition-colors">
                 CREATE
               </Link>
-              <Link href="/docs" className="text-lg font-medium text-[#3c2a14] hover:text-primary transition-colors">
+              {/* <Link href="/docs" className="text-lg font-medium text-[#3c2a14] hover:text-primary transition-colors">
                 DOCS
-              </Link>
+              </Link> */}
               <CustomConnectButton />
             </nav>
           </div>
