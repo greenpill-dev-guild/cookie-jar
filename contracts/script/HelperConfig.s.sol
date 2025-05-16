@@ -2,7 +2,7 @@
 pragma solidity ^0.8.19;
 
 contract HelperConfig {
-    address DEFAULT_FEE_COLLECTOR = address(0x487a30c88900098b765d76285c205c7c47582512);
+    address DEFAULT_FEE_COLLECTOR = address(0xcFF556854A07A8Ff47F8b178abb617901682D4eb);
     uint256 FEE_PERCENT_ON_DEPOSIT = 1;
     /// @dev 1 percent fee on deposit.
     uint256 MIN_ETH_DEPOSIT = 100;
