@@ -520,8 +520,16 @@ export default function CookieJarConfigDetails() {
 
         {/* Right side - Jar Actions */}
         <div className="lg:col-span-9">
-          <Tabs defaultValue="withdraw" className="w-full">
+        <Tabs defaultValue={isAdmin ? "admin" : "withdraw"} className="w-full">
             <TabsList className="mb-6 bg-[#fff8f0] p-1 w-full">
+            {isAdmin && (
+                <TabsTrigger
+                  value="admin"
+                  className="data-[state=active]:bg-white data-[state=active]:text-[#ff5e14] data-[state=active]:shadow-sm text-[#4a3520] flex-1"
+                >
+                  Admin Controls
+                </TabsTrigger>
+              )}
               <TabsTrigger
                 value="withdraw"
                 className="data-[state=active]:bg-white data-[state=active]:text-[#ff5e14] data-[state=active]:shadow-sm text-[#4a3520] flex-1"
@@ -534,14 +542,7 @@ export default function CookieJarConfigDetails() {
               >
                 Jar Donate
               </TabsTrigger>
-              {isAdmin && (
-                <TabsTrigger
-                  value="admin"
-                  className="data-[state=active]:bg-white data-[state=active]:text-[#ff5e14] data-[state=active]:shadow-sm text-[#4a3520] flex-1"
-                >
-                  Admin Controls
-                </TabsTrigger>
-              )}
+
               {isFeeCollector && (
                 <TabsTrigger
                   value="feeCollector"
