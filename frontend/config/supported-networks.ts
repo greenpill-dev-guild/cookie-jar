@@ -17,15 +17,15 @@ import { Address } from 'viem'
 export const supportedChains: readonly [Chain, ...Chain[]] = [
   // Testnets
   sepolia,
-  baseSepolia, 
+  // baseSepolia, 
   optimismSepolia,
   celoAlfajores,
   // Mainnets
-  mainnet,
-  base,
+  // mainnet,
+  // base,
   optimism,
-  arbitrum,
-  gnosis
+  // arbitrum,
+  // gnosis
 ]
 
 interface ContractAddresses {
@@ -36,11 +36,11 @@ interface ContractAddresses {
 // Define the contract addresses for supported networks
 export const contractAddresses: ContractAddresses = {
   cookieJarFactory: {
-    [sepolia.id]: "0x8339F06023625F903dc7e8c258aCF3E02d14A3CC",//"0x489b6B697c892832FA1B6ab1e5F6f65E1eF974d0" ,
+    [sepolia.id]: "0x8339F06023625F903dc7e8c258aCF3E02d14A3CC",
     [baseSepolia.id]: "0x010CE87d0E7F8E818805a27C95E09cb4961C8c6f" ,
     [optimismSepolia.id]: "0xca424e55D7Bf40442397a33790B18665FFb961c3",
     [celoAlfajores.id]: "0x8339F06023625F903dc7e8c258aCF3E02d14A3CC",
-    [optimism.id]: "0x64e50110a562539d12cec047f4b7ded24d1174d2"
+    [optimism.id]: "0x8339F06023625F903dc7e8c258aCF3E02d14A3CC"
   },
   cookieJarRegistry: {
     [sepolia.id]: "0xE9c62c210E6d56EbB0718f79DCE2883b8e38B356" ,
