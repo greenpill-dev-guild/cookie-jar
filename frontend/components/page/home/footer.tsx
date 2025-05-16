@@ -30,11 +30,11 @@ export function Footer() {
                   Create Jar
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link href="/docs" className="text-[#4a3520] hover:text-primary transition-colors">
                   Documentation
                 </Link>
-              </li>
+              </li> */}
             </ul>
           </div>
 

@@ -7,8 +7,6 @@ export default function Home() {
   return (
     <main className="flex min-h-screen flex-col">
       <LandingHero />
-      <Features />
-      <NetworkSupport />
       <Footer />
     </main>
   )
