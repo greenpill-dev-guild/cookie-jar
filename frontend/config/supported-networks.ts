@@ -17,7 +17,7 @@ import { Address } from 'viem'
 export const supportedChains: readonly [Chain, ...Chain[]] = [
   // Testnets
   sepolia,
-  // baseSepolia, 
+  baseSepolia, 
   optimismSepolia,
   celoAlfajores,
   // Mainnets
