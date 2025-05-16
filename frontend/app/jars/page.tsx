@@ -1,23 +1,26 @@
 "use client"
-import { useCookieJarData } from "@/hooks/use-cookie-jar-registry"
+import { useCookieJarFactory } from "@/hooks/use-cookie-jar-factory"
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { RefreshCw, ArrowUpRight, Search, ChevronLeft, ChevronRight, CheckCircle } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRouter } from "next/navigation"
-import { useAccount } from "wagmi"
+import { useAccount, useChainId } from "wagmi"
+import { getNetworkName } from "@/lib/utils/network-utils"
 import { useState, useEffect, useMemo } from "react"
 import { BackButton } from "@/components/design/back-button"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { keccak256, toUtf8Bytes } from "ethers"
 import { ethers } from "ethers"
+import { MemoizedCustomConnectButton } from "@/components/wallet/custom-connect-button"
 
 export default function CookieJarPage() {
-  const { cookieJarsData, isLoading, error } = useCookieJarData()
+  const { cookieJarsData, isLoading, error } = useCookieJarFactory()
   const router = useRouter()
   const { isConnected, address: userAddress } = useAccount()
+  const chainId = useChainId()
   const [searchTerm, setSearchTerm] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const jarsPerPage = 9
@@ -121,7 +124,7 @@ export default function CookieJarPage() {
         <div className="bg-white p-8 rounded-xl shadow-lg max-w-md text-center">
           <h2 className="text-2xl font-bold text-[#3c2a14] mb-4">Connect Your Wallet</h2>
           <p className="text-lg text-[#4a3520] mb-6">Please connect your wallet to view Cookie Jars.</p>
-          <div className="jar-card-description">Use the connect button in the sidebar to get started.</div>
+          <MemoizedCustomConnectButton className="w-full mx-auto mt-4" />
         </div>
       </div>
     )
@@ -135,8 +138,8 @@ export default function CookieJarPage() {
 
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
-          <h1 className="text-4xl font-bold text-white">Explore Cookie Jars</h1>
-          <p className="text-xl text-[#a89a8c] mt-2">View all deployed cookie jars and their details</p>
+          <h1 className="text-4xl font-bold text-white">Cookie Jars on {getNetworkName(chainId)}</h1>
+          <p className="text-xl text-[#a89a8c] mt-2">To view jars on another network, change to that network.</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
           <div className="flex gap-2 w-full sm:w-auto">
@@ -215,19 +218,21 @@ export default function CookieJarPage() {
                     <CardContent className="pt-0">
                       <div className="space-y-3">
                         <div className="flex justify-between items-center">
-                          <span className="text-[#8b7355] font-medium">Creator:</span>
-                          <span className="text-[#3c2a14] truncate max-w-[180px] text-right">{jar.jarCreator}</span>
-                        </div>
-                        <div className="flex justify-between items-center">
                           <span className="text-[#8b7355] font-medium">Access:</span>
                           <div className="flex items-center gap-2">
                             <span className="text-[#3c2a14]">{jar.accessType === 0 ? "Whitelist" : "NFT-Gated"}</span>
                           </div>
                         </div>
                         <div className="flex justify-between items-center">
-                          <span className="text-[#8b7355] font-medium">Created:</span>
+                          <span className="text-[#8b7355] font-medium">Withdrawal Type:</span>
                           <span className="text-[#3c2a14]">
-                            {new Date(Number(jar.registrationTime) * 1000).toLocaleDateString()}
+                            {jar.withdrawalOption === 0 ? "Fixed" : "Variable"}
+                          </span>
+                        </div>
+                        <div className="flex justify-between items-center">
+                          <span className="text-[#8b7355] font-medium">Currency:</span>
+                          <span className="text-[#3c2a14] truncate max-w-[180px] text-right">
+                            {jar.currency === "0x0000000000000000000000000000000000000003" ? "ETH" : jar.currency}
                           </span>
                         </div>
                       </div>

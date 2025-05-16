@@ -1,7 +1,10 @@
 "use client"
 
 import type React from "react"
-import { formatEther } from "viem"
+import type { Address } from "viem"
+
+// Import token utilities
+import { ETH_ADDRESS, useTokenInfo, formatTokenAmount } from "@/lib/utils/token-utils"
 
 // Export the Withdrawal interface so it can be imported elsewhere
 export interface Withdrawal {
@@ -11,25 +14,15 @@ export interface Withdrawal {
 
 interface WithdrawalHistorySectionProps {
   pastWithdrawals?: Withdrawal[]
+  tokenAddress?: Address // New prop to specify token address
 }
 
-export const WithdrawalHistorySection: React.FC<WithdrawalHistorySectionProps> = ({ pastWithdrawals = [] }) => {
-  // Helper function to format wei to ETH with proper decimal places
-  const formatWeiToEth = (weiAmount: bigint): string => {
-    try {
-      // Convert wei to ETH using formatEther from viem
-      const ethValue = formatEther(weiAmount)
-
-      // Format to 6 decimal places maximum
-      const formattedValue = Number.parseFloat(ethValue).toFixed(6)
-
-      // Remove trailing zeros after decimal point
-      return formattedValue.replace(/\.?0+$/, "") + " ETH"
-    } catch (error) {
-      console.error("Error formatting wei to ETH:", error)
-      return weiAmount.toString() + " wei"
-    }
-  }
+export const WithdrawalHistorySection: React.FC<WithdrawalHistorySectionProps> = ({ 
+  pastWithdrawals = [],
+  tokenAddress = ETH_ADDRESS // Default to ETH if not provided
+}) => {
+  // Get token info (symbol and decimals) using the hook
+  const { symbol: tokenSymbol, decimals: tokenDecimals } = useTokenInfo(tokenAddress)
 
   return (
     <div className="mt-6">
@@ -42,7 +35,7 @@ export const WithdrawalHistorySection: React.FC<WithdrawalHistorySectionProps> =
                 <div>
                   <p className="font-medium text-[#3c2a14]">
                     <span className="text-[#8b7355]">Amount:</span>{" "}
-                    <span className="text-[#ff5e14]">{formatWeiToEth(withdrawal.amount)}</span>
+                    <span className="text-[#ff5e14]">{formatTokenAmount(withdrawal.amount, tokenDecimals, tokenSymbol, 6)}</span>
                   </p>
                 </div>
                 <div className="flex-grow">

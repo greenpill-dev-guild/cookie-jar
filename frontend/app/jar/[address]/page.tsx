@@ -6,14 +6,16 @@ import { useCookieJarConfig } from "@/hooks/use-cookie-jar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { ShieldAlert, Users, Coins, Copy, ExternalLink } from "lucide-react"
-import { useSendTransaction, useAccount, useChainId } from "wagmi"
-import { parseEther } from "viem"
+import { useSendTransaction, useAccount, useChainId, useContractReads } from "wagmi"
+import { parseEther, formatUnits, parseUnits } from "viem"
 import type { ReadContractErrorType } from "viem"
+import { keccak256, toUtf8Bytes } from "ethers"
 import { useState, useEffect, useRef } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { useWriteCookieJarDepositEth, useWriteCookieJarDepositCurrency, useWriteErc20Approve } from "@/generated"
+import { useWriteCookieJarDepositEth, useWriteCookieJarDepositCurrency, useWriteErc20Approve, useReadCookieJarHasRole } from "@/generated"
 import { AdminFunctions } from "@/components/admin/AdminFunctions"
 import { formatAddress } from "@/lib/utils/format"
+import { getExplorerAddressUrl } from "@/lib/utils/network-utils"
 import DefaultFeeCollector from "@/components/FeeCollector/DefaultFeeCollector"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/design/use-toast"
@@ -27,6 +29,12 @@ import { BackButton } from "@/components/design/back-button"
 import { useWriteCookieJarWithdrawWhitelistMode, useWriteCookieJarWithdrawNftMode } from "@/generated"
 import { CountdownTimer } from "@/components/users/CountdownTimer"
 import { WithdrawalHistorySection, type Withdrawal } from "@/components/users/WithdrawlHistorySection"
+
+// Import token utilities
+import { ETH_ADDRESS, useTokenInfo, parseTokenAmount, formatTokenAmount } from "@/lib/utils/token-utils"
+
+// Hash the JAR_OWNER role
+const JAR_OWNER_ROLE = keccak256(toUtf8Bytes("JAR_OWNER")) as `0x${string}`
 
 export default function CookieJarConfigDetails() {
   const params = useParams()
@@ -51,7 +59,13 @@ export default function CookieJarConfigDetails() {
     isValidAddress ? (address as `0x${string}`) : "0x0000000000000000000000000000000000000000",
   )
 
-  const isAdmin = userAddress && config?.admin && userAddress.toLowerCase() === config.admin.toLowerCase()
+  // Check if current user has the JAR_OWNER role
+  const { data: hasJarOwnerRole } = useReadCookieJarHasRole({
+    address: isValidAddress ? (address as `0x${string}`) : undefined,
+    args: userAddress ? [JAR_OWNER_ROLE, userAddress as `0x${string}`] : undefined,
+  })
+  
+  const isAdmin = hasJarOwnerRole === true
   const showUserFunctions = config?.whitelist === true && config?.accessType === "Whitelist"
   const showNFTGatedFunctions = config?.accessType === "NFTGated"
   const isFeeCollector =
@@ -138,9 +152,14 @@ export default function CookieJarConfigDetails() {
     }
   }, [])
 
+  // Use token utilities hook to get token information
+  const isERC20 = config?.currency && config.currency !== ETH_ADDRESS
+  const { symbol: tokenSymbol, decimals: tokenDecimals } = useTokenInfo(
+    isERC20 && config?.currency ? (config.currency) : ETH_ADDRESS
+  )
+
   useEffect(() => {
     if (isApprovalSuccess && approvalCompleted) {
-      console.log("Approval completed, proceeding with deposit")
       DepositCurrency({
         address: addressString as `0x${string}`,
         args: [pendingDepositAmount],
@@ -151,9 +170,10 @@ export default function CookieJarConfigDetails() {
   }, [isApprovalSuccess, approvalCompleted, DepositCurrency, addressString, pendingDepositAmount])
 
   const onSubmit = (value: string) => {
-    const amountBigInt = parseEther(value || "0")
+    // Parse amount considering the token decimals
+    const amountBigInt = parseTokenAmount(value || "0", tokenDecimals)
 
-    if (config.currency == "0x0000000000000000000000000000000000000003") {
+    if (config.currency === ETH_ADDRESS) {
       DepositEth({
         address: addressString as `0x${string}`,
         value: amountBigInt,
@@ -162,8 +182,6 @@ export default function CookieJarConfigDetails() {
       setApprovalCompleted(true)
       setPendingDepositAmount(amountBigInt)
       try {
-        console.log("Calling approve with", tokenAddress)
-
         Approve({
           address: config.currency as `0x${string}`,
           args: [addressString as `0x${string}`, amountBigInt],
@@ -194,9 +212,14 @@ export default function CookieJarConfigDetails() {
   const handleWithdrawWhitelistVariable = () => {
     if (!config.contractAddress || !withdrawAmount) return
 
+    // Parse amount considering the token decimals
+    const parsedAmount = config.currency === ETH_ADDRESS
+      ? parseEther(withdrawAmount)
+      : parseTokenAmount(withdrawAmount, tokenDecimals)
+
     withdrawWhitelistMode({
       address: config.contractAddress,
-      args: [parseEther(withdrawAmount), withdrawPurpose],
+      args: [parsedAmount, withdrawPurpose],
     })
   }
 
@@ -212,9 +235,14 @@ export default function CookieJarConfigDetails() {
   const handleWithdrawNFTVariable = () => {
     if (!config.contractAddress || !withdrawAmount || !gateAddress) return
 
+    // Parse amount considering the token decimals
+    const parsedAmount = config.currency === ETH_ADDRESS
+      ? parseEther(withdrawAmount)
+      : parseTokenAmount(withdrawAmount, tokenDecimals)
+
     withdrawNFTMode({
       address: config.contractAddress,
-      args: [parseEther(withdrawAmount), withdrawPurpose, gateAddress as `0x${string}`, BigInt(tokenId || "0")],
+      args: [parsedAmount, withdrawPurpose, gateAddress as `0x${string}`, BigInt(tokenId || "0")],
     })
   }
 
@@ -276,17 +304,11 @@ export default function CookieJarConfigDetails() {
     )
   }
 
-  // Format balance for display
+  // Format balance for display using the token decimals
   const formattedBalance = () => {
     if (!config.balance) return "0"
-
-    if (config.currency === "0x0000000000000000000000000000000000000003") {
-      // Convert to number and use toFixed(4) to get exactly 4 decimal places
-      const ethBalance = Number(config.balance) / 1e18
-      return ethBalance.toFixed(4) + " ETH"
-    } else {
-      return config.balance.toString() + " Tokens"
-    }
+    
+    return formatTokenAmount(config.balance, tokenDecimals, tokenSymbol || "ETH")
   }
 
   return (
@@ -332,7 +354,7 @@ export default function CookieJarConfigDetails() {
                           asChild
                         >
                           <a
-                            href={`https://sepolia-explorer.base.org/address/${addressString}`}
+                            href={getExplorerAddressUrl(addressString, chainId)}
                             target="_blank"
                             rel="noopener noreferrer"
                           >
@@ -379,7 +401,11 @@ export default function CookieJarConfigDetails() {
                       <div className="flex items-center">
                         <ArrowUpToLine className="h-4 w-4 text-[#ff5e14] mr-2" />
                         <span className="text-[#1a1a1a] font-medium">
-                          {config.maxWithdrawal ? (Number(config.maxWithdrawal) / 1e18).toFixed(4) + " ETH" : "N/A"}
+                          {config.maxWithdrawal
+                            ? config.currency === "0x0000000000000000000000000000000000000003"
+                              ? Number(formatUnits(config.maxWithdrawal, 18)).toFixed(4) + " ETH"
+                              : Number(formatUnits(config.maxWithdrawal, tokenDecimals)).toFixed(4) + " " + tokenSymbol
+                            : "N/A"}
                         </span>
                       </div>
                     </div>
@@ -424,7 +450,9 @@ export default function CookieJarConfigDetails() {
                           {config.withdrawalOption === "Fixed" ? "Yes" : "No"}
                           {config.withdrawalOption === "Fixed" && config.fixedAmount && (
                             <span className="block text-xs text-[#ff5e14]">
-                              {(Number(config.fixedAmount) / 1e18).toFixed(4)} ETH
+                              {config.currency === "0x0000000000000000000000000000000000000003"
+                                ? Number(formatUnits(config.fixedAmount || BigInt(0), 18)).toFixed(4) + " ETH"
+                                : Number(formatUnits(config.fixedAmount || BigInt(0), tokenDecimals)).toFixed(4) + " " + tokenSymbol}
                             </span>
                           )}
                         </p>
@@ -492,8 +520,16 @@ export default function CookieJarConfigDetails() {
 
         {/* Right side - Jar Actions */}
         <div className="lg:col-span-9">
-          <Tabs defaultValue="withdraw" className="w-full">
+        <Tabs defaultValue={isAdmin ? "admin" : "withdraw"} className="w-full">
             <TabsList className="mb-6 bg-[#fff8f0] p-1 w-full">
+            {isAdmin && (
+                <TabsTrigger
+                  value="admin"
+                  className="data-[state=active]:bg-white data-[state=active]:text-[#ff5e14] data-[state=active]:shadow-sm text-[#4a3520] flex-1"
+                >
+                  Admin Controls
+                </TabsTrigger>
+              )}
               <TabsTrigger
                 value="withdraw"
                 className="data-[state=active]:bg-white data-[state=active]:text-[#ff5e14] data-[state=active]:shadow-sm text-[#4a3520] flex-1"
@@ -506,14 +542,7 @@ export default function CookieJarConfigDetails() {
               >
                 Jar Donate
               </TabsTrigger>
-              {isAdmin && (
-                <TabsTrigger
-                  value="admin"
-                  className="data-[state=active]:bg-white data-[state=active]:text-[#ff5e14] data-[state=active]:shadow-sm text-[#4a3520] flex-1"
-                >
-                  Admin Controls
-                </TabsTrigger>
-              )}
+
               {isFeeCollector && (
                 <TabsTrigger
                   value="feeCollector"
@@ -544,7 +573,9 @@ export default function CookieJarConfigDetails() {
                           id="fundAmount"
                           type="text"
                           placeholder={
-                            config.currency === "0x0000000000000000000000000000000000000003" ? "0.1 ETH" : "1000 Tokens"
+                            config.currency === "0x0000000000000000000000000000000000000003" 
+                              ? "0.1 ETH" 
+                              : `1${"." + "0".repeat(tokenDecimals > 0 ? 0 : tokenDecimals)} ${tokenSymbol || "Tokens"}`
                           }
                           value={amount}
                           onChange={(e) => setAmount(e.target.value)}
@@ -693,6 +724,7 @@ export default function CookieJarConfigDetails() {
           <CardContent className="p-6">
             <WithdrawalHistorySection
               pastWithdrawals={config.pastWithdrawals ? ([...config.pastWithdrawals] as Withdrawal[]) : undefined}
+              tokenAddress={isERC20 && config?.currency ? (config.currency) : ETH_ADDRESS}
             />
           </CardContent>
         </Card>

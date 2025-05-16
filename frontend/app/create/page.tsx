@@ -5,9 +5,11 @@ import { DialogFooter } from "@/components/ui/dialog"
 import React from "react"
 
 import { useState, useTransition, useEffect } from "react"
-import { useWriteCookieJarFactoryCreateCookieJar } from "@/generated"
-import { useWaitForTransactionReceipt, useAccount } from "wagmi"
-import { parseEther } from "viem"
+import { useRouter } from "next/navigation"
+import { cookieJarFactoryAbi } from "@/generated"
+import { useWaitForTransactionReceipt, useAccount, useChainId, useWriteContract } from "wagmi"
+import { contractAddresses } from "@/config/supported-networks"
+import { parseEther, isAddress } from "viem"
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -15,15 +17,17 @@ import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Checkbox } from "@/components/ui/checkbox"
+import { ConnectButton } from "@rainbow-me/rainbowkit"
 import { Loader2, CheckCircle2, ArrowLeft, ArrowRight } from "lucide-react"
 import { PlusCircle, Trash2 } from "lucide-react"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { LoadingOverlay } from "@/components/design/loading-overlay"
 import { AlertCircle } from "lucide-react"
 import { BackButton } from "@/components/design/back-button"
+import { MemoizedCustomConnectButton } from "@/components/wallet/custom-connect-button"
 
-// Known address constants
-const ETH_ADDRESS = "0x0000000000000000000000000000000000000003"
+// Import token utilities
+import { ETH_ADDRESS, useTokenInfo, parseTokenAmount, formatTokenAmount } from "@/lib/utils/token-utils"
 
 // Enums matching the contract
 enum AccessType {
@@ -43,11 +47,13 @@ enum NFTType {
 }
 
 export default function CreateCookieJarForm() {
+  const router = useRouter()
   const [isPending, startTransition] = useTransition()
   const [currentStep, setCurrentStep] = useState(1)
   const totalSteps = 4
 
   // Form state
+  const [selectedNetwork, setSelectedNetwork] = useState<string>("baseSepolia")
   const [jarOwnerAddress, setJarOwnerAddress] = useState<`0x${string}`>("0x0000000000000000000000000000000000000000")
   const [supportedCurrency, setSupportedCurrency] = useState<`0x${string}`>(ETH_ADDRESS)
   const [accessType, setAccessType] = useState<AccessType>(AccessType.Whitelist)
@@ -55,11 +61,23 @@ export default function CreateCookieJarForm() {
   const [fixedAmount, setFixedAmount] = useState("0")
   const [maxWithdrawal, setMaxWithdrawal] = useState("0")
   const [withdrawalInterval, setWithdrawalInterval] = useState("0")
-  const [strictPurpose, setStrictPurpose] = useState(false)
+  const [strictPurpose, setStrictPurpose] = useState(true)
   const [emergencyWithdrawalEnabled, setEmergencyWithdrawalEnabled] = useState(true)
   const [oneTimeWithdrawal, setOneTimeWithdrawal] = useState(false)
   const [metadata, setMetadata] = useState("")
   const { isConnected, address } = useAccount()
+  const chainId = useChainId()
+  
+  // Form validation errors
+  const [formErrors, setFormErrors] = useState<{
+    network?: string;
+    jarOwnerAddress?: string;
+    supportedCurrency?: string;
+    metadata?: string;
+    fixedAmount?: string;
+    maxWithdrawal?: string;
+    withdrawalInterval?: string;
+  }>({})
 
   // NFT management
   const [nftAddresses, setNftAddresses] = useState<string[]>([])
@@ -69,21 +87,28 @@ export default function CreateCookieJarForm() {
 
   // Currency type state
   const [currencyType, setCurrencyType] = useState<"eth" | "token">("eth")
+  
+  // Token information using the useTokenInfo hook
+  const { symbol: tokenSymbol, decimals: tokenDecimals, isERC20, error: tokenError, errorMessage: tokenErrorMessage } = useTokenInfo(
+     supportedCurrency 
+  )
 
-  // Then, add state variables for the confirmation dialog and loading overlay
-  // Add these after the existing state declarations (around line 60)
   const [showConfirmDialog, setShowConfirmDialog] = useState(false)
   const [isCreating, setIsCreating] = useState(false)
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [isFormError, setIsFormError] = useState<boolean>(false)
 
-  // Contract write hook
+  // Get the factory address for the current chain
+  const factoryAddress = chainId 
+    ? contractAddresses.cookieJarFactory[chainId] : undefined
+
   const {
-    writeContract: createCookieJar,
+    writeContract,
     data: txHash,
     isPending: isCreatingContract,
     isSuccess: isSubmitted,
     error: createError,
-  } = useWriteCookieJarFactoryCreateCookieJar()
+  } = useWriteContract()
 
   // Transaction receipt hook
   const {
@@ -119,8 +144,12 @@ export default function CreateCookieJarForm() {
         // For ETH, convert from ETH to wei
         return parseEther(amountStr)
       } else {
-        // For tokens, use the raw value (assuming it's already in the smallest unit)
-        return BigInt(amountStr)
+        // For tokens, ensure we have valid token data before attempting to parse
+        if (tokenError || tokenDecimals === undefined) {
+          throw new Error("Invalid token data: " + (tokenErrorMessage || "Unknown token error"))
+        }
+        // For tokens, convert from human-readable to smallest unit using token decimals
+        return parseTokenAmount(amountStr, tokenDecimals)
       }
     } catch (error) {
       console.error("Error parsing amount:", error)
@@ -152,6 +181,18 @@ export default function CreateCookieJarForm() {
 
   // Add a new function to handle the actual submission after confirmation
   const confirmSubmit = () => {
+    // Validate all steps before submitting
+    const { isValid, errors } = validateAll();
+    if (!isValid) {
+      setShowConfirmDialog(false);
+      // Format error messages for popup using the errors directly returned from validateAll
+      const errorMessages = Object.values(errors).filter(Boolean);
+      const formattedErrors = errorMessages.map(error => `• ${error}`).join('\n');
+      setErrorMessage(`Please fix the following validation errors before creating your Cookie Jar:\n${formattedErrors}`);
+      setIsFormError(true);
+      return;
+    }
+
     setShowConfirmDialog(false)
     setIsCreating(true)
     setErrorMessage(null)
@@ -162,7 +203,16 @@ export default function CreateCookieJarForm() {
       const effectiveNftTypes = accessType === AccessType.NFTGated ? nftTypes : []
 
       try {
-        createCookieJar({
+        // Check if we have a valid factory address for this chain
+        if (!factoryAddress) {
+          throw new Error(`No contract address found for the current network (Chain ID: ${chainId}). Please switch to a supported network.`)
+        }
+        
+       
+        writeContract({
+          address: factoryAddress,
+          abi: cookieJarFactoryAbi,
+          functionName: 'createCookieJar',
           args: [
             jarOwnerAddress,
             supportedCurrency,
@@ -176,12 +226,14 @@ export default function CreateCookieJarForm() {
             strictPurpose,
             emergencyWithdrawalEnabled,
             oneTimeWithdrawal,
+            [] as readonly `0x${string}`[], // Adding empty whitelist array TODO integrate w/ FE so users can pass an intiial whitelist on jar creaton
             metadata,
           ],
         })
       } catch (error) {
         console.error("Error creating cookie jar:", error)
         setErrorMessage("Failed to create Cookie Jar. Please try again.")
+        setIsFormError(false)
         setIsCreating(false)
       }
     })
@@ -205,31 +257,186 @@ export default function CreateCookieJarForm() {
     setCurrentStep(1)
   }
 
-  // Update the useEffect for transaction confirmation to hide the loading overlay
-  // Replace the existing useEffect for txConfirmed with this one
+  // Update the useEffect for transaction confirmation to extract jar address and redirect
   useEffect(() => {
     if (txConfirmed && receipt) {
+      console.log("Transaction confirmed:", receipt)
+
+      // Extract the created jar address from the transaction receipt
+      try {
+        if (receipt.logs && receipt.logs.length > 0) {
+          // The jar address is in the address field of the first log
+          const jarAddress = receipt.logs[0].address
+
+          console.log("Extracted jar address:", jarAddress)
+
+          // Add a small delay before redirecting to ensure the success message is seen
+          setTimeout(() => {
+            // Redirect to the specific jar page
+            router.push(`/jar/${jarAddress}`)
+          }, 100)
+
+          setIsCreating(false)
+          resetForm()
+          return
+        }
+
+        // If we couldn't find the address, fall back to the jars listing page
+        console.log("Could not extract jar address, redirecting to jars page")
+        
+        // Fallback to jars listing
+        setTimeout(() => {
+          router.push("/jars")
+        }, 100)
+
+      } catch (error) {
+        console.error("Error extracting jar address:", error)
+        
+        // Fallback to jars listing
+        setTimeout(() => {
+          router.push("/jars")
+        }, 100)
+      }
+
       // Reset form after successful creation
       setIsCreating(false)
       resetForm()
     }
-  }, [txConfirmed, receipt])
+  }, [txConfirmed, receipt, router])
 
-  // Update the useEffect for createError to handle transaction rejection
-  // Replace the existing useEffect for createError with this one
+  
+  // Update the useEffect for create errors to show the error message
   useEffect(() => {
     if (createError) {
       console.error("Transaction error:", createError)
-      // Simplify the error message to just "Transaction rejected" instead of showing the full error
       setErrorMessage("Transaction rejected")
+      setIsFormError(false)
       setIsCreating(false)
     }
   }, [createError])
 
+  // Form validation functions
+  const validateStep = (step: number): { isValid: boolean; errors: Record<string, string> } => {
+    let newErrors: Record<string, string> = {};
+
+    switch (step) {
+      case 1:
+        // Validate network selection
+        if (!selectedNetwork) {
+          newErrors.network = "Please select a network";
+        }
+        
+        // Validate owner address if not the connected address
+        if (jarOwnerAddress !== address) {
+          if (!jarOwnerAddress || !isAddress(jarOwnerAddress)) {
+            newErrors.jarOwnerAddress = "Please enter a valid Ethereum address";
+          }
+        }
+
+        // Validate token address if ERC20 is selected
+        if (currencyType === "token") {
+          if (!supportedCurrency || !isAddress(supportedCurrency)) {
+            newErrors.supportedCurrency = "Please enter a valid ERC20 token address";
+          } else if (tokenError) {
+            // Use the existing token error
+            newErrors.supportedCurrency = tokenErrorMessage;
+          }
+        }
+
+        // Validate jar description
+        if (!metadata) {
+          newErrors.metadata = "Description is required";
+        } else if (metadata.length < 10) {
+          newErrors.metadata = `Description must be at least 10 characters (${metadata.length}/10)`;
+        }
+        break;
+
+      case 3:
+        // Validate fixed amount if fixed withdrawal is selected
+        if (withdrawalOption === WithdrawalTypeOptions.Fixed) {
+          if (!fixedAmount || parseFloat(fixedAmount) <= 0) {
+            newErrors.fixedAmount = "Please enter a valid amount greater than 0";
+          }
+        }
+
+        // Validate max withdrawal if variable withdrawal is selected
+        if (withdrawalOption === WithdrawalTypeOptions.Variable) {
+          if (!maxWithdrawal || parseFloat(maxWithdrawal) <= 0) {
+            newErrors.maxWithdrawal = "Please enter a valid amount greater than 0";
+          }
+        }
+
+        // Validate withdrawal interval
+        if (!withdrawalInterval || Number(withdrawalInterval) <= 0) {
+          newErrors.withdrawalInterval = "Please enter a valid interval greater than 0";
+        }
+        break;
+    }
+
+    // Update form errors state
+    if (Object.keys(newErrors).length > 0) {
+      setFormErrors(prev => ({
+        ...prev,
+        ...newErrors
+      }));
+    } else if (step === 1) {
+      // Clear step 1 errors
+      setFormErrors(prev => ({
+        ...prev,
+        network: undefined,
+        jarOwnerAddress: undefined,
+        supportedCurrency: undefined,
+        metadata: undefined
+      }));
+    } else if (step === 3) {
+      // Clear step 3 errors
+      setFormErrors(prev => ({
+        ...prev,
+        fixedAmount: undefined,
+        maxWithdrawal: undefined,
+        withdrawalInterval: undefined
+      }));
+    }
+
+    return { 
+      isValid: Object.keys(newErrors).length === 0,
+      errors: newErrors
+    };
+  };
+
+  // Function to validate all steps before final submission
+  const validateAll = (): { isValid: boolean; errors: Record<string, string> } => {
+    // Validate each step
+    const step1Result = validateStep(1);
+    const step3Result = validateStep(3);
+    
+    // Combine errors
+    const allErrors = {
+      ...step1Result.errors,
+      ...step3Result.errors
+    };
+    
+    return { 
+      isValid: step1Result.isValid && step3Result.isValid,
+      errors: allErrors
+    };
+  };
+
   // Navigation functions
   const nextStep = () => {
+    // Validate current step
+    const { isValid, errors } = validateStep(currentStep);
+    if (!isValid) {
+      // Format error messages for popup using the errors directly returned from validateStep
+      const errorMessages = Object.values(errors).filter(Boolean);
+      const formattedErrors = errorMessages.map(error => `• ${error}`).join('\n');
+      setErrorMessage(`Please fix the following validation errors:\n${formattedErrors}`);
+      setIsFormError(true);
+      return;
+    }
+    
     if (currentStep < totalSteps) {
-      setCurrentStep(currentStep + 1)
+      setCurrentStep(currentStep + 1);
     }
   }
 
@@ -276,23 +483,76 @@ export default function CreateCookieJarForm() {
               <Label htmlFor="network" className="text-[#3c2a14] text-base">
                 Network
               </Label>
-              <Select defaultValue="baseSepolia">
-                <SelectTrigger className="w-full bg-white border-gray-300 placeholder:text-[#3c2a14]">
-                  <SelectValue placeholder="Select network" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="baseSepolia">Base Sepolia</SelectItem>
-                  <SelectItem value="base" disabled>
-                    Base (Coming Soon)
-                  </SelectItem>
-                  <SelectItem value="optimism" disabled>
-                    Optimism (Coming Soon)
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-              <p className="text-sm text-[#8b7355]">Select the network where you want to deploy your jar</p>
+              <ConnectButton.Custom>
+                {({ account, chain, openAccountModal, openChainModal, openConnectModal, authenticationStatus, mounted }) => {
+                  const ready = mounted && authenticationStatus !== "loading"
+                  const connected =
+                    ready && account && chain && (!authenticationStatus || authenticationStatus === "authenticated")
+
+                  if (!connected) {
+                    return (
+                      <Button 
+                        onClick={openConnectModal} 
+                        className="w-full bg-white border border-gray-300 text-[#3c2a14] hover:bg-gray-50"
+                      >
+                        Connect Wallet to Select Network
+                      </Button>
+                    )
+                  }
+
+                  if (chain?.unsupported) {
+                    return (
+                      <Button 
+                        onClick={openChainModal} 
+                        variant="destructive" 
+                        className="w-full"
+                      >
+                        Switch to Supported Network
+                      </Button>
+                    )
+                  }
+                  
+                  return (
+                    <Button 
+                      onClick={(e) => {
+                        // Prevent event propagation
+                        e.stopPropagation();
+                        e.preventDefault();
+                        openChainModal();
+                      }} 
+                      variant="outline" 
+                      className="w-full flex items-center justify-between bg-white"
+                    >
+                      <div className="flex items-center gap-2 text-gray-500">
+                        {chain.hasIcon && (
+                          <div className="w-5 h-5">
+                            {chain.iconUrl && (
+                              <img
+                                alt={chain.name ?? "Chain icon"}
+                                src={chain.iconUrl || "/placeholder.svg"}
+                                className="w-5 h-5"
+                              />
+                            )}
+                          </div>
+                        )}
+                        <span>{chain.name}</span>
+                      </div>
+                      <span className="text-xs text-gray-500">Click to Change</span>
+                    </Button>
+                  )
+                }}
+              </ConnectButton.Custom>
+              {formErrors.network ? (
+                <p className="text-sm text-red-500 flex items-center">
+                  <AlertCircle className="h-4 w-4 mr-1" /> {formErrors.network}
+                </p>
+              ) : (
+                <p className="text-sm text-[#8b7355]">Your jar will be deployed on the selected network</p>
+              )}
             </div>
 
+
+            
             {/* Jar Owner */}
             <div className="space-y-2">
               <Label htmlFor="jarOwner" className="text-[#3c2a14] text-base">
@@ -301,7 +561,7 @@ export default function CreateCookieJarForm() {
               <Input
                 id="jarOwner"
                 placeholder="0x... (leave empty to use your address)"
-                className="bg-white border-gray-300 placeholder:text-[#3c2a14] text-[#3c2a14]"
+                className={`bg-white ${formErrors.jarOwnerAddress ? 'border-red-500' : 'border-gray-300'} placeholder:text-[#3c2a14] text-[#3c2a14]`}
                 defaultValue=""
                 onChange={(e) => {
                   const value = e.target.value
@@ -312,10 +572,16 @@ export default function CreateCookieJarForm() {
                   }
                 }}
               />
-              <p className="text-sm text-[#8b7355]">
-                The address that will have owner/admin rights for this cookie jar. Leave empty to use your wallet
-                address.
-              </p>
+              {formErrors.jarOwnerAddress ? (
+                <p className="text-sm text-red-500 flex items-center">
+                  <AlertCircle className="h-4 w-4 mr-1" /> {formErrors.jarOwnerAddress}
+                </p>
+              ) : (
+                <p className="text-sm text-[#8b7355]">
+                  The address that will have owner/admin rights for this cookie jar. Leave empty to use your wallet
+                  address.
+                </p>
+              )}
             </div>
 
             {/* Currency Type */}
@@ -355,14 +621,20 @@ export default function CreateCookieJarForm() {
                 <Input
                   id="supportedCurrency"
                   placeholder="0x..."
-                  className="bg-white border-gray-300 placeholder:text-[#3c2a14] text-[#3c2a14]"
+                  className={`bg-white placeholder:text-[#3c2a14] text-[#3c2a14] ${(tokenError || formErrors.supportedCurrency) ? 'border-red-500' : 'border-gray-300'}`}
                   defaultValue=""
                   onChange={(e) => {
                     const value = e.target.value
                     setSupportedCurrency(value as `0x${string}`)
                   }}
                 />
-                <p className="text-sm text-[#8b7355]">Address of the ERC20 token contract</p>
+                {(formErrors.supportedCurrency || (tokenError && supportedCurrency && supportedCurrency !== '0x')) ? (
+                  <p className="text-sm text-red-500 flex items-center">
+                    <AlertCircle className="h-4 w-4 mr-1" /> {formErrors.supportedCurrency || tokenErrorMessage}
+                  </p>
+                ) : (
+                  <p className="text-sm text-[#8b7355]">Address of the ERC20 token contract</p>
+                )}
               </div>
             )}
 
@@ -374,11 +646,34 @@ export default function CreateCookieJarForm() {
               <Textarea
                 id="metadata"
                 placeholder="Provide a description or any additional information"
-                className="min-h-24 bg-white border-gray-300 placeholder:text-[#3c2a14] text-[#3c2a14]"
+                className={`min-h-24 bg-white ${formErrors.metadata ? 'border-red-500' : 'border-gray-300'} placeholder:text-[#3c2a14] text-[#3c2a14]`}
                 value={metadata}
-                onChange={(e) => setMetadata(e.target.value)}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setMetadata(value);
+                  
+                  // Validate description length in real-time
+                  if (value.length > 0 && value.length < 10) {
+                    setFormErrors(prev => ({
+                      ...prev,
+                      metadata: `Description must be at least 10 characters (${value.length}/10)`
+                    }));
+                  } else {
+                    // Clear error when valid or empty
+                    setFormErrors(prev => ({
+                      ...prev,
+                      metadata: undefined
+                    }));
+                  }
+                }}
               />
-              <p className="text-sm text-[#8b7355]">Additional information about this cookie jar</p>
+              {formErrors.metadata ? (
+                <p className="text-sm text-red-500 flex items-center">
+                  <AlertCircle className="h-4 w-4 mr-1" /> {formErrors.metadata}
+                </p>
+              ) : (
+                <p className="text-sm text-[#8b7355]">Additional information about this cookie jar</p>
+              )}
             </div>
           </div>
         )
@@ -400,7 +695,8 @@ export default function CreateCookieJarForm() {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="0">Whitelist</SelectItem>
-                  <SelectItem value="1">NFT Gated</SelectItem>
+                  {/* removed NFT Gated option for MVP launch to reduce complexity <3msg */}
+                  {/* <SelectItem value="1">NFT Gated</SelectItem> */}
                 </SelectContent>
               </Select>
               <p className="text-sm text-[#8b7355]">Determine who can access this cookie jar</p>
@@ -477,6 +773,8 @@ export default function CreateCookieJarForm() {
       case 3:
         return (
           <div className="space-y-6">
+
+            
             {/* Withdrawal Option */}
             <div className="space-y-2">
               <Label htmlFor="withdrawalOption" className="text-[#3c2a14] text-base">
@@ -499,37 +797,55 @@ export default function CreateCookieJarForm() {
 
             {/* Fixed Amount (show if Fixed is selected) */}
             {withdrawalOption === WithdrawalTypeOptions.Fixed && (
-              <div className="space-y-2">
-                <Label htmlFor="fixedAmount" className="text-[#3c2a14] text-base">
-                  Fixed Amount
-                </Label>
-                <Input
-                  id="fixedAmount"
-                  type="text"
-                  placeholder={getAmountPlaceholder}
-                  className="bg-white border-gray-300 placeholder:text-[#3c2a14] text-[#3c2a14]"
-                  value={fixedAmount}
-                  onChange={(e) => setFixedAmount(e.target.value)}
-                />
-                <p className="text-sm text-[#8b7355]">{getAmountDescription}</p>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="fixedAmount" className="text-[#3c2a14]">
+                    Fixed Withdrawal Amount {isERC20 && `(${tokenSymbol})`}
+                  </Label>
+                  <Input
+                    id="fixedAmount"
+                    type="number"
+                    value={fixedAmount}
+                    onChange={(e) => setFixedAmount(e.target.value)}
+                    placeholder="0"
+                    min="0"
+                    step="any"
+                    className={`bg-white ${formErrors.fixedAmount ? 'border-red-500' : 'border-[#e2c7a9]'} focus-visible:ring-[#ff5e14] text-[#3c2a14]`}
+                  />
+                  {formErrors.fixedAmount && (
+                    <p className="text-sm text-red-500 flex items-center mt-1">
+                      <AlertCircle className="h-4 w-4 mr-1" /> {formErrors.fixedAmount}
+                    </p>
+                  )}
+                 
+                </div>
               </div>
             )}
 
             {/* Max Withdrawal (show if Variable is selected) */}
             {withdrawalOption === WithdrawalTypeOptions.Variable && (
-              <div className="space-y-2">
-                <Label htmlFor="maxWithdrawal" className="text-[#3c2a14] text-base">
-                  Maximum Withdrawal
-                </Label>
-                <Input
-                  id="maxWithdrawal"
-                  type="text"
-                  placeholder={getAmountPlaceholder}
-                  className="bg-white border-gray-300 placeholder:text-[#3c2a14] text-[#3c2a14]"
-                  value={maxWithdrawal}
-                  onChange={(e) => setMaxWithdrawal(e.target.value)}
-                />
-                <p className="text-sm text-[#8b7355]">{getMaxWithdrawalDescription}</p>
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="maxWithdrawal" className="text-[#3c2a14]">
+                    Maximum Withdrawal Amount {isERC20 && `(${tokenSymbol})`}
+                  </Label>
+                  <Input
+                    id="maxWithdrawal"
+                    type="number"
+                    value={maxWithdrawal}
+                    onChange={(e) => setMaxWithdrawal(e.target.value)}
+                    placeholder="0"
+                    min="0"
+                    step="any"
+                    className={`bg-white ${formErrors.maxWithdrawal ? 'border-red-500' : 'border-[#e2c7a9]'} focus-visible:ring-[#ff5e14] text-[#3c2a14]`}
+                  />
+                  {formErrors.maxWithdrawal && (
+                    <p className="text-sm text-red-500 flex items-center mt-1">
+                      <AlertCircle className="h-4 w-4 mr-1" /> {formErrors.maxWithdrawal}
+                    </p>
+                  )}
+                  
+                </div>
               </div>
             )}
 
@@ -541,8 +857,10 @@ export default function CreateCookieJarForm() {
               <Input
                 id="withdrawalInterval"
                 type="number"
+                inputMode="decimal"
+                min="0"
                 placeholder="1"
-                className="bg-white border-gray-300 placeholder:text-[#3c2a14] text-[#3c2a14]"
+                className={`bg-white ${formErrors.withdrawalInterval ? 'border-red-500' : 'border-gray-300'} placeholder:text-[#3c2a14] text-[#3c2a14]`}
                 value={(Number(withdrawalInterval) / 86400).toString()}
                 onChange={(e) => {
                   const days = Number.parseFloat(e.target.value)
@@ -550,7 +868,13 @@ export default function CreateCookieJarForm() {
                   setWithdrawalInterval(seconds)
                 }}
               />
-              <p className="text-sm text-[#8b7355]">Time between allowed withdrawals</p>
+              {formErrors.withdrawalInterval ? (
+                <p className="text-sm text-red-500 flex items-center">
+                  <AlertCircle className="h-4 w-4 mr-1" /> {formErrors.withdrawalInterval}
+                </p>
+              ) : (
+                <p className="text-sm text-[#8b7355]">Time between withdrawals for each user</p>
+              )}
             </div>
           </div>
         )
@@ -568,14 +892,14 @@ export default function CreateCookieJarForm() {
               />
               <div className="grid gap-1.5">
                 <Label htmlFor="strictPurpose" className="text-[#3c2a14] text-base">
-                  Strict Purpose
+                  Withdrawal Reason
                 </Label>
-                <p className="text-sm text-[#8b7355]">Enforce strict purpose for withdrawals</p>
+                <p className="text-sm text-[#8b7355]">Require users to enter the reason for their withdrawal</p>
               </div>
             </div>
-
+            {/* removed for MVP launch <3 MSG */}
             {/* Emergency Withdrawal */}
-            <div className="flex items-center space-x-2">
+            {/* <div className="flex items-center space-x-2">
               <Checkbox
                 id="emergencyWithdrawal"
                 checked={emergencyWithdrawalEnabled}
@@ -588,10 +912,11 @@ export default function CreateCookieJarForm() {
                 </Label>
                 <p className="text-sm text-[#8b7355]">Allow emergency withdrawals by jar owner</p>
               </div>
-            </div>
+            </div> */}
 
+            {/* removed for MVP launch <3 MSG */}
             {/* One Time Withdrawal */}
-            <div className="flex items-center space-x-2">
+            {/* <div className="flex items-center space-x-2">
               <Checkbox
                 id="oneTimeWithdrawal"
                 checked={oneTimeWithdrawal}
@@ -604,7 +929,7 @@ export default function CreateCookieJarForm() {
                 </Label>
                 <p className="text-sm text-[#8b7355]">If whitelisted users can only withdraw once.</p>
               </div>
-            </div>
+            </div> */}
 
             {/* Summary */}
             <div className="mt-6 p-4 bg-[#f8f5f0] rounded-lg">
@@ -615,7 +940,7 @@ export default function CreateCookieJarForm() {
                   {jarOwnerAddress === address ? "Your wallet" : jarOwnerAddress}
                 </li>
                 <li className="text-[#3c2a14]">
-                  <span className="font-medium">Currency:</span> {isEthCurrency ? "ETH (Native)" : supportedCurrency}
+                  <span className="font-medium">Currency:</span> {isEthCurrency ? "ETH (Native)" : tokenSymbol}
                 </li>
                 <li className="text-[#3c2a14]">
                   <span className="font-medium">Access Type:</span>{" "}
@@ -627,7 +952,7 @@ export default function CreateCookieJarForm() {
                 </li>
                 <li className="text-[#3c2a14]">
                   <span className="font-medium">Amount:</span>{" "}
-                  {withdrawalOption === WithdrawalTypeOptions.Fixed ? fixedAmount : `Up to ${maxWithdrawal}`}
+                  {withdrawalOption === WithdrawalTypeOptions.Fixed ? `${fixedAmount} ${isERC20 ? tokenSymbol : "ETH"}`: `Up to ${maxWithdrawal} ${isERC20 ? tokenSymbol : "ETH"}`}
                 </li>
                 <li className="text-[#3c2a14]">
                   <span className="font-medium">Interval:</span> {(Number(withdrawalInterval) / 86400).toString()} days
@@ -649,7 +974,7 @@ export default function CreateCookieJarForm() {
         <div className="bg-white p-8 rounded-xl shadow-lg max-w-md text-center">
           <h2 className="text-2xl font-bold text-[#3c2a14] mb-4">Connect Your Wallet</h2>
           <p className="text-lg text-[#8b7355] mb-6">Please connect your wallet to create a Cookie Jar.</p>
-          <div className="text-[#8b7355]">Use the connect button in the sidebar to get started.</div>
+          <MemoizedCustomConnectButton className="w-full mx-auto mt-4" />
         </div>
       </div>
     )
@@ -710,7 +1035,7 @@ export default function CreateCookieJarForm() {
                 <CheckCircle2 className="h-4 w-4 mr-2" />
                 <div>
                   <p className="font-medium">Cookie Jar Created!</p>
-                  <p className="text-sm">Your cookie jar has been created successfully.</p>
+                  <p className="text-sm">Your cookie jar has been created successfully. Redirecting to your jar...</p>
                 </div>
               </div>
             )}
@@ -773,7 +1098,7 @@ export default function CreateCookieJarForm() {
                     {jarOwnerAddress === address ? "Your wallet" : jarOwnerAddress}
                   </li>
                   <li className="text-[#3c2a14]">
-                    <span className="font-medium">Currency:</span> {isEthCurrency ? "ETH (Native)" : supportedCurrency}
+                    <span className="font-medium">Currency:</span> {isEthCurrency ? "ETH (Native)" : `${tokenSymbol}`}
                   </li>
                   <li className="text-[#3c2a14]">
                     <span className="font-medium">Access Type:</span>{" "}
@@ -785,7 +1110,9 @@ export default function CreateCookieJarForm() {
                   </li>
                   <li className="text-[#3c2a14]">
                     <span className="font-medium">Amount:</span>{" "}
-                    {withdrawalOption === WithdrawalTypeOptions.Fixed ? fixedAmount : `Up to ${maxWithdrawal}`}
+                    {withdrawalOption === WithdrawalTypeOptions.Fixed 
+                      ? `${fixedAmount} ${isERC20 ? tokenSymbol : "ETH"}` 
+                      : `Up to ${maxWithdrawal} ${isERC20 ? tokenSymbol : "ETH"}`}
                   </li>
                   <li className="text-[#3c2a14]">
                     <span className="font-medium">Interval:</span> {(Number(withdrawalInterval) / 86400).toString()}{" "}
@@ -816,22 +1143,30 @@ export default function CreateCookieJarForm() {
 
       {/* Error message */}
       {errorMessage && (
-        <Dialog open={!!errorMessage} onOpenChange={() => setErrorMessage(null)}>
+        <Dialog open={!!errorMessage} onOpenChange={() => {
+          setErrorMessage(null);
+          setIsFormError(false);
+        }}>
           <DialogContent className="sm:max-w-md">
             <DialogHeader>
               <DialogTitle className="flex items-center text-red-600">
                 <AlertCircle className="h-5 w-5 mr-2" />
-                Transaction Failed
+                {isFormError ? "Problem with Form Data" : "Transaction Failed"}
               </DialogTitle>
             </DialogHeader>
             <div className="py-4">
-              <p className="text-white font-bold">{errorMessage}</p>
-              <p className="text-[#8b7355] mt-2 text-sm">Please try again or check your wallet for more details.</p>
+              <p className="text-[#8b7355] whitespace-pre-line">{errorMessage}</p>
+              {!isFormError && (
+                <p className="text-[#8b7355] mt-2 text-sm">Please try again or check your wallet for more details.</p>
+              )}
             </div>
             <DialogFooter>
               <Button
                 type="button"
-                onClick={() => setErrorMessage(null)}
+                onClick={() => {
+                  setErrorMessage(null);
+                  setIsFormError(false);
+                }}
                 className="bg-[#ff5e14] hover:bg-[#e54d00] text-white"
               >
                 Close
