@@ -17,15 +17,15 @@ import { Address } from 'viem'
 export const supportedChains: readonly [Chain, ...Chain[]] = [
   // Testnets
   sepolia,
-  baseSepolia, 
+  // baseSepolia, 
   optimismSepolia,
   celoAlfajores,
   // Mainnets
-  mainnet,
-  base,
+  // mainnet,
+  // base,
   optimism,
-  arbitrum,
-  gnosis
+  // arbitrum,
+  // gnosis
 ]
 
 interface ContractAddresses {

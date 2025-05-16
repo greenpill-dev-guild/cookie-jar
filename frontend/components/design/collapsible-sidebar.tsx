@@ -26,7 +26,7 @@ export function CollapsibleSidebar() {
     { name: "Home", href: "/", icon: <Home className="h-5 w-5" /> },
     { name: "Explore Jars", href: "/jars", icon: <Cookie className="h-5 w-5" /> },
     { name: "Create Jar", href: "/create", icon: <Plus className="h-5 w-5" /> },
-    { name: "Documentation", href: "/docs", icon: <FileText className="h-5 w-5" /> },
+    // { name: "Documentation", href: "/docs", icon: <FileText className="h-5 w-5" /> },
   ]
 
   return (
