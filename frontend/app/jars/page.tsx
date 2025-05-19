@@ -15,6 +15,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { keccak256, toUtf8Bytes } from "ethers"
 import { ethers } from "ethers"
 import { MemoizedCustomConnectButton } from "@/components/wallet/custom-connect-button"
+import { useReadCookieJarHasRole } from "@/generated"
+import { Crown } from "lucide-react"
 
 export default function CookieJarPage() {
   const { cookieJarsData, isLoading, error } = useCookieJarFactory()
@@ -26,7 +28,9 @@ export default function CookieJarPage() {
   const jarsPerPage = 9
   const [filterOption, setFilterOption] = useState("all")
   const [whitelistedJars, setWhitelistedJars] = useState<Record<string, boolean>>({})
+  const [adminJars, setAdminJars] = useState<Record<string, boolean>>({})
   const [isCheckingWhitelist, setIsCheckingWhitelist] = useState(false)
+  const [isCheckingAdmin, setIsCheckingAdmin] = useState(false)
 
   // Filter jars based on search term and filter option
   const filteredJars = useMemo(() => {
@@ -39,6 +43,11 @@ export default function CookieJarPage() {
     // Apply whitelist filter if selected
     if (filterOption === "whitelisted") {
       filtered = filtered.filter((jar) => whitelistedJars[jar.jarAddress])
+    }
+    
+    // Apply admin filter if selected
+    if (filterOption === "admin") {
+      filtered = filtered.filter((jar) => adminJars[jar.jarAddress])
     }
 
     return filtered
@@ -112,7 +121,62 @@ export default function CookieJarPage() {
     }
 
     checkWhitelistStatus()
-  }, [userAddress, cookieJarsData])
+  }, [cookieJarsData, userAddress])
+
+  // Check admin status for each jar
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (!userAddress || cookieJarsData.length === 0) return
+
+      setIsCheckingAdmin(true)
+      const statuses: Record<string, boolean> = { ...adminJars }
+
+      // Use a simpler approach with direct contract calls
+      const JAR_OWNER_ROLE = keccak256(toUtf8Bytes("JAR_OWNER")) as `0x${string}`
+
+      // Create a provider
+      const provider = window.ethereum ? new ethers.BrowserProvider(window.ethereum) : null
+      if (!provider) {
+        setIsCheckingAdmin(false)
+        return
+      }
+
+      // Check each jar
+      for (const jar of cookieJarsData) {
+        try {
+          // Create a contract instance
+          const contract = new ethers.Contract(
+            jar.jarAddress,
+            [
+              {
+                inputs: [
+                  { name: "role", type: "bytes32" },
+                  { name: "account", type: "address" },
+                ],
+                name: "hasRole",
+                outputs: [{ name: "", type: "bool" }],
+                stateMutability: "view",
+                type: "function",
+              },
+            ],
+            provider,
+          )
+
+          // Call hasRole
+          const hasRole = await contract.hasRole(JAR_OWNER_ROLE, userAddress)
+          statuses[jar.jarAddress] = hasRole
+        } catch (error) {
+          console.error(`Error checking admin status for ${jar.jarAddress}:`, error)
+          statuses[jar.jarAddress] = false
+        }
+      }
+
+      setAdminJars(statuses)
+      setIsCheckingAdmin(false)
+    }
+
+    checkAdminStatus()
+  }, [cookieJarsData, userAddress])
 
   const navigateToJar = (address: string) => {
     router.push(`/jar/${address}`)
@@ -151,6 +215,7 @@ export default function CookieJarPage() {
                 <SelectContent>
                   <SelectItem value="all">All Jars</SelectItem>
                   <SelectItem value="whitelisted">Whitelisted</SelectItem>
+                  <SelectItem value="admin">Admin</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -195,6 +260,7 @@ export default function CookieJarPage() {
                 const indexOfLastJar = currentPage * jarsPerPage
                 const indexOfFirstJar = indexOfLastJar - jarsPerPage
                 const isWhitelisted = whitelistedJars[jar.jarAddress]
+                const isAdmin = adminJars[jar.jarAddress]
 
                 return (
                   <Card
@@ -205,6 +271,12 @@ export default function CookieJarPage() {
                       <Badge className="absolute top-2 left-2 z-10 bg-green-500 text-white flex items-center gap-1 px-2 py-0.5">
                         <CheckCircle className="h-3 w-3" />
                         <span className="text-xs">Whitelisted</span>
+                      </Badge>
+                    )}
+                    {isAdmin && (
+                      <Badge className="absolute top-2 right-8 z-10 bg-purple-600 text-white flex items-center gap-1 px-2 py-0.5">
+                        <Crown className="h-3 w-3" />
+                        <span className="text-xs">Admin</span>
                       </Badge>
                     )}
                     <div className="absolute top-0 right-0 w-8 h-8 bg-[#ff5e14] transform rotate-45 translate-x-4 -translate-y-4"></div>
@@ -307,6 +379,7 @@ export default function CookieJarPage() {
       <p className="text-sm text-[#ff5e14] mt-8 font-medium">
         Total jars loaded: {filteredJars.length}
         {filterOption === "whitelisted" && ` (${filteredJars.length} whitelisted)`}
+        {filterOption === "admin" && ` (${filteredJars.length} admin)`}
       </p>
     </div>
   )
