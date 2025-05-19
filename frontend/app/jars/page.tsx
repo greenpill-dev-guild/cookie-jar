@@ -16,7 +16,7 @@ import { keccak256, toUtf8Bytes } from "ethers"
 import { ethers } from "ethers"
 import { MemoizedCustomConnectButton } from "@/components/wallet/custom-connect-button"
 import { useReadCookieJarHasRole } from "@/generated"
-import { Crown } from "lucide-react"
+import { Users, ShieldAlert } from "lucide-react"
 
 export default function CookieJarPage() {
   const { cookieJarsData, isLoading, error } = useCookieJarFactory()
@@ -51,7 +51,7 @@ export default function CookieJarPage() {
     }
 
     return filtered
-  }, [cookieJarsData, searchTerm, filterOption, whitelistedJars])
+  }, [cookieJarsData, searchTerm, filterOption, whitelistedJars, adminJars])
 
   // Calculate pagination
   const { currentJars, totalPages } = useMemo(() => {
@@ -68,75 +68,25 @@ export default function CookieJarPage() {
     setCurrentPage(1)
   }, [searchTerm, filterOption])
 
-  // Check whitelist status for each jar
+  // Check role status (whitelist and admin) for each jar
   useEffect(() => {
-    const checkWhitelistStatus = async () => {
+    const checkRoleStatus = async () => {
       if (!userAddress || cookieJarsData.length === 0) return
 
       setIsCheckingWhitelist(true)
-      const statuses: Record<string, boolean> = { ...whitelistedJars }
-
-      // Use a simpler approach with direct contract calls
-      const JAR_WHITELISTED = keccak256(toUtf8Bytes("JAR_WHITELISTED")) as `0x${string}`
-
-      // Create a provider
-      const provider = window.ethereum ? new ethers.BrowserProvider(window.ethereum) : null
-      if (!provider) {
-        setIsCheckingWhitelist(false)
-        return
-      }
-
-      // Check each jar
-      for (const jar of cookieJarsData) {
-        try {
-          // Create a contract instance
-          const contract = new ethers.Contract(
-            jar.jarAddress,
-            [
-              {
-                inputs: [
-                  { name: "role", type: "bytes32" },
-                  { name: "account", type: "address" },
-                ],
-                name: "hasRole",
-                outputs: [{ name: "", type: "bool" }],
-                stateMutability: "view",
-                type: "function",
-              },
-            ],
-            provider,
-          )
-
-          // Call hasRole
-          const hasRole = await contract.hasRole(JAR_WHITELISTED, userAddress)
-          statuses[jar.jarAddress] = hasRole
-        } catch (error) {
-          console.error(`Error checking whitelist for ${jar.jarAddress}:`, error)
-          statuses[jar.jarAddress] = false
-        }
-      }
-
-      setWhitelistedJars(statuses)
-      setIsCheckingWhitelist(false)
-    }
-
-    checkWhitelistStatus()
-  }, [cookieJarsData, userAddress])
-
-  // Check admin status for each jar
-  useEffect(() => {
-    const checkAdminStatus = async () => {
-      if (!userAddress || cookieJarsData.length === 0) return
-
       setIsCheckingAdmin(true)
-      const statuses: Record<string, boolean> = { ...adminJars }
+      
+      const whitelistStatuses: Record<string, boolean> = { ...whitelistedJars }
+      const adminStatuses: Record<string, boolean> = { ...adminJars }
 
-      // Use a simpler approach with direct contract calls
+      // Define role constants
+      const JAR_WHITELISTED = keccak256(toUtf8Bytes("JAR_WHITELISTED")) as `0x${string}`
       const JAR_OWNER_ROLE = keccak256(toUtf8Bytes("JAR_OWNER")) as `0x${string}`
 
       // Create a provider
       const provider = window.ethereum ? new ethers.BrowserProvider(window.ethereum) : null
       if (!provider) {
+        setIsCheckingWhitelist(false)
         setIsCheckingAdmin(false)
         return
       }
@@ -162,20 +112,28 @@ export default function CookieJarPage() {
             provider,
           )
 
-          // Call hasRole
-          const hasRole = await contract.hasRole(JAR_OWNER_ROLE, userAddress)
-          statuses[jar.jarAddress] = hasRole
+          // Check whitelist role
+          const hasWhitelistRole = await contract.hasRole(JAR_WHITELISTED, userAddress)
+          whitelistStatuses[jar.jarAddress] = hasWhitelistRole
+          
+          // Check admin role
+          const hasAdminRole = await contract.hasRole(JAR_OWNER_ROLE, userAddress)
+          adminStatuses[jar.jarAddress] = hasAdminRole
+          
         } catch (error) {
-          console.error(`Error checking admin status for ${jar.jarAddress}:`, error)
-          statuses[jar.jarAddress] = false
+          console.error(`Error checking roles for ${jar.jarAddress}:`, error)
+          whitelistStatuses[jar.jarAddress] = false
+          adminStatuses[jar.jarAddress] = false
         }
       }
 
-      setAdminJars(statuses)
+      setWhitelistedJars(whitelistStatuses)
+      setAdminJars(adminStatuses)
+      setIsCheckingWhitelist(false)
       setIsCheckingAdmin(false)
     }
 
-    checkAdminStatus()
+    checkRoleStatus()
   }, [cookieJarsData, userAddress])
 
   const navigateToJar = (address: string) => {
@@ -268,14 +226,20 @@ export default function CookieJarPage() {
                     className="jar-card bg-white border-none shadow-md hover:shadow-xl transition-all duration-300 relative overflow-hidden before:content-[''] before:absolute before:bottom-0 before:left-0 before:w-full before:h-1 before:bg-[#ff5e14]"
                   >
                     {isWhitelisted && (
-                      <Badge className="absolute top-2 left-2 z-10 bg-green-500 text-white flex items-center gap-1 px-2 py-0.5">
-                        <CheckCircle className="h-3 w-3" />
+                      <Badge 
+                        variant="outline"
+                        className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-[#e6f7e6] text-[#2e7d32] border-[#2e7d32] px-3 py-1"
+                      >
+                        <Users className="h-3 w-3 mr-1" />
                         <span className="text-xs">Whitelisted</span>
                       </Badge>
                     )}
                     {isAdmin && (
-                      <Badge className="absolute top-2 right-8 z-10 bg-purple-600 text-white flex items-center gap-1 px-2 py-0.5">
-                        <Crown className="h-3 w-3" />
+                      <Badge 
+                        variant="outline"
+                        className="absolute top-2 right-8 z-10 flex items-center gap-1 bg-[#fce4ec] text-[#c2185b] border-[#c2185b] px-3 py-1"
+                      >
+                        <ShieldAlert className="h-3 w-3 mr-1" />
                         <span className="text-xs">Admin</span>
                       </Badge>
                     )}
