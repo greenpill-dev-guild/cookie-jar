@@ -37,7 +37,7 @@ interface ContractAddresses {
 export const contractAddresses: ContractAddresses = {
   cookieJarFactory: {
     [sepolia.id]: "0x8339F06023625F903dc7e8c258aCF3E02d14A3CC",
-    [baseSepolia.id]: "0x64e50110A562539d12cEc047f4b7Ded24D1174d2" ,
+    [baseSepolia.id]: "0x3136398C565aD99d81d61367C40625704A8fD54F" ,
     [optimismSepolia.id]: "0xca424e55D7Bf40442397a33790B18665FFb961c3",
     [celoAlfajores.id]: "0x8339F06023625F903dc7e8c258aCF3E02d14A3CC",
     [optimism.id]: "0x8339F06023625F903dc7e8c258aCF3E02d14A3CC"
