@@ -273,10 +273,7 @@ contract CookieJarTest is Test {
         jarWhitelistETHFixed.depositETH{value: depositValue}();
         uint256 fee = ((jarWhitelistETHFixed.feePercentageOnDeposit() * depositValue) / 10000);
         uint256 amountMinusFee = depositValue - fee;
-        assertEq(
-            address(jarWhitelistETHFixed).balance,
-            jarwhitebalanceBefore + amountMinusFee
-        );
+        assertEq(address(jarWhitelistETHFixed).balance, jarwhitebalanceBefore + amountMinusFee);
         assertEq(config.defaultFeeCollector.balance, feeBalanceBefore + fee);
         assertEq(jarWhitelistETHFixed.currencyHeldByJar(), currencyHeldByJarBefore + amountMinusFee);
         assertEq(user.balance, userBalanceBefore - depositValue);
@@ -296,31 +293,38 @@ contract CookieJarTest is Test {
     }
 
     // Test deposit dummyToken using DummyERC20 (fee deducted as 1%)
-    function testDepositdummyToken() public {
+    function test_DepositCurrency() public {
         uint256 depositAmount = 1000 * 1e18;
         deal(address(dummyToken), user, depositAmount);
-        vm.startPrank(user);
 
-        uint256 feeBalanceBefore = ERC20(dummyToken).balanceOf(config.defaultFeeCollector);
+        uint256 feeBalanceBefore = dummyToken.balanceOf(config.defaultFeeCollector);
         uint256 currencyHeldByJarBefore = jarWhitelistERC20Fixed.currencyHeldByJar();
-        uint256 jarBalanceBefore = ERC20(dummyToken).balanceOf(address(jarWhitelistERC20Fixed));
+        uint256 jarBalanceBefore = dummyToken.balanceOf(address(jarWhitelistERC20Fixed));
+        uint256 userBalanceBefore = dummyToken.balanceOf(user);
+        vm.startPrank(user);
         dummyToken.approve(address(jarWhitelistERC20Fixed), depositAmount);
         jarWhitelistERC20Fixed.depositCurrency(depositAmount);
-        assertEq(
-            ERC20(dummyToken).balanceOf(config.defaultFeeCollector),
-            feeBalanceBefore + ((jarWhitelistETHFixed.feePercentageOnDeposit() * depositAmount) / 10000)
-        );
-        assertEq(
-            ERC20(dummyToken).balanceOf(address(jarWhitelistERC20Fixed)),
-            jarBalanceBefore
-                + (depositAmount - ((jarWhitelistETHFixed.feePercentageOnDeposit() * depositAmount) / 10000))
-        );
-        assertEq(
-            jarWhitelistERC20Fixed.currencyHeldByJar(),
-            currencyHeldByJarBefore
-                + (depositAmount - ((jarWhitelistETHFixed.feePercentageOnDeposit() * depositAmount) / 10000))
-        );
         vm.stopPrank();
+        uint256 fee = ((jarWhitelistETHFixed.feePercentageOnDeposit() * depositAmount) / 10000);
+        uint256 amountMinusFee = depositAmount - fee;
+        assertEq(dummyToken.balanceOf(config.defaultFeeCollector), feeBalanceBefore + fee);
+        assertEq(dummyToken.balanceOf(address(jarWhitelistERC20Fixed)), jarBalanceBefore + amountMinusFee);
+        assertEq(jarWhitelistERC20Fixed.currencyHeldByJar(), currencyHeldByJarBefore + amountMinusFee);
+        assertEq(dummyToken.balanceOf(user), userBalanceBefore - depositAmount);
+    }
+
+    function test_RevertWhen_DepositCurrencyWithLessThanMinAmount() public {
+        vm.prank(user);
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.LessThanMinimumDeposit.selector));
+        jarWhitelistERC20Fixed.depositCurrency(0);
+    }
+
+    function test_RevertWhen_DepositCurrencyWithInvalidTokenAddress() public {
+        uint256 depositAmount = 1000 * 1e18;
+        deal(address(dummyToken), user, depositAmount);
+        vm.prank(user);
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidTokenAddress.selector));
+        jarWhitelistETHFixed.depositCurrency(depositAmount);
     }
 
     // ===== Admin Function Tests =====
