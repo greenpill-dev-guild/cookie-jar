@@ -365,7 +365,6 @@ contract CookieJarTest is Test {
         factory.createCookieJar(
             owner,
             address(3),
-            /// @dev address(3) for ETH jars.
             CookieJarLib.AccessType.NFTGated,
             invalidAddresses,
             nftTypes,
@@ -378,6 +377,34 @@ contract CookieJarTest is Test {
             false,
             emptyWhitelist,
             "Test Metadata"
+        );
+    }
+
+    function test_RevertWhen_ConstructorDuplicateNFTGates() public {
+        address[] memory dupAddresses = new address[](2);
+        dupAddresses[0] = address(dummyERC721);
+        dupAddresses[1] = address(dummyERC721);
+        CookieJarLib.NFTType[] memory dupTypes = new CookieJarLib.NFTType[](2);
+        dupTypes[0] = CookieJarLib.NFTType.ERC721;
+        dupTypes[1] = CookieJarLib.NFTType.ERC721;
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.DuplicateNFTGate.selector));
+        new CookieJar(
+            owner,
+            address(3),
+            CookieJarLib.AccessType.NFTGated,
+            dupAddresses,
+            dupTypes,
+            CookieJarLib.WithdrawalTypeOptions.Fixed,
+            fixedAmount,
+            maxWithdrawal,
+            withdrawalInterval,
+            config.minETHDeposit,
+            config.feePercentageOnDeposit,
+            true,
+            config.defaultFeeCollector,
+            true, // emergencyWithdrawalEnabled
+            true,
+            emptyWhitelist
         );
     }
 
@@ -476,6 +503,34 @@ contract CookieJarTest is Test {
         jarNFTETHFixed.removeNFTGate(address(2)); // This should revert
     }
 
+    function testAddDuplicateNFTGate() public {
+        vm.prank(owner);
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.DuplicateNFTGate.selector));
+        jarNFTETHFixed.addNFTGate(address(dummyERC721), CookieJarLib.NFTType.ERC721);
+    }
+
+    // Emergency withdrawal should revert if jar balance is insufficient (ERC20).
+    function testEmergencyWithdrawInsufficientBalanceERC20() public {
+        uint256 dummyTokenFund = 500 * 1e18;
+        dummyToken.mint(address(jarWhitelistETHFixed), dummyTokenFund);
+        vm.prank(owner);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                IERC20Errors.ERC20InsufficientBalance.selector, address(jarWhitelistETHFixed), 500 * 1e18, 600 * 1e18
+            )
+        );
+        jarWhitelistETHFixed.emergencyWithdraw(address(dummyToken), 600 * 1e18);
+    }
+
+    function testEmergencyWithdrawInsufficientBalanceETH() public {
+        uint256 dummyTokenFund = 500 * 1e18;
+        vm.deal(address(jarWhitelistETHFixed), dummyTokenFund);
+        vm.prank(owner);
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.TransferFailed.selector));
+        jarWhitelistETHFixed.emergencyWithdraw(address(3), 600 * 1e18);
+    }
+
+
     function test_UpdateMaxWithdrawalAmount() public {
         vm.prank(owner);
         jarNFTERC20Variable.UpdateMaxWithdrawalAmount(1000 * 1e18);
@@ -554,6 +609,8 @@ contract CookieJarTest is Test {
         jarNFTETHFixed.updateWithdrawalInterval(1000 * 1e18);
     }
 
+    // ===== Deposit Tests =====
+
     function test_DepositETH() public {
         uint256 depositValue = 100 wei;
         uint256 feeBalanceBefore = config.defaultFeeCollector.balance;
@@ -618,28 +675,6 @@ contract CookieJarTest is Test {
         jarWhitelistETHFixed.depositCurrency(depositAmount);
     }
 
-    // Test that after adding a new NFT gate via addNFTGate, the optimized mapping lookup works
-    // by performing a withdrawal using the newly added NFT gate.
-    function testWithdrawNFTModeAfterAddGateMapping() public {
-        // Use dummyERC1155 as a new NFT gate (not present in the constructor)
-        DummyERC1155 secondDummyERC1155 = new DummyERC1155();
-        vm.prank(owner);
-        jarNFTETHFixed.addNFTGate(address(secondDummyERC1155), CookieJarLib.NFTType.ERC1155);
-
-        // Mint an NFT dummyToken (ERC1155) for the user.
-        secondDummyERC1155.mint(user, 1, 1);
-        // Fund jarNFTETH with ETH.
-        vm.deal(address(jarNFTETHFixed), 10 ether);
-        // Advance time to satisfy timelock.
-        vm.warp(block.timestamp + withdrawalInterval + 1);
-        // Withdrawal should now succeed using dummyERC1155 as the NFT gate.
-        uint256 currencyHeldByJarBefore = jarNFTETHFixed.currencyHeldByJar();
-        vm.prank(user);
-        jarNFTETHFixed.withdrawNFTMode(fixedAmount, purpose, address(secondDummyERC1155), 1);
-        assertEq(address(jarNFTETHFixed).balance, 10 ether - fixedAmount);
-        assertEq(jarNFTETHFixed.currencyHeldByJar(), currencyHeldByJarBefore - fixedAmount);
-    }
-
     // ===== Withdrawal Tests (Whitelist Mode) =====
 
     function test_WithdrawWhitelistETHFixed() public {
@@ -657,7 +692,6 @@ contract CookieJarTest is Test {
         assertEq(jarWhitelistETHFixed.lastWithdrawalWhitelist(user), block.timestamp);
     }
 
-     // Successful ERC20 withdrawal in Whitelist mode.
     function test_WithdrawWhitelistERC20Fixed() public {
         vm.prank(owner);
         jarWhitelistERC20Fixed.grantJarWhitelistRole(users);
@@ -1027,191 +1061,4 @@ contract CookieJarTest is Test {
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InsufficientBalance.selector));
         newJar.withdrawNFTMode(maxWithdrawal, purpose, address(dummyERC721), dummyTokenId);
     }
-
-    //     // ===== Emergency Withdrawal Tests =====
-
-    //     // Emergency withdrawal of ETH by admin in Whitelist mode.
-    //     function testEmergencyWithdrawETHWhitelist() public {
-    //         uint256 fundAmount = 5 ether;
-    //         vm.deal(address(jarWhitelistETH), fundAmount);
-    //         vm.deal(admin, 0);
-    //         uint256 withdrawAmount = 2 ether;
-    //         vm.prank(admin);
-    //         jarWhitelistETH.emergencyWithdraw(address(0), withdrawAmount);
-    //         assertEq(address(jarWhitelistETH).balance, fundAmount - withdrawAmount);
-    //         assertEq(admin.balance, withdrawAmount);
-    //     }
-
-    //     // Emergency withdrawal of ERC20 dummyTokens by admin in Whitelist mode.
-    //     function testEmergencyWithdrawERC20Whitelist() public {
-    //         uint256 dummyTokenFund = 1000 * 1e18;
-    //         dummyToken.mint(address(jarWhitelistETH), dummyTokenFund);
-    //         assertEq(dummyToken.balanceOf(address(jarWhitelistETH)), dummyTokenFund);
-    //         uint256 withdrawAmount = 200 * 1e18;
-    //         vm.prank(admin);
-    //         jarWhitelistETH.emergencyWithdraw(address(dummyToken), withdrawAmount);
-    //         assertEq(
-    //             dummyToken.balanceOf(address(jarWhitelistETH)),
-    //             dummyTokenFund - withdrawAmount
-    //         );
-    //         assertEq(dummyToken.balanceOf(admin), withdrawAmount);
-    //     }
-
-    //     // Emergency withdrawal should revert when called by a non-admin.
-    //     function testEmergencyWithdrawNonAdmin() public {
-    //         vm.deal(address(jarWhitelistETH), 5 ether);
-    //         vm.prank(attacker);
-    //         vm.expectRevert(abi.encodeWithSelector(CookieJar.NotAdmin.selector));
-    //         jarWhitelistETH.emergencyWithdraw(address(0), 1 ether);
-
-    //         dummyToken.mint(address(jarWhitelistETH), 1000 * 1e18);
-    //         vm.prank(attacker);
-    //         vm.expectRevert(abi.encodeWithSelector(CookieJar.NotAdmin.selector));
-    //         jarWhitelistETH.emergencyWithdraw(address(dummyToken), 100 * 1e18);
-    //     }
-
-    //     // Emergency withdrawal should revert if jar balance is insufficient (ETH).
-    //     function testEmergencyWithdrawInsufficientBalanceETH() public {
-    //         vm.deal(address(jarWhitelistETH), 1 ether);
-    //         vm.prank(admin);
-    //         vm.expectRevert(
-    //             abi.encodeWithSelector(CookieJar.InsufficientBalance.selector)
-    //         );
-    //         jarWhitelistETH.emergencyWithdraw(address(0), 2 ether);
-    //     }
-
-    // Revert if zero ETH withdrawal is attempted in NFT-gated mode.
-    function testWithdrawNFTModeZeroAmountETH() public {
-        uint256 dummyTokenId = dummyERC721.mint(user);
-        vm.warp(block.timestamp + withdrawalInterval + 1);
-        vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.ZeroAmount.selector));
-        jarNFTETHFixed.withdrawNFTMode(0, purpose, address(dummyERC721), dummyTokenId);
-    }
-
-    // Revert if zero ERC20 withdrawal is attempted in NFT-gated mode.
-    function testWithdrawNFTModeZeroAmountERC20() public {
-        uint256 dummyTokenAmount = 1000 * 1e18;
-        dummyToken.mint(address(jarNFTETHFixed), dummyTokenAmount);
-        uint256 dummyTokenId = dummyERC721.mint(user);
-        vm.warp(block.timestamp + withdrawalInterval + 1);
-        vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.ZeroAmount.selector));
-        jarNFTETHFixed.withdrawNFTMode(0, purpose, address(dummyERC721), dummyTokenId);
-    }
-
-    // Emergency withdrawal should revert if jar balance is insufficient (ERC20).
-    function testEmergencyWithdrawInsufficientBalanceERC20() public {
-        uint256 dummyTokenFund = 500 * 1e18;
-        dummyToken.mint(address(jarWhitelistETHFixed), dummyTokenFund);
-        vm.prank(owner);
-        vm.expectRevert(
-            abi.encodeWithSelector(
-                IERC20Errors.ERC20InsufficientBalance.selector, address(jarWhitelistETHFixed), 500 * 1e18, 600 * 1e18
-            )
-        );
-        jarWhitelistETHFixed.emergencyWithdraw(address(dummyToken), 600 * 1e18);
-    }
-
-    function testEmergencyWithdrawInsufficientBalanceETH() public {
-        uint256 dummyTokenFund = 500 * 1e18;
-        vm.deal(address(jarWhitelistETHFixed), dummyTokenFund);
-        vm.prank(owner);
-        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.TransferFailed.selector));
-        jarWhitelistETHFixed.emergencyWithdraw(address(3), 600 * 1e18);
-    }
-
-    // // ===== Emergency Withdrawal Zero Amount Tests =====
-
-    // // Revert if zero ETH emergency withdrawal is attempted.
-    // function testEmergencyWithdrawZeroAmountETH() public {
-    //     vm.deal(address(jarWhitelistETH), 5 ether);
-    //     vm.prank(admin);
-    //     vm.expectRevert(
-    //         abi.encodeWithSelector(CookieJar.ZeroAmount.selector)
-    //     );
-    //     jarWhitelistETH.emergencyWithdraw(address(0), 0);
-    // }
-
-    // // Revert if zero ERC20 emergency withdrawal is attempted.
-    // function testEmergencyWithdrawZeroAmountERC20() public {
-    //     uint256 dummyTokenFund = 1000 * 1e18;
-    //     dummyToken.mint(address(jarWhitelistETH), dummyTokenFund);
-    //     vm.prank(admin);
-    //     vm.expectRevert(
-    //         abi.encodeWithSelector(CookieJar.ZeroAmount.selector)
-    //     );
-    //     jarWhitelistETH.emergencyWithdraw(address(dummyToken), 0);
-    // }
-
-    // ===== Duplicate NFT Gate Tests =====
-
-    // Test that the constructor reverts if duplicate NFT addresses are provided.
-    function testConstructorDuplicateNFTGates() public {
-        address[] memory dupAddresses = new address[](2);
-        dupAddresses[0] = address(dummyERC721);
-        dupAddresses[1] = address(dummyERC721); // duplicate
-        CookieJarLib.NFTType[] memory dupTypes = new CookieJarLib.NFTType[](2);
-        dupTypes[0] = CookieJarLib.NFTType.ERC721;
-        dupTypes[1] = CookieJarLib.NFTType.ERC721;
-        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.DuplicateNFTGate.selector));
-        new CookieJar(
-            owner,
-            address(3),
-            /// @dev address(3) for ETH jars.
-            CookieJarLib.AccessType.NFTGated,
-            dupAddresses,
-            dupTypes,
-            CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount,
-            maxWithdrawal,
-            withdrawalInterval,
-            config.minETHDeposit,
-            config.feePercentageOnDeposit,
-            true,
-            config.defaultFeeCollector,
-            true, // emergencyWithdrawalEnabled
-            true,
-            emptyWhitelist
-        );
-    }
-
-    // Test that addNFTGate reverts if the NFT address is already added.
-    function testAddDuplicateNFTGate() public {
-        vm.prank(owner);
-        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.DuplicateNFTGate.selector));
-        jarNFTETHFixed.addNFTGate(address(dummyERC721), CookieJarLib.NFTType.ERC721);
-    }
-
-    // // ===== New Test: Emergency Withdrawal Disabled =====
-
-    // // Test that emergency withdrawal reverts when the feature is disabled.
-    // function testEmergencyWithdrawDisabled() public {
-    //     // Create a jar with emergency withdrawal disabled.
-    //     CookieJar jarDisabled = new CookieJar(
-    //         owner,
-    //         address(3),
-    //         /// @dev address(3) for ETH jars.
-    //         CookieJarLib.AccessType.Whitelist,
-    //         emptyAddresses,
-    //         emptyTypes,
-    //         CookieJarLib.WithdrawalTypeOptions.Variable,
-    //         0,
-    //         maxWithdrawal,
-    //         withdrawalInterval,
-    //         strictPurpose,
-    //         true, // emergencyWithdrawalEnabled
-    //         true,
-    //         "Test Metadata"
-    //     );
-
-    //     vm.deal(address(jarDisabled), 5 ether);
-    //     vm.prank(owner);
-    //     vm.expectRevert(
-    //         abi.encodeWithSelector(
-    //             CookieJarLib.EmergencyWithdrawalDisabled.selector
-    //         )
-    //     );
-    //     jarDisabled.emergencyWithdraw(address(0), 1 ether);
-    // }
 }
