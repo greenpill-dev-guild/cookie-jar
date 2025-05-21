@@ -40,7 +40,7 @@ export const contractAddresses: ContractAddresses = {
     [baseSepolia.id]: "0x3136398C565aD99d81d61367C40625704A8fD54F" ,
     [optimismSepolia.id]: "0xca424e55D7Bf40442397a33790B18665FFb961c3",
     [celoAlfajores.id]: "0x8339F06023625F903dc7e8c258aCF3E02d14A3CC",
-    [optimism.id]: "0x8339F06023625F903dc7e8c258aCF3E02d14A3CC"
+    [optimism.id]: "0xca424e55D7Bf40442397a33790B18665FFb961c3"
   },
   cookieJarRegistry: {
     [sepolia.id]: "0xE9c62c210E6d56EbB0718f79DCE2883b8e38B356" ,
