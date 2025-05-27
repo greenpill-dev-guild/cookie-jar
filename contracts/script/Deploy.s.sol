@@ -31,14 +31,14 @@ contract Deploy is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         // Deploy Registry
-        CookieJarRegistry registry = new CookieJarRegistry();
-        ERC20Mock testtoken = new ERC20Mock();
+        CookieJarRegistry registry = new CookieJarRegistry{salt: keccak256(abi.encodePacked("devguild"))}();
+        ERC20Mock testtoken = new ERC20Mock{salt: keccak256(abi.encodePacked("devguild"))}();
         testtoken.mint(deployer, 100e18);
         console.log("CookieJarRegistry deployed at: ", address(registry));
         console.log("Test ERC", address(testtoken));
 
         // Deploy Factory with Registry address
-        CookieJarFactory factory = new CookieJarFactory(
+        CookieJarFactory factory = new CookieJarFactory{salt: keccak256(abi.encodePacked("devguild"))}(
             config.defaultFeeCollector,
             address(registry),
             0x487a30c88900098b765d76285c205c7c47582512,
@@ -52,7 +52,7 @@ contract Deploy is Script {
         // Set Factory in Registry
         registry.setCookieJarFactory(address(factory));
 
-        ERC721Mock erc721 = new ERC721Mock("TestNFT", "TNFT");
+        ERC721Mock erc721 = new ERC721Mock{salt: keccak256(abi.encodePacked("devguild"))}("TestNFT", "TNFT");
         erc721.mint(deployer, 1);
         console.log("ERC721Mock deployed at:", address(erc721));
         console.log("Token ID 1 minted to:", deployer);
