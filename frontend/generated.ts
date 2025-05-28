@@ -204,6 +204,7 @@ export const cookieJarAbi = [
         components: [
           { name: 'amount', internalType: 'uint256', type: 'uint256' },
           { name: 'purpose', internalType: 'string', type: 'string' },
+          { name: 'recipient', internalType: 'address', type: 'address' },
         ],
       },
     ],
@@ -411,6 +412,7 @@ export const cookieJarAbi = [
     outputs: [
       { name: 'amount', internalType: 'uint256', type: 'uint256' },
       { name: 'purpose', internalType: 'string', type: 'string' },
+      { name: 'recipient', internalType: 'address', type: 'address' },
     ],
     stateMutability: 'view',
   },

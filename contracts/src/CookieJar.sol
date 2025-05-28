@@ -359,7 +359,7 @@ contract CookieJar is AccessControl {
 
     function _checkAndUpdateWithdraw(uint256 amount, string calldata purpose, uint256 lastWithdrawal) internal {
         if (amount == 0) revert CookieJarLib.ZeroAmount();
-        if (strictPurpose && bytes(purpose).length < 20) revert CookieJarLib.InvalidPurpose();
+        if (strictPurpose && bytes(purpose).length < 10) revert CookieJarLib.InvalidPurpose();
         if (oneTimeWithdrawal && lastWithdrawal != 0) revert CookieJarLib.WithdrawalAlreadyDone();
         uint256 nextAllowed = lastWithdrawal + withdrawalInterval;
         if (block.timestamp < nextAllowed) revert CookieJarLib.WithdrawalTooSoon(nextAllowed);
@@ -371,7 +371,7 @@ contract CookieJar is AccessControl {
         if (currencyHeldByJar < amount) revert CookieJarLib.InsufficientBalance();
 
         currencyHeldByJar -= amount;
-        CookieJarLib.WithdrawalData memory temp = CookieJarLib.WithdrawalData({amount: amount, purpose: purpose});
+        CookieJarLib.WithdrawalData memory temp = CookieJarLib.WithdrawalData({amount: amount, purpose: purpose, recipient: msg.sender});
         withdrawalData.push(temp);
     }
 
