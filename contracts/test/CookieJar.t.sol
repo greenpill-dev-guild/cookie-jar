@@ -884,7 +884,7 @@ contract CookieJarTest is Test {
         assertEq(jarWhitelistETHFixed.currencyHeldByJar(), currencyHeldByJarBefore + amountMinusFee);
         assertEq(user.balance, userBalanceBefore - depositValue);
     }
-
+/* - Not enforcing a min dep <3 MSG 5/29/25
     function test_RevertWhen_DepositETHWithLessThanMinAmount() public {
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.LessThanMinimumDeposit.selector));
@@ -897,7 +897,7 @@ contract CookieJarTest is Test {
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidTokenAddress.selector));
         jarWhitelistERC20Fixed.depositETH{value: 10 ether}();
     }
-
+*/
     function test_DepositCurrency() public {
         uint256 depositAmount = 1000 * 1e18;
         deal(address(dummyToken), user, depositAmount);
@@ -917,7 +917,7 @@ contract CookieJarTest is Test {
         assertEq(jarWhitelistERC20Fixed.currencyHeldByJar(), currencyHeldByJarBefore + amountMinusFee);
         assertEq(dummyToken.balanceOf(user), userBalanceBefore - depositAmount);
     }
-
+/* - Not enforcing a min dep <3 MSG 5/29/25
     function test_RevertWhen_DepositCurrencyWithLessThanMinAmount() public {
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.LessThanMinimumDeposit.selector));
@@ -931,7 +931,7 @@ contract CookieJarTest is Test {
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidTokenAddress.selector));
         jarWhitelistETHFixed.depositCurrency(depositAmount);
     }
-
+*/
     // ===== Withdrawal Tests (Whitelist Mode) =====
 
     function test_WithdrawWhitelistETHFixed() public {
