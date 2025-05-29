@@ -554,6 +554,8 @@ contract CookieJarTest is Test {
     // ==== admin functions tests ====
 
     function test_grantJarWhitelistRole() public {
+        assertFalse(jarWhitelistETHFixed.hasRole(keccak256("JAR_WHITELISTED"), user));
+        assertFalse(jarWhitelistETHFixed.hasRole(keccak256("JAR_WHITELISTED"), user2));
         vm.prank(owner);
         jarWhitelistETHFixed.grantJarWhitelistRole(users);
         assertTrue(jarWhitelistETHFixed.hasRole(keccak256("JAR_WHITELISTED"), user));
@@ -792,12 +794,11 @@ contract CookieJarTest is Test {
         uint256 currencyHeldByJarBefore = jarNFTETHFixed.currencyHeldByJar();
         assertEq(currencyHeldByJarBefore, jarBalanceBefore);
         uint256 ownerBalanceBefore = owner.balance;
-        uint256 amountToWithdraw = 1e18;
         vm.prank(owner);
-        jarNFTETHFixed.emergencyWithdraw(address(3), amountToWithdraw);
-        assertEq(address(jarNFTETHFixed).balance, jarBalanceBefore - amountToWithdraw);
-        assertEq(jarNFTETHFixed.currencyHeldByJar(), currencyHeldByJarBefore - amountToWithdraw);
-        assertEq(owner.balance, ownerBalanceBefore + amountToWithdraw);
+        jarNFTETHFixed.emergencyWithdraw(address(3), fixedAmount);
+        assertEq(address(jarNFTETHFixed).balance, jarBalanceBefore - fixedAmount);
+        assertEq(jarNFTETHFixed.currencyHeldByJar(), currencyHeldByJarBefore - fixedAmount);
+        assertEq(owner.balance, ownerBalanceBefore + fixedAmount);
     }
 
     function test_emergencyWithdrawERC20() public {
@@ -805,25 +806,35 @@ contract CookieJarTest is Test {
         uint256 currencyHeldByJarBefore = jarWhitelistERC20Fixed.currencyHeldByJar();
         assertEq(currencyHeldByJarBefore, jarBalanceBefore);
         uint256 ownerBalanceBefore = owner.balance;
-        uint256 amountToWithdraw = 1e18;
         vm.prank(owner);
-        jarWhitelistERC20Fixed.emergencyWithdraw(address(dummyToken), amountToWithdraw);
-        assertEq(dummyToken.balanceOf(address(jarWhitelistERC20Fixed)), jarBalanceBefore - amountToWithdraw);
-        assertEq(jarWhitelistERC20Fixed.currencyHeldByJar(), currencyHeldByJarBefore - amountToWithdraw);
-        assertEq(dummyToken.balanceOf(owner), ownerBalanceBefore + amountToWithdraw);
+        jarWhitelistERC20Fixed.emergencyWithdraw(address(dummyToken), fixedAmount);
+        assertEq(dummyToken.balanceOf(address(jarWhitelistERC20Fixed)), jarBalanceBefore - fixedAmount);
+        assertEq(jarWhitelistERC20Fixed.currencyHeldByJar(), currencyHeldByJarBefore - fixedAmount);
+        assertEq(dummyToken.balanceOf(owner), ownerBalanceBefore + fixedAmount);
     }
 
-    function test_emergencyWithdrawNotJarToken() public {
-        uint256 amountToWithdraw = 1e18;
-        dummyToken.mint(address(jarWhitelistETHFixed), amountToWithdraw);
+    function test_emergencyWithdrawERC20NotJarToken() public {
+        dummyToken.mint(address(jarWhitelistETHFixed), fixedAmount);
         uint256 jarBalanceBefore = dummyToken.balanceOf(address(jarWhitelistETHFixed));
         uint256 ownerBalanceBefore = dummyToken.balanceOf(owner);
         uint256 currencyHeldByJarBefore = jarWhitelistETHFixed.currencyHeldByJar();
         vm.prank(owner);
-        jarWhitelistETHFixed.emergencyWithdraw(address(dummyToken), amountToWithdraw);
-        assertEq(dummyToken.balanceOf(address(jarWhitelistETHFixed)), jarBalanceBefore - amountToWithdraw);
-        assertEq(dummyToken.balanceOf(owner), ownerBalanceBefore + amountToWithdraw);
+        jarWhitelistETHFixed.emergencyWithdraw(address(dummyToken), fixedAmount);
+        assertEq(dummyToken.balanceOf(address(jarWhitelistETHFixed)), jarBalanceBefore - fixedAmount);
+        assertEq(dummyToken.balanceOf(owner), ownerBalanceBefore + fixedAmount);
         assertEq(jarWhitelistETHFixed.currencyHeldByJar(), currencyHeldByJarBefore);
+    }
+
+    function test_emergencyWithdrawETHNotJarToken() public {
+        vm.deal(address(jarNFTERC20Fixed), fixedAmount);
+        uint256 jarBalanceBefore = address(jarNFTERC20Fixed).balance;
+        uint256 currencyHeldByJarBefore = jarNFTERC20Fixed.currencyHeldByJar();
+        uint256 ownerBalanceBefore = owner.balance;
+        vm.prank(owner);
+        jarNFTERC20Fixed.emergencyWithdraw(address(3), fixedAmount);
+        assertEq(address(jarNFTERC20Fixed).balance, jarBalanceBefore - fixedAmount);
+        assertEq(jarNFTERC20Fixed.currencyHeldByJar(), currencyHeldByJarBefore);
+        assertEq(owner.balance, ownerBalanceBefore + fixedAmount);
     }
 
     function test_RevertWhen_emergencyWithdrawCalledByNonOwner() public {
