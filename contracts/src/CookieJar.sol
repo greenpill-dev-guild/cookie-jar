@@ -203,7 +203,10 @@ contract CookieJar is AccessControl {
     function emergencyWithdraw(address token, uint256 amount) external onlyRole(CookieJarLib.JAR_OWNER) {
         if (!emergencyWithdrawalEnabled) revert CookieJarLib.EmergencyWithdrawalDisabled();
         if (amount == 0) revert CookieJarLib.ZeroAmount();
-        if (token == currency) currencyHeldByJar -= amount;
+        if (token == currency) {
+            if (currencyHeldByJar < amount) revert CookieJarLib.InsufficientBalance();
+            currencyHeldByJar -= amount;
+        }
         emit CookieJarLib.EmergencyWithdrawal(msg.sender, token, amount);
         if (token == address(3)) {
             (bool sent,) = msg.sender.call{value: amount}("");
@@ -328,6 +331,7 @@ contract CookieJar is AccessControl {
     /// @param _nftType The NFT type.
     function _addNFTGate(address _nftAddress, CookieJarLib.NFTType _nftType) internal {
         if (_nftAddress == address(0)) revert CookieJarLib.InvalidNFTGate();
+        if (_nftType == CookieJarLib.NFTType.None) revert CookieJarLib.InvalidNFTType();
         if (nftGateMapping[_nftAddress] != CookieJarLib.NFTType.None) revert CookieJarLib.DuplicateNFTGate();
         CookieJarLib.NFTGate memory gate = CookieJarLib.NFTGate({nftAddress: _nftAddress, nftType: _nftType});
         nftGates.push(gate);
