@@ -27,12 +27,6 @@ contract Deploy is Script {
         vm.startBroadcast(deployerPrivateKey);
         bytes32 devguildSalt = keccak256(abi.encodePacked("devguild"));
 
-        // Deploy Registry
-        CookieJarRegistry registry = new CookieJarRegistry{salt: devguildSalt}();
-        ERC20Mock testtoken = new ERC20Mock{salt: devguildSalt}();
-        testtoken.mint(deployer, 100e18);
-        console.log("Test ERC", address(testtoken));
-
         // Deploy Factory with Registry address
         CookieJarFactory factory = new CookieJarFactory{salt: devguildSalt}(
             config.defaultFeeCollector,
