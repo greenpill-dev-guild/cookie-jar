@@ -30,39 +30,49 @@ export function Footer() {
                   Create Jar
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link href="/docs" className="text-[#4a3520] hover:text-primary transition-colors">
                   Documentation
                 </Link>
-              </li>
+              </li> */}
             </ul>
           </div>
 
           <div className="md:col-span-3">
-            <h3 className="font-semibold text-xl mb-4 text-[#4a3520]">Resources</h3>
+            <h3 className="font-semibold text-xl mb-4 text-[#4a3520]">Connect</h3>
             <ul className="space-y-3 text-lg">
               <li>
-                <Link href="/faq" className="text-[#4a3520] hover:text-primary transition-colors">
-                  FAQ
+                <Link  
+                href="https://github.com/Cookie-Jar-DAO/cookie-jar-v3"
+                target="_blank"
+                rel="noopener noreferrer" 
+                className="text-[#4a3520] hover:text-primary transition-colors"
+                >
+                Github
                 </Link>
               </li>
               <li>
-                <Link href="/tutorials" className="text-[#4a3520] hover:text-primary transition-colors">
-                  Tutorials
+              <Link  
+                href="https://t.me/+nD0-6jFTfUY2NTkx"
+                target="_blank"
+                rel="noopener noreferrer" 
+                className="text-[#4a3520] hover:text-primary transition-colors"
+                >
+                Support via Telegram
                 </Link>
               </li>
               <li>
-                <Link href="/support" className="text-[#4a3520] hover:text-primary transition-colors">
-                  Support
+                <Link href="mailto:support@cookiejar.wtf" className="text-[#4a3520] hover:text-primary transition-colors">
+                  support@cookiejar.wtf
                 </Link>
               </li>
             </ul>
           </div>
 
-          <div className="md:col-span-2 flex flex-col items-center">
+          {/* <div className="md:col-span-2 flex flex-col items-center">
             <h3 className="font-semibold text-xl mb-4 text-[#4a3520]">Connect</h3>
             <SocialMediaButtons />
-          </div>
+          </div> */}
         </div>
 
         <div className="mt-12 pt-8 border-t text-center text-lg text-[#4a3520]">

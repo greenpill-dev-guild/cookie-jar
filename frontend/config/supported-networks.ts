@@ -21,11 +21,11 @@ export const supportedChains: readonly [Chain, ...Chain[]] = [
   optimismSepolia,
   celoAlfajores,
   // Mainnets
-  mainnet,
-  base,
+  // mainnet,
+  // base,
   optimism,
-  arbitrum,
-  gnosis
+  // arbitrum,
+  // gnosis
 ]
 
 interface ContractAddresses {
@@ -36,10 +36,11 @@ interface ContractAddresses {
 // Define the contract addresses for supported networks
 export const contractAddresses: ContractAddresses = {
   cookieJarFactory: {
-    [sepolia.id]: "0x010CE87d0E7F8E818805a27C95E09cb4961C8c6f" ,
-    [baseSepolia.id]: "0x010CE87d0E7F8E818805a27C95E09cb4961C8c6f" ,
-    [optimismSepolia.id]: "0x010CE87d0E7F8E818805a27C95E09cb4961C8c6f",
-    [celoAlfajores.id]: "0x5FC650F378475d1fF0E608964529E4863A339CD2"
+    [sepolia.id]: "0x8339F06023625F903dc7e8c258aCF3E02d14A3CC",
+    [baseSepolia.id]: "0x77fb65Af2f87a30fF0163926B1c35a2E1B5D107C" ,
+    [optimismSepolia.id]: "0xdb634A8e08Ab229Be039Ef7b84068400C2eFdBb1",
+    [celoAlfajores.id]: "0x8339F06023625F903dc7e8c258aCF3E02d14A3CC",
+    [optimism.id]: "0xca424e55D7Bf40442397a33790B18665FFb961c3"
   },
   cookieJarRegistry: {
     [sepolia.id]: "0xE9c62c210E6d56EbB0718f79DCE2883b8e38B356" ,

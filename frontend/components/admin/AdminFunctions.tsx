@@ -6,15 +6,19 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { parseEther } from "viem"
+import { keccak256, toUtf8Bytes } from "ethers"
+import { ETH_ADDRESS, parseTokenAmount, useTokenInfo } from "@/lib/utils/token-utils"
 import {
-  useWriteCookieJarTransferJarOwnership,
-  useReadCookieJarJarOwner,
+  // Commented out missing hooks
+  // useWriteCookieJarTransferJarOwnership,
+  useReadCookieJarHasRole,
   useWriteCookieJarGrantJarWhitelistRole,
   useWriteCookieJarRevokeJarWhitelistRole,
-  useWriteCookieJarGrantJarBlacklistRole,
-  useWriteCookieJarRevokeJarBlacklistRole,
-  useWriteCookieJarEmergencyWithdrawWithoutState,
-  useWriteCookieJarEmergencyWithdrawCurrencyWithState,
+  // useWriteCookieJarGrantJarBlacklistRole,
+  // useWriteCookieJarRevokeJarBlacklistRole,
+  // useWriteCookieJarEmergencyWithdrawWithoutState,
+  // useWriteCookieJarEmergencyWithdrawCurrencyWithState,
+  useWriteCookieJarEmergencyWithdraw,
   useWriteCookieJarAddNftGate,
   useWriteCookieJarRemoveNftGate,
 } from "../../generated"
@@ -23,6 +27,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AlertCircle, Shield, UserPlus, UserMinus, AlertTriangle, Tag, Loader2 } from "lucide-react"
 import { useToast } from "@/hooks/design/use-toast"
 import { useAccount } from "wagmi"
+import WhitelistManagement from "./WhiteListManagement"
 
 enum NFTType {
   ERC721 = 0,
@@ -34,10 +39,26 @@ interface AdminFunctionsProps {
   address: `0x${string}`
 }
 
+// Hash the JAR_OWNER role
+const JAR_OWNER_ROLE = keccak256(toUtf8Bytes("JAR_OWNER")) as `0x${string}`
+
 export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
   const [newJarOwner, setNewJarOwner] = useState("")
   const [withdrawalAmount, setWithdrawalAmount] = useState("")
   const [tokenAddress, setTokenAddress] = useState("")
+  const [tokenToWithdraw, setTokenToWithdraw] = useState<`0x${string}`>(ETH_ADDRESS as `0x${string}`)
+
+  // Update emergency tokenToWithdraw when tokenAddress changes
+  useEffect(() => {
+    if (tokenAddress.length > 3) {
+      setTokenToWithdraw(tokenAddress as `0x${string}`)
+    } else {
+      setTokenToWithdraw(ETH_ADDRESS as `0x${string}`)
+    }
+  }, [tokenAddress])
+
+  // Get token info including decimals and symbol
+  const { symbol, decimals, isERC20 } = useTokenInfo(tokenToWithdraw)
   const [addressToUpdate, setAddressToUpdate] = useState("")
   const [nftAddress, setNftAddress] = useState("")
   const [nftTokenId, setNftTokenId] = useState("")
@@ -45,12 +66,14 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
   const { toast } = useToast()
   const { address: currentUserAddress } = useAccount()
 
-  // Read the current jar owner
-  const { data: currentOwner, refetch: refetchOwner } = useReadCookieJarJarOwner({
+  // Check if current user has the JAR_OWNER role
+  const { data: hasJarOwnerRole, refetch: refetchOwnerRole } = useReadCookieJarHasRole({
     address,
+    args: [JAR_OWNER_ROLE, currentUserAddress || '0x0000000000000000000000000000000000000000' as `0x${string}`],
   })
 
-  // Transfer jar ownership hook
+  // Transfer jar ownership hook - commented out due to missing hook
+  /*
   const {
     writeContract: transferJarOwnership,
     data: transferData,
@@ -58,19 +81,21 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
     isSuccess: isTransferSuccess,
     isPending: isTransferPending,
   } = useWriteCookieJarTransferJarOwnership()
+  */
+  // Mock values for the commented out hook
+  const transferJarOwnership = undefined;
+  const transferData = undefined;
+  const transferError = undefined;
+  const isTransferSuccess = false;
+  const isTransferPending = false;
 
+    // Emergency withdraw hook
   const {
-    writeContract: emergencyWithdrawWithoutState,
-    data: emergencyWithdrawWithoutStateData,
-    error: emergencyWithdrawWithoutStateError,
+    writeContract: emergencyWithdraw,
+    data: emergencyWithdrawData,
+    error: emergencyWithdrawError,
     isSuccess: isEmergencyWithdrawSuccess,
-  } = useWriteCookieJarEmergencyWithdrawWithoutState()
-
-  const {
-    writeContract: emergencyWithdrawCurrencyWithState,
-    data: emergencyWithdrawWithStateData,
-    error: emergencyWithdrawWithStateError,
-  } = useWriteCookieJarEmergencyWithdrawCurrencyWithState()
+  } = useWriteCookieJarEmergencyWithdraw()
 
   const {
     writeContract: grantJarWhitelistRole,
@@ -86,6 +111,8 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
     isSuccess: isWhitelistRevokeSuccess,
   } = useWriteCookieJarRevokeJarWhitelistRole()
 
+  // Blacklist role hooks - commented out due to missing hooks
+  /*
   const {
     writeContract: grantJarBlacklistRole,
     data: blacklistGrantData,
@@ -99,6 +126,17 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
     error: blacklistRevokeError,
     isSuccess: isBlacklistRevokeSuccess,
   } = useWriteCookieJarRevokeJarBlacklistRole()
+  */
+  // Mock values for commented out hooks
+  const grantJarBlacklistRole = undefined;
+  const blacklistGrantData = undefined;
+  const blacklistGrantError = undefined;
+  const isBlacklistGrantSuccess = false;
+  
+  const revokeJarBlacklistRole = undefined;
+  const blacklistRevokeData = undefined;
+  const blacklistRevokeError = undefined;
+  const isBlacklistRevokeSuccess = false;
 
   const {
     writeContract: addNftGate,
@@ -124,9 +162,9 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
       setIsTransferring(false)
       setNewJarOwner("")
 
-      // Refresh the owner data after successful transfer
+      // Refresh the owner role data after successful transfer
       setTimeout(() => {
-        refetchOwner()
+        refetchOwnerRole()
         // Force page refresh to update all UI components
         window.location.reload()
       }, 2000)
@@ -184,7 +222,7 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
     isNftGateSuccess,
     isRemoveNftGateSuccess,
     toast,
-    refetchOwner,
+    refetchOwnerRole,
   ])
 
   // Handle transfer error
@@ -200,68 +238,111 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
   }, [transferError, toast])
 
   // Admin functions
-  const handleTransferJarOwnership = () => {
+  const handleTransferJarOwnership = async () => {
+    toast({
+      title: "Feature Unavailable",
+      description: "Transfer jar ownership is currently unavailable.",
+      variant: "destructive",
+    });
+    return;
+
+    /*
     if (!newJarOwner || !newJarOwner.startsWith("0x")) {
       toast({
         title: "Invalid Address",
-        description: "Please enter a valid Ethereum address starting with 0x",
+        description: "Please enter a valid Ethereum address",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
 
-    setIsTransferring(true)
+    setIsTransferring(true);
 
     try {
-      transferJarOwnership({
-        address: address,
+      await transferJarOwnership({
+        address,
         args: [newJarOwner as `0x${string}`],
-      })
+      });
+
+      // Success message shown when isTransferSuccess becomes true
     } catch (error) {
-      console.error("Error transferring ownership:", error)
-      setIsTransferring(false)
+      console.error("Error transferring jar ownership:", error);
       toast({
         title: "Transfer Failed",
-        description: "An error occurred while transferring ownership",
+        description: "Failed to transfer ownership. Please try again.",
         variant: "destructive",
-      })
+      });
+    } finally {
+      setIsTransferring(false);
     }
+    */
   }
 
+  // Emergency withdraw function
   const handleEmergencyWithdraw = () => {
-    if (!withdrawalAmount) return
-    console.log("Emergency withdrawal amount:", withdrawalAmount)
-    if (tokenAddress.length > 3) {
-      emergencyWithdrawWithoutState({
+    if (!withdrawalAmount) return;
+    console.log("Emergency withdrawal amount:", withdrawalAmount);
+    
+    try {
+      const parsedAmount = parseTokenAmount(withdrawalAmount, decimals);
+      
+      emergencyWithdraw({
         address: address,
-        args: [tokenAddress as `0x${string}`, BigInt(withdrawalAmount || "0")],
-      })
-    } else {
-      emergencyWithdrawCurrencyWithState({
-        address: address,
-        args: [
-          parseEther(withdrawalAmount), // amount as second argument
-        ],
-      })
+        args: [tokenToWithdraw, parsedAmount],
+      });
+      
+      toast({
+        title: "Emergency Withdraw Initiated",
+        description: `Attempting to withdraw ${withdrawalAmount} ${symbol || (tokenToWithdraw === ETH_ADDRESS ? 'ETH' : 'tokens')}.`,
+      });
+    } catch (error) {
+      console.error("Emergency withdrawal error:", error);
+      toast({
+        title: "Emergency Withdraw Failed",
+        description: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        variant: "destructive",
+      });
     }
   }
 
+  // Grant blacklist role function - commented out due to missing hook
   const handleGrantJarBlacklistRole = () => {
+    // Function commented out due to missing hook
+    toast({
+      title: "Feature Unavailable",
+      description: "Granting blacklist role is currently unavailable.",
+      variant: "destructive",
+    });
+    return;
+    
+    /*
     if (!addressToUpdate) return
     console.log(`"Adding addresses to blacklist:`, addressToUpdate)
     grantJarBlacklistRole({
       address: address,
       args: [[addressToUpdate as `0x${string}`]],
     })
+    */
   }
 
+  // Revoke blacklist role function - commented out due to missing hook
   const handleRevokeJarBlacklistRole = () => {
+    // Function commented out due to missing hook
+    toast({
+      title: "Feature Unavailable",
+      description: "Revoking blacklist role is currently unavailable.",
+      variant: "destructive",
+    });
+    return;
+    
+    /*
     if (!addressToUpdate) return
     console.log(`Removing address from blacklist:`, addressToUpdate)
     revokeJarBlacklistRole({
       address: address,
       args: [[addressToUpdate as `0x${string}`]],
     })
+    */
   }
 
   const handleGrantJarWhitelistRole = () => {
@@ -300,24 +381,14 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
     })
   }
 
-  // Format the current owner address for display
-  const formattedCurrentOwner = currentOwner ? `${currentOwner.slice(0, 6)}...${currentOwner.slice(-4)}` : "Loading..."
-
-  // Check if current user is the owner
-  const isCurrentUserOwner =
-    currentUserAddress && currentOwner && currentUserAddress.toLowerCase() === currentOwner.toLowerCase()
+  // Check if current user has the JAR_OWNER role
+  const isCurrentUserOwner = hasJarOwnerRole === true
 
   return (
     <div className="space-y-6 bg-[#2b1d0e] p-4 rounded-lg">
-      <Tabs defaultValue="ownership" className="w-full">
+      <Tabs defaultValue="access" className="w-full">
         <TabsList className="mb-6 bg-[#fff8f0] p-1">
-          <TabsTrigger
-            value="ownership"
-            className="data-[state=active]:bg-white data-[state=active]:text-[#ff5e14] data-[state=active]:shadow-sm text-[#4a3520]"
-          >
-            <Shield className="h-4 w-4 mr-2" />
-            Ownership
-          </TabsTrigger>
+        
           <TabsTrigger
             value="access"
             className="data-[state=active]:bg-white data-[state=active]:text-[#ff5e14] data-[state=active]:shadow-sm text-[#4a3520]"
@@ -332,6 +403,14 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
             <AlertTriangle className="h-4 w-4 mr-2" />
             Emergency
           </TabsTrigger>
+          {/* no longer possible w/ updated scs. <3MSG may15-25 */}
+          {/* <TabsTrigger
+            value="ownership"
+            className="data-[state=active]:bg-white data-[state=active]:text-[#ff5e14] data-[state=active]:shadow-sm text-[#4a3520]"
+          >
+            <Shield className="h-4 w-4 mr-2" />
+            Ownership
+          </TabsTrigger> */}
           {/* <TabsTrigger
             value="nft"
             className="data-[state=active]:bg-white data-[state=active]:text-[#ff5e14] data-[state=active]:shadow-sm text-[#4a3520]"
@@ -340,8 +419,8 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
             NFT Gates
           </TabsTrigger> */}
         </TabsList>
-
-        <TabsContent value="ownership" className="mt-0">
+          {/* no longer possible w/ updated scs. <3MSG may15-25 */}
+        {/* <TabsContent value="ownership" className="mt-0">
           <Card className="border-none shadow-sm">
             <CardHeader className="bg-[#fff8f0] rounded-t-lg">
               <CardTitle className="text-xl text-[#3c2a14] flex items-center">
@@ -355,11 +434,11 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
             <CardContent className="p-6">
               <div className="space-y-4">
                 <div className="bg-[#fff8f0] p-4 rounded-lg mb-4">
-                  <p className="text-[#3c2a14] font-medium">Current Owner: {formattedCurrentOwner}</p>
+                  <p className="text-[#3c2a14] font-medium">Jar Administration</p>
                   <p className="text-sm text-[#8b7355] mt-1">
                     {isCurrentUserOwner
-                      ? "You are currently the owner of this jar"
-                      : "You are not the current owner of this jar"}
+                      ? "You have JAR_OWNER role for this jar"
+                      : "You do not have JAR_OWNER role for this jar"}
                   </p>
                 </div>
 
@@ -396,85 +475,24 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
               </Button>
             </CardFooter>
           </Card>
-        </TabsContent>
+        </TabsContent> */}
 
         <TabsContent value="access" className="mt-0">
-          <Card className="border-none shadow-sm">
-            <CardHeader className="bg-[#fff8f0] rounded-t-lg">
-              <CardTitle className="text-xl text-[#3c2a14] flex items-center">
-                <UserPlus className="h-5 w-5 mr-2 text-[#ff5e14]" />
-                Whitelist & Blacklist Management
-              </CardTitle>
-              <CardDescription className="text-[#8b7355]">
-                Control who can access and withdraw from this jar
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <label htmlFor="addressToUpdate" className="text-[#ff5e14] font-medium">
-                    Address to Update
-                  </label>
-                  <Input
-                    id="addressToUpdate"
-                    placeholder="0x..."
-                    value={addressToUpdate}
-                    onChange={(e) => setAddressToUpdate(e.target.value)}
-                    className="border-[#f0e6d8] bg-white text-[#3c2a14]"
-                  />
-                </div>
-
-                <div className="grid grid-cols-2 gap-4 pt-4">
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-[#ff5e14]">Whitelist</h3>
-                    <div className="flex flex-col gap-2">
-                      <Button
-                        onClick={handleGrantJarWhitelistRole}
-                        className="bg-[#e6f7e6] text-[#2e7d32] hover:bg-[#c8e6c9] hover:text-[#1b5e20] border border-[#c8e6c9]"
-                        disabled={!addressToUpdate || !addressToUpdate.startsWith("0x")}
-                      >
-                        <UserPlus className="h-4 w-4 mr-2" />
-                        Add to Whitelist
-                      </Button>
-                      <Button
-                        onClick={handleRevokeJarWhitelistRole}
-                        variant="outline"
-                        className="text-[#2e7d32] hover:bg-[#e6f7e6] border-[#c8e6c9]"
-                        disabled={!addressToUpdate || !addressToUpdate.startsWith("0x")}
-                      >
-                        <UserMinus className="h-4 w-4 mr-2" />
-                        Remove from Whitelist
-                      </Button>
-                    </div>
-                  </div>
-
-                  <div className="space-y-4">
-                    <h3 className="text-lg font-medium text-[#ff5e14]">Blacklist</h3>
-                    <div className="flex flex-col gap-2">
-                      <Button
-                        onClick={handleGrantJarBlacklistRole}
-                        className="bg-[#ffebee] text-[#c62828] hover:bg-[#ffcdd2] hover:text-[#b71c1c] border border-[#ffcdd2]"
-                        disabled={!addressToUpdate || !addressToUpdate.startsWith("0x")}
-                      >
-                        <UserPlus className="h-4 w-4 mr-2" />
-                        Add to Blacklist
-                      </Button>
-                      <Button
-                        onClick={handleRevokeJarBlacklistRole}
-                        variant="outline"
-                        className="text-[#c62828] hover:bg-[#ffebee] border-[#ffcdd2]"
-                        disabled={!addressToUpdate || !addressToUpdate.startsWith("0x")}
-                      >
-                        <UserMinus className="h-4 w-4 mr-2" />
-                        Remove from Blacklist
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+  <Card className="border-none shadow-sm">
+    <CardHeader className="bg-[#fff8f0] rounded-t-lg">
+      <CardTitle className="text-xl text-[#3c2a14] flex items-center">
+        <UserPlus className="h-5 w-5 mr-2 text-[#ff5e14]" />
+        Whitelist Management
+      </CardTitle>
+      <CardDescription className="text-[#8b7355]">
+        Control who can access and withdraw from this jar
+      </CardDescription>
+    </CardHeader>
+    <CardContent className="p-6">
+      <WhitelistManagement cookieJarAddress={address as `0x${string}`} />
+    </CardContent>
+  </Card>
+</TabsContent>
 
         <TabsContent value="emergency" className="mt-0">
           <Card className="border-none shadow-sm">
@@ -514,7 +532,7 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
 
                   <div className="space-y-2">
                     <label htmlFor="tokenAddress" className="text-[#ff5e14] font-medium">
-                      Token Address (optional)
+                      Token Address
                     </label>
                     <Input
                       id="tokenAddress"
@@ -523,7 +541,7 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
                       onChange={(e) => setTokenAddress(e.target.value)}
                       className="border-[#f0e6d8] bg-white text-[#3c2a14]"
                     />
-                    <p className="text-sm text-[#8b7355]">Only fill this in if withdrawing a specific token</p>
+                    <p className="text-sm text-[#8b7355]">Leave blank if withdrawing ETH/native currency.</p>
                   </div>
                 </div>
               </div>

@@ -1,5 +1,5 @@
 import { useReadContracts } from 'wagmi';
-import { parseUnits, formatUnits, erc20Abi,isAddress, ethAddress } from 'viem';
+import { parseUnits, formatUnits, erc20Abi,isAddress} from 'viem';
 import type {Address} from 'viem';
 import { log } from 'console';
 
@@ -33,7 +33,7 @@ export function useTokenInfo(tokenAddress: Address) {
   });
 
   // For ETH, use default values
-  if (tokenAddress===ethAddress) {
+  if (tokenAddress===ETH_ADDRESS) {
     return {
       symbol: "ETH",
       decimals: 18,
