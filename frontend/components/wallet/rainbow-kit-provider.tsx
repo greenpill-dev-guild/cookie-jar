@@ -86,7 +86,7 @@ export function RainbowKitProviderWrapper({ children }: { children: ReactNode })
   }, [])
 
   return (
-    <WagmiProvider config={wagmiConfig}>
+    <WagmiProvider config={wagmiConfig} reconnectOnMount={false}>
       <QueryClientProvider client={queryClient}>
         <RainbowKitProvider theme={themeWithCustomColors} coolMode={false}>
           {children}
