@@ -909,7 +909,7 @@ contract CookieJarTest is Test {
         dummyToken.approve(address(jarWhitelistERC20Fixed), fixedAmount);
         jarWhitelistERC20Fixed.depositCurrency(fixedAmount);
         vm.stopPrank();
-        uint256 fee = ((jarWhitelistETHFixed.feePercentageOnDeposit() * fixedAmount) / 10000);
+        uint256 fee = ((jarWhitelistERC20Fixed.feePercentageOnDeposit() * fixedAmount) / 10000);
         uint256 amountMinusFee = fixedAmount - fee;
         assertEq(dummyToken.balanceOf(feeCollector), feeBalanceBefore + fee);
         assertEq(dummyToken.balanceOf(address(jarWhitelistERC20Fixed)), jarBalanceBefore + amountMinusFee);
