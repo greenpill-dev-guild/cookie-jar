@@ -220,6 +220,7 @@ contract CookieJar is AccessControl {
 
     /// @notice Deposits ETH into the contract, deducting deposit fee. Only works if the jar's currency is ETH.
     function depositETH() public payable {
+        if (msg.value == 0) revert CookieJarLib.ZeroAmount();
         if (currency != address(3)) revert CookieJarLib.InvalidTokenAddress();
         if (msg.value < minDeposit) revert CookieJarLib.LessThanMinimumDeposit();
 
@@ -234,6 +235,7 @@ contract CookieJar is AccessControl {
     ///  an ERC20 token.
     /// @param amount The amount of tokens to deposit.
     function depositCurrency(uint256 amount) public {
+        if (amount == 0) revert CookieJarLib.ZeroAmount();
         if (currency == address(3)) revert CookieJarLib.InvalidTokenAddress();
         if (amount < minDeposit) revert CookieJarLib.LessThanMinimumDeposit();
 

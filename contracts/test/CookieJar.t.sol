@@ -3,7 +3,6 @@ pragma solidity ^0.8.24;
 
 import "forge-std/Test.sol";
 import "../src/CookieJar.sol";
-import "../script/HelperConfig.s.sol";
 import "@openzeppelin/contracts/access/IAccessControl.sol";
 
 // --- Mock ERC20 ---
@@ -47,9 +46,6 @@ contract DummyERC1155 is ERC1155 {
 }
 
 contract CookieJarTest is Test {
-    HelperConfig public helperConfig;
-    HelperConfig.NetworkConfig config;
-
     CookieJar public jarWhitelistETHFixed;
     CookieJar public jarWhitelistERC20Fixed;
     CookieJar public jarNFTETHFixed;
@@ -84,11 +80,12 @@ contract CookieJarTest is Test {
     string public purpose = "Withdrawal for a legitimate purpose!";
     string public shortPurpose = "Too short";
 
-    function setUp() public {
-        helperConfig = new HelperConfig();
-        config = helperConfig.getAnvilConfig();
+    uint256 public minETHDeposit = 100 wei;
+    uint256 public minERC20Deposit = 100;
+    uint256 public feePercentageOnDeposit = 1000;
+    address public feeCollector = address(0xFEE);
 
-        // Deploy dummy dummyTokens
+    function setUp() public {
         dummyToken = new DummyERC20();
         dummyERC721 = new DummyERC721();
         dummyERC1155 = new DummyERC1155();
@@ -112,8 +109,6 @@ contract CookieJarTest is Test {
         dummyToken.mint(owner, 100_000 * 1e18);
         vm.startPrank(owner);
 
-        // --- Create a CookieJar in Whitelist mode ---
-        // For Whitelist mode, NFT arrays are ignored.
         jarWhitelistETHFixed = new CookieJar(
             owner,
             address(3),
@@ -124,10 +119,10 @@ contract CookieJarTest is Test {
             fixedAmount,
             maxWithdrawal,
             withdrawalInterval,
-            config.minETHDeposit,
-            config.feePercentageOnDeposit,
+            minETHDeposit,
+            feePercentageOnDeposit,
             strictPurpose,
-            config.defaultFeeCollector,
+            feeCollector,
             true, // emergencyWithdrawalEnabled
             false, // oneTimeWithdrawalEnabled
             emptyWhitelist
@@ -143,16 +138,15 @@ contract CookieJarTest is Test {
             fixedAmount,
             maxWithdrawal,
             withdrawalInterval,
-            config.minERC20Deposit,
-            config.feePercentageOnDeposit,
+            minERC20Deposit,
+            feePercentageOnDeposit,
             strictPurpose,
-            config.defaultFeeCollector,
+            feeCollector,
             true, // emergencyWithdrawalEnabled
             false,
             emptyWhitelist
         );
 
-        // --- Create a CookieJar in NFTGated mode with one approved NFT gate (ERC721) ---
         jarNFTETHFixed = new CookieJar(
             owner,
             address(3),
@@ -163,10 +157,10 @@ contract CookieJarTest is Test {
             fixedAmount,
             maxWithdrawal,
             withdrawalInterval,
-            config.minETHDeposit,
-            config.feePercentageOnDeposit,
+            minETHDeposit,
+            feePercentageOnDeposit,
             strictPurpose,
-            config.defaultFeeCollector,
+            feeCollector,
             true, // emergencyWithdrawalEnabled
             false,
             emptyWhitelist
@@ -182,10 +176,10 @@ contract CookieJarTest is Test {
             fixedAmount,
             maxWithdrawal,
             withdrawalInterval,
-            config.minERC20Deposit,
-            config.feePercentageOnDeposit,
+            minERC20Deposit,
+            feePercentageOnDeposit,
             strictPurpose,
-            config.defaultFeeCollector,
+            feeCollector,
             false, // emergencyWithdrawalEnabled
             false,
             emptyWhitelist
@@ -201,10 +195,10 @@ contract CookieJarTest is Test {
             fixedAmount,
             maxWithdrawal,
             withdrawalInterval,
-            config.minETHDeposit,
-            config.feePercentageOnDeposit,
+            minETHDeposit,
+            feePercentageOnDeposit,
             strictPurpose,
-            config.defaultFeeCollector,
+            feeCollector,
             true, // emergencyWithdrawalEnabled
             false,
             emptyWhitelist
@@ -220,10 +214,10 @@ contract CookieJarTest is Test {
             fixedAmount,
             maxWithdrawal,
             withdrawalInterval,
-            config.minERC20Deposit,
-            config.feePercentageOnDeposit,
+            minERC20Deposit,
+            feePercentageOnDeposit,
             strictPurpose,
-            config.defaultFeeCollector,
+            feeCollector,
             true, // emergencyWithdrawalEnabled
             false,
             emptyWhitelist
@@ -239,10 +233,10 @@ contract CookieJarTest is Test {
             fixedAmount,
             maxWithdrawal,
             withdrawalInterval,
-            config.minETHDeposit,
-            config.feePercentageOnDeposit,
+            minETHDeposit,
+            feePercentageOnDeposit,
             strictPurpose,
-            config.defaultFeeCollector,
+            feeCollector,
             true, // emergencyWithdrawalEnabled
             false,
             emptyWhitelist
@@ -258,10 +252,10 @@ contract CookieJarTest is Test {
             fixedAmount,
             maxWithdrawal,
             withdrawalInterval,
-            config.minETHDeposit,
-            config.feePercentageOnDeposit,
+            minETHDeposit,
+            feePercentageOnDeposit,
             strictPurpose,
-            config.defaultFeeCollector,
+            feeCollector,
             true, // emergencyWithdrawalEnabled
             true,
             emptyWhitelist
@@ -278,10 +272,10 @@ contract CookieJarTest is Test {
             fixedAmount,
             maxWithdrawal,
             withdrawalInterval,
-            config.minERC20Deposit,
-            config.feePercentageOnDeposit,
+            minERC20Deposit,
+            feePercentageOnDeposit,
             strictPurpose,
-            config.defaultFeeCollector,
+            feeCollector,
             true, // emergencyWithdrawalEnabled
             true,
             emptyWhitelist
@@ -297,10 +291,10 @@ contract CookieJarTest is Test {
             fixedAmount,
             maxWithdrawal,
             withdrawalInterval,
-            config.minERC20Deposit,
-            config.feePercentageOnDeposit,
+            minERC20Deposit,
+            feePercentageOnDeposit,
             strictPurpose,
-            config.defaultFeeCollector,
+            feeCollector,
             true, // emergencyWithdrawalEnabled
             false,
             emptyWhitelist
@@ -337,18 +331,18 @@ contract CookieJarTest is Test {
             fixedAmount,
             maxWithdrawal,
             withdrawalInterval,
-            config.minETHDeposit,
-            config.feePercentageOnDeposit,
+            minETHDeposit,
+            feePercentageOnDeposit,
             false,
-            config.defaultFeeCollector,
+            feeCollector,
             true,
             false,
             users
         );
 
-        assertEq(newJarWhitelistETHFixed.feeCollector(), config.defaultFeeCollector);
-        assertEq(newJarWhitelistETHFixed.feePercentageOnDeposit(), config.feePercentageOnDeposit);
-        assertEq(newJarWhitelistETHFixed.minDeposit(), config.minETHDeposit);
+        assertEq(newJarWhitelistETHFixed.feeCollector(), feeCollector);
+        assertEq(newJarWhitelistETHFixed.feePercentageOnDeposit(), feePercentageOnDeposit);
+        assertEq(newJarWhitelistETHFixed.minDeposit(), minETHDeposit);
         assertEq(newJarWhitelistETHFixed.withdrawalInterval(), withdrawalInterval);
         assertFalse(newJarWhitelistETHFixed.strictPurpose());
         assertTrue(newJarWhitelistETHFixed.emergencyWithdrawalEnabled());
@@ -378,18 +372,18 @@ contract CookieJarTest is Test {
             fixedAmount,
             maxWithdrawal,
             withdrawalInterval,
-            config.minERC20Deposit,
-            config.feePercentageOnDeposit,
+            minERC20Deposit,
+            feePercentageOnDeposit,
             true,
-            config.defaultFeeCollector,
+            feeCollector,
             false,
             true,
             emptyAddresses
         );
 
-        assertEq(newJarNFTGatedERC20Variable.feeCollector(), config.defaultFeeCollector);
-        assertEq(newJarNFTGatedERC20Variable.feePercentageOnDeposit(), config.feePercentageOnDeposit);
-        assertEq(newJarNFTGatedERC20Variable.minDeposit(), config.minERC20Deposit);
+        assertEq(newJarNFTGatedERC20Variable.feeCollector(), feeCollector);
+        assertEq(newJarNFTGatedERC20Variable.feePercentageOnDeposit(), feePercentageOnDeposit);
+        assertEq(newJarNFTGatedERC20Variable.minDeposit(), minERC20Deposit);
         assertEq(newJarNFTGatedERC20Variable.withdrawalInterval(), withdrawalInterval);
         assertTrue(newJarNFTGatedERC20Variable.strictPurpose());
         assertFalse(newJarNFTGatedERC20Variable.emergencyWithdrawalEnabled());
@@ -422,10 +416,10 @@ contract CookieJarTest is Test {
             fixedAmount,
             maxWithdrawal,
             withdrawalInterval,
-            config.minETHDeposit,
-            config.feePercentageOnDeposit,
+            minETHDeposit,
+            feePercentageOnDeposit,
             false,
-            config.defaultFeeCollector,
+            feeCollector,
             true,
             false,
             users
@@ -444,8 +438,8 @@ contract CookieJarTest is Test {
             fixedAmount,
             maxWithdrawal,
             withdrawalInterval,
-            config.minETHDeposit,
-            config.feePercentageOnDeposit,
+            minETHDeposit,
+            feePercentageOnDeposit,
             false,
             address(0),
             true,
@@ -466,10 +460,10 @@ contract CookieJarTest is Test {
             fixedAmount,
             maxWithdrawal,
             withdrawalInterval,
-            config.minETHDeposit,
-            config.feePercentageOnDeposit,
+            minETHDeposit,
+            feePercentageOnDeposit,
             false,
-            config.defaultFeeCollector,
+            feeCollector,
             true,
             false,
             users
@@ -488,10 +482,10 @@ contract CookieJarTest is Test {
             fixedAmount,
             maxWithdrawal,
             withdrawalInterval,
-            config.minETHDeposit,
-            config.feePercentageOnDeposit,
+            minETHDeposit,
+            feePercentageOnDeposit,
             false,
-            config.defaultFeeCollector,
+            feeCollector,
             true,
             false,
             users
@@ -513,10 +507,10 @@ contract CookieJarTest is Test {
             fixedAmount,
             maxWithdrawal,
             withdrawalInterval,
-            config.minETHDeposit,
-            config.feePercentageOnDeposit,
+            minETHDeposit,
+            feePercentageOnDeposit,
             false,
-            config.defaultFeeCollector,
+            feeCollector,
             true,
             false,
             emptyAddresses
@@ -541,10 +535,10 @@ contract CookieJarTest is Test {
             fixedAmount,
             maxWithdrawal,
             withdrawalInterval,
-            config.minETHDeposit,
-            config.feePercentageOnDeposit,
+            minETHDeposit,
+            feePercentageOnDeposit,
             true,
-            config.defaultFeeCollector,
+            feeCollector,
             true, // emergencyWithdrawalEnabled
             true,
             emptyWhitelist
@@ -608,7 +602,7 @@ contract CookieJarTest is Test {
 
     function test_updateFeeCollector() public {
         address newCollector = address(0x1234);
-        vm.prank(config.defaultFeeCollector);
+        vm.prank(feeCollector);
         jarWhitelistETHFixed.updateFeeCollector(newCollector);
         assertEq(jarWhitelistETHFixed.feeCollector(), newCollector);
     }
@@ -621,7 +615,7 @@ contract CookieJarTest is Test {
     }
 
     function test_RevertWhen_updateFeeCollectorCalledWithInvalidFeeCollector() public {
-        vm.prank(config.defaultFeeCollector);
+        vm.prank(feeCollector);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.FeeCollectorAddressCannotBeZeroAddress.selector));
         jarWhitelistETHFixed.updateFeeCollector(address(0));
     }
@@ -869,25 +863,31 @@ contract CookieJarTest is Test {
     // ===== Deposit Tests =====
 
     function test_DepositETH() public {
-        uint256 depositValue = 100 wei;
-        uint256 feeBalanceBefore = config.defaultFeeCollector.balance;
+        uint256 feeBalanceBefore = feeCollector.balance;
         uint256 jarwhitebalanceBefore = address(jarWhitelistETHFixed).balance;
         uint256 currencyHeldByJarBefore = jarWhitelistETHFixed.currencyHeldByJar();
-        vm.deal(user, depositValue);
+        vm.deal(user, minETHDeposit);
         uint256 userBalanceBefore = user.balance;
         vm.prank(user);
-        jarWhitelistETHFixed.depositETH{value: depositValue}();
-        uint256 fee = ((jarWhitelistETHFixed.feePercentageOnDeposit() * depositValue) / 10000);
-        uint256 amountMinusFee = depositValue - fee;
+        jarWhitelistETHFixed.depositETH{value: minETHDeposit}();
+        uint256 fee = ((jarWhitelistETHFixed.feePercentageOnDeposit() * minETHDeposit) / 10000);
+        uint256 amountMinusFee = minETHDeposit - fee;
         assertEq(address(jarWhitelistETHFixed).balance, jarwhitebalanceBefore + amountMinusFee);
-        assertEq(config.defaultFeeCollector.balance, feeBalanceBefore + fee);
+        assertEq(feeCollector.balance, feeBalanceBefore + fee);
         assertEq(jarWhitelistETHFixed.currencyHeldByJar(), currencyHeldByJarBefore + amountMinusFee);
-        assertEq(user.balance, userBalanceBefore - depositValue);
+        assertEq(user.balance, userBalanceBefore - minETHDeposit);
     }
 /* - Not enforcing a min dep <3 MSG 5/29/25
     function test_RevertWhen_DepositETHWithLessThanMinAmount() public {
+        vm.deal(user, minETHDeposit - 1);
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.LessThanMinimumDeposit.selector));
+        jarWhitelistETHFixed.depositETH{value: minETHDeposit - 1}();
+    }
+
+    function test_RevertWhen_DepositETHWithZeroAmount() public {
+        vm.prank(user);
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.ZeroAmount.selector));
         jarWhitelistETHFixed.depositETH{value: 0}();
     }
 
@@ -899,37 +899,42 @@ contract CookieJarTest is Test {
     }
 */
     function test_DepositCurrency() public {
-        uint256 depositAmount = 1000 * 1e18;
-        deal(address(dummyToken), user, depositAmount);
+        dummyToken.mint(user, fixedAmount);
 
-        uint256 feeBalanceBefore = dummyToken.balanceOf(config.defaultFeeCollector);
+        uint256 feeBalanceBefore = dummyToken.balanceOf(feeCollector);
         uint256 currencyHeldByJarBefore = jarWhitelistERC20Fixed.currencyHeldByJar();
         uint256 jarBalanceBefore = dummyToken.balanceOf(address(jarWhitelistERC20Fixed));
         uint256 userBalanceBefore = dummyToken.balanceOf(user);
         vm.startPrank(user);
-        dummyToken.approve(address(jarWhitelistERC20Fixed), depositAmount);
-        jarWhitelistERC20Fixed.depositCurrency(depositAmount);
+        dummyToken.approve(address(jarWhitelistERC20Fixed), fixedAmount);
+        jarWhitelistERC20Fixed.depositCurrency(fixedAmount);
         vm.stopPrank();
-        uint256 fee = ((jarWhitelistETHFixed.feePercentageOnDeposit() * depositAmount) / 10000);
-        uint256 amountMinusFee = depositAmount - fee;
-        assertEq(dummyToken.balanceOf(config.defaultFeeCollector), feeBalanceBefore + fee);
+        uint256 fee = ((jarWhitelistETHFixed.feePercentageOnDeposit() * fixedAmount) / 10000);
+        uint256 amountMinusFee = fixedAmount - fee;
+        assertEq(dummyToken.balanceOf(feeCollector), feeBalanceBefore + fee);
         assertEq(dummyToken.balanceOf(address(jarWhitelistERC20Fixed)), jarBalanceBefore + amountMinusFee);
         assertEq(jarWhitelistERC20Fixed.currencyHeldByJar(), currencyHeldByJarBefore + amountMinusFee);
-        assertEq(dummyToken.balanceOf(user), userBalanceBefore - depositAmount);
+        assertEq(dummyToken.balanceOf(user), userBalanceBefore - fixedAmount);
     }
 /* - Not enforcing a min dep <3 MSG 5/29/25
     function test_RevertWhen_DepositCurrencyWithLessThanMinAmount() public {
+        dummyToken.mint(user, minERC20Deposit - 1);
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.LessThanMinimumDeposit.selector));
+        jarWhitelistERC20Fixed.depositCurrency(minERC20Deposit - 1);
+    }
+
+    function test_RevertWhen_DepositCurrencyWithZeroAmount() public {
+        vm.prank(user);
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.ZeroAmount.selector));
         jarWhitelistERC20Fixed.depositCurrency(0);
     }
 
     function test_RevertWhen_DepositCurrencyWithInvalidTokenAddress() public {
-        uint256 depositAmount = 1000 * 1e18;
-        deal(address(dummyToken), user, depositAmount);
+        deal(address(dummyToken), user, fixedAmount);
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidTokenAddress.selector));
-        jarWhitelistETHFixed.depositCurrency(depositAmount);
+        jarWhitelistETHFixed.depositCurrency(fixedAmount);
     }
 */
     // ===== Withdrawal Tests (Whitelist Mode) =====
@@ -1080,10 +1085,10 @@ contract CookieJarTest is Test {
             fixedAmount,
             maxWithdrawal,
             withdrawalInterval,
-            config.minETHDeposit,
-            config.feePercentageOnDeposit,
+            minETHDeposit,
+            feePercentageOnDeposit,
             strictPurpose,
-            config.defaultFeeCollector,
+            feeCollector,
             true, // emergencyWithdrawalEnabled
             false,
             emptyWhitelist
@@ -1306,10 +1311,10 @@ contract CookieJarTest is Test {
             fixedAmount,
             maxWithdrawal,
             withdrawalInterval,
-            config.minETHDeposit,
-            config.feePercentageOnDeposit,
+            minETHDeposit,
+            feePercentageOnDeposit,
             strictPurpose,
-            config.defaultFeeCollector,
+            feeCollector,
             true, // emergencyWithdrawalEnabled
             false,
             emptyWhitelist
