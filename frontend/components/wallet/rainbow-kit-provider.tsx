@@ -8,7 +8,7 @@ import { mainnet, base, optimism, arbitrum, gnosis, sepolia, baseSepolia } from 
 import { QueryClientProvider, QueryClient } from "@tanstack/react-query"
 import { http } from "wagmi"
 import { useTheme } from "next-themes"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { wagmiConfig } from "@/config/supported-networks"
 
 // Define Base Sepolia chain if not already defined in wagmi/chains
@@ -39,6 +39,17 @@ const queryClient = new QueryClient()
 
 export function RainbowKitProviderWrapper({ children }: { children: ReactNode }) {
   const { theme } = useTheme()
+  const [mounted, setMounted] = useState(false)
+  
+  // Only initialize on client-side
+  useEffect(() => {
+    setMounted(true)
+  }, [])
+  
+  if (!mounted) {
+    // Return a placeholder with same dimensions during SSR
+    return <div>{children}</div>
+  }
 
   // Create custom themes with our orange color
   const customLightTheme = lightTheme({
