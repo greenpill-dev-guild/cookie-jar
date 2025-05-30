@@ -16,17 +16,16 @@ import { Address } from 'viem'
 
 // For RainbowKit provider
 export const supportedChains: readonly [Chain, ...Chain[]] = [
-  // Testnets
-  // sepolia,
+  base,
+  celo,
+  gnosis,
+  optimism,
   baseSepolia, 
   optimismSepolia,
   // celoAlfajores,
   // Mainnets
   // mainnet,
-  base,
-  optimism,
-  celo,
-  gnosis
+
 ]
 
 interface ContractAddresses {
