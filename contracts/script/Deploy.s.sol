@@ -44,9 +44,6 @@ contract Deploy is Script {
 
         console.log("CookieJarFactory deployed at: ", address(factory));
 
-        // Set Factory in Registry
-        registry.setCookieJarFactory(address(factory));
-
         ERC721Mock erc721 = new ERC721Mock{salt: devguildSalt}("TestNFT", "TNFT");
 
         erc721.mint(deployer, 1);
