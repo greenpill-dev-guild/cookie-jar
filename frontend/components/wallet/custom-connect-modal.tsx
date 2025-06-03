@@ -27,14 +27,6 @@ const connectorConfig: Record<string, {
   textColor: string;
   priority: number; // Lower numbers appear first
 }> = {
-  injected: {
-    name: "Browser Wallet",
-    description: "Connect using browser wallet (MetaMask, etc.)",
-    icon: <Wallet className="w-6 h-6" />,
-    bgColor: "bg-orange-50 hover:bg-orange-100",
-    textColor: "text-orange-600",
-    priority: 1,
-  },
   metaMask: {
     name: "MetaMask",
     description: "Connect using MetaMask wallet",
@@ -47,6 +39,30 @@ const connectorConfig: Record<string, {
     textColor: "text-amber-600",
     priority: 1,
   },
+  brave: {
+    name: "Brave Wallet",
+    description: "Connect using Brave Wallet",
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 0C8.25 0 5.25 3 5.25 6.75v2.25L12 21l6.75-12v-2.25C18.75 3 15.75 0 12 0z"/>
+      </svg>
+    ),
+    bgColor: "bg-purple-50 hover:bg-purple-100",
+    textColor: "text-purple-600",
+    priority: 2,
+  },
+  phantom: {
+    name: "Phantom",
+    description: "Connect using Phantom",
+    icon: (
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+      </svg>
+    ),
+    bgColor: "bg-violet-50 hover:bg-violet-100",
+    textColor: "text-violet-600",
+    priority: 3,
+  },
   walletConnect: {
     name: "WalletConnect",
     description: "Scan with WalletConnect to connect",
@@ -57,7 +73,7 @@ const connectorConfig: Record<string, {
     ),
     bgColor: "bg-blue-50 hover:bg-blue-100",
     textColor: "text-blue-600",
-    priority: 2,
+    priority: 4,
   },
   coinbaseWallet: {
     name: "Coinbase Wallet",
@@ -69,7 +85,7 @@ const connectorConfig: Record<string, {
     ),
     bgColor: "bg-indigo-50 hover:bg-indigo-100",
     textColor: "text-indigo-600",
-    priority: 3,
+    priority: 5,
   },
 };
 
@@ -110,7 +126,25 @@ export function CustomConnectModal({ isOpen, onClose }: ConnectModalProps) {
   };
 
   const getConnectorInfo = (connector: Connector) => {
-    // Try to match by ID or name
+    // For injected connectors, try to detect specific wallet
+    if (connector.id === 'injected') {
+      // Check if specific wallet is available
+      if (typeof window !== 'undefined' && window.ethereum) {
+        if (window.ethereum.isMetaMask) {
+          return connectorConfig.metaMask;
+        }
+        if (window.ethereum.isBraveWallet) {
+          return connectorConfig.brave;
+        }
+        if (window.ethereum.isPhantom) {
+          return connectorConfig.phantom;
+        }
+      }
+      // Skip generic injected if we can't identify it specifically
+      return null;
+    }
+
+    // Try to match by ID or name for other connectors
     const configKey = Object.keys(connectorConfig).find(key => 
       connector.id.toLowerCase().includes(key.toLowerCase()) ||
       connector.name.toLowerCase().includes(key.toLowerCase())
@@ -120,7 +154,7 @@ export function CustomConnectModal({ isOpen, onClose }: ConnectModalProps) {
       return connectorConfig[configKey];
     }
 
-    // Default fallback
+    // Default fallback for unknown connectors
     return {
       name: connector.name,
       description: `Connect using ${connector.name}`,
@@ -131,80 +165,83 @@ export function CustomConnectModal({ isOpen, onClose }: ConnectModalProps) {
     };
   };
 
-  // Sort connectors by priority
-  const sortedConnectors = [...connectors].sort((a, b) => {
-    const infoA = getConnectorInfo(a);
-    const infoB = getConnectorInfo(b);
-    return infoA.priority - infoB.priority;
-  });
+  // Filter and sort connectors
+  const processedConnectors = connectors
+    .map(connector => ({
+      connector,
+      info: getConnectorInfo(connector)
+    }))
+    .filter(({ info }) => info !== null) // Remove injected connectors we can't identify
+    .sort((a, b) => (a.info!.priority || 999) - (b.info!.priority || 999));
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-[480px] max-h-[90vh] overflow-hidden">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-[#3c2a14]">
             <Wallet className="w-5 h-5 text-[#ff5e14]" />
             Connect Wallet
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-[#8b7355]">
             Choose your preferred wallet to connect to Cookie Jar V3
           </DialogDescription>
         </DialogHeader>
 
-        <div className="space-y-3 py-4">
-          {sortedConnectors.length === 0 && (
-            <div className="text-center py-8">
-              <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
-              <p className="text-gray-500">No wallets detected</p>
-              <p className="text-sm text-gray-400 mt-2">
-                Please install a wallet extension to continue
-              </p>
-            </div>
-          )}
+        <div className="max-h-[60vh] overflow-y-auto px-1">
+          <div className="space-y-3 py-4">
+            {processedConnectors.length === 0 && (
+              <div className="text-center py-8">
+                <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
+                <p className="text-gray-500">No wallets detected</p>
+                <p className="text-sm text-gray-400 mt-2">
+                  Please install a wallet extension to continue
+                </p>
+              </div>
+            )}
 
-          {sortedConnectors.map((connector) => {
-            const info = getConnectorInfo(connector);
-            const isConnecting = connectingConnector === connector.id;
-            const isDisabled = isPending || isConnecting;
+            {processedConnectors.map(({ connector, info }) => {
+              const isConnecting = connectingConnector === connector.id;
+              const isDisabled = isPending || isConnecting;
 
-            return (
-              <Button
-                key={connector.id}
-                onClick={() => handleConnect(connector)}
-                disabled={isDisabled}
-                variant="outline"
-                className={`w-full h-auto p-4 justify-start ${info.bgColor} border-2 border-transparent hover:border-[#ff5e14] transition-all duration-200`}
-              >
-                <div className="flex items-center gap-4 w-full">
-                  <div className={`p-2 rounded-lg ${info.bgColor} ${info.textColor}`}>
-                    {isConnecting ? (
-                      <Loader2 className="w-6 h-6 animate-spin" />
-                    ) : (
-                      info.icon
+              return (
+                <Button
+                  key={connector.id}
+                  onClick={() => handleConnect(connector)}
+                  disabled={isDisabled}
+                  variant="outline"
+                  className={`w-full h-auto p-4 justify-start ${info!.bgColor} border-2 border-transparent hover:border-[#ff5e14] transition-all duration-200 flex-shrink-0`}
+                >
+                  <div className="flex items-center gap-4 w-full min-w-0">
+                    <div className={`p-2 rounded-lg flex-shrink-0 ${info!.bgColor} ${info!.textColor}`}>
+                      {isConnecting ? (
+                        <Loader2 className="w-6 h-6 animate-spin" />
+                      ) : (
+                        info!.icon
+                      )}
+                    </div>
+                    
+                    <div className="flex-1 text-left min-w-0">
+                      <div className="font-medium text-[#3c2a14] truncate">
+                        {info!.name}
+                      </div>
+                      <div className="text-sm text-[#8b7355] truncate">
+                        {isConnecting ? "Connecting..." : info!.description}
+                      </div>
+                    </div>
+
+                    {!isConnecting && (
+                      <ExternalLink className="w-4 h-4 text-[#8b7355] flex-shrink-0" />
                     )}
                   </div>
-                  
-                  <div className="flex-1 text-left">
-                    <div className="font-medium text-[#3c2a14]">
-                      {info.name}
-                    </div>
-                    <div className="text-sm text-[#8b7355]">
-                      {isConnecting ? "Connecting..." : info.description}
-                    </div>
-                  </div>
-
-                  {!isConnecting && (
-                    <ExternalLink className="w-4 h-4 text-[#8b7355]" />
-                  )}
-                </div>
-              </Button>
-            );
-          })}
+                </Button>
+              );
+            })}
+          </div>
         </div>
 
         {/* Footer information */}
-        <div className="pt-4 border-t">
-          <p className="text-xs text-[#8b7355] text-center">
+        <div className="pt-4 border-t border-gray-200">
+          <p className="text-xs text-[#8b7355] text-center leading-relaxed">
             By connecting a wallet, you agree to Cookie Jar's{" "}
             <a href="#" className="text-[#ff5e14] hover:underline">
               Terms of Service
