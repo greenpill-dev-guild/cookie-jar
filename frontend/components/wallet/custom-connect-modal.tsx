@@ -18,74 +18,110 @@ interface ConnectModalProps {
   onClose: () => void;
 }
 
-// Connector metadata for better UX
+// Connector metadata with real wallet logos
 const connectorConfig: Record<string, {
   name: string;
   description: string;
   icon: React.ReactNode;
   bgColor: string;
   textColor: string;
-  priority: number; // Lower numbers appear first
+  priority: number;
+  walletType: string; // For deduplication
 }> = {
   metaMask: {
     name: "MetaMask",
     description: "Connect using MetaMask wallet",
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M22.516 10.512c0-.325-.127-.64-.352-.871L14.871 2.352A1.226 1.226 0 0013.996 2H2.004c-.325 0-.64.127-.871.352L.352 3.133A1.226 1.226 0 000 4.008v15.984c0 .325.127.64.352.871l.781.781c.231.225.546.352.871.352h11.992c.325 0 .64-.127.871-.352l7.293-7.289c.225-.231.352-.546.352-.871V10.512h.004zm-9.512 2.5h-2.008v2.004H9.004v-2.004H7v-1.996h2.004V9.012H11v2.004h2.004v1.996z"/>
-      </svg>
+      <img 
+        src="https://images.ctfassets.net/clixtyxoaeas/4rnpEzy1ATWRKVBOLxZ1Fm/a74dc1eed36d23d7ea6030383a4d5163/MetaMask-icon-fox.svg"
+        alt="MetaMask"
+        className="w-6 h-6"
+        onError={(e) => {
+          const target = e.currentTarget as HTMLImageElement;
+          target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%23f59e0b'%3E%3Cpath d='M12 2l3.09 6.26L22 9l-5.55 5.41L18 21l-6-3.16L6 21l1.55-6.59L2 9l6.91-.74L12 2z'/%3E%3C/svg%3E";
+        }}
+      />
     ),
-    bgColor: "bg-amber-50 hover:bg-amber-100",
-    textColor: "text-amber-600",
+    bgColor: "bg-orange-50 hover:bg-orange-100",
+    textColor: "text-orange-600",
     priority: 1,
+    walletType: "metamask",
   },
   brave: {
     name: "Brave Wallet",
     description: "Connect using Brave Wallet",
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 0C8.25 0 5.25 3 5.25 6.75v2.25L12 21l6.75-12v-2.25C18.75 3 15.75 0 12 0z"/>
-      </svg>
+      <img 
+        src="https://brave.com/static-assets/images/brave-logo-sans-text.svg" 
+        alt="Brave"
+        className="w-6 h-6"
+        onError={(e) => {
+          const target = e.currentTarget as HTMLImageElement;
+          target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%237c3aed'%3E%3Cpath d='M12 2l3.09 6.26L22 9l-5.55 5.41L18 21l-6-3.16L6 21l1.55-6.59L2 9l6.91-.74L12 2z'/%3E%3C/svg%3E";
+        }}
+      />
     ),
     bgColor: "bg-purple-50 hover:bg-purple-100",
     textColor: "text-purple-600",
     priority: 2,
+    walletType: "brave",
   },
   phantom: {
     name: "Phantom",
     description: "Connect using Phantom",
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-      </svg>
+      <img 
+        src="https://cdn.brandfetch.io/id_HKIytUb/theme/light/symbol.svg?c=1dxbfHSJFAPEGdCLU4o5B" 
+        alt="Phantom"
+        className="w-6 h-6 rounded"
+        onError={(e) => {
+          const target = e.currentTarget as HTMLImageElement;
+          target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%238b5cf6'%3E%3Cpath d='M12 2l3.09 6.26L22 9l-5.55 5.41L18 21l-6-3.16L6 21l1.55-6.59L2 9l6.91-.74L12 2z'/%3E%3C/svg%3E";
+        }}
+      />
     ),
     bgColor: "bg-violet-50 hover:bg-violet-100",
     textColor: "text-violet-600",
     priority: 3,
+    walletType: "phantom",
   },
   walletConnect: {
     name: "WalletConnect",
     description: "Scan with WalletConnect to connect",
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M4.913 7.519c3.915-3.831 10.26-3.831 14.174 0l.471.461a.483.483 0 0 1 0 .694l-1.611 1.576a.252.252 0 0 1-.354 0l-.649-.634c-2.73-2.673-7.157-2.673-9.887 0l-.694.679a.252.252 0 0 1-.354 0L4.398 8.72a.483.483 0 0 1 0-.694l.515-.507zm17.5 3.263 1.434 1.404a.483.483 0 0 1 0 .694l-6.466 6.329a.507.507 0 0 1-.709 0l-4.588-4.493a.126.126 0 0 0-.177 0l-4.588 4.493a.507.507 0 0 1-.709 0L.144 12.88a.483.483 0 0 1 0-.694l1.434-1.404a.507.507 0 0 1 .709 0l4.588 4.493a.126.126 0 0 0 .177 0l4.588-4.493a.507.507 0 0 1 .709 0l4.588 4.493a.126.126 0 0 0 .177 0l4.588-4.493a.507.507 0 0 1 .709 0z"/>
-      </svg>
+      <img 
+        src="https://avatars.githubusercontent.com/u/37784886?s=200&v=4" 
+        alt="WalletConnect"
+        className="w-6 h-6 rounded"
+        onError={(e) => {
+          const target = e.currentTarget as HTMLImageElement;
+          target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%233b82f6'%3E%3Cpath d='M12 2l3.09 6.26L22 9l-5.55 5.41L18 21l-6-3.16L6 21l1.55-6.59L2 9l6.91-.74L12 2z'/%3E%3C/svg%3E";
+        }}
+      />
     ),
     bgColor: "bg-blue-50 hover:bg-blue-100",
     textColor: "text-blue-600",
     priority: 4,
+    walletType: "walletconnect",
   },
   coinbaseWallet: {
     name: "Coinbase Wallet",
     description: "Connect using Coinbase Wallet",
     icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
-        <path d="M12 24C5.373 24 0 18.627 0 12S5.373 0 12 0s12 5.373 12 12-5.373 12-12 12zm-1.5-6h3a1.5 1.5 0 000-3h-3a1.5 1.5 0 000 3z"/>
-      </svg>
+      <img 
+        src="https://avatars.githubusercontent.com/u/18060234?s=200&v=4" 
+        alt="Coinbase"
+        className="w-6 h-6 rounded"
+        onError={(e) => {
+          const target = e.currentTarget as HTMLImageElement;
+          target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%236366f1'%3E%3Cpath d='M12 2l3.09 6.26L22 9l-5.55 5.41L18 21l-6-3.16L6 21l1.55-6.59L2 9l6.91-.74L12 2z'/%3E%3C/svg%3E";
+        }}
+      />
     ),
     bgColor: "bg-indigo-50 hover:bg-indigo-100",
     textColor: "text-indigo-600",
     priority: 5,
+    walletType: "coinbase",
   },
 };
 
@@ -131,13 +167,13 @@ export function CustomConnectModal({ isOpen, onClose }: ConnectModalProps) {
       // Check if specific wallet is available
       if (typeof window !== 'undefined' && window.ethereum) {
         if (window.ethereum.isMetaMask) {
-          return connectorConfig.metaMask;
+          return { ...connectorConfig.metaMask, key: 'metamask-injected' };
         }
         if (window.ethereum.isBraveWallet) {
-          return connectorConfig.brave;
+          return { ...connectorConfig.brave, key: 'brave-injected' };
         }
         if (window.ethereum.isPhantom) {
-          return connectorConfig.phantom;
+          return { ...connectorConfig.phantom, key: 'phantom-injected' };
         }
       }
       // Skip generic injected if we can't identify it specifically
@@ -151,7 +187,7 @@ export function CustomConnectModal({ isOpen, onClose }: ConnectModalProps) {
     );
     
     if (configKey) {
-      return connectorConfig[configKey];
+      return { ...connectorConfig[configKey], key: configKey };
     }
 
     // Default fallback for unknown connectors
@@ -162,17 +198,27 @@ export function CustomConnectModal({ isOpen, onClose }: ConnectModalProps) {
       bgColor: "bg-gray-50 hover:bg-gray-100",
       textColor: "text-gray-600",
       priority: 999,
+      walletType: 'unknown',
+      key: connector.id,
     };
   };
 
-  // Filter and sort connectors
+  // Process connectors with deduplication and filtering
   const processedConnectors = connectors
     .map(connector => ({
       connector,
       info: getConnectorInfo(connector)
     }))
     .filter(({ info }) => info !== null) // Remove injected connectors we can't identify
-    .sort((a, b) => (a.info!.priority || 999) - (b.info!.priority || 999));
+    .reduce((acc, current) => {
+      // Deduplicate by wallet type
+      const existing = acc.find(item => item.info.walletType === current.info!.walletType);
+      if (!existing) {
+        acc.push(current as { connector: Connector; info: NonNullable<ReturnType<typeof getConnectorInfo>> });
+      }
+      return acc;
+    }, [] as Array<{ connector: Connector; info: NonNullable<ReturnType<typeof getConnectorInfo>> }>)
+    .sort((a, b) => (a.info.priority || 999) - (b.info.priority || 999));
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -209,23 +255,23 @@ export function CustomConnectModal({ isOpen, onClose }: ConnectModalProps) {
                   onClick={() => handleConnect(connector)}
                   disabled={isDisabled}
                   variant="outline"
-                  className={`w-full h-auto p-4 justify-start ${info!.bgColor} border-2 border-transparent hover:border-[#ff5e14] transition-all duration-200 flex-shrink-0`}
+                  className={`w-full h-auto p-4 justify-start ${info.bgColor} border-2 border-transparent hover:border-[#ff5e14] transition-all duration-200 flex-shrink-0`}
                 >
                   <div className="flex items-center gap-4 w-full min-w-0">
-                    <div className={`p-2 rounded-lg flex-shrink-0 ${info!.bgColor} ${info!.textColor}`}>
+                    <div className={`p-2 rounded-lg flex-shrink-0 ${info.bgColor} ${info.textColor} relative`}>
                       {isConnecting ? (
                         <Loader2 className="w-6 h-6 animate-spin" />
                       ) : (
-                        info!.icon
+                        info.icon
                       )}
                     </div>
                     
                     <div className="flex-1 text-left min-w-0">
                       <div className="font-medium text-[#3c2a14] truncate">
-                        {info!.name}
+                        {info.name}
                       </div>
                       <div className="text-sm text-[#8b7355] truncate">
-                        {isConnecting ? "Connecting..." : info!.description}
+                        {isConnecting ? "Connecting..." : info.description}
                       </div>
                     </div>
 
@@ -237,20 +283,6 @@ export function CustomConnectModal({ isOpen, onClose }: ConnectModalProps) {
               );
             })}
           </div>
-        </div>
-
-        {/* Footer information */}
-        <div className="pt-4 border-t border-gray-200">
-          <p className="text-xs text-[#8b7355] text-center leading-relaxed">
-            By connecting a wallet, you agree to Cookie Jar's{" "}
-            <a href="#" className="text-[#ff5e14] hover:underline">
-              Terms of Service
-            </a>{" "}
-            and{" "}
-            <a href="#" className="text-[#ff5e14] hover:underline">
-              Privacy Policy
-            </a>
-          </p>
         </div>
       </DialogContent>
     </Dialog>
