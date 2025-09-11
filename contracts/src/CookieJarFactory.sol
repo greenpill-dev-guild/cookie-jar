@@ -176,9 +176,10 @@ contract CookieJarFactory is AccessControl {
         );
 
         address jarAddress = address(newJar);
+        uint256 newIndex = cookieJars.length; // Pre-calculate index
         cookieJars.push(jarAddress);
         metadatas.push(metadata);
-        jarIndex[jarAddress] = cookieJars.length - 1;
+        jarIndex[jarAddress] = newIndex; // Use pre-calculated index
 
         emit CookieJarCreated(msg.sender, jarAddress, metadata);
         return jarAddress;
@@ -302,9 +303,10 @@ contract CookieJarFactory is AccessControl {
         );
 
         address jarAddress = address(newJar);
+        uint256 newIndex = cookieJars.length; // Pre-calculate index
         cookieJars.push(jarAddress);
         metadatas.push(metadata);
-        jarIndex[jarAddress] = cookieJars.length - 1;
+        jarIndex[jarAddress] = newIndex; // Use pre-calculated index
 
         emit CookieJarCreated(msg.sender, jarAddress, metadata);
         return jarAddress;
