@@ -15,9 +15,11 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { useWriteCookieJarDepositEth, useWriteCookieJarDepositCurrency, useWriteErc20Approve, useReadCookieJarHasRole, useWriteContract } from "@/generated"
+import { useWriteCookieJarDepositEth, useWriteCookieJarDepositCurrency, useWriteErc20Approve, useReadCookieJarHasRole } from "@/generated"
+import { useWriteContract } from "wagmi"
 import { cookieJarFactoryAbi } from "@/generated"
 import { contractAddresses } from "@/config/supported-networks"
+import { useWaitForTransactionReceipt } from "wagmi"
 import { AdminFunctions } from "@/components/admin/AdminFunctions"
 import { formatAddress } from "@/lib/utils/format"
 import { getExplorerAddressUrl } from "@/lib/utils/network-utils"
@@ -119,8 +121,52 @@ export default function CookieJarConfigDetails() {
     setIsEditingMetadata(true)
   }
 
+  // Validate metadata edit form
+  const validateMetadataEdit = () => {
+    if (!editName || editName.length < 3) {
+      toast({
+        title: "Validation Error",
+        description: "Jar name must be at least 3 characters long.",
+        variant: "destructive",
+      })
+      return false
+    }
+    
+    if (editImage && !isValidUrl(editImage)) {
+      toast({
+        title: "Validation Error", 
+        description: "Please enter a valid URL for the image.",
+        variant: "destructive",
+      })
+      return false
+    }
+    
+    if (editLink && !isValidUrl(editLink)) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter a valid URL for the external link.",
+        variant: "destructive", 
+      })
+      return false
+    }
+    
+    return true
+  }
+
+  // URL validation helper
+  const isValidUrl = (string: string): boolean => {
+    try {
+      new URL(string)
+      return true
+    } catch {
+      return false
+    }
+  }
+
   // Handle metadata update
   const handleMetadataUpdate = () => {
+    if (!validateMetadataEdit()) return
+    
     if (!factoryAddress) {
       toast({
         title: "Error",
@@ -181,10 +227,19 @@ export default function CookieJarConfigDetails() {
   // Metadata update contract write
   const {
     writeContract: updateMetadata,
+    data: updateTxHash,
     isPending: isUpdatingMetadata,
-    isSuccess: isMetadataUpdateSuccess,
     error: metadataUpdateError,
   } = useWriteContract()
+
+  // Wait for metadata update transaction
+  const {
+    isLoading: isWaitingForUpdate,
+    isSuccess: isMetadataUpdateSuccess,
+  } = useWaitForTransactionReceipt({
+    hash: updateTxHash,
+    query: { enabled: !!updateTxHash },
+  })
   const {
     writeContract: Approve,
     isPending: isApprovalPending,

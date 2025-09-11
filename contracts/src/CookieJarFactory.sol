@@ -36,6 +36,8 @@ contract CookieJarFactory is AccessControl {
     error CookieJarFactory__NotValidERC20();
     error CookieJarFactory__JarNotFound();
     error CookieJarFactory__NotJarOwner();
+    error CookieJarFactory__InvalidMetadata();
+    error CookieJarFactory__MetadataTooLong();
 
     // --- Events ---
     event CookieJarCreated(address indexed creator, address cookieJarAddress, string metadata);
@@ -145,6 +147,10 @@ contract CookieJarFactory is AccessControl {
         address[] calldata _whitelist,
         string calldata metadata
     ) external onlyNotBlacklisted(msg.sender) returns (address) {
+        // Validate metadata
+        if (bytes(metadata).length == 0) revert CookieJarFactory__InvalidMetadata();
+        if (bytes(metadata).length > 8192) revert CookieJarFactory__MetadataTooLong();
+        
         uint256 minDeposit = minETHDeposit;
         if (_supportedCurrency != address(3)) {
             if (ERC20(_supportedCurrency).decimals() == 0) revert CookieJarFactory__NotValidERC20();
@@ -190,16 +196,16 @@ contract CookieJarFactory is AccessControl {
     /// @param jar The address of the cookie jar to update
     /// @param newMetadata The new metadata string (JSON format with name, image, link, description)
     function updateMetadata(address jar, string calldata newMetadata) external {
-        // Check if jar exists
-        if (jarIndex[jar] >= cookieJars.length || cookieJars[jarIndex[jar]] != jar) {
-            revert CookieJarFactory__JarNotFound();
-        }
+        // Validate metadata length to prevent DoS
+        if (bytes(newMetadata).length == 0) revert CookieJarFactory__InvalidMetadata();
+        if (bytes(newMetadata).length > 8192) revert CookieJarFactory__MetadataTooLong();
+        
+        uint256 index = _validateJarExists(jar);
         
         // Check authorization: either jar owner or protocol admin
         CookieJar cookieJar = CookieJar(jar);
-        bytes32 JAR_OWNER_ROLE = keccak256("JAR_OWNER");
         
-        bool isJarOwner = cookieJar.hasRole(JAR_OWNER_ROLE, msg.sender);
+        bool isJarOwner = cookieJar.hasRole(CookieJarLib.JAR_OWNER, msg.sender);
         bool isProtocolAdmin = hasRole(PROTOCOL_ADMIN, msg.sender);
         
         if (!isJarOwner && !isProtocolAdmin) {
@@ -207,7 +213,6 @@ contract CookieJarFactory is AccessControl {
         }
         
         // Update metadata
-        uint256 index = jarIndex[jar];
         metadatas[index] = newMetadata;
         
         emit CookieJarMetadataUpdated(jar, newMetadata);
@@ -217,12 +222,18 @@ contract CookieJarFactory is AccessControl {
     /// @param jar The address of the cookie jar
     /// @return The metadata string for the jar
     function getMetadata(address jar) external view returns (string memory) {
-        if (jarIndex[jar] >= cookieJars.length || cookieJars[jarIndex[jar]] != jar) {
+        uint256 index = _validateJarExists(jar);
+        return metadatas[index];
+    }
+
+    /// @dev Internal function to validate jar exists and return its index
+    /// @param jar The address of the cookie jar
+    /// @return index The index of the jar in the arrays
+    function _validateJarExists(address jar) internal view returns (uint256 index) {
+        index = jarIndex[jar];
+        if (index >= cookieJars.length || cookieJars[index] != jar) {
             revert CookieJarFactory__JarNotFound();
         }
-        
-        uint256 index = jarIndex[jar];
-        return metadatas[index];
     }
 
     /// @notice Creates a new CookieJar contract with custom fee percentage
@@ -261,6 +272,10 @@ contract CookieJarFactory is AccessControl {
         // Clamp fee percentage to maximum 100%
         uint256 feePerc = customFeePercentage > 10000 ? 10000 : customFeePercentage;
         
+        // Validate metadata
+        if (bytes(metadata).length == 0) revert CookieJarFactory__InvalidMetadata();
+        if (bytes(metadata).length > 8192) revert CookieJarFactory__MetadataTooLong();
+        
         uint256 minDeposit = minETHDeposit;
         if (_supportedCurrency != address(3)) {
             if (ERC20(_supportedCurrency).decimals() == 0) revert CookieJarFactory__NotValidERC20();
@@ -294,4 +309,5 @@ contract CookieJarFactory is AccessControl {
         emit CookieJarCreated(msg.sender, jarAddress, metadata);
         return jarAddress;
     }
+
 }

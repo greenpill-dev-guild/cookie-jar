@@ -27,6 +27,7 @@ import { BackButton } from "@/components/design/back-button"
 import { MemoizedCustomConnectButton } from "@/components/wallet/custom-connect-button"
 import { useToast } from "@/hooks/design/use-toast"
 import confetti from "canvas-confetti"
+import { ErrorBoundary } from "@/components/design/error-boundary"
 
 // Import token utilities
 import { ETH_ADDRESS, useTokenInfo, parseTokenAmount, formatTokenAmount } from "@/lib/utils/token-utils"
@@ -1291,7 +1292,8 @@ export default function CreateCookieJarForm() {
   }
 
   return (
-    <div className="min-h-screen bg-[#2b1d0e] py-10 px-4">
+    <ErrorBoundary>
+      <div className="min-h-screen bg-[#2b1d0e] py-10 px-4">
       {/* Header with back button and network info */}
       <div className="max-w-3xl mx-auto mb-10">
         <BackButton className="rounded-full" />
@@ -1489,6 +1491,7 @@ export default function CreateCookieJarForm() {
           </DialogContent>
         </Dialog>
       )}
-    </div>
+      </div>
+    </ErrorBoundary>
   )
 }

@@ -1122,6 +1122,8 @@ export const cookieJarFactoryAbi = [
   { type: 'error', inputs: [], name: 'CookieJarFactory__UserIsNotBlacklisted' },
   { type: 'error', inputs: [], name: 'CookieJarFactory__JarNotFound' },
   { type: 'error', inputs: [], name: 'CookieJarFactory__NotJarOwner' },
+  { type: 'error', inputs: [], name: 'CookieJarFactory__InvalidMetadata' },
+  { type: 'error', inputs: [], name: 'CookieJarFactory__MetadataTooLong' },
   { type: 'error', inputs: [], name: 'FeeCollectorAddressCannotBeZeroAddress' },
   {
     type: 'function',
