@@ -8,6 +8,29 @@ import { RefreshCw, ArrowUpRight } from "lucide-react"
 import { Skeleton } from "@/components/ui/skeleton"
 import { useRouter } from "next/navigation"
 import { useAccount } from "wagmi"
+import { ETH_ADDRESS, useTokenInfo } from "@/lib/utils/token-utils"
+import { formatAddress } from "@/lib/utils/format"
+import type { Address } from "viem"
+
+// Component to display currency with symbol instead of raw address
+const CurrencyLabel: React.FC<{ address: string }> = ({ address }) => {
+  const { symbol } = useTokenInfo(address as Address)
+  
+  if (!address) return null
+  if (address === ETH_ADDRESS) return <span>ETH</span>
+  
+  return <span>{symbol || formatAddress(address)}</span>
+}
+
+// Component to display parsed metadata name
+const MetadataDisplay: React.FC<{ metadata: string }> = ({ metadata }) => {
+  try {
+    const parsed = JSON.parse(metadata)
+    return <span>{parsed.name || metadata}</span>
+  } catch {
+    return <span>{metadata}</span>
+  }
+}
 
 const CookieJarPage: React.FC = () => {
   const { cookieJarsData, isLoading, error } = useCookieJarData()
@@ -48,19 +71,18 @@ const CookieJarPage: React.FC = () => {
           {cookieJarsData.map((jar, index) => (
             <Card key={jar.jarAddress} className="p-4 shadow-md">
               <CardHeader>
-                <CardTitle className="text-lg font-semibold">Jar #{index + 1}</CardTitle>
+                <CardTitle className="text-lg font-semibold">
+                  <MetadataDisplay metadata={jar.metadata} />
+                </CardTitle>
                 <CardDescription className="text-sm text-gray-500 truncate">{jar.jarAddress}</CardDescription>
               </CardHeader>
 
               <CardContent>
                 <p className="text-sm">
-                  <span className="font-semibold">Currency:</span> {jar.currency}
+                  <span className="font-semibold">Currency:</span> <CurrencyLabel address={jar.currency} />
                 </p>
                 <p className="text-sm">
-                  <span className="font-semibold">Creator:</span> {jar.jarCreator}
-                </p>
-                <p className="text-sm">
-                  <span className="font-semibold">Metadata:</span> {jar.metadata}
+                  <span className="font-semibold">Creator:</span> {formatAddress(jar.jarCreator)}
                 </p>
               </CardContent>
 

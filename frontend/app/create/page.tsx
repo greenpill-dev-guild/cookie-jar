@@ -25,6 +25,8 @@ import { LoadingOverlay } from "@/components/design/loading-overlay"
 import { AlertCircle } from "lucide-react"
 import { BackButton } from "@/components/design/back-button"
 import { MemoizedCustomConnectButton } from "@/components/wallet/custom-connect-button"
+import { useToast } from "@/hooks/design/use-toast"
+import confetti from "canvas-confetti"
 
 // Import token utilities
 import { ETH_ADDRESS, useTokenInfo, parseTokenAmount, formatTokenAmount } from "@/lib/utils/token-utils"
@@ -65,8 +67,17 @@ export default function CreateCookieJarForm() {
   const [emergencyWithdrawalEnabled, setEmergencyWithdrawalEnabled] = useState(true)
   const [oneTimeWithdrawal, setOneTimeWithdrawal] = useState(false)
   const [metadata, setMetadata] = useState("")
+  
+  // New metadata fields
+  const [jarName, setJarName] = useState("")
+  const [imageUrl, setImageUrl] = useState("")
+  const [externalLink, setExternalLink] = useState("")
+  const [customFee, setCustomFee] = useState("")
+  const [enableCustomFee, setEnableCustomFee] = useState(false)
+  
   const { isConnected, address } = useAccount()
   const chainId = useChainId()
+  const { toast } = useToast()
 
   // Form validation errors
   const [formErrors, setFormErrors] = useState<{
@@ -74,6 +85,10 @@ export default function CreateCookieJarForm() {
     jarOwnerAddress?: string;
     supportedCurrency?: string;
     metadata?: string;
+    jarName?: string;
+    imageUrl?: string;
+    externalLink?: string;
+    customFee?: string;
     fixedAmount?: string;
     maxWithdrawal?: string;
     withdrawalInterval?: string;
@@ -134,6 +149,16 @@ export default function CreateCookieJarForm() {
 
   // Determine if we're using ETH or a token
   const isEthCurrency = supportedCurrency === ETH_ADDRESS
+
+  // Helper function to validate URLs
+  const isValidUrl = (string: string): boolean => {
+    try {
+      new URL(string);
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
 
   // Parse amount based on currency type
   const parseAmount = (amountStr: string): bigint => {
@@ -202,34 +227,71 @@ export default function CreateCookieJarForm() {
       const effectiveNftAddresses = accessType === AccessType.NFTGated ? nftAddresses : []
       const effectiveNftTypes = accessType === AccessType.NFTGated ? nftTypes : []
 
+      // Create JSON metadata object
+      const metadataObject = {
+        name: jarName,
+        description: metadata,
+        image: imageUrl,
+        link: externalLink
+      }
+      const metadataJson = JSON.stringify(metadataObject)
+
       try {
         // Check if we have a valid factory address for this chain
         if (!factoryAddress) {
           throw new Error(`No contract address found for the current network (Chain ID: ${chainId}). Please switch to a supported network.`)
         }
 
+        // Determine which function to call based on custom fee
+        const useCustomFee = enableCustomFee && customFee !== ""
+        const feeBps = useCustomFee ? Math.round(parseFloat(customFee) * 100) : 0
 
-        writeContract({
-          address: factoryAddress,
-          abi: cookieJarFactoryAbi,
-          functionName: 'createCookieJar',
-          args: [
-            jarOwnerAddress,
-            supportedCurrency,
-            accessType,
-            effectiveNftAddresses as readonly `0x${string}`[],
-            effectiveNftTypes,
-            withdrawalOption,
-            parseAmount(fixedAmount),
-            parseAmount(maxWithdrawal),
-            BigInt(withdrawalInterval || "0"),
-            strictPurpose,
-            emergencyWithdrawalEnabled,
-            oneTimeWithdrawal,
-            [] as readonly `0x${string}`[], // Adding empty whitelist array TODO integrate w/ FE so users can pass an intiial whitelist on jar creaton
-            metadata,
-          ],
-        })
+        if (useCustomFee) {
+          writeContract({
+            address: factoryAddress,
+            abi: cookieJarFactoryAbi,
+            functionName: 'createCookieJarWithFee',
+            args: [
+              jarOwnerAddress,
+              supportedCurrency,
+              accessType,
+              effectiveNftAddresses as readonly `0x${string}`[],
+              effectiveNftTypes,
+              withdrawalOption,
+              parseAmount(fixedAmount),
+              parseAmount(maxWithdrawal),
+              BigInt(withdrawalInterval || "0"),
+              strictPurpose,
+              emergencyWithdrawalEnabled,
+              oneTimeWithdrawal,
+              [] as readonly `0x${string}`[], // Adding empty whitelist array TODO integrate w/ FE so users can pass an intiial whitelist on jar creaton
+              metadataJson,
+              BigInt(feeBps),
+            ],
+          })
+        } else {
+          writeContract({
+            address: factoryAddress,
+            abi: cookieJarFactoryAbi,
+            functionName: 'createCookieJar',
+            args: [
+              jarOwnerAddress,
+              supportedCurrency,
+              accessType,
+              effectiveNftAddresses as readonly `0x${string}`[],
+              effectiveNftTypes,
+              withdrawalOption,
+              parseAmount(fixedAmount),
+              parseAmount(maxWithdrawal),
+              BigInt(withdrawalInterval || "0"),
+              strictPurpose,
+              emergencyWithdrawalEnabled,
+              oneTimeWithdrawal,
+              [] as readonly `0x${string}`[], // Adding empty whitelist array TODO integrate w/ FE so users can pass an intiial whitelist on jar creaton
+              metadataJson,
+            ],
+          })
+        }
       } catch (error) {
         console.error("Error creating cookie jar:", error)
         setErrorMessage("Failed to create Cookie Jar. Please try again.")
@@ -252,6 +314,11 @@ export default function CreateCookieJarForm() {
     setEmergencyWithdrawalEnabled(true)
     setOneTimeWithdrawal(false)
     setMetadata("")
+    setJarName("")
+    setImageUrl("")
+    setExternalLink("")
+    setCustomFee("")
+    setEnableCustomFee(false)
     setNftAddresses([])
     setNftTypes([])
     setCurrentStep(1)
@@ -261,6 +328,19 @@ export default function CreateCookieJarForm() {
   useEffect(() => {
     if (txConfirmed && receipt) {
       console.log("Transaction confirmed:", receipt)
+
+      // Show success toast and confetti
+      toast({
+        title: "Cookie Jar Created! 🎉",
+        description: "Your new jar has been deployed successfully.",
+      })
+
+      // Trigger confetti animation
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      })
 
       // Extract the created jar address from the transaction receipt
       try {
@@ -274,7 +354,7 @@ export default function CreateCookieJarForm() {
           setTimeout(() => {
             // Redirect to the specific jar page
             router.push(`/jar/${jarAddress}`)
-          }, 100)
+          }, 2000) // Increased delay to see the toast
 
           setIsCreating(false)
           resetForm()
@@ -309,11 +389,19 @@ export default function CreateCookieJarForm() {
   useEffect(() => {
     if (createError) {
       console.error("Transaction error:", createError)
+      
+      // Show error toast
+      toast({
+        title: "Transaction Failed",
+        description: "Transaction was rejected or failed. Please try again.",
+        variant: "destructive",
+      })
+      
       setErrorMessage("Transaction rejected")
       setIsFormError(false)
       setIsCreating(false)
     }
-  }, [createError])
+  }, [createError, toast])
 
   // Form validation functions
   const validateStep = (step: number): { isValid: boolean; errors: Record<string, string> } => {
@@ -340,6 +428,35 @@ export default function CreateCookieJarForm() {
           } else if (tokenError) {
             // Use the existing token error
             newErrors.supportedCurrency = tokenErrorMessage;
+          }
+        }
+
+        // Validate jar name
+        if (!jarName) {
+          newErrors.jarName = "Jar name is required";
+        } else if (jarName.length < 3) {
+          newErrors.jarName = `Jar name must be at least 3 characters (${jarName.length}/3)`;
+        }
+
+        // Validate image URL if provided
+        if (imageUrl && !isValidUrl(imageUrl)) {
+          newErrors.imageUrl = "Please enter a valid URL for the image";
+        }
+
+        // Validate external link if provided
+        if (externalLink && !isValidUrl(externalLink)) {
+          newErrors.externalLink = "Please enter a valid URL for the external link";
+        }
+
+        // Validate custom fee if enabled
+        if (enableCustomFee) {
+          if (!customFee || customFee === "") {
+            newErrors.customFee = "Please enter a custom fee percentage";
+          } else {
+            const feeValue = parseFloat(customFee);
+            if (isNaN(feeValue) || feeValue < 0 || feeValue > 100) {
+              newErrors.customFee = "Fee percentage must be between 0 and 100";
+            }
           }
         }
 
@@ -386,7 +503,11 @@ export default function CreateCookieJarForm() {
         network: undefined,
         jarOwnerAddress: undefined,
         supportedCurrency: undefined,
-        metadata: undefined
+        metadata: undefined,
+        jarName: undefined,
+        imageUrl: undefined,
+        externalLink: undefined,
+        customFee: undefined
       }));
     } else if (step === 3) {
       // Clear step 3 errors
@@ -628,20 +749,204 @@ export default function CreateCookieJarForm() {
                     setSupportedCurrency(value as `0x${string}`)
                   }}
                 />
+                {isERC20 && !tokenError && tokenSymbol && (
+                  <p className="text-sm text-gray-700">Token recognized: <span className="font-medium">{tokenSymbol}</span> (decimals: {tokenDecimals})</p>
+                )}
                 {(formErrors.supportedCurrency || (tokenError && supportedCurrency && supportedCurrency !== '0x')) ? (
                   <p className="text-sm text-red-500 flex items-center">
                     <AlertCircle className="h-4 w-4 mr-1" /> {formErrors.supportedCurrency || tokenErrorMessage}
                   </p>
-                ) : (
+                ) : !isERC20 && (
                   <p className="text-sm text-[#8b7355]">Address of the ERC20 token contract</p>
                 )}
               </div>
             )}
 
+            {/* Jar Name */}
+            <div className="space-y-2">
+              <Label htmlFor="jarName" className="text-[#3c2a14] text-base">
+                Jar Name *
+              </Label>
+              <Input
+                id="jarName"
+                placeholder="My Cookie Jar"
+                className={`bg-white ${formErrors.jarName ? 'border-red-500' : 'border-gray-300'} placeholder:text-[#3c2a14] text-[#3c2a14]`}
+                value={jarName}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setJarName(value);
+
+                  // Validate name length in real-time
+                  if (value.length > 0 && value.length < 3) {
+                    setFormErrors(prev => ({
+                      ...prev,
+                      jarName: `Jar name must be at least 3 characters (${value.length}/3)`
+                    }));
+                  } else {
+                    // Clear error when valid or empty
+                    setFormErrors(prev => ({
+                      ...prev,
+                      jarName: undefined
+                    }));
+                  }
+                }}
+              />
+              {formErrors.jarName ? (
+                <p className="text-sm text-red-500 flex items-center">
+                  <AlertCircle className="h-4 w-4 mr-1" /> {formErrors.jarName}
+                </p>
+              ) : (
+                <p className="text-sm text-[#8b7355]">A descriptive name for your cookie jar</p>
+              )}
+            </div>
+
+            {/* Image URL */}
+            <div className="space-y-2">
+              <Label htmlFor="imageUrl" className="text-[#3c2a14] text-base">
+                Image URL (Optional)
+              </Label>
+              <Input
+                id="imageUrl"
+                placeholder="https://example.com/jar.png"
+                className={`bg-white ${formErrors.imageUrl ? 'border-red-500' : 'border-gray-300'} placeholder:text-[#3c2a14] text-[#3c2a14]`}
+                value={imageUrl}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setImageUrl(value);
+
+                  // Validate URL format in real-time
+                  if (value && !isValidUrl(value)) {
+                    setFormErrors(prev => ({
+                      ...prev,
+                      imageUrl: "Please enter a valid URL"
+                    }));
+                  } else {
+                    // Clear error when valid or empty
+                    setFormErrors(prev => ({
+                      ...prev,
+                      imageUrl: undefined
+                    }));
+                  }
+                }}
+              />
+              {formErrors.imageUrl ? (
+                <p className="text-sm text-red-500 flex items-center">
+                  <AlertCircle className="h-4 w-4 mr-1" /> {formErrors.imageUrl}
+                </p>
+              ) : (
+                <p className="text-sm text-[#8b7355]">An image to represent your cookie jar</p>
+              )}
+            </div>
+
+            {/* External Link */}
+            <div className="space-y-2">
+              <Label htmlFor="externalLink" className="text-[#3c2a14] text-base">
+                External Link (Optional)
+              </Label>
+              <Input
+                id="externalLink"
+                placeholder="https://yourwebsite.com"
+                className={`bg-white ${formErrors.externalLink ? 'border-red-500' : 'border-gray-300'} placeholder:text-[#3c2a14] text-[#3c2a14]`}
+                value={externalLink}
+                onChange={(e) => {
+                  const value = e.target.value;
+                  setExternalLink(value);
+
+                  // Validate URL format in real-time
+                  if (value && !isValidUrl(value)) {
+                    setFormErrors(prev => ({
+                      ...prev,
+                      externalLink: "Please enter a valid URL"
+                    }));
+                  } else {
+                    // Clear error when valid or empty
+                    setFormErrors(prev => ({
+                      ...prev,
+                      externalLink: undefined
+                    }));
+                  }
+                }}
+              />
+              {formErrors.externalLink ? (
+                <p className="text-sm text-red-500 flex items-center">
+                  <AlertCircle className="h-4 w-4 mr-1" /> {formErrors.externalLink}
+                </p>
+              ) : (
+                <p className="text-sm text-[#8b7355]">A link to more information about your project</p>
+              )}
+            </div>
+
+            {/* Custom Donation Fee */}
+            <div className="space-y-2">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="enableCustomFee"
+                  checked={enableCustomFee}
+                  onCheckedChange={(checked) => {
+                    setEnableCustomFee(checked as boolean);
+                    if (!checked) {
+                      setCustomFee("");
+                      setFormErrors(prev => ({ ...prev, customFee: undefined }));
+                    }
+                  }}
+                  className="border-[#3c2a14] data-[state=checked]:bg-[#ff5e14] data-[state=checked]:border-[#ff5e14]"
+                />
+                <Label htmlFor="enableCustomFee" className="text-[#3c2a14] text-base">
+                  Customize Donation Fee
+                </Label>
+              </div>
+              
+              {enableCustomFee && (
+                <div className="space-y-2">
+                  <Input
+                    id="customFee"
+                    type="number"
+                    placeholder="1.0"
+                    min="0"
+                    max="100"
+                    step="0.1"
+                    className={`bg-white ${formErrors.customFee ? 'border-red-500' : 'border-gray-300'} placeholder:text-[#3c2a14] text-[#3c2a14]`}
+                    value={customFee}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setCustomFee(value);
+
+                      // Validate fee percentage in real-time
+                      if (value) {
+                        const feeValue = parseFloat(value);
+                        if (isNaN(feeValue) || feeValue < 0 || feeValue > 100) {
+                          setFormErrors(prev => ({
+                            ...prev,
+                            customFee: "Fee percentage must be between 0 and 100"
+                          }));
+                        } else {
+                          setFormErrors(prev => ({
+                            ...prev,
+                            customFee: undefined
+                          }));
+                        }
+                      }
+                    }}
+                  />
+                  {formErrors.customFee ? (
+                    <p className="text-sm text-red-500 flex items-center">
+                      <AlertCircle className="h-4 w-4 mr-1" /> {formErrors.customFee}
+                    </p>
+                  ) : (
+                    <p className="text-sm text-[#8b7355]">Percentage of deposits to donate (0-100%). Leave unchecked to use default platform fee.</p>
+                  )}
+                </div>
+              )}
+              
+              {!enableCustomFee && (
+                <p className="text-sm text-[#8b7355]">Your jar will use the default platform donation fee. Check the box above to customize.</p>
+              )}
+            </div>
+
             {/* Metadata */}
             <div className="space-y-2">
               <Label htmlFor="metadata" className="text-[#3c2a14] text-base">
-                Jar Description
+                Jar Description *
               </Label>
               <Textarea
                 id="metadata"
@@ -957,6 +1262,11 @@ export default function CreateCookieJarForm() {
                 <li className="text-[#3c2a14]">
                   <span className="font-medium">Interval:</span> {(Number(withdrawalInterval) / 86400).toString()} days
                 </li>
+                {enableCustomFee && (
+                  <li className="text-[#3c2a14]">
+                    <span className="font-medium">Donation Fee:</span> {customFee}%
+                  </li>
+                )}
               </ul>
             </div>
           </div>
@@ -1117,6 +1427,11 @@ export default function CreateCookieJarForm() {
                     <span className="font-medium">Interval:</span> {(Number(withdrawalInterval) / 86400).toString()}{" "}
                     days
                   </li>
+                  {enableCustomFee && (
+                    <li className="text-[#3c2a14]">
+                      <span className="font-medium">Donation Fee:</span> {customFee}%
+                    </li>
+                  )}
                 </ul>
               </div>
             </div>

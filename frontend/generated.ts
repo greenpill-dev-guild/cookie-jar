@@ -807,6 +807,29 @@ export const cookieJarFactoryAbi = [
   },
   {
     type: 'function',
+    inputs: [
+      { name: '_cookieJarOwner', internalType: 'address', type: 'address' },
+      { name: '_supportedCurrency', internalType: 'address', type: 'address' },
+      { name: '_accessType', internalType: 'enum CookieJarLib.AccessType', type: 'uint8' },
+      { name: '_nftAddresses', internalType: 'address[]', type: 'address[]' },
+      { name: '_nftTypes', internalType: 'enum CookieJarLib.NFTType[]', type: 'uint8[]' },
+      { name: '_withdrawalOption', internalType: 'enum CookieJarLib.WithdrawalTypeOptions', type: 'uint8' },
+      { name: '_fixedAmount', internalType: 'uint256', type: 'uint256' },
+      { name: '_maxWithdrawal', internalType: 'uint256', type: 'uint256' },
+      { name: '_withdrawalInterval', internalType: 'uint256', type: 'uint256' },
+      { name: '_strictPurpose', internalType: 'bool', type: 'bool' },
+      { name: '_emergencyWithdrawalEnabled', internalType: 'bool', type: 'bool' },
+      { name: '_oneTimeWithdrawal', internalType: 'bool', type: 'bool' },
+      { name: '_whitelist', internalType: 'address[]', type: 'address[]' },
+      { name: 'metadata', internalType: 'string', type: 'string' },
+      { name: 'customFeePercentage', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'createCookieJarWithFee',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
     inputs: [],
     name: 'defaultFeeCollector',
     outputs: [{ name: '', internalType: 'address', type: 'address' }],
@@ -824,6 +847,13 @@ export const cookieJarFactoryAbi = [
     inputs: [],
     name: 'getCookieJars',
     outputs: [{ name: '', internalType: 'address[]', type: 'address[]' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'jar', internalType: 'address', type: 'address' }],
+    name: 'getMetadata',
+    outputs: [{ name: '', internalType: 'string', type: 'string' }],
     stateMutability: 'view',
   },
   {
@@ -1090,7 +1120,35 @@ export const cookieJarFactoryAbi = [
   { type: 'error', inputs: [], name: 'CookieJarFactory__NotAuthorized' },
   { type: 'error', inputs: [], name: 'CookieJarFactory__NotValidERC20' },
   { type: 'error', inputs: [], name: 'CookieJarFactory__UserIsNotBlacklisted' },
+  { type: 'error', inputs: [], name: 'CookieJarFactory__JarNotFound' },
+  { type: 'error', inputs: [], name: 'CookieJarFactory__NotJarOwner' },
   { type: 'error', inputs: [], name: 'FeeCollectorAddressCannotBeZeroAddress' },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'jar', internalType: 'address', type: 'address' },
+      { name: 'newMetadata', internalType: 'string', type: 'string' }
+    ],
+    name: 'updateMetadata',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '', internalType: 'address', type: 'address' }],
+    name: 'jarIndex',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      { name: 'jar', internalType: 'address', type: 'address', indexed: true },
+      { name: 'newMetadata', internalType: 'string', type: 'string', indexed: false },
+    ],
+    name: 'CookieJarMetadataUpdated',
+  },
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////

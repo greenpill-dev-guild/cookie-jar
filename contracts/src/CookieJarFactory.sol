@@ -18,6 +18,9 @@ contract CookieJarFactory is AccessControl {
 
     address[] public cookieJars;
     string[] public metadatas;
+    
+    // Mapping from jar address to its index in the cookieJars array
+    mapping(address => uint256) public jarIndex;
 
     address public immutable defaultFeeCollector;
     uint256 public immutable defaultFeePercentage;
@@ -31,9 +34,12 @@ contract CookieJarFactory is AccessControl {
     error CookieJarFactory__MismatchedArrayLengths();
     error CookieJarFactory__UserIsNotBlacklisted();
     error CookieJarFactory__NotValidERC20();
+    error CookieJarFactory__JarNotFound();
+    error CookieJarFactory__NotJarOwner();
 
     // --- Events ---
     event CookieJarCreated(address indexed creator, address cookieJarAddress, string metadata);
+    event CookieJarMetadataUpdated(address indexed jar, string newMetadata);
     event BlacklistRoleGranted(address[] users);
     event ProtocolAdminUpdated(address indexed previous, address indexed current);
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
@@ -166,6 +172,7 @@ contract CookieJarFactory is AccessControl {
         address jarAddress = address(newJar);
         cookieJars.push(jarAddress);
         metadatas.push(metadata);
+        jarIndex[jarAddress] = cookieJars.length - 1;
 
         emit CookieJarCreated(msg.sender, jarAddress, metadata);
         return jarAddress;
@@ -177,5 +184,114 @@ contract CookieJarFactory is AccessControl {
 
     function getMetadatas() external view returns (string[] memory) {
         return metadatas;
+    }
+
+    /// @notice Updates the metadata for an existing jar
+    /// @param jar The address of the cookie jar to update
+    /// @param newMetadata The new metadata string (JSON format with name, image, link, description)
+    function updateMetadata(address jar, string calldata newMetadata) external {
+        // Check if jar exists
+        if (jarIndex[jar] >= cookieJars.length || cookieJars[jarIndex[jar]] != jar) {
+            revert CookieJarFactory__JarNotFound();
+        }
+        
+        // Check authorization: either jar owner or protocol admin
+        CookieJar cookieJar = CookieJar(jar);
+        bytes32 JAR_OWNER_ROLE = keccak256("JAR_OWNER");
+        
+        bool isJarOwner = cookieJar.hasRole(JAR_OWNER_ROLE, msg.sender);
+        bool isProtocolAdmin = hasRole(PROTOCOL_ADMIN, msg.sender);
+        
+        if (!isJarOwner && !isProtocolAdmin) {
+            revert CookieJarFactory__NotJarOwner();
+        }
+        
+        // Update metadata
+        uint256 index = jarIndex[jar];
+        metadatas[index] = newMetadata;
+        
+        emit CookieJarMetadataUpdated(jar, newMetadata);
+    }
+
+    /// @notice Gets metadata for a specific jar
+    /// @param jar The address of the cookie jar
+    /// @return The metadata string for the jar
+    function getMetadata(address jar) external view returns (string memory) {
+        if (jarIndex[jar] >= cookieJars.length || cookieJars[jarIndex[jar]] != jar) {
+            revert CookieJarFactory__JarNotFound();
+        }
+        
+        uint256 index = jarIndex[jar];
+        return metadatas[index];
+    }
+
+    /// @notice Creates a new CookieJar contract with custom fee percentage
+    /// @param _cookieJarOwner Address of the new CookieJar owner.
+    /// @param _supportedCurrency Address of the supported currency for the jar address(3) if native ETH.
+    /// @param _accessType Claim mode: Whitelist or NFTGated.
+    /// @param _nftAddresses Array of NFT contract addresses (only for NFTGated mode).
+    /// @param _nftTypes Array of NFT types corresponding to _nftAddresses.
+    /// @param _withdrawalOption Fixed or Variable withdrawal type.
+    /// @param _fixedAmount Withdrawal amount if Fixed.
+    /// @param _maxWithdrawal Maximum allowed withdrawal if Variable.
+    /// @param _withdrawalInterval Time interval between withdrawals.
+    /// @param _strictPurpose If true, requires a purpose length ≥20 characters.
+    /// @param _emergencyWithdrawalEnabled If true, emergency withdrawal is enabled.
+    /// @param _oneTimeWithdrawal If true, each recipient can only claim from the jar once.
+    /// @param _whitelist Array of whitelisted addresses.
+    /// @param metadata Optional metadata for off-chain tracking.
+    /// @param customFeePercentage Custom fee percentage for this jar (0-10000, where 10000 = 100%)
+    function createCookieJarWithFee(
+        address _cookieJarOwner,
+        address _supportedCurrency,
+        CookieJarLib.AccessType _accessType,
+        address[] calldata _nftAddresses,
+        CookieJarLib.NFTType[] calldata _nftTypes,
+        CookieJarLib.WithdrawalTypeOptions _withdrawalOption,
+        uint256 _fixedAmount,
+        uint256 _maxWithdrawal,
+        uint256 _withdrawalInterval,
+        bool _strictPurpose,
+        bool _emergencyWithdrawalEnabled,
+        bool _oneTimeWithdrawal,
+        address[] calldata _whitelist,
+        string calldata metadata,
+        uint256 customFeePercentage
+    ) external onlyNotBlacklisted(msg.sender) returns (address) {
+        // Clamp fee percentage to maximum 100%
+        uint256 feePerc = customFeePercentage > 10000 ? 10000 : customFeePercentage;
+        
+        uint256 minDeposit = minETHDeposit;
+        if (_supportedCurrency != address(3)) {
+            if (ERC20(_supportedCurrency).decimals() == 0) revert CookieJarFactory__NotValidERC20();
+            minDeposit = minERC20Deposit;
+        }
+        
+        CookieJar newJar = new CookieJar(
+            _cookieJarOwner,
+            _supportedCurrency,
+            _accessType,
+            _nftAddresses,
+            _nftTypes,
+            _withdrawalOption,
+            _fixedAmount,
+            _maxWithdrawal,
+            _withdrawalInterval,
+            minDeposit,
+            feePerc, // Use custom fee instead of defaultFeePercentage
+            _strictPurpose,
+            defaultFeeCollector, // Keep same fee collector
+            _emergencyWithdrawalEnabled,
+            _oneTimeWithdrawal,
+            _whitelist
+        );
+
+        address jarAddress = address(newJar);
+        cookieJars.push(jarAddress);
+        metadatas.push(metadata);
+        jarIndex[jarAddress] = cookieJars.length - 1;
+
+        emit CookieJarCreated(msg.sender, jarAddress, metadata);
+        return jarAddress;
     }
 }
