@@ -4,12 +4,13 @@ import { DialogFooter } from "@/components/ui/dialog"
 
 import React from "react"
 
-import { useState, useTransition, useEffect } from "react"
+import { useState, useTransition, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { cookieJarFactoryAbi } from "@/generated"
-import { useWaitForTransactionReceipt, useAccount, useChainId, useWriteContract } from "wagmi"
+import { useWaitForTransactionReceipt, useAccount, useChainId, useWriteContract, usePublicClient } from "wagmi"
 import { contractAddresses } from "@/config/supported-networks"
 import { parseEther, isAddress } from "viem"
+import { normalize } from "viem/ens"
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -57,7 +58,10 @@ export default function CreateCookieJarForm() {
 
   // Form state
   const [selectedNetwork, setSelectedNetwork] = useState<string>("baseSepolia")
-  const [jarOwnerAddress, setJarOwnerAddress] = useState<`0x${string}`>("0x0000000000000000000000000000000000000000")
+  const [jarOwnerAddress, setJarOwnerAddress] = useState<string>("")
+  const [resolvedJarOwnerAddress, setResolvedJarOwnerAddress] = useState<`0x${string}` | null>(null)
+  const [ensResolutionStatus, setEnsResolutionStatus] = useState<"idle" | "loading" | "success" | "error">("idle")
+
   const [supportedCurrency, setSupportedCurrency] = useState<`0x${string}`>(ETH_ADDRESS)
   const [accessType, setAccessType] = useState<AccessType>(AccessType.Allowlist)
   const [withdrawalOption, setWithdrawalOption] = useState<WithdrawalTypeOptions>(WithdrawalTypeOptions.Fixed)
@@ -140,8 +144,56 @@ export default function CreateCookieJarForm() {
   useEffect(() => {
     if (address) {
       setJarOwnerAddress(address)
+      setResolvedJarOwnerAddress(address)
+      setEnsResolutionStatus("success")
     }
   }, [address])
+
+  const publicClient = usePublicClient()
+
+  const resolveEnsName = useCallback(
+    async (name: string) => {
+      if (!name || !publicClient) return
+
+      setEnsResolutionStatus("loading")
+      try {
+        const resolvedAddress = await publicClient.getEnsAddress({
+          name: normalize(name),
+        })
+        if (resolvedAddress) {
+          setResolvedJarOwnerAddress(resolvedAddress)
+          setEnsResolutionStatus("success")
+        } else {
+          setResolvedJarOwnerAddress(null)
+          setEnsResolutionStatus("error")
+        }
+      } catch (error) {
+        console.error("ENS Resolution Error:", error)
+        setResolvedJarOwnerAddress(null)
+        setEnsResolutionStatus("error")
+      }
+    },
+    [publicClient]
+  )
+
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      if (jarOwnerAddress.endsWith(".eth")) {
+        resolveEnsName(jarOwnerAddress)
+      } else if (isAddress(jarOwnerAddress)) {
+        setResolvedJarOwnerAddress(jarOwnerAddress)
+        setEnsResolutionStatus("success")
+      } else {
+        setResolvedJarOwnerAddress(null)
+        setEnsResolutionStatus("idle")
+      }
+    }, 500) // 500ms debounce
+
+    return () => {
+      clearTimeout(handler)
+    }
+  }, [jarOwnerAddress, resolveEnsName])
+
 
   // Update currency type when the currency changes
   useEffect(() => {
@@ -253,7 +305,7 @@ export default function CreateCookieJarForm() {
             abi: cookieJarFactoryAbi,
             functionName: 'createCookieJarWithFee',
             args: [
-              jarOwnerAddress,
+              resolvedJarOwnerAddress as `0x${string}`,
               supportedCurrency,
               accessType,
               effectiveNftAddresses as readonly `0x${string}`[],
@@ -276,7 +328,7 @@ export default function CreateCookieJarForm() {
             abi: cookieJarFactoryAbi,
             functionName: 'createCookieJar',
             args: [
-              jarOwnerAddress,
+              resolvedJarOwnerAddress as `0x${string}`,
               supportedCurrency,
               accessType,
               effectiveNftAddresses as readonly `0x${string}`[],
@@ -304,7 +356,9 @@ export default function CreateCookieJarForm() {
 
   // Reset form after submission
   const resetForm = () => {
-    setJarOwnerAddress(address || "0x0000000000000000000000000000000000000000")
+    setJarOwnerAddress(address || "")
+    setResolvedJarOwnerAddress(address ? (address as `0x${string}`) : null)
+    setEnsResolutionStatus(address ? "success" : "idle")
     setSupportedCurrency(ETH_ADDRESS)
     setAccessType(AccessType.Allowlist)
     setWithdrawalOption(WithdrawalTypeOptions.Fixed)
@@ -417,8 +471,12 @@ export default function CreateCookieJarForm() {
 
         // Validate owner address if not the connected address
         if (jarOwnerAddress !== address) {
-          if (!jarOwnerAddress || !isAddress(jarOwnerAddress)) {
-            newErrors.jarOwnerAddress = "Please enter a valid Ethereum address";
+          if (!jarOwnerAddress) {
+            newErrors.jarOwnerAddress = "Please enter a valid Ethereum address or ENS name";
+          } else if (ensResolutionStatus === 'error') {
+            newErrors.jarOwnerAddress = "Could not resolve ENS name.";
+          } else if (ensResolutionStatus !== 'success') {
+            newErrors.jarOwnerAddress = "Please enter a valid Ethereum address or ENS name";
           }
         }
 
@@ -682,18 +740,21 @@ export default function CreateCookieJarForm() {
               </Label>
               <Input
                 id="jarOwner"
-                placeholder="0x... (leave empty to use your address)"
+                placeholder="0x... or yourname.eth"
                 className={`bg-white ${formErrors.jarOwnerAddress ? 'border-red-500' : 'border-gray-300'} placeholder:text-[#3c2a14] text-[#3c2a14]`}
-                defaultValue=""
+                value={jarOwnerAddress}
                 onChange={(e) => {
                   const value = e.target.value
-                  if (value === "") {
-                    setJarOwnerAddress(address as `0x${string}`)
-                  } else {
-                    setJarOwnerAddress(value as `0x${string}`)
-                  }
+                  setJarOwnerAddress(value)
                 }}
               />
+              {ensResolutionStatus === "loading" && <p className="text-sm text-gray-500">Resolving ENS name...</p>}
+              {ensResolutionStatus === "error" && (
+                <p className="text-sm text-red-500">Could not resolve ENS name.</p>
+              )}
+              {ensResolutionStatus === "success" && resolvedJarOwnerAddress && jarOwnerAddress.endsWith(".eth") && (
+                <p className="text-sm text-green-600">Resolved to: {resolvedJarOwnerAddress}</p>
+              )}
               {formErrors.jarOwnerAddress ? (
                 <p className="text-sm text-red-500 flex items-center">
                   <AlertCircle className="h-4 w-4 mr-1" /> {formErrors.jarOwnerAddress}
@@ -1243,7 +1304,11 @@ export default function CreateCookieJarForm() {
               <ul className="space-y-2 text-sm">
                 <li className="text-[#3c2a14]">
                   <span className="font-medium">Owner:</span>{" "}
-                  {jarOwnerAddress === address ? "Your wallet" : jarOwnerAddress}
+                  {jarOwnerAddress === address
+                    ? "Your wallet"
+                    : jarOwnerAddress.endsWith(".eth")
+                    ? `${jarOwnerAddress} (${resolvedJarOwnerAddress})`
+                    : jarOwnerAddress}
                 </li>
                 <li className="text-[#3c2a14]">
                   <span className="font-medium">Currency:</span> {isEthCurrency ? `${tokenSymbol} (Native)` : tokenSymbol}
@@ -1406,7 +1471,11 @@ export default function CreateCookieJarForm() {
                 <ul className="space-y-2 text-sm">
                   <li className="text-[#3c2a14]">
                     <span className="font-medium">Owner:</span>{" "}
-                    {jarOwnerAddress === address ? "Your wallet" : jarOwnerAddress}
+                    {jarOwnerAddress === address
+                      ? "Your wallet"
+                      : jarOwnerAddress.endsWith(".eth")
+                      ? `${jarOwnerAddress} (${resolvedJarOwnerAddress})`
+                      : jarOwnerAddress}
                   </li>
                   <li className="text-[#3c2a14]">
                     <span className="font-medium">Currency:</span> {isEthCurrency ? `${tokenSymbol} (Native)` : `${tokenSymbol}`}
