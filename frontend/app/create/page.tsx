@@ -4,7 +4,7 @@ import { DialogFooter } from "@/components/ui/dialog"
 
 import React from "react"
 
-import { useState, useTransition, useEffect } from "react"
+import { useState, useTransition, useEffect, useCallback } from "react"
 import { useRouter } from "next/navigation"
 import { cookieJarFactoryAbi } from "@/generated"
 import { useWaitForTransactionReceipt, useAccount, useChainId, useWriteContract, usePublicClient } from "wagmi"
