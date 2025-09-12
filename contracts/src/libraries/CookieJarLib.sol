@@ -67,6 +67,22 @@ library CookieJarLib {
         address[] whitelist;
     }
 
+    /// @notice Optimized parameter grouping for factory functions to avoid stack too deep
+    struct CreateJarParams {
+        address cookieJarOwner;
+        address supportedCurrency;
+        AccessType accessType;
+        WithdrawalTypeOptions withdrawalOption;
+        uint256 fixedAmount;
+        uint256 maxWithdrawal;
+        uint256 withdrawalInterval;
+        bool strictPurpose;
+        bool emergencyWithdrawalEnabled;
+        bool oneTimeWithdrawal;
+        string metadata;
+        uint256 customFeePercentage; // 0 means use default fee
+    }
+
     // --- Events ---
     /// @notice Emitted when a deposit is made.
     event Deposit(address indexed sender, uint256 amount, address token);

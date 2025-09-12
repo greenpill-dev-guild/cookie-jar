@@ -26,28 +26,55 @@ command -v pnpm >/dev/null 2>&1 || { echo "❌ pnpm not found. Install pnpm: npm
 echo "✅ All prerequisites found!"
 
 # Start Anvil in background
-echo "🔧 Starting Anvil (Ethereum mainnet fork)..."
 cd contracts
 pkill -f anvil || true
-anvil \
-  --host 0.0.0.0 \
-  --port 8545 \
-  --fork-url https://eth.drpc.org \
-  --chain-id 31337 \
-  --accounts 10 \
-  --balance 1000 \
-  > anvil.log 2>&1 &
+
+# Check if fork mode is requested
+if [ "$1" = "--fork" ] || [ "$ANVIL_FORK" = "true" ]; then
+    FORK_URL=${ANVIL_FORK_URL:-"https://eth.drpc.org"}
+    echo "🔧 Starting Anvil (Ethereum mainnet fork: $FORK_URL)..."
+    anvil \
+      --host 0.0.0.0 \
+      --port 8545 \
+      --fork-url $FORK_URL \
+      --chain-id 31337 \
+      --accounts 10 \
+      --balance 1000 \
+      > anvil.log 2>&1 &
+else
+    echo "🔧 Starting Anvil (local development mode)..."
+    anvil \
+      --host 0.0.0.0 \
+      --port 8545 \
+      --chain-id 31337 \
+      --accounts 10 \
+      --balance 1000 \
+      > anvil.log 2>&1 &
+fi
 
 ANVIL_PID=$!
 echo "Anvil started with PID: $ANVIL_PID"
 
-# Wait for Anvil to initialize
-echo "⏳ Waiting for Anvil to start..."
-sleep 3
+# Wait for Anvil to be ready
+echo "⏳ Waiting for Anvil to be ready..."
+for i in {1..30}; do
+  if curl -s -X POST -H "Content-Type: application/json" \
+     --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' \
+     http://127.0.0.1:8545 > /dev/null 2>&1; then
+    echo "✅ Anvil is ready!"
+    break
+  fi
+  echo "Waiting... ($i/30)"
+  sleep 1
+  if [ $i -eq 30 ]; then
+    echo "❌ Anvil failed to start after 30 seconds"
+    kill $ANVIL_PID
+    exit 1
+  fi
+done
 
-# Deploy contracts  
+# Deploy contracts
 echo "🚀 Deploying contracts to local Anvil..."
-# No environment setup needed - using hardcoded Anvil Account #0
 forge script script/DeployLocal.s.sol \
   --rpc-url http://127.0.0.1:8545 \
   --broadcast \
@@ -61,6 +88,11 @@ fi
 
 echo "✅ Contracts deployed successfully!"
 
+# Copy deployment files to frontend
+echo "📄 Copying deployment files..."
+cd .. && ./scripts/copy-deployment.sh
+cd contracts
+
 # Seed demo environment with Cookie Monster NFTs and demo jars
 echo "🌱 Seeding demo environment with Cookie Monster NFTs..."
 forge script script/SeedLocal.s.sol \
@@ -72,10 +104,9 @@ forge script script/SeedLocal.s.sol \
 if [ $? -eq 0 ]; then
     echo "✅ Demo jars and Cookie Monster NFTs created!"
     # Copy seed data to frontend
-    if [ -f "contracts/seed-data.json" ]; then
-        cp contracts/seed-data.json frontend/contracts/
-        echo "📄 Seed data copied to frontend"
-    fi
+    echo "📄 Copying seed data..."
+    cd .. && ./scripts/copy-deployment.sh
+    cd contracts
 else
     echo "⚠️  Seeding failed, but contracts are deployed"
 fi
@@ -109,7 +140,11 @@ echo "🎉 Development environment is ready!"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "📋 DEVELOPMENT ENDPOINTS:"
 echo "  🌐 Frontend:        http://localhost:3000"  
-echo "  ⛓️  Local Blockchain: http://127.0.0.1:8545 (Chain ID: 31337)"
+if [ "$1" = "--fork" ] || [ "$ANVIL_FORK" = "true" ]; then
+    echo "  ⛓️  Local Blockchain: http://127.0.0.1:8545 (Chain ID: 31337) [FORKED]"
+else
+    echo "  ⛓️  Local Blockchain: http://127.0.0.1:8545 (Chain ID: 31337) [LOCAL]"
+fi
 echo "  📄 Logs:"
 echo "    - Anvil:          contracts/anvil.log"
 echo "    - Contract Watch: contracts/watch-deploy.log" 

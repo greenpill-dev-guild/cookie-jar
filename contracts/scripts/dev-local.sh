@@ -30,15 +30,9 @@ source .env.local
 forge script script/DeployLocal.s.sol --rpc-url $RPC_URL --broadcast --sender 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
 
 if [ $? -eq 0 ]; then
-    # Move deployment file to frontend
-    if [ -f "local-deployment.json" ]; then
-        mkdir -p ../frontend/contracts
-        mv local-deployment.json ../frontend/contracts/
-        echo "📄 Contract addresses saved to frontend/contracts/local-deployment.json"
-    fi
     echo "✅ Contracts deployed successfully!"
+    echo "📄 Deployment files auto-copied via DeployLocal.s.sol"
     echo "🔗 Local blockchain running at: http://127.0.0.1:8545"
-    echo "📄 Contract addresses saved to: ../frontend/contracts/local-deployment.json"
     echo "🏁 Ready for development!"
 else
     echo "❌ Deployment failed"

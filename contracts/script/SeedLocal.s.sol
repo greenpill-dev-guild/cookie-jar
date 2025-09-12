@@ -41,11 +41,11 @@ contract SeedLocalScript is Script {
     function run() external {
         console.log("Seeding Cookie Monster demo environment...");
         
-        // Load factory from deployment
-        string memory deploymentFile = vm.readFile("local-deployment.json");
-        address factoryAddress = vm.parseJsonAddress(deploymentFile, ".CookieJarFactory");
+        // Use hardcoded CREATE2 factory address (deterministic)
+        address factoryAddress = 0x4F4B4F5Bcb55950807b88bDfece764Ca96eD548F;
         factory = CookieJarFactory(factoryAddress);
         console.log("Using CookieJarFactory at:", factoryAddress);
+        console.log("CREATE2 address is deterministic and consistent!");
         
         vm.startBroadcast(DEPLOYER_KEY);
         
@@ -255,12 +255,15 @@ contract SeedLocalScript is Script {
             '"}}'
         );
         
-        // Save to contracts directory
-        vm.writeFile("seed-data.json", json);
-        
-        // Copy to frontend for easy access
-        
-        console.log("Seed data saved for frontend integration");
+        // Print seeded addresses (file writing disabled to avoid permission issues)
+        console.log("=== SEEDED CONTRACT ADDRESSES ===");
+        console.log("DemoToken:", address(demoToken));
+        console.log("CookieMonsterNFT:", address(cookieMonsterNFT));
+        console.log("Community Stipend Jar:", jarAddresses[0]);
+        console.log("Grants Program Jar:", jarAddresses[1]);
+        console.log("Cookie Monster Benefits Jar:", jarAddresses[2]);
+        console.log("Cookie Monster Airdrop Jar:", jarAddresses[3]);
+        console.log("=== All contracts deployed and funded! ===");
     }
     
     function _printSummary(address[] memory jarAddresses) internal view {

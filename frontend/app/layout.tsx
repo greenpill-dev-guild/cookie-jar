@@ -13,6 +13,8 @@ import "./globals.css"
 const clashDisplay = localFont({
   src: "../ClashDisplay.ttf",
   variable: "--font-clash-display",
+  display: 'swap',     // ⚡ Add font-display: swap for faster rendering
+  preload: true,       // ⚡ Preload font for better performance
 })
 
 export const metadata = {

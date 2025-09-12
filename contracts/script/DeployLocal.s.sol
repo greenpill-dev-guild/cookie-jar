@@ -19,8 +19,10 @@ contract DeployLocalScript is Script {
         
         vm.startBroadcast(deployerPrivateKey);
 
-        // Deploy CookieJarFactory with local development parameters
-        CookieJarFactory factory = new CookieJarFactory(
+        // Deploy CookieJarFactory using CREATE2 for deterministic address
+        // Salt ensures same address every time Anvil restarts
+        bytes32 salt = keccak256("CookieJarFactory_v1.0.0");
+        CookieJarFactory factory = new CookieJarFactory{salt: salt}(
             deployer,           // _defaultFeeCollector (use deployer for local testing)
             deployer,           // _owner
             100,                // _feePercentage (1% = 100/10000)
@@ -30,18 +32,9 @@ contract DeployLocalScript is Script {
         
         console.log("CookieJarFactory deployed to:", address(factory));
         console.log("Factory funded by account with 1000 ETH");
+        console.log("CREATE2 Address is deterministic - same on every Anvil restart!");
         
-        // Save deployment info for frontend
-        string memory json = string.concat(
-            '{"CookieJarFactory":"',
-            vm.toString(address(factory)),
-            '","chainId":31337,"timestamp":',
-            vm.toString(block.timestamp),
-            "}"
-        );
-        
-        // Write to local file, then move via script
-        vm.writeFile("local-deployment.json", json);
+        // NOTE: Frontend uses hardcoded CREATE2 address - no file writing needed
         
         vm.stopBroadcast();
     }

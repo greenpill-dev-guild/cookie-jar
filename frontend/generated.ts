@@ -881,6 +881,75 @@ export const cookieJarFactoryAbi = [
   {
     type: 'function',
     inputs: [
+      {
+        name: 'params',
+        internalType: 'struct CookieJarLib.CreateJarParams',
+        type: 'tuple',
+        components: [
+          { name: 'cookieJarOwner', internalType: 'address', type: 'address' },
+          {
+            name: 'supportedCurrency',
+            internalType: 'address',
+            type: 'address',
+          },
+          {
+            name: 'accessType',
+            internalType: 'enum CookieJarLib.AccessType',
+            type: 'uint8',
+          },
+          {
+            name: 'withdrawalOption',
+            internalType: 'enum CookieJarLib.WithdrawalTypeOptions',
+            type: 'uint8',
+          },
+          { name: 'fixedAmount', internalType: 'uint256', type: 'uint256' },
+          { name: 'maxWithdrawal', internalType: 'uint256', type: 'uint256' },
+          {
+            name: 'withdrawalInterval',
+            internalType: 'uint256',
+            type: 'uint256',
+          },
+          { name: 'strictPurpose', internalType: 'bool', type: 'bool' },
+          {
+            name: 'emergencyWithdrawalEnabled',
+            internalType: 'bool',
+            type: 'bool',
+          },
+          { name: 'oneTimeWithdrawal', internalType: 'bool', type: 'bool' },
+          { name: 'metadata', internalType: 'string', type: 'string' },
+          {
+            name: 'customFeePercentage',
+            internalType: 'uint256',
+            type: 'uint256',
+          },
+        ],
+      },
+      {
+        name: 'accessConfig',
+        internalType: 'struct CookieJarLib.AccessConfig',
+        type: 'tuple',
+        components: [
+          {
+            name: 'nftAddresses',
+            internalType: 'address[]',
+            type: 'address[]',
+          },
+          {
+            name: 'nftTypes',
+            internalType: 'enum CookieJarLib.NFTType[]',
+            type: 'uint8[]',
+          },
+          { name: 'whitelist', internalType: 'address[]', type: 'address[]' },
+        ],
+      },
+    ],
+    name: 'createCookieJarOptimized',
+    outputs: [{ name: 'jarAddress', internalType: 'address', type: 'address' }],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
       { name: '_cookieJarOwner', internalType: 'address', type: 'address' },
       { name: '_supportedCurrency', internalType: 'address', type: 'address' },
       {
@@ -2174,6 +2243,15 @@ export const useWriteCookieJarFactoryCreateCookieJar =
   })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"createCookieJarOptimized"`
+ */
+export const useWriteCookieJarFactoryCreateCookieJarOptimized =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: cookieJarFactoryAbi,
+    functionName: 'createCookieJarOptimized',
+  })
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"createCookieJarWithFee"`
  */
 export const useWriteCookieJarFactoryCreateCookieJarWithFee =
@@ -2267,6 +2345,15 @@ export const useSimulateCookieJarFactoryCreateCookieJar =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarFactoryAbi,
     functionName: 'createCookieJar',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"createCookieJarOptimized"`
+ */
+export const useSimulateCookieJarFactoryCreateCookieJarOptimized =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: cookieJarFactoryAbi,
+    functionName: 'createCookieJarOptimized',
   })
 
 /**

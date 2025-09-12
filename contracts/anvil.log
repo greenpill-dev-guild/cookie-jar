@@ -44,27 +44,25 @@ Mnemonic:          test test test test test test test test test test test junk
 Derivation path:   m/44'/60'/0'/0/
 
 
-Fork
+Chain ID
 ==================
-Endpoint:       https://eth.drpc.org
-Block number:   23348194
-Block hash:     0x6c87847211e73d8a52fea158fd335b6573be88d57b46c01b9e74b020706c764f
-Chain ID:       31337
+
+31337
 
 Base Fee
 ==================
 
-594916971
+1000000000
 
 Gas Limit
 ==================
 
-44999871
+30000000
 
 Genesis Timestamp
 ==================
 
-1757694715
+1757711969
 
 Genesis Number
 ==================
@@ -72,6 +70,7 @@ Genesis Number
 0
 
 Listening on 0.0.0.0:8545
+eth_blockNumber
 eth_getTransactionCount
 eth_getCode
 eth_blockNumber
@@ -80,25 +79,28 @@ eth_chainId
 eth_getBlockByNumber
 eth_blockNumber
 eth_gasPrice
-eth_getBlockByNumber
 eth_chainId
+eth_getBlockByNumber
+eth_getBalance
+eth_getTransactionCount
+eth_getCode
 eth_getBalance
 eth_getAccountInfo
 eth_getAccount
 eth_getCode
-eth_getCode
 eth_getTransactionCount
-eth_getCode
-eth_getTransactionCount
-eth_getBalance
 eth_getBalance
 eth_getTransactionCount
 eth_getCode
 eth_getCode
 eth_getBalance
 eth_getTransactionCount
-eth_getTransactionCount
+eth_getCode
 eth_getBalance
+eth_getTransactionCount
+eth_getCode
+eth_getBalance
+eth_getTransactionCount
 eth_getCode
 eth_getCode
 eth_getBalance
@@ -114,17 +116,19 @@ eth_feeHistory
 eth_feeHistory
 eth_sendRawTransaction
 eth_getTransactionReceipt
-
-    Transaction: 0x8a30881c4bbf52838eea5cc62ac11be75dd2a1a7767794e6fff5a59de53b7ba8
-    Contract created: 0xe55F53b29d5466302b5562e91847e24D0Be1F7FA
-    Gas used: 4573541
-
-    Block Number: 23348195
-    Block Hash: 0xae5666db3a5e3460d489b48b7d7c9f52286bb33e531fe567b8097e56bf70263c
-    Block Time: "Fri, 12 Sep 2025 16:31:51 +0000"
-
 eth_blockNumber
+eth_getBlockByNumber
 eth_getTransactionReceipt
+
+    Transaction: 0x0753b5175634b2fa1f543a96c570ffde3556a0760258cd56523b1ca4f48a3172
+    Gas used: 5130906
+
+    Block Number: 1
+    Block Hash: 0x26891f8f0afcf6f8e27802889404189479b97283ffa03c9132417f503e960d0f
+    Block Time: "Fri, 12 Sep 2025 21:19:31 +0000"
+
+eth_getTransactionReceipt
+eth_blockNumber
 eth_getBlockByNumber
 eth_getTransactionCount
 eth_getCode
@@ -134,16 +138,13 @@ eth_chainId
 eth_getBlockByNumber
 eth_blockNumber
 eth_gasPrice
-eth_chainId
 eth_getBlockByNumber
-eth_getCode
-eth_getAccountInfo
-eth_getAccount
-eth_getCode
+eth_chainId
 eth_getBalance
+eth_getAccountInfo
+eth_getAccount
+eth_getCode
 eth_getTransactionCount
-eth_getAccountInfo
-eth_getAccount
 eth_getCode
 eth_getAccountInfo
 eth_getAccount
@@ -163,6 +164,9 @@ eth_getCode
 eth_getAccountInfo
 eth_getAccount
 eth_getCode
+eth_getAccountInfo
+eth_getAccount
+eth_getCode
 eth_getStorageAt
 eth_getAccountInfo
 eth_getAccount
@@ -199,130 +203,139 @@ eth_getStorageAt
 eth_getStorageAt
 eth_getStorageAt
 eth_getStorageAt
-eth_getAccountInfo
-eth_getAccount
-eth_getCode
-eth_getAccountInfo
-eth_getAccount
-eth_getCode
 eth_chainId
 eth_chainId
 eth_blockNumber
 eth_gasPrice
+eth_chainId
 eth_getBlockByNumber
 eth_chainId
-eth_chainId
 eth_feeHistory
 eth_feeHistory
 eth_sendRawTransaction
-eth_sendRawTransaction
-eth_sendRawTransaction
-eth_sendRawTransaction
 
-    Transaction: 0x240c3220af41f713578531a93904a77409f1062cb3ae681dbf9006af0abe50a3
-    Contract created: 0x0dA5CAdDAac598d22055F6c94C2d0e3E62C76dec
-    Gas used: 876919
+    Transaction: 0x58a488eab88405f3e92e43de1d70c23dc6159dff6547e7aecbd94371bdb2e64f
+    Contract created: 0xe7f1725E7734CE288F8367e1Bb143E90bb3F0512
+    Gas used: 950380
 
-    Block Number: 23348196
-    Block Hash: 0x22f8018fc4299de592779befcff1eb6fb4c649c1d61fd81edff30cb517d942ca
-    Block Time: "Fri, 12 Sep 2025 16:31:52 +0000"
-
-eth_sendRawTransaction
-eth_sendRawTransaction
-eth_sendRawTransaction
-eth_sendRawTransaction
-
-    Transaction: 0xd4cf2855aa41c6389dd872a76339a179305e7cbf84c8c6e721b6306de1ea7b2a
-    Gas used: 92672
-
-    Transaction: 0xcf17a76721f40d45fd6b47bae15320402aae0254dffa7ada8f3cc69889cffae5
-    Gas used: 168232
-
-    Transaction: 0xc841acf56de09bc15e3adf7b6a0daa6ad8731fabe7d3fe0b5fa090009a9d477e
-    Contract created: 0x3770f6742750Aa4584c56464cFC9390b4a696e40
-    Gas used: 1240570
-
-    Transaction: 0xecd98ef7b29f643544d490a199933eb5eaf98f17e03db9467c2a574e2a37d717
-    Gas used: 1276692
-
-    Transaction: 0xbdad1b7463a8a2f5c1e4d98a9013092cb7dc22463d9286cb80847811e0f027d6
-    Gas used: 1329926
-
-    Transaction: 0x0ce904ce2421729b4d5455a8643a84b67a227cdf92913cfd906e7f7fd5294b65
-    Gas used: 1383148
-
-    Block Number: 23348197
-    Block Hash: 0xa89bb9a68804267d07189f2cb096da0851d6c82ddc94d850108b4081c4afbf0c
-    Block Time: "Fri, 12 Sep 2025 16:31:52 +0000"
-
-
-    Transaction: 0x14b8371e6d12561f41e7f3baf3c95665c6e5b02059204b31e492a60cffc42b44
-    Gas used: 2514319
-
-    Block Number: 23348198
-    Block Hash: 0xb05e439701a61495d5400cf11fe485312eb4e1579baeb6effac2bed7165346f2
-    Block Time: "Fri, 12 Sep 2025 16:31:52 +0000"
+    Block Number: 2
+    Block Hash: 0x7b5f3edeede59f094aef78648d920fab67784a4da29b88bf58f867fcb7495cea
+    Block Time: "Fri, 12 Sep 2025 21:19:31 +0000"
 
 eth_sendRawTransaction
 eth_sendRawTransaction
 eth_sendRawTransaction
 eth_sendRawTransaction
 eth_sendRawTransaction
-eth_sendRawTransaction
-eth_sendRawTransaction
 
-    Transaction: 0xd55080c49462d297067b015194be03273c11f82e2d4d3e281b4c093dbfdea9f9
-    Gas used: 2503636
+    Transaction: 0x4e5aa186aed567b219d1f149d863a5ffffccc624e3089471ee026ee75c38f265
+    Gas used: 92665
 
-    Block Number: 23348199
-    Block Hash: 0xc99416703281b203c96ab568dc828154ac17ffccba659d905f5ec729d8d1a288
-    Block Time: "Fri, 12 Sep 2025 16:31:52 +0000"
+    Block Number: 3
+    Block Hash: 0x8532903b3be77c170f244dd5d3a233c509a3782744a2ca423a7a46c55df41ddb
+    Block Time: "Fri, 12 Sep 2025 21:19:31 +0000"
 
 eth_sendRawTransaction
 
-    Transaction: 0x4097267efdcf26da951473910324bb3d14dd021cc571519a0165b5e7a8a155d6
-    Gas used: 2474747
+    Transaction: 0x69d67eb0cf3747cb282c6d8f897810cca2413cd25df8674aab4e648371b734db
+    Gas used: 75553
+eth_sendRawTransaction
 
-    Transaction: 0x394c2d73de7133b92b648c750a860e478995cd39b734a98c85eaece460d2a8e4
-    Gas used: 4910591
-
-    Transaction: 0xb4d2319f5486f9fd0b65ca15b93131991539b03116c387ac57118a54196ec3b0
-    Gas used: 4979582
-
-    Block Number: 23348200
-    Block Hash: 0x83718b78a4619a05c242b571d6a61a485f2568740a63752b1d7ed3d81dcebc3a
-    Block Time: "Fri, 12 Sep 2025 16:31:52 +0000"
+    Block Number: 4
+    Block Hash: 0xd5829bfd330a57bb7a30518aced9487af4bc0f66a0d51968146a21e7ed25210b
+    Block Time: "Fri, 12 Sep 2025 21:19:31 +0000"
 
 
-    Transaction: 0x551bb364bc665571efcc3ff2bf60954db8c24976619eadf07c588b3efcbf0927
+    Transaction: 0xf6e64c8bad6b63fb4a863c69a42a957225e8a75ae1ab78d6e51e0bd0afb718da
+    Contract created: 0xDc64a140Aa3E981100a9becA4E685f962f0cF6C9
+    Gas used: 1141426
+
+    Transaction: 0xaae3db22f4b70c3d6ccd0514f008fc1641cc2961e39f7b3824aab6a385155f21
+    Gas used: 1177548
+
+    Transaction: 0xbd00bf9ca2eefe83ab19d5d7498832d6aff8010368a1c402787169fc02bdf814
+    Gas used: 1230782
+
+    Transaction: 0xb390e16215f27b212ad88cca23f45e36cd18e9ae174d947c96c0ccd3bae807a9
+    Gas used: 1284004
+
+    Block Number: 5
+    Block Hash: 0xc7e35399cec6a96911dc221f1e2b4e4381d6802716e05c23c3ed5a09b80a75cb
+    Block Time: "Fri, 12 Sep 2025 21:19:31 +0000"
+
+
+    Transaction: 0x06641503a7ed013290139a0fc9c3022ecd4b52fae3c3f7988592792d76c1c5f6
+    Gas used: 2645740
+
+    Block Number: 6
+    Block Hash: 0xc718ced4f4f172b9b01cef79f61606ab1b8f9007fcc9c78866f0590a2632122a
+    Block Time: "Fri, 12 Sep 2025 21:19:31 +0000"
+
+eth_sendRawTransaction
+
+    Transaction: 0x5b463354cb3bea121b080a8ca26e107a6b6ca677d37ceb79f20432f318b737c1
+    Gas used: 2634985
+
+    Block Number: 7
+eth_sendRawTransaction
+    Block Hash: 0x6e944ef1a1ca0dddd06e42ce5a5d538f9999c947a3da01dc90bf2295113a6676
+    Block Time: "Fri, 12 Sep 2025 21:19:31 +0000"
+
+eth_sendRawTransaction
+eth_sendRawTransaction
+eth_sendRawTransaction
+eth_sendRawTransaction
+
+    Transaction: 0x8d64ea24bf280fa396b1cad23326c0b2fcebe8497ef4c4604926663cd718b32d
+    Gas used: 2606168
+
+    Block Number: 8
+    Block Hash: 0xa6deec1d99207fbd23dc266054e48a3b7785ecb592247de84a34cf2a410502d3
+    Block Time: "Fri, 12 Sep 2025 21:19:31 +0000"
+
+eth_sendRawTransaction
+
+    Transaction: 0xbf152bd66877f35148a77188f310f80e77a0b9f56b6597a1bc28f36f0b3922b8
+    Gas used: 2567193
+
+    Block Number: 9
+    Block Hash: 0x49de1951bf46abe0d048c44d7df669024e7179527cd1352619cd3a11d27b670e
+    Block Time: "Fri, 12 Sep 2025 21:19:31 +0000"
+
+
+    Transaction: 0xb7854d0614fc961b890cc7a2838f703bb0406e07382ab2774b91156418778030
+    Gas used: 57019
+
+    Transaction: 0xbcf8f2dfa5dc0b20ae69e5fac2423a7b2bf3c93e7b17859cb573c45e8ccd97f8
+    Gas used: 103053
+
+    Transaction: 0xbb6d38b86a41dd504b3c2c8f2dbd0ad9e5e1bbe3a75e8e024866c5204fcf59e8
+    Gas used: 189416
+
+eth_sendRawTransaction
+    Transaction: 0xc5628226d162be741c68c53995b9ba282e6a2a2f72af9bf84229be7646561f03
+    Gas used: 246435
+
+    Block Number: 10
+    Block Hash: 0xf05b3af9b587469231ecb86f4c802a8fe8a2eb2baff64a77e33560c429a6afb5
+    Block Time: "Fri, 12 Sep 2025 21:19:31 +0000"
+
+eth_sendRawTransaction
+
+    Transaction: 0x708b467dbb35c6cbbb328020fd04c4741ef05b605b64913d6ea17e27f3c5031b
     Gas used: 46034
 
-    Transaction: 0x845ec3839284cb7b2153ef9bf751f1b0d1b98068c8fcccbe7dc8be11ed82b357
-    Gas used: 132421
-
-    Transaction: 0x2bbb851ea6ff14ade672ce63c1bd1d7b5de4d4fd0d7a0b6b171ff1c54e322f75
-    Gas used: 201412
-
-    Block Number: 23348201
-    Block Hash: 0x5a59ac4f0d24ad03dabbdf0081e4838d14174149295c5e65a253d8e9217672f0
-    Block Time: "Fri, 12 Sep 2025 16:31:52 +0000"
+    Block Number: 11
+    Block Hash: 0x082a835892fbce13991a98ddc686ff0304ea066485ff3ce2b2096a651e8cee1e
+    Block Time: "Fri, 12 Sep 2025 21:19:31 +0000"
 
 
-    Transaction: 0xe3ed8a2a80c3ba31589ebc608db9eaecc7e64bd353715d361bac814958466163
-    Gas used: 46034
+    Transaction: 0xfe5c7691410f3674cedca7bb76b493c4004d63631d5189274dfcb6a803c0884b
+    Gas used: 86363
 
-    Block Number: 23348202
-    Block Hash: 0x41fa203113a2467dc2422b8ef9b190c00024d34fd43bf24589d42dc3a8f4780a
-    Block Time: "Fri, 12 Sep 2025 16:31:52 +0000"
-
-eth_sendRawTransaction
-
-    Transaction: 0xd0fa1c7de8deb2ad2d17d7f914b7bec8bbdf6d4eec1157699f61195d0dfe9c4c
-    Gas used: 86387
-
-    Block Number: 23348203
-    Block Hash: 0x26d0f5606e579594891b9509ac651f8334576a622a1ddf77712f95becdc0f15f
-    Block Time: "Fri, 12 Sep 2025 16:31:52 +0000"
+    Block Number: 12
+    Block Hash: 0x0079bd6ed108fd28aa6d41979386ad917df340ca434de67c873a231c4a4fcfbd
+    Block Time: "Fri, 12 Sep 2025 21:19:31 +0000"
 
 eth_getTransactionReceipt
 eth_getTransactionReceipt
@@ -358,3 +371,46 @@ eth_getTransactionReceipt
 eth_getTransactionReceipt
 eth_getTransactionReceipt
 eth_getTransactionReceipt
+eth_networkId
+eth_networkId
+eth_getBalance
+eth_getBalance
+eth_call
+eth_call
+eth_getBalance
+eth_getBalance
+eth_call
+eth_call
+eth_getBalance
+eth_getBalance
+eth_call
+eth_call
+eth_getBalance
+eth_call
+eth_call
+eth_call
+eth_call
+eth_getBalance
+eth_call
+eth_call
+eth_getBalance
+eth_call
+eth_call
+eth_getBalance
+eth_getBalance
+eth_getBalance
+eth_call
+eth_call
+eth_getBalance
+eth_getBalance
+eth_getBalance
+eth_getBalance
+eth_getBalance
+eth_getBalance
+eth_call
+eth_call
+eth_call
+eth_call
+eth_call
+eth_getBalance
+eth_call

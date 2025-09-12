@@ -71,7 +71,7 @@ export default function CookieJarConfigDetails() {
   const addressString = address as `0x${string}`
   const isValidAddress = typeof address === "string" && address.startsWith("0x")
 
-  const { config, isLoading, hasError, errors } = useCookieJarConfig(
+  const { config, isLoading, hasError, errors, refetch } = useCookieJarConfig(
     isValidAddress ? (address as `0x${string}`) : "0x0000000000000000000000000000000000000000",
   )
 
@@ -184,6 +184,17 @@ export default function CookieJarConfigDetails() {
     }
     const metadataJson = JSON.stringify(updatedMetadata)
     
+    // Validate metadata size (8KB limit)
+    const metadataSize = new TextEncoder().encode(metadataJson).length
+    if (metadataSize > 8192) {
+      toast({
+        title: "Metadata Too Large",
+        description: `Metadata is too large (${metadataSize} bytes). Maximum allowed size is 8KB (8,192 bytes). Please reduce the length of your jar name, description, or URLs.`,
+        variant: "destructive",
+      })
+      return
+    }
+    
     updateMetadata({
       address: factoryAddress,
       abi: cookieJarFactoryAbi,
@@ -200,12 +211,12 @@ export default function CookieJarConfigDetails() {
         description: "Your cookie jar details have been saved.",
       })
       setIsEditingMetadata(false)
-      // Optionally refresh the page or refetch data
+      // Refetch jar configuration data to show updated metadata
       setTimeout(() => {
-        window.location.reload()
+        refetch()
       }, 1000)
     }
-  }, [isMetadataUpdateSuccess, toast])
+  }, [isMetadataUpdateSuccess, toast, refetch])
 
   useEffect(() => {
     if (metadataUpdateError) {
@@ -860,8 +871,8 @@ export default function CookieJarConfigDetails() {
                           lastWithdrawalTimestamp={Number(config.lastWithdrawalWhitelist)}
                           interval={Number(config.withdrawalInterval)}
                           onComplete={() => {
-                            // Force a re-render when timer completes
-                            window.location.reload()
+                            // Refetch jar data when timer completes to update withdrawal availability
+                            refetch()
                           }}
                         />
                       </div>

@@ -10,11 +10,15 @@ node_modules
 # production
 /build
 
-# debug
+# debug and logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+*.log
+anvil.log
+frontend-dev.log
+watch-deploy.log
 
 # local env files
 .env*.local
@@ -30,7 +34,36 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-#docs
+# docs
 /docs/
 docs/
 frontend/docs/
+
+# Foundry/Forge artifacts
+out/
+cache/
+broadcast/
+
+# Local deployment files
+local-deployment.json
+**/local-deployment.json
+
+# Coverage reports
+coverage/
+lcov.info
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db

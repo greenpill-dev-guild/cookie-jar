@@ -236,6 +236,15 @@ export default function CreateCookieJarForm() {
         link: externalLink
       }
       const metadataJson = JSON.stringify(metadataObject)
+      
+      // Validate metadata size (8KB limit)
+      const metadataSize = new TextEncoder().encode(metadataJson).length
+      if (metadataSize > 8192) {
+        setIsCreating(false)
+        setErrorMessage(`Metadata is too large (${metadataSize} bytes). Maximum allowed size is 8KB (8,192 bytes). Please reduce the length of your jar name, description, or URLs.`)
+        setIsFormError(true)
+        return
+      }
 
       try {
         // Check if we have a valid factory address for this chain
@@ -1203,39 +1212,7 @@ export default function CreateCookieJarForm() {
                 <p className="text-sm text-[#8b7355]">Require users to enter the reason for their withdrawal</p>
               </div>
             </div>
-            {/* removed for MVP launch <3 MSG */}
-            {/* Emergency Withdrawal */}
-            {/* <div className="flex items-center space-x-2">
-              <Checkbox
-                id="emergencyWithdrawal"
-                checked={emergencyWithdrawalEnabled}
-                onCheckedChange={(checked) => setEmergencyWithdrawalEnabled(checked as boolean)}
-                className="border-[#3c2a14] data-[state=checked]:bg-[#ff5e14] data-[state=checked]:border-[#ff5e14]"
-              />
-              <div className="grid gap-1.5">
-                <Label htmlFor="emergencyWithdrawal" className="text-[#3c2a14] text-base">
-                  Emergency Withdrawal
-                </Label>
-                <p className="text-sm text-[#8b7355]">Allow emergency withdrawals by jar owner</p>
-              </div>
-            </div> */}
-
-            {/* removed for MVP launch <3 MSG */}
-            {/* One Time Withdrawal */}
-            {/* <div className="flex items-center space-x-2">
-              <Checkbox
-                id="oneTimeWithdrawal"
-                checked={oneTimeWithdrawal}
-                onCheckedChange={(checked) => setOneTimeWithdrawal(checked as boolean)}
-                className="border-[#3c2a14] data-[state=checked]:bg-[#ff5e14] data-[state=checked]:border-[#ff5e14]"
-              />
-              <div className="grid gap-1.5">
-                <Label htmlFor="oneTimeWithdrawal" className="text-[#3c2a14] text-base">
-                  One Time Withdrawal
-                </Label>
-                <p className="text-sm text-[#8b7355]">If whitelisted users can only withdraw once.</p>
-              </div>
-            </div> */}
+            {/* Emergency Withdrawal and One Time Withdrawal features temporarily disabled */}
 
             {/* Summary */}
             <div className="mt-6 p-4 bg-[#f8f5f0] rounded-lg">

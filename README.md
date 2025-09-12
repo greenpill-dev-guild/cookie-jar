@@ -14,6 +14,9 @@ pnpm install
 
 # Start the full development environment (no .env setup required!)
 pnpm dev
+
+# Or start with mainnet fork (slower but has real state)
+pnpm dev:fork
 ```
 
 **That's it!** The development environment automatically:
@@ -191,7 +194,7 @@ contracts/
 
 ### Frontend Not Connecting to Local Contracts
 1. Ensure `NODE_ENV=development` 
-2. Check `frontend/contracts/local-deployment.json` exists
+2. Check `frontend/public/contracts/local-deployment.json` exists
 3. Verify Anvil is running on port 8545
 
 ### Environment Issues
