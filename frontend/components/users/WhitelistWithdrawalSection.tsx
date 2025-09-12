@@ -1,6 +1,6 @@
 "use client"
 
-// WhitelistWithdrawalSection.tsx
+// AllowlistWithdrawalSection.tsx
 import React from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
@@ -8,24 +8,24 @@ import { Textarea } from "@/components/ui/textarea"
 import { ArrowUpToLine } from "lucide-react"
 import { ETH_ADDRESS, useTokenInfo, parseTokenAmount, formatTokenAmount, checkDecimals } from "@/lib/utils/token-utils"
 
-interface WhitelistWithdrawalSectionProps {
+interface AllowlistWithdrawalSectionProps {
   config: any // Ideally this would be more specifically typed
   withdrawPurpose: string
   setWithdrawPurpose: (value: string) => void
   withdrawAmount: string
   setWithdrawAmount: (value: string) => void
-  handleWithdrawWhitelist: () => void
-  handleWithdrawWhitelistVariable: () => void
+  handleWithdrawAllowlist: () => void
+  handleWithdrawAllowlistVariable: () => void
 }
 
-export const WhitelistWithdrawalSection: React.FC<WhitelistWithdrawalSectionProps> = ({
+export const AllowlistWithdrawalSection: React.FC<AllowlistWithdrawalSectionProps> = ({
   config,
   withdrawPurpose,
   setWithdrawPurpose,
   withdrawAmount,
   setWithdrawAmount,
-  handleWithdrawWhitelist,
-  handleWithdrawWhitelistVariable,
+  handleWithdrawAllowlist,
+  handleWithdrawAllowlistVariable,
 }) => {
   // Get token information using the token utils
   const { symbol: tokenSymbol, decimals: tokenDecimals } = useTokenInfo(
@@ -54,7 +54,7 @@ export const WhitelistWithdrawalSection: React.FC<WhitelistWithdrawalSectionProp
 
         <div className="pt-4">
           <Button
-            onClick={handleWithdrawWhitelist}
+            onClick={handleWithdrawAllowlist}
             className="w-full bg-[#ff5e14] hover:bg-[#e54d00] text-white py-6 text-lg"
             disabled={!withdrawPurpose || withdrawPurpose.length < 10 || config.isWithdrawPending}
           >
@@ -82,14 +82,14 @@ export const WhitelistWithdrawalSection: React.FC<WhitelistWithdrawalSectionProp
         <p className="text-[#ff5e14] font-medium text-xl text-center">
           You can get a fixed cookie of {config.fixedAmount ? formatTokenAmount(BigInt(config.fixedAmount), tokenDecimals, tokenSymbol) : `0 ${tokenSymbol}`} from this jar.
         </p>
-        {Number(config.lastWithdrawalWhitelist) > 0 && (
+        {Number(config.lastWithdrawalAllowlist) > 0 && (
           <p className="text-sm text-[#8b7355] text-center">
             Note: After withdrawal, a cooldown period will be applied before you can withdraw again.
           </p>
         )}
         <div className="pt-4 flex justify-center">
           <Button
-            onClick={handleWithdrawWhitelist}
+            onClick={handleWithdrawAllowlist}
             className="px-8 py-6 bg-[#ff5e14] hover:bg-[#e54d00] text-white text-lg"
             disabled={config.isWithdrawPending}
           >
@@ -158,7 +158,7 @@ export const WhitelistWithdrawalSection: React.FC<WhitelistWithdrawalSectionProp
 
         <div className="pt-2">
           <Button
-            onClick={handleWithdrawWhitelistVariable}
+            onClick={handleWithdrawAllowlistVariable}
             className="w-full bg-[#ff5e14] hover:bg-[#e54d00] text-white"
             disabled={
               !withdrawAmount ||
@@ -220,7 +220,7 @@ export const WhitelistWithdrawalSection: React.FC<WhitelistWithdrawalSectionProp
 
         <div className="pt-2">
           <Button
-            onClick={handleWithdrawWhitelistVariable}
+            onClick={handleWithdrawAllowlistVariable}
             className="w-full bg-[#ff5e14] hover:bg-[#e54d00] text-white"
             disabled={!withdrawAmount || Number(withdrawAmount) <= 0 || !!amountError || config.isWithdrawPending}
           >

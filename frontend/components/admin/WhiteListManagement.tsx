@@ -12,81 +12,81 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/components/ui/use-toast";
 import { 
-  useReadCookieJarGetWhitelist, 
-  useWriteCookieJarGrantJarWhitelistRole, 
-  useWriteCookieJarRevokeJarWhitelistRole 
+  useReadCookieJarGetAllowlist,
+  useWriteCookieJarGrantJarAllowlistRole,
+  useWriteCookieJarRevokeJarAllowlistRole
 } from "@/generated";
-import { WhiteListAddressInput } from "./WhiteListAddressInput";
+import { AllowlistAddressInput } from "./AllowlistAddressInput";
 
-interface WhitelistManagementProps {
+interface AllowlistManagementProps {
   cookieJarAddress: `0x${string}`;
 }
 
-export const WhitelistManagement: React.FC<WhitelistManagementProps> = ({ 
+export const AllowlistManagement: React.FC<AllowlistManagementProps> = ({
   cookieJarAddress 
 }) => {
   const { toast } = useToast();
-  const [activeSection, setActiveSection] = useState<string>("view-whitelist");
+  const [activeSection, setActiveSection] = useState<string>("view-allowlist");
 
-  // Read whitelist
-  const { data: whitelistedAddresses, isLoading: isLoadingWhitelist, refetch: refetchWhitelist } = 
-    useReadCookieJarGetWhitelist({
+  // Read allowlist
+  const { data: allowlistedAddresses, isLoading: isLoadingAllowlist, refetch: refetchAllowlist } =
+    useReadCookieJarGetAllowlist({
       address: cookieJarAddress,
     });
 
-  // Grant whitelist role
-  const { writeContractAsync: grantWhitelistRole } = useWriteCookieJarGrantJarWhitelistRole();
+  // Grant allowlist role
+  const { writeContractAsync: grantAllowlistRole } = useWriteCookieJarGrantJarAllowlistRole();
 
-  // Revoke whitelist role
-  const { writeContractAsync: revokeWhitelistRole } = useWriteCookieJarRevokeJarWhitelistRole();
+  // Revoke allowlist role
+  const { writeContractAsync: revokeAllowlistRole } = useWriteCookieJarRevokeJarAllowlistRole();
 
-  // Handle adding addresses to whitelist
-  const handleAddToWhitelist = async (addresses: `0x${string}`[]) => {
+  // Handle adding addresses to allowlist
+  const handleAddToAllowlist = async (addresses: `0x${string}`[]) => {
     try {
-      await grantWhitelistRole({
+      await grantAllowlistRole({
         address: cookieJarAddress,
         args: [addresses],
       });
       
       toast({
         title: "Success",
-        description: `Added ${addresses.length} address(es) to whitelist`,
+        description: `Added ${addresses.length} address(es) to allowlist`,
       });
       
-      // Refresh whitelist data
-      refetchWhitelist();
+      // Refresh allowlist data
+      refetchAllowlist();
     } catch (error: any) {
       toast({
         title: "Error",
         description: `Failed to add addresses: ${error.message || "Unknown error"}`,
         variant: "destructive",
       });
-      throw error; // Rethrow for WhiteListAddressInput's error handling
+      throw error; // Rethrow for AllowlistAddressInput's error handling
     }
   };
 
-  // Handle removing addresses from whitelist
-  const handleRemoveFromWhitelist = async (addresses: `0x${string}`[]) => {
+  // Handle removing addresses from allowlist
+  const handleRemoveFromAllowlist = async (addresses: `0x${string}`[]) => {
     try {
-      await revokeWhitelistRole({
+      await revokeAllowlistRole({
         address: cookieJarAddress,
         args: [addresses],
       });
       
       toast({
         title: "Success",
-        description: `Removed ${addresses.length} address(es) from whitelist`,
+        description: `Removed ${addresses.length} address(es) from allowlist`,
       });
       
-      // Refresh whitelist data
-      refetchWhitelist();
+      // Refresh allowlist data
+      refetchAllowlist();
     } catch (error: any) {
       toast({
         title: "Error",
         description: `Failed to remove addresses: ${error.message || "Unknown error"}`,
         variant: "destructive",
       });
-      throw error; // Rethrow for WhiteListAddressInput's error handling
+      throw error; // Rethrow for AllowlistAddressInput's error handling
     }
   };
 
@@ -99,24 +99,24 @@ export const WhitelistManagement: React.FC<WhitelistManagementProps> = ({
         onValueChange={setActiveSection}
         className="w-full"
       >
-        {/* View Current Whitelist */}
-        <AccordionItem value="view-whitelist">
-          <AccordionTrigger className="text-base">View Current Whitelist</AccordionTrigger>
+        {/* View Current Allowlist */}
+        <AccordionItem value="view-allowlist">
+          <AccordionTrigger className="text-base">View Current Allowlist</AccordionTrigger>
           <AccordionContent>
             <Card>
               <CardContent className="pt-6">
-                {isLoadingWhitelist ? (
+                {isLoadingAllowlist ? (
                   <div className="space-y-2">
                     <Skeleton className="h-4 w-full" />
                     <Skeleton className="h-4 w-full" />
                     <Skeleton className="h-4 w-full" />
                   </div>
-                ) : !whitelistedAddresses || whitelistedAddresses.length === 0 ? (
-                  <p className="text-center text-muted-foreground">No addresses are whitelisted</p>
+                ) : !allowlistedAddresses || allowlistedAddresses.length === 0 ? (
+                  <p className="text-center text-muted-foreground">No addresses are allowlisted</p>
                 ) : (
                   <ScrollArea className="h-[200px]">
                     <div className="space-y-2">
-                      {whitelistedAddresses.map((address, index) => (
+                      {allowlistedAddresses.map((address, index) => (
                         <p key={index} className="font-mono text-sm">
                           {address}
                         </p>
@@ -129,16 +129,16 @@ export const WhitelistManagement: React.FC<WhitelistManagementProps> = ({
           </AccordionContent>
         </AccordionItem>
 
-        {/* Add to Whitelist */}
-        <AccordionItem value="add-whitelist">
-          <AccordionTrigger className="text-base">Add Addresses to Whitelist</AccordionTrigger>
+        {/* Add to Allowlist */}
+        <AccordionItem value="add-allowlist">
+          <AccordionTrigger className="text-base">Add Addresses to Allowlist</AccordionTrigger>
           <AccordionContent>
             <Card>
               <CardContent className="pt-6">
-                <WhiteListAddressInput
+                <AllowlistAddressInput
                   mode="add"
-                  currentWhitelist={whitelistedAddresses || []}
-                  onSubmit={handleAddToWhitelist}
+                  currentAllowlist={allowlistedAddresses || []}
+                  onSubmit={handleAddToAllowlist}
                   placeholder="Enter Ethereum addresses to add, one per line, space, or comma"
                 />
               </CardContent>
@@ -146,16 +146,16 @@ export const WhitelistManagement: React.FC<WhitelistManagementProps> = ({
           </AccordionContent>
         </AccordionItem>
 
-        {/* Remove from Whitelist */}
-        <AccordionItem value="remove-whitelist">
-          <AccordionTrigger className="text-base">Remove Addresses from Whitelist</AccordionTrigger>
+        {/* Remove from Allowlist */}
+        <AccordionItem value="remove-allowlist">
+          <AccordionTrigger className="text-base">Remove Addresses from Allowlist</AccordionTrigger>
           <AccordionContent>
             <Card>
               <CardContent className="pt-6">
-                <WhiteListAddressInput
+                <AllowlistAddressInput
                   mode="remove"
-                  currentWhitelist={whitelistedAddresses || []}
-                  onSubmit={handleRemoveFromWhitelist}
+                  currentAllowlist={allowlistedAddresses || []}
+                  onSubmit={handleRemoveFromAllowlist}
                   placeholder="Enter Ethereum addresses to remove, one per line, space, or comma"
                 />
               </CardContent>
@@ -167,4 +167,4 @@ export const WhitelistManagement: React.FC<WhitelistManagementProps> = ({
   );
 };
 
-export default WhitelistManagement;
+export default AllowlistManagement;
