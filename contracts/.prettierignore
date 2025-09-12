@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+
+# Build artifacts
+out/
+cache/
+broadcast/
+
+# Coverage reports
+coverage/
+lcov.info
+
+# Environment files
+.env
+.env.local
+.env.test
+
+# Temporary files
+*.tmp
+*.temp
+
+# Lock files
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# IDE files
+.vscode/
+.idea/
+
+# Foundry artifacts
+lib/

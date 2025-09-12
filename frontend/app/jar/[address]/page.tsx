@@ -5,14 +5,21 @@ import { useMemo } from "react"
 import { useCookieJarConfig } from "@/hooks/use-cookie-jar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { ShieldAlert, Users, Coins, Copy, ExternalLink } from "lucide-react"
+import { ShieldAlert, Users, Coins, Copy, ExternalLink, Loader2 } from "lucide-react"
 import { useSendTransaction, useAccount, useChainId, useContractReads } from "wagmi"
 import { parseEther, formatUnits, parseUnits } from "viem"
 import type { ReadContractErrorType } from "viem"
 import { keccak256, toUtf8Bytes } from "ethers"
 import { useState, useEffect, useRef } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
 import { useWriteCookieJarDepositEth, useWriteCookieJarDepositCurrency, useWriteErc20Approve, useReadCookieJarHasRole } from "@/generated"
+import { useWriteContract } from "wagmi"
+import { cookieJarFactoryAbi } from "@/generated"
+import { contractAddresses } from "@/config/supported-networks"
+import { useWaitForTransactionReceipt } from "wagmi"
 import { AdminFunctions } from "@/components/admin/AdminFunctions"
 import { formatAddress } from "@/lib/utils/format"
 import { getExplorerAddressUrl } from "@/lib/utils/network-utils"
@@ -53,6 +60,13 @@ export default function CookieJarConfigDetails() {
   const [tokenId, setTokenId] = useState<string>("")
   const chainId = useChainId()
   const nativeCurrency = getNativeCurrency(chainId)
+  
+  // Metadata editing state
+  const [isEditingMetadata, setIsEditingMetadata] = useState(false)
+  const [editName, setEditName] = useState("")
+  const [editImage, setEditImage] = useState("")
+  const [editLink, setEditLink] = useState("")
+  const [editDescription, setEditDescription] = useState("")
 
   const addressString = address as `0x${string}`
   const isValidAddress = typeof address === "string" && address.startsWith("0x")
@@ -73,8 +87,159 @@ export default function CookieJarConfigDetails() {
   const isFeeCollector =
     userAddress && config?.feeCollector && userAddress.toLowerCase() === config.feeCollector.toLowerCase()
 
+  // Parse metadata from config
+  const parseMetadata = (metadataString: string | undefined) => {
+    if (!metadataString) return { name: "Cookie Jar", description: "", image: "", link: "" }
+    
+    try {
+      const parsed = JSON.parse(metadataString)
+      return {
+        name: parsed.name || "Cookie Jar",
+        description: parsed.description || metadataString, // fallback to raw string
+        image: parsed.image || "",
+        link: parsed.link || ""
+      }
+    } catch {
+      // If not JSON, treat as legacy description-only metadata
+      return {
+        name: metadataString || "Cookie Jar",
+        description: "",
+        image: "",
+        link: ""
+      }
+    }
+  }
+
+  const metadata = parseMetadata(config?.metadata)
+
+  // Initialize edit fields when entering edit mode
+  const startEditing = () => {
+    setEditName(metadata.name)
+    setEditImage(metadata.image)
+    setEditLink(metadata.link)
+    setEditDescription(metadata.description)
+    setIsEditingMetadata(true)
+  }
+
+  // Validate metadata edit form
+  const validateMetadataEdit = () => {
+    if (!editName || editName.length < 3) {
+      toast({
+        title: "Validation Error",
+        description: "Jar name must be at least 3 characters long.",
+        variant: "destructive",
+      })
+      return false
+    }
+    
+    if (editImage && !isValidUrl(editImage)) {
+      toast({
+        title: "Validation Error", 
+        description: "Please enter a valid URL for the image.",
+        variant: "destructive",
+      })
+      return false
+    }
+    
+    if (editLink && !isValidUrl(editLink)) {
+      toast({
+        title: "Validation Error",
+        description: "Please enter a valid URL for the external link.",
+        variant: "destructive", 
+      })
+      return false
+    }
+    
+    return true
+  }
+
+  // URL validation helper
+  const isValidUrl = (string: string): boolean => {
+    try {
+      new URL(string)
+      return true
+    } catch {
+      return false
+    }
+  }
+
+  // Handle metadata update
+  const handleMetadataUpdate = () => {
+    if (!validateMetadataEdit()) return
+    
+    if (!factoryAddress) {
+      toast({
+        title: "Error",
+        description: "Factory address not found for this network.",
+        variant: "destructive",
+      })
+      return
+    }
+
+    const updatedMetadata = {
+      name: editName,
+      description: editDescription,
+      image: editImage,
+      link: editLink
+    }
+    const metadataJson = JSON.stringify(updatedMetadata)
+    
+    updateMetadata({
+      address: factoryAddress,
+      abi: cookieJarFactoryAbi,
+      functionName: 'updateMetadata',
+      args: [addressString, metadataJson],
+    })
+  }
+
+  // Handle metadata update success/error
+  useEffect(() => {
+    if (isMetadataUpdateSuccess) {
+      toast({
+        title: "Jar Info Updated",
+        description: "Your cookie jar details have been saved.",
+      })
+      setIsEditingMetadata(false)
+      // Optionally refresh the page or refetch data
+      setTimeout(() => {
+        window.location.reload()
+      }, 1000)
+    }
+  }, [isMetadataUpdateSuccess, toast])
+
+  useEffect(() => {
+    if (metadataUpdateError) {
+      toast({
+        title: "Update Failed",
+        description: metadataUpdateError.message || "Failed to update jar information.",
+        variant: "destructive",
+      })
+    }
+  }, [metadataUpdateError, toast])
+
   const { writeContract: DepositEth } = useWriteCookieJarDepositEth()
   const { writeContract: DepositCurrency } = useWriteCookieJarDepositCurrency()
+  
+  // Get the factory address for the current chain
+  const factoryAddress = chainId
+    ? contractAddresses.cookieJarFactory[chainId] : undefined
+
+  // Metadata update contract write
+  const {
+    writeContract: updateMetadata,
+    data: updateTxHash,
+    isPending: isUpdatingMetadata,
+    error: metadataUpdateError,
+  } = useWriteContract()
+
+  // Wait for metadata update transaction
+  const {
+    isLoading: isWaitingForUpdate,
+    isSuccess: isMetadataUpdateSuccess,
+  } = useWaitForTransactionReceipt({
+    hash: updateTxHash,
+    query: { enabled: !!updateTxHash },
+  })
   const {
     writeContract: Approve,
     isPending: isApprovalPending,
@@ -329,8 +494,49 @@ export default function CookieJarConfigDetails() {
                 <div className="space-y-4">
                   {/* Jar Title and Description */}
                   <div>
-                    <h1 className="text-3xl font-bold text-[#1a1a1a]">{config.metadata ?? "Cookie Jar"}</h1>
-                    <p className="text-[#4a3520] mt-1">{"Shared Token Pool"}</p>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        {metadata.image && (
+                          <img 
+                            src={metadata.image} 
+                            alt={metadata.name}
+                            className="w-16 h-16 rounded-lg object-cover mb-3"
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.display = 'none'
+                            }}
+                          />
+                        )}
+                        <div className="flex items-center gap-2">
+                          <h1 className="text-3xl font-bold text-[#1a1a1a]">{metadata.name}</h1>
+                          {metadata.link && (
+                            <a 
+                              href={metadata.link} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800"
+                            >
+                              <ExternalLink className="w-5 h-5" />
+                            </a>
+                          )}
+                        </div>
+                        {metadata.description && (
+                          <p className="text-[#4a3520] mt-1">{metadata.description}</p>
+                        )}
+                        {!metadata.description && (
+                          <p className="text-[#4a3520] mt-1">Shared Token Pool</p>
+                        )}
+                      </div>
+                      {isAdmin && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={startEditing}
+                          className="ml-4 border-[#ff5e14] text-[#ff5e14] hover:bg-[#fff0e0]"
+                        >
+                          Edit Info
+                        </Button>
+                      )}
+                    </div>
                   </div>
 
                   <Separator className="my-2" />
@@ -751,6 +957,75 @@ export default function CookieJarConfigDetails() {
           </CardContent>
         </Card>
       </div>
+
+      {/* Metadata Editing Modal */}
+      {isEditingMetadata && (
+        <Dialog open={isEditingMetadata} onOpenChange={setIsEditingMetadata}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle>Edit Jar Information</DialogTitle>
+              <DialogDescription>
+                Update the name, image, link, and description for your cookie jar.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="edit-name">Jar Name</Label>
+                <Input
+                  id="edit-name"
+                  value={editName}
+                  onChange={(e) => setEditName(e.target.value)}
+                  placeholder="My Cookie Jar"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-image">Image URL (Optional)</Label>
+                <Input
+                  id="edit-image"
+                  value={editImage}
+                  onChange={(e) => setEditImage(e.target.value)}
+                  placeholder="https://example.com/image.png"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-link">External Link (Optional)</Label>
+                <Input
+                  id="edit-link"
+                  value={editLink}
+                  onChange={(e) => setEditLink(e.target.value)}
+                  placeholder="https://yourwebsite.com"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="edit-description">Description (Optional)</Label>
+                <Textarea
+                  id="edit-description"
+                  value={editDescription}
+                  onChange={(e) => setEditDescription(e.target.value)}
+                  placeholder="Additional information about your jar"
+                  className="min-h-20"
+                />
+              </div>
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => setIsEditingMetadata(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                onClick={handleMetadataUpdate}
+                disabled={isUpdatingMetadata}
+                className="bg-[#ff5e14] hover:bg-[#e54d00] text-white"
+              >
+                {isUpdatingMetadata && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isUpdatingMetadata ? "Saving..." : "Save Changes"}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   )
 }
