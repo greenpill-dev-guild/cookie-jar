@@ -7,17 +7,17 @@ import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
 
-interface WhiteListAddressInputProps {
+interface AllowlistAddressInputProps {
   mode: 'add' | 'remove';
-  currentWhitelist: readonly `0x${string}`[];
+  currentAllowlist: readonly `0x${string}`[];
   onSubmit: (addresses: `0x${string}`[]) => Promise<void>;
   buttonLabel?: string;
   placeholder?: string;
 }
 
-export const WhiteListAddressInput: React.FC<WhiteListAddressInputProps> = ({
+export const AllowlistAddressInput: React.FC<AllowlistAddressInputProps> = ({
   mode,
-  currentWhitelist,
+  currentAllowlist,
   onSubmit,
   buttonLabel,
   placeholder = 'Enter addresses, one per line, space, or comma'
@@ -50,14 +50,14 @@ export const WhiteListAddressInput: React.FC<WhiteListAddressInputProps> = ({
   }, []);
 
   const filterByMode = useCallback((addrs: `0x${string}`[]) => {
-    const normalizedWhitelist = currentWhitelist.map(addr => addr.toLowerCase());
+    const normalizedAllowlist = currentAllowlist.map(addr => addr.toLowerCase());
     
     if (mode === 'add') {
-      return addrs.filter(a => !normalizedWhitelist.includes(a.toLowerCase()));
+      return addrs.filter(a => !normalizedAllowlist.includes(a.toLowerCase()));
     } else {
-      return addrs.filter(a => normalizedWhitelist.includes(a.toLowerCase()));
+      return addrs.filter(a => normalizedAllowlist.includes(a.toLowerCase()));
     }
-  }, [currentWhitelist, mode]);
+  }, [currentAllowlist, mode]);
 
   const handleSubmit = async () => {
     setError(null);
@@ -75,8 +75,8 @@ export const WhiteListAddressInput: React.FC<WhiteListAddressInputProps> = ({
       if (toSubmit.length === 0) {
         setError(
           mode === 'add'
-            ? 'All addresses are already whitelisted'
-            : 'None of the addresses are currently whitelisted'
+            ? 'All addresses are already allowlisted'
+            : 'None of the addresses are currently allowlisted'
         );
         return;
       }

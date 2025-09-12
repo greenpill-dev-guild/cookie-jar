@@ -9,7 +9,7 @@ import { cookieJarAbi } from "../generated" // assuming this exists
  * Enum for Access Type
  */
 enum AccessType {
-  Whitelist = 0,
+  Allowlist = 0,
   NFTGated = 1,
 }
 
@@ -241,7 +241,7 @@ export const useCookieJarConfig = (address: `0x${string}`) => {
 
   const JAR_OWNER = keccak256(toUtf8Bytes("JAR_OWNER")) as `0x${string}`
   const JAR_BLACKLISTED = keccak256(toUtf8Bytes("JAR_BLACKLISTED")) as `0x${string}`
-  const JAR_WHITELISTED = keccak256(toUtf8Bytes("JAR_WHITELISTED")) as `0x${string}`
+  const JAR_ALLOWLISTED = keccak256(toUtf8Bytes("JAR_ALLOWLISTED")) as `0x${string}`
 
   const { data, isLoading, isError, error, refetch } = useReadContracts({
     contracts: [
@@ -256,9 +256,9 @@ export const useCookieJarConfig = (address: `0x${string}`) => {
       { address, abi: cookieJarAbi, functionName: "oneTimeWithdrawal" },
       { address, abi: cookieJarAbi, functionName: "getWithdrawalDataArray" },
       { address, abi: cookieJarAbi, functionName: "feeCollector" },
-      { address, abi: cookieJarAbi, functionName: "hasRole", args: [JAR_WHITELISTED, userAddress!] },
+      { address, abi: cookieJarAbi, functionName: "hasRole", args: [JAR_ALLOWLISTED, userAddress!] },
       { address, abi: cookieJarAbi, functionName: "hasRole", args: [JAR_BLACKLISTED, userAddress!] },
-      { address, abi: cookieJarAbi, functionName: "lastWithdrawalWhitelist", args: [userAddress!] },
+      { address, abi: cookieJarAbi, functionName: "lastWithdrawalAllowlist", args: [userAddress!] },
       { address, abi: cookieJarAbi, functionName: "lastWithdrawalNFT", args: [userAddress!] }, //likely needs to be updated to reflect SC changes that disallow NFTS to be passed around to drain jar
       { address, abi: cookieJarAbi, functionName: "currencyHeldByJar" },
       { address, abi: cookieJarAbi, functionName: "currency" },
@@ -266,7 +266,7 @@ export const useCookieJarConfig = (address: `0x${string}`) => {
     allowFailure: true,
   })
 
-  const AccessType = ["Whitelist", "NFTGated"]
+  const AccessType = ["Allowlist", "NFTGated"]
   const WithdrawalTypeOptions = ["Fixed", "Variable"]
 
   return {
@@ -284,9 +284,9 @@ export const useCookieJarConfig = (address: `0x${string}`) => {
       oneTimeWithdrawal: data?.[8]?.result,
       pastWithdrawals: data?.[9]?.result,
       feeCollector: data?.[10]?.result,
-      whitelist: data?.[11]?.result,
+      allowlist: data?.[11]?.result,
       blacklist: data?.[12]?.result,
-      lastWithdrawalWhitelist: data?.[13]?.result,
+      lastWithdrawalAllowlist: data?.[13]?.result,
       lastWithdrawalNft: data?.[14]?.result,
       balance: data?.[15]?.result,
       currency: data?.[16]?.result,

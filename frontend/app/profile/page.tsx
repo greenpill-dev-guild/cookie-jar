@@ -177,7 +177,7 @@ export default function ProfilePage() {
                     <div className="space-y-3">
                       <div className="flex justify-between items-center">
                         <span className="text-[#8b7355] font-medium">Access:</span>
-                        <span className="text-[#3c2a14]">{jar.accessType === 0 ? "Whitelist" : "NFT-Gated"}</span>
+                        <span className="text-[#3c2a14]">{jar.accessType === 0 ? "Allowlist" : "NFT-Gated"}</span>
                       </div>
                       <div className="flex justify-between items-center">
                         <span className="text-[#8b7355] font-medium">Created:</span>

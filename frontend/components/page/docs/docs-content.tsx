@@ -34,7 +34,7 @@ export function DocsContent({ activeItem }: DocsContentProps) {
             <h2 className="text-2xl font-bold text-white mt-10 mb-4">Key Features</h2>
             <ul className="list-disc pl-6 space-y-3 text-[#a89a8c]">
               <li>
-                <strong className="text-[#ff5e14]">Dual Access Control:</strong> Choose between whitelist or NFT-gated
+                <strong className="text-[#ff5e14]">Dual Access Control:</strong> Choose between allowlist or NFT-gated
                 access to control who can withdraw from your jar.
               </li>
               <li>
@@ -198,7 +198,7 @@ export function DocsContent({ activeItem }: DocsContentProps) {
                 <strong className="text-[#ff5e14]">Funding:</strong> ETH or tokens are deposited into the jar
               </li>
               <li>
-                <strong className="text-[#ff5e14]">Access Management:</strong> Whitelist addresses or set NFT gates
+                <strong className="text-[#ff5e14]">Access Management:</strong> Allowlist addresses or set NFT gates
               </li>
               <li>
                 <strong className="text-[#ff5e14]">Withdrawals:</strong> Authorized users withdraw funds according to
@@ -214,7 +214,7 @@ export function DocsContent({ activeItem }: DocsContentProps) {
               <div>
                 <h3 className="text-xl font-bold text-[#ff5e14] mb-2">Team Treasury</h3>
                 <p>
-                  A jar with whitelist access for team members, with fixed withdrawal amounts and purpose tracking for
+                  A jar with allowlist access for team members, with fixed withdrawal amounts and purpose tracking for
                   expense management.
                 </p>
               </div>
@@ -228,14 +228,14 @@ export function DocsContent({ activeItem }: DocsContentProps) {
               <div>
                 <h3 className="text-xl font-bold text-[#ff5e14] mb-2">Grant Distribution</h3>
                 <p>
-                  A jar with whitelist access for grantees, with fixed withdrawal amounts and strict purpose
+                  A jar with allowlist access for grantees, with fixed withdrawal amounts and strict purpose
                   requirements for accountability.
                 </p>
               </div>
               <div>
                 <h3 className="text-xl font-bold text-[#ff5e14] mb-2">Project Budget</h3>
                 <p>
-                  A jar with whitelist access for project contributors, with variable withdrawal amounts and emergency
+                  A jar with allowlist access for project contributors, with variable withdrawal amounts and emergency
                   withdrawal enabled for the project lead.
                 </p>
               </div>
@@ -248,13 +248,13 @@ export function DocsContent({ activeItem }: DocsContentProps) {
           <>
             <h1 className="text-4xl font-bold text-white mb-6">Access Control</h1>
             <p className="text-[#a89a8c] text-lg mb-6">
-              Cookie Jar offers two primary methods for controlling who can access and withdraw from a jar: Whitelist
+              Cookie Jar offers two primary methods for controlling who can access and withdraw from a jar: Allowlist
               Mode and NFT-Gated Mode.
             </p>
 
-            <h2 className="text-2xl font-bold text-white mt-10 mb-4">Whitelist Mode</h2>
+            <h2 className="text-2xl font-bold text-white mt-10 mb-4">Allowlist Mode</h2>
             <p className="text-[#a89a8c] mb-4">
-              In Whitelist Mode, only explicitly approved addresses can withdraw funds from the jar.
+              In Allowlist Mode, only explicitly approved addresses can withdraw funds from the jar.
             </p>
 
             <h3 className="text-xl font-bold text-[#ff5e14] mt-6 mb-2">Key Features</h3>
@@ -461,7 +461,7 @@ export function DocsContent({ activeItem }: DocsContentProps) {
             <p className="text-[#a89a8c] mb-4">Configure who can access and withdraw from your jar:</p>
             <ul className="list-disc pl-6 space-y-3 text-[#a89a8c]">
               <li>
-                <strong className="text-[#ff5e14]">Access Type:</strong> Choose between Whitelist or NFT-Gated access
+                <strong className="text-[#ff5e14]">Access Type:</strong> Choose between Allowlist or NFT-Gated access
               </li>
               <li>
                 <strong className="text-[#ff5e14]">NFT Addresses & Types (if NFT-Gated):</strong> Add up to 5 NFT
@@ -575,13 +575,13 @@ export function DocsContent({ activeItem }: DocsContentProps) {
             <h2 className="text-2xl font-bold text-white mt-10 mb-4">Access Control Management</h2>
             <p className="text-[#a89a8c] mb-4">Manage who can access and withdraw from the jar:</p>
 
-            <h3 className="text-xl font-bold text-[#ff5e14] mt-6 mb-2">Whitelist Management</h3>
+            <h3 className="text-xl font-bold text-[#ff5e14] mt-6 mb-2">Allowlist Management</h3>
             <ul className="list-disc pl-6 space-y-3 text-[#a89a8c]">
               <li>
-                <strong>Add to Whitelist:</strong> Grant withdrawal permission to an address
+                <strong>Add to Allowlist:</strong> Grant withdrawal permission to an address
               </li>
               <li>
-                <strong>Remove from Whitelist:</strong> Revoke withdrawal permission from an address
+                <strong>Remove from Allowlist:</strong> Revoke withdrawal permission from an address
               </li>
               <li>
                 <strong>Batch Operations:</strong> Add or remove multiple addresses at once
@@ -693,10 +693,10 @@ export function DocsContent({ activeItem }: DocsContentProps) {
             <h2 className="text-2xl font-bold text-white mt-10 mb-4">Withdrawal Types</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
               <div className="bg-[#3c2a14] p-6 rounded-lg">
-                <h3 className="text-xl font-bold text-[#ff5e14] mb-4">Whitelist Withdrawal</h3>
-                <p className="text-[#a89a8c] mb-4">For jars using whitelist access control:</p>
+                <h3 className="text-xl font-bold text-[#ff5e14] mb-4">Allowlist Withdrawal</h3>
+                <p className="text-[#a89a8c] mb-4">For jars using allowlist access control:</p>
                 <ol className="list-decimal pl-6 space-y-2 text-[#a89a8c]">
-                  <li>Verify your address is whitelisted</li>
+                  <li>Verify your address is allowlisted</li>
                   <li>For fixed withdrawals, simply click "Withdraw Fixed Amount"</li>
                   <li>For variable withdrawals, enter your desired amount and click "Withdraw"</li>
                   <li>If purpose tracking is enabled, provide a detailed explanation</li>
@@ -857,12 +857,12 @@ struct WithdrawalRecord {
                 <h4 className="text-lg font-semibold text-white">Access Control Functions</h4>
                 <ul className="list-disc pl-6 space-y-2 text-[#a89a8c]">
                   <li>
-                    <code className="bg-[#1a1207] px-1 py-0.5 rounded">addToWhitelist(address _user)</code> - Add
-                    address to whitelist
+                    <code className="bg-[#1a1207] px-1 py-0.5 rounded">addToAllowlist(address _user)</code> - Add
+                    address to allowlist
                   </li>
                   <li>
-                    <code className="bg-[#1a1207] px-1 py-0.5 rounded">removeFromWhitelist(address _user)</code> -
-                    Remove address from whitelist
+                    <code className="bg-[#1a1207] px-1 py-0.5 rounded">removeFromAllowlist(address _user)</code> -
+                    Remove address from allowlist
                   </li>
                   <li>
                     <code className="bg-[#1a1207] px-1 py-0.5 rounded">addToBlacklist(address _user)</code> - Add
@@ -943,7 +943,7 @@ struct WithdrawalRecord {
               <li>
                 <code className="bg-[#1a1207] px-1 py-0.5 rounded">
                   registerCookieJar(address _jarAddress, address _creator, string memory _name, string memory
-                  _description, bool _useWhitelist)
+                  _description, bool _useAllowlist)
                 </code>{" "}
                 - Register a new jar
               </li>
@@ -956,7 +956,7 @@ struct WithdrawalRecord {
                 number of jars created by a user
               </li>
               <li>
-                <code className="bg-[#1a1207] px-1 py-0.5 rounded">isGloballyWhitelisted(address _user)</code> - Check
+                <code className="bg-[#1a1207] px-1 py-0.5 rounded">isGloballyAllowlisted(address _user)</code> - Check
                 if a user is globally whitelisted
               </li>
               <li>
@@ -1037,7 +1037,7 @@ const myJar = await cookieJar.getJar('0x1234...5678');
 const newJar = await cookieJar.createJar({
   name: 'Team Treasury',
   description: 'Funds for team expenses',
-  accessType: 'whitelist',
+  accessType: 'allowlist',
   withdrawalOption: 'fixed',
   fixedAmount: '0.1',
   withdrawalInterval: 86400, // 1 day in seconds
@@ -1122,12 +1122,12 @@ const newJar = await cookieJar.createJar({
             <h3 className="text-xl font-bold text-[#ff5e14] mt-6 mb-2">Access Control</h3>
             <ul className="list-disc pl-6 space-y-3 text-[#a89a8c]">
               <li>
-                <code className="bg-[#1a1207] px-1 py-0.5 rounded">addToWhitelist(jarAddress, userAddress)</code> - Add
-                address to whitelist
+                <code className="bg-[#1a1207] px-1 py-0.5 rounded">addToAllowlist(jarAddress, userAddress)</code> - Add
+                address to allowlist
               </li>
               <li>
-                <code className="bg-[#1a1207] px-1 py-0.5 rounded">removeFromWhitelist(jarAddress, userAddress)</code> -
-                Remove address from whitelist
+                <code className="bg-[#1a1207] px-1 py-0.5 rounded">removeFromAllowlist(jarAddress, userAddress)</code> -
+                Remove address from allowlist
               </li>
               <li>
                 <code className="bg-[#1a1207] px-1 py-0.5 rounded">addToBlacklist(jarAddress, userAddress)</code> - Add
@@ -1165,7 +1165,7 @@ async function createTeamJar() {
   const newJar = await cookieJar.createJar({
     name: 'Team Treasury',
     description: 'Funds for team expenses',
-    accessType: 'whitelist',
+    accessType: 'allowlist',
     withdrawalOption: 'fixed',
     fixedAmount: '0.1',
     withdrawalInterval: 86400, // 1 day in seconds
@@ -1175,9 +1175,9 @@ async function createTeamJar() {
   
   console.log('New jar created:', newJar.address);
   
-  // Add team members to whitelist
-  await cookieJar.addToWhitelist(newJar.address, '0x1234...5678');
-  await cookieJar.addToWhitelist(newJar.address, '0x8765...4321');
+  // Add team members to allowlist
+  await cookieJar.addToAllowlist(newJar.address, '0x1234...5678');
+  await cookieJar.addToAllowlist(newJar.address, '0x8765...4321');
   
   // Fund the jar
   await cookieJar.depositETH(newJar.address, '1.0');
@@ -1301,7 +1301,7 @@ createTeamJar().then(jar => monitorJar(jar.address));`}
                     <h3 className="text-xl font-bold text-[#ff5e14] mb-2">Why can't I withdraw from a jar?</h3>
                     <p className="text-[#a89a8c]">There could be several reasons:</p>
                     <ul className="list-disc pl-6 space-y-2 text-[#a89a8c]">
-                      <li>Your address is not whitelisted or you don't hold the required NFT</li>
+                      <li>Your address is not allowlisted or you don't hold the required NFT</li>
                       <li>Your address is blacklisted</li>
                       <li>You haven't waited for the cooldown period since your last withdrawal</li>
                       <li>The jar has one-time withdrawal enabled and you've already withdrawn</li>
@@ -1486,9 +1486,9 @@ createTeamJar().then(jar => monitorJar(jar.address));`}
             <div className="space-y-6">
               <div className="bg-[#3c2a14] p-6 rounded-lg">
                 <h3 className="text-xl font-bold text-[#ff5e14] mb-2">
-                  Problem: Cannot withdraw despite being whitelisted
+                  Problem: Cannot withdraw despite being allowlisted
                 </h3>
-                <p className="text-[#a89a8c] mb-4">If you're whitelisted but still can't withdraw:</p>
+                <p className="text-[#a89a8c] mb-4">If you're allowlisted but still can't withdraw:</p>
                 <h4 className="text-lg font-semibold text-white mb-2">Solutions:</h4>
                 <ol className="list-decimal pl-6 space-y-2 text-[#a89a8c]">
                   <li>Check if you're in the cooldown period from a previous withdrawal</li>

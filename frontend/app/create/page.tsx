@@ -34,7 +34,7 @@ import { ETH_ADDRESS, useTokenInfo, parseTokenAmount, formatTokenAmount } from "
 
 // Enums matching the contract
 enum AccessType {
-  Whitelist = 0,
+  Allowlist = 0,
   NFTGated = 1,
 }
 
@@ -59,7 +59,7 @@ export default function CreateCookieJarForm() {
   const [selectedNetwork, setSelectedNetwork] = useState<string>("baseSepolia")
   const [jarOwnerAddress, setJarOwnerAddress] = useState<`0x${string}`>("0x0000000000000000000000000000000000000000")
   const [supportedCurrency, setSupportedCurrency] = useState<`0x${string}`>(ETH_ADDRESS)
-  const [accessType, setAccessType] = useState<AccessType>(AccessType.Whitelist)
+  const [accessType, setAccessType] = useState<AccessType>(AccessType.Allowlist)
   const [withdrawalOption, setWithdrawalOption] = useState<WithdrawalTypeOptions>(WithdrawalTypeOptions.Fixed)
   const [fixedAmount, setFixedAmount] = useState("0")
   const [maxWithdrawal, setMaxWithdrawal] = useState("0")
@@ -274,7 +274,7 @@ export default function CreateCookieJarForm() {
               strictPurpose,
               emergencyWithdrawalEnabled,
               oneTimeWithdrawal,
-              [] as readonly `0x${string}`[], // Adding empty whitelist array TODO integrate w/ FE so users can pass an intiial whitelist on jar creaton
+              [] as readonly `0x${string}`[], // Adding empty allowlist array TODO integrate w/ FE so users can pass an intiial allowlist on jar creaton
               metadataJson,
               BigInt(feeBps),
             ],
@@ -297,7 +297,7 @@ export default function CreateCookieJarForm() {
               strictPurpose,
               emergencyWithdrawalEnabled,
               oneTimeWithdrawal,
-              [] as readonly `0x${string}`[], // Adding empty whitelist array TODO integrate w/ FE so users can pass an intiial whitelist on jar creaton
+              [] as readonly `0x${string}`[], // Adding empty allowlist array TODO integrate w/ FE so users can pass an intiial allowlist on jar creaton
               metadataJson,
             ],
           })
@@ -315,7 +315,7 @@ export default function CreateCookieJarForm() {
   const resetForm = () => {
     setJarOwnerAddress(address || "0x0000000000000000000000000000000000000000")
     setSupportedCurrency(ETH_ADDRESS)
-    setAccessType(AccessType.Whitelist)
+    setAccessType(AccessType.Allowlist)
     setWithdrawalOption(WithdrawalTypeOptions.Fixed)
     setFixedAmount("0")
     setMaxWithdrawal("0")
@@ -1009,7 +1009,7 @@ export default function CreateCookieJarForm() {
                   <SelectValue placeholder="Select access type" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="0">Whitelist</SelectItem>
+                  <SelectItem value="0">Allowlist</SelectItem>
                   {/* removed NFT Gated option for MVP launch to reduce complexity <3msg */}
                   {/* <SelectItem value="1">NFT Gated</SelectItem> */}
                 </SelectContent>
@@ -1227,7 +1227,7 @@ export default function CreateCookieJarForm() {
                 </li>
                 <li className="text-[#3c2a14]">
                   <span className="font-medium">Access Type:</span>{" "}
-                  {accessType === AccessType.Whitelist ? "Whitelist" : "NFT Gated"}
+                  {accessType === AccessType.Allowlist ? "Allowlist" : "NFT Gated"}
                 </li>
                 <li className="text-[#3c2a14]">
                   <span className="font-medium">Withdrawal:</span>{" "}
@@ -1390,7 +1390,7 @@ export default function CreateCookieJarForm() {
                   </li>
                   <li className="text-[#3c2a14]">
                     <span className="font-medium">Access Type:</span>{" "}
-                    {accessType === AccessType.Whitelist ? "Whitelist" : "NFT Gated"}
+                    {accessType === AccessType.Allowlist ? "Allowlist" : "NFT Gated"}
                   </li>
                   <li className="text-[#3c2a14]">
                     <span className="font-medium">Withdrawal:</span>{" "}

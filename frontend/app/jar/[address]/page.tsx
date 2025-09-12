@@ -32,8 +32,8 @@ import { WhitelistWithdrawalSection } from "@/components/users/WhitelistWithdraw
 import { NFTGatedWithdrawalSection } from "@/components/users/NFTGatedWithdrawalSection"
 import { Clock, ArrowUpToLine } from "lucide-react"
 // Import the BackButton component
-import { BackButton } from "@/components/design/back-button"
-import { useWriteCookieJarWithdrawWhitelistMode, useWriteCookieJarWithdrawNftMode } from "@/generated"
+import { AllowlistWithdrawalSection } from "@/components/users/AllowlistWithdrawalSection"
+import { useWriteCookieJarWithdrawAllowlistMode, useWriteCookieJarWithdrawNftMode } from "@/generated"
 import { CountdownTimer } from "@/components/users/CountdownTimer"
 import { WithdrawalHistorySection, type Withdrawal } from "@/components/users/WithdrawlHistorySection"
 
@@ -82,7 +82,7 @@ export default function CookieJarConfigDetails() {
   })
 
   const isAdmin = hasJarOwnerRole === true
-  const showUserFunctions = config?.whitelist === true && config?.accessType === "Whitelist"
+  const showUserFunctions = config?.allowlist === true && config?.accessType === "Allowlist"
   const showNFTGatedFunctions = config?.accessType === "NFTGated"
   const isFeeCollector =
     userAddress && config?.feeCollector && userAddress.toLowerCase() === config.feeCollector.toLowerCase()
@@ -262,12 +262,12 @@ export default function CookieJarConfigDetails() {
   const [pendingDepositAmount, setPendingDepositAmount] = useState<bigint>(BigInt(0))
 
   const {
-    writeContract: withdrawWhitelistMode,
-    data: withdrawWhitelistModeData,
-    error: withdrawWhitelistModeError,
-    isSuccess: isWithdrawWhitelistSuccess,
-    isPending: isWithdrawWhitelistPending,
-  } = useWriteCookieJarWithdrawWhitelistMode()
+    writeContract: withdrawAllowlistMode,
+    data: withdrawAllowlistModeData,
+    error: withdrawAllowlistModeError,
+    isSuccess: isWithdrawAllowlistSuccess,
+    isPending: isWithdrawAllowlistPending,
+  } = useWriteCookieJarWithdrawAllowlistMode()
 
   const {
     writeContract: withdrawNFTMode,
@@ -279,12 +279,12 @@ export default function CookieJarConfigDetails() {
 
   // Check if user is in cooldown period
   const isInCooldown = useMemo(() => {
-    if (!config.lastWithdrawalWhitelist || !config.withdrawalInterval) return false
+    if (!config.lastWithdrawalAllowlist || !config.withdrawalInterval) return false
 
     const now = Math.floor(Date.now() / 1000)
-    const nextWithdrawalTime = Number(config.lastWithdrawalWhitelist) + Number(config.withdrawalInterval)
+    const nextWithdrawalTime = Number(config.lastWithdrawalAllowlist) + Number(config.withdrawalInterval)
     return nextWithdrawalTime > now
-  }, [config.lastWithdrawalWhitelist, config.withdrawalInterval])
+  }, [config.lastWithdrawalAllowlist, config.withdrawalInterval])
 
   // Update the network name in the jar address page as well
   const getNetworkInfo = () => {
@@ -378,16 +378,16 @@ export default function CookieJarConfigDetails() {
     })
   }
 
-  const handleWithdrawWhitelist = () => {
+  const handleWithdrawAllowlist = () => {
     if (!config.contractAddress || !config.fixedAmount) return
 
-    withdrawWhitelistMode({
+    withdrawAllowlistMode({
       address: config.contractAddress,
       args: [config.fixedAmount, withdrawPurpose],
     })
   }
 
-  const handleWithdrawWhitelistVariable = () => {
+  const handleWithdrawAllowlistVariable = () => {
     if (!config.contractAddress || !withdrawAmount) return
 
     // Parse amount considering the token decimals
@@ -395,7 +395,7 @@ export default function CookieJarConfigDetails() {
       ? parseEther(withdrawAmount)
       : parseTokenAmount(withdrawAmount, tokenDecimals)
 
-    withdrawWhitelistMode({
+    withdrawAllowlistMode({
       address: config.contractAddress,
       args: [parsedAmount, withdrawPurpose],
     })
@@ -426,7 +426,7 @@ export default function CookieJarConfigDetails() {
 
   // Add success and error handling effects
   useEffect(() => {
-    if (isWithdrawWhitelistSuccess || isWithdrawNFTSuccess) {
+    if (isWithdrawAllowlistSuccess || isWithdrawNFTSuccess) {
       toast({
         title: "Withdrawal Successful",
         description: "Your withdrawal has been processed successfully.",
@@ -437,18 +437,18 @@ export default function CookieJarConfigDetails() {
       setGateAddress("")
       setTokenId("")
     }
-  }, [isWithdrawWhitelistSuccess, isWithdrawNFTSuccess, toast])
+  }, [isWithdrawAllowlistSuccess, isWithdrawNFTSuccess, toast])
 
   useEffect(() => {
-    if (withdrawWhitelistModeError || withdrawNFTModeError) {
+    if (withdrawAllowlistModeError || withdrawNFTModeError) {
       toast({
         title: "Withdrawal Failed",
         description:
-          (withdrawWhitelistModeError || withdrawNFTModeError)?.message || "An error occurred during withdrawal",
+          (withdrawAllowlistModeError || withdrawNFTModeError)?.message || "An error occurred during withdrawal",
         variant: "destructive",
       })
     }
-  }, [withdrawWhitelistModeError, withdrawNFTModeError, toast])
+  }, [withdrawAllowlistModeError, withdrawNFTModeError, toast])
 
   if (!isValidAddress) {
     return (
@@ -647,7 +647,7 @@ export default function CookieJarConfigDetails() {
 
                     <Separator />
 
-                    {/* Add Whitelist Status indicator */}
+                    {/* Add Allowlist Status indicator */}
                     <div className="flex justify-between items-center py-2">
                       <span className="text-[#4a3520] font-medium">Your Status</span>
                       <div className="flex items-center">
@@ -657,7 +657,7 @@ export default function CookieJarConfigDetails() {
                           <span
                             className={`font-medium px-3 py-1 rounded-full text-white ${config.whitelist ? "bg-green-500" : "bg-red-500"}`}
                           >
-                            {config.whitelist ? "Whitelisted" : "Not Whitelisted"}
+                            {config.whitelist ? "Allowlisted" : "Not Allowlisted"}
                           </span>
                         )}
                       </div>
@@ -714,7 +714,7 @@ export default function CookieJarConfigDetails() {
                                 className="flex items-center gap-1 bg-[#e6f7e6] text-[#2e7d32] border-[#2e7d32] px-3 py-1"
                               >
                                 <Users className="h-3 w-3 mr-1" />
-                                Whitelisted
+                                Allowlisted
                               </Badge>
                             )
                           )}
@@ -868,7 +868,7 @@ export default function CookieJarConfigDetails() {
                     <div className="absolute inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-10 rounded-b-lg">
                       <div className="w-full max-w-xl mx-auto bg-[#f8f5f0]/90 rounded-xl shadow-lg">
                         <CountdownTimer
-                          lastWithdrawalTimestamp={Number(config.lastWithdrawalWhitelist)}
+                          lastWithdrawalTimestamp={Number(config.lastWithdrawalAllowlist)}
                           interval={Number(config.withdrawalInterval)}
                           onComplete={() => {
                             // Refetch jar data when timer completes to update withdrawal availability
@@ -880,17 +880,17 @@ export default function CookieJarConfigDetails() {
                   ) : null}
 
                   {showUserFunctions ? (
-                    <WhitelistWithdrawalSection
+                    <AllowlistWithdrawalSection
                       config={{
                         ...config,
-                        isWithdrawPending: isWithdrawWhitelistPending,
+                        isWithdrawPending: isWithdrawAllowlistPending,
                       }}
                       withdrawPurpose={withdrawPurpose}
                       setWithdrawPurpose={setWithdrawPurpose}
                       withdrawAmount={withdrawAmount}
                       setWithdrawAmount={setWithdrawAmount}
-                      handleWithdrawWhitelist={handleWithdrawWhitelist}
-                      handleWithdrawWhitelistVariable={handleWithdrawWhitelistVariable}
+                      handleWithdrawAllowlist={handleWithdrawAllowlist}
+                      handleWithdrawAllowlistVariable={handleWithdrawAllowlistVariable}
                     />
                   ) : showNFTGatedFunctions ? (
                     <NFTGatedWithdrawalSection
@@ -910,7 +910,7 @@ export default function CookieJarConfigDetails() {
                   ) : (
                     <div className="flex flex-col items-center justify-center py-16">
                       <div className="bg-red-500 text-white font-medium px-6 py-2 rounded-full text-lg">
-                        Not Whitelisted
+                        Not Allowlisted
                       </div>
                     </div>
                   )}

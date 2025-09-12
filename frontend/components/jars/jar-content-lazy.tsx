@@ -30,9 +30,9 @@ export function JarContentLazy({ userAddress }: JarContentProps) {
   const [currentPage, setCurrentPage] = useState(1)
   const jarsPerPage = 9
   const [filterOption, setFilterOption] = useState("all")
-  const [whitelistedJars, setWhitelistedJars] = useState<Record<string, boolean>>({})
+  const [allowlistedJars, setAllowlistedJars] = useState<Record<string, boolean>>({})
   const [adminJars, setAdminJars] = useState<Record<string, boolean>>({})
-  const [isCheckingWhitelist, setIsCheckingWhitelist] = useState(false)
+  const [isCheckingAllowlist, setIsCheckingAllowlist] = useState(false)
   const [isCheckingAdmin, setIsCheckingAdmin] = useState(false)
 
   // Filter jars based on search term and filter option
@@ -43,9 +43,9 @@ export function JarContentLazy({ userAddress }: JarContentProps) {
         jar.jarAddress.toLowerCase().includes(searchTerm.toLowerCase()),
     )
 
-    // Apply whitelist filter if selected
-    if (filterOption === "whitelisted") {
-      filtered = filtered.filter((jar) => whitelistedJars[jar.jarAddress])
+    // Apply allowlist filter if selected
+    if (filterOption === "allowlisted") {
+      filtered = filtered.filter((jar) => allowlistedJars[jar.jarAddress])
     }
 
     // Apply admin filter if selected
@@ -54,7 +54,7 @@ export function JarContentLazy({ userAddress }: JarContentProps) {
     }
 
     return filtered
-  }, [cookieJarsData, searchTerm, filterOption, whitelistedJars, adminJars])
+  }, [cookieJarsData, searchTerm, filterOption, allowlistedJars, adminJars])
 
   // Calculate pagination
   const { currentJars, totalPages } = useMemo(() => {
@@ -71,25 +71,25 @@ export function JarContentLazy({ userAddress }: JarContentProps) {
     setCurrentPage(1)
   }, [searchTerm, filterOption])
 
-  // Check role status (whitelist and admin) for each jar - optimized version
+  // Check role status (allowlist and admin) for each jar - optimized version
   useEffect(() => {
     const checkRoleStatus = async () => {
       if (!userAddress || cookieJarsData.length === 0) return
 
-      setIsCheckingWhitelist(true)
+      setIsCheckingAllowlist(true)
       setIsCheckingAdmin(true)
 
-      const whitelistStatuses: Record<string, boolean> = { ...whitelistedJars }
+      const allowlistStatuses: Record<string, boolean> = { ...allowlistedJars }
       const adminStatuses: Record<string, boolean> = { ...adminJars }
 
       // Define role constants
-      const JAR_WHITELISTED = keccak256(toUtf8Bytes("JAR_WHITELISTED")) as `0x${string}`
+      const JAR_ALLOWLISTED = keccak256(toUtf8Bytes("JAR_ALLOWLISTED")) as `0x${string}`
       const JAR_OWNER_ROLE = keccak256(toUtf8Bytes("JAR_OWNER")) as `0x${string}`
 
       // Create a provider
       const provider = window.ethereum ? new ethers.BrowserProvider(window.ethereum) : null
       if (!provider) {
-        setIsCheckingWhitelist(false)
+        setIsCheckingAllowlist(false)
         setIsCheckingAdmin(false)
         return
       }
@@ -117,9 +117,9 @@ export function JarContentLazy({ userAddress }: JarContentProps) {
             provider,
           )
 
-          // Check whitelist role
-          const hasWhitelistRole = await contract.hasRole(JAR_WHITELISTED, userAddress)
-          whitelistStatuses[jar.jarAddress] = hasWhitelistRole
+          // Check allowlist role
+          const hasAllowlistRole = await contract.hasRole(JAR_ALLOWLISTED, userAddress)
+          allowlistStatuses[jar.jarAddress] = hasAllowlistRole
 
           // Check admin role
           const hasAdminRole = await contract.hasRole(JAR_OWNER_ROLE, userAddress)
@@ -127,14 +127,14 @@ export function JarContentLazy({ userAddress }: JarContentProps) {
 
         } catch (error) {
           console.error(`Error checking roles for ${jar.jarAddress}:`, error)
-          whitelistStatuses[jar.jarAddress] = false
+          allowlistStatuses[jar.jarAddress] = false
           adminStatuses[jar.jarAddress] = false
         }
       }
 
-      setWhitelistedJars(whitelistStatuses)
+      setAllowlistedJars(allowlistStatuses)
       setAdminJars(adminStatuses)
-      setIsCheckingWhitelist(false)
+      setIsCheckingAllowlist(false)
       setIsCheckingAdmin(false)
     }
 
@@ -167,7 +167,7 @@ export function JarContentLazy({ userAddress }: JarContentProps) {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Jars</SelectItem>
-                  <SelectItem value="whitelisted">Whitelisted</SelectItem>
+                  <SelectItem value="allowlisted">Allowlisted</SelectItem>
                   <SelectItem value="admin">Admin</SelectItem>
                 </SelectContent>
               </Select>
@@ -217,7 +217,7 @@ export function JarContentLazy({ userAddress }: JarContentProps) {
               {currentJars.map((jar, index) => {
                 const indexOfLastJar = currentPage * jarsPerPage
                 const indexOfFirstJar = indexOfLastJar - jarsPerPage
-                const isWhitelisted = whitelistedJars[jar.jarAddress]
+                const isAllowlisted = allowlistedJars[jar.jarAddress]
                 const isAdmin = adminJars[jar.jarAddress]
 
                 return (
@@ -225,13 +225,13 @@ export function JarContentLazy({ userAddress }: JarContentProps) {
                     key={jar.jarAddress}
                     className="jar-card bg-white border-none shadow-md hover:shadow-xl transition-all duration-300 relative overflow-hidden before:content-[''] before:absolute before:bottom-0 before:left-0 before:w-full before:h-1 before:bg-[#ff5e14]"
                   >
-                    {isWhitelisted && (
+                    {isAllowlisted && (
                       <Badge
                         variant="outline"
                         className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-[#e6f7e6] text-[#2e7d32] border-[#2e7d32] px-3 py-1"
                       >
                         <Users className="h-3 w-3 mr-1" />
-                        <span className="text-xs">Whitelisted</span>
+                        <span className="text-xs">Allowlisted</span>
                       </Badge>
                     )}
                     {isAdmin && (
@@ -256,7 +256,7 @@ export function JarContentLazy({ userAddress }: JarContentProps) {
                         <div className="flex justify-between items-center">
                           <span className="text-[#8b7355] font-medium">Access:</span>
                           <div className="flex items-center gap-2">
-                            <span className="text-[#3c2a14]">{jar.accessType === 0 ? "Whitelist" : "NFT-Gated"}</span>
+                            <span className="text-[#3c2a14]">{jar.accessType === 0 ? "Allowlist" : "NFT-Gated"}</span>
                           </div>
                         </div>
                         <div className="flex justify-between items-center">
@@ -342,7 +342,7 @@ export function JarContentLazy({ userAddress }: JarContentProps) {
 
       <p className="text-sm text-[#ff5e14] mt-8 font-medium">
         Total jars loaded: {filteredJars.length}
-        {filterOption === "whitelisted" && ` (${filteredJars.length} whitelisted)`}
+        {filterOption === "allowlisted" && ` (${filteredJars.length} allowlisted)`}
         {filterOption === "admin" && ` (${filteredJars.length} admin)`}
       </p>
     </div>
