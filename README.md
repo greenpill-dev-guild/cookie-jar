@@ -1,18 +1,44 @@
-# 🍪 Cookie Jar
+# 🍪 Cookie Jar Protocol
 
-Cookie Jar is a decentralized application (dApp) that allows a set of whitelisted members or NFT holders to withdraw ETH or ERC20 tokens periodically from a communal jar. This system operates under a DAO structure, where the rules and the distribution process are controlled and executed by smart contracts.
+Cookie Jar is a decentralized funding protocol that enables controlled distribution of ETH or ERC20 tokens from shared pools. The system uses smart contracts to manage access control (via allowlists or NFT ownership) and periodic withdrawal limits, creating transparent and permissioned funding mechanisms for DAOs and communities.
 
-The primary purpose of Cookie Jar is to create a transparent and permissioned mechanism for distributing ETH or ERC20 tokens from a shared pool among a group of participants in a decentralized manner.
+## 📋 Prerequisites
+
+Before getting started, ensure you have the following installed:
+
+### Required Dependencies
+- **Node.js** (v18.0.0 or later) - [Download here](https://nodejs.org/)
+- **pnpm** (v8.0.0 or later) - Install with: `npm install -g pnpm`
+- **Foundry** (latest) - [Installation guide](https://book.getfoundry.sh/getting-started/installation)
+  ```bash
+  curl -L https://foundry.paradigm.xyz | bash
+  foundryup
+  ```
+- **Git** - [Download here](https://git-scm.com/)
+
+### Optional (for enhanced development)
+- **VS Code** with Solidity extension
+- **Metamask** or compatible Web3 wallet
+- **Docker** (for alternative development setup)
+
+### System Requirements
+- **Memory**: 4GB RAM minimum (8GB recommended)
+- **Storage**: 2GB free space
+- **OS**: macOS, Linux, or Windows (WSL2 recommended)
 
 ## 🚀 Quick Start
 
 **Zero configuration needed!** This project uses **pnpm workspaces** for monorepo management with friction-free local development:
 
 ```bash
-# Install all dependencies (contracts + frontend)
+# 1. Clone the repository
+git clone https://github.com/greenpill-dev-guild/cookie-jar.git
+cd cookie-jar
+
+# 2. Install all dependencies (contracts + client)
 pnpm install
 
-# Start the full development environment (no .env setup required!)
+# 3. Start the full development environment (no .env setup required!)
 pnpm dev
 
 # Or start with mainnet fork (slower but has real state)
@@ -21,7 +47,7 @@ pnpm dev:fork
 
 **That's it!** The development environment automatically:
 - ✅ Uses hardcoded Anvil Account #0 (funded with 1000 ETH)
-- ✅ No `.env` files or private keys to configure
+- ✅ No `.env` files or private keys to configure initially
 - ✅ Safe by design (only works on local chain ID 31337)
 - ✅ **Auto-deploys Cookie Monster NFTs** for testing NFT-gated jars!
 - ✅ **Pre-seeds 4 demo jars** with different configurations
@@ -31,7 +57,7 @@ This single command will:
 - ✅ Deploy contracts automatically
 - ✅ **Seed demo environment with Cookie Monster NFTs & 4 demo jars**
 - ✅ Watch for contract changes and auto-redeploy
-- ✅ Start frontend dev server with hot reload
+- ✅ Start client dev server with hot reload
 - ✅ Generate TypeScript types automatically
 
 ## 📦 Monorepo Structure
@@ -40,8 +66,10 @@ This single command will:
 cookie-jar/
 ├── package.json           # Root package with workspace scripts
 ├── pnpm-workspace.yaml    # Workspace configuration
+├── .env.sample            # Environment configuration template
 ├── contracts/             # Smart contracts (Foundry/Solidity)
-└── frontend/              # Next.js frontend application
+├── client/                # Next.js client application
+└── scripts/               # Shared utility scripts
 ```
 
 **Benefits:**
@@ -49,12 +77,31 @@ cookie-jar/
 - ✅ Unified scripts from root directory
 - ✅ Shared development commands
 - ✅ Optimized dependency management
+- ✅ Consolidated environment configuration
+
+## 🔧 Environment Setup (Optional)
+
+For production deployments or custom configuration, copy the sample environment file:
+
+```bash
+# Copy the sample environment file
+cp .env.sample .env.local
+
+# Edit with your values
+nano .env.local
+```
+
+### Key Environment Variables:
+- `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID` - Required for wallet connections
+- `NEXT_PUBLIC_ALCHEMY_ID` - Recommended for better RPC performance
+- `PRIVATE_KEY` - For testnet/mainnet deployments (⚠️ never commit real keys!)
+- `ANVIL_PRIVATE_KEY` - Hardcoded for local development (safe to commit)
 
 ## How Does Cookie Jar Work?
 
 ### 🔐 **Access Control Methods:**
 
-1. **Whitelisted Members**: Only members who have been added to the whitelist can access the Cookie Jar. This ensures that only approved participants are able to withdraw funds from the communal jar.
+1. **Allowlisted Members**: Only members who have been added to the allowlist can access the Cookie Jar. This ensures that only approved participants are able to withdraw funds from the communal jar.
 
 2. **NFT Gating**: Holders of specific NFT collections can access the jar by proving ownership of qualifying tokens. Supports both ERC721 and ERC1155 standards.
 
@@ -69,7 +116,7 @@ cookie-jar/
 ## ✨ Features
 
 ### **Core Features:**
-- **Dual Access Control**: Both whitelist and NFT-gated access modes
+- **Dual Access Control**: Both allowlist and NFT-gated access modes
 - **Multi-Token Support**: Works with ETH and any ERC20 token
 - **Flexible Withdrawals**: Fixed or variable withdrawal amounts
 - **Rich Metadata**: Jar names, images, and external links
@@ -79,7 +126,7 @@ cookie-jar/
 - **Periodic Limits**: Time-based withdrawal restrictions
 - **Admin Controls**: Comprehensive jar management
 - **Event Tracking**: Full audit trail via blockchain events
-- **Frontend Integration**: Beautiful, responsive web interface
+- **Client Integration**: Beautiful, responsive web interface
 
 ### **Security & Transparency:**
 - **Decentralized**: All operations governed by smart contracts
@@ -94,10 +141,10 @@ cookie-jar/
 - Changes automatically trigger:
   - Recompilation with Forge
   - Redeployment to local Anvil
-  - Frontend type regeneration
+  - Client type regeneration
 
-### 2. **Frontend Development**  
-- Frontend runs at `http://localhost:3000`
+### 2. **Client Development**  
+- Client runs at `http://localhost:3000`
 - Automatically connected to local contracts
 - Hot reload on code changes
 - Uses local blockchain (Chain ID: 31337)
@@ -107,14 +154,17 @@ cookie-jar/
 # Test contracts
 pnpm test:contracts
 
-# Test frontend  
-pnpm test:frontend
+# Test client  
+pnpm test:client
 
 # Test everything
 pnpm test
 
 # Manual contract deployment (if needed)
 pnpm deploy:local
+
+# Seed demo environment
+pnpm seed:demo
 ```
 
 ## 🔧 Network Configuration
@@ -123,7 +173,7 @@ pnpm deploy:local
 
 - **Local Blockchain**: `http://127.0.0.1:8545`
 - **Chain ID**: `31337` 
-- **Forked Network**: Celo Mainnet
+- **Forked Network**: Ethereum Mainnet (or Celo with --fork flag)
 - **Auto-funded Accounts**: 10 accounts, each with 1000 ETH
 
 ### 🔑 Pre-funded Test Accounts
@@ -141,87 +191,134 @@ pnpm deploy:local
 ## 🛠️ Available Commands
 
 ```bash
-# Individual services
-pnpm dev:contracts         # Only start contracts + anvil
-pnpm dev:frontend          # Only start frontend
+# Development
+pnpm dev                   # Start full development environment
+pnpm dev:fork              # Start with mainnet fork
 
 # Build commands  
-pnpm build                 # Build both contracts + frontend
+pnpm build                 # Build both contracts + client
 pnpm build:contracts       # Build only contracts
-pnpm build:frontend        # Build only frontend
+pnpm build:client          # Build only client
 
 # Testing
-pnpm test                  # Test both contracts + frontend
+pnpm test                  # Test both contracts + client
 pnpm test:contracts        # Test only contracts
-pnpm test:frontend         # Test only frontend
+pnpm test:client           # Test only client
 
 # Linting
-pnpm lint                  # Lint both contracts + frontend
+pnpm lint                  # Lint both contracts + client
 pnpm lint:contracts        # Lint only contracts  
-pnpm lint:frontend         # Lint only frontend
+pnpm lint:client           # Lint only client
 
-# Cleanup
+# Deployment & Management
+pnpm deploy:local          # Deploy contracts to local Anvil
+pnpm seed:demo             # Seed demo environment with test data
+pnpm seed:reset            # Reset and restart development environment
+pnpm copy:deployment       # Copy deployment files to client
+pnpm generate              # Generate client types from contracts
+
+# Utilities
+pnpm accounts:list         # List pre-funded test accounts
+pnpm sync:check            # Check deployment file synchronization
 pnpm clean                 # Clean both projects
 pnpm stop                  # Stop all running services
-
-# Workspace management
-pnpm install               # Install all dependencies for both packages
-pnpm generate              # Generate frontend types from contracts
 ```
 
 ## 📁 Generated Files
 
 ```
-frontend/contracts/
-└── local-deployment.json    # Contract addresses (auto-generated)
+client/public/contracts/
+├── local-deployment.json    # Contract addresses (auto-generated)
+└── seed-data.json          # Demo environment data
 
 contracts/
 ├── anvil.log               # Blockchain logs  
-└── watch-deploy.log        # Contract deployment logs
+└── out/                    # Compiled contracts
 ```
 
 ## 🔍 Troubleshooting
 
-### Port Conflicts
-- Frontend: Port 3000
-- Anvil: Port 8545
-- Kill conflicting processes: `pnpm stop`
+### Common Issues
 
-### Contract Changes Not Reflecting
-1. Check `contracts/watch-deploy.log` for errors
+#### Port Conflicts
+- Client: Port 3000
+- Anvil: Port 8545
+- **Solution**: Kill conflicting processes with `pnpm stop`
+
+#### Contract Changes Not Reflecting
+1. Check `contracts/anvil.log` for blockchain errors
 2. Manually redeploy: `pnpm deploy:local`
 3. Regenerate types: `pnpm generate`
+4. Check deployment sync: `pnpm sync:check`
 
-### Frontend Not Connecting to Local Contracts
+#### Client Not Connecting to Local Contracts
 1. Ensure `NODE_ENV=development` 
-2. Check `frontend/public/contracts/local-deployment.json` exists
+2. Check `client/public/contracts/local-deployment.json` exists
 3. Verify Anvil is running on port 8545
+4. Try restarting: `pnpm seed:reset`
 
-### Environment Issues
-**No environment setup needed!** If you're having issues:
-1. Ensure you're using the latest code with hardcoded keys
-2. Contracts automatically use Account #0 (no `.env` files required)
-3. All configuration is built into the scripts
+#### Environment Issues
+1. Check Node.js version: `node --version` (should be ≥18.0.0)
+2. Check pnpm version: `pnpm --version` (should be ≥8.0.0)
+3. Check Foundry installation: `forge --version`
+4. Reinstall dependencies: `rm -rf node_modules */node_modules && pnpm install`
+
+#### Wallet Connection Issues
+1. Add local network to MetaMask:
+   - Network Name: `Anvil Local`
+   - RPC URL: `http://127.0.0.1:8545`
+   - Chain ID: `31337`
+   - Currency Symbol: `ETH`
+2. Import test account using private key from table above
+3. Ensure you're on the correct network in MetaMask
+
+### Performance Issues
+- **Slow builds**: Increase Node.js memory: `export NODE_OPTIONS="--max_old_space_size=4096"`
+- **Anvil crashes**: Ensure sufficient system memory (8GB+ recommended)
+- **Client slow loading**: Disable browser extensions or use incognito mode
 
 ## 📊 Logs & Monitoring
 
-- **Anvil**: `tail -f contracts/anvil.log`
-- **Contract Watcher**: `tail -f contracts/watch-deploy.log`  
-- **Frontend**: `tail -f frontend/frontend-dev.log`
+Monitor development services:
 
-## Folder Structure
+```bash
+# View logs in real-time
+tail -f contracts/anvil.log          # Blockchain logs
+tail -f client/client-dev.log        # Client development logs
 
-- **`frontend/`**: Next.js frontend interface for users to interact with Cookie Jars, check eligibility, and withdraw ETH or ERC20 tokens
-- **`contracts/`**: Smart contract logic for managing communal jars, access control, withdrawal rules, and comprehensive test suites
+# Check all logs
+pnpm logs
+```
 
-## 🎯 Getting Started
+## 🎯 Getting Started Guide
 
-1. **Start development**: `pnpm dev`
-2. **Open frontend**: http://localhost:3000  
-3. **Connect wallet** to local network (Chain ID: 31337)
-4. **Import test account**: Use Account #0 private key from the table above
-5. **Start building!** 🚀
+1. **Prerequisites**: Install Node.js (18+), pnpm (8+), and Foundry
+2. **Clone & Install**: `git clone <repo> && cd cookie-jar && pnpm install`
+3. **Start Development**: `pnpm dev`
+4. **Open Client**: Navigate to http://localhost:3000  
+5. **Connect Wallet**: Add local network (Chain ID: 31337) to MetaMask
+6. **Import Test Account**: Use Account #0 private key from the table above
+7. **Explore Demo Jars**: 4 pre-seeded jars with different configurations
+8. **Start Building**: Edit contracts in `contracts/src/` or client in `client/`
 
 ### 🎉 That's It! 
 
-No environment files, no configuration, no setup hassle. Just clone, install, and dev! The hardcoded approach makes local development friction-free while staying secure through chain ID restrictions.
+No complex environment files, no configuration hassles, no setup friction. Just clone, install, and develop! The hardcoded approach makes local development seamless while staying secure through chain ID restrictions.
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Make your changes and test: `pnpm test`
+4. Commit with conventional commits: `git commit -m "feat: add amazing feature"`
+5. Push and create a Pull Request
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## 🔗 Links
+
+- **Documentation**: [Coming Soon]
+- **Discord**: [Greenpill Dev Guild](https://discord.gg/greenpill)
+- **Twitter**: [@greenpill](https://twitter.com/greenpill)

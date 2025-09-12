@@ -88,7 +88,7 @@ fi
 
 echo "✅ Contracts deployed successfully!"
 
-# Copy deployment files to frontend
+# Copy deployment files to client
 echo "📄 Copying deployment files..."
 cd .. && ./scripts/copy-deployment.sh
 cd contracts
@@ -103,7 +103,7 @@ forge script script/SeedLocal.s.sol \
 
 if [ $? -eq 0 ]; then
     echo "✅ Demo jars and Cookie Monster NFTs created!"
-    # Copy seed data to frontend
+    # Copy seed data to client
     echo "📄 Copying seed data..."
     cd .. && ./scripts/copy-deployment.sh
     cd contracts
@@ -113,12 +113,12 @@ fi
 
 # Start contract watcher in background
 echo "👀 Starting contract file watcher..."
-./scripts/watch-deploy.sh > watch-deploy.log 2>&1 &
+./scripts/watch-deploy.sh > contracts/watch-deploy.log 2>&1 &
 WATCHER_PID=$!
 
-# Generate frontend types
-echo "⚙️  Generating frontend types..."
-cd ../frontend
+# Generate client types
+echo "⚙️  Generating client types..."
+cd client
 pnpm generate
 
 if [ $? -ne 0 ]; then
@@ -127,10 +127,10 @@ if [ $? -ne 0 ]; then
     exit 1
 fi
 
-# Start frontend dev server
-echo "🌐 Starting frontend development server..."
-NODE_ENV=development pnpm dev > frontend-dev.log 2>&1 &
-FRONTEND_PID=$!
+# Start client dev server
+echo "🌐 Starting client development server..."
+NODE_ENV=development pnpm dev > client-dev.log 2>&1 &
+CLIENT_PID=$!
 
 # Wait a moment and show status
 sleep 5
@@ -148,7 +148,7 @@ fi
 echo "  📄 Logs:"
 echo "    - Anvil:          contracts/anvil.log"
 echo "    - Contract Watch: contracts/watch-deploy.log" 
-echo "    - Frontend:       frontend/frontend-dev.log"
+echo "    - Client:         client/client-dev.log"
 echo ""
 echo "🛠️  WORKFLOW:"
 echo "  • Edit contracts in contracts/src/"
@@ -164,4 +164,4 @@ echo ""
 echo "Press Ctrl+C to stop all services"
 
 # Keep script running
-wait $FRONTEND_PID
+wait $CLIENT_PID
