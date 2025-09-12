@@ -49,10 +49,11 @@ const chains = [
 ];
 
 // Add local development chain in dev mode
-export const supportedChains: readonly [Chain, ...Chain[]] = 
+export const supportedChains = (
   process.env.NODE_ENV === 'development' 
-    ? [anvilLocal as Chain, ...chains]
+    ? [anvilLocal, ...chains]
     : chains
+) as readonly [Chain, ...Chain[]]
 
 interface ContractAddresses {
   cookieJarFactory: Record<number, Address>
@@ -173,8 +174,8 @@ export const contractAddresses: ContractAddresses = {
     [baseSepolia.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9",
     [optimismSepolia.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9",
     [mainnet.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9",
-    // Local development
-    31337: localDeployment.CookieJarFactory || "0x0000000000000000000000000000000000000000"
+    // Local development - CREATE2 deterministic address (same every Anvil restart)
+    31337: "0x4F4B4F5Bcb55950807b88bDfece764Ca96eD548F"
   },
   cookieJarRegistry: {}
 }
@@ -318,10 +319,10 @@ export const wagmiConfig = createConfig({
         'https://1rpc.io/celo'
       ]
     ),
-    // Local Anvil network
+    // Local Anvil network (only in development)
     ...(process.env.NODE_ENV === 'development' ? {
-      31337: http('http://127.0.0.1:8545')
-    } : {}),
+      [anvilLocal.id]: http('http://127.0.0.1:8545')
+    } : {} as Record<number, never>),
   },
 })
 

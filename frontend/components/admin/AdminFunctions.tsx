@@ -168,8 +168,7 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
       // Refresh the owner role data after successful transfer
       setTimeout(() => {
         refetchOwnerRole()
-        // Force page refresh to update all UI components
-        window.location.reload()
+        // Owner role data will be refetched, UI components will update automatically
       }, 2000)
     }
 

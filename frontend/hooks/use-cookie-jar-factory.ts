@@ -8,7 +8,7 @@ import {
   useReadCookieJarFactoryGetMetadatas,
   cookieJarAbi
 } from '../generated'
-import { contractAddresses } from '../config/supported-networks'
+import { useContractAddresses } from './use-contract-addresses'
 
 // Define a type that includes important jar information
 export type CookieJarInfo = {
@@ -38,30 +38,42 @@ export function useCookieJarFactory() {
   
   const chainId = useChainId()
   const publicClient = usePublicClient()
-  
-  // Get the factory address for the current chain
-  const factoryAddress = chainId 
-    ? contractAddresses.cookieJarFactory[chainId] : undefined
+  const { cookieJarFactory: factoryAddress, isLoading: addressLoading } = useContractAddresses()
   
   // Get all jar addresses from the factory
-  const { data: jarAddresses, isLoading: isLoadingAddresses, error: addressesError } = 
+  const { data: jarAddresses, isLoading: isLoadingAddresses, error: addressesError, refetch: refetchAddresses } = 
     useReadCookieJarFactoryGetCookieJars({
-      address: factoryAddress as Address
+      address: factoryAddress as Address,
+      query: {
+        enabled: !addressLoading && !!factoryAddress,
+        refetchInterval: process.env.NODE_ENV === 'development' ? 10000 : 30000, // 10s dev, 30s prod - much less aggressive
+        staleTime: 5000,    // Consider data fresh for 5 seconds
+        gcTime: 300000,  // Keep in cache for 5 minutes
+      }
     })
     
   // Get the metadata for all jars
   const { 
     data: jarMetadatas, 
     isLoading: isLoadingMetadatas, 
-    error: metadatasError 
+    error: metadatasError,
+    refetch: refetchMetadatas
   } = useReadCookieJarFactoryGetMetadatas({
-    address: factoryAddress as Address
+    address: factoryAddress as Address,
+      query: {
+        enabled: !addressLoading && !!factoryAddress,
+        refetchInterval: process.env.NODE_ENV === 'development' ? 10000 : 30000, // 10s dev, 30s prod - much less aggressive
+        staleTime: 5000,    // Consider data fresh for 5 seconds
+        gcTime: 300000,  // Keep in cache for 5 minutes
+      }
   })
   
   // Function to fetch all details for a single jar
   const fetchJarDetails = useCallback(async (jarAddress: Address): Promise<CookieJarInfo | null> => {
     try {
       // Use multicall to fetch multiple values in a single request
+      if (!publicClient) throw new Error('Public client not available')
+      
       const [currency, accessType, withdrawalOption, fixedAmount, maxWithdrawal, withdrawalInterval, 
              strictPurpose, emergencyWithdrawalEnabled, oneTimeWithdrawal, currencyHeldByJar] = 
         await publicClient.multicall({
@@ -101,8 +113,12 @@ export function useCookieJarFactory() {
   // Fetch all jars when addresses are available
   useEffect(() => {
     const fetchAllJars = async () => {
-      if (!jarAddresses || jarAddresses.length === 0) return
+      if (!jarAddresses || jarAddresses.length === 0) {
+        console.log('useCookieJarFactory: No jar addresses available')
+        return
+      }
       
+      console.log(`useCookieJarFactory: Fetching details for ${jarAddresses.length} jars:`, jarAddresses)
       setIsLoading(true)
       try {
         const jarDetailsPromises = jarAddresses.map(address => 
@@ -118,6 +134,7 @@ export function useCookieJarFactory() {
           metadata: jarMetadatas && index < jarMetadatas.length ? jarMetadatas[index] : 'Jar Info'
         }))
         
+        console.log(`useCookieJarFactory: Successfully fetched ${updatedJars.length} jars`)
         setJars(updatedJars)
         setError(null)
       } catch (err) {
@@ -127,9 +144,15 @@ export function useCookieJarFactory() {
       }
     }
 
-    // Only fetch jars when both addresses and metadatas are loaded (or if metadatas failed)
-    if (jarAddresses && (!isLoadingMetadatas || metadatasError)) {
+    // Fetch jars when addresses are available
+    if (jarAddresses && jarAddresses.length > 0) {
       fetchAllJars()
+    } else {
+      console.log('useCookieJarFactory: Waiting for jar addresses...', { 
+        jarAddresses: jarAddresses?.length || 0, 
+        isLoadingAddresses,
+        factoryAddress 
+      })
     }
   }, [jarAddresses, isLoadingMetadatas, metadatasError, fetchJarDetails, jarMetadatas])
 
@@ -153,9 +176,15 @@ export function useCookieJarFactory() {
   }))
   
   return {
+    jars,
     cookieJarsData, // Named to match useCookieJarData interface
-    isLoading: isLoading || isLoadingAddresses || isLoadingMetadatas,
-    error
+    isLoading: addressLoading || isLoadingAddresses || isLoadingMetadatas || isLoading,
+    error,
+    // Add manual refresh functions for debugging
+    refresh: () => {
+      refetchAddresses?.()
+      refetchMetadatas?.()
+    }
   }
 }
 
@@ -174,6 +203,8 @@ export function useCookieJarByAddress(jarAddress?: Address) {
   // Function to fetch details for a single jar
   const fetchJarDetails = useCallback(async (address: Address): Promise<CookieJarInfo | null> => {
     try {
+      if (!publicClient) throw new Error('Public client not available')
+      
       const [currency, accessType, withdrawalOption, fixedAmount, maxWithdrawal, withdrawalInterval, 
              strictPurpose, emergencyWithdrawalEnabled, oneTimeWithdrawal, currencyHeldByJar] = 
         await publicClient.multicall({

@@ -243,7 +243,8 @@ contract CookieJarFactory is AccessControl {
         }
     }
 
-    /// @notice Creates a new CookieJar contract with custom fee percentage
+    /// @notice Creates a new CookieJar contract with custom fee percentage (legacy interface)
+    /// @dev This function provides backward compatibility by delegating to the optimized version
     /// @param _cookieJarOwner Address of the new CookieJar owner.
     /// @param _supportedCurrency Address of the supported currency for the jar CookieJarLib.ETH_ADDRESS if native ETH.
     /// @param _accessType Claim mode: Whitelist or NFTGated.
@@ -276,51 +277,104 @@ contract CookieJarFactory is AccessControl {
         string calldata metadata,
         uint256 customFeePercentage
     ) external onlyNotBlacklisted(msg.sender) returns (address) {
-        // Clamp fee percentage to maximum 100%
-        uint256 feePerc = customFeePercentage > CookieJarLib.PERCENTAGE_BASE ? CookieJarLib.PERCENTAGE_BASE : customFeePercentage;
+        // Create structs in assembly to minimize stack usage
+        CookieJarLib.CreateJarParams memory params;
+        params.cookieJarOwner = _cookieJarOwner;
+        params.supportedCurrency = _supportedCurrency;
+        params.accessType = _accessType;
+        params.withdrawalOption = _withdrawalOption;
+        params.fixedAmount = _fixedAmount;
+        params.maxWithdrawal = _maxWithdrawal;
+        params.withdrawalInterval = _withdrawalInterval;
+        params.strictPurpose = _strictPurpose;
+        params.emergencyWithdrawalEnabled = _emergencyWithdrawalEnabled;
+        params.oneTimeWithdrawal = _oneTimeWithdrawal;
+        params.metadata = metadata;
+        params.customFeePercentage = customFeePercentage;
 
+        CookieJarLib.AccessConfig memory accessConfig;
+        accessConfig.nftAddresses = _nftAddresses;
+        accessConfig.nftTypes = _nftTypes;
+        accessConfig.whitelist = _whitelist;
+
+        return _createJarInternal(params, accessConfig);
+    }
+
+    /// @notice Optimized jar creation function using parameter structs (eliminates stack too deep)
+    /// @param params Grouped jar configuration parameters
+    /// @param accessConfig Access control settings (NFTs and whitelist)
+    /// @return jarAddress Address of the newly created CookieJar
+    function createCookieJarOptimized(
+        CookieJarLib.CreateJarParams calldata params,
+        CookieJarLib.AccessConfig calldata accessConfig
+    ) external onlyNotBlacklisted(msg.sender) returns (address jarAddress) {
+        return _createJarInternal(params, accessConfig);
+    }
+
+    /// @notice Internal function to handle jar creation logic (stack optimized)
+    /// @param params Grouped jar configuration parameters  
+    /// @param accessConfig Access control settings
+    /// @return jarAddress Address of the deployed jar
+    function _createJarInternal(
+        CookieJarLib.CreateJarParams memory params,
+        CookieJarLib.AccessConfig memory accessConfig
+    ) internal returns (address jarAddress) {
         // Validate metadata
-        if (bytes(metadata).length == 0) revert CookieJarFactory__InvalidMetadata();
-        if (bytes(metadata).length > 8192) revert CookieJarFactory__MetadataTooLong();
+        if (bytes(params.metadata).length == 0) revert CookieJarFactory__InvalidMetadata();
+        if (bytes(params.metadata).length > 8192) revert CookieJarFactory__MetadataTooLong();
 
+        // Determine minimum deposit based on currency type
         uint256 minDeposit = minETHDeposit;
-        if (_supportedCurrency != CookieJarLib.ETH_ADDRESS) {
-            if (ERC20(_supportedCurrency).decimals() == 0) revert CookieJarFactory__NotValidERC20();
+        if (params.supportedCurrency != CookieJarLib.ETH_ADDRESS) {
+            if (ERC20(params.supportedCurrency).decimals() == 0) revert CookieJarFactory__NotValidERC20();
             minDeposit = minERC20Deposit;
         }
 
-        // Create configuration structs to avoid stack too deep
+        // Handle fee percentage (use custom if provided, otherwise default)
+        uint256 feePerc = params.customFeePercentage == 0 ? defaultFeePercentage : params.customFeePercentage;
+        if (feePerc > CookieJarLib.PERCENTAGE_BASE) feePerc = CookieJarLib.PERCENTAGE_BASE;
+
+        // Create jar configuration
         CookieJarLib.JarConfig memory config = CookieJarLib.JarConfig({
-            jarOwner: _cookieJarOwner,
-            supportedCurrency: _supportedCurrency,
-            accessType: _accessType,
-            withdrawalOption: _withdrawalOption,
-            fixedAmount: _fixedAmount,
-            maxWithdrawal: _maxWithdrawal,
-            withdrawalInterval: _withdrawalInterval,
+            jarOwner: params.cookieJarOwner,
+            supportedCurrency: params.supportedCurrency,
+            accessType: params.accessType,
+            withdrawalOption: params.withdrawalOption,
+            fixedAmount: params.fixedAmount,
+            maxWithdrawal: params.maxWithdrawal,
+            withdrawalInterval: params.withdrawalInterval,
             minDeposit: minDeposit,
-            feePercentageOnDeposit: feePerc, // Use custom fee instead of defaultFeePercentage
-            strictPurpose: _strictPurpose,
-            feeCollector: defaultFeeCollector, // Keep same fee collector
-            emergencyWithdrawalEnabled: _emergencyWithdrawalEnabled,
-            oneTimeWithdrawal: _oneTimeWithdrawal
+            feePercentageOnDeposit: feePerc,
+            strictPurpose: params.strictPurpose,
+            feeCollector: defaultFeeCollector,
+            emergencyWithdrawalEnabled: params.emergencyWithdrawalEnabled,
+            oneTimeWithdrawal: params.oneTimeWithdrawal
         });
 
-        CookieJarLib.AccessConfig memory accessConfig = CookieJarLib.AccessConfig({
-            nftAddresses: _nftAddresses,
-            nftTypes: _nftTypes,
-            whitelist: _whitelist
-        });
+        return _deployJar(config, accessConfig, params.metadata);
+    }
 
+    /// @notice Internal helper to deploy jar and update contract storage
+    /// @param config Jar configuration struct
+    /// @param accessConfig Access control configuration
+    /// @param metadata Jar metadata string
+    /// @return jarAddress Address of deployed jar
+    function _deployJar(
+        CookieJarLib.JarConfig memory config,
+        CookieJarLib.AccessConfig memory accessConfig,
+        string memory metadata
+    ) internal returns (address jarAddress) {
+        // Deploy the new CookieJar
         CookieJar newJar = new CookieJar(config, accessConfig);
-
-        address jarAddress = address(newJar);
-        uint256 newIndex = cookieJars.length; // Pre-calculate index
+        jarAddress = address(newJar);
+        
+        // Update contract storage
+        uint256 newIndex = cookieJars.length;
         cookieJars.push(jarAddress);
         metadatas.push(metadata);
-        jarIndex[jarAddress] = newIndex; // Use pre-calculated index
+        jarIndex[jarAddress] = newIndex;
 
+        // Emit event
         emit CookieJarCreated(msg.sender, jarAddress, metadata);
-        return jarAddress;
     }
 }

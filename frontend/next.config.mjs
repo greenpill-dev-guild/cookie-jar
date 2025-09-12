@@ -19,13 +19,47 @@ const nextConfig = {
   typescript: {
     ignoreBuildErrors: true,
   },
+  // ⚡ OPTIMIZED: Enable image optimization
   images: {
-    unoptimized: true,
+    domains: ['localhost'],
+    formats: ['image/webp', 'image/avif'],
+    minimumCacheTTL: 60,
   },
   experimental: {
     webpackBuildWorker: true,
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
+  },
+  // ⚡ Performance optimizations
+  compress: true,
+  poweredByHeader: false,
+  reactStrictMode: true,
+  swcMinify: true,
+  
+  // ⚡ Minimal bundle optimization (aggressive splitting caused 30x slowdown)
+  webpack: (config, { isServer, dev }) => {
+    // Only basic optimizations to avoid performance regressions
+    if (!isServer) {
+      config.resolve.fallback = {
+        ...config.resolve.fallback,
+        fs: false,
+        net: false,
+        tls: false,
+      };
+    }
+    
+    // Bundle analyzer for production builds only
+    if (!dev && !isServer && process.env.ANALYZE === 'true') {
+      const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
+      config.plugins.push(
+        new BundleAnalyzerPlugin({
+          analyzerMode: 'static',
+          openAnalyzer: false,
+        })
+      );
+    }
+    
+    return config;
   },
 }
 

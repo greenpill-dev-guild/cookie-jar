@@ -21,16 +21,17 @@ deploy_contracts() {
     forge script script/DeployLocal.s.sol \
       --rpc-url http://127.0.0.1:8545 \
       --broadcast \
-      --sender 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+      --sender 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 \
+      --ffi
     if [ $? -eq 0 ]; then
-        # Move deployment file to frontend
-        if [ -f "local-deployment.json" ]; then
-            mkdir -p ../frontend/contracts
-            mv local-deployment.json ../frontend/contracts/
-        fi
         echo "✅ Contracts redeployed successfully!"
+        echo "📄 Deployment files auto-copied via DeployLocal.s.sol"
         
-        # Notify frontend to regenerate types
+        # Trigger frontend type regeneration
+        echo "⚙️ Triggering frontend type regeneration..."
+        cd ../frontend && pnpm generate && cd ../contracts
+        
+        # Optional: Notify frontend of updates via API
         if command -v curl &> /dev/null; then
             curl -s -X POST http://localhost:3000/api/contracts-updated 2>/dev/null || true
         fi
