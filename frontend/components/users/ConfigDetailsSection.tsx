@@ -56,18 +56,18 @@ export const ConfigDetailsSection: React.FC<ConfigDetailsSectionProps> = ({ conf
       <Separator className="col-span-1 md:col-span-2 my-2" />
       <ConfigItem label="Fee Collector" value={formatAddress(config.feeCollector || "")} />
       <div className="flex flex-col gap-1">
-        <span className="text-sm text-muted-foreground">Whitelisted</span>
+        <span className="text-sm text-muted-foreground">Allowlisted</span>
         <span
           className={`text-base font-medium break-words px-3 py-1 rounded-md text-white ${config.whitelist ? "bg-green-500" : "bg-red-500"
             }`}
         >
-          {config.whitelist ? "You are whitelisted" : "You are not whitelisted"}
+          {config.whitelist ? "You are allowlisted" : "You are not allowlisted"}
         </span>
       </div>
       <ConfigItem label="Blacklisted" value={formatValue(config.blacklist)} boolean />
       <ConfigItem
-        label="Last Withdrawal Whitelist"
-        value={new Date(Number(config.lastWithdrawalWhitelist) * 1000).toLocaleString("en-IN", {
+        label="Last Withdrawal Allowlist"
+        value={new Date(Number(config.lastWithdrawalAllowlist) * 1000).toLocaleString("en-IN", {
           timeZone: "Asia/Kolkata",
           dateStyle: "medium",
           timeStyle: "short",
@@ -75,7 +75,7 @@ export const ConfigDetailsSection: React.FC<ConfigDetailsSectionProps> = ({ conf
       />
 
       <CountdownTimer
-        lastWithdrawalTimestamp={Number(config.lastWithdrawalWhitelist)}
+        lastWithdrawalTimestamp={Number(config.lastWithdrawalAllowlist)}
         interval={Number(config.withdrawalInterval)}
       />
 

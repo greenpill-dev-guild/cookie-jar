@@ -28,7 +28,7 @@ import { AlertCircle, Shield, UserPlus, UserMinus, AlertTriangle, Tag, Loader2 }
 import { useToast } from "@/hooks/design/use-toast"
 import { useAccount, useChainId } from "wagmi"
 import { getNativeCurrency } from '@/config/supported-networks'
-import WhitelistManagement from "./WhiteListManagement"
+import AllowlistManagement from "./AllowlistManagement"
 
 enum NFTType {
   ERC721 = 0,
@@ -101,18 +101,18 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
   } = useWriteCookieJarEmergencyWithdraw()
 
   const {
-    writeContract: grantJarWhitelistRole,
-    data: whitelistGrantData,
-    error: whitelistGrantError,
-    isSuccess: isWhitelistGrantSuccess,
-  } = useWriteCookieJarGrantJarWhitelistRole()
+    writeContract: grantJarAllowlistRole,
+    data: allowlistGrantData,
+    error: allowlistGrantError,
+    isSuccess: isAllowlistGrantSuccess,
+  } = useWriteCookieJarGrantJarAllowlistRole()
 
   const {
-    writeContract: revokeJarWhitelistRole,
-    data: whitelistRevokeData,
-    error: whitelistRevokeError,
-    isSuccess: isWhitelistRevokeSuccess,
-  } = useWriteCookieJarRevokeJarWhitelistRole()
+    writeContract: revokeJarAllowlistRole,
+    data: allowlistRevokeData,
+    error: allowlistRevokeError,
+    isSuccess: isAllowlistRevokeSuccess,
+  } = useWriteCookieJarRevokeJarAllowlistRole()
 
   // Blacklist role hooks - commented out due to missing hooks
   /*
@@ -179,16 +179,16 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
         description: "Funds have been successfully withdrawn.",
       })
     }
-    if (isWhitelistGrantSuccess) {
+    if (isAllowlistGrantSuccess) {
       toast({
-        title: "Whitelist Updated",
-        description: "Address has been added to the whitelist.",
+        title: "Allowlist Updated",
+        description: "Address has been added to the allowlist.",
       })
     }
-    if (isWhitelistRevokeSuccess) {
+    if (isAllowlistRevokeSuccess) {
       toast({
-        title: "Whitelist Updated",
-        description: "Address has been removed from the whitelist.",
+        title: "Allowlist Updated",
+        description: "Address has been removed from the allowlist.",
       })
     }
     if (isBlacklistGrantSuccess) {
@@ -218,8 +218,8 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
   }, [
     isTransferSuccess,
     isEmergencyWithdrawSuccess,
-    isWhitelistGrantSuccess,
-    isWhitelistRevokeSuccess,
+    isAllowlistGrantSuccess,
+    isAllowlistRevokeSuccess,
     isBlacklistGrantSuccess,
     isBlacklistRevokeSuccess,
     isNftGateSuccess,
@@ -348,19 +348,19 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
     */
   }
 
-  const handleGrantJarWhitelistRole = () => {
+  const handleGrantJarAllowlistRole = () => {
     if (!addressToUpdate) return
-    console.log(`Adding address to whitelist:`, addressToUpdate)
-    grantJarWhitelistRole({
+    console.log(`Adding address to allowlist:`, addressToUpdate)
+    grantJarAllowlistRole({
       address: address,
       args: [[addressToUpdate as `0x${string}`]],
     })
   }
 
-  const handleRevokeJarWhitelistRole = () => {
+  const handleRevokeJarAllowlistRole = () => {
     if (!addressToUpdate) return
-    console.log(`Removing address from whitelist:`, addressToUpdate)
-    revokeJarWhitelistRole({
+    console.log(`Removing address from allowlist:`, addressToUpdate)
+    revokeJarAllowlistRole({
       address: address,
       args: [[addressToUpdate as `0x${string}`]],
     })
@@ -485,14 +485,14 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
             <CardHeader className="bg-[#fff8f0] rounded-t-lg">
               <CardTitle className="text-xl text-[#3c2a14] flex items-center">
                 <UserPlus className="h-5 w-5 mr-2 text-[#ff5e14]" />
-                Whitelist Management
+                Allowlist Management
               </CardTitle>
               <CardDescription className="text-[#8b7355]">
                 Control who can access and withdraw from this jar
               </CardDescription>
             </CardHeader>
             <CardContent className="p-6">
-              <WhitelistManagement cookieJarAddress={address as `0x${string}`} />
+              <AllowlistManagement cookieJarAddress={address as `0x${string}`} />
             </CardContent>
           </Card>
         </TabsContent>

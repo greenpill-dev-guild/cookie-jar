@@ -14,7 +14,7 @@ Cookie Jar is a platform that enables teams, communities, and organizations to m
 ## Key Features
 
 ### Dual Access Control
-- **Whitelist Mode**: Only pre-approved addresses can access funds
+- **Allowlist Mode**: Only pre-approved addresses can access funds
 - **NFT-Gated Mode**: Access is granted to holders of specific NFTs (supports ERC721, ERC1155)
 
 ### Configurable Withdrawals
@@ -93,7 +93,7 @@ cookie-jar-v3/
 │   │   ├── CountdownTimer.tsx
 │   │   ├── FundingSection.tsx
 │   │   ├── NFTGatedWithdrawalSection.tsx
-│   │   ├── WhitelistWithdrawalSection.tsx
+│   │   ├── AllowlistWithdrawalSection.tsx
 │   │   └── WithdrawlHistorySection.tsx
 │   └── wallet/               # Wallet-related components
 │       ├── custom-connect-button.tsx

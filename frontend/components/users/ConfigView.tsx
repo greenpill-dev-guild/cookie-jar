@@ -3,9 +3,9 @@
 // Main ConfigView component that uses all the above components
 import type React from "react"
 import { useState, useMemo } from "react"
-import { useWriteCookieJarWithdrawWhitelistMode, useWriteCookieJarWithdrawNftMode } from "../../generated"
+import { useWriteCookieJarWithdrawAllowlistMode, useWriteCookieJarWithdrawNftMode } from "../../generated"
 import { ConfigDetailsSection } from "./ConfigDetailsSection"
-import { WhitelistWithdrawalSection } from "./WhitelistWithdrawalSection"
+import { AllowlistWithdrawalSection } from "./AllowlistWithdrawalSection"
 import { NFTGatedWithdrawalSection } from "./NFTGatedWithdrawalSection"
 import { WithdrawalHistorySection } from "./WithdrawlHistorySection"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -47,15 +47,15 @@ export const ConfigView: React.FC<ConfigViewProps> = ({
   const [tokenId, setTokenId] = useState<string>("")
 
   // Check conditions for showing different UI sections
-  const showUserFunctionsWhitelisted = config?.whitelist === true && config?.accessType === "Whitelist"
+  const showUserFunctionsAllowlisted = config?.whitelist === true && config?.accessType === "Allowlist"
   const showUserFunctionsNFTGated = config?.accessType === "NFTGated"
 
   // Contract hooks
   const {
-    writeContract: withdrawWhitelistMode,
-    data: withdrawWhitelistModeData,
-    error: withdrawWhitelistModeError,
-  } = useWriteCookieJarWithdrawWhitelistMode()
+    writeContract: withdrawAllowlistMode,
+    data: withdrawAllowlistModeData,
+    error: withdrawAllowlistModeError,
+  } = useWriteCookieJarWithdrawAllowlistMode()
 
   const {
     writeContract: withdrawNFTMode,
@@ -64,19 +64,19 @@ export const ConfigView: React.FC<ConfigViewProps> = ({
   } = useWriteCookieJarWithdrawNftMode()
 
   // Handler functions
-  const handleWithdrawWhitelist = () => {
+  const handleWithdrawAllowlist = () => {
     if (!config.contractAddress || !config.fixedAmount) return
 
-    withdrawWhitelistMode({
+    withdrawAllowlistMode({
       address: config.contractAddress,
       args: [config.fixedAmount, withdrawPurpose],
     })
   }
 
-  const handleWithdrawWhitelistVariable = () => {
+  const handleWithdrawAllowlistVariable = () => {
     if (!config.contractAddress) return
 
-    withdrawWhitelistMode({
+    withdrawAllowlistMode({
       address: config.contractAddress,
       args: [BigInt(withdrawAmount || "0"), withdrawPurpose],
     })
@@ -178,20 +178,20 @@ export const ConfigView: React.FC<ConfigViewProps> = ({
       </Card>
 
       {/* Withdrawal Sections */}
-      {showUserFunctionsWhitelisted && (
+      {showUserFunctionsAllowlisted && (
         <Card className="border-none shadow-sm">
           <CardHeader className="bg-[#fff8f0]">
-            <CardTitle className="text-xl text-[#3c2a14]">Whitelist Withdrawal</CardTitle>
+            <CardTitle className="text-xl text-[#3c2a14]">Allowlist Withdrawal</CardTitle>
           </CardHeader>
           <CardContent className="p-6">
-            <WhitelistWithdrawalSection
+            <AllowlistWithdrawalSection
               config={config}
               withdrawPurpose={withdrawPurpose}
               setWithdrawPurpose={setWithdrawPurpose}
               withdrawAmount={withdrawAmount}
               setWithdrawAmount={setWithdrawAmount}
-              handleWithdrawWhitelist={handleWithdrawWhitelist}
-              handleWithdrawWhitelistVariable={handleWithdrawWhitelistVariable}
+              handleWithdrawAllowlist={handleWithdrawAllowlist}
+              handleWithdrawAllowlistVariable={handleWithdrawAllowlistVariable}
             />
           </CardContent>
         </Card>
