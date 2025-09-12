@@ -10,13 +10,33 @@ import {
   optimismSepolia,
   celoAlfajores
 } from 'wagmi/chains'
+
+// Local Anvil chain (Celo fork)
+export const anvilLocal = {
+  id: 31337,
+  name: "Anvil Local",
+  network: "anvil-local",
+  nativeCurrency: {
+    decimals: 18,
+    name: "Celo",
+    symbol: "CELO",
+  },
+  rpcUrls: {
+    default: { http: ["http://127.0.0.1:8545"] },
+    public: { http: ["http://127.0.0.1:8545"] },
+  },
+  blockExplorers: {
+    default: { name: "Local", url: "http://127.0.0.1:8545" },
+  },
+  testnet: true,
+} as const
 import { Chain, getDefaultConfig } from '@rainbow-me/rainbowkit'
 import { createConfig, http, fallback } from 'wagmi'
 import { Address } from 'viem'
 import { walletConnect, injected, coinbaseWallet } from 'wagmi/connectors'
 
-// For RainbowKit provider
-export const supportedChains: readonly [Chain, ...Chain[]] = [
+// For RainbowKit provider (include local only in dev)
+const chains = [
   base,
   celo,
   gnosis,
@@ -26,8 +46,13 @@ export const supportedChains: readonly [Chain, ...Chain[]] = [
   // celoAlfajores,
   // Mainnets
   // mainnet,
+];
 
-]
+// Add local development chain in dev mode
+export const supportedChains: readonly [Chain, ...Chain[]] = 
+  process.env.NODE_ENV === 'development' 
+    ? [anvilLocal as Chain, ...chains]
+    : chains
 
 interface ContractAddresses {
   cookieJarFactory: Record<number, Address>
@@ -102,6 +127,13 @@ export const nativeCurrencies: Record<number, NativeCurrency> = {
     name: "Celo",
     decimals: 18,
     address: "0x0000000000000000000000000000000000000003"
+  },
+  // Local Anvil (Celo fork)
+  31337: {
+    symbol: "CELO",
+    name: "Celo",
+    decimals: 18,
+    address: "0x0000000000000000000000000000000000000003"
   }
 }
 
@@ -115,6 +147,22 @@ export function getNativeCurrency(chainId: number): NativeCurrency {
   }
 }
 
+// Load local deployment if exists  
+let localDeployment: { CookieJarFactory?: Address } = {};
+try {
+  if (typeof window === 'undefined') {
+    // Server-side: try to load from file
+    const fs = require('fs');
+    const path = require('path');
+    const deploymentPath = path.join(process.cwd(), 'contracts', 'local-deployment.json');
+    if (fs.existsSync(deploymentPath)) {
+      localDeployment = JSON.parse(fs.readFileSync(deploymentPath, 'utf-8'));
+    }
+  }
+} catch (error) {
+  // Local deployment not found, using testnet contracts
+}
+
 // Define the contract addresses for supported networks
 export const contractAddresses: ContractAddresses = {
   cookieJarFactory: {
@@ -124,7 +172,9 @@ export const contractAddresses: ContractAddresses = {
     [celo.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9",
     [baseSepolia.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9",
     [optimismSepolia.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9",
-    [mainnet.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9"
+    [mainnet.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9",
+    // Local development
+    31337: localDeployment.CookieJarFactory || "0x0000000000000000000000000000000000000000"
   },
   cookieJarRegistry: {}
 }
@@ -268,6 +318,10 @@ export const wagmiConfig = createConfig({
         'https://1rpc.io/celo'
       ]
     ),
+    // Local Anvil network
+    ...(process.env.NODE_ENV === 'development' ? {
+      31337: http('http://127.0.0.1:8545')
+    } : {}),
   },
 })
 

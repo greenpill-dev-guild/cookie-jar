@@ -10,8 +10,9 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 import {CookieJarLib} from "./libraries/CookieJarLib.sol";
 
 /// @title CookieJar
-/// @notice A decentralized smart contract for controlled fund withdrawals. Supports both whitelist and NFT‐gated access modes.
-/// @dev Deposits accept ETH and ERC20 tokens (deducting a 1% fee) and withdrawals are subject to configurable rules.
+/// @notice A decentralized smart contract for controlled fund withdrawals.
+/// @notice Supports both whitelist and NFT‐gated access modes.
+/// @dev Deposits accept ETH and ERC20 tokens (deducting fees) and withdrawals are subject to configurable rules.
 contract CookieJar is AccessControl {
     using SafeERC20 for IERC20;
 
@@ -23,7 +24,7 @@ contract CookieJar is AccessControl {
     CookieJarLib.WithdrawalData[] public withdrawalData;
 
     /// @notice Mapping for optimized NFT gate lookup.
-    mapping(address => CookieJarLib.NFTType) private nftGateMapping;
+    mapping(address => CookieJarLib.NFTType) private _nftGateMapping;
 
     uint256 public currencyHeldByJar;
     address public immutable currency;
@@ -57,62 +58,38 @@ contract CookieJar is AccessControl {
     mapping(address nftGate => mapping(uint256 tokenId => uint256 lastWithdrawlTimestamp)) public lastWithdrawalNFT;
 
     /// @notice Initializes a new CookieJar contract.
-    /// @param _jarOwner The admin address.
-    /// @param _accessType Access mode: Whitelist or NFTGated.
-    /// @param _nftAddresses Array of NFT contract addresses (only used if _accessType is NFTGated).
-    /// @param _nftTypes Array of NFT types corresponding to _nftAddresses.
-    /// @param _withdrawalOption Withdrawal type: Fixed or Variable.
-    /// @param _fixedAmount Fixed withdrawal amount (if _withdrawalOption is Fixed).
-    /// @param _maxWithdrawal Maximum allowed withdrawal (if _withdrawalOption is Variable).
-    /// @param _withdrawalInterval Time interval between withdrawals.
-    /// @param _strictPurpose If true, the withdrawal purpose must be at least 20 characters.
-    /// @param _feeCollector The fee collector address.
-    /// @param _emergencyWithdrawalEnabled If true, emergency withdrawal is enabled.
-    /// @param _oneTimeWithdrawal If true, each recipient can only claim from the jar once.
-    /// @param _whitelist Array of whitelisted addresses. Must be empty if _accessType is NFTGated, as whitelist is not used in this mode.
-    constructor(
-        address _jarOwner,
-        address _supportedCurrency,
-        CookieJarLib.AccessType _accessType,
-        address[] memory _nftAddresses,
-        CookieJarLib.NFTType[] memory _nftTypes,
-        CookieJarLib.WithdrawalTypeOptions _withdrawalOption,
-        uint256 _fixedAmount,
-        uint256 _maxWithdrawal,
-        uint256 _withdrawalInterval,
-        uint256 _minDeposit,
-        uint256 _feePercentageOnDeposit,
-        bool _strictPurpose,
-        address _feeCollector,
-        bool _emergencyWithdrawalEnabled,
-        bool _oneTimeWithdrawal,
-        address[] memory _whitelist
-    ) {
-        if (_jarOwner == address(0)) revert CookieJarLib.AdminCannotBeZeroAddress();
-        if (_feeCollector == address(0)) revert CookieJarLib.FeeCollectorAddressCannotBeZeroAddress();
-        accessType = _accessType;
+    /// @param config The main configuration struct for the jar
+    /// @param accessConfig The access control configuration (NFT gates and whitelist)
+    constructor(CookieJarLib.JarConfig memory config, CookieJarLib.AccessConfig memory accessConfig) {
+        if (config.jarOwner == address(0)) revert CookieJarLib.AdminCannotBeZeroAddress();
+        if (config.feeCollector == address(0)) revert CookieJarLib.FeeCollectorAddressCannotBeZeroAddress();
+
+        accessType = config.accessType;
         if (accessType == CookieJarLib.AccessType.NFTGated) {
-            if (_nftAddresses.length == 0) revert CookieJarLib.NoNFTAddressesProvided();
-            if (_nftAddresses.length != _nftTypes.length) revert CookieJarLib.NFTArrayLengthMismatch();
-            if (_whitelist.length > 0) revert CookieJarLib.WhitelistNotAllowedForNFTGated();
-            for (uint256 i = 0; i < _nftAddresses.length; i++) {
-                _addNFTGate(_nftAddresses[i], _nftTypes[i]);
+            if (accessConfig.nftAddresses.length == 0) revert CookieJarLib.NoNFTAddressesProvided();
+            if (accessConfig.nftAddresses.length != accessConfig.nftTypes.length)
+                revert CookieJarLib.NFTArrayLengthMismatch();
+            if (accessConfig.whitelist.length > 0) revert CookieJarLib.WhitelistNotAllowedForNFTGated();
+            for (uint256 i = 0; i < accessConfig.nftAddresses.length; i++) {
+                _addNFTGate(accessConfig.nftAddresses[i], accessConfig.nftTypes[i]);
             }
         }
-        withdrawalOption = _withdrawalOption;
-        minDeposit = _minDeposit;
-        fixedAmount = _fixedAmount;
-        maxWithdrawal = _maxWithdrawal;
-        currency = _supportedCurrency;
-        withdrawalInterval = _withdrawalInterval;
-        strictPurpose = _strictPurpose;
-        feeCollector = _feeCollector;
-        feePercentageOnDeposit = _feePercentageOnDeposit;
-        emergencyWithdrawalEnabled = _emergencyWithdrawalEnabled;
-        oneTimeWithdrawal = _oneTimeWithdrawal;
+
+        withdrawalOption = config.withdrawalOption;
+        minDeposit = config.minDeposit;
+        fixedAmount = config.fixedAmount;
+        maxWithdrawal = config.maxWithdrawal;
+        currency = config.supportedCurrency;
+        withdrawalInterval = config.withdrawalInterval;
+        strictPurpose = config.strictPurpose;
+        feeCollector = config.feeCollector;
+        feePercentageOnDeposit = config.feePercentageOnDeposit;
+        emergencyWithdrawalEnabled = config.emergencyWithdrawalEnabled;
+        oneTimeWithdrawal = config.oneTimeWithdrawal;
+
         _setRoleAdmin(CookieJarLib.JAR_WHITELISTED, CookieJarLib.JAR_OWNER);
-        _grantRole(CookieJarLib.JAR_OWNER, _jarOwner);
-        _grantRoles(CookieJarLib.JAR_WHITELISTED, _whitelist);
+        _grantRole(CookieJarLib.JAR_OWNER, config.jarOwner);
+        _grantRoles(CookieJarLib.JAR_WHITELISTED, accessConfig.whitelist);
     }
 
     // --- Admin Functions ---
@@ -151,9 +128,9 @@ contract CookieJar is AccessControl {
     /// @param _nftAddress The NFT contract address.
     function removeNFTGate(address _nftAddress) external onlyRole(CookieJarLib.JAR_OWNER) {
         if (accessType != CookieJarLib.AccessType.NFTGated) revert CookieJarLib.InvalidAccessType();
-        if (nftGateMapping[_nftAddress] == CookieJarLib.NFTType.None) revert CookieJarLib.NFTGateNotFound();
+        if (_nftGateMapping[_nftAddress] == CookieJarLib.NFTType.None) revert CookieJarLib.NFTGateNotFound();
 
-        delete nftGateMapping[_nftAddress];
+        delete _nftGateMapping[_nftAddress];
 
         uint256 gateIndex;
         uint256 numGates = nftGates.length;
@@ -171,7 +148,7 @@ contract CookieJar is AccessControl {
 
     /// @notice Updates the maximum withdrawal amount, only works if withdrawalOption is Variable.
     /// @param _maxWithdrawal The new maximum withdrawal amount.
-    function UpdateMaxWithdrawalAmount(uint256 _maxWithdrawal) external onlyRole(CookieJarLib.JAR_OWNER) {
+    function updateMaxWithdrawalAmount(uint256 _maxWithdrawal) external onlyRole(CookieJarLib.JAR_OWNER) {
         if (withdrawalOption == CookieJarLib.WithdrawalTypeOptions.Fixed) revert CookieJarLib.InvalidWithdrawalType();
         if (_maxWithdrawal == 0) revert CookieJarLib.ZeroAmount();
         maxWithdrawal = _maxWithdrawal;
@@ -208,8 +185,8 @@ contract CookieJar is AccessControl {
             currencyHeldByJar -= amount;
         }
         emit CookieJarLib.EmergencyWithdrawal(msg.sender, token, amount);
-        if (token == address(3)) {
-            (bool sent,) = msg.sender.call{value: amount}("");
+        if (token == CookieJarLib.ETH_ADDRESS) {
+            (bool sent, ) = msg.sender.call{value: amount}("");
             if (!sent) revert CookieJarLib.TransferFailed();
         } else {
             IERC20(token).safeTransfer(msg.sender, amount);
@@ -221,14 +198,17 @@ contract CookieJar is AccessControl {
     /// @notice Deposits ETH into the contract, deducting deposit fee. Only works if the jar's currency is ETH.
     function depositETH() public payable {
         if (msg.value == 0) revert CookieJarLib.ZeroAmount();
-        if (currency != address(3)) revert CookieJarLib.InvalidTokenAddress();
+        if (currency != CookieJarLib.ETH_ADDRESS) revert CookieJarLib.InvalidTokenAddress();
         if (msg.value < minDeposit) revert CookieJarLib.LessThanMinimumDeposit();
 
         (uint256 fee, uint256 remainingAmount) = _calculateFee(msg.value);
-        (bool success,) = payable(feeCollector).call{value: fee}("");
+        (bool success, ) = payable(feeCollector).call{value: fee}("");
         if (!success) revert CookieJarLib.FeeTransferFailed();
         currencyHeldByJar += remainingAmount;
+        
+        // Emit events for deposit and fee collection
         emit CookieJarLib.Deposit(msg.sender, remainingAmount, currency);
+        emit CookieJarLib.FeeCollected(feeCollector, fee, currency);
     }
 
     /// @notice Deposits Currency tokens into the contract, deducting deposit fee. Only works if the jar's currency is
@@ -236,24 +216,27 @@ contract CookieJar is AccessControl {
     /// @param amount The amount of tokens to deposit.
     function depositCurrency(uint256 amount) public {
         if (amount == 0) revert CookieJarLib.ZeroAmount();
-        if (currency == address(3)) revert CookieJarLib.InvalidTokenAddress();
+        if (currency == CookieJarLib.ETH_ADDRESS) revert CookieJarLib.InvalidTokenAddress();
         if (amount < minDeposit) revert CookieJarLib.LessThanMinimumDeposit();
 
         IERC20(currency).safeTransferFrom(msg.sender, address(this), amount);
         (uint256 fee, uint256 remainingAmount) = _calculateFee(amount);
+        currencyHeldByJar += remainingAmount;
         bool success = IERC20(currency).transfer(feeCollector, fee);
         if (!success) revert CookieJarLib.FeeTransferFailed();
-        currencyHeldByJar += remainingAmount;
+        
+        // Emit events for deposit and fee collection
         emit CookieJarLib.Deposit(msg.sender, remainingAmount, currency);
+        emit CookieJarLib.FeeCollected(feeCollector, fee, currency);
     }
 
     /// @notice Withdraws funds (ETH or ERC20) for whitelisted users.
     /// @param amount The amount to withdraw.
     /// @param purpose A description for the withdrawal.
-    function withdrawWhitelistMode(uint256 amount, string calldata purpose)
-        external
-        onlyRole(CookieJarLib.JAR_WHITELISTED)
-    {
+    function withdrawWhitelistMode(
+        uint256 amount,
+        string calldata purpose
+    ) external onlyRole(CookieJarLib.JAR_WHITELISTED) {
         if (accessType != CookieJarLib.AccessType.Whitelist) revert CookieJarLib.InvalidAccessType();
         _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalWhitelist[msg.sender]);
         lastWithdrawalWhitelist[msg.sender] = block.timestamp;
@@ -334,57 +317,104 @@ contract CookieJar is AccessControl {
     function _addNFTGate(address _nftAddress, CookieJarLib.NFTType _nftType) internal {
         if (_nftAddress == address(0)) revert CookieJarLib.InvalidNFTGate();
         if (_nftType == CookieJarLib.NFTType.None) revert CookieJarLib.InvalidNFTType();
-        if (nftGateMapping[_nftAddress] != CookieJarLib.NFTType.None) revert CookieJarLib.DuplicateNFTGate();
+        if (_nftGateMapping[_nftAddress] != CookieJarLib.NFTType.None) revert CookieJarLib.DuplicateNFTGate();
         CookieJarLib.NFTGate memory gate = CookieJarLib.NFTGate({nftAddress: _nftAddress, nftType: _nftType});
         nftGates.push(gate);
-        nftGateMapping[_nftAddress] = _nftType;
+        _nftGateMapping[_nftAddress] = _nftType;
         emit CookieJarLib.NFTGateAdded(_nftAddress, _nftType);
     }
 
+    /// @notice Calculates fee and remaining amount from principal
+    /// @param _principalAmount The total amount before fee deduction
+    /// @return fee The calculated fee amount
+    /// @return amountRemaining The amount after fee deduction
     function _calculateFee(uint256 _principalAmount) internal view returns (uint256 fee, uint256 amountRemaining) {
-        fee = (_principalAmount * feePercentageOnDeposit) / 10000;
+        fee = (_principalAmount * feePercentageOnDeposit) / CookieJarLib.PERCENTAGE_BASE;
         amountRemaining = _principalAmount - fee;
     }
 
-    /// @notice Checks if the caller has NFT-gated access via the specified gate.
-    /// @param gateAddress The NFT contract address used for gating.
-    /// @param tokenId The NFT token id.
-    function _checkAccessNFT(address gateAddress, uint256 tokenId) internal view {
-        CookieJarLib.NFTType nftType = nftGateMapping[gateAddress];
+    /// @notice Validates NFT-gated access for the caller
+    /// @dev Checks if caller owns/holds the specified NFT token required for access.
+    ///      Supports both ERC721 (ownership) and ERC1155 (balance > 0) token types.
+    ///      The NFT contract must be registered as a valid gate in the system.
+    /// @param gateAddress The NFT contract address used for gating
+    /// @param tokenId The NFT token id to check ownership/balance for
+    function _checkAccessNFT(address gateAddress, uint256 tokenId) internal {
+        // Lookup NFT type from registered gates
+        CookieJarLib.NFTType nftType = _nftGateMapping[gateAddress];
+        
+        // Ensure the gate is registered and valid
         if (nftType == CookieJarLib.NFTType.None) revert CookieJarLib.InvalidNFTGate();
+        
+        // Validate access based on NFT type
         if (nftType == CookieJarLib.NFTType.ERC721) {
+            // ERC721: caller must own the specific token
             if (IERC721(gateAddress).ownerOf(tokenId) != msg.sender) {
                 revert CookieJarLib.NotAuthorized();
             }
         } else if (nftType == CookieJarLib.NFTType.ERC1155) {
+            // ERC1155: caller must have non-zero balance of the token
             if (IERC1155(gateAddress).balanceOf(msg.sender, tokenId) == 0) {
                 revert CookieJarLib.NotAuthorized();
             }
         }
+        
+        // Emit event for successful NFT access validation
+        emit CookieJarLib.NFTAccessValidated(msg.sender, gateAddress, tokenId);
     }
 
+    /// @notice Validates withdrawal conditions and updates internal state
+    /// @dev Performs comprehensive checks before allowing withdrawal:
+    ///      - Amount validation (non-zero, within limits)
+    ///      - Purpose validation (if strict purpose enabled)
+    ///      - One-time withdrawal enforcement
+    ///      - Time-lock validation (withdrawal interval)
+    ///      - Balance sufficiency check
+    /// @param amount The withdrawal amount to validate
+    /// @param purpose The withdrawal purpose string
+    /// @param lastWithdrawal Timestamp of last withdrawal for this user/NFT
     function _checkAndUpdateWithdraw(uint256 amount, string calldata purpose, uint256 lastWithdrawal) internal {
+        // Basic amount validation
         if (amount == 0) revert CookieJarLib.ZeroAmount();
+        
+        // Purpose validation if strict mode enabled
         if (strictPurpose && bytes(purpose).length < 10) revert CookieJarLib.InvalidPurpose();
+        
+        // One-time withdrawal enforcement
         if (oneTimeWithdrawal && lastWithdrawal != 0) revert CookieJarLib.WithdrawalAlreadyDone();
+        
+        // Time-lock validation - ensure enough time has passed since last withdrawal
         uint256 nextAllowed = lastWithdrawal + withdrawalInterval;
         if (block.timestamp < nextAllowed) revert CookieJarLib.WithdrawalTooSoon(nextAllowed);
+        
+        // Amount limit validation based on withdrawal type
         if (withdrawalOption == CookieJarLib.WithdrawalTypeOptions.Fixed) {
+            // Fixed withdrawal: amount must match exactly
             if (amount != fixedAmount) revert CookieJarLib.WithdrawalAmountNotAllowed(amount, fixedAmount);
         } else {
+            // Variable withdrawal: amount must not exceed maximum
             if (amount > maxWithdrawal) revert CookieJarLib.WithdrawalAmountNotAllowed(amount, maxWithdrawal);
         }
+        
+        // Balance sufficiency check
         if (currencyHeldByJar < amount) revert CookieJarLib.InsufficientBalance();
 
+        // Update internal state
         currencyHeldByJar -= amount;
-        CookieJarLib.WithdrawalData memory temp = CookieJarLib.WithdrawalData({amount: amount, purpose: purpose, recipient: msg.sender});
+        
+        // Record withdrawal data for transparency
+        CookieJarLib.WithdrawalData memory temp = CookieJarLib.WithdrawalData({
+            amount: amount,
+            purpose: purpose,
+            recipient: msg.sender
+        });
         withdrawalData.push(temp);
     }
 
     function _withdraw(uint256 amount, string calldata purpose) internal {
         emit CookieJarLib.Withdrawal(msg.sender, amount, purpose);
-        if (currency == address(3)) {
-            (bool sent,) = msg.sender.call{value: amount}("");
+        if (currency == CookieJarLib.ETH_ADDRESS) {
+            (bool sent, ) = msg.sender.call{value: amount}("");
             if (!sent) revert CookieJarLib.TransferFailed();
         } else {
             IERC20(currency).safeTransfer(msg.sender, amount);

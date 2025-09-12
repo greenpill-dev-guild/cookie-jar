@@ -1,0 +1,28 @@
+{
+  "name": "cookie-jar-contracts",
+  "version": "1.0.0",
+  "description": "Smart contracts for Cookie Jar protocol with Solidity linting and formatting",
+  "scripts": {
+    "lint": "solhint 'src/**/*.sol' 'test/**/*.sol' 'script/**/*.sol'",
+    "lint:fix": "solhint 'src/**/*.sol' 'test/**/*.sol' 'script/**/*.sol' --fix",
+    "format": "prettier --write 'src/**/*.sol' 'test/**/*.sol' 'script/**/*.sol'",
+    "format:check": "prettier --check 'src/**/*.sol' 'test/**/*.sol' 'script/**/*.sol'",
+    "build": "forge build",
+    "test": "forge test",
+    "test:summary": "forge test --summary",
+    "clean": "forge clean",
+    "check": "npm run format:check && npm run lint",
+    "fix": "npm run format && npm run lint:fix",
+    "dev:local": "./scripts/dev-local.sh",
+    "watch": "./scripts/watch-deploy.sh",
+    "deploy:local": "forge script script/DeployLocal.s.sol --rpc-url http://127.0.0.1:8545 --broadcast",
+    "stop:anvil": "pkill -f anvil"
+  },
+  "devDependencies": {
+    "solhint": "^4.1.1",
+    "prettier": "^3.1.0",
+    "prettier-plugin-solidity": "^1.2.0"
+  },
+  "author": "Greenpill Dev Guild",
+  "license": "MIT"
+}

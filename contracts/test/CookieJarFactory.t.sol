@@ -256,7 +256,7 @@ contract CookieJarFactoryTest is Test {
     }
 
     // ============ NEW FUNCTIONALITY TESTS ============
-    
+
     function testUpdateMetadata() public {
         // First create a jar
         vm.startPrank(user);
@@ -277,20 +277,21 @@ contract CookieJarFactoryTest is Test {
             "Initial metadata"
         );
         vm.stopPrank();
-        
+
         // Test updating metadata as jar owner
-        string memory newMetadata = '{"name":"My Jar","description":"Updated description","image":"https://example.com/image.png","link":"https://example.com"}';
-        
+        string
+            memory newMetadata = '{"name":"My Jar","description":"Updated description","image":"https://example.com/image.png","link":"https://example.com"}';
+
         vm.startPrank(user);
         vm.expectEmit(true, false, false, true);
         emit CookieJarMetadataUpdated(jarAddress, newMetadata);
         factory.updateMetadata(jarAddress, newMetadata);
         vm.stopPrank();
-        
+
         // Verify metadata was updated
         assertEq(factory.getMetadata(jarAddress), newMetadata);
     }
-    
+
     function testUpdateMetadataFailsForNonOwner() public {
         // Create a jar
         vm.startPrank(user);
@@ -311,23 +312,23 @@ contract CookieJarFactoryTest is Test {
             "Initial metadata"
         );
         vm.stopPrank();
-        
+
         // Try to update metadata as non-owner
         vm.startPrank(user2);
         vm.expectRevert(CookieJarFactory.CookieJarFactory__NotJarOwner.selector);
         factory.updateMetadata(jarAddress, "Unauthorized update");
         vm.stopPrank();
     }
-    
+
     function testUpdateMetadataFailsForNonexistentJar() public {
         address fakeJar = address(0x9999);
-        
+
         vm.startPrank(user);
         vm.expectRevert(CookieJarFactory.CookieJarFactory__JarNotFound.selector);
         factory.updateMetadata(fakeJar, "Should fail");
         vm.stopPrank();
     }
-    
+
     function testUpdateMetadataFailsForEmptyMetadata() public {
         // Create a jar
         vm.startPrank(user);
@@ -347,13 +348,13 @@ contract CookieJarFactoryTest is Test {
             emptyWhitelist,
             "Initial metadata"
         );
-        
+
         // Try to update with empty metadata
         vm.expectRevert(CookieJarFactory.CookieJarFactory__InvalidMetadata.selector);
         factory.updateMetadata(jarAddress, "");
         vm.stopPrank();
     }
-    
+
     function testUpdateMetadataFailsForTooLongMetadata() public {
         // Create a jar
         vm.startPrank(user);
@@ -373,15 +374,15 @@ contract CookieJarFactoryTest is Test {
             emptyWhitelist,
             "Initial metadata"
         );
-        
+
         // Create metadata longer than 8192 bytes
         string memory longMetadata = new string(8193);
-        
+
         vm.expectRevert(CookieJarFactory.CookieJarFactory__MetadataTooLong.selector);
         factory.updateMetadata(jarAddress, longMetadata);
         vm.stopPrank();
     }
-    
+
     function testUpdateMetadataSucceedsForProtocolAdmin() public {
         // Create a jar
         vm.startPrank(user);
@@ -402,21 +403,21 @@ contract CookieJarFactoryTest is Test {
             "Initial metadata"
         );
         vm.stopPrank();
-        
+
         // Update metadata as protocol admin (owner)
         string memory newMetadata = "Admin updated metadata";
-        
+
         vm.startPrank(owner);
         factory.updateMetadata(jarAddress, newMetadata);
         vm.stopPrank();
-        
+
         // Verify metadata was updated
         assertEq(factory.getMetadata(jarAddress), newMetadata);
     }
-    
+
     function testGetMetadata() public {
         string memory originalMetadata = "Test metadata";
-        
+
         vm.startPrank(user);
         address jarAddress = factory.createCookieJar(
             user,
@@ -435,22 +436,22 @@ contract CookieJarFactoryTest is Test {
             originalMetadata
         );
         vm.stopPrank();
-        
+
         // Test getting metadata
         assertEq(factory.getMetadata(jarAddress), originalMetadata);
     }
-    
+
     function testGetMetadataFailsForNonexistentJar() public {
         address fakeJar = address(0x9999);
-        
+
         vm.expectRevert(CookieJarFactory.CookieJarFactory__JarNotFound.selector);
         factory.getMetadata(fakeJar);
     }
-    
+
     function testCreateCookieJarWithFee() public {
         uint256 customFee = 500; // 5%
         string memory metadata = "Custom fee jar";
-        
+
         vm.startPrank(user);
         address jarAddress = factory.createCookieJarWithFee(
             user,
@@ -470,24 +471,24 @@ contract CookieJarFactoryTest is Test {
             customFee
         );
         vm.stopPrank();
-        
+
         // Verify jar was created
         assertTrue(jarAddress != address(0));
-        
+
         // Verify metadata was set
         assertEq(factory.getMetadata(jarAddress), metadata);
-        
+
         // Verify jar index was set
         assertTrue(factory.jarIndex(jarAddress) < factory.getCookieJars().length);
-        
+
         // Verify the jar has custom fee
         CookieJar jar = CookieJar(jarAddress);
         assertEq(jar.feePercentageOnDeposit(), customFee);
     }
-    
+
     function testCreateCookieJarWithFeeClampedToMax() public {
         uint256 excessiveFee = 15000; // 150% (should be clamped to 10000)
-        
+
         vm.startPrank(user);
         address jarAddress = factory.createCookieJarWithFee(
             user,
@@ -507,15 +508,15 @@ contract CookieJarFactoryTest is Test {
             excessiveFee
         );
         vm.stopPrank();
-        
+
         // Verify fee was clamped to 100%
         CookieJar jar = CookieJar(jarAddress);
         assertEq(jar.feePercentageOnDeposit(), 10000);
     }
-    
+
     function testCreateCookieJarWithZeroFee() public {
         uint256 zeroFee = 0;
-        
+
         vm.startPrank(user);
         address jarAddress = factory.createCookieJarWithFee(
             user,
@@ -535,12 +536,12 @@ contract CookieJarFactoryTest is Test {
             zeroFee
         );
         vm.stopPrank();
-        
+
         // Verify zero fee was set
         CookieJar jar = CookieJar(jarAddress);
         assertEq(jar.feePercentageOnDeposit(), 0);
     }
-    
+
     function testCreateCookieJarWithFeeFailsForEmptyMetadata() public {
         vm.startPrank(user);
         vm.expectRevert(CookieJarFactory.CookieJarFactory__InvalidMetadata.selector);
@@ -563,10 +564,10 @@ contract CookieJarFactoryTest is Test {
         );
         vm.stopPrank();
     }
-    
+
     function testJarIndexMapping() public {
         vm.startPrank(user);
-        
+
         // Create first jar
         address jar1 = factory.createCookieJar(
             user,
@@ -584,7 +585,7 @@ contract CookieJarFactoryTest is Test {
             emptyWhitelist,
             "First jar"
         );
-        
+
         // Create second jar
         address jar2 = factory.createCookieJar(
             user,
@@ -602,13 +603,13 @@ contract CookieJarFactoryTest is Test {
             emptyWhitelist,
             "Second jar"
         );
-        
+
         vm.stopPrank();
-        
+
         // Verify jar indices
         assertEq(factory.jarIndex(jar1), 0);
         assertEq(factory.jarIndex(jar2), 1);
-        
+
         // Verify we can get metadata using the indices
         assertEq(factory.getMetadata(jar1), "First jar");
         assertEq(factory.getMetadata(jar2), "Second jar");

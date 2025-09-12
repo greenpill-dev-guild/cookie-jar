@@ -2,6 +2,12 @@
 pragma solidity ^0.8.19;
 
 library CookieJarLib {
+    // --- Constants ---
+    /// @dev Address used to represent ETH in the system
+    address public constant ETH_ADDRESS = address(3);
+    /// @dev Base for percentage calculations (10000 = 100%)
+    uint256 public constant PERCENTAGE_BASE = 10000;
+    
     // --- Enums ---
     /// @notice The mode for access control.
     enum AccessType {
@@ -37,6 +43,30 @@ library CookieJarLib {
         address recipient; // Address of the user who withdrew
     }
 
+    /// @notice Configuration struct for CookieJar constructor to avoid stack too deep
+    struct JarConfig {
+        address jarOwner;
+        address supportedCurrency;
+        AccessType accessType;
+        WithdrawalTypeOptions withdrawalOption;
+        uint256 fixedAmount;
+        uint256 maxWithdrawal;
+        uint256 withdrawalInterval;
+        uint256 minDeposit;
+        uint256 feePercentageOnDeposit;
+        bool strictPurpose;
+        address feeCollector;
+        bool emergencyWithdrawalEnabled;
+        bool oneTimeWithdrawal;
+    }
+
+    /// @notice NFT and whitelist configuration struct
+    struct AccessConfig {
+        address[] nftAddresses;
+        NFTType[] nftTypes;
+        address[] whitelist;
+    }
+
     // --- Events ---
     /// @notice Emitted when a deposit is made.
     event Deposit(address indexed sender, uint256 amount, address token);
@@ -50,39 +80,69 @@ library CookieJarLib {
     event EmergencyWithdrawal(address indexed admin, address token, uint256 amount);
     /// @notice Emitted when an NFT gate is removed.
     event NFTGateRemoved(address nftAddress);
-    /// @notice Emitted when admin rights are transferred.
-    event AdminUpdated(address indexed newAdmin);
-    /// @notice Emitted when the max withdrawal is updated.
+    /// @notice Emitted when maximum withdrawal amount is updated.
     event MaxWithdrawalUpdated(uint256 newMaxWithdrawal);
-    /// @notice Emitted when the fixed withdrawal amount is updated.
-    event FixedWithdrawalAmountUpdated(uint256 newFixedWithdrawalAmount);
-    /// @notice Emitted when the withdrawal interval is updated.
+    /// @notice Emitted when fixed withdrawal amount is updated.
+    event FixedWithdrawalAmountUpdated(uint256 newFixedAmount);
+    /// @notice Emitted when withdrawal interval is updated.
     event WithdrawalIntervalUpdated(uint256 newWithdrawalInterval);
+    /// @notice Emitted when a deposit fee is collected.
+    event FeeCollected(address indexed collector, uint256 feeAmount, address token);
+    /// @notice Emitted when NFT access is successfully validated.
+    event NFTAccessValidated(address indexed user, address indexed nftContract, uint256 tokenId);
 
     // --- Custom Errors ---
-    error NotAuthorized();
-    error InvalidAccessType();
-    error InvalidPurpose();
-    error InvalidWithdrawalType();
-    error WithdrawalTooSoon(uint256 nextAllowed);
-    error WithdrawalAmountNotAllowed(uint256 requested, uint256 allowed);
-    error InsufficientBalance();
-    error ZeroAmount();
-    error NotFeeCollector();
-    error FeeTransferFailed();
-    error InvalidNFTGate();
-    error NoNFTAddressesProvided();
-    error NFTArrayLengthMismatch();
-    error DuplicateNFTGate();
-    error InvalidNFTType();
     error AdminCannotBeZeroAddress();
     error FeeCollectorAddressCannotBeZeroAddress();
-    error EmergencyWithdrawalDisabled();
-    error InvalidTokenAddress();
-    error NFTGateNotFound();
-    error LessThanMinimumDeposit();
-    error MismatchedArrayLengths();
-    error WithdrawalAlreadyDone();
-    error TransferFailed();
+    error NoNFTAddressesProvided();
+    error NFTArrayLengthMismatch();
     error WhitelistNotAllowedForNFTGated();
+    error SupportedCurrencyCannotBeZeroAddress();
+    error InvalidFixedAmountMustBeGreaterThanZero();
+    error InvalidMaxWithdrawalMustBeGreaterThanZero();
+    error InvalidWithdrawalIntervalMustBeGreaterThanZero();
+    error InvalidMinDepositMustBeGreaterThanZero();
+    error InvalidFeePercentage();
+    error WithdrawalAmountMustBeGreaterThanZero();
+    error FixedAmountExceedsBalance();
+    error VariableAmountExceedsMaxWithdrawal();
+    error VariableAmountExceedsBalance();
+    error CanOnlyWithdrawOnce();
+    error PurposeRequired();
+    error PurposeTooShort();
+    error UnauthorizedUser();
+    error UserNotWhitelisted();
+    error UserBlacklisted();
+    error InvalidNFTGate();
+    error NFTTokenDoesNotExist();
+    error CallerMustOwnToken();
+    error CallerMustHaveBalance();
+    error EmergencyWithdrawalNotEnabled();
+    error TransferFailed();
+    error InvalidDepositAmount();
+    error OnlyETHAccepted();
+    error OnlyERC20Accepted();
+    error ZeroAmountNotAllowed();
+    error NotValidERC721();
+    error NotValidERC1155();
+    error NFTGateAlreadyExists();
+    error NFTGateDoesNotExist();
+    error TooManyNFTGates();
+    error InvalidAccessType();
+    error NotFeeCollector();
+    error NFTGateNotFound();
+    error InvalidWithdrawalType();
+    error ZeroAmount();
+    error EmergencyWithdrawalDisabled();
+    error InsufficientBalance();
+    error InvalidTokenAddress();
+    error LessThanMinimumDeposit();
+    error FeeTransferFailed();
+    error InvalidNFTType();
+    error DuplicateNFTGate();
+    error NotAuthorized();
+    error InvalidPurpose();
+    error WithdrawalAlreadyDone();
+    error WithdrawalTooSoon(uint256 nextAllowedTime);
+    error WithdrawalAmountNotAllowed(uint256 provided, uint256 required);
 }

@@ -1,0 +1,26 @@
+
+> cookie-jar-v3@2.0.0 dev /Users/afo/Code/greenpill/cookie-jar/frontend
+> next dev
+
+ ⚠ Warning: Next.js inferred your workspace root, but it may not be correct.
+ We detected multiple lockfiles and selected the directory of /Users/afo/Code/greenpill/pnpm-lock.yaml as the root directory.
+ To silence this warning, set `outputFileTracingRoot` in your Next.js config, or consider removing one of the lockfiles if it's not needed.
+   See https://nextjs.org/docs/app/api-reference/config/next-config-js/output#caveats for more information.
+ Detected additional lockfiles: 
+   * /Users/afo/Code/greenpill/cookie-jar/frontend/pnpm-lock.yaml
+   * /Users/afo/Code/greenpill/cookie-jar/pnpm-lock.yaml
+
+   ▲ Next.js 15.5.3
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.0.97:3000
+   - Environments: .env.local
+   - Experiments (use with caution):
+     ✓ webpackBuildWorker
+     ✓ parallelServerCompiles
+     ✓ parallelServerBuildTraces
+
+ ✓ Starting...
+ ✓ Ready in 2.4s
+ ○ Compiling /favicon.ico ...
+ ✓ Compiled /favicon.ico in 2.3s (100 modules)
+ GET /favicon.ico 200 in 2446ms

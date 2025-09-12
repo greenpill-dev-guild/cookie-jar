@@ -10,6 +10,8 @@ remappings = [
 ]
 PRIVATE_KEY = "${PRIVATE_KEY}"
 RPC_URL = "${RPC_URL}"
+# Allow writing deployment files for local development
+fs_permissions = [{ access = "read-write", path = "./"}]
 
 [rpc_endpoints]
 sepolia = "${SEPOLIA_URL}"

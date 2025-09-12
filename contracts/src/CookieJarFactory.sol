@@ -18,7 +18,7 @@ contract CookieJarFactory is AccessControl {
 
     address[] public cookieJars;
     string[] public metadatas;
-    
+
     // Mapping from jar address to its index in the cookieJars array
     mapping(address => uint256) public jarIndex;
 
@@ -120,7 +120,7 @@ contract CookieJarFactory is AccessControl {
     /// @notice Currently only one currency ERC20 is supported.
     /// @notice Creator needs to call deposit function before creating a jar, and all the funds deposited will be sent to new jar.
     /// @param _cookieJarOwner Address of the new CookieJar owner.
-    /// @param _supportedCurrency Address of the supported currency for the jar address(3) if native ETH.
+    /// @param _supportedCurrency Address of the supported currency for the jar CookieJarLib.ETH_ADDRESS if native ETH.
     /// @param _accessType Claim mode: Whitelist or NFTGated.
     /// @param _nftAddresses Array of NFT contract addresses (only for NFTGated mode).
     /// @param _nftTypes Array of NFT types corresponding to _nftAddresses.
@@ -150,30 +150,36 @@ contract CookieJarFactory is AccessControl {
         // Validate metadata
         if (bytes(metadata).length == 0) revert CookieJarFactory__InvalidMetadata();
         if (bytes(metadata).length > 8192) revert CookieJarFactory__MetadataTooLong();
-        
+
         uint256 minDeposit = minETHDeposit;
-        if (_supportedCurrency != address(3)) {
+        if (_supportedCurrency != CookieJarLib.ETH_ADDRESS) {
             if (ERC20(_supportedCurrency).decimals() == 0) revert CookieJarFactory__NotValidERC20();
             minDeposit = minERC20Deposit;
         }
-        CookieJar newJar = new CookieJar(
-            _cookieJarOwner,
-            _supportedCurrency,
-            _accessType,
-            _nftAddresses,
-            _nftTypes,
-            _withdrawalOption,
-            _fixedAmount,
-            _maxWithdrawal,
-            _withdrawalInterval,
-            minDeposit,
-            defaultFeePercentage,
-            _strictPurpose,
-            defaultFeeCollector,
-            _emergencyWithdrawalEnabled,
-            _oneTimeWithdrawal,
-            _whitelist
-        );
+        // Create configuration structs to avoid stack too deep
+        CookieJarLib.JarConfig memory config = CookieJarLib.JarConfig({
+            jarOwner: _cookieJarOwner,
+            supportedCurrency: _supportedCurrency,
+            accessType: _accessType,
+            withdrawalOption: _withdrawalOption,
+            fixedAmount: _fixedAmount,
+            maxWithdrawal: _maxWithdrawal,
+            withdrawalInterval: _withdrawalInterval,
+            minDeposit: minDeposit,
+            feePercentageOnDeposit: defaultFeePercentage,
+            strictPurpose: _strictPurpose,
+            feeCollector: defaultFeeCollector,
+            emergencyWithdrawalEnabled: _emergencyWithdrawalEnabled,
+            oneTimeWithdrawal: _oneTimeWithdrawal
+        });
+
+        CookieJarLib.AccessConfig memory accessConfig = CookieJarLib.AccessConfig({
+            nftAddresses: _nftAddresses,
+            nftTypes: _nftTypes,
+            whitelist: _whitelist
+        });
+
+        CookieJar newJar = new CookieJar(config, accessConfig);
 
         address jarAddress = address(newJar);
         uint256 newIndex = cookieJars.length; // Pre-calculate index
@@ -200,22 +206,22 @@ contract CookieJarFactory is AccessControl {
         // Validate metadata length to prevent DoS
         if (bytes(newMetadata).length == 0) revert CookieJarFactory__InvalidMetadata();
         if (bytes(newMetadata).length > 8192) revert CookieJarFactory__MetadataTooLong();
-        
+
         uint256 index = _validateJarExists(jar);
-        
+
         // Check authorization: either jar owner or protocol admin
         CookieJar cookieJar = CookieJar(jar);
-        
+
         bool isJarOwner = cookieJar.hasRole(CookieJarLib.JAR_OWNER, msg.sender);
         bool isProtocolAdmin = hasRole(PROTOCOL_ADMIN, msg.sender);
-        
+
         if (!isJarOwner && !isProtocolAdmin) {
             revert CookieJarFactory__NotJarOwner();
         }
-        
+
         // Update metadata
         metadatas[index] = newMetadata;
-        
+
         emit CookieJarMetadataUpdated(jar, newMetadata);
     }
 
@@ -239,7 +245,7 @@ contract CookieJarFactory is AccessControl {
 
     /// @notice Creates a new CookieJar contract with custom fee percentage
     /// @param _cookieJarOwner Address of the new CookieJar owner.
-    /// @param _supportedCurrency Address of the supported currency for the jar address(3) if native ETH.
+    /// @param _supportedCurrency Address of the supported currency for the jar CookieJarLib.ETH_ADDRESS if native ETH.
     /// @param _accessType Claim mode: Whitelist or NFTGated.
     /// @param _nftAddresses Array of NFT contract addresses (only for NFTGated mode).
     /// @param _nftTypes Array of NFT types corresponding to _nftAddresses.
@@ -271,36 +277,42 @@ contract CookieJarFactory is AccessControl {
         uint256 customFeePercentage
     ) external onlyNotBlacklisted(msg.sender) returns (address) {
         // Clamp fee percentage to maximum 100%
-        uint256 feePerc = customFeePercentage > 10000 ? 10000 : customFeePercentage;
-        
+        uint256 feePerc = customFeePercentage > CookieJarLib.PERCENTAGE_BASE ? CookieJarLib.PERCENTAGE_BASE : customFeePercentage;
+
         // Validate metadata
         if (bytes(metadata).length == 0) revert CookieJarFactory__InvalidMetadata();
         if (bytes(metadata).length > 8192) revert CookieJarFactory__MetadataTooLong();
-        
+
         uint256 minDeposit = minETHDeposit;
-        if (_supportedCurrency != address(3)) {
+        if (_supportedCurrency != CookieJarLib.ETH_ADDRESS) {
             if (ERC20(_supportedCurrency).decimals() == 0) revert CookieJarFactory__NotValidERC20();
             minDeposit = minERC20Deposit;
         }
-        
-        CookieJar newJar = new CookieJar(
-            _cookieJarOwner,
-            _supportedCurrency,
-            _accessType,
-            _nftAddresses,
-            _nftTypes,
-            _withdrawalOption,
-            _fixedAmount,
-            _maxWithdrawal,
-            _withdrawalInterval,
-            minDeposit,
-            feePerc, // Use custom fee instead of defaultFeePercentage
-            _strictPurpose,
-            defaultFeeCollector, // Keep same fee collector
-            _emergencyWithdrawalEnabled,
-            _oneTimeWithdrawal,
-            _whitelist
-        );
+
+        // Create configuration structs to avoid stack too deep
+        CookieJarLib.JarConfig memory config = CookieJarLib.JarConfig({
+            jarOwner: _cookieJarOwner,
+            supportedCurrency: _supportedCurrency,
+            accessType: _accessType,
+            withdrawalOption: _withdrawalOption,
+            fixedAmount: _fixedAmount,
+            maxWithdrawal: _maxWithdrawal,
+            withdrawalInterval: _withdrawalInterval,
+            minDeposit: minDeposit,
+            feePercentageOnDeposit: feePerc, // Use custom fee instead of defaultFeePercentage
+            strictPurpose: _strictPurpose,
+            feeCollector: defaultFeeCollector, // Keep same fee collector
+            emergencyWithdrawalEnabled: _emergencyWithdrawalEnabled,
+            oneTimeWithdrawal: _oneTimeWithdrawal
+        });
+
+        CookieJarLib.AccessConfig memory accessConfig = CookieJarLib.AccessConfig({
+            nftAddresses: _nftAddresses,
+            nftTypes: _nftTypes,
+            whitelist: _whitelist
+        });
+
+        CookieJar newJar = new CookieJar(config, accessConfig);
 
         address jarAddress = address(newJar);
         uint256 newIndex = cookieJars.length; // Pre-calculate index
@@ -311,5 +323,4 @@ contract CookieJarFactory is AccessControl {
         emit CookieJarCreated(msg.sender, jarAddress, metadata);
         return jarAddress;
     }
-
 }
