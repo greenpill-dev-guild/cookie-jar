@@ -33,7 +33,7 @@ export function LandingHero() {
           <div className="section-container flex items-center justify-between">
             <div className="md:hidden">
               {/* Mobile logo - sidebar will be visible on the left */}
-              <Image src="/logo.png" alt="Cookie Jar Logo" width={52} height={52} />
+              <Image src="/logo.png" alt="Cookie Jar Logo" width={52} height={52} priority />
             </div>
             <div className="hidden md:block">
               <span className="text-3xl md:text-4xl font-bold text-[#3c2a14]">Cookie Jar V3</span>
