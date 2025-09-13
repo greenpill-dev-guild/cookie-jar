@@ -48,7 +48,7 @@ export function CollapsibleSidebar() {
         <div className="px-4 mb-12">
           <Link href="/" className="flex items-center gap-3">
             <div className="w-12 h-12 rounded-full bg-[#f5e6d8] flex items-center justify-center">
-              <Image src="/logo.png" alt="Cookie Jar Logo" width={36} height={36} />
+              <Image src="/logo.png" alt="Cookie Jar Logo" width={36} height={36} priority />
             </div>
             <div
               className="overflow-hidden"
