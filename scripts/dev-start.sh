@@ -1,7 +1,13 @@
 #!/bin/bash
 
-# 🍪 Cookie Jar - Unified Local Development Environment
+# 🍪 Cookie Jar - Unified Local Development Environment (Fixed Version)
 echo "🚀 Starting Cookie Jar Full Stack Development Environment..."
+
+# Get the project root directory (where this script's parent directory is)
+SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+
+echo "📁 Project root: $PROJECT_ROOT"
 
 # Function to cleanup on exit
 cleanup() {
@@ -10,6 +16,7 @@ cleanup() {
     pkill -f "forge script.*watch" || true
     pkill -f "next dev" || true
     pkill -f "npm run dev" || true
+    pkill -f "pnpm.*dev" || true
     exit 0
 }
 
@@ -25,7 +32,11 @@ command -v pnpm >/dev/null 2>&1 || { echo "❌ pnpm not found. Install pnpm: npm
 
 echo "✅ All prerequisites found!"
 
+# Change to project root
+cd "$PROJECT_ROOT"
+
 # Start Anvil in background
+echo "🔧 Starting Anvil..."
 cd contracts
 pkill -f anvil || true
 
@@ -68,12 +79,12 @@ for i in {1..30}; do
   sleep 1
   if [ $i -eq 30 ]; then
     echo "❌ Anvil failed to start after 30 seconds"
-    kill $ANVIL_PID
+    kill $ANVIL_PID 2>/dev/null
     exit 1
   fi
 done
 
-# Deploy contracts
+# Deploy contracts (from contracts directory)
 echo "🚀 Deploying contracts to local Anvil..."
 forge script script/DeployLocal.s.sol \
   --rpc-url http://127.0.0.1:8545 \
@@ -82,18 +93,25 @@ forge script script/DeployLocal.s.sol \
 
 if [ $? -ne 0 ]; then
     echo "❌ Initial contract deployment failed"
-    kill $ANVIL_PID
+    kill $ANVIL_PID 2>/dev/null
     exit 1
 fi
 
 echo "✅ Contracts deployed successfully!"
 
-# Copy deployment files to client
+# Copy deployment files to client (from project root)
+cd "$PROJECT_ROOT"
 echo "📄 Copying deployment files..."
-cd .. && ./scripts/copy-deployment.sh
-cd contracts
+./scripts/copy-deployment.sh
 
-# Seed demo environment with Cookie Monster NFTs and demo jars
+if [ $? -ne 0 ]; then
+    echo "❌ Failed to copy deployment files"
+    kill $ANVIL_PID 2>/dev/null
+    exit 1
+fi
+
+# Seed demo environment
+cd contracts
 echo "🌱 Seeding demo environment with Cookie Monster NFTs..."
 forge script script/SeedLocal.s.sol \
   --tc SeedLocalScript \
@@ -104,42 +122,96 @@ forge script script/SeedLocal.s.sol \
 if [ $? -eq 0 ]; then
     echo "✅ Demo jars and Cookie Monster NFTs created!"
     # Copy seed data to client
+    cd "$PROJECT_ROOT"
     echo "📄 Copying seed data..."
-    cd .. && ./scripts/copy-deployment.sh
-    cd contracts
+    ./scripts/copy-deployment.sh
 else
     echo "⚠️  Seeding failed, but contracts are deployed"
 fi
 
-# Start contract watcher in background
+# Start contract watcher in background (from project root)
+cd "$PROJECT_ROOT"
 echo "👀 Starting contract file watcher..."
 ./scripts/watch-deploy.sh > contracts/watch-deploy.log 2>&1 &
 WATCHER_PID=$!
 
-# Generate client types
+# Generate client types (from project root, using workspace command)
 echo "⚙️  Generating client types..."
-cd client
-pnpm generate
+pnpm --filter client run generate
 
 if [ $? -ne 0 ]; then
-    echo "❌ Frontend type generation failed"
-    kill $ANVIL_PID $WATCHER_PID
+    echo "❌ Client type generation failed"
+    kill $ANVIL_PID $WATCHER_PID 2>/dev/null
     exit 1
 fi
 
-# Start client dev server
+# Start client dev server with proper logging
 echo "🌐 Starting client development server..."
-NODE_ENV=development pnpm dev > client-dev.log 2>&1 &
+echo "📝 Client logs will be shown below. Watch for startup confirmation..."
+echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+
+# Change to client directory and start dev server
+cd client
+
+# Create a simple script to run client dev that doesn't depend on workspace
+echo "🔧 Preparing client environment..."
+
+# Copy deployment files directly (bypass the client's copy:deployment script)
+if [ ! -d "public/contracts" ]; then
+    mkdir -p public/contracts
+fi
+
+if [ -f "../contracts/local-deployment.json" ]; then
+    cp ../contracts/local-deployment.json public/contracts/
+    echo "✅ Deployment files ready for client"
+else
+    echo "⚠️  No deployment file found, client may not connect properly"
+fi
+
+# Start Next.js dev server directly with Turbo for faster builds
+echo "🚀 Starting Next.js development server (Turbo mode - faster builds & hot reload)..."
+NODE_ENV=development npx next dev --turbo 2>&1 | tee ../contracts/client-dev.log &
 CLIENT_PID=$!
 
-# Wait a moment and show status
-sleep 5
+# Wait for client to start and check if it's running
+echo "⏳ Waiting for client to start..."
+CLIENT_STARTED=false
+
+for i in {1..30}; do
+  # Check if Next.js dev server is ready
+  if curl -s -f http://localhost:3000 > /dev/null 2>&1; then
+    echo ""
+    echo "✅ Client is ready and responding on port 3000!"
+    CLIENT_STARTED=true
+    break
+  fi
+  
+  # Check if the process is still running
+  if ! kill -0 $CLIENT_PID 2>/dev/null; then
+    echo "❌ Client process stopped unexpectedly!"
+    echo "📋 Last few lines of client log:"
+    tail -10 ../contracts/client-dev.log 2>/dev/null || echo "No log file found"
+    kill $ANVIL_PID $WATCHER_PID 2>/dev/null
+    exit 1
+  fi
+  
+  echo "Waiting for client... ($i/30)"
+  sleep 2
+done
+
+if [ "$CLIENT_STARTED" = false ]; then
+    echo "❌ Client failed to start after 60 seconds"
+    echo "📋 Last few lines of client log:"
+    tail -10 ../contracts/client-dev.log 2>/dev/null || echo "No log file found"
+    kill $ANVIL_PID $WATCHER_PID $CLIENT_PID 2>/dev/null
+    exit 1
+fi
 
 echo ""
 echo "🎉 Development environment is ready!"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo "📋 DEVELOPMENT ENDPOINTS:"
-echo "  🌐 Frontend:        http://localhost:3000"  
+echo "  🌐 Client:          http://localhost:3000 ✅ READY (Turbo Mode)"  
 if [ "$1" = "--fork" ] || [ "$ANVIL_FORK" = "true" ]; then
     echo "  ⛓️  Local Blockchain: http://127.0.0.1:8545 (Chain ID: 31337) [FORKED]"
 else
@@ -148,20 +220,20 @@ fi
 echo "  📄 Logs:"
 echo "    - Anvil:          contracts/anvil.log"
 echo "    - Contract Watch: contracts/watch-deploy.log" 
-echo "    - Client:         client/client-dev.log"
+echo "    - Client:         contracts/client-dev.log (also shown above)"
 echo ""
 echo "🛠️  WORKFLOW:"
 echo "  • Edit contracts in contracts/src/"
 echo "  • Contracts auto-recompile and redeploy on changes"
-echo "  • Frontend types auto-regenerate"
-echo "  • Frontend hot-reloads automatically"
+echo "  • Client types auto-regenerate"
+echo "  • Client hot-reloads automatically (⚡ Turbo mode)"
 echo ""
 echo "🔗 TEST ACCOUNTS:"
 echo "  • Address: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 echo "  • Private Key: 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80"
 echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
 echo ""
-echo "Press Ctrl+C to stop all services"
+echo "🔍 Monitoring client logs... (Press Ctrl+C to stop all services)"
 
-# Keep script running
+# Keep script running and continue showing client logs
 wait $CLIENT_PID
