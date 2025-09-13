@@ -1,6 +1,6 @@
 import { defineChain } from "viem";
 
-// Local Anvil chain configuration (Celo fork)
+// Local Anvil chain configuration (Ethereum fork with multicall3 support)
 export const anvilLocal = defineChain({
   id: 31337,
   name: "Anvil Local",
@@ -16,6 +16,12 @@ export const anvilLocal = defineChain({
   },
   blockExplorers: {
     default: { name: "Local", url: "http://127.0.0.1:8545" },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xca11bde05977b3631167028862be2a173976ca11',
+      blockCreated: 14353601,
+    },
   },
 });
 

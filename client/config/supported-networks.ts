@@ -11,15 +11,15 @@ import {
   celoAlfajores
 } from 'wagmi/chains'
 
-// Local Anvil chain (Celo fork)
+// Local Anvil chain (Ethereum fork with multicall3 support)
 export const anvilLocal = {
   id: 31337,
   name: "Anvil Local",
   network: "anvil-local",
   nativeCurrency: {
     decimals: 18,
-    name: "Celo",
-    symbol: "CELO",
+    name: "Ether",
+    symbol: "ETH",
   },
   rpcUrls: {
     default: { http: ["http://127.0.0.1:8545"] },
@@ -27,6 +27,12 @@ export const anvilLocal = {
   },
   blockExplorers: {
     default: { name: "Local", url: "http://127.0.0.1:8545" },
+  },
+  contracts: {
+    multicall3: {
+      address: '0xca11bde05977b3631167028862be2a173976ca11',
+      blockCreated: 14353601,
+    },
   },
   testnet: true,
 } as const
@@ -129,10 +135,10 @@ export const nativeCurrencies: Record<number, NativeCurrency> = {
     decimals: 18,
     address: "0x0000000000000000000000000000000000000003"
   },
-  // Local Anvil (Celo fork)
+  // Local Anvil (Ethereum fork)
   31337: {
-    symbol: "CELO",
-    name: "Celo",
+    symbol: "ETH",
+    name: "Ethereum",
     decimals: 18,
     address: "0x0000000000000000000000000000000000000003"
   }

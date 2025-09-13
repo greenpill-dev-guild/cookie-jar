@@ -34,7 +34,7 @@ contract DeployLocalScript is Script {
         console.log("Factory funded by account with 1000 ETH");
         console.log("CREATE2 Address is deterministic - same on every Anvil restart!");
         
-        // NOTE: Frontend uses hardcoded CREATE2 address - no file writing needed
+        // NOTE: Deployment file created by post-deployment script from broadcast data
         
         vm.stopBroadcast();
     }

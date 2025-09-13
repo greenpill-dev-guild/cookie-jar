@@ -32,17 +32,19 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
-      <body className={`${clashDisplay.variable} font-clash custom-scrollbar`}>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange>
-          <RainbowKitProviderWrapper>
-            <CollapsibleSidebar />
-            <div className="ml-[80px]">
-              <PageTransition>{children}</PageTransition>
-            </div>
-            <NetworkSwitcher />
-            <Toaster />
-          </RainbowKitProviderWrapper>
-        </ThemeProvider>
+      <body className="custom-scrollbar" suppressHydrationWarning>
+        <div className={`${clashDisplay.variable} font-clash`}>
+          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange suppressHydrationWarning>
+            <RainbowKitProviderWrapper>
+              <CollapsibleSidebar />
+              <div className="ml-[80px]">
+                <PageTransition>{children}</PageTransition>
+              </div>
+              <NetworkSwitcher />
+              <Toaster />
+            </RainbowKitProviderWrapper>
+          </ThemeProvider>
+        </div>
       </body>
     </html>
   )
