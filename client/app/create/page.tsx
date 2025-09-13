@@ -28,14 +28,40 @@ import { MemoizedCustomConnectButton } from "@/components/wallet/custom-connect-
 import { useToast } from "@/hooks/design/use-toast"
 import confetti from "canvas-confetti"
 import { ErrorBoundary } from "@/components/design/error-boundary"
+import { ProtocolErrorBoundary } from "@/components/design/protocol-error-boundary"
+import { NFTGateInput } from "@/components/forms/NFTGateInput"
+import { ProtocolGateSelector } from "@/components/protocol/ProtocolGateSelector"
 
 // Import token utilities
 import { ETH_ADDRESS, useTokenInfo, parseTokenAmount, formatTokenAmount } from "@/lib/utils/token-utils"
 
-// Enums matching the contract
+// Protocol configuration types
+interface ProtocolConfig {
+  accessType: AccessType
+  // NFT config
+  nftAddresses?: string[]
+  nftTypes?: number[]
+  // POAP config
+  eventId?: string
+  // Unlock config
+  lockAddress?: string
+  // Hypercert config
+  tokenContract?: string
+  tokenId?: string
+  minBalance?: string
+  // Hats config
+  hatId?: string
+  hatsContract?: string
+}
+
+// Enums matching the contract - expanded for multi-protocol support
 enum AccessType {
   Allowlist = 0,
   NFTGated = 1,
+  POAP = 2,
+  Unlock = 3,
+  Hypercert = 4,
+  Hats = 5,
 }
 
 enum WithdrawalTypeOptions {
@@ -44,9 +70,9 @@ enum WithdrawalTypeOptions {
 }
 
 enum NFTType {
-  ERC721 = 0,
-  ERC1155 = 1,
-  Soulbound = 2,
+  None = 0,
+  ERC721 = 1,
+  ERC1155 = 2,
 }
 
 export default function CreateCookieJarForm() {
@@ -98,8 +124,26 @@ export default function CreateCookieJarForm() {
   // NFT management
   const [nftAddresses, setNftAddresses] = useState<string[]>([])
   const [nftTypes, setNftTypes] = useState<number[]>([])
-  const [newNftAddress, setNewNftAddress] = useState("")
-  const [newNftType, setNewNftType] = useState<number>(NFTType.ERC721)
+
+  // Protocol configuration state
+  const [protocolConfig, setProtocolConfig] = useState<ProtocolConfig>({
+    accessType: AccessType.Allowlist,
+  })
+
+  // Protocol configuration handler
+  const handleProtocolConfigChange = (newConfig: ProtocolConfig) => {
+    setProtocolConfig(newConfig)
+    setAccessType(newConfig.accessType)
+    
+    // Update legacy NFT state for backward compatibility
+    if (newConfig.accessType === AccessType.NFTGated && newConfig.nftAddresses && newConfig.nftTypes) {
+      setNftAddresses(newConfig.nftAddresses)
+      setNftTypes(newConfig.nftTypes)
+    } else {
+      setNftAddresses([])
+      setNftTypes([])
+    }
+  }
 
   // Currency type state
   const [currencyType, setCurrencyType] = useState<"eth" | "token">("eth")
@@ -184,12 +228,9 @@ export default function CreateCookieJarForm() {
   }
 
   // Add an NFT address and type
-  const addNft = () => {
-    if (newNftAddress) {
-      setNftAddresses([...nftAddresses, newNftAddress])
-      setNftTypes([...nftTypes, newNftType])
-      setNewNftAddress("")
-    }
+  const handleAddNFT = (address: string, type: number) => {
+    setNftAddresses([...nftAddresses, address])
+    setNftTypes([...nftTypes, type])
   }
 
   // Remove an NFT address and type
@@ -996,92 +1037,17 @@ export default function CreateCookieJarForm() {
       case 2:
         return (
           <div className="space-y-6">
-            {/* Access Type */}
-            <div className="space-y-2">
-              <Label htmlFor="accessType" className="text-[#3c2a14] text-base">
-                Access Type
-              </Label>
-              <Select
-                value={accessType.toString()}
-                onValueChange={(value) => setAccessType(Number(value) as AccessType)}
-              >
-                <SelectTrigger className="bg-white border-gray-300 placeholder:text-[#3c2a14]">
-                  <SelectValue placeholder="Select access type" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="0">Allowlist</SelectItem>
-                  {/* removed NFT Gated option for MVP launch to reduce complexity <3msg */}
-                  {/* <SelectItem value="1">NFT Gated</SelectItem> */}
-                </SelectContent>
-              </Select>
-              <p className="text-sm text-[#8b7355]">Determine who can access this cookie jar</p>
-            </div>
-
-            {/* NFT Addresses (only show if NFTGated is selected) */}
-            {accessType === AccessType.NFTGated && (
-              <div className="space-y-4">
-                <Label className="text-[#3c2a14] text-base">NFT Addresses & Types</Label>
-
-                <div className="flex items-end gap-2">
-                  <div className="flex-1">
-                    <Label className="text-sm text-[#3c2a14]">NFT Address</Label>
-                    <Input
-                      placeholder="0x..."
-                      className="bg-white border-gray-300 placeholder:text-[#3c2a14] text-[#3c2a14]"
-                      value={newNftAddress}
-                      onChange={(e) => setNewNftAddress(e.target.value)}
-                    />
-                  </div>
-                  <div className="w-32">
-                    <Label className="text-sm text-[#3c2a14]">NFT Type</Label>
-                    <Select
-                      value={newNftType.toString()}
-                      onValueChange={(value) => setNewNftType(Number(value) as NFTType)}
-                    >
-                      <SelectTrigger className="bg-white border-gray-300 placeholder:text-[#3c2a14]">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="0">ERC721</SelectItem>
-                        <SelectItem value="1">ERC1155</SelectItem>
-                        <SelectItem value="2">SoulBound</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={addNft}
-                    className="border-[#ff5e14] text-[#ff5e14]"
-                  >
-                    <PlusCircle className="h-4 w-4" />
-                  </Button>
-                </div>
-
-                {/* Display list of added NFTs */}
-                {nftAddresses.length > 0 && (
-                  <div className="mt-4 space-y-2">
-                    <Label className="text-[#3c2a14]">Added NFTs:</Label>
-                    <div className="space-y-2">
-                      {nftAddresses.map((address, index) => (
-                        <div key={index} className="flex items-center justify-between bg-gray-50 p-2 rounded-md">
-                          <div className="flex-1">
-                            <span className="text-sm font-medium text-[#3c2a14]">{address}</span>
-                            <span className="text-xs text-[#8b7355] ml-2">
-                              ({nftTypes[index] === 0 ? "ERC721" : nftTypes[index] === 1 ? "ERC1155" : "SoulBound"})
-                            </span>
-                          </div>
-                          <Button type="button" variant="ghost" size="sm" onClick={() => removeNft(index)}>
-                            <Trash2 className="h-4 w-4 text-red-500" />
-                          </Button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
+            {/* Protocol-Based Access Control */}
+            <ProtocolErrorBoundary 
+              protocolName="Access Control"
+              maxRetries={2}
+              showDetails={process.env.NODE_ENV === 'development'}
+            >
+              <ProtocolGateSelector 
+                onConfigChange={handleProtocolConfigChange}
+                initialConfig={protocolConfig}
+              />
+            </ProtocolErrorBoundary>
           </div>
         )
 

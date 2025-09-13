@@ -12,7 +12,11 @@ library CookieJarLib {
     /// @notice The mode for access control.
     enum AccessType {
         Whitelist,
-        NFTGated
+        NFTGated,
+        POAP,
+        Unlock,
+        Hypercert,
+        Hats
     }
     /// @notice Specifies the withdrawal type.
     enum WithdrawalTypeOptions {
@@ -35,6 +39,30 @@ library CookieJarLib {
     struct NFTGate {
         address nftAddress; // Address of the NFT contract.
         NFTType nftType; // NFT type: ERC721 or ERC1155
+    }
+
+    /// @notice POAP requirement for access control
+    struct POAPRequirement {
+        uint256 eventId; // POAP event ID required
+        address poapContract; // POAP contract address (0 = use canonical address)
+    }
+
+    /// @notice Unlock Protocol requirement for access control
+    struct UnlockRequirement {
+        address lockAddress; // Unlock Protocol lock contract address
+    }
+
+    /// @notice Hypercert requirement for access control
+    struct HypercertRequirement {
+        address tokenContract; // Hypercert token contract address
+        uint256 tokenId; // Specific hypercert token ID required
+        uint256 minBalance; // Minimum balance required (default 1)
+    }
+
+    /// @notice Hats Protocol requirement for access control
+    struct HatsRequirement {
+        uint256 hatId; // Hat ID required for access
+        address hatsContract; // Hats Protocol contract address (network specific)
     }
 
     struct WithdrawalData {
@@ -65,6 +93,11 @@ library CookieJarLib {
         address[] nftAddresses;
         NFTType[] nftTypes;
         address[] whitelist;
+        // Protocol-specific requirements
+        POAPRequirement poapReq;
+        UnlockRequirement unlockReq;
+        HypercertRequirement hypercertReq;
+        HatsRequirement hatsReq;
     }
 
     /// @notice Optimized parameter grouping for factory functions to avoid stack too deep

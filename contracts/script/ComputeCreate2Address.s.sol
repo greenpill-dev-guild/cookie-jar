@@ -12,7 +12,7 @@ contract ComputeCreate2AddressScript is Script {
     // Same salt as DeployLocal.s.sol
     bytes32 private constant _SALT = keccak256("CookieJarFactory_v1.0.0");
     
-    function run() external view {
+    function run() external pure {
         // Anvil Account #0 (deployer)
         address deployer = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
         

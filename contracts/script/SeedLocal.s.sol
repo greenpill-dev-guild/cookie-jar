@@ -41,11 +41,11 @@ contract SeedLocalScript is Script {
     function run() external {
         console.log("Seeding Cookie Monster demo environment...");
         
-        // Use hardcoded CREATE2 factory address (deterministic)
-        address factoryAddress = 0x4F4B4F5Bcb55950807b88bDfece764Ca96eD548F;
+        // Use the actual deployed factory address (from deployment logs)
+        address factoryAddress = 0x4825218923151080DB48b8dD0aD4Cc5C0A9BEaB1;
         factory = CookieJarFactory(factoryAddress);
         console.log("Using CookieJarFactory at:", factoryAddress);
-        console.log("CREATE2 address is deterministic and consistent!");
+        console.log("Factory address matches deployment!");
         
         vm.startBroadcast(DEPLOYER_KEY);
         

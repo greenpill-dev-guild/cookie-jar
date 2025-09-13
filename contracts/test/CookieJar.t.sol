@@ -125,7 +125,15 @@ contract CookieJarTest is Test {
         CookieJarLib.NFTType[] memory _nftTypes,
         address[] memory _whitelist
     ) internal pure returns (CookieJarLib.AccessConfig memory) {
-        return CookieJarLib.AccessConfig({nftAddresses: _nftAddresses, nftTypes: _nftTypes, whitelist: _whitelist});
+        return CookieJarLib.AccessConfig({
+            nftAddresses: _nftAddresses,
+            nftTypes: _nftTypes,
+            whitelist: _whitelist,
+            poapReq: CookieJarLib.POAPRequirement(0, address(0)),
+            unlockReq: CookieJarLib.UnlockRequirement(address(0)),
+            hypercertReq: CookieJarLib.HypercertRequirement(address(0), 0, 1),
+            hatsReq: CookieJarLib.HatsRequirement(0, address(0))
+        });
     }
 
     function setUp() public {

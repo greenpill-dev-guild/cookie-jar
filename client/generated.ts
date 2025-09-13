@@ -73,6 +73,54 @@ export const cookieJarAbi = [
             type: 'uint8[]',
           },
           { name: 'whitelist', internalType: 'address[]', type: 'address[]' },
+          {
+            name: 'poapReq',
+            internalType: 'struct CookieJarLib.POAPRequirement',
+            type: 'tuple',
+            components: [
+              { name: 'eventId', internalType: 'uint256', type: 'uint256' },
+              {
+                name: 'poapContract',
+                internalType: 'address',
+                type: 'address',
+              },
+            ],
+          },
+          {
+            name: 'unlockReq',
+            internalType: 'struct CookieJarLib.UnlockRequirement',
+            type: 'tuple',
+            components: [
+              { name: 'lockAddress', internalType: 'address', type: 'address' },
+            ],
+          },
+          {
+            name: 'hypercertReq',
+            internalType: 'struct CookieJarLib.HypercertRequirement',
+            type: 'tuple',
+            components: [
+              {
+                name: 'tokenContract',
+                internalType: 'address',
+                type: 'address',
+              },
+              { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+              { name: 'minBalance', internalType: 'uint256', type: 'uint256' },
+            ],
+          },
+          {
+            name: 'hatsReq',
+            internalType: 'struct CookieJarLib.HatsRequirement',
+            type: 'tuple',
+            components: [
+              { name: 'hatId', internalType: 'uint256', type: 'uint256' },
+              {
+                name: 'hatsContract',
+                internalType: 'address',
+                type: 'address',
+              },
+            ],
+          },
         ],
       },
     ],
@@ -256,6 +304,27 @@ export const cookieJarAbi = [
   },
   {
     type: 'function',
+    inputs: [],
+    name: 'hatsRequirement',
+    outputs: [
+      { name: 'hatId', internalType: 'uint256', type: 'uint256' },
+      { name: 'hatsContract', internalType: 'address', type: 'address' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'hypercertRequirement',
+    outputs: [
+      { name: 'tokenContract', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+      { name: 'minBalance', internalType: 'uint256', type: 'uint256' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     inputs: [
       { name: 'nftGate', internalType: 'address', type: 'address' },
       { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
@@ -264,6 +333,32 @@ export const cookieJarAbi = [
     outputs: [
       {
         name: 'lastWithdrawlTimestamp',
+        internalType: 'uint256',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'lastWithdrawalPOAP',
+    outputs: [
+      {
+        name: 'lastWithdrawalTimestamp',
+        internalType: 'uint256',
+        type: 'uint256',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'user', internalType: 'address', type: 'address' }],
+    name: 'lastWithdrawalProtocol',
+    outputs: [
+      {
+        name: 'lastWithdrawalTimestamp',
         internalType: 'uint256',
         type: 'uint256',
       },
@@ -320,6 +415,16 @@ export const cookieJarAbi = [
   },
   {
     type: 'function',
+    inputs: [],
+    name: 'poapRequirement',
+    outputs: [
+      { name: 'eventId', internalType: 'uint256', type: 'uint256' },
+      { name: 'poapContract', internalType: 'address', type: 'address' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
     inputs: [{ name: '_nftAddress', internalType: 'address', type: 'address' }],
     name: 'removeNFTGate',
     outputs: [],
@@ -364,6 +469,15 @@ export const cookieJarAbi = [
     inputs: [{ name: 'interfaceId', internalType: 'bytes4', type: 'bytes4' }],
     name: 'supportsInterface',
     outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'unlockRequirement',
+    outputs: [
+      { name: 'lockAddress', internalType: 'address', type: 'address' },
+    ],
     stateMutability: 'view',
   },
   {
@@ -414,10 +528,52 @@ export const cookieJarAbi = [
     inputs: [
       { name: 'amount', internalType: 'uint256', type: 'uint256' },
       { name: 'purpose', internalType: 'string', type: 'string' },
+    ],
+    name: 'withdrawHatsMode',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'amount', internalType: 'uint256', type: 'uint256' },
+      { name: 'purpose', internalType: 'string', type: 'string' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'withdrawHypercertMode',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'amount', internalType: 'uint256', type: 'uint256' },
+      { name: 'purpose', internalType: 'string', type: 'string' },
       { name: 'gateAddress', internalType: 'address', type: 'address' },
       { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
     ],
     name: 'withdrawNFTMode',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'amount', internalType: 'uint256', type: 'uint256' },
+      { name: 'purpose', internalType: 'string', type: 'string' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'withdrawPOAPMode',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'amount', internalType: 'uint256', type: 'uint256' },
+      { name: 'purpose', internalType: 'string', type: 'string' },
+    ],
+    name: 'withdrawUnlockMode',
     outputs: [],
     stateMutability: 'nonpayable',
   },
@@ -940,11 +1096,59 @@ export const cookieJarFactoryAbi = [
             type: 'uint8[]',
           },
           { name: 'whitelist', internalType: 'address[]', type: 'address[]' },
+          {
+            name: 'poapReq',
+            internalType: 'struct CookieJarLib.POAPRequirement',
+            type: 'tuple',
+            components: [
+              { name: 'eventId', internalType: 'uint256', type: 'uint256' },
+              {
+                name: 'poapContract',
+                internalType: 'address',
+                type: 'address',
+              },
+            ],
+          },
+          {
+            name: 'unlockReq',
+            internalType: 'struct CookieJarLib.UnlockRequirement',
+            type: 'tuple',
+            components: [
+              { name: 'lockAddress', internalType: 'address', type: 'address' },
+            ],
+          },
+          {
+            name: 'hypercertReq',
+            internalType: 'struct CookieJarLib.HypercertRequirement',
+            type: 'tuple',
+            components: [
+              {
+                name: 'tokenContract',
+                internalType: 'address',
+                type: 'address',
+              },
+              { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+              { name: 'minBalance', internalType: 'uint256', type: 'uint256' },
+            ],
+          },
+          {
+            name: 'hatsReq',
+            internalType: 'struct CookieJarLib.HatsRequirement',
+            type: 'tuple',
+            components: [
+              { name: 'hatId', internalType: 'uint256', type: 'uint256' },
+              {
+                name: 'hatsContract',
+                internalType: 'address',
+                type: 'address',
+              },
+            ],
+          },
         ],
       },
     ],
     name: 'createCookieJarOptimized',
-    outputs: [{ name: 'jarAddress', internalType: 'address', type: 'address' }],
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
     stateMutability: 'nonpayable',
   },
   {
@@ -1317,6 +1521,68 @@ export const cookieJarFactoryAbi = [
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// IHats
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const iHatsAbi = [
+  {
+    type: 'function',
+    inputs: [
+      { name: 'user', internalType: 'address', type: 'address' },
+      { name: 'hatId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'isWearerOfHat',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// IHypercertToken
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const iHypercertTokenAbi = [
+  {
+    type: 'function',
+    inputs: [
+      { name: 'account', internalType: 'address', type: 'address' },
+      { name: 'id', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'balanceOf',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// IPOAP
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const ipoapAbi = [
+  {
+    type: 'function',
+    inputs: [{ name: 'tokenId', internalType: 'uint256', type: 'uint256' }],
+    name: 'ownerOf',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// IPublicLock
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const iPublicLockAbi = [
+  {
+    type: 'function',
+    inputs: [{ name: '_user', internalType: 'address', type: 'address' }],
+    name: 'getHasValidKey',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // erc20
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -1536,12 +1802,48 @@ export const useReadCookieJarHasRole = /*#__PURE__*/ createUseReadContract({
 })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"hatsRequirement"`
+ */
+export const useReadCookieJarHatsRequirement =
+  /*#__PURE__*/ createUseReadContract({
+    abi: cookieJarAbi,
+    functionName: 'hatsRequirement',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"hypercertRequirement"`
+ */
+export const useReadCookieJarHypercertRequirement =
+  /*#__PURE__*/ createUseReadContract({
+    abi: cookieJarAbi,
+    functionName: 'hypercertRequirement',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"lastWithdrawalNFT"`
  */
 export const useReadCookieJarLastWithdrawalNft =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
     functionName: 'lastWithdrawalNFT',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"lastWithdrawalPOAP"`
+ */
+export const useReadCookieJarLastWithdrawalPoap =
+  /*#__PURE__*/ createUseReadContract({
+    abi: cookieJarAbi,
+    functionName: 'lastWithdrawalPOAP',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"lastWithdrawalProtocol"`
+ */
+export const useReadCookieJarLastWithdrawalProtocol =
+  /*#__PURE__*/ createUseReadContract({
+    abi: cookieJarAbi,
+    functionName: 'lastWithdrawalProtocol',
   })
 
 /**
@@ -1588,6 +1890,15 @@ export const useReadCookieJarOneTimeWithdrawal =
   })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"poapRequirement"`
+ */
+export const useReadCookieJarPoapRequirement =
+  /*#__PURE__*/ createUseReadContract({
+    abi: cookieJarAbi,
+    functionName: 'poapRequirement',
+  })
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"strictPurpose"`
  */
 export const useReadCookieJarStrictPurpose =
@@ -1603,6 +1914,15 @@ export const useReadCookieJarSupportsInterface =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
     functionName: 'supportsInterface',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"unlockRequirement"`
+ */
+export const useReadCookieJarUnlockRequirement =
+  /*#__PURE__*/ createUseReadContract({
+    abi: cookieJarAbi,
+    functionName: 'unlockRequirement',
   })
 
 /**
@@ -1767,12 +2087,48 @@ export const useWriteCookieJarUpdateWithdrawalInterval =
   })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawHatsMode"`
+ */
+export const useWriteCookieJarWithdrawHatsMode =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: cookieJarAbi,
+    functionName: 'withdrawHatsMode',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawHypercertMode"`
+ */
+export const useWriteCookieJarWithdrawHypercertMode =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: cookieJarAbi,
+    functionName: 'withdrawHypercertMode',
+  })
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawNFTMode"`
  */
 export const useWriteCookieJarWithdrawNftMode =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarAbi,
     functionName: 'withdrawNFTMode',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawPOAPMode"`
+ */
+export const useWriteCookieJarWithdrawPoapMode =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: cookieJarAbi,
+    functionName: 'withdrawPOAPMode',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawUnlockMode"`
+ */
+export const useWriteCookieJarWithdrawUnlockMode =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: cookieJarAbi,
+    functionName: 'withdrawUnlockMode',
   })
 
 /**
@@ -1918,12 +2274,48 @@ export const useSimulateCookieJarUpdateWithdrawalInterval =
   })
 
 /**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawHatsMode"`
+ */
+export const useSimulateCookieJarWithdrawHatsMode =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: cookieJarAbi,
+    functionName: 'withdrawHatsMode',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawHypercertMode"`
+ */
+export const useSimulateCookieJarWithdrawHypercertMode =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: cookieJarAbi,
+    functionName: 'withdrawHypercertMode',
+  })
+
+/**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawNFTMode"`
  */
 export const useSimulateCookieJarWithdrawNftMode =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
     functionName: 'withdrawNFTMode',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawPOAPMode"`
+ */
+export const useSimulateCookieJarWithdrawPoapMode =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: cookieJarAbi,
+    functionName: 'withdrawPOAPMode',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawUnlockMode"`
+ */
+export const useSimulateCookieJarWithdrawUnlockMode =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: cookieJarAbi,
+    functionName: 'withdrawUnlockMode',
   })
 
 /**
@@ -2513,6 +2905,68 @@ export const useWatchCookieJarFactoryRoleRevokedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarFactoryAbi,
     eventName: 'RoleRevoked',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iHatsAbi}__
+ */
+export const useReadIHats = /*#__PURE__*/ createUseReadContract({
+  abi: iHatsAbi,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iHatsAbi}__ and `functionName` set to `"isWearerOfHat"`
+ */
+export const useReadIHatsIsWearerOfHat = /*#__PURE__*/ createUseReadContract({
+  abi: iHatsAbi,
+  functionName: 'isWearerOfHat',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iHypercertTokenAbi}__
+ */
+export const useReadIHypercertToken = /*#__PURE__*/ createUseReadContract({
+  abi: iHypercertTokenAbi,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iHypercertTokenAbi}__ and `functionName` set to `"balanceOf"`
+ */
+export const useReadIHypercertTokenBalanceOf =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iHypercertTokenAbi,
+    functionName: 'balanceOf',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link ipoapAbi}__
+ */
+export const useReadIpoap = /*#__PURE__*/ createUseReadContract({
+  abi: ipoapAbi,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link ipoapAbi}__ and `functionName` set to `"ownerOf"`
+ */
+export const useReadIpoapOwnerOf = /*#__PURE__*/ createUseReadContract({
+  abi: ipoapAbi,
+  functionName: 'ownerOf',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iPublicLockAbi}__
+ */
+export const useReadIPublicLock = /*#__PURE__*/ createUseReadContract({
+  abi: iPublicLockAbi,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link iPublicLockAbi}__ and `functionName` set to `"getHasValidKey"`
+ */
+export const useReadIPublicLockGetHasValidKey =
+  /*#__PURE__*/ createUseReadContract({
+    abi: iPublicLockAbi,
+    functionName: 'getHasValidKey',
   })
 
 /**

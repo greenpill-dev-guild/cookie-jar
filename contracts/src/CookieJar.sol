@@ -9,6 +9,23 @@ import "@openzeppelin/contracts/access/AccessControl.sol";
 
 import {CookieJarLib} from "./libraries/CookieJarLib.sol";
 
+// Protocol interfaces
+interface IPOAP {
+    function ownerOf(uint256 tokenId) external view returns (address);
+}
+
+interface IPublicLock {
+    function getHasValidKey(address _user) external view returns (bool);
+}
+
+interface IHypercertToken {
+    function balanceOf(address account, uint256 id) external view returns (uint256);
+}
+
+interface IHats {
+    function isWearerOfHat(address user, uint256 hatId) external view returns (bool);
+}
+
 /// @title CookieJar
 /// @notice A decentralized smart contract for controlled fund withdrawals.
 /// @notice Supports both whitelist and NFT‐gated access modes.
@@ -20,6 +37,19 @@ contract CookieJar is AccessControl {
     CookieJarLib.NFTGate[] public nftGates;
 
     address[] public whitelist;
+
+    // --- Protocol-specific storage ---
+    /// @notice POAP requirement (used in POAP mode)
+    CookieJarLib.POAPRequirement public poapRequirement;
+    
+    /// @notice Unlock Protocol requirement (used in Unlock mode)
+    CookieJarLib.UnlockRequirement public unlockRequirement;
+    
+    /// @notice Hypercert requirement (used in Hypercert mode)
+    CookieJarLib.HypercertRequirement public hypercertRequirement;
+    
+    /// @notice Hats Protocol requirement (used in Hats mode)
+    CookieJarLib.HatsRequirement public hatsRequirement;
 
     CookieJarLib.WithdrawalData[] public withdrawalData;
 
@@ -56,6 +86,10 @@ contract CookieJar is AccessControl {
     mapping(address user => uint256 lastWithdrawalTimestamp) public lastWithdrawalWhitelist;
     /// @notice Stores the last withdrawal timestamp for each NFT token for NFT-gated mode.
     mapping(address nftGate => mapping(uint256 tokenId => uint256 lastWithdrawlTimestamp)) public lastWithdrawalNFT;
+    /// @notice Stores the last withdrawal timestamp for each POAP token for POAP mode.
+    mapping(uint256 tokenId => uint256 lastWithdrawalTimestamp) public lastWithdrawalPOAP;
+    /// @notice Stores the last withdrawal timestamp for each user for Unlock/Hypercert/Hats modes.
+    mapping(address user => uint256 lastWithdrawalTimestamp) public lastWithdrawalProtocol;
 
     /// @notice Initializes a new CookieJar contract.
     /// @param config The main configuration struct for the jar
@@ -65,7 +99,12 @@ contract CookieJar is AccessControl {
         if (config.feeCollector == address(0)) revert CookieJarLib.FeeCollectorAddressCannotBeZeroAddress();
 
         accessType = config.accessType;
-        if (accessType == CookieJarLib.AccessType.NFTGated) {
+        
+        // Initialize access control based on type
+        if (accessType == CookieJarLib.AccessType.Whitelist) {
+            // Whitelist mode - only whitelist should be provided
+            if (accessConfig.nftAddresses.length > 0) revert CookieJarLib.WhitelistNotAllowedForNFTGated();
+        } else if (accessType == CookieJarLib.AccessType.NFTGated) {
             if (accessConfig.nftAddresses.length == 0) revert CookieJarLib.NoNFTAddressesProvided();
             if (accessConfig.nftAddresses.length != accessConfig.nftTypes.length)
                 revert CookieJarLib.NFTArrayLengthMismatch();
@@ -73,6 +112,27 @@ contract CookieJar is AccessControl {
             for (uint256 i = 0; i < accessConfig.nftAddresses.length; i++) {
                 _addNFTGate(accessConfig.nftAddresses[i], accessConfig.nftTypes[i]);
             }
+        } else if (accessType == CookieJarLib.AccessType.POAP) {
+            if (accessConfig.poapReq.eventId == 0) revert CookieJarLib.InvalidAccessType();
+            if (accessConfig.nftAddresses.length > 0 || accessConfig.whitelist.length > 0) 
+                revert CookieJarLib.InvalidAccessType();
+            poapRequirement = accessConfig.poapReq;
+        } else if (accessType == CookieJarLib.AccessType.Unlock) {
+            if (accessConfig.unlockReq.lockAddress == address(0)) revert CookieJarLib.InvalidAccessType();
+            if (accessConfig.nftAddresses.length > 0 || accessConfig.whitelist.length > 0) 
+                revert CookieJarLib.InvalidAccessType();
+            unlockRequirement = accessConfig.unlockReq;
+        } else if (accessType == CookieJarLib.AccessType.Hypercert) {
+            if (accessConfig.hypercertReq.tokenContract == address(0)) revert CookieJarLib.InvalidAccessType();
+            if (accessConfig.nftAddresses.length > 0 || accessConfig.whitelist.length > 0) 
+                revert CookieJarLib.InvalidAccessType();
+            hypercertRequirement = accessConfig.hypercertReq;
+        } else if (accessType == CookieJarLib.AccessType.Hats) {
+            if (accessConfig.hatsReq.hatId == 0 || accessConfig.hatsReq.hatsContract == address(0)) 
+                revert CookieJarLib.InvalidAccessType();
+            if (accessConfig.nftAddresses.length > 0 || accessConfig.whitelist.length > 0) 
+                revert CookieJarLib.InvalidAccessType();
+            hatsRequirement = accessConfig.hatsReq;
         }
 
         withdrawalOption = config.withdrawalOption;
@@ -257,6 +317,52 @@ contract CookieJar is AccessControl {
         _withdraw(amount, purpose);
     }
 
+    /// @notice Withdraws funds (ETH or ERC20) for POAP holders.
+    /// @param amount The amount to withdraw.
+    /// @param purpose A description for the withdrawal.
+    /// @param tokenId The POAP token ID to use for access.
+    function withdrawPOAPMode(uint256 amount, string calldata purpose, uint256 tokenId) external {
+        if (accessType != CookieJarLib.AccessType.POAP) revert CookieJarLib.InvalidAccessType();
+        _checkAccessPOAP(tokenId);
+        _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalPOAP[tokenId]);
+        lastWithdrawalPOAP[tokenId] = block.timestamp;
+        _withdraw(amount, purpose);
+    }
+
+    /// @notice Withdraws funds (ETH or ERC20) for Unlock Protocol key holders.
+    /// @param amount The amount to withdraw.
+    /// @param purpose A description for the withdrawal.
+    function withdrawUnlockMode(uint256 amount, string calldata purpose) external {
+        if (accessType != CookieJarLib.AccessType.Unlock) revert CookieJarLib.InvalidAccessType();
+        _checkAccessUnlock();
+        _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalProtocol[msg.sender]);
+        lastWithdrawalProtocol[msg.sender] = block.timestamp;
+        _withdraw(amount, purpose);
+    }
+
+    /// @notice Withdraws funds (ETH or ERC20) for Hypercert holders.
+    /// @param amount The amount to withdraw.
+    /// @param purpose A description for the withdrawal.
+    /// @param tokenId The hypercert token ID to use for access.
+    function withdrawHypercertMode(uint256 amount, string calldata purpose, uint256 tokenId) external {
+        if (accessType != CookieJarLib.AccessType.Hypercert) revert CookieJarLib.InvalidAccessType();
+        _checkAccessHypercert(tokenId);
+        _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalProtocol[msg.sender]);
+        lastWithdrawalProtocol[msg.sender] = block.timestamp;
+        _withdraw(amount, purpose);
+    }
+
+    /// @notice Withdraws funds (ETH or ERC20) for Hats Protocol hat wearers.
+    /// @param amount The amount to withdraw.
+    /// @param purpose A description for the withdrawal.
+    function withdrawHatsMode(uint256 amount, string calldata purpose) external {
+        if (accessType != CookieJarLib.AccessType.Hats) revert CookieJarLib.InvalidAccessType();
+        _checkAccessHats();
+        _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalProtocol[msg.sender]);
+        lastWithdrawalProtocol[msg.sender] = block.timestamp;
+        _withdraw(amount, purpose);
+    }
+
     // --- View Functions ---
 
     /// @notice Returns the NFT gates array.
@@ -361,6 +467,83 @@ contract CookieJar is AccessControl {
         
         // Emit event for successful NFT access validation
         emit CookieJarLib.NFTAccessValidated(msg.sender, gateAddress, tokenId);
+    }
+
+    /// @notice Validates POAP access for the caller
+    /// @dev Checks if caller owns the required POAP token from the specified event
+    /// @param tokenId The POAP token ID to check ownership for
+    function _checkAccessPOAP(uint256 tokenId) internal view {
+        // Use configurable POAP contract address from requirement
+        // Fallback to canonical address if not set (for backwards compatibility)
+        address poapContract = poapRequirement.poapContract;
+        if (poapContract == address(0)) {
+            poapContract = 0x22C1f6050E56d2876009903609a2cC3fEf83B415; // Canonical POAP contract
+        }
+        
+        // Check if user owns the specified POAP token
+        try IPOAP(poapContract).ownerOf(tokenId) returns (address owner) {
+            if (owner != msg.sender) {
+                revert CookieJarLib.NotAuthorized();
+            }
+        } catch {
+            revert CookieJarLib.NotAuthorized();
+        }
+        
+        // TODO: Add on-chain event ID validation via oracle or merkle proof
+        // Currently relies on off-chain filtering of valid token IDs per event
+    }
+
+    /// @notice Validates Unlock Protocol access for the caller
+    /// @dev Checks if caller has a valid (non-expired) key for the specified lock
+    function _checkAccessUnlock() internal view {
+        address lockAddress = unlockRequirement.lockAddress;
+        
+        // Check if user has a valid key for the lock
+        try IPublicLock(lockAddress).getHasValidKey(msg.sender) returns (bool hasValidKey) {
+            if (!hasValidKey) {
+                revert CookieJarLib.NotAuthorized();
+            }
+        } catch {
+            revert CookieJarLib.NotAuthorized();
+        }
+    }
+
+    /// @notice Validates Hypercert access for the caller
+    /// @dev Checks if caller holds at least the minimum balance of the specified hypercert token
+    /// @param tokenId The hypercert token ID to check (must match requirement)
+    function _checkAccessHypercert(uint256 tokenId) internal view {
+        if (tokenId != hypercertRequirement.tokenId) {
+            revert CookieJarLib.InvalidAccessType();
+        }
+        
+        address tokenContract = hypercertRequirement.tokenContract;
+        uint256 minBalance = hypercertRequirement.minBalance;
+        if (minBalance == 0) minBalance = 1; // Default to 1 if not set
+        
+        // Check if user has sufficient balance of the hypercert
+        try IHypercertToken(tokenContract).balanceOf(msg.sender, tokenId) returns (uint256 balance) {
+            if (balance < minBalance) {
+                revert CookieJarLib.NotAuthorized();
+            }
+        } catch {
+            revert CookieJarLib.NotAuthorized();
+        }
+    }
+
+    /// @notice Validates Hats Protocol access for the caller
+    /// @dev Checks if caller is currently wearing the required hat (role)
+    function _checkAccessHats() internal view {
+        uint256 hatId = hatsRequirement.hatId;
+        address hatsContract = hatsRequirement.hatsContract;
+        
+        // Check if user is wearing the required hat
+        try IHats(hatsContract).isWearerOfHat(msg.sender, hatId) returns (bool isWearer) {
+            if (!isWearer) {
+                revert CookieJarLib.NotAuthorized();
+            }
+        } catch {
+            revert CookieJarLib.NotAuthorized();
+        }
     }
 
     /// @notice Validates withdrawal conditions and updates internal state

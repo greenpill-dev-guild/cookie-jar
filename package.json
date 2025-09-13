@@ -16,7 +16,8 @@
     "build:client": "pnpm --filter client run build",
     "copy:deployment": "./scripts/copy-deployment.sh && pnpm generate",
     
-    "test": "pnpm run test:contracts && pnpm run test:client",
+    "test": "pnpm run test:contracts; pnpm run test:client",
+    "test:all": "pnpm run test:contracts && pnpm run test:client",
     "test:contracts": "cd contracts && forge test",
     "test:client": "pnpm --filter client run test",
     

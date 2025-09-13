@@ -31,9 +31,9 @@ import { getNativeCurrency } from '@/config/supported-networks'
 import AllowlistManagement from "./AllowlistManagement"
 
 enum NFTType {
-  ERC721 = 0,
-  ERC1155 = 1,
-  Soulbound = 2,
+  None = 0,
+  ERC721 = 1,
+  ERC1155 = 2,
 }
 
 interface AdminFunctionsProps {

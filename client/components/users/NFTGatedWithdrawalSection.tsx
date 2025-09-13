@@ -2,9 +2,18 @@
 
 // NFTGatedWithdrawalSection.tsx
 import type React from "react"
+import { useState, useEffect } from "react"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { AlertCircle, CheckCircle2, Loader2, Eye, EyeOff } from "lucide-react"
 import { ETH_ADDRESS, useTokenInfo, parseTokenAmount, formatTokenAmount } from "@/lib/utils/token-utils"
+import { NFTSelector } from "@/components/forms/NFTSelector"
+import type { SelectedNFT } from "@/components/forms/NFTSelector"
+import { useReadContract, useAccount } from "wagmi"
+import { isAddress } from "viem"
 
 interface NFTGatedWithdrawalSectionProps {
   config: any // Ideally this would be more specifically typed
@@ -18,6 +27,30 @@ interface NFTGatedWithdrawalSectionProps {
   handleWithdrawNFTVariable: () => void
 }
 
+// ERC721/ERC1155 ABI for balance checking
+const ERC721_ABI = [
+  {
+    inputs: [{ internalType: 'uint256', name: 'tokenId', type: 'uint256' }],
+    name: 'ownerOf',
+    outputs: [{ internalType: 'address', name: '', type: 'address' }],
+    stateMutability: 'view',
+    type: 'function'
+  }
+] as const
+
+const ERC1155_ABI = [
+  {
+    inputs: [
+      { internalType: 'address', name: 'account', type: 'address' },
+      { internalType: 'uint256', name: 'id', type: 'uint256' }
+    ],
+    name: 'balanceOf',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function'
+  }
+] as const
+
 export const NFTGatedWithdrawalSection: React.FC<NFTGatedWithdrawalSectionProps> = ({
   config,
   withdrawAmount,
@@ -29,106 +62,257 @@ export const NFTGatedWithdrawalSection: React.FC<NFTGatedWithdrawalSectionProps>
   handleWithdrawNFT,
   handleWithdrawNFTVariable,
 }) => {
+  const { address: userAddress } = useAccount()
+  const [selectedNFT, setSelectedNFT] = useState<SelectedNFT | null>(null)
+  const [showManualInput, setShowManualInput] = useState(false)
+  const [balanceCheckLoading, setBalanceCheckLoading] = useState(false)
+  const [balanceError, setBalanceError] = useState<string | null>(null)
+  const [ownershipVerified, setOwnershipVerified] = useState(false)
+
   // Get token information using the token utils
   const { symbol: tokenSymbol, decimals: tokenDecimals } = useTokenInfo(
     config?.currency !== ETH_ADDRESS ? config?.currency : undefined
-  );
-  // Fixed amount NFT-gated withdrawal
-  if (config.strictPurpose && config.withdrawalOption === "FIXED") {
-    return (
-      <div className="flex flex-col gap-4">
-        <Input
-          type="text"
-          placeholder="Enter GateAddress"
-          value={gateAddress}
-          onChange={(e) => setGateAddress(e.target.value)}
-          className="w-full"
-        />
-        <Input
-          type="text"
-          placeholder="Enter TokenId"
-          value={tokenId}
-          onChange={(e) => setTokenId(e.target.value)}
-          className="w-full"
-        />
-        <Button
-          onClick={handleWithdrawNFT}
-          className="w-full bg-[#ff5e14] hover:bg-[#e54d00] text-white"
-          disabled={config.isWithdrawPending}
-        >
-          {config.isWithdrawPending ? (
-            <>
-              <span className="animate-spin mr-2">⟳</span>
-              Processing...
-            </>
-          ) : (
-            <>Get Cookie with NFT ({config.fixedAmount ? formatTokenAmount(BigInt(config.fixedAmount), tokenDecimals, tokenSymbol) : `0 ${tokenSymbol}`})</>
-          )}
-        </Button>
-      </div>
-    )
+  )
+
+  // Extract NFT gate addresses from config for filtering
+  const nftGateAddresses = config?.nftGates?.map((gate: any) => gate.address) || []
+
+  // Real-time balance verification for ERC721
+  const { 
+    data: erc721Owner,
+    isLoading: erc721Loading,
+    error: erc721Error 
+  } = useReadContract({
+    address: selectedNFT?.contractAddress as `0x${string}` || undefined,
+    abi: ERC721_ABI,
+    functionName: 'ownerOf',
+    args: selectedNFT?.tokenId ? [BigInt(selectedNFT.tokenId)] : undefined,
+    query: {
+      enabled: !!(selectedNFT?.contractAddress && selectedNFT?.tokenId && selectedNFT?.tokenType === 'ERC721')
+    }
+  })
+
+  // Real-time balance verification for ERC1155
+  const { 
+    data: erc1155Balance,
+    isLoading: erc1155Loading,
+    error: erc1155Error 
+  } = useReadContract({
+    address: selectedNFT?.contractAddress as `0x${string}` || undefined,
+    abi: ERC1155_ABI,
+    functionName: 'balanceOf',
+    args: userAddress && selectedNFT?.tokenId ? [userAddress, BigInt(selectedNFT.tokenId)] : undefined,
+    query: {
+      enabled: !!(selectedNFT?.contractAddress && selectedNFT?.tokenId && selectedNFT?.tokenType === 'ERC1155' && userAddress)
+    }
+  })
+
+  // Update gateAddress and tokenId when NFT is selected
+  useEffect(() => {
+    if (selectedNFT) {
+      setGateAddress(selectedNFT.contractAddress)
+      setTokenId(selectedNFT.tokenId)
+    }
+  }, [selectedNFT, setGateAddress, setTokenId])
+
+  // Verify ownership in real-time
+  useEffect(() => {
+    if (!selectedNFT || !userAddress) {
+      setOwnershipVerified(false)
+      setBalanceError(null)
+      return
+    }
+
+    const isLoading = erc721Loading || erc1155Loading
+    const error = erc721Error || erc1155Error
+
+    if (error) {
+      setBalanceError('Failed to verify NFT ownership')
+      setOwnershipVerified(false)
+      return
+    }
+
+    if (isLoading) {
+      setBalanceCheckLoading(true)
+      return
+    }
+
+    setBalanceCheckLoading(false)
+
+    if (selectedNFT.tokenType === 'ERC721') {
+      const isOwner = erc721Owner?.toLowerCase() === userAddress.toLowerCase()
+      setOwnershipVerified(isOwner)
+      setBalanceError(isOwner ? null : 'You no longer own this NFT')
+    } else if (selectedNFT.tokenType === 'ERC1155') {
+      const hasBalance = erc1155Balance && erc1155Balance > BigInt(0)
+      setOwnershipVerified(!!hasBalance)
+      setBalanceError(hasBalance ? null : 'You no longer have balance of this NFT')
+    }
+  }, [selectedNFT, userAddress, erc721Owner, erc1155Balance, erc721Loading, erc1155Loading, erc721Error, erc1155Error])
+
+  const handleNFTSelect = (nft: SelectedNFT) => {
+    setSelectedNFT(nft)
+    setShowManualInput(false)
   }
 
-  // Variable amount NFT-gated withdrawal
-  if (config.strictPurpose && config.withdrawalOption === "Variable") {
-    return (
-      <div className="flex flex-col gap-4">
-        <div className="flex flex-col gap-1">
-          <Input
-            type="text"
-            placeholder="Enter Amount"
-            value={withdrawAmount}
-            onChange={(e) => {
-              // Only allow numbers and decimal points with validation based on decimal precision
-              const value = e.target.value;
-              if (value === "" || /^[0-9]*\.?[0-9]*$/.test(value)) {
-                // Validate that the number of decimal places doesn't exceed the token's decimal precision
-                const parts = value.split('.');
-                if (
-                  parts.length === 1 || // No decimal point
-                  parts[1].length <= tokenDecimals // Has decimal point but not exceeding max decimals
-                ) {
-                  setWithdrawAmount(value);
-                }
-              }
-            }}
-            className="w-full"
+  const isWithdrawalReady = selectedNFT && ownershipVerified && !balanceCheckLoading && !balanceError
+
+  return (
+    <div className="space-y-6">
+      {/* NFT Selection Method Toggle */}
+      <Tabs value={showManualInput ? "manual" : "selector"} onValueChange={(value) => setShowManualInput(value === "manual")}>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="selector" className="flex items-center gap-2">
+            <Eye className="h-4 w-4" />
+            Visual Selector
+          </TabsTrigger>
+          <TabsTrigger value="manual" className="flex items-center gap-2">
+            <EyeOff className="h-4 w-4" />
+            Manual Input
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="selector" className="space-y-4">
+          <NFTSelector
+            contractAddresses={nftGateAddresses.length > 0 ? nftGateAddresses : undefined}
+            onSelect={handleNFTSelect}
+            selectedNFT={selectedNFT || undefined}
           />
-          <p className="text-sm text-[#8b7355]">
-            Maximum withdrawal: {config.maxWithdrawal ? formatTokenAmount(BigInt(config.maxWithdrawal), tokenDecimals, tokenSymbol) : `0 ${tokenSymbol}`}
-          </p>
-        </div>
-        <Input
-          type="text"
-          placeholder="Enter GateAddress"
-          value={gateAddress}
-          onChange={(e) => setGateAddress(e.target.value)}
-          className="w-full"
-        />
-        <Input
-          type="text"
-          placeholder="Enter TokenId"
-          value={tokenId}
-          onChange={(e) => setTokenId(e.target.value)}
-          className="w-full"
-        />
-        <Button
-          onClick={handleWithdrawNFTVariable}
-          className="w-full bg-[#ff5e14] hover:bg-[#e54d00] text-white"
-          disabled={!withdrawAmount || Number(withdrawAmount) <= 0 || !gateAddress || !tokenId || config.isWithdrawPending}
-        >
-          {config.isWithdrawPending ? (
-            <>
-              <span className="animate-spin mr-2">⟳</span>
-              Processing...
-            </>
-          ) : (
-            <>Get Cookie with NFT ({withdrawAmount || "0"} {tokenSymbol})</>
-          )}
-        </Button>
-      </div>
-    )
-  }
+        </TabsContent>
 
-  return null
+        <TabsContent value="manual" className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm font-medium text-[#3c2a14]">NFT Contract Address</label>
+              <Input
+                type="text"
+                placeholder="0x..."
+                value={gateAddress}
+                onChange={(e) => setGateAddress(e.target.value)}
+                className="w-full"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium text-[#3c2a14]">Token ID</label>
+              <Input
+                type="text"
+                placeholder="Token ID"
+                value={tokenId}
+                onChange={(e) => setTokenId(e.target.value)}
+                className="w-full"
+              />
+            </div>
+          </div>
+        </TabsContent>
+      </Tabs>
+
+      {/* Selected NFT Status */}
+      {selectedNFT && (
+        <Card className="border-l-4 border-l-[#ff5e14]">
+          <CardContent className="pt-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h4 className="font-medium text-[#3c2a14]">Selected NFT</h4>
+                <p className="text-sm text-[#8b7355]">{selectedNFT.name}</p>
+                <p className="text-xs text-[#8b7355] font-mono">{selectedNFT.contractAddress}#{selectedNFT.tokenId}</p>
+              </div>
+              <div className="text-right">
+                <Badge variant={selectedNFT.tokenType === 'ERC721' ? 'default' : 'secondary'}>
+                  {selectedNFT.tokenType}
+                </Badge>
+                <div className="mt-2">
+                  {balanceCheckLoading ? (
+                    <div className="flex items-center gap-2 text-[#8b7355]">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      <span className="text-xs">Verifying...</span>
+                    </div>
+                  ) : ownershipVerified ? (
+                    <div className="flex items-center gap-2 text-green-600">
+                      <CheckCircle2 className="h-4 w-4" />
+                      <span className="text-xs">Verified</span>
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-2 text-red-600">
+                      <AlertCircle className="h-4 w-4" />
+                      <span className="text-xs">Not owned</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </div>
+            {balanceError && (
+              <div className="mt-2 p-2 bg-red-50 border border-red-200 rounded text-sm text-red-600">
+                {balanceError}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Variable Amount Input (if variable withdrawal) */}
+      {config.withdrawalOption === "VARIABLE" && (
+        <div>
+          <label className="text-sm font-medium text-[#3c2a14]">Withdrawal Amount</label>
+          <Input
+            type="number"
+            placeholder={`Enter amount (${tokenSymbol})`}
+            value={withdrawAmount}
+            onChange={(e) => setWithdrawAmount(e.target.value)}
+            className="w-full"
+            min="0"
+            step="any"
+            max={config.maxWithdrawal ? formatTokenAmount(BigInt(config.maxWithdrawal), tokenDecimals, '') : undefined}
+          />
+          {config.maxWithdrawal && (
+            <p className="text-xs text-[#8b7355] mt-1">
+              Maximum: {formatTokenAmount(BigInt(config.maxWithdrawal), tokenDecimals, tokenSymbol)}
+            </p>
+          )}
+        </div>
+      )}
+
+      {/* Withdrawal Button */}
+      <Button
+        onClick={config.withdrawalOption === "VARIABLE" ? handleWithdrawNFTVariable : handleWithdrawNFT}
+        className="w-full bg-[#ff5e14] hover:bg-[#e54d00] text-white"
+        disabled={
+          !isWithdrawalReady || 
+          config.isWithdrawPending ||
+          (config.withdrawalOption === "VARIABLE" && (!withdrawAmount || Number(withdrawAmount) <= 0))
+        }
+      >
+        {config.isWithdrawPending ? (
+          <>
+            <Loader2 className="animate-spin mr-2 h-4 w-4" />
+            Processing...
+          </>
+        ) : balanceCheckLoading ? (
+          <>
+            <Loader2 className="animate-spin mr-2 h-4 w-4" />
+            Verifying NFT...
+          </>
+        ) : (
+          <>
+            Get Cookie with NFT (
+            {config.withdrawalOption === "VARIABLE" 
+              ? `${withdrawAmount || "0"} ${tokenSymbol}` 
+              : config.fixedAmount 
+                ? formatTokenAmount(BigInt(config.fixedAmount), tokenDecimals, tokenSymbol)
+                : `0 ${tokenSymbol}`
+            })
+          </>
+        )}
+      </Button>
+
+      {/* Help Text */}
+      <div className="text-xs text-[#8b7355] bg-gray-50 p-3 rounded">
+        <p className="font-medium mb-1">How it works:</p>
+        <ul className="space-y-1 list-disc list-inside">
+          <li>Select an NFT from your collection that's approved for this jar</li>
+          <li>We'll verify you still own the NFT in real-time</li>
+          <li>Click withdraw to claim your cookie using the selected NFT</li>
+        </ul>
+      </div>
+    </div>
+  )
 }
