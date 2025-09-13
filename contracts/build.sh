@@ -1,1 +1,0 @@
-forge verify-contract --show-standard-json-input 0x874d481c5a103ed207b25ce4c44f83a81918348f --rpc-url $SEPOLIA_URL > verificationData.json

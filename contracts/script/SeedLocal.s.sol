@@ -63,7 +63,7 @@ contract SeedLocalScript is Script {
         
         vm.stopBroadcast();
         
-        // 5. Save seeded data for frontend
+        // 5. Save seeded data for client
         _saveSeededData(jarAddresses);
         
         console.log("Cookie Monster demo environment ready!");
@@ -243,7 +243,7 @@ contract SeedLocalScript is Script {
     }
     
     function _saveSeededData(address[] memory jarAddresses) internal {
-        // Create JSON with all seeded data info for frontend
+        // Create JSON with all seeded data info for client
         string memory json = string.concat(
             '{"seedTimestamp":', vm.toString(block.timestamp),
             ',"demoToken":"', vm.toString(address(demoToken)),
