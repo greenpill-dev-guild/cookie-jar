@@ -11,6 +11,19 @@ import {
   celoAlfajores
 } from 'wagmi/chains'
 
+// V2 Contract Chains - Add chain IDs here as v2 contracts get deployed  
+export const V2_CHAINS = [
+  31337, // Anvil local
+  // Add new chain IDs here as v2 contracts are deployed
+  // Example: 8453, // Base
+  // Example: 10,   // Optimism  
+] as const
+
+// Helper function to check if a chain uses v2 contracts
+export function isV2Chain(chainId: number): boolean {
+  return V2_CHAINS.includes(chainId as any)
+}
+
 // Local Anvil chain (Ethereum fork with multicall3 support)
 export const anvilLocal = {
   id: 31337,
@@ -36,10 +49,10 @@ export const anvilLocal = {
   },
   testnet: true,
 } as const
-import { Chain, getDefaultConfig } from '@rainbow-me/rainbowkit'
+import { Chain } from '@rainbow-me/rainbowkit'
 import { createConfig, http, fallback } from 'wagmi'
 import { Address } from 'viem'
-import { walletConnect, injected, coinbaseWallet } from 'wagmi/connectors'
+import { walletConnect, injected } from 'wagmi/connectors'
 
 // For RainbowKit provider (include local only in dev)
 const chains = [
@@ -63,7 +76,6 @@ export const supportedChains = (
 
 interface ContractAddresses {
   cookieJarFactory: Record<number, Address>
-  cookieJarRegistry: Record<number, Address>
 }
 
 // Chain-specific native currency configuration
@@ -100,24 +112,18 @@ export const nativeCurrencies: Record<number, NativeCurrency> = {
     address: "0x0000000000000000000000000000000000000003"
   },
   [gnosis.id]: {
-    symbol: "XDAI",
-    name: "xDai",
+    symbol: "xDAI",
+    name: "xDAI",
     decimals: 18,
     address: "0x0000000000000000000000000000000000000003"
   },
-  [celo.id]: {
-    symbol: "CELO",
-    name: "Celo",
-    decimals: 18,
-    address: "0x0000000000000000000000000000000000000003"
-  },
-  [sepolia.id]: {
+  [baseSepolia.id]: {
     symbol: "ETH",
     name: "Ethereum",
     decimals: 18,
     address: "0x0000000000000000000000000000000000000003"
   },
-  [baseSepolia.id]: {
+  [sepolia.id]: {
     symbol: "ETH",
     name: "Ethereum",
     decimals: 18,
@@ -135,55 +141,36 @@ export const nativeCurrencies: Record<number, NativeCurrency> = {
     decimals: 18,
     address: "0x0000000000000000000000000000000000000003"
   },
-  // Local Anvil (Ethereum fork)
-  31337: {
+  [celo.id]: {
+    symbol: "CELO",
+    name: "Celo",
+    decimals: 18,
+    address: "0x0000000000000000000000000000000000000003"
+  },
+  [anvilLocal.id]: {
     symbol: "ETH",
     name: "Ethereum",
     decimals: 18,
     address: "0x0000000000000000000000000000000000000003"
-  }
+  },
 }
 
-// Helper function to get native currency for a chain
 export function getNativeCurrency(chainId: number): NativeCurrency {
-  return nativeCurrencies[chainId] || {
-    symbol: "ETH",
-    name: "Ethereum",
-    decimals: 18,
-    address: "0x0000000000000000000000000000000000000003"
-  }
+  return nativeCurrencies[chainId] || nativeCurrencies[mainnet.id]
 }
 
-// Load local deployment if exists  
-let localDeployment: { CookieJarFactory?: Address } = {};
-try {
-  if (typeof window === 'undefined') {
-    // Server-side: try to load from file
-    const fs = require('fs');
-    const path = require('path');
-    const deploymentPath = path.join(process.cwd(), 'contracts', 'local-deployment.json');
-    if (fs.existsSync(deploymentPath)) {
-      localDeployment = JSON.parse(fs.readFileSync(deploymentPath, 'utf-8'));
-    }
-  }
-} catch (error) {
-  // Local deployment not found, using testnet contracts
-}
-
-// Define the contract addresses for supported networks
+// Default addresses for deployments (fallback)
 export const contractAddresses: ContractAddresses = {
   cookieJarFactory: {
-    [gnosis.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9",
-    [base.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9",
-    [optimism.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9",
-    [celo.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9",
-    [baseSepolia.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9",
-    [optimismSepolia.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9",
-    [mainnet.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9",
-    // Local development - CREATE2 deterministic address (same every Anvil restart)
-    31337: "0x4F4B4F5Bcb55950807b88bDfece764Ca96eD548F"
+    [gnosis.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9" as Address,
+    [base.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9" as Address,
+    [optimism.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9" as Address,
+    [celo.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9" as Address,
+    [baseSepolia.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9" as Address,
+    [optimismSepolia.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9" as Address,
+    [mainnet.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9" as Address,
+    [anvilLocal.id]: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0" as Address, // Static fallback for local development
   },
-  cookieJarRegistry: {}
 }
 
 // Get environment variables
@@ -191,12 +178,19 @@ const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || ""
 const alchemyId = process.env.NEXT_PUBLIC_ALCHEMY_ID || ""
 
 // Helper function to create fallback transports with automatic failover
-const createFallbackTransport = (primaryUrls: string[], fallbackUrls: string[]) => {
+function createFallbackTransport(primary: string[], fallbackUrls: string[]) {
   const transports: ReturnType<typeof http>[] = []
-  // Add all primary transports
-  primaryUrls.forEach(url => transports.push(http(url)))
-  // Add all fallback transports
-  fallbackUrls.forEach(url => transports.push(http(url)))
+  
+  // Add primary transports
+  primary.forEach(url => {
+    if (url) transports.push(http(url))
+  })
+  
+  // Add fallback transports
+  fallbackUrls.forEach(url => {
+    if (url) transports.push(http(url))
+  })
+  
   // If no transports were added, throw error (should not happen)
   if (transports.length === 0) {
     throw new Error('No RPC URLs provided for transport')
@@ -204,17 +198,47 @@ const createFallbackTransport = (primaryUrls: string[], fallbackUrls: string[]) 
   return fallback(transports)
 }
 
+// Client-side only connectors to avoid SSR issues
+function getConnectors() {
+  // Check if we're on the client side
+  if (typeof window === 'undefined') {
+    // Server-side: only return injected connector without WalletConnect
+    return [
+      injected({
+        shimDisconnect: true,
+      }),
+    ]
+  }
+  
+  // Client-side: return all connectors including WalletConnect
+  const connectors: any[] = [
+    injected({
+      shimDisconnect: true,
+    }),
+  ]
+  
+  // Only add WalletConnect if projectId is available
+  if (projectId) {
+    connectors.push(walletConnect({ 
+      projectId,
+      metadata: {
+        name: 'Cookie Jar',
+        description: 'Decentralized funding jars with flexible access controls',
+        url: 'https://cookiejar.greenpill.network',
+        icons: ['https://cookiejar.greenpill.network/logo.png']
+      }
+    }))
+  }
+  
+  return connectors
+}
+
 // Export the Wagmi config
 export const wagmiConfig = createConfig({
   chains: supportedChains,
   ssr: true,
   multiInjectedProviderDiscovery: true,
-  connectors: [
-    injected({
-      shimDisconnect: true,
-    }),
-    walletConnect({ projectId }),
-  ],
+  connectors: getConnectors(),
   transports: {
     // Base Mainnet - POKT not available, use Alchemy as secondary
     [base.id]: createFallbackTransport(

@@ -6,17 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Loader2, CheckCircle2, AlertCircle, Key, ExternalLink } from 'lucide-react'
 import { isAddress } from 'viem'
-
-// Unlock SDK integration
-interface LockInfo {
-  address: string
-  name?: string
-  symbol?: string
-  keyPrice?: string
-  maxNumberOfKeys?: number
-  totalSupply?: number
-  expirationDuration?: number
-}
+import { useUnlockLocks } from '@/hooks/protocol/useUnlockLocks'
+import type { LockInfo } from '@/hooks/protocol/useUnlockLocks'
 
 interface UnlockGateConfigProps {
   onConfigChange: (config: { lockAddress: string; lockInfo?: LockInfo }) => void
@@ -30,9 +21,6 @@ export const UnlockGateConfig: React.FC<UnlockGateConfigProps> = ({
   className = ''
 }) => {
   const [lockAddress, setLockAddress] = useState(initialConfig?.lockAddress || '')
-  const [lockInfo, setLockInfo] = useState<LockInfo | null>(initialConfig?.lockInfo || null)
-  const [isValidating, setIsValidating] = useState(false)
-  const [validationError, setValidationError] = useState<string | null>(null)
   const [debouncedAddress, setDebouncedAddress] = useState('')
 
   // Debounce address input to avoid excessive API calls
@@ -44,70 +32,38 @@ export const UnlockGateConfig: React.FC<UnlockGateConfigProps> = ({
     return () => clearTimeout(timer)
   }, [lockAddress])
 
+  // Use the real Unlock Protocol hook
+  const {
+    lockInfo,
+    isLoadingLock,
+    lockError,
+    validateLockAddress,
+  } = useUnlockLocks({
+    lockAddress: debouncedAddress && isAddress(debouncedAddress) ? debouncedAddress : undefined
+  })
+
   // Validate lock address when debounced address changes
   useEffect(() => {
     if (debouncedAddress && isAddress(debouncedAddress)) {
       validateLockAddress(debouncedAddress)
-    } else if (debouncedAddress && !isAddress(debouncedAddress)) {
-      setValidationError('Invalid contract address format')
-      setLockInfo(null)
-    } else {
-      setValidationError(null)
-      setLockInfo(null)
     }
-  }, [debouncedAddress])
+  }, [debouncedAddress, validateLockAddress])
 
   // Notify parent when configuration changes
   useEffect(() => {
-    if (lockAddress && lockInfo && !validationError) {
+    if (lockAddress && lockInfo && !lockError) {
       onConfigChange({
         lockAddress,
         lockInfo
       })
     }
-  }, [lockAddress, lockInfo, validationError, onConfigChange])
-
-  const validateLockAddress = async (address: string) => {
-    setIsValidating(true)
-    setValidationError(null)
-
-    try {
-      // Note: This is a mock implementation
-      // In a real implementation, you would use the Unlock SDK:
-      // import { UnlockSDK } from '@unlock-protocol/unlock-js'
-      // const sdk = new UnlockSDK()
-      // const lockInfo = await sdk.getLock(address)
-      
-      // Mock validation - check if address looks like a valid contract
-      if (!isAddress(address)) {
-        throw new Error('Invalid contract address')
-      }
-
-      // Mock lock info
-      const mockLockInfo: LockInfo = {
-        address,
-        name: 'Example Membership Lock',
-        symbol: 'KEY',
-        keyPrice: '0.01',
-        maxNumberOfKeys: 1000,
-        totalSupply: 250,
-        expirationDuration: 365 * 24 * 60 * 60 // 1 year in seconds
-      }
-      
-      setLockInfo(mockLockInfo)
-    } catch (error) {
-      setValidationError('Invalid Unlock Protocol lock contract')
-      setLockInfo(null)
-    } finally {
-      setIsValidating(false)
-    }
-  }
+  }, [lockAddress, lockInfo, lockError, onConfigChange])
 
   const getValidationIcon = () => {
     if (!debouncedAddress) return null
-    if (isValidating) return <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
-    if (lockInfo && !validationError) return <CheckCircle2 className="h-4 w-4 text-green-500" />
-    if (validationError) return <AlertCircle className="h-4 w-4 text-red-500" />
+    if (isLoadingLock) return <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
+    if (lockInfo && !lockError) return <CheckCircle2 className="h-4 w-4 text-green-500" />
+    if (lockError || (debouncedAddress && !isAddress(debouncedAddress))) return <AlertCircle className="h-4 w-4 text-red-500" />
     return null
   }
 
@@ -135,10 +91,12 @@ export const UnlockGateConfig: React.FC<UnlockGateConfigProps> = ({
               {getValidationIcon()}
             </div>
           </div>
-          {validationError && (
-            <p className="text-xs text-red-600 mt-1">{validationError}</p>
+          {(lockError || (debouncedAddress && !isAddress(debouncedAddress))) && (
+            <p className="text-xs text-red-600 mt-1">
+              {!isAddress(debouncedAddress) ? 'Invalid contract address format' : lockError}
+            </p>
           )}
-          {lockInfo && !validationError && (
+          {lockInfo && !lockError && (
             <p className="text-xs text-green-600 mt-1">✓ Valid Unlock Protocol lock</p>
           )}
         </div>
@@ -170,7 +128,7 @@ export const UnlockGateConfig: React.FC<UnlockGateConfigProps> = ({
                   <div>
                     <Label className="text-xs text-[#8b7355]">Key Price</Label>
                     <p className="text-sm font-medium text-[#3c2a14]">
-                      {lockInfo.keyPrice} ETH
+                      {lockInfo.keyPrice} {lockInfo.currencySymbol || 'ETH'}
                     </p>
                   </div>
                 )}

@@ -11,7 +11,7 @@ library CookieJarLib {
     // --- Enums ---
     /// @notice The mode for access control.
     enum AccessType {
-        Whitelist,
+        Allowlist,
         NFTGated,
         POAP,
         Unlock,
@@ -32,7 +32,7 @@ library CookieJarLib {
 
     // --- Constants ---
     bytes32 public constant JAR_OWNER = keccak256("JAR_OWNER");
-    bytes32 public constant JAR_WHITELISTED = keccak256("JAR_WHITELISTED");
+    bytes32 public constant JAR_ALLOWLISTED = keccak256("JAR_ALLOWLISTED");
 
     // --- Structs ---
     /// @notice Represents an NFT gate with a contract address and its NFT type.
@@ -88,11 +88,11 @@ library CookieJarLib {
         bool oneTimeWithdrawal;
     }
 
-    /// @notice NFT and whitelist configuration struct
+    /// @notice NFT and allowlist configuration struct
     struct AccessConfig {
         address[] nftAddresses;
         NFTType[] nftTypes;
-        address[] whitelist;
+        address[] allowlist;
         // Protocol-specific requirements
         POAPRequirement poapReq;
         UnlockRequirement unlockReq;
@@ -145,7 +145,7 @@ library CookieJarLib {
     error FeeCollectorAddressCannotBeZeroAddress();
     error NoNFTAddressesProvided();
     error NFTArrayLengthMismatch();
-    error WhitelistNotAllowedForNFTGated();
+    error AllowlistNotAllowedForNFTGated();
     error SupportedCurrencyCannotBeZeroAddress();
     error InvalidFixedAmountMustBeGreaterThanZero();
     error InvalidMaxWithdrawalMustBeGreaterThanZero();
@@ -160,7 +160,7 @@ library CookieJarLib {
     error PurposeRequired();
     error PurposeTooShort();
     error UnauthorizedUser();
-    error UserNotWhitelisted();
+    error UserNotAllowlisted();
     error UserBlacklisted();
     error InvalidNFTGate();
     error NFTTokenDoesNotExist();

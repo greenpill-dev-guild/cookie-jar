@@ -1,12 +1,9 @@
 import Link from "next/link"
 import Image from "next/image"
-import { SocialMediaButtons } from "@/components/page/home/social-media-buttons"
+// import { SocialMediaButtons } from "@/components/page/home/social-media-buttons"
 
-export function Footer() {
-  return (
-    <footer className="border-t cream-bg">
-      <div className="section-container py-12 px-6 md:px-8">
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
+const FooterTop = () => (
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
           <div className="md:col-span-5">
             <Link href="/" className="flex items-center gap-3">
               <Image src="/logo.png" alt="Cookie Jar Logo" width={48} height={48} />
@@ -74,8 +71,14 @@ export function Footer() {
             <SocialMediaButtons />
           </div> */}
         </div>
+)
 
-        <div className="mt-12 pt-8 border-t text-center text-lg text-[#4a3520]">
+export function Footer() {
+  return (
+    <footer className="border-t cream-bg">
+      <div className="section-container py-6 px-6 md:px-8">
+
+        <div className="text-center text-lg text-[#4a3520]">
           <p>© {new Date().getFullYear()} Cookie Jar V3. All rights reserved.</p>
         </div>
       </div>

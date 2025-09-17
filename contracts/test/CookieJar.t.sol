@@ -46,14 +46,14 @@ contract DummyERC1155 is ERC1155 {
 }
 
 contract CookieJarTest is Test {
-    CookieJar public jarWhitelistETHFixed;
-    CookieJar public jarWhitelistERC20Fixed;
+    CookieJar public jarAllowlistETHFixed;
+    CookieJar public jarAllowlistERC20Fixed;
     CookieJar public jarNFTETHFixed;
     CookieJar public jarNFTERC20Variable;
-    CookieJar public jarWhitelistETHOneTimeWithdrawal;
+    CookieJar public jarAllowlistETHOneTimeWithdrawal;
     CookieJar public jarNFTERC20OneTimeWithdrawal;
-    CookieJar public jarWhitelistETHVariable;
-    CookieJar public jarWhitelistERC20Variable;
+    CookieJar public jarAllowlistETHVariable;
+    CookieJar public jarAllowlistERC20Variable;
     CookieJar public jarNFTETHVariable;
     CookieJar public jarNFTERC20Fixed;
 
@@ -76,7 +76,7 @@ contract CookieJarTest is Test {
     CookieJarLib.NFTType[] public emptyTypes;
     address[] public nftAddresses;
     CookieJarLib.NFTType[] public nftTypes;
-    address[] public emptyWhitelist;
+    address[] public emptyAllowlist;
     string public purpose = "Withdrawal for a legitimate purpose!";
     string public shortPurpose = "Too short";
 
@@ -123,12 +123,12 @@ contract CookieJarTest is Test {
     function createAccessConfig(
         address[] memory _nftAddresses,
         CookieJarLib.NFTType[] memory _nftTypes,
-        address[] memory _whitelist
+        address[] memory _allowlist
     ) internal pure returns (CookieJarLib.AccessConfig memory) {
         return CookieJarLib.AccessConfig({
             nftAddresses: _nftAddresses,
             nftTypes: _nftTypes,
-            whitelist: _whitelist,
+            allowlist: _allowlist,
             poapReq: CookieJarLib.POAPRequirement(0, address(0)),
             unlockReq: CookieJarLib.UnlockRequirement(address(0)),
             hypercertReq: CookieJarLib.HypercertRequirement(address(0), 0, 1),
@@ -147,7 +147,7 @@ contract CookieJarTest is Test {
 
         emptyAddresses = new address[](0);
         emptyTypes = new CookieJarLib.NFTType[](0);
-        emptyWhitelist = new address[](0);
+        emptyAllowlist = new address[](0);
 
         nftAddresses = new address[](2);
         nftAddresses[0] = address(dummyERC721);
@@ -160,11 +160,11 @@ contract CookieJarTest is Test {
         dummyToken.mint(owner, 100_000 * 1e18);
         vm.startPrank(owner);
 
-        jarWhitelistETHFixed = new CookieJar(
+        jarAllowlistETHFixed = new CookieJar(
             createJarConfig(
                 owner,
                 CookieJarLib.ETH_ADDRESS,
-                CookieJarLib.AccessType.Whitelist,
+                CookieJarLib.AccessType.Allowlist,
                 CookieJarLib.WithdrawalTypeOptions.Fixed,
                 fixedAmount,
                 maxWithdrawal,
@@ -176,14 +176,14 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawalEnabled
             ),
-            createAccessConfig(emptyAddresses, emptyTypes, emptyWhitelist)
+            createAccessConfig(emptyAddresses, emptyTypes, emptyAllowlist)
         );
 
-        jarWhitelistERC20Fixed = new CookieJar(
+        jarAllowlistERC20Fixed = new CookieJar(
             createJarConfig(
                 owner,
                 address(dummyToken),
-                CookieJarLib.AccessType.Whitelist,
+                CookieJarLib.AccessType.Allowlist,
                 CookieJarLib.WithdrawalTypeOptions.Fixed,
                 fixedAmount,
                 maxWithdrawal,
@@ -195,7 +195,7 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawalEnabled
             ),
-            createAccessConfig(emptyAddresses, emptyTypes, emptyWhitelist)
+            createAccessConfig(emptyAddresses, emptyTypes, emptyAllowlist)
         );
 
         jarNFTETHFixed = new CookieJar(
@@ -214,7 +214,7 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfig(nftAddresses, nftTypes, emptyWhitelist)
+            createAccessConfig(nftAddresses, nftTypes, emptyAllowlist)
         );
 
         jarNFTERC20Variable = new CookieJar(
@@ -233,14 +233,14 @@ contract CookieJarTest is Test {
                 false, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfig(nftAddresses, nftTypes, emptyWhitelist)
+            createAccessConfig(nftAddresses, nftTypes, emptyAllowlist)
         );
 
-        jarWhitelistETHVariable = new CookieJar(
+        jarAllowlistETHVariable = new CookieJar(
             createJarConfig(
                 owner,
                 CookieJarLib.ETH_ADDRESS,
-                CookieJarLib.AccessType.Whitelist,
+                CookieJarLib.AccessType.Allowlist,
                 CookieJarLib.WithdrawalTypeOptions.Variable,
                 fixedAmount,
                 maxWithdrawal,
@@ -252,14 +252,14 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfig(emptyAddresses, emptyTypes, emptyWhitelist)
+            createAccessConfig(emptyAddresses, emptyTypes, emptyAllowlist)
         );
 
-        jarWhitelistERC20Variable = new CookieJar(
+        jarAllowlistERC20Variable = new CookieJar(
             createJarConfig(
                 owner,
                 address(dummyToken),
-                CookieJarLib.AccessType.Whitelist,
+                CookieJarLib.AccessType.Allowlist,
                 CookieJarLib.WithdrawalTypeOptions.Variable,
                 fixedAmount,
                 maxWithdrawal,
@@ -271,7 +271,7 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfig(emptyAddresses, emptyTypes, emptyWhitelist)
+            createAccessConfig(emptyAddresses, emptyTypes, emptyAllowlist)
         );
 
         jarNFTETHVariable = new CookieJar(
@@ -290,14 +290,14 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfig(nftAddresses, nftTypes, emptyWhitelist)
+            createAccessConfig(nftAddresses, nftTypes, emptyAllowlist)
         );
 
-        jarWhitelistETHOneTimeWithdrawal = new CookieJar(
+        jarAllowlistETHOneTimeWithdrawal = new CookieJar(
             createJarConfig(
                 owner,
                 CookieJarLib.ETH_ADDRESS,
-                CookieJarLib.AccessType.Whitelist,
+                CookieJarLib.AccessType.Allowlist,
                 CookieJarLib.WithdrawalTypeOptions.Fixed,
                 fixedAmount,
                 maxWithdrawal,
@@ -309,7 +309,7 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 true // oneTimeWithdrawal
             ),
-            createAccessConfig(nftAddresses, nftTypes, emptyWhitelist)
+            createAccessConfig(nftAddresses, nftTypes, emptyAllowlist)
         );
 
         jarNFTERC20OneTimeWithdrawal = new CookieJar(
@@ -328,7 +328,7 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 true // oneTimeWithdrawal
             ),
-            createAccessConfig(nftAddresses, nftTypes, emptyWhitelist)
+            createAccessConfig(nftAddresses, nftTypes, emptyAllowlist)
         );
 
         jarNFTERC20Fixed = new CookieJar(
@@ -347,21 +347,21 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfig(nftAddresses, nftTypes, emptyWhitelist)
+            createAccessConfig(nftAddresses, nftTypes, emptyAllowlist)
         );
 
-        jarWhitelistETHFixed.depositETH{value: 1000 ether}();
-        dummyToken.approve(address(jarWhitelistERC20Fixed), 1000 * 1e18);
-        jarWhitelistERC20Fixed.depositCurrency(1000 * 1e18);
+        jarAllowlistETHFixed.depositETH{value: 1000 ether}();
+        dummyToken.approve(address(jarAllowlistERC20Fixed), 1000 * 1e18);
+        jarAllowlistERC20Fixed.depositCurrency(1000 * 1e18);
         jarNFTETHFixed.depositETH{value: 1000 ether}();
         dummyToken.approve(address(jarNFTERC20Variable), 1000 * 1e18);
         jarNFTERC20Variable.depositCurrency(1000 * 1e18);
-        jarWhitelistETHOneTimeWithdrawal.depositETH{value: 1000 ether}();
+        jarAllowlistETHOneTimeWithdrawal.depositETH{value: 1000 ether}();
         dummyToken.approve(address(jarNFTERC20OneTimeWithdrawal), 1000 * 1e18);
         jarNFTERC20OneTimeWithdrawal.depositCurrency(1000 * 1e18);
-        jarWhitelistETHVariable.depositETH{value: 1000 ether}();
-        dummyToken.approve(address(jarWhitelistERC20Variable), 1000 * 1e18);
-        jarWhitelistERC20Variable.depositCurrency(1000 * 1e18);
+        jarAllowlistETHVariable.depositETH{value: 1000 ether}();
+        dummyToken.approve(address(jarAllowlistERC20Variable), 1000 * 1e18);
+        jarAllowlistERC20Variable.depositCurrency(1000 * 1e18);
         jarNFTETHVariable.depositETH{value: 1000 ether}();
         dummyToken.approve(address(jarNFTERC20Fixed), 1000 * 1e18);
         jarNFTERC20Fixed.depositCurrency(1000 * 1e18);
@@ -370,12 +370,12 @@ contract CookieJarTest is Test {
 
     // ==== constructor tests ====
 
-    function test_ConstructorWhitelistETHFixed() public {
-        CookieJar newJarWhitelistETHFixed = new CookieJar(
+    function test_ConstructorAllowlistETHFixed() public {
+        CookieJar newJarAllowlistETHFixed = new CookieJar(
             createJarConfig(
                 owner,
                 CookieJarLib.ETH_ADDRESS,
-                CookieJarLib.AccessType.Whitelist,
+                CookieJarLib.AccessType.Allowlist,
                 CookieJarLib.WithdrawalTypeOptions.Fixed,
                 fixedAmount,
                 maxWithdrawal,
@@ -390,25 +390,25 @@ contract CookieJarTest is Test {
             createAccessConfig(emptyAddresses, emptyTypes, users)
         );
 
-        assertEq(newJarWhitelistETHFixed.feeCollector(), feeCollector);
-        assertEq(newJarWhitelistETHFixed.feePercentageOnDeposit(), feePercentageOnDeposit);
-        assertEq(newJarWhitelistETHFixed.minDeposit(), minETHDeposit);
-        assertEq(newJarWhitelistETHFixed.withdrawalInterval(), withdrawalInterval);
-        assertFalse(newJarWhitelistETHFixed.strictPurpose());
-        assertTrue(newJarWhitelistETHFixed.emergencyWithdrawalEnabled());
-        assertFalse(newJarWhitelistETHFixed.oneTimeWithdrawal());
-        assertEq(newJarWhitelistETHFixed.getWhitelist().length, 2);
-        assertEq(newJarWhitelistETHFixed.getWhitelist()[0], user);
-        assertEq(newJarWhitelistETHFixed.getWhitelist()[1], user2);
-        assertEq(newJarWhitelistETHFixed.getNFTGatesArray().length, 0);
-        assertEq(newJarWhitelistETHFixed.getWithdrawalDataArray().length, 0);
-        assertEq(newJarWhitelistETHFixed.currency(), CookieJarLib.ETH_ADDRESS);
-        assertTrue(newJarWhitelistETHFixed.accessType() == CookieJarLib.AccessType.Whitelist);
-        assertTrue(newJarWhitelistETHFixed.withdrawalOption() == CookieJarLib.WithdrawalTypeOptions.Fixed);
-        assertEq(newJarWhitelistETHFixed.fixedAmount(), fixedAmount);
-        assertEq(newJarWhitelistETHFixed.maxWithdrawal(), maxWithdrawal);
-        assertEq(newJarWhitelistETHFixed.currencyHeldByJar(), 0);
-        assertTrue(newJarWhitelistETHFixed.hasRole(keccak256("JAR_OWNER"), owner));
+        assertEq(newJarAllowlistETHFixed.feeCollector(), feeCollector);
+        assertEq(newJarAllowlistETHFixed.feePercentageOnDeposit(), feePercentageOnDeposit);
+        assertEq(newJarAllowlistETHFixed.minDeposit(), minETHDeposit);
+        assertEq(newJarAllowlistETHFixed.withdrawalInterval(), withdrawalInterval);
+        assertFalse(newJarAllowlistETHFixed.strictPurpose());
+        assertTrue(newJarAllowlistETHFixed.emergencyWithdrawalEnabled());
+        assertFalse(newJarAllowlistETHFixed.oneTimeWithdrawal());
+        assertEq(newJarAllowlistETHFixed.getAllowlist().length, 2);
+        assertEq(newJarAllowlistETHFixed.getAllowlist()[0], user);
+        assertEq(newJarAllowlistETHFixed.getAllowlist()[1], user2);
+        assertEq(newJarAllowlistETHFixed.getNFTGatesArray().length, 0);
+        assertEq(newJarAllowlistETHFixed.getWithdrawalDataArray().length, 0);
+        assertEq(newJarAllowlistETHFixed.currency(), CookieJarLib.ETH_ADDRESS);
+        assertTrue(newJarAllowlistETHFixed.accessType() == CookieJarLib.AccessType.Allowlist);
+        assertTrue(newJarAllowlistETHFixed.withdrawalOption() == CookieJarLib.WithdrawalTypeOptions.Fixed);
+        assertEq(newJarAllowlistETHFixed.fixedAmount(), fixedAmount);
+        assertEq(newJarAllowlistETHFixed.maxWithdrawal(), maxWithdrawal);
+        assertEq(newJarAllowlistETHFixed.currencyHeldByJar(), 0);
+        assertTrue(newJarAllowlistETHFixed.hasRole(keccak256("JAR_OWNER"), owner));
     }
 
     function test_ConstructorNFTGatedERC20Variable() public {
@@ -438,7 +438,7 @@ contract CookieJarTest is Test {
         assertTrue(newJarNFTGatedERC20Variable.strictPurpose());
         assertFalse(newJarNFTGatedERC20Variable.emergencyWithdrawalEnabled());
         assertTrue(newJarNFTGatedERC20Variable.oneTimeWithdrawal());
-        assertEq(newJarNFTGatedERC20Variable.getWhitelist().length, 0);
+        assertEq(newJarNFTGatedERC20Variable.getAllowlist().length, 0);
         assertEq(newJarNFTGatedERC20Variable.getNFTGatesArray().length, 2);
         assertEq(newJarNFTGatedERC20Variable.getNFTGatesArray()[0].nftAddress, address(dummyERC721));
         assertTrue(newJarNFTGatedERC20Variable.getNFTGatesArray()[0].nftType == CookieJarLib.NFTType.ERC721);
@@ -460,7 +460,7 @@ contract CookieJarTest is Test {
             createJarConfig(
                 address(0), // invalid owner
                 CookieJarLib.ETH_ADDRESS,
-                CookieJarLib.AccessType.Whitelist,
+                CookieJarLib.AccessType.Allowlist,
                 CookieJarLib.WithdrawalTypeOptions.Fixed,
                 fixedAmount,
                 maxWithdrawal,
@@ -482,7 +482,7 @@ contract CookieJarTest is Test {
             createJarConfig(
                 owner,
                 CookieJarLib.ETH_ADDRESS,
-                CookieJarLib.AccessType.Whitelist,
+                CookieJarLib.AccessType.Allowlist,
                 CookieJarLib.WithdrawalTypeOptions.Fixed,
                 fixedAmount,
                 maxWithdrawal,
@@ -591,25 +591,25 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 true // oneTimeWithdrawal
             ),
-            createAccessConfig(dupAddresses, dupTypes, emptyWhitelist) // duplicate NFT addresses
+            createAccessConfig(dupAddresses, dupTypes, emptyAllowlist) // duplicate NFT addresses
         );
     }
 
     // ==== admin functions tests ====
 
-    function test_grantJarWhitelistRole() public {
-        assertFalse(jarWhitelistETHFixed.hasRole(keccak256("JAR_WHITELISTED"), user));
-        assertFalse(jarWhitelistETHFixed.hasRole(keccak256("JAR_WHITELISTED"), user2));
+    function test_grantJarAllowlistRole() public {
+        assertFalse(jarAllowlistETHFixed.hasRole(keccak256("JAR_ALLOWLISTED"), user));
+        assertFalse(jarAllowlistETHFixed.hasRole(keccak256("JAR_ALLOWLISTED"), user2));
         vm.prank(owner);
-        jarWhitelistETHFixed.grantJarWhitelistRole(users);
-        assertTrue(jarWhitelistETHFixed.hasRole(keccak256("JAR_WHITELISTED"), user));
-        assertTrue(jarWhitelistETHFixed.hasRole(keccak256("JAR_WHITELISTED"), user2));
-        assertEq(jarWhitelistETHFixed.getWhitelist().length, 2);
-        assertEq(jarWhitelistETHFixed.getWhitelist()[0], user);
-        assertEq(jarWhitelistETHFixed.getWhitelist()[1], user2);
+        jarAllowlistETHFixed.grantJarAllowlistRole(users);
+        assertTrue(jarAllowlistETHFixed.hasRole(keccak256("JAR_ALLOWLISTED"), user));
+        assertTrue(jarAllowlistETHFixed.hasRole(keccak256("JAR_ALLOWLISTED"), user2));
+        assertEq(jarAllowlistETHFixed.getAllowlist().length, 2);
+        assertEq(jarAllowlistETHFixed.getAllowlist()[0], user);
+        assertEq(jarAllowlistETHFixed.getAllowlist()[1], user2);
     }
 
-    function test_RevertWhen_grantJarWhitelistRoleCalledByNonOwner() public {
+    function test_RevertWhen_grantJarAllowlistRoleCalledByNonOwner() public {
         vm.prank(user);
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -618,25 +618,25 @@ contract CookieJarTest is Test {
                 CookieJarLib.JAR_OWNER
             )
         );
-        jarWhitelistETHFixed.grantJarWhitelistRole(users);
+        jarAllowlistETHFixed.grantJarAllowlistRole(users);
     }
 
-    function test_RevertWhen_grantJarWhitelistRoleCalledWithInvalidAccessType() public {
+    function test_RevertWhen_grantJarAllowlistRoleCalledWithInvalidAccessType() public {
         vm.prank(owner);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidAccessType.selector));
-        jarNFTETHFixed.grantJarWhitelistRole(users);
+        jarNFTETHFixed.grantJarAllowlistRole(users);
     }
 
-    function test_revokeJarWhitelistRole() public {
+    function test_revokeJarAllowlistRole() public {
         vm.startPrank(owner);
-        jarWhitelistETHFixed.grantJarWhitelistRole(users);
-        jarWhitelistETHFixed.revokeJarWhitelistRole(users);
-        assertFalse(jarWhitelistETHFixed.hasRole(keccak256("JAR_WHITELISTED"), user));
-        assertFalse(jarWhitelistETHFixed.hasRole(keccak256("JAR_WHITELISTED"), user2));
-        assertEq(jarWhitelistETHFixed.getWhitelist().length, 0);
+        jarAllowlistETHFixed.grantJarAllowlistRole(users);
+        jarAllowlistETHFixed.revokeJarAllowlistRole(users);
+        assertFalse(jarAllowlistETHFixed.hasRole(keccak256("JAR_ALLOWLISTED"), user));
+        assertFalse(jarAllowlistETHFixed.hasRole(keccak256("JAR_ALLOWLISTED"), user2));
+        assertEq(jarAllowlistETHFixed.getAllowlist().length, 0);
     }
 
-    function test_RevertWhen_revokeJarWhitelistRoleCalledByNonOwner() public {
+    function test_RevertWhen_revokeJarAllowlistRoleCalledByNonOwner() public {
         vm.prank(user);
         vm.expectRevert(
             abi.encodeWithSelector(
@@ -645,33 +645,33 @@ contract CookieJarTest is Test {
                 CookieJarLib.JAR_OWNER
             )
         );
-        jarWhitelistETHFixed.revokeJarWhitelistRole(users);
+        jarAllowlistETHFixed.revokeJarAllowlistRole(users);
     }
 
-    function test_RevertWhen_revokeJarWhitelistRoleCalledWithInvalidAccessType() public {
+    function test_RevertWhen_revokeJarAllowlistRoleCalledWithInvalidAccessType() public {
         vm.prank(owner);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidAccessType.selector));
-        jarNFTETHFixed.revokeJarWhitelistRole(users);
+        jarNFTETHFixed.revokeJarAllowlistRole(users);
     }
 
     function test_updateFeeCollector() public {
         address newCollector = address(0x1234);
         vm.prank(feeCollector);
-        jarWhitelistETHFixed.updateFeeCollector(newCollector);
-        assertEq(jarWhitelistETHFixed.feeCollector(), newCollector);
+        jarAllowlistETHFixed.updateFeeCollector(newCollector);
+        assertEq(jarAllowlistETHFixed.feeCollector(), newCollector);
     }
 
     function test_RevertWhen_updateFeeCollectorCalledByNonFeeCollector() public {
         address newCollector = address(0x1234);
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotFeeCollector.selector));
-        jarWhitelistETHFixed.updateFeeCollector(newCollector);
+        jarAllowlistETHFixed.updateFeeCollector(newCollector);
     }
 
     function test_RevertWhen_updateFeeCollectorCalledWithInvalidFeeCollector() public {
         vm.prank(feeCollector);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.FeeCollectorAddressCannotBeZeroAddress.selector));
-        jarWhitelistETHFixed.updateFeeCollector(address(0));
+        jarAllowlistETHFixed.updateFeeCollector(address(0));
     }
 
     function test_addNFTGate() public {
@@ -708,7 +708,7 @@ contract CookieJarTest is Test {
     function test_RevertWhen_addNFTGateCalledWithInvalidAccessType() public {
         vm.prank(owner);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidAccessType.selector));
-        jarWhitelistETHFixed.addNFTGate(address(1), CookieJarLib.NFTType.ERC1155);
+        jarAllowlistETHFixed.addNFTGate(address(1), CookieJarLib.NFTType.ERC1155);
     }
 
     function test_RevertWhen_addNFTGateCalledWithInvalidNFTType() public {
@@ -754,7 +754,7 @@ contract CookieJarTest is Test {
     function test_RevertWhen_RemoveNFTGateCalledWithInvalidAccessType() public {
         vm.prank(owner);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidAccessType.selector));
-        jarWhitelistETHFixed.removeNFTGate(address(1));
+        jarAllowlistETHFixed.removeNFTGate(address(1));
     }
 
     function test_RevertWhen_RemoveNFTGateCalledWithInvalidNFTAddress() public {
@@ -860,27 +860,27 @@ contract CookieJarTest is Test {
     }
 
     function test_emergencyWithdrawERC20() public {
-        uint256 jarBalanceBefore = dummyToken.balanceOf(address(jarWhitelistERC20Fixed));
-        uint256 currencyHeldByJarBefore = jarWhitelistERC20Fixed.currencyHeldByJar();
+        uint256 jarBalanceBefore = dummyToken.balanceOf(address(jarAllowlistERC20Fixed));
+        uint256 currencyHeldByJarBefore = jarAllowlistERC20Fixed.currencyHeldByJar();
         assertEq(currencyHeldByJarBefore, jarBalanceBefore);
         uint256 ownerBalanceBefore = owner.balance;
         vm.prank(owner);
-        jarWhitelistERC20Fixed.emergencyWithdraw(address(dummyToken), fixedAmount);
-        assertEq(dummyToken.balanceOf(address(jarWhitelistERC20Fixed)), jarBalanceBefore - fixedAmount);
-        assertEq(jarWhitelistERC20Fixed.currencyHeldByJar(), currencyHeldByJarBefore - fixedAmount);
+        jarAllowlistERC20Fixed.emergencyWithdraw(address(dummyToken), fixedAmount);
+        assertEq(dummyToken.balanceOf(address(jarAllowlistERC20Fixed)), jarBalanceBefore - fixedAmount);
+        assertEq(jarAllowlistERC20Fixed.currencyHeldByJar(), currencyHeldByJarBefore - fixedAmount);
         assertEq(dummyToken.balanceOf(owner), ownerBalanceBefore + fixedAmount);
     }
 
     function test_emergencyWithdrawERC20NotJarToken() public {
-        dummyToken.mint(address(jarWhitelistETHFixed), fixedAmount);
-        uint256 jarBalanceBefore = dummyToken.balanceOf(address(jarWhitelistETHFixed));
+        dummyToken.mint(address(jarAllowlistETHFixed), fixedAmount);
+        uint256 jarBalanceBefore = dummyToken.balanceOf(address(jarAllowlistETHFixed));
         uint256 ownerBalanceBefore = dummyToken.balanceOf(owner);
-        uint256 currencyHeldByJarBefore = jarWhitelistETHFixed.currencyHeldByJar();
+        uint256 currencyHeldByJarBefore = jarAllowlistETHFixed.currencyHeldByJar();
         vm.prank(owner);
-        jarWhitelistETHFixed.emergencyWithdraw(address(dummyToken), fixedAmount);
-        assertEq(dummyToken.balanceOf(address(jarWhitelistETHFixed)), jarBalanceBefore - fixedAmount);
+        jarAllowlistETHFixed.emergencyWithdraw(address(dummyToken), fixedAmount);
+        assertEq(dummyToken.balanceOf(address(jarAllowlistETHFixed)), jarBalanceBefore - fixedAmount);
         assertEq(dummyToken.balanceOf(owner), ownerBalanceBefore + fixedAmount);
-        assertEq(jarWhitelistETHFixed.currencyHeldByJar(), currencyHeldByJarBefore);
+        assertEq(jarAllowlistETHFixed.currencyHeldByJar(), currencyHeldByJarBefore);
     }
 
     function test_emergencyWithdrawETHNotJarToken() public {
@@ -904,7 +904,7 @@ contract CookieJarTest is Test {
                 CookieJarLib.JAR_OWNER
             )
         );
-        jarWhitelistETHFixed.emergencyWithdraw(CookieJarLib.ETH_ADDRESS, 1e18);
+        jarAllowlistETHFixed.emergencyWithdraw(CookieJarLib.ETH_ADDRESS, 1e18);
     }
 
     function test_RevertWhen_emergencyWithdrawCalledWithEmergencyWithdrawalDisabled() public {
@@ -930,17 +930,17 @@ contract CookieJarTest is Test {
 
     function test_DepositETH() public {
         uint256 feeBalanceBefore = feeCollector.balance;
-        uint256 jarwhitebalanceBefore = address(jarWhitelistETHFixed).balance;
-        uint256 currencyHeldByJarBefore = jarWhitelistETHFixed.currencyHeldByJar();
+        uint256 jarwhitebalanceBefore = address(jarAllowlistETHFixed).balance;
+        uint256 currencyHeldByJarBefore = jarAllowlistETHFixed.currencyHeldByJar();
         vm.deal(user, minETHDeposit);
         uint256 userBalanceBefore = user.balance;
         vm.prank(user);
-        jarWhitelistETHFixed.depositETH{value: minETHDeposit}();
-        uint256 fee = ((jarWhitelistETHFixed.feePercentageOnDeposit() * minETHDeposit) / CookieJarLib.PERCENTAGE_BASE);
+        jarAllowlistETHFixed.depositETH{value: minETHDeposit}();
+        uint256 fee = ((jarAllowlistETHFixed.feePercentageOnDeposit() * minETHDeposit) / CookieJarLib.PERCENTAGE_BASE);
         uint256 amountMinusFee = minETHDeposit - fee;
-        assertEq(address(jarWhitelistETHFixed).balance, jarwhitebalanceBefore + amountMinusFee);
+        assertEq(address(jarAllowlistETHFixed).balance, jarwhitebalanceBefore + amountMinusFee);
         assertEq(feeCollector.balance, feeBalanceBefore + fee);
-        assertEq(jarWhitelistETHFixed.currencyHeldByJar(), currencyHeldByJarBefore + amountMinusFee);
+        assertEq(jarAllowlistETHFixed.currencyHeldByJar(), currencyHeldByJarBefore + amountMinusFee);
         assertEq(user.balance, userBalanceBefore - minETHDeposit);
     }
 
@@ -948,38 +948,38 @@ contract CookieJarTest is Test {
         vm.deal(user, minETHDeposit - 1);
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.LessThanMinimumDeposit.selector));
-        jarWhitelistETHFixed.depositETH{value: minETHDeposit - 1}();
+        jarAllowlistETHFixed.depositETH{value: minETHDeposit - 1}();
     }
 
     function test_RevertWhen_DepositETHWithZeroAmount() public {
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.ZeroAmount.selector));
-        jarWhitelistETHFixed.depositETH{value: 0}();
+        jarAllowlistETHFixed.depositETH{value: 0}();
     }
 
     function test_RevertWhen_DepositETHWithInvalidTokenAddress() public {
         vm.deal(user, 10 ether);
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidTokenAddress.selector));
-        jarWhitelistERC20Fixed.depositETH{value: 10 ether}();
+        jarAllowlistERC20Fixed.depositETH{value: 10 ether}();
     }
 
     function test_DepositCurrency() public {
         dummyToken.mint(user, fixedAmount);
 
         uint256 feeBalanceBefore = dummyToken.balanceOf(feeCollector);
-        uint256 currencyHeldByJarBefore = jarWhitelistERC20Fixed.currencyHeldByJar();
-        uint256 jarBalanceBefore = dummyToken.balanceOf(address(jarWhitelistERC20Fixed));
+        uint256 currencyHeldByJarBefore = jarAllowlistERC20Fixed.currencyHeldByJar();
+        uint256 jarBalanceBefore = dummyToken.balanceOf(address(jarAllowlistERC20Fixed));
         uint256 userBalanceBefore = dummyToken.balanceOf(user);
         vm.startPrank(user);
-        dummyToken.approve(address(jarWhitelistERC20Fixed), fixedAmount);
-        jarWhitelistERC20Fixed.depositCurrency(fixedAmount);
+        dummyToken.approve(address(jarAllowlistERC20Fixed), fixedAmount);
+        jarAllowlistERC20Fixed.depositCurrency(fixedAmount);
         vm.stopPrank();
-        uint256 fee = ((jarWhitelistERC20Fixed.feePercentageOnDeposit() * fixedAmount) / CookieJarLib.PERCENTAGE_BASE);
+        uint256 fee = ((jarAllowlistERC20Fixed.feePercentageOnDeposit() * fixedAmount) / CookieJarLib.PERCENTAGE_BASE);
         uint256 amountMinusFee = fixedAmount - fee;
         assertEq(dummyToken.balanceOf(feeCollector), feeBalanceBefore + fee);
-        assertEq(dummyToken.balanceOf(address(jarWhitelistERC20Fixed)), jarBalanceBefore + amountMinusFee);
-        assertEq(jarWhitelistERC20Fixed.currencyHeldByJar(), currencyHeldByJarBefore + amountMinusFee);
+        assertEq(dummyToken.balanceOf(address(jarAllowlistERC20Fixed)), jarBalanceBefore + amountMinusFee);
+        assertEq(jarAllowlistERC20Fixed.currencyHeldByJar(), currencyHeldByJarBefore + amountMinusFee);
         assertEq(dummyToken.balanceOf(user), userBalanceBefore - fixedAmount);
     }
 
@@ -987,167 +987,167 @@ contract CookieJarTest is Test {
         dummyToken.mint(user, minERC20Deposit - 1);
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.LessThanMinimumDeposit.selector));
-        jarWhitelistERC20Fixed.depositCurrency(minERC20Deposit - 1);
+        jarAllowlistERC20Fixed.depositCurrency(minERC20Deposit - 1);
     }
 
     function test_RevertWhen_DepositCurrencyWithZeroAmount() public {
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.ZeroAmount.selector));
-        jarWhitelistERC20Fixed.depositCurrency(0);
+        jarAllowlistERC20Fixed.depositCurrency(0);
     }
 
     function test_RevertWhen_DepositCurrencyWithInvalidTokenAddress() public {
         deal(address(dummyToken), user, fixedAmount);
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidTokenAddress.selector));
-        jarWhitelistETHFixed.depositCurrency(fixedAmount);
+        jarAllowlistETHFixed.depositCurrency(fixedAmount);
     }
 
-    // ===== Withdrawal Tests (Whitelist Mode) =====
+    // ===== Withdrawal Tests (Allowlist Mode) =====
 
-    function test_WithdrawWhitelistETHFixed() public {
+    function test_WithdrawAllowlistETHFixed() public {
         vm.prank(owner);
-        jarWhitelistETHFixed.grantJarWhitelistRole(users);
+        jarAllowlistETHFixed.grantJarAllowlistRole(users);
         vm.warp(block.timestamp + withdrawalInterval + 1);
-        uint256 currencyHeldByJarBefore = jarWhitelistETHFixed.currencyHeldByJar();
-        uint256 initialBalance = address(jarWhitelistETHFixed).balance;
+        uint256 currencyHeldByJarBefore = jarAllowlistETHFixed.currencyHeldByJar();
+        uint256 initialBalance = address(jarAllowlistETHFixed).balance;
         uint256 userBalanceBefore = user.balance;
         vm.prank(user);
-        jarWhitelistETHFixed.withdrawWhitelistMode(fixedAmount, purpose);
-        assertEq(address(jarWhitelistETHFixed).balance, initialBalance - fixedAmount);
-        assertEq(jarWhitelistETHFixed.currencyHeldByJar(), currencyHeldByJarBefore - fixedAmount);
+        jarAllowlistETHFixed.withdrawAllowlistMode(fixedAmount, purpose);
+        assertEq(address(jarAllowlistETHFixed).balance, initialBalance - fixedAmount);
+        assertEq(jarAllowlistETHFixed.currencyHeldByJar(), currencyHeldByJarBefore - fixedAmount);
         assertEq(user.balance, userBalanceBefore + fixedAmount);
-        assertEq(jarWhitelistETHFixed.lastWithdrawalWhitelist(user), block.timestamp);
+        assertEq(jarAllowlistETHFixed.lastWithdrawalAllowlist(user), block.timestamp);
     }
 
-    function test_WithdrawWhitelistERC20Fixed() public {
+    function test_WithdrawAllowlistERC20Fixed() public {
         vm.prank(owner);
-        jarWhitelistERC20Fixed.grantJarWhitelistRole(users);
+        jarAllowlistERC20Fixed.grantJarAllowlistRole(users);
         vm.warp(block.timestamp + withdrawalInterval + 1);
-        uint256 currencyHeldByJarBefore = jarWhitelistERC20Fixed.currencyHeldByJar();
-        uint256 jarBalanceBefore = dummyToken.balanceOf(address(jarWhitelistERC20Fixed));
+        uint256 currencyHeldByJarBefore = jarAllowlistERC20Fixed.currencyHeldByJar();
+        uint256 jarBalanceBefore = dummyToken.balanceOf(address(jarAllowlistERC20Fixed));
         uint256 userBalanceBefore = dummyToken.balanceOf(user);
         vm.prank(user);
-        jarWhitelistERC20Fixed.withdrawWhitelistMode(fixedAmount, purpose);
-        assertEq(jarWhitelistERC20Fixed.currencyHeldByJar(), currencyHeldByJarBefore - fixedAmount);
+        jarAllowlistERC20Fixed.withdrawAllowlistMode(fixedAmount, purpose);
+        assertEq(jarAllowlistERC20Fixed.currencyHeldByJar(), currencyHeldByJarBefore - fixedAmount);
         assertEq(dummyToken.balanceOf(user), userBalanceBefore + fixedAmount);
-        assertEq(dummyToken.balanceOf(address(jarWhitelistERC20Fixed)), jarBalanceBefore - fixedAmount);
-        assertEq(jarWhitelistERC20Fixed.lastWithdrawalWhitelist(user), block.timestamp);
+        assertEq(dummyToken.balanceOf(address(jarAllowlistERC20Fixed)), jarBalanceBefore - fixedAmount);
+        assertEq(jarAllowlistERC20Fixed.lastWithdrawalAllowlist(user), block.timestamp);
     }
 
-    function test_WithdrawWhitelistETHVariable() public {
+    function test_WithdrawAllowlistETHVariable() public {
         vm.prank(owner);
-        jarWhitelistETHVariable.grantJarWhitelistRole(users);
+        jarAllowlistETHVariable.grantJarAllowlistRole(users);
         vm.warp(block.timestamp + withdrawalInterval + 1);
-        uint256 currencyHeldByJarBefore = jarWhitelistETHVariable.currencyHeldByJar();
-        uint256 initialBalance = address(jarWhitelistETHVariable).balance;
+        uint256 currencyHeldByJarBefore = jarAllowlistETHVariable.currencyHeldByJar();
+        uint256 initialBalance = address(jarAllowlistETHVariable).balance;
         uint256 userBalanceBefore = user.balance;
         vm.prank(user);
-        jarWhitelistETHVariable.withdrawWhitelistMode(maxWithdrawal, purpose);
-        assertEq(address(jarWhitelistETHVariable).balance, initialBalance - maxWithdrawal);
-        assertEq(jarWhitelistETHVariable.currencyHeldByJar(), currencyHeldByJarBefore - maxWithdrawal);
+        jarAllowlistETHVariable.withdrawAllowlistMode(maxWithdrawal, purpose);
+        assertEq(address(jarAllowlistETHVariable).balance, initialBalance - maxWithdrawal);
+        assertEq(jarAllowlistETHVariable.currencyHeldByJar(), currencyHeldByJarBefore - maxWithdrawal);
         assertEq(user.balance, userBalanceBefore + maxWithdrawal);
-        assertEq(jarWhitelistETHVariable.lastWithdrawalWhitelist(user), block.timestamp);
+        assertEq(jarAllowlistETHVariable.lastWithdrawalAllowlist(user), block.timestamp);
     }
 
-    function test_WithdrawWhitelistERC20Variable() public {
+    function test_WithdrawAllowlistERC20Variable() public {
         vm.prank(owner);
-        jarWhitelistERC20Variable.grantJarWhitelistRole(users);
+        jarAllowlistERC20Variable.grantJarAllowlistRole(users);
         vm.warp(block.timestamp + withdrawalInterval + 1);
-        uint256 currencyHeldByJarBefore = jarWhitelistERC20Variable.currencyHeldByJar();
-        uint256 jarBalanceBefore = dummyToken.balanceOf(address(jarWhitelistERC20Variable));
+        uint256 currencyHeldByJarBefore = jarAllowlistERC20Variable.currencyHeldByJar();
+        uint256 jarBalanceBefore = dummyToken.balanceOf(address(jarAllowlistERC20Variable));
         uint256 userBalanceBefore = dummyToken.balanceOf(user);
         vm.prank(user);
-        jarWhitelistERC20Variable.withdrawWhitelistMode(maxWithdrawal, purpose);
-        assertEq(jarWhitelistERC20Variable.currencyHeldByJar(), currencyHeldByJarBefore - maxWithdrawal);
+        jarAllowlistERC20Variable.withdrawAllowlistMode(maxWithdrawal, purpose);
+        assertEq(jarAllowlistERC20Variable.currencyHeldByJar(), currencyHeldByJarBefore - maxWithdrawal);
         assertEq(dummyToken.balanceOf(user), userBalanceBefore + maxWithdrawal);
-        assertEq(dummyToken.balanceOf(address(jarWhitelistERC20Variable)), jarBalanceBefore - maxWithdrawal);
-        assertEq(jarWhitelistERC20Variable.lastWithdrawalWhitelist(user), block.timestamp);
+        assertEq(dummyToken.balanceOf(address(jarAllowlistERC20Variable)), jarBalanceBefore - maxWithdrawal);
+        assertEq(jarAllowlistERC20Variable.lastWithdrawalAllowlist(user), block.timestamp);
     }
 
-    function test_RevertWhen_WithdrawWhitelistWrongAccessType() public {
+    function test_RevertWhen_WithdrawAllowlistWrongAccessType() public {
         vm.prank(owner);
-        jarNFTETHFixed.grantRole(CookieJarLib.JAR_WHITELISTED, user);
+        jarNFTETHFixed.grantRole(CookieJarLib.JAR_ALLOWLISTED, user);
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidAccessType.selector));
-        jarNFTETHFixed.withdrawWhitelistMode(fixedAmount, purpose);
+        jarNFTETHFixed.withdrawAllowlistMode(fixedAmount, purpose);
     }
 
-    function test_RevertWhen_WithdrawNotWhitelisted() public {
+    function test_RevertWhen_WithdrawNotAllowlisted() public {
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
         vm.expectRevert(
             abi.encodeWithSelector(
                 IAccessControl.AccessControlUnauthorizedAccount.selector,
                 user,
-                CookieJarLib.JAR_WHITELISTED
+                CookieJarLib.JAR_ALLOWLISTED
             )
         );
-        jarWhitelistETHFixed.withdrawWhitelistMode(fixedAmount, purpose);
+        jarAllowlistETHFixed.withdrawAllowlistMode(fixedAmount, purpose);
     }
 
-    function test_RevertWhen_WithdrawWhitelistAmountZero() public {
+    function test_RevertWhen_WithdrawAllowlistAmountZero() public {
         vm.prank(owner);
-        jarWhitelistETHFixed.grantJarWhitelistRole(users);
+        jarAllowlistETHFixed.grantJarAllowlistRole(users);
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.ZeroAmount.selector));
-        jarWhitelistETHFixed.withdrawWhitelistMode(0, purpose);
+        jarAllowlistETHFixed.withdrawAllowlistMode(0, purpose);
     }
 
-    function test_RevertWhen_WithdrawWhitelistShortPurpose() public {
+    function test_RevertWhen_WithdrawAllowlistShortPurpose() public {
         vm.prank(owner);
-        jarWhitelistETHFixed.grantJarWhitelistRole(users);
+        jarAllowlistETHFixed.grantJarAllowlistRole(users);
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidPurpose.selector));
-        jarWhitelistETHFixed.withdrawWhitelistMode(fixedAmount, shortPurpose);
+        jarAllowlistETHFixed.withdrawAllowlistMode(fixedAmount, shortPurpose);
     }
 
-    function test_RevertWhen_WithdrawWhitelistAlreadyWithdrawn() public {
+    function test_RevertWhen_WithdrawAllowlistAlreadyWithdrawn() public {
         vm.prank(owner);
-        jarWhitelistETHOneTimeWithdrawal.grantJarWhitelistRole(users);
+        jarAllowlistETHOneTimeWithdrawal.grantJarAllowlistRole(users);
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
-        jarWhitelistETHOneTimeWithdrawal.withdrawWhitelistMode(fixedAmount, purpose);
+        jarAllowlistETHOneTimeWithdrawal.withdrawAllowlistMode(fixedAmount, purpose);
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
         vm.expectRevert(CookieJarLib.WithdrawalAlreadyDone.selector);
-        jarWhitelistETHOneTimeWithdrawal.withdrawWhitelistMode(fixedAmount, purpose);
+        jarAllowlistETHOneTimeWithdrawal.withdrawAllowlistMode(fixedAmount, purpose);
     }
 
-    function test_RevertWhen_WithdrawWhitelistTooSoon() public {
+    function test_RevertWhen_WithdrawAllowlistTooSoon() public {
         vm.prank(owner);
-        jarWhitelistETHFixed.grantJarWhitelistRole(users);
+        jarAllowlistETHFixed.grantJarAllowlistRole(users);
         vm.prank(user);
         vm.warp(block.timestamp + withdrawalInterval + 1);
-        jarWhitelistETHFixed.withdrawWhitelistMode(fixedAmount, purpose);
-        uint256 nextAllowed = jarWhitelistETHFixed.lastWithdrawalWhitelist(user) + withdrawalInterval;
+        jarAllowlistETHFixed.withdrawAllowlistMode(fixedAmount, purpose);
+        uint256 nextAllowed = jarAllowlistETHFixed.lastWithdrawalAllowlist(user) + withdrawalInterval;
         vm.prank(user);
         skip(100);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.WithdrawalTooSoon.selector, nextAllowed));
-        jarWhitelistETHFixed.withdrawWhitelistMode(fixedAmount, purpose);
+        jarAllowlistETHFixed.withdrawAllowlistMode(fixedAmount, purpose);
     }
 
-    function test_RevertWhen_WithdrawWhitelistWrongAmountFixed() public {
+    function test_RevertWhen_WithdrawAllowlistWrongAmountFixed() public {
         vm.prank(owner);
-        jarWhitelistETHFixed.grantJarWhitelistRole(users);
+        jarAllowlistETHFixed.grantJarAllowlistRole(users);
         vm.warp(block.timestamp + withdrawalInterval + 1);
         uint256 wrongAmount = fixedAmount + 1;
         vm.prank(user);
         vm.expectRevert(
             abi.encodeWithSelector(CookieJarLib.WithdrawalAmountNotAllowed.selector, wrongAmount, fixedAmount)
         );
-        jarWhitelistETHFixed.withdrawWhitelistMode(wrongAmount, purpose);
+        jarAllowlistETHFixed.withdrawAllowlistMode(wrongAmount, purpose);
     }
 
-    function test_RevertWhen_WithdrawWhitelistInsufficientBalance() public {
+    function test_RevertWhen_WithdrawAllowlistInsufficientBalance() public {
         vm.prank(owner);
         CookieJar newJar = new CookieJar(
             createJarConfig(
                 owner,
                 CookieJarLib.ETH_ADDRESS,
-                CookieJarLib.AccessType.Whitelist,
+                CookieJarLib.AccessType.Allowlist,
                 CookieJarLib.WithdrawalTypeOptions.Variable,
                 fixedAmount,
                 maxWithdrawal,
@@ -1159,14 +1159,14 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfig(emptyAddresses, emptyTypes, emptyWhitelist)
+            createAccessConfig(emptyAddresses, emptyTypes, emptyAllowlist)
         );
         vm.prank(owner);
-        newJar.grantJarWhitelistRole(users);
+        newJar.grantJarAllowlistRole(users);
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InsufficientBalance.selector));
-        newJar.withdrawWhitelistMode(maxWithdrawal, purpose);
+        newJar.withdrawAllowlistMode(maxWithdrawal, purpose);
     }
 
     // ===== Withdrawal Tests (NFTGated Mode) =====
@@ -1290,7 +1290,7 @@ contract CookieJarTest is Test {
     function test_RevertWhen_WithdrawNFTModeInvalidAccessType() public {
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidAccessType.selector));
-        jarWhitelistETHFixed.withdrawNFTMode(fixedAmount, purpose, address(dummyERC721), 1);
+        jarAllowlistETHFixed.withdrawNFTMode(fixedAmount, purpose, address(dummyERC721), 1);
     }
 
     function test_RevertWhen_WithdrawNFTModeInvalidNFTGate() public {
@@ -1385,7 +1385,7 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfig(nftAddresses, nftTypes, emptyWhitelist)
+            createAccessConfig(nftAddresses, nftTypes, emptyAllowlist)
         );
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);

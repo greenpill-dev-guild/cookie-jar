@@ -208,7 +208,7 @@ contracts/test/
 The main contract implementing comprehensive jar functionality with multi-protocol access control:
 - **Core Features**: Deposits, withdrawals, access control, purpose tracking
 - **Access Types**: Allowlist, NFT-gated, POAP, Unlock Protocol, Hypercerts, Hats Protocol
-- **Withdrawal Methods**: `withdrawWhitelistMode`, `withdrawNFTMode`, `withdrawPOAPMode`, `withdrawUnlockMode`, `withdrawHypercertMode`, `withdrawHatsMode`
+- **Withdrawal Methods**: `withdrawAllowlistMode`, `withdrawNFTMode`, `withdrawPOAPMode`, `withdrawUnlockMode`, `withdrawHypercertMode`, `withdrawHatsMode`
 - **Protocol Integration**: Built-in support for external protocol verification
 
 ### CookieJarFactory.sol

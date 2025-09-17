@@ -28,7 +28,7 @@ interface IHats {
 
 /// @title CookieJar
 /// @notice A decentralized smart contract for controlled fund withdrawals.
-/// @notice Supports both whitelist and NFT‐gated access modes.
+/// @notice Supports both allowlist and NFT‐gated access modes.
 /// @dev Deposits accept ETH and ERC20 tokens (deducting fees) and withdrawals are subject to configurable rules.
 contract CookieJar is AccessControl {
     using SafeERC20 for IERC20;
@@ -36,7 +36,7 @@ contract CookieJar is AccessControl {
     /// @notice Array of approved NFT gates (used in NFTGated mode).
     CookieJarLib.NFTGate[] public nftGates;
 
-    address[] public whitelist;
+    address[] public allowlist;
 
     // --- Protocol-specific storage ---
     /// @notice POAP requirement (used in POAP mode)
@@ -61,7 +61,7 @@ contract CookieJar is AccessControl {
     uint256 public immutable minDeposit;
     /// @notice Fee percentage, 10000 = 100%
     uint256 public immutable feePercentageOnDeposit;
-    /// @notice Access control mode: Whitelist or NFTGated.
+    /// @notice Access control mode: Allowlist or NFTGated.
     CookieJarLib.AccessType public immutable accessType;
     /// @notice Withdrawal option: Fixed or Variable.
     CookieJarLib.WithdrawalTypeOptions public immutable withdrawalOption;
@@ -82,8 +82,8 @@ contract CookieJar is AccessControl {
     bool public immutable emergencyWithdrawalEnabled;
 
     // --- Timelock Mappings ---
-    /// @notice Stores the last withdrawal timestamp for each whitelisted address for whitelist mode.
-    mapping(address user => uint256 lastWithdrawalTimestamp) public lastWithdrawalWhitelist;
+    /// @notice Stores the last withdrawal timestamp for each allowlisted address for allowlist mode.
+    mapping(address user => uint256 lastWithdrawalTimestamp) public lastWithdrawalAllowlist;
     /// @notice Stores the last withdrawal timestamp for each NFT token for NFT-gated mode.
     mapping(address nftGate => mapping(uint256 tokenId => uint256 lastWithdrawlTimestamp)) public lastWithdrawalNFT;
     /// @notice Stores the last withdrawal timestamp for each POAP token for POAP mode.
@@ -93,7 +93,7 @@ contract CookieJar is AccessControl {
 
     /// @notice Initializes a new CookieJar contract.
     /// @param config The main configuration struct for the jar
-    /// @param accessConfig The access control configuration (NFT gates and whitelist)
+    /// @param accessConfig The access control configuration (NFT gates and allowlist)
     constructor(CookieJarLib.JarConfig memory config, CookieJarLib.AccessConfig memory accessConfig) {
         if (config.jarOwner == address(0)) revert CookieJarLib.AdminCannotBeZeroAddress();
         if (config.feeCollector == address(0)) revert CookieJarLib.FeeCollectorAddressCannotBeZeroAddress();
@@ -101,36 +101,36 @@ contract CookieJar is AccessControl {
         accessType = config.accessType;
         
         // Initialize access control based on type
-        if (accessType == CookieJarLib.AccessType.Whitelist) {
-            // Whitelist mode - only whitelist should be provided
-            if (accessConfig.nftAddresses.length > 0) revert CookieJarLib.WhitelistNotAllowedForNFTGated();
+        if (accessType == CookieJarLib.AccessType.Allowlist) {
+            // Allowlist mode - only allowlist should be provided
+            if (accessConfig.nftAddresses.length > 0) revert CookieJarLib.AllowlistNotAllowedForNFTGated();
         } else if (accessType == CookieJarLib.AccessType.NFTGated) {
             if (accessConfig.nftAddresses.length == 0) revert CookieJarLib.NoNFTAddressesProvided();
             if (accessConfig.nftAddresses.length != accessConfig.nftTypes.length)
                 revert CookieJarLib.NFTArrayLengthMismatch();
-            if (accessConfig.whitelist.length > 0) revert CookieJarLib.WhitelistNotAllowedForNFTGated();
+            if (accessConfig.allowlist.length > 0) revert CookieJarLib.AllowlistNotAllowedForNFTGated();
             for (uint256 i = 0; i < accessConfig.nftAddresses.length; i++) {
                 _addNFTGate(accessConfig.nftAddresses[i], accessConfig.nftTypes[i]);
             }
         } else if (accessType == CookieJarLib.AccessType.POAP) {
             if (accessConfig.poapReq.eventId == 0) revert CookieJarLib.InvalidAccessType();
-            if (accessConfig.nftAddresses.length > 0 || accessConfig.whitelist.length > 0) 
+            if (accessConfig.nftAddresses.length > 0 || accessConfig.allowlist.length > 0) 
                 revert CookieJarLib.InvalidAccessType();
             poapRequirement = accessConfig.poapReq;
         } else if (accessType == CookieJarLib.AccessType.Unlock) {
             if (accessConfig.unlockReq.lockAddress == address(0)) revert CookieJarLib.InvalidAccessType();
-            if (accessConfig.nftAddresses.length > 0 || accessConfig.whitelist.length > 0) 
+            if (accessConfig.nftAddresses.length > 0 || accessConfig.allowlist.length > 0) 
                 revert CookieJarLib.InvalidAccessType();
             unlockRequirement = accessConfig.unlockReq;
         } else if (accessType == CookieJarLib.AccessType.Hypercert) {
             if (accessConfig.hypercertReq.tokenContract == address(0)) revert CookieJarLib.InvalidAccessType();
-            if (accessConfig.nftAddresses.length > 0 || accessConfig.whitelist.length > 0) 
+            if (accessConfig.nftAddresses.length > 0 || accessConfig.allowlist.length > 0) 
                 revert CookieJarLib.InvalidAccessType();
             hypercertRequirement = accessConfig.hypercertReq;
         } else if (accessType == CookieJarLib.AccessType.Hats) {
             if (accessConfig.hatsReq.hatId == 0 || accessConfig.hatsReq.hatsContract == address(0)) 
                 revert CookieJarLib.InvalidAccessType();
-            if (accessConfig.nftAddresses.length > 0 || accessConfig.whitelist.length > 0) 
+            if (accessConfig.nftAddresses.length > 0 || accessConfig.allowlist.length > 0) 
                 revert CookieJarLib.InvalidAccessType();
             hatsRequirement = accessConfig.hatsReq;
         }
@@ -147,23 +147,23 @@ contract CookieJar is AccessControl {
         emergencyWithdrawalEnabled = config.emergencyWithdrawalEnabled;
         oneTimeWithdrawal = config.oneTimeWithdrawal;
 
-        _setRoleAdmin(CookieJarLib.JAR_WHITELISTED, CookieJarLib.JAR_OWNER);
+        _setRoleAdmin(CookieJarLib.JAR_ALLOWLISTED, CookieJarLib.JAR_OWNER);
         _grantRole(CookieJarLib.JAR_OWNER, config.jarOwner);
-        _grantRoles(CookieJarLib.JAR_WHITELISTED, accessConfig.whitelist);
+        _grantRoles(CookieJarLib.JAR_ALLOWLISTED, accessConfig.allowlist);
     }
 
     // --- Admin Functions ---
 
-    /// @notice Updates the jar whitelist status of a user.
+    /// @notice Updates the jar allowlist status of a user.
     /// @param _users The address of the user.
-    function grantJarWhitelistRole(address[] calldata _users) external onlyRole(CookieJarLib.JAR_OWNER) {
-        if (accessType != CookieJarLib.AccessType.Whitelist) revert CookieJarLib.InvalidAccessType();
-        _grantRoles(CookieJarLib.JAR_WHITELISTED, _users);
+    function grantJarAllowlistRole(address[] calldata _users) external onlyRole(CookieJarLib.JAR_OWNER) {
+        if (accessType != CookieJarLib.AccessType.Allowlist) revert CookieJarLib.InvalidAccessType();
+        _grantRoles(CookieJarLib.JAR_ALLOWLISTED, _users);
     }
 
-    function revokeJarWhitelistRole(address[] calldata _users) external onlyRole(CookieJarLib.JAR_OWNER) {
-        if (accessType != CookieJarLib.AccessType.Whitelist) revert CookieJarLib.InvalidAccessType();
-        _revokeRoles(CookieJarLib.JAR_WHITELISTED, _users);
+    function revokeJarAllowlistRole(address[] calldata _users) external onlyRole(CookieJarLib.JAR_OWNER) {
+        if (accessType != CookieJarLib.AccessType.Allowlist) revert CookieJarLib.InvalidAccessType();
+        _revokeRoles(CookieJarLib.JAR_ALLOWLISTED, _users);
     }
 
     /// @notice Updates the fee collector address. Only the fee collector can call this function.
@@ -290,16 +290,16 @@ contract CookieJar is AccessControl {
         emit CookieJarLib.FeeCollected(feeCollector, fee, currency);
     }
 
-    /// @notice Withdraws funds (ETH or ERC20) for whitelisted users.
+    /// @notice Withdraws funds (ETH or ERC20) for allowlisted users.
     /// @param amount The amount to withdraw.
     /// @param purpose A description for the withdrawal.
-    function withdrawWhitelistMode(
+    function withdrawAllowlistMode(
         uint256 amount,
         string calldata purpose
-    ) external onlyRole(CookieJarLib.JAR_WHITELISTED) {
-        if (accessType != CookieJarLib.AccessType.Whitelist) revert CookieJarLib.InvalidAccessType();
-        _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalWhitelist[msg.sender]);
-        lastWithdrawalWhitelist[msg.sender] = block.timestamp;
+    ) external onlyRole(CookieJarLib.JAR_ALLOWLISTED) {
+        if (accessType != CookieJarLib.AccessType.Allowlist) revert CookieJarLib.InvalidAccessType();
+        _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalAllowlist[msg.sender]);
+        lastWithdrawalAllowlist[msg.sender] = block.timestamp;
         _withdraw(amount, purpose);
     }
 
@@ -377,28 +377,28 @@ contract CookieJar is AccessControl {
         return withdrawalData;
     }
 
-    /// @notice Returns the whitelist of addresses.
-    /// @return address[] The array of whitelisted addresses.
-    function getWhitelist() external view returns (address[] memory) {
-        return whitelist;
+    /// @notice Returns the allowlist of addresses.
+    /// @return address[] The array of allowlisted addresses.
+    function getAllowlist() external view returns (address[] memory) {
+        return allowlist;
     }
 
     // --- Internal Functions ---
 
     function _grantRole(bytes32 role, address account) internal override returns (bool success) {
         success = super._grantRole(role, account);
-        if (success && role == CookieJarLib.JAR_WHITELISTED) {
-            whitelist.push(account);
+        if (success && role == CookieJarLib.JAR_ALLOWLISTED) {
+            allowlist.push(account);
         }
     }
 
     function _revokeRole(bytes32 role, address account) internal override returns (bool success) {
         success = super._revokeRole(role, account);
-        if (success && role == CookieJarLib.JAR_WHITELISTED) {
-            for (uint256 i = 0; i < whitelist.length; i++) {
-                if (whitelist[i] == account) {
-                    whitelist[i] = whitelist[whitelist.length - 1];
-                    whitelist.pop();
+        if (success && role == CookieJarLib.JAR_ALLOWLISTED) {
+            for (uint256 i = 0; i < allowlist.length; i++) {
+                if (allowlist[i] == account) {
+                    allowlist[i] = allowlist[allowlist.length - 1];
+                    allowlist.pop();
                     break;
                 }
             }

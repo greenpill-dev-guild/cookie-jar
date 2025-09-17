@@ -8,6 +8,7 @@
 import { withProtocolErrorBoundary } from '@/components/design/protocol-error-boundary'
 import { POAPGateConfig as _POAPGateConfig } from './POAPGateConfig'
 import { UnlockGateConfig as _UnlockGateConfig } from './UnlockGateConfig'
+import { UnlockMembershipStatus as _UnlockMembershipStatus } from './UnlockMembershipStatus'
 import { HypercertGateConfig as _HypercertGateConfig } from './HypercertGateConfig'
 import { HatsGateConfig as _HatsGateConfig } from './HatsGateConfig'
 import { ProtocolGateSelector as _ProtocolGateSelector } from './ProtocolGateSelector'
@@ -23,6 +24,12 @@ export const POAPGateConfig = withProtocolErrorBoundary(_POAPGateConfig, {
 export const UnlockGateConfig = withProtocolErrorBoundary(_UnlockGateConfig, {
   protocolName: 'Unlock Protocol',
   maxRetries: 2,
+  showDetails: process.env.NODE_ENV === 'development'
+})
+
+export const UnlockMembershipStatus = withProtocolErrorBoundary(_UnlockMembershipStatus, {
+  protocolName: 'Unlock Protocol Status',
+  maxRetries: 3,
   showDetails: process.env.NODE_ENV === 'development'
 })
 
@@ -54,6 +61,7 @@ export const ProtocolAwareWithdrawal = withProtocolErrorBoundary(_ProtocolAwareW
 export { 
   _POAPGateConfig as POAPGateConfigUnsafe,
   _UnlockGateConfig as UnlockGateConfigUnsafe,
+  _UnlockMembershipStatus as UnlockMembershipStatusUnsafe,
   _HypercertGateConfig as HypercertGateConfigUnsafe,
   _HatsGateConfig as HatsGateConfigUnsafe,
   _ProtocolGateSelector as ProtocolGateSelectorUnsafe,

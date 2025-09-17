@@ -4,53 +4,104 @@
 
 @layer base {
   :root {
-    /* Cookie-themed color palette with dark brown and orange */
-    --background: 30 25% 95%;
-    --foreground: 25 40% 15%;
-    --card: 30 25% 98%;
-    --card-foreground: 25 40% 15%;
-    --popover: 30 25% 98%;
-    --popover-foreground: 25 40% 15%;
-    --primary: 20 95% 50%;
-    --primary-foreground: 25 40% 98%;
+    /* Cookie Jar Brand Colors */
+    --cj-brand-orange: 20 95% 50%;           /* #ff5e14 */
+    --cj-brand-orange-light: 20 95% 60%;
+    --cj-brand-orange-dark: 20 95% 40%;
+    
+    /* Cookie Jar Semantic Light Mode Colors */
+    --cj-creme-bg: 30 25% 95%;               /* #fff8f0 - Main background */
+    --cj-warm-white: 30 20% 98%;             /* Card backgrounds */
+    --cj-nav-bg: 30 20% 88%;                 /* Light brown for navigation */
+    --cj-dark-brown: 25 40% 10%;             /* Darker, more solid brown text */
+    --cj-medium-brown: 25 35% 25%;           /* More solid medium text */
+    --cj-light-brown: 25 25% 60%;            /* More solid light text */
+    
+    /* Form & Input Colors - Light Mode */
+    --cj-input-bg: 25 35% 15%;               /* More solid dark input backgrounds */
+    --cj-input-text: 30 25% 98%;             /* Pure white text in inputs */
+    --cj-input-placeholder: 30 15% 75%;      /* More solid placeholder */
+    --cj-input-border: 25 30% 35%;           /* More solid input borders */
+    
+    /* Standard Shadcn Variables - Light Mode */
+    --background: var(--cj-creme-bg);
+    --foreground: var(--cj-dark-brown);
+    --card: var(--cj-warm-white);
+    --card-foreground: var(--cj-dark-brown);
+    --popover: var(--cj-warm-white);
+    --popover-foreground: var(--cj-dark-brown);
+    --primary: var(--cj-brand-orange);
+    --primary-foreground: 30 20% 98%;
     --secondary: 30 30% 92%;
-    --secondary-foreground: 25 40% 20%;
-    --muted: 30 20% 92%;
-    --muted-foreground: 25 30% 45%;
-    --accent: 20 90% 65%;
-    --accent-foreground: 25 40% 15%;
+    --secondary-foreground: var(--cj-dark-brown);
+    --muted: 30 20% 90%;
+    --muted-foreground: var(--cj-medium-brown);
+    --accent: var(--cj-brand-orange-light);
+    --accent-foreground: var(--cj-dark-brown);
     --destructive: 0 85% 60%;
-    --destructive-foreground: 25 40% 98%;
-    --border: 30 30% 88%;
-    --input: 30 30% 88%;
-    --ring: 20 95% 50%;
+    --destructive-foreground: 30 20% 98%;
+    --border: 30 30% 85%;
+    --input: var(--cj-input-bg);
+    --ring: var(--cj-brand-orange);
     --radius: 0.75rem;
   }
 
   .dark {
-    --background: 25 40% 10%;
-    --foreground: 30 25% 90%;
-    --card: 25 40% 12%;
-    --card-foreground: 30 25% 90%;
-    --popover: 25 40% 12%;
-    --popover-foreground: 30 25% 90%;
-    --primary: 20 95% 50%;
-    --primary-foreground: 25 40% 98%;
+    /* Cookie Jar Dark Mode Button Colors - Desaturated */
+    --cj-brand-orange-dark-mode: 20 55% 45%;     /* Desaturated orange for buttons */
+    --cj-brand-orange-light-dark-mode: 20 50% 55%;
+    --cj-brand-orange-dark-dark-mode: 20 60% 35%;
+    
+    /* Cookie Jar Semantic Dark Mode Colors */
+    --cj-creme-bg: 25 40% 5%;                /* Darker, more solid background */
+    --cj-warm-white: 25 35% 8%;              /* More solid dark card backgrounds */
+    --cj-nav-bg: 25 35% 12%;                 /* Light brown for navigation in dark mode */
+    --cj-dark-brown: 30 25% 95%;             /* Pure light text in dark mode */
+    --cj-medium-brown: 30 20% 80%;           /* More solid medium text */
+    --cj-light-brown: 30 15% 65%;            /* More solid light text */
+    
+    /* Form & Input Colors - Dark Mode */
+    --cj-input-bg: 25 40% 12%;               /* More solid dark inputs */
+    --cj-input-text: 30 25% 98%;             /* Pure white text in inputs */
+    --cj-input-placeholder: 30 20% 70%;      /* More solid placeholder */
+    --cj-input-border: 25 30% 25%;           /* More solid borders */
+    
+    /* Standard Shadcn Variables - Dark Mode */
+    --background: var(--cj-creme-bg);
+    --foreground: var(--cj-dark-brown);
+    --card: var(--cj-warm-white);
+    --card-foreground: var(--cj-dark-brown);
+    --popover: var(--cj-warm-white);
+    --popover-foreground: var(--cj-dark-brown);
+    --primary: var(--cj-brand-orange-dark-mode);    /* Use desaturated orange */
+    --primary-foreground: 30 20% 98%;
     --secondary: 25 30% 20%;
-    --secondary-foreground: 30 25% 90%;
+    --secondary-foreground: var(--cj-dark-brown);
     --muted: 25 30% 20%;
-    --muted-foreground: 30 20% 70%;
-    --accent: 20 90% 50%;
-    --accent-foreground: 30 25% 90%;
+    --muted-foreground: var(--cj-medium-brown);
+    --accent: var(--cj-brand-orange-light-dark-mode);  /* Use desaturated orange */
+    --accent-foreground: var(--cj-dark-brown);
     --destructive: 0 70% 45%;
-    --destructive-foreground: 30 25% 90%;
+    --destructive-foreground: var(--cj-dark-brown);
     --border: 25 30% 25%;
-    --input: 25 30% 25%;
-    --ring: 20 95% 50%;
+    --input: var(--cj-input-bg);
+    --ring: var(--cj-brand-orange-dark-mode);       /* Use desaturated orange */
   }
 
   html {
     font-family: var(--font-clash-display), sans-serif;
+    /* Use theme-aware creme background */
+    background-color: hsl(var(--background));
+    height: 100%;
+    /* Prevent overscroll bounce on mobile */
+    overscroll-behavior: none;
+  }
+  
+  body {
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
+    /* Ensure solid backgrounds */
+    min-height: 100vh;
   }
 }
 
@@ -58,8 +109,23 @@
   * {
     @apply border-border;
   }
+  
+  /* Ensure root element has background color */
+  /* #__next,
+  [data-nextjs-scroll-focus-boundary] {
+    @apply bg-background;
+    min-height: 100vh;
+  } */
   body {
-    @apply bg-background text-foreground;
+    /* @apply bg-background text-foreground; */
+    /* Ensure body covers full height and prevents bounce */
+    /* min-height: 100vh; */
+    overscroll-behavior: none;
+    /* Prevent rubber band scrolling on iOS */
+    -webkit-overflow-scrolling: touch;
+    overflow-x: hidden;
+    /* Prevent mobile overflow issues */
+    max-width: 100vw;
   }
 
   h1 {
@@ -76,27 +142,52 @@
 }
 
 @layer components {
-  /* Update text colors to dark brown */
+  /* Cookie Jar Typography Classes */
   .mega-text {
-    @apply text-6xl md:text-8xl lg:text-9xl font-black tracking-tight uppercase;
-    color: #3c2a14; /* Darker brown for main text */
+    @apply text-4xl md:text-6xl lg:text-8xl xl:text-9xl font-black tracking-tight uppercase;
+    color: hsl(var(--cj-dark-brown));
+    /* Prevent text from overflowing on mobile */
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    hyphens: auto;
   }
 
+  .cj-heading-page {
+    @apply text-2xl md:text-3xl lg:text-4xl font-bold;
+    color: hsl(var(--cj-dark-brown));
+  }
+
+  .cj-text-body {
+    color: hsl(var(--cj-medium-brown));
+  }
+
+  .cj-text-muted {
+    color: hsl(var(--cj-light-brown));
+  }
+  
+  /* Legacy support - gradually migrate from these */
   .text-light-gray {
-    color: #e0dcd5;
+    color: hsl(var(--cj-light-brown));
   }
 
-  /* Override muted text to be dark brown */
   .text-muted-foreground {
-    color: #4a3520;
+    color: hsl(var(--cj-medium-brown));
   }
 
   /* Increase container width to fill gaps */
   .section-container {
-    @apply container mx-auto px-4 md:px-8;
+    @apply container mx-auto px-3 md:px-6 lg:px-8;
     max-width: 100%; /* Full width */
-    padding-left: 2rem;
-    padding-right: 2rem;
+    /* Responsive padding that prevents mobile overflow */
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  @media (min-width: 768px) {
+    .section-container {
+      padding-left: 2rem;
+      padding-right: 2rem;
+    }
   }
 
   @media (min-width: 1280px) {
@@ -153,10 +244,9 @@
     @apply sticky top-0 z-50 bg-background/80 backdrop-blur-md;
   }
 
-  /* Custom button styles to match the reference */
+  /* Theme-aware CTA button styles */
   .cta-button {
-    @apply rounded-full text-white font-bold text-xl py-4 px-8 shadow-lg transition-all;
-    background-color: #ff5e14;
+    @apply cj-btn-primary rounded-full font-bold text-xl py-4 px-8 shadow-lg;
   }
 
   .cta-button:hover {
@@ -164,33 +254,76 @@
   }
 
   .secondary-cta {
-    @apply font-bold text-xl text-[#3c2a14] hover:text-primary transition-colors;
+    @apply font-bold text-xl transition-colors;
+    color: hsl(var(--cj-dark-brown));
+  }
+  
+  .secondary-cta:hover {
+    color: hsl(var(--primary));
   }
 
-  /* Page background styles */
+  /* Cookie Jar Background Classes */
+  .cj-bg-main {
+    background-color: hsl(var(--cj-creme-bg));
+  }
+  
+  .cj-bg-card {
+    background-color: hsl(var(--cj-warm-white));
+  }
+  
+  .cj-bg-input {
+    background-color: hsl(var(--cj-input-bg));
+  }
+  
+  /* Legacy support */
   .cream-bg {
-    background-color: #fff8f0;
+    background-color: hsl(var(--cj-creme-bg));
   }
 
-  /* Card styles for inner pages */
+  /* Cookie Jar Card Classes */
+  .cj-card-primary {
+    background-color: hsl(var(--cj-warm-white));
+    color: hsl(var(--cj-dark-brown));
+    @apply rounded-2xl shadow-xl p-6 transition-all duration-300 hover:shadow-2xl border border-border;
+  }
+  
+  .cj-card-elevated {
+    @apply cj-card-primary shadow-2xl hover:shadow-3xl;
+  }
+  
+  /* Legacy support */
   .feature-card {
-    @apply bg-white rounded-2xl shadow-xl p-8 transition-all duration-300 hover:shadow-2xl border-none;
+    @apply cj-card-primary p-8;
   }
 
+  /* Cookie Jar Button Classes */
+  .cj-btn-primary {
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    @apply hover:brightness-105 focus-visible:ring-2 focus-visible:ring-ring transition-all duration-200;
+  }
+  
+  .cj-btn-secondary {
+    background-color: hsl(var(--cj-warm-white));
+    color: hsl(var(--cj-dark-brown));
+    border: 1px solid hsl(var(--border));
+    @apply hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring transition-all duration-200;
+  }
+  
   /* Header styles */
   .page-header {
     @apply sticky top-0 z-50 py-6 backdrop-blur-md;
-    background-color: rgba(255, 248, 240, 0.8);
+    background-color: hsla(var(--cj-creme-bg), 0.8);
   }
 
   /* Custom animated button styles */
   .btn-conteiner {
     display: flex;
     justify-content: center;
-    --color-text: #ffffff;
-    --color-background: #ff5e14;
-    --color-outline: #ff5e1480;
-    --color-shadow: #00000080;
+    --color-text: hsl(var(--primary-foreground));
+    --color-background: hsl(var(--primary));
+    --color-outline: hsl(var(--primary) / 0.5);
+    --color-shadow: hsla(0, 0%, 0%, 0.5);
   }
 
   .btn-content {
@@ -300,55 +433,55 @@
     }
   }
 
-  /* New styles for the explore page to match design */
+  /* Explore page theme-aware styles */
   .explore-heading {
-    color: #3c2a14;
+    color: hsl(var(--cj-dark-brown));
     @apply text-5xl md:text-6xl lg:text-7xl font-black uppercase tracking-tight mb-4;
   }
 
   .explore-subheading {
-    color: #4a3520;
+    color: hsl(var(--cj-medium-brown));
     @apply text-xl md:text-2xl mb-8;
   }
 
   .jar-card {
-    @apply bg-white rounded-2xl shadow-xl p-6 transition-all duration-300 hover:shadow-2xl border-none;
+    @apply cj-card-primary;
   }
 
   .jar-card-title {
-    color: #3c2a14;
+    color: hsl(var(--cj-dark-brown));
     @apply text-2xl font-bold mb-2;
   }
 
   .jar-card-description {
-    color: #4a3520;
+    color: hsl(var(--cj-medium-brown));
     @apply text-lg mb-4;
   }
 
   .jar-balance {
-    color: #ff5e14;
+    color: hsl(var(--cj-brand-orange));
     @apply text-xl font-medium;
   }
 
   .jar-network-badge {
     @apply px-4 py-1 rounded-full text-white font-medium text-sm;
-    background-color: #ff5e14;
+    background-color: hsl(var(--cj-brand-orange));
   }
 
   .jar-info-icon {
-    color: #ff5e14;
+    color: hsl(var(--cj-brand-orange));
   }
 
   .network-badge-sepolia {
-    background-color: #ff5e14;
+    background-color: hsl(var(--cj-brand-orange));
   }
 
   .network-badge-base {
-    background-color: #0052ff;
+    background-color: #0052ff; /* Keep chain-specific color */
   }
 
   .network-badge-optimism {
-    background-color: #ff0420;
+    background-color: #ff0420; /* Keep chain-specific color */
   }
 
   /* Sidebar styles */
@@ -358,7 +491,8 @@
   }
 
   .sidebar-nav-item.active {
-    @apply bg-[#ff5e14] bg-opacity-20 border-[#ff5e14] border-2;
+    background-color: hsla(var(--cj-brand-orange), 0.2);
+    border: 2px solid hsl(var(--cj-brand-orange));
   }
 
   .sidebar-icon {
@@ -366,7 +500,7 @@
   }
 
   .sidebar-icon.active {
-    @apply text-[#ff5e14];
+    color: hsl(var(--cj-brand-orange));
   }
 
   .sidebar-text {
@@ -374,7 +508,7 @@
   }
 
   .sidebar-text.active {
-    @apply text-[#ff5e14];
+    color: hsl(var(--cj-brand-orange));
   }
 
   /* Adjust main content for sidebar */
@@ -404,7 +538,7 @@
   /* Sticky header styles */
   .sticky-jars-header {
     @apply fixed top-0 left-0 right-0 z-40 shadow-md transition-transform duration-300;
-    background-color: rgba(255, 248, 240, 0.95);
+    background-color: hsla(var(--cj-creme-bg), 0.95);
   }
 
   .sticky-jars-header.hidden {
@@ -416,43 +550,206 @@
   }
 }
 
-/* Custom Scrollbar Styles */
+/* Hide All Scrollbars */
 /* For WebKit browsers (Chrome, Safari, Edge) */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 0;
+  height: 0;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(255, 94, 20, 0.05);
-  border-radius: 10px;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 94, 20, 0.7);
-  border-radius: 10px;
+  background: transparent;
 }
 
-::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 94, 20, 0.9);
+::-webkit-scrollbar-corner {
+  background: transparent;
 }
 
 /* For Firefox */
 * {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 94, 20, 0.7) rgba(255, 94, 20, 0.05);
+  scrollbar-width: none;
 }
 
-/* For the docs sidebar scrollbar specifically */
-.docs-sidebar::-webkit-scrollbar {
-  width: 4px;
+/* Alternative method for complete scrollbar hiding */
+html {
+  overflow: -moz-scrollbars-none;
+  scrollbar-width: none;
 }
 
-.docs-sidebar::-webkit-scrollbar-thumb {
-  background: rgba(255, 94, 20, 0.6);
+/* For Internet Explorer and Edge (legacy) */
+body {
+  -ms-overflow-style: none;
 }
 
-.docs-sidebar {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(255, 94, 20, 0.6) transparent;
+/* Comprehensive scrollbar hiding for all elements */
+*,
+*:before,
+*:after {
+  scrollbar-width: none !important;
+  -ms-overflow-style: none !important;
+}
+
+*::-webkit-scrollbar {
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+}
+
+*::-webkit-scrollbar-track {
+  background: transparent !important;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: transparent !important;
+}
+
+*::-webkit-scrollbar-corner {
+  background: transparent !important;
+}
+
+/* Mobile safe area support */
+.safe-area-pb {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.safe-area-pt {
+  padding-top: env(safe-area-inset-top);
+}
+
+.safe-area-pl {
+  padding-left: env(safe-area-inset-left);
+}
+
+.safe-area-pr {
+  padding-right: env(safe-area-inset-right);
+}
+
+/* Ensure app bar is always fixed */
+.mobile-app-bar {
+  position: fixed !important;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 9999;
+}
+
+/* Mobile app bar specific styles */
+@media (max-width: 767px) {
+  body {
+    padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  }
+  
+  main {
+    min-height: calc(100vh - 80px);
+    background-color: inherit;
+  }
+}
+
+/* =================================================================
+   TEXT OVERFLOW PREVENTION UTILITIES
+   ================================================================= */
+
+@layer utilities {
+  /* Enhanced mobile text handling */
+  .mobile-safe-text {
+    max-width: calc(100vw - 2rem);
+    overflow: hidden;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  /* Flex container safety - CRITICAL for preventing overflow */
+  .flex-safe {
+    min-width: 0; /* Allows flex items to shrink below content size */
+  }
+  
+  /* Responsive text sizes */
+  .text-responsive-lg {
+    @apply text-base sm:text-lg md:text-xl;
+  }
+  
+  .text-responsive-base {
+    @apply text-sm sm:text-base md:text-lg;
+  }
+  
+  .text-responsive-sm {
+    @apply text-xs sm:text-sm md:text-base;
+  }
+  
+  /* Address/hash specific handling */
+  .address-text {
+    @apply font-mono text-xs truncate;
+  }
+  
+  .address-text-mobile {
+    @apply font-mono text-xs truncate max-w-[100px] sm:max-w-[150px] md:max-w-none;
+  }
+  
+  /* Card content safety */
+  .card-text-safe {
+    @apply min-w-0 line-clamp-2 break-words;
+  }
+  
+  /* Safe flex layouts */
+  .flex-between-safe {
+    @apply flex justify-between items-center gap-2 min-w-0;
+  }
+  
+  .flex-start-safe {
+    @apply flex justify-start items-center gap-2 min-w-0;
+  }
+  
+  /* Text content patterns */
+  .content-title {
+    @apply text-responsive-lg font-semibold line-clamp-2 min-w-0;
+  }
+  
+  .content-subtitle {
+    @apply text-responsive-base text-gray-600 line-clamp-1 min-w-0;
+  }
+  
+  .content-body {
+    @apply text-responsive-sm line-clamp-3 min-w-0;
+  }
+  
+  .content-caption {
+    @apply text-xs text-gray-500 truncate min-w-0;
+  }
+}
+
+/* Mobile-specific overflow prevention */
+@media (max-width: 767px) {
+  /* Prevent any text from breaking mobile layout */
+  * {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+  }
+  
+  /* Enhanced mobile handling for common elements */
+  h1, h2, h3, h4, h5, h6 {
+    @apply break-words;
+  }
+  
+  /* Specifically handle long text in cards */
+  [class*="card"] {
+    overflow-wrap: break-word;
+    word-wrap: break-word;
+  }
+  
+  /* Ensure buttons don't break */
+  button {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  /* Handle long addresses and hashes on mobile */
+  .font-mono {
+    @apply text-xs max-w-[80px] truncate;
+  }
 }

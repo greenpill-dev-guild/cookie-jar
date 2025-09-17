@@ -5,7 +5,7 @@ export function Features() {
     {
       icon: <Shield className="h-12 w-12 text-primary" />,
       title: "Dual Access Control",
-      description: "Choose between whitelist or NFT-gated access to control who can withdraw from your jar.",
+      description: "Choose between allowlist or NFT-gated access to control who can withdraw from your jar.",
     },
     {
       icon: <Clock className="h-12 w-12 text-primary" />,

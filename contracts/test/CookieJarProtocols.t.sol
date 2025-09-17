@@ -101,7 +101,7 @@ contract CookieJarProtocolsTest is Test {
     
     address[] public emptyAddresses;
     CookieJarLib.NFTType[] public emptyTypes;
-    address[] public emptyWhitelist;
+    address[] public emptyAllowlist;
     string public purpose = "Withdrawal for a legitimate purpose!";
     string public shortPurpose = "Too short";
     
@@ -160,7 +160,7 @@ contract CookieJarProtocolsTest is Test {
         return CookieJarLib.AccessConfig({
             nftAddresses: emptyAddresses,
             nftTypes: emptyTypes,
-            whitelist: emptyWhitelist,
+            allowlist: emptyAllowlist,
             poapReq: _poapReq,
             unlockReq: _unlockReq,
             hypercertReq: _hypercertReq,
@@ -177,7 +177,7 @@ contract CookieJarProtocolsTest is Test {
         
         emptyAddresses = new address[](0);
         emptyTypes = new CookieJarLib.NFTType[](0);
-        emptyWhitelist = new address[](0);
+        emptyAllowlist = new address[](0);
 
         vm.deal(owner, 100_000 ether);
         dummyToken.mint(owner, 100_000 * 1e18);

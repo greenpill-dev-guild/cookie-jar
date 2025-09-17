@@ -10,13 +10,12 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useToast } from "@/components/ui/use-toast";
-import { 
-  useReadCookieJarGetAllowlist,
-  useWriteCookieJarGrantJarAllowlistRole,
-  useWriteCookieJarRevokeJarAllowlistRole
-} from "@/generated";
-import { AllowlistAddressInput } from "./AllowlistAddressInput";
+import { useToast } from "@/hooks/design/use-toast";
+import { useReadContract, useWriteContract, useChainId } from "wagmi";
+import { cookieJarAbi } from "@/generated";
+import { cookieJarV1Abi } from "@/lib/abis/cookie-jar-v1-abi";
+import { isV2Chain } from "@/config/supported-networks";
+import { AllowlistAddressInput } from "./AllowListAddressInput";
 
 interface AllowlistManagementProps {
   cookieJarAddress: `0x${string}`;
@@ -27,34 +26,46 @@ export const AllowlistManagement: React.FC<AllowlistManagementProps> = ({
 }) => {
   const { toast } = useToast();
   const [activeSection, setActiveSection] = useState<string>("view-allowlist");
+  const chainId = useChainId();
+  const isV2 = isV2Chain(chainId);
 
-  // Read allowlist
-  const { data: allowlistedAddresses, isLoading: isLoadingAllowlist, refetch: refetchAllowlist } =
-    useReadCookieJarGetAllowlist({
+  // Version-aware ABI and function selection
+  const abi = isV2 ? cookieJarAbi : cookieJarV1Abi;
+  const getAllowlistFunction = isV2 ? 'getAllowlist' : 'getWhitelist';
+  const grantFunction = isV2 ? 'grantJarAllowlistRole' : 'grantJarWhitelistRole';
+  const revokeFunction = isV2 ? 'revokeJarAllowlistRole' : 'revokeJarWhitelistRole';
+
+  // Read allowlist with version-aware function name
+  const { data: rawAllowlistData, isLoading: isLoadingAllowlist, refetch: refetchAllowlist } =
+    useReadContract({
       address: cookieJarAddress,
+      abi,
+      functionName: getAllowlistFunction,
     });
 
-  // Grant allowlist role
-  const { writeContractAsync: grantAllowlistRole } = useWriteCookieJarGrantJarAllowlistRole();
+  // Type-safe cast of allowlist data
+  const allowlistedAddresses = rawAllowlistData as readonly `0x${string}`[] | undefined;
 
-  // Revoke allowlist role
-  const { writeContractAsync: revokeAllowlistRole } = useWriteCookieJarRevokeJarAllowlistRole();
+  // Write contract hooks
+  const { writeContract: grantAllowlistRole } = useWriteContract();
+  const { writeContract: revokeAllowlistRole } = useWriteContract();
 
   // Handle adding addresses to allowlist
   const handleAddToAllowlist = async (addresses: `0x${string}`[]) => {
     try {
-      await grantAllowlistRole({
+      grantAllowlistRole({
         address: cookieJarAddress,
+        abi,
+        functionName: grantFunction,
         args: [addresses],
       });
       
       toast({
-        title: "Success",
-        description: `Added ${addresses.length} address(es) to allowlist`,
+        title: "Transaction Submitted",
+        description: `Adding ${addresses.length} address(es) to allowlist...`,
       });
       
-      // Refresh allowlist data
-      refetchAllowlist();
+      // Note: refetch will happen automatically when transaction is mined
     } catch (error: any) {
       toast({
         title: "Error",
@@ -68,18 +79,19 @@ export const AllowlistManagement: React.FC<AllowlistManagementProps> = ({
   // Handle removing addresses from allowlist
   const handleRemoveFromAllowlist = async (addresses: `0x${string}`[]) => {
     try {
-      await revokeAllowlistRole({
+      revokeAllowlistRole({
         address: cookieJarAddress,
+        abi,
+        functionName: revokeFunction,
         args: [addresses],
       });
       
       toast({
-        title: "Success",
-        description: `Removed ${addresses.length} address(es) from allowlist`,
+        title: "Transaction Submitted",
+        description: `Removing ${addresses.length} address(es) from allowlist...`,
       });
       
-      // Refresh allowlist data
-      refetchAllowlist();
+      // Note: refetch will happen automatically when transaction is mined
     } catch (error: any) {
       toast({
         title: "Error",
@@ -116,7 +128,7 @@ export const AllowlistManagement: React.FC<AllowlistManagementProps> = ({
                 ) : (
                   <ScrollArea className="h-[200px]">
                     <div className="space-y-2">
-                      {allowlistedAddresses.map((address, index) => (
+                      {allowlistedAddresses.map((address: `0x${string}`, index: number) => (
                         <p key={index} className="font-mono text-sm">
                           {address}
                         </p>
@@ -137,7 +149,7 @@ export const AllowlistManagement: React.FC<AllowlistManagementProps> = ({
               <CardContent className="pt-6">
                 <AllowlistAddressInput
                   mode="add"
-                  currentAllowlist={allowlistedAddresses || []}
+                  currentAllowlist={(allowlistedAddresses || []) as readonly `0x${string}`[]}
                   onSubmit={handleAddToAllowlist}
                   placeholder="Enter Ethereum addresses to add, one per line, space, or comma"
                 />
@@ -154,7 +166,7 @@ export const AllowlistManagement: React.FC<AllowlistManagementProps> = ({
               <CardContent className="pt-6">
                 <AllowlistAddressInput
                   mode="remove"
-                  currentAllowlist={allowlistedAddresses || []}
+                  currentAllowlist={(allowlistedAddresses || []) as readonly `0x${string}`[]}
                   onSubmit={handleRemoveFromAllowlist}
                   placeholder="Enter Ethereum addresses to remove, one per line, space, or comma"
                 />

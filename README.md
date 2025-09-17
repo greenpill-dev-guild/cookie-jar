@@ -14,6 +14,12 @@ pnpm dev
 
 **That's it!** Open http://localhost:3000 and explore 4 pre-seeded demo jars with Cookie Monster NFTs! 🍪
 
+> **✨ What happens during `pnpm install`:**
+> - Installs all Node.js dependencies for both client and contracts
+> - Automatically initializes git submodules (Foundry dependencies)
+> - Runs `forge install` to set up smart contract libraries
+> - Sets up the complete development environment
+
 ## 📋 Prerequisites
 
 Before getting started, ensure you have the following installed:
@@ -232,6 +238,9 @@ pnpm seed:demo
 ## 🛠️ Available Commands
 
 ```bash
+# Setup & Installation  
+pnpm install               # Install all dependencies (automatically initializes submodules and forge)
+
 # Development
 pnpm dev                   # Local development (fastest)
 pnpm dev:ethereum          # Fork Ethereum mainnet  
@@ -312,6 +321,12 @@ contracts/
 2. Check pnpm version: `pnpm --version` (should be ≥8.0.0)
 3. Check Foundry installation: `forge --version`
 4. Reinstall dependencies: `rm -rf node_modules */node_modules && pnpm install`
+
+#### Submodule/Foundry Setup Issues
+1. **Missing forge-std or openzeppelin-contracts**: Run `git submodule update --init --recursive && cd contracts && forge install`
+2. **Git submodule errors**: Ensure git is installed and repository access is working
+3. **Forge command not found**: Install Foundry: `curl -L https://foundry.paradigm.xyz | bash && foundryup`
+4. **Permission errors during setup**: Check git credentials and repository access
 
 #### Wallet Connection Issues
 1. Add local network to your Web3 wallet (MetaMask, Rabby, or Coinbase Wallet):

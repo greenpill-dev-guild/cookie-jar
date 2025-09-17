@@ -11,7 +11,7 @@ declare const beforeEach: any
 declare const jest: any
 
 // Mock the ProtocolGateSelector component logic
-type AccessType = 'Whitelist' | 'NFT' | 'POAP' | 'Unlock' | 'Hypercert' | 'Hats'
+type AccessType = 'Allowlist' | 'NFT' | 'POAP' | 'Unlock' | 'Hypercert' | 'Hats'
 
 interface ProtocolConfig {
   accessType: AccessType
@@ -26,7 +26,7 @@ interface ProtocolConfig {
 
 const gateMethods = [
   {
-    id: 'Whitelist' as AccessType,
+    id: 'Allowlist' as AccessType,
     name: 'Allowlist',
     description: 'Pre-approved addresses can access funds',
     badge: 'Simple',
@@ -59,10 +59,10 @@ const MockProtocolGateSelector: React.FC<{
   initialConfig?: ProtocolConfig
 }> = ({ onConfigChange, initialConfig }) => {
   const [selectedMethod, setSelectedMethod] = React.useState<AccessType>(
-    initialConfig?.accessType || 'Whitelist'
+    initialConfig?.accessType || 'Allowlist'
   )
   const [config, setConfig] = React.useState<ProtocolConfig>(
-    initialConfig || { accessType: 'Whitelist' }
+    initialConfig || { accessType: 'Allowlist' }
   )
 
   const handleMethodSelect = (method: AccessType) => {
@@ -127,8 +127,8 @@ const MockProtocolGateSelector: React.FC<{
         ))}
       </div>
 
-      {/* Show configuration panel for non-Whitelist methods */}
-      {selectedMethod !== 'Whitelist' && (
+      {/* Show configuration panel for non-Allowlist methods */}
+      {selectedMethod !== 'Allowlist' && (
         <div data-testid="config-panel">
           <h3>Configuration for {selectedMethod}</h3>
           
@@ -189,7 +189,7 @@ const MockProtocolGateSelector: React.FC<{
       )}
 
       {/* Configuration Summary */}
-      {selectedMethod !== 'Whitelist' && (
+      {selectedMethod !== 'Allowlist' && (
         <div data-testid="config-summary">
           <h3>Configuration Summary</h3>
           <p data-testid="selected-method">Method: {gateMethods.find(m => m.id === selectedMethod)?.name}</p>
@@ -219,10 +219,10 @@ describe('ProtocolGateSelector', () => {
   it('shows method details correctly', () => {
     render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />)
     
-    // Check Whitelist method details
-    expect(screen.getByTestId('whitelist-name')).toHaveTextContent('Allowlist')
-    expect(screen.getByTestId('whitelist-description')).toHaveTextContent('Pre-approved addresses can access funds')
-    expect(screen.getByTestId('whitelist-badge')).toHaveTextContent('Simple')
+    // Check Allowlist method details
+    expect(screen.getByTestId('allowlist-name')).toHaveTextContent('Allowlist')
+    expect(screen.getByTestId('allowlist-description')).toHaveTextContent('Pre-approved addresses can access funds')
+    expect(screen.getByTestId('allowlist-badge')).toHaveTextContent('Simple')
     
     // Check pros and cons are displayed
     expect(screen.getByText('Direct control')).toBeInTheDocument()
@@ -233,8 +233,8 @@ describe('ProtocolGateSelector', () => {
   it('selects default method on mount', () => {
     render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />)
     
-    const whitelistMethod = screen.getByTestId('method-whitelist')
-    expect(whitelistMethod).toHaveClass('selected')
+    const allowlistMethod = screen.getByTestId('method-allowlist')
+    expect(allowlistMethod).toHaveClass('selected')
   })
 
   it('changes selection when method is clicked', async () => {
@@ -247,10 +247,10 @@ describe('ProtocolGateSelector', () => {
     expect(mockOnConfigChange).toHaveBeenCalledWith({ accessType: 'NFT' })
   })
 
-  it('shows configuration panel for non-Whitelist methods', async () => {
+  it('shows configuration panel for non-Allowlist methods', async () => {
     render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />)
     
-    // Initially no config panel for Whitelist
+    // Initially no config panel for Allowlist
     expect(screen.queryByTestId('config-panel')).not.toBeInTheDocument()
     
     // Select NFT method
@@ -374,7 +374,7 @@ describe('ProtocolGateSelector', () => {
     it('has proper keyboard navigation', async () => {
       render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />)
       
-      const firstMethod = screen.getByTestId('method-whitelist')
+      const firstMethod = screen.getByTestId('method-allowlist')
       const secondMethod = screen.getByTestId('method-nft')
       
       // Tab to first method and press Enter
@@ -398,32 +398,32 @@ describe('ProtocolGateSelector', () => {
     it('shows visual selection state', async () => {
       render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />)
       
-      const whitelistMethod = screen.getByTestId('method-whitelist')
+      const allowlistMethod = screen.getByTestId('method-allowlist')
       const nftMethod = screen.getByTestId('method-nft')
       
-      // Initially whitelist is selected
-      expect(whitelistMethod).toHaveClass('selected')
+      // Initially allowlist is selected
+      expect(allowlistMethod).toHaveClass('selected')
       expect(nftMethod).not.toHaveClass('selected')
       
       // Click NFT method
       await user.click(nftMethod)
       
       expect(nftMethod).toHaveClass('selected')
-      expect(whitelistMethod).not.toHaveClass('selected')
+      expect(allowlistMethod).not.toHaveClass('selected')
     })
 
     it('shows configuration panel only for applicable methods', async () => {
       render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />)
       
-      // No config panel for Whitelist
+      // No config panel for Allowlist
       expect(screen.queryByTestId('config-panel')).not.toBeInTheDocument()
       
       // Config panel appears for other methods
       await user.click(screen.getByTestId('method-nft'))
       expect(screen.getByTestId('config-panel')).toBeInTheDocument()
       
-      // Switch back to Whitelist
-      await user.click(screen.getByTestId('method-whitelist'))
+      // Switch back to Allowlist
+      await user.click(screen.getByTestId('method-allowlist'))
       expect(screen.queryByTestId('config-panel')).not.toBeInTheDocument()
     })
   })

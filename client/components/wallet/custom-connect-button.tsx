@@ -139,7 +139,7 @@ Nonce: ${nonce}`;
                   return (
                     <Button
                       onClick={() => setShowConnectModal(true)}
-                      className="w-full bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white"
+                      className="w-full cj-btn-primary"
                     >
                       Connect Wallet
                     </Button>

@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /// @title CookieJarFactory
 /// @notice A factory contract to deploy "cookie jars" for users.
-/// @notice A cookie jar is a contract that allows users to deposit funds, and create a whitelist for users that can "claim", example airdrops.
+/// @notice A cookie jar is a contract that allows users to deposit funds, and create an allowlist for users that can "claim", example airdrops.
 /// @notice DO NOT DIRECTLY SEND FUNDS TO THIS CONTRACT, USE DEPOSIT FUNCTIONS TO DEPOSIT AND STORE THE DATA IN THIS CONTRACT.
 /// @dev Handles Protocol Access Control and jar deployments.
 contract CookieJarFactory is AccessControl {
@@ -171,7 +171,7 @@ contract CookieJarFactory is AccessControl {
     /// @notice Creates a new CookieJar contract with custom fee percentage
     /// @param _cookieJarOwner Address of the new CookieJar owner.
     /// @param _supportedCurrency Address of the supported currency for the jar CookieJarLib.ETH_ADDRESS if native ETH.
-    /// @param _accessType Claim mode: Whitelist or NFTGated.
+    /// @param _accessType Claim mode: Allowlist or NFTGated.
     /// @param _nftAddresses Array of NFT contract addresses (only for NFTGated mode).
     /// @param _nftTypes Array of NFT types corresponding to _nftAddresses.
     /// @param _withdrawalOption Fixed or Variable withdrawal type.
@@ -181,7 +181,7 @@ contract CookieJarFactory is AccessControl {
     /// @param _strictPurpose If true, requires a purpose length ≥20 characters.
     /// @param _emergencyWithdrawalEnabled If true, emergency withdrawal is enabled.
     /// @param _oneTimeWithdrawal If true, each recipient can only claim from the jar once.
-    /// @param _whitelist Array of whitelisted addresses.
+    /// @param _allowlist Array of allowlisted addresses.
     /// @param metadata Optional metadata for off-chain tracking.
     /// @param customFeePercentage Custom fee percentage for this jar (0-10000, where 10000 = 100%)
     function createCookieJarWithFee(
@@ -197,7 +197,7 @@ contract CookieJarFactory is AccessControl {
         bool _strictPurpose,
         bool _emergencyWithdrawalEnabled,
         bool _oneTimeWithdrawal,
-        address[] calldata _whitelist,
+        address[] calldata _allowlist,
         string calldata metadata,
         uint256 customFeePercentage
     ) external onlyNotBlacklisted(msg.sender) returns (address) {
@@ -219,7 +219,7 @@ contract CookieJarFactory is AccessControl {
             CookieJarLib.AccessConfig({
                 nftAddresses: _nftAddresses,
                 nftTypes: _nftTypes,
-                whitelist: _whitelist,
+                allowlist: _allowlist,
                 poapReq: CookieJarLib.POAPRequirement(0, address(0)),
                 unlockReq: CookieJarLib.UnlockRequirement(address(0)),
                 hypercertReq: CookieJarLib.HypercertRequirement(address(0), 0, 1),
@@ -242,7 +242,7 @@ contract CookieJarFactory is AccessControl {
         bool _strictPurpose,
         bool _emergencyWithdrawalEnabled,
         bool _oneTimeWithdrawal,
-        address[] calldata _whitelist,
+        address[] calldata _allowlist,
         string calldata metadata
     ) external onlyNotBlacklisted(msg.sender) returns (address) {
         return _createJarInternal(
@@ -263,7 +263,7 @@ contract CookieJarFactory is AccessControl {
             CookieJarLib.AccessConfig({
                 nftAddresses: _nftAddresses,
                 nftTypes: _nftTypes,
-                whitelist: _whitelist,
+                allowlist: _allowlist,
                 poapReq: CookieJarLib.POAPRequirement(0, address(0)),
                 unlockReq: CookieJarLib.UnlockRequirement(address(0)),
                 hypercertReq: CookieJarLib.HypercertRequirement(address(0), 0, 1),

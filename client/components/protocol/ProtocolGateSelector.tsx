@@ -18,7 +18,7 @@ import { UnlockGateConfig } from './UnlockGateConfig'
 import { HypercertGateConfig } from './HypercertGateConfig'
 import { HatsGateConfig } from './HatsGateConfig'
 
-export type AccessType = 'Whitelist' | 'NFT' | 'POAP' | 'Unlock' | 'Hypercert' | 'Hats'
+export type AccessType = 'Allowlist' | 'NFT' | 'POAP' | 'Unlock' | 'Hypercert' | 'Hats'
 
 interface ProtocolConfig {
   accessType: AccessType
@@ -44,7 +44,7 @@ interface ProtocolConfig {
 
 const gateMethods = [
   {
-    id: 'Whitelist' as AccessType,
+    id: 'Allowlist' as AccessType,
     name: 'Allowlist',
     description: 'Pre-approved addresses can access funds',
     icon: <Users className="h-6 w-6" />,
@@ -122,8 +122,8 @@ export const ProtocolGateSelector: React.FC<ProtocolGateSelectorProps> = ({
   initialConfig,
   className = ''
 }) => {
-  const [selectedMethod, setSelectedMethod] = useState<AccessType>(initialConfig?.accessType || 'Whitelist')
-  const [config, setConfig] = useState<ProtocolConfig>(initialConfig || { accessType: 'Whitelist' })
+  const [selectedMethod, setSelectedMethod] = useState<AccessType>(initialConfig?.accessType || 'Allowlist')
+  const [config, setConfig] = useState<ProtocolConfig>(initialConfig || { accessType: 'Allowlist' })
 
   const handleMethodSelect = (method: AccessType) => {
     setSelectedMethod(method)
@@ -159,7 +159,7 @@ export const ProtocolGateSelector: React.FC<ProtocolGateSelectorProps> = ({
       </div>
 
       {/* Method Selection Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" data-testid="method-grid">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4" data-testid="method-grid">
         {gateMethods.map((method) => (
           <Card
             key={method.id}
@@ -197,10 +197,10 @@ export const ProtocolGateSelector: React.FC<ProtocolGateSelectorProps> = ({
             <CardContent className="pt-0">
               <p data-testid={`${method.id.toLowerCase()}-description`} className="text-sm text-[#8b7355] mb-3">{method.description}</p>
               
-              <div className="space-y-2">
+              <div className="space-y-2 hidden md:block">
                 <div data-testid={`${method.id.toLowerCase()}-pros`}>
-                  <p>Pros:</p>
-                  <ul>
+                  <p className="text-sm font-medium">Pros:</p>
+                  <ul className="text-xs space-y-0.5 list-disc list-inside">
                     {method.pros.map((pro, i) => (
                       <li key={i}>{pro}</li>
                     ))}
@@ -208,8 +208,8 @@ export const ProtocolGateSelector: React.FC<ProtocolGateSelectorProps> = ({
                 </div>
                 
                 <div data-testid={`${method.id.toLowerCase()}-cons`}>
-                  <p>Considerations:</p>
-                  <ul>
+                  <p className="text-sm font-medium">Considerations:</p>
+                  <ul className="text-xs space-y-0.5 list-disc list-inside">
                     {method.cons.map((con, i) => (
                       <li key={i}>{con}</li>
                     ))}
@@ -217,8 +217,8 @@ export const ProtocolGateSelector: React.FC<ProtocolGateSelectorProps> = ({
                 </div>
                 
                 <div data-testid={`${method.id.toLowerCase()}-best-for`}>
-                  <p>Best for:</p>
-                  <ul>
+                  <p className="text-sm font-medium">Best for:</p>
+                  <ul className="text-xs space-y-0.5 list-disc list-inside">
                     {method.bestFor.map((use, i) => (
                       <li key={i}>{use}</li>
                     ))}
@@ -231,7 +231,7 @@ export const ProtocolGateSelector: React.FC<ProtocolGateSelectorProps> = ({
       </div>
 
       {/* Configuration Panel */}
-      {selectedMethod !== 'Whitelist' && (
+      {selectedMethod !== 'Allowlist' && (
         <div data-testid="config-panel">
           <h3>Configuration for {selectedMethod}</h3>
           <div>
@@ -251,8 +251,10 @@ export const ProtocolGateSelector: React.FC<ProtocolGateSelectorProps> = ({
             
             {selectedMethod === 'Unlock' && (
               <div data-testid="unlock-config">
-                <p>Unlock Protocol Configuration</p>
-                <input data-testid="unlock-lock-address-input" placeholder="Lock Contract Address" />
+                <UnlockGateConfig 
+                  onConfigChange={handleProtocolConfigChange}
+                  initialConfig={config.lockAddress ? { lockAddress: config.lockAddress, lockInfo: config.lockInfo } : undefined}
+                />
               </div>
             )}
             
@@ -273,8 +275,8 @@ export const ProtocolGateSelector: React.FC<ProtocolGateSelectorProps> = ({
         </div>
       )}
 
-      {/* Whitelist Notice */}
-      {selectedMethod === 'Whitelist' && (
+      {/* Allowlist Notice */}
+      {selectedMethod === 'Allowlist' && (
         <Card className="border-l-4 border-l-blue-500">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">

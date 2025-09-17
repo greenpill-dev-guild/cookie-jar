@@ -1,9 +1,10 @@
 "use client"
 
-import { keccak256, toUtf8Bytes } from "ethers"
-import { useAccount } from "wagmi"
+import { keccak256, toHex } from "viem"
+import { useAccount, useChainId } from "wagmi"
 import { useReadContracts } from "wagmi"
-import { cookieJarAbi } from "../generated" // assuming this exists
+import { cookieJarAbi } from "../generated"
+import { isV2Chain } from "@/config/supported-networks"
 
 /**
  * Enum for Access Type
@@ -23,275 +24,113 @@ enum WithdrawalTypeOptions {
 
 /**
  * Hook to read all configuration values from the CookieJar contract
- * @returns All configuration values and loading/error states
- */
-// export const useCookieJarConfig = (address: `0x${string}`) => {
-//   const account = useAccount()
-//   const userAddress = account.address as `0x${string}`
-//   const cacheRef = useRef<{
-//     address: string
-//     data: any
-//     timestamp: number
-//   } | null>(null)
-
-//   // Add cache validation before making requests
-//   const shouldRefetch =
-//     !cacheRef.current || cacheRef.current.address !== address || Date.now() - cacheRef.current.timestamp > 30000 // 30 seconds cache
-
-//   // Modify the query options to use the cache
-//   const queryOptions = {
-//     enabled: shouldRefetch,
-//   }
-
-//   // Use queryOptions in all your queries
-//   const accessType = useReadCookieJarAccessType({ address, query: queryOptions })
-//   const admin = useReadCookieJarJarOwner({ address, query: queryOptions })
-//   const withdrawalOption = useReadCookieJarWithdrawalOption({ address, query: queryOptions })
-//   const fixedAmount = useReadCookieJarFixedAmount({ address, query: queryOptions })
-//   const maxWithdrawal = useReadCookieJarMaxWithdrawal({ address, query: queryOptions })
-//   const withdrawalInterval = useReadCookieJarWithdrawalInterval({ address, query: queryOptions })
-//   const strictPurpose = useReadCookieJarStrictPurpose({ address, query: queryOptions })
-//   const emergencyWithdrawalEnabled = useReadCookieJarEmergencyWithdrawalEnabled({ address, query: queryOptions })
-//   const oneTimeWithdrawal = useReadCookieJarOneTimeWithdrawal({
-//     address,
-//     query: queryOptions,
-//   })
-
-//   const pastWithdrawals = useReadCookieJarGetWithdrawalDataArray({
-//     address,
-//     query: queryOptions,
-//   })
-//   const feeCollector = useReadCookieJarFeeCollector({ address, query: queryOptions })
-//   // Encode role names to bytes32, same as Solidity
-//   const JAR_OWNER = keccak256(toUtf8Bytes("JAR_OWNER")) as `0x${string}`
-//   const JAR_BLACKLISTED = keccak256(toUtf8Bytes("JAR_BLACKLISTED")) as `0x${string}`
-//   const JAR_WHITELISTED = keccak256(toUtf8Bytes("JAR_WHITELISTED")) as `0x${string}`
-
-//   // Now use it in the function call
-//   const whitelist = useReadCookieJarHasRole({
-//     address,
-//     args: [JAR_WHITELISTED, userAddress],
-//     query: queryOptions,
-//   })
-
-//   const blacklist = useReadCookieJarHasRole({
-//     address,
-//     args: [JAR_BLACKLISTED, userAddress],
-//     query: queryOptions,
-//   })
-//   const lastWithdrawalWhitelist = useReadCookieJarLastWithdrawalWhitelist({
-//     address,
-//     args: [userAddress],
-//     query: queryOptions,
-//   })
-//   const lastWithdrawalNft = useReadCookieJarLastWithdrawalNft({
-//     address,
-//     args: [userAddress],
-//     query: queryOptions,
-//   })
-//   const balance = useReadCookieJarCurrencyHeldByJar({
-//     address,
-//     query: queryOptions,
-//   })
-//   const currency = useReadCookieJarCurrency({ address, query: queryOptions })
-
-//   const isLoading = [
-//     accessType.isLoading,
-//     admin.isLoading,
-//     withdrawalOption.isLoading,
-//     fixedAmount.isLoading,
-//     maxWithdrawal.isLoading,
-//     withdrawalInterval.isLoading,
-//     strictPurpose.isLoading,
-//     emergencyWithdrawalEnabled.isLoading,
-//     oneTimeWithdrawal.isLoading,
-//     pastWithdrawals.isLoading,
-//     feeCollector.isLoading,
-//     whitelist.isLoading,
-//     blacklist.isLoading,
-//     lastWithdrawalWhitelist.isLoading,
-//     lastWithdrawalNft.isLoading,
-//     currency.isLoading,
-//     balance.isLoading,
-//   ].some(Boolean)
-
-//   const hasError = [
-//     accessType.isError,
-//     admin.isError,
-//     withdrawalOption.isError,
-//     fixedAmount.isError,
-//     maxWithdrawal.isError,
-//     withdrawalInterval.isError,
-//     strictPurpose.isError,
-//     emergencyWithdrawalEnabled.isError,
-//     oneTimeWithdrawal.isError,
-//     feeCollector.isError,
-//     whitelist.isError,
-//     blacklist.isError,
-//     currency.isError,
-//     balance.isError,
-//   ].some(Boolean)
-
-//   const errors = [
-//     accessType.error,
-//     admin.error,
-//     withdrawalOption.error,
-//     fixedAmount.error,
-//     maxWithdrawal.error,
-//     withdrawalInterval.error,
-//     strictPurpose.error,
-//     emergencyWithdrawalEnabled.error,
-//     oneTimeWithdrawal.error,
-//     pastWithdrawals.error,
-//     feeCollector.error,
-//     whitelist.error,
-//     blacklist.error,
-//     lastWithdrawalWhitelist.error,
-//     lastWithdrawalNft.error,
-//     currency.error,
-//     balance.error,
-//   ].filter(Boolean)
-
-//   useEffect(() => {
-//     if (!isLoading && !hasError && accessType.data !== undefined) {
-//       cacheRef.current = {
-//         address: address,
-//         data: {
-//           // Store all the data here
-//           accessType: accessType.data,
-//           admin: admin.data,
-//           withdrawalOption: withdrawalOption.data,
-//           fixedAmount: fixedAmount.data,
-//           maxWithdrawal: maxWithdrawal.data,
-//           withdrawalInterval: withdrawalInterval.data,
-//           strictPurpose: strictPurpose.data,
-//           emergencyWithdrawalEnabled: emergencyWithdrawalEnabled.data,
-//           oneTimeWithdrawal: oneTimeWithdrawal.data,
-//           pastWithdrawals: pastWithdrawals.data,
-//           feeCollector: feeCollector.data,
-//           whitelist: whitelist.data,
-//           blacklist: blacklist.data,
-//           lastWithdrawalWhitelist: lastWithdrawalWhitelist.data,
-//           lastWithdrawalNft: lastWithdrawalNft.data,
-//           balance: balance.data,
-//           currency: currency.data,
-//         },
-//         timestamp: Date.now(),
-//       }
-//     }
-//   }, [
-//     isLoading,
-//     hasError,
-//     address,
-//     accessType.data,
-//     admin.data,
-//     withdrawalOption.data,
-//     fixedAmount.data,
-//     maxWithdrawal.data,
-//     withdrawalInterval.data,
-//     strictPurpose.data,
-//     emergencyWithdrawalEnabled.data,
-//     oneTimeWithdrawal.data,
-//     pastWithdrawals.data,
-//     feeCollector.data,
-//     whitelist.data,
-//     blacklist.data,
-//     lastWithdrawalWhitelist.data,
-//     lastWithdrawalNft.data,
-//     currency.data,
-//     balance.data,
-//   ])
-
-//   return {
-//     config: {
-//       JAR_OWNER: JAR_OWNER,
-//       contractAddress: address as `0x${string}`,
-//       accessType: accessType.data !== undefined ? AccessType[accessType.data] : undefined,
-//       admin: admin.data,
-//       withdrawalOption: withdrawalOption.data !== undefined ? WithdrawalTypeOptions[withdrawalOption.data] : undefined,
-//       fixedAmount: fixedAmount.data,
-//       maxWithdrawal: maxWithdrawal.data,
-//       withdrawalInterval: withdrawalInterval.data,
-//       strictPurpose: strictPurpose.data,
-//       emergencyWithdrawalEnabled: emergencyWithdrawalEnabled.data,
-//       oneTimeWithdrawal: oneTimeWithdrawal.data,
-//       pastWithdrawals: pastWithdrawals.data,
-//       feeCollector: feeCollector.data,
-//       whitelist: whitelist.data,
-//       blacklist: blacklist.data,
-//       lastWithdrawalWhitelist: lastWithdrawalWhitelist.data,
-//       lastWithdrawalNft: lastWithdrawalNft.data,
-//       balance: balance.data,
-//       currency: currency.data,
-//       metadata: undefined, // Add this line
-//     },
-//     isLoading,
-//     hasError,
-//     errors,
-//   }
-// }
-
-/**
- *
- * Optimised
+ * Uses optimized useReadContracts for better performance
  */
 
 export const useCookieJarConfig = (address: `0x${string}`) => {
   const { address: userAddress } = useAccount()
+  const chainId = useChainId()
 
-  const JAR_OWNER = keccak256(toUtf8Bytes("JAR_OWNER")) as `0x${string}`
-  const JAR_BLACKLISTED = keccak256(toUtf8Bytes("JAR_BLACKLISTED")) as `0x${string}`
-  const JAR_ALLOWLISTED = keccak256(toUtf8Bytes("JAR_ALLOWLISTED")) as `0x${string}`
+  const JAR_OWNER = keccak256(toHex("JAR_OWNER")) as `0x${string}`
+  const JAR_BLACKLISTED = keccak256(toHex("JAR_BLACKLISTED")) as `0x${string}`
+  
+  // Use correct role name based on contract version
+  const allowlistRoleName = isV2Chain(chainId) ? "JAR_ALLOWLISTED" : "JAR_WHITELISTED"
+  const JAR_ALLOWLISTED = keccak256(toHex(allowlistRoleName)) as `0x${string}`
+  
+  // Use correct function name based on contract version
+  const lastWithdrawalFunctionName = isV2Chain(chainId) ? "lastWithdrawalAllowlist" : "lastWithdrawalWhitelist"
+
+  // Contract calls with version-aware function names
+  const contracts = [
+    { address, abi: cookieJarAbi, functionName: "accessType" },
+    { address, abi: cookieJarAbi, functionName: "hasRole", args: [JAR_OWNER, userAddress || '0x0000000000000000000000000000000000000000' as `0x${string}`] },
+    { address, abi: cookieJarAbi, functionName: "withdrawalOption" },
+    { address, abi: cookieJarAbi, functionName: "fixedAmount" },
+    { address, abi: cookieJarAbi, functionName: "maxWithdrawal" },
+    { address, abi: cookieJarAbi, functionName: "withdrawalInterval" },
+    { address, abi: cookieJarAbi, functionName: "strictPurpose" },
+    { address, abi: cookieJarAbi, functionName: "emergencyWithdrawalEnabled" },
+    { address, abi: cookieJarAbi, functionName: "oneTimeWithdrawal" },
+    { address, abi: cookieJarAbi, functionName: "getWithdrawalDataArray" },
+    { address, abi: cookieJarAbi, functionName: "feeCollector" },
+    { address, abi: cookieJarAbi, functionName: "hasRole", args: [JAR_ALLOWLISTED, userAddress || '0x0000000000000000000000000000000000000000' as `0x${string}`] },
+    { address, abi: cookieJarAbi, functionName: "hasRole", args: [JAR_BLACKLISTED, userAddress || '0x0000000000000000000000000000000000000000' as `0x${string}`] },
+    { address, abi: cookieJarAbi, functionName: lastWithdrawalFunctionName, args: [userAddress || '0x0000000000000000000000000000000000000000' as `0x${string}`] },
+    { address, abi: cookieJarAbi, functionName: "lastWithdrawalNFT", args: [userAddress || '0x0000000000000000000000000000000000000000' as `0x${string}`, BigInt(0)] },
+    { address, abi: cookieJarAbi, functionName: "currencyHeldByJar" },
+    { address, abi: cookieJarAbi, functionName: "currency" },
+  ]
 
   const { data, isLoading, isError, error, refetch } = useReadContracts({
-    contracts: [
-      { address, abi: cookieJarAbi, functionName: "accessType" },
-      { address, abi: cookieJarAbi, functionName: "jarOwner" }, //likely could be updated to "hasRole", args:[JAR_OWNER, userAddress!]
-      { address, abi: cookieJarAbi, functionName: "withdrawalOption" },
-      { address, abi: cookieJarAbi, functionName: "fixedAmount" },
-      { address, abi: cookieJarAbi, functionName: "maxWithdrawal" },
-      { address, abi: cookieJarAbi, functionName: "withdrawalInterval" },
-      { address, abi: cookieJarAbi, functionName: "strictPurpose" },
-      { address, abi: cookieJarAbi, functionName: "emergencyWithdrawalEnabled" },
-      { address, abi: cookieJarAbi, functionName: "oneTimeWithdrawal" },
-      { address, abi: cookieJarAbi, functionName: "getWithdrawalDataArray" },
-      { address, abi: cookieJarAbi, functionName: "feeCollector" },
-      { address, abi: cookieJarAbi, functionName: "hasRole", args: [JAR_ALLOWLISTED, userAddress!] },
-      { address, abi: cookieJarAbi, functionName: "hasRole", args: [JAR_BLACKLISTED, userAddress!] },
-      { address, abi: cookieJarAbi, functionName: "lastWithdrawalAllowlist", args: [userAddress!] },
-      { address, abi: cookieJarAbi, functionName: "lastWithdrawalNFT", args: [userAddress!] }, //likely needs to be updated to reflect SC changes that disallow NFTS to be passed around to drain jar
-      { address, abi: cookieJarAbi, functionName: "currencyHeldByJar" },
-      { address, abi: cookieJarAbi, functionName: "currency" },
-    ],
+    contracts,
     allowFailure: true,
   })
 
-  const AccessType = ["Allowlist", "NFTGated"]
   const WithdrawalTypeOptions = ["Fixed", "Variable"]
 
+  // Simple access type mapping to avoid TypeScript issues
+  const getAccessTypeName = (typeIndex: unknown): string => {
+    switch (typeIndex) {
+      case 0: return "Allowlist"
+      case 1: return "NFT-Gated"
+      case 2: return "POAP"
+      case 3: return "Unlock"
+      case 4: return "Hypercert"
+      case 5: return "Hats"
+      default: return "Unknown"
+    }
+  }
+  
+  // Extract results to variables to break complex type inference
+  const results: any[] = data as any || []
+  const r0 = results[0]?.result
+  const r1 = results[1]?.result
+  const r2 = results[2]?.result
+  const r3 = results[3]?.result
+  const r4 = results[4]?.result
+  const r5 = results[5]?.result
+  const r6 = results[6]?.result
+  const r7 = results[7]?.result
+  const r8 = results[8]?.result
+  const r9 = results[9]?.result
+  const r10 = results[10]?.result
+  const r11 = results[11]?.result
+  const r12 = results[12]?.result
+  const r13 = results[13]?.result
+  const r14 = results[14]?.result
+  const r15 = results[15]?.result
+  const r16 = results[16]?.result
+
+  const accessTypeString = r0 !== undefined ? getAccessTypeName(r0) : undefined
+
+  // Create config object with pre-extracted values
+  const config = {
+    JAR_OWNER,
+    contractAddress: address,
+    accessType: accessTypeString,
+    admin: r1 as boolean | undefined,
+    withdrawalOption: r2 !== undefined ? WithdrawalTypeOptions[r2 as number] : undefined,
+    fixedAmount: r3 as bigint | undefined,
+    maxWithdrawal: r4 as bigint | undefined,
+    withdrawalInterval: r5 as bigint | undefined,
+    strictPurpose: r6 as boolean | undefined,
+    emergencyWithdrawalEnabled: r7 as boolean | undefined,
+    oneTimeWithdrawal: r8 as boolean | undefined,
+    pastWithdrawals: r9 as readonly { amount: bigint; purpose: string; recipient: `0x${string}` }[] | undefined,
+    feeCollector: r10 as `0x${string}` | undefined,
+    allowlist: r11 as boolean | undefined,
+    blacklist: r12 as boolean | undefined,
+    lastWithdrawalAllowlist: r13 as bigint | undefined, // Works for both v1 (whitelist) and v2 (allowlist) data
+    lastWithdrawalNft: r14 as bigint | undefined,
+    balance: r15 as bigint | undefined,
+    currency: r16 as `0x${string}` | undefined,
+    metadata: undefined as string | undefined,
+    supportsProtocols: r0 !== undefined && (r0 as number) >= 2,
+  }
+
   return {
-    config: {
-      JAR_OWNER,
-      contractAddress: address,
-      accessType: data?.[0]?.result !== undefined ? AccessType[data[0].result as number] : undefined,
-      admin: data?.[1]?.result,
-      withdrawalOption: data?.[2]?.result !== undefined ? WithdrawalTypeOptions[data[2].result as number] : undefined,
-      fixedAmount: data?.[3]?.result,
-      maxWithdrawal: data?.[4]?.result,
-      withdrawalInterval: data?.[5]?.result,
-      strictPurpose: data?.[6]?.result,
-      emergencyWithdrawalEnabled: data?.[7]?.result,
-      oneTimeWithdrawal: data?.[8]?.result,
-      pastWithdrawals: data?.[9]?.result,
-      feeCollector: data?.[10]?.result,
-      allowlist: data?.[11]?.result,
-      blacklist: data?.[12]?.result,
-      lastWithdrawalAllowlist: data?.[13]?.result,
-      lastWithdrawalNft: data?.[14]?.result,
-      balance: data?.[15]?.result,
-      currency: data?.[16]?.result,
-      metadata: undefined,
-    },
+    config,
     isLoading,
     hasError: isError,
     errors: error ? [error] : [],

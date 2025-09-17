@@ -1,12 +1,12 @@
 import type React from "react"
-import { ThemeProvider } from "@/components/design/theme-provider"
+import { ThemeProvider } from "@/components/theme-provider"
 import { RainbowKitProviderWrapper } from "@/components/wallet/rainbow-kit-provider"
 import { Toaster } from "@/components/ui/toaster"
 import { PageTransition } from "@/components/design/page-transition"
-import { CollapsibleSidebar } from "@/components/design/collapsible-sidebar"
+import { Header } from "@/components/design/header"
+import { MobileAppBar } from "@/components/design/mobile-app-bar"
 import { NetworkSwitcher } from "@/components/network/network-switcher"
 import localFont from "next/font/local"
-import "./countdown-animation.css"
 import "./loading-animation.css"
 import "./globals.css"
 
@@ -32,14 +32,17 @@ export default function RootLayout({
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
       </head>
-      <body className="custom-scrollbar" suppressHydrationWarning>
+      <body className="custom-scrollbar cj-bg-main" suppressHydrationWarning>
         <div className={`${clashDisplay.variable} font-clash`}>
           <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange suppressHydrationWarning>
             <RainbowKitProviderWrapper>
-              <CollapsibleSidebar />
-              <div className="ml-[80px]">
-                <PageTransition>{children}</PageTransition>
-              </div>
+              <Header />
+              <main className="pt-16 pb-4 md:pb-4 cj-bg-main">
+                <div className="px-4 py-4 md:px-6 lg:px-8">
+                  <PageTransition>{children}</PageTransition>
+                </div>
+              </main>
+              <MobileAppBar />
               <NetworkSwitcher />
               <Toaster />
             </RainbowKitProviderWrapper>

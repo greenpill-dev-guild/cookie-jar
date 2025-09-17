@@ -6,6 +6,8 @@
   "author": "Greenpill Dev Guild",
   "license": "MIT",
   "scripts": {
+    "postinstall": "git submodule update --init --recursive && cd contracts && forge install",
+    
     "dev": "./scripts/dev-start.sh",
     "dev:celo": "ANVIL_FORK=true ANVIL_FORK_URL=https://forno.celo.org ./scripts/dev-start.sh",
     "dev:ethereum": "ANVIL_FORK=true ANVIL_FORK_URL=https://eth.drpc.org ./scripts/dev-start.sh",
@@ -42,6 +44,7 @@
     "seed:reset": "pnpm stop && pnpm dev",
     "sync:check": "./scripts/sync-check.sh",
     "accounts:list": "echo '👥 Test Accounts:' && echo '🔑 Deployer: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266' && echo '🍪 Cookie Monster: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8' && echo '👤 Cookie Fan: 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC' && echo '🧪 Test User: 0x90F79bf6EB2c4f870365E785982E1f101E93b906'",
+    "nft:address": "./scripts/get-nft-address.sh",
     "contracts:watch": "./scripts/watch-deploy.sh",
     "stop": "pkill -f anvil || true && pkill -f 'forge script.*watch' || true && pkill -f 'next dev' || true && pkill -f 'npm run dev' || true"
   },

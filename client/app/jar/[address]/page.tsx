@@ -1,6 +1,7 @@
 "use client"
 import { useParams, useRouter } from "next/navigation"
 import { useMemo } from "react"
+import { useNavigateToTop } from "@/hooks/use-navigate-to-top"
 
 import { useCookieJarConfig } from "@/hooks/use-cookie-jar"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -15,7 +16,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
-import { useWriteCookieJarDepositEth, useWriteCookieJarDepositCurrency, useWriteErc20Approve, useReadCookieJarHasRole } from "@/generated"
+import { useWriteErc20Approve, useReadCookieJarHasRole } from "@/generated"
+import { cookieJarAbi } from "@/generated"
+import { cookieJarV1Abi } from "@/lib/abis/cookie-jar-v1-abi"
 import { useWriteContract } from "wagmi"
 import { cookieJarFactoryAbi } from "@/generated"
 import { contractAddresses } from "@/config/supported-networks"
@@ -28,18 +31,18 @@ import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/design/use-toast"
 import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
-import { WhitelistWithdrawalSection } from "@/components/users/WhitelistWithdrawalSection"
+import { AllowlistWithdrawalSection } from "@/components/users/AllowlistWithdrawalSection"
 import { NFTGatedWithdrawalSection } from "@/components/users/NFTGatedWithdrawalSection"
 import { Clock, ArrowUpToLine } from "lucide-react"
-// Import the BackButton component
-import { AllowlistWithdrawalSection } from "@/components/users/AllowlistWithdrawalSection"
-import { useWriteCookieJarWithdrawAllowlistMode, useWriteCookieJarWithdrawNftMode } from "@/generated"
+import { useWriteCookieJarWithdrawNftMode } from "@/generated"
+import { isV2Chain } from "@/config/supported-networks"
 import { CountdownTimer } from "@/components/users/CountdownTimer"
 import { WithdrawalHistorySection, type Withdrawal } from "@/components/users/WithdrawlHistorySection"
 
 // Import token utilities
 import { ETH_ADDRESS, useTokenInfo, parseTokenAmount, formatTokenAmount } from "@/lib/utils/token-utils"
 import { getNativeCurrency } from '@/config/supported-networks'
+import { formatTimeComponents, formatTimeString } from "@/lib/utils/time-utils"
 
 // Hash the JAR_OWNER role
 const JAR_OWNER_ROLE = keccak256(toUtf8Bytes("JAR_OWNER")) as `0x${string}`
@@ -47,6 +50,7 @@ const JAR_OWNER_ROLE = keccak256(toUtf8Bytes("JAR_OWNER")) as `0x${string}`
 export default function CookieJarConfigDetails() {
   const params = useParams()
   const router = useRouter()
+  const { scrollToTop } = useNavigateToTop()
   const [amount, setAmount] = useState("")
   const address = params.address as string
   const { data: hash, sendTransaction } = useSendTransaction()
@@ -83,7 +87,7 @@ export default function CookieJarConfigDetails() {
 
   const isAdmin = hasJarOwnerRole === true
   const showUserFunctions = config?.allowlist === true && config?.accessType === "Allowlist"
-  const showNFTGatedFunctions = config?.accessType === "NFTGated"
+  const showNFTGatedFunctions = config?.accessType === "NFT-Gated"
   const isFeeCollector =
     userAddress && config?.feeCollector && userAddress.toLowerCase() === config.feeCollector.toLowerCase()
 
@@ -203,7 +207,38 @@ export default function CookieJarConfigDetails() {
     })
   }
 
-  // Handle metadata update success/error
+
+  // Version-aware ABI and function selection
+  const isV2 = isV2Chain(chainId);
+  const abi = isV2 ? cookieJarAbi : cookieJarV1Abi;
+  const withdrawAllowlistFunction = isV2 ? 'withdrawAllowlistMode' : 'withdrawWhitelistMode';
+
+  // Deposit hooks (same for both versions)
+  const { writeContract: DepositEth } = useWriteContract()
+  const { writeContract: DepositCurrency } = useWriteContract()
+  
+  // Get the factory address for the current chain
+  const factoryAddress = chainId
+    ? contractAddresses.cookieJarFactory[chainId] : undefined
+
+  // Metadata update contract write
+  const {
+    writeContract: updateMetadata,
+    data: updateTxHash,
+    isPending: isUpdatingMetadata,
+    error: metadataUpdateError,
+  } = useWriteContract()
+
+  // Wait for metadata update transaction
+  const {
+    isLoading: isWaitingForUpdate,
+    isSuccess: isMetadataUpdateSuccess,
+  } = useWaitForTransactionReceipt({
+    hash: updateTxHash,
+    query: { enabled: !!updateTxHash },
+  })
+
+    // Handle metadata update success/error
   useEffect(() => {
     if (isMetadataUpdateSuccess) {
       toast({
@@ -227,30 +262,6 @@ export default function CookieJarConfigDetails() {
       })
     }
   }, [metadataUpdateError, toast])
-
-  const { writeContract: DepositEth } = useWriteCookieJarDepositEth()
-  const { writeContract: DepositCurrency } = useWriteCookieJarDepositCurrency()
-  
-  // Get the factory address for the current chain
-  const factoryAddress = chainId
-    ? contractAddresses.cookieJarFactory[chainId] : undefined
-
-  // Metadata update contract write
-  const {
-    writeContract: updateMetadata,
-    data: updateTxHash,
-    isPending: isUpdatingMetadata,
-    error: metadataUpdateError,
-  } = useWriteContract()
-
-  // Wait for metadata update transaction
-  const {
-    isLoading: isWaitingForUpdate,
-    isSuccess: isMetadataUpdateSuccess,
-  } = useWaitForTransactionReceipt({
-    hash: updateTxHash,
-    query: { enabled: !!updateTxHash },
-  })
   const {
     writeContract: Approve,
     isPending: isApprovalPending,
@@ -267,7 +278,7 @@ export default function CookieJarConfigDetails() {
     error: withdrawAllowlistModeError,
     isSuccess: isWithdrawAllowlistSuccess,
     isPending: isWithdrawAllowlistPending,
-  } = useWriteCookieJarWithdrawAllowlistMode()
+  } = useWriteContract()
 
   const {
     writeContract: withdrawNFTMode,
@@ -340,6 +351,8 @@ export default function CookieJarConfigDetails() {
     if (isApprovalSuccess && approvalCompleted) {
       DepositCurrency({
         address: addressString as `0x${string}`,
+        abi,
+        functionName: 'depositCurrency',
         args: [pendingDepositAmount],
       })
       setApprovalCompleted(false)
@@ -354,6 +367,8 @@ export default function CookieJarConfigDetails() {
     if (config.currency === ETH_ADDRESS) {
       DepositEth({
         address: addressString as `0x${string}`,
+        abi,
+        functionName: 'depositETH',
         value: amountBigInt,
       })
     } else {
@@ -383,6 +398,8 @@ export default function CookieJarConfigDetails() {
 
     withdrawAllowlistMode({
       address: config.contractAddress,
+      abi,
+      functionName: withdrawAllowlistFunction,
       args: [config.fixedAmount, withdrawPurpose],
     })
   }
@@ -397,6 +414,8 @@ export default function CookieJarConfigDetails() {
 
     withdrawAllowlistMode({
       address: config.contractAddress,
+      abi,
+      functionName: withdrawAllowlistFunction,
       args: [parsedAmount, withdrawPurpose],
     })
   }
@@ -474,7 +493,7 @@ export default function CookieJarConfigDetails() {
         <ul className="list-disc pl-5 text-red-600">
           {errors
             .filter((error): error is ReadContractErrorType => error !== null)
-            .map((error, index) => (
+            .map((error: ReadContractErrorType, index) => (
               <li key={index}>{error.message || "Unknown error"}</li>
             ))}
         </ul>
@@ -490,11 +509,7 @@ export default function CookieJarConfigDetails() {
   }
 
   return (
-    <div className="container max-w-full px-4 md:px-8 py-8 bg-[#2b1d0e]" ref={pageRef}>
-      {/* Back button navigation */}
-      <div className="mb-6 relative">
-        <BackButton />
-      </div>
+    <div className="container max-w-full px-4 md:px-8 py-8" ref={pageRef}>
 
       <div className="grid grid-cols-1 lg:grid-cols-20 gap-6">
         {/* Left sidebar with jar details */}
@@ -602,8 +617,6 @@ export default function CookieJarConfigDetails() {
                         <span className="text-[#1a1a1a] font-medium">
                           {config.withdrawalInterval
                             ? (() => {
-                              // Import these at the top of the file (around line 15-20)
-                              const { formatTimeComponents, formatTimeString } = require("@/lib/utils/time-utils")
                               const seconds = Number(config.withdrawalInterval)
                               const { days, hours, minutes, seconds: secs } = formatTimeComponents(seconds)
                               return formatTimeString(days, hours, minutes, secs)
@@ -655,9 +668,9 @@ export default function CookieJarConfigDetails() {
                           <span className="font-medium px-3 py-1 rounded-full text-white bg-red-500">Blacklisted</span>
                         ) : (
                           <span
-                            className={`font-medium px-3 py-1 rounded-full text-white ${config.whitelist ? "bg-green-500" : "bg-red-500"}`}
+                            className={`font-medium px-3 py-1 rounded-full text-white ${config.allowlist ? "bg-green-500" : "bg-red-500"}`}
                           >
-                            {config.whitelist ? "Allowlisted" : "Not Allowlisted"}
+                            {config.allowlist ? "Allowlisted" : "Not Allowlisted"}
                           </span>
                         )}
                       </div>
@@ -748,7 +761,14 @@ export default function CookieJarConfigDetails() {
 
         {/* Right side - Jar Actions */}
         <div className="lg:col-span-9">
-          <Tabs defaultValue={isAdmin ? "admin" : "withdraw"} className="w-full">
+          <Tabs 
+            defaultValue={isAdmin ? "admin" : "withdraw"} 
+            className="w-full"
+            onValueChange={() => {
+              // Scroll to top on tab change
+              scrollToTop()
+            }}
+          >
             <TabsList className="mb-6 bg-[#fff8f0] p-1 w-full">
               {isAdmin && (
                 <TabsTrigger

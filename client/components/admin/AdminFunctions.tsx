@@ -2,18 +2,16 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
+import { useNavigateToTop } from "@/hooks/use-navigate-to-top"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { parseEther } from "viem"
-import { keccak256, toUtf8Bytes } from "ethers"
+import { parseEther, keccak256, toHex } from "viem"
 import { ETH_ADDRESS, parseTokenAmount, useTokenInfo } from "@/lib/utils/token-utils"
 import {
   // Commented out missing hooks
   // useWriteCookieJarTransferJarOwnership,
   useReadCookieJarHasRole,
-  useWriteCookieJarGrantJarWhitelistRole,
-  useWriteCookieJarRevokeJarWhitelistRole,
   // useWriteCookieJarGrantJarBlacklistRole,
   // useWriteCookieJarRevokeJarBlacklistRole,
   // useWriteCookieJarEmergencyWithdrawWithoutState,
@@ -21,14 +19,18 @@ import {
   useWriteCookieJarEmergencyWithdraw,
   useWriteCookieJarAddNftGate,
   useWriteCookieJarRemoveNftGate,
+  cookieJarAbi,
 } from "../../generated"
+import { useWriteContract } from "wagmi"
+import { cookieJarV1Abi } from "@/lib/abis/cookie-jar-v1-abi"
+import { isV2Chain } from "@/config/supported-networks"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { AlertCircle, Shield, UserPlus, UserMinus, AlertTriangle, Tag, Loader2 } from "lucide-react"
 import { useToast } from "@/hooks/design/use-toast"
 import { useAccount, useChainId } from "wagmi"
 import { getNativeCurrency } from '@/config/supported-networks'
-import AllowlistManagement from "./AllowlistManagement"
+// import AllowlistManagement from "./AllowlistManagement" // Component not found
 
 enum NFTType {
   None = 0,
@@ -41,11 +43,12 @@ interface AdminFunctionsProps {
 }
 
 // Hash the JAR_OWNER role
-const JAR_OWNER_ROLE = keccak256(toUtf8Bytes("JAR_OWNER")) as `0x${string}`
+const JAR_OWNER_ROLE = keccak256(toHex("JAR_OWNER")) as `0x${string}`
 
 export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
   const chainId = useChainId();
   const nativeCurrency = getNativeCurrency(chainId);
+  const { scrollToTop } = useNavigateToTop();
   const [newJarOwner, setNewJarOwner] = useState("")
   const [withdrawalAmount, setWithdrawalAmount] = useState("")
   const [tokenAddress, setTokenAddress] = useState("")
@@ -100,19 +103,25 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
     isSuccess: isEmergencyWithdrawSuccess,
   } = useWriteCookieJarEmergencyWithdraw()
 
+  // Version-aware ABI and function selection
+  const isV2 = isV2Chain(chainId);
+  const abi = isV2 ? cookieJarAbi : cookieJarV1Abi;
+  const grantFunction = isV2 ? 'grantJarAllowlistRole' : 'grantJarWhitelistRole';
+  const revokeFunction = isV2 ? 'revokeJarAllowlistRole' : 'revokeJarWhitelistRole';
+
   const {
     writeContract: grantJarAllowlistRole,
     data: allowlistGrantData,
     error: allowlistGrantError,
     isSuccess: isAllowlistGrantSuccess,
-  } = useWriteCookieJarGrantJarAllowlistRole()
+  } = useWriteContract()
 
   const {
     writeContract: revokeJarAllowlistRole,
     data: allowlistRevokeData,
     error: allowlistRevokeError,
     isSuccess: isAllowlistRevokeSuccess,
-  } = useWriteCookieJarRevokeJarAllowlistRole()
+  } = useWriteContract()
 
   // Blacklist role hooks - commented out due to missing hooks
   /*
@@ -352,6 +361,8 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
     console.log(`Adding address to allowlist:`, addressToUpdate)
     grantJarAllowlistRole({
       address: address,
+      abi,
+      functionName: grantFunction,
       args: [[addressToUpdate as `0x${string}`]],
     })
   }
@@ -361,6 +372,8 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
     console.log(`Removing address from allowlist:`, addressToUpdate)
     revokeJarAllowlistRole({
       address: address,
+      abi,
+      functionName: revokeFunction,
       args: [[addressToUpdate as `0x${string}`]],
     })
   }
@@ -388,7 +401,14 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
 
   return (
     <div className="space-y-6 bg-[#2b1d0e] p-4 rounded-lg">
-      <Tabs defaultValue="access" className="w-full">
+      <Tabs 
+        defaultValue="access" 
+        className="w-full"
+        onValueChange={() => {
+          // Scroll to top on tab change
+          scrollToTop()
+        }}
+      >
         <TabsList className="mb-6 bg-[#fff8f0] p-1">
 
           <TabsTrigger
@@ -491,7 +511,8 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
               </CardDescription>
             </CardHeader>
             <CardContent className="p-6">
-              <AllowlistManagement cookieJarAddress={address as `0x${string}`} />
+              {/* <AllowlistManagement cookieJarAddress={address as `0x${string}`} /> */}
+              <p className="text-[#8b7355]">Allowlist management component not available</p>
             </CardContent>
           </Card>
         </TabsContent>

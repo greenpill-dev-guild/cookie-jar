@@ -1,350 +1,535 @@
 "use client"
 import { useCookieJarFactory } from "@/hooks/use-cookie-jar-factory"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { RefreshCw, ArrowUpRight, Search, ChevronLeft, ChevronRight } from "lucide-react"
+import { RefreshCw, Search, ChevronLeft, ChevronRight, Globe2, Image as ImageIcon, Loader2, RotateCcw } from "lucide-react"
 import { JarGridSkeleton } from "@/components/loading/jar-skeleton"
 import { useRouter } from "next/navigation"
-import { useChainId } from "wagmi"
+import { useChainId, useAccount, useReadContracts } from "wagmi"
 import { getNetworkName } from "@/lib/utils/network-utils"
 import { getNativeCurrency } from '@/config/supported-networks'
-import { useState, useEffect, useMemo } from "react"
-import { BackButton } from "@/components/design/back-button"
+import { useState, useEffect, useMemo, useCallback } from "react"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { keccak256, toUtf8Bytes } from "ethers"
 import { ethers } from "ethers"
-import { Users, ShieldAlert } from "lucide-react"
+import { Users, ShieldAlert, Crown, Check } from "lucide-react"
+import { getAccessTypeName } from "@/lib/access-type-utils"
+import { useReadCookieJarHasRole } from "@/generated"
+import { useAllowlistStatus } from "@/hooks/use-allowlist-status"
+import { ETH_ADDRESS } from "@/lib/utils/token-utils"
+import { erc20Abi } from "viem"
+import Image from "next/image"
 
 interface JarContentProps {
-  userAddress: string;
+  userAddress?: string;
+}
+
+// Constants for roles
+const JAR_OWNER_ROLE = keccak256(toUtf8Bytes("JAR_OWNER")) as `0x${string}`
+
+// Component to show user status for a specific jar
+function JarStatusBadge({ jarAddress }: { jarAddress: string }) {
+  const { address: userAddress } = useAccount()
+  const { isAllowlisted } = useAllowlistStatus(jarAddress)
+  const { data: hasJarOwnerRole } = useReadCookieJarHasRole({
+    address: jarAddress as `0x${string}`,
+    args: userAddress ? [JAR_OWNER_ROLE, userAddress as `0x${string}`] : undefined,
+  })
+  
+  const isAdmin = hasJarOwnerRole === true
+  
+  // Flexible container that prevents layout shift while handling overflow
+  return (
+    <div className="flex justify-end min-w-0 flex-shrink-0">
+      {isAdmin ? (
+        <Badge variant="default" className="bg-yellow-100 text-yellow-800 border-yellow-300 dark:bg-yellow-900/20 dark:text-yellow-200 dark:border-yellow-800 text-xs flex items-center gap-1 truncate">
+          <Crown className="w-3 h-3 flex-shrink-0" />
+          <span className="truncate">Admin</span>
+        </Badge>
+      ) : isAllowlisted ? (
+        <Badge variant="default" className="bg-green-100 text-green-800 border-green-300 dark:bg-green-900/20 dark:text-green-200 dark:border-green-800 text-xs flex items-center gap-1 truncate max-w-[80px]">
+          <Check className="w-3 h-3 flex-shrink-0" />
+          <span className="truncate">Allowlisted</span>
+        </Badge>
+      ) : null}
+    </div>
+  )
+}
+
+// Component for jar image with fallback
+function JarImage({ metadata, jarName }: { metadata?: string, jarName: string }) {
+  const [imageUrl, setImageUrl] = useState<string | null>(null)
+  const [imageError, setImageError] = useState(false)
+  
+  useEffect(() => {
+    if (metadata) {
+      try {
+        const parsed = JSON.parse(metadata)
+        if (parsed.image) {
+          setImageUrl(parsed.image)
+          setImageError(false)
+        }
+      } catch (e) {
+        // Ignore JSON parse errors
+      }
+    }
+  }, [metadata])
+  
+  if (!imageUrl || imageError) {
+    return (
+      <div className="w-full h-40 bg-[hsl(var(--cj-warm-white))] flex items-center justify-center relative overflow-hidden m-0">
+        <div className="absolute inset-0">
+          <Image
+            src="/images/cookie-jar.png"
+            alt="Cookie Jar Placeholder"
+            fill
+            className="object-cover opacity-30"
+          />
+        </div>
+        <div className="relative z-10 text-center text-[hsl(var(--cj-brand-orange))]">
+          <ImageIcon className="w-12 h-12 mx-auto mb-2 opacity-80" />
+          <span className="text-sm font-medium">Cookie Jar</span>
+        </div>
+      </div>
+    )
+  }
+
+  return (
+    <div className="relative w-full h-40 bg-[hsl(var(--cj-warm-white))] overflow-hidden m-0">
+      <Image
+        src={imageUrl}
+        alt={jarName}
+        fill
+        className="object-cover transition-transform duration-200 group-hover:scale-105"
+        onError={() => setImageError(true)}
+      />
+    </div>
+  )
+}
+
+// Simple chain display component (for now, focus on getting working state back)
+function ChainDisplay({ chainId }: { chainId: number }) {
+  return (
+    <div className="flex items-center gap-2 px-3 py-2 bg-[hsl(var(--cj-warm-white))] border border-[hsl(var(--border))] rounded-lg">
+      <Globe2 className="h-4 w-4 text-[hsl(var(--cj-medium-brown))]" />
+      <span className="text-sm font-medium text-[hsl(var(--cj-dark-brown))]">
+        {getNetworkName(chainId)}
+      </span>
+    </div>
+  )
+}
+
+// 🚀 Hook to fetch multiple token symbols efficiently
+function useMultipleTokenSymbols(currencies: string[]) {
+  const { data: symbolsData } = useReadContracts({
+    contracts: currencies.map(currency => ({
+      address: currency as `0x${string}`,
+      abi: erc20Abi,
+      functionName: "symbol",
+    })),
+    query: {
+      enabled: currencies.length > 0,
+      staleTime: 60000, // Cache for 1 minute
+      gcTime: 300000,   // Keep in cache for 5 minutes
+    },
+  })
+
+  // Create a mapping of currency address to symbol
+  const symbolsMap: Record<string, string> = {}
+  currencies.forEach((currency, index) => {
+    const result = symbolsData?.[index]
+    symbolsMap[currency.toLowerCase()] = result?.status === 'success' ? result.result as string : "TOKEN"
+  })
+
+  return symbolsMap
 }
 
 export function JarContentLazy({ userAddress }: JarContentProps) {
-  const { cookieJarsData, isLoading, error, refresh } = useCookieJarFactory()
   const router = useRouter()
   const chainId = useChainId()
+  const { isConnected } = useAccount()
+  
+  // Use the enhanced hook with progress tracking
+  const { 
+    cookieJarsData, 
+    isLoading, 
+    error, 
+    refresh, 
+    fetchProgress, 
+    failedJars, 
+    retryFailedJars 
+  } = useCookieJarFactory()
   const nativeCurrency = getNativeCurrency(chainId)
   const [searchTerm, setSearchTerm] = useState("")
   const [currentPage, setCurrentPage] = useState(1)
   const jarsPerPage = 9
   const [filterOption, setFilterOption] = useState("all")
-  const [allowlistedJars, setAllowlistedJars] = useState<Record<string, boolean>>({})
-  const [adminJars, setAdminJars] = useState<Record<string, boolean>>({})
-  const [isCheckingAllowlist, setIsCheckingAllowlist] = useState(false)
-  const [isCheckingAdmin, setIsCheckingAdmin] = useState(false)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+
+  // 🚀 FIX: Get unique ERC20 currency addresses from all jars (exclude ETH)
+  const uniqueERC20Currencies = useMemo(() => {
+    const currencies = new Set<string>()
+    cookieJarsData.forEach(jar => {
+      if (jar.currency && jar.currency.toLowerCase() !== ETH_ADDRESS.toLowerCase()) {
+        currencies.add(jar.currency)
+      }
+    })
+    return Array.from(currencies)
+  }, [cookieJarsData])
+
+  // 🚀 FIX: Fetch all unique token symbols
+  const tokenSymbols = useMultipleTokenSymbols(uniqueERC20Currencies)
+
+  // Handle jar card click
+  const handleJarClick = useCallback((jarAddress: string) => {
+    router.push(`/jar/${jarAddress}`)
+  }, [router])
+
+  // Enhanced refresh function with loading state
+  const handleRefresh = useCallback(async () => {
+    setIsRefreshing(true)
+    console.log('🔄 Manual refresh triggered by user')
+    
+    try {
+      await refresh()
+      // Small delay to show the refresh animation
+      setTimeout(() => setIsRefreshing(false), 500)
+    } catch (error) {
+      console.error('❌ Refresh failed:', error)
+      setIsRefreshing(false)
+    }
+  }, [refresh])
+
 
   // Filter jars based on search term and filter option
   const filteredJars = useMemo(() => {
-    let filtered = cookieJarsData.filter(
+    return cookieJarsData.filter(
       (jar) =>
         jar.metadata?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         jar.jarAddress.toLowerCase().includes(searchTerm.toLowerCase()),
     )
+  }, [cookieJarsData, searchTerm, filterOption])
 
-    // Apply allowlist filter if selected
-    if (filterOption === "allowlisted") {
-      filtered = filtered.filter((jar) => allowlistedJars[jar.jarAddress])
+  // Get jars for the current page
+  const currentJars = useMemo(() => {
+    const startIndex = (currentPage - 1) * jarsPerPage
+    const endIndex = startIndex + jarsPerPage
+    return filteredJars.slice(startIndex, endIndex)
+  }, [filteredJars, currentPage])
+
+  const totalPages = Math.ceil(filteredJars.length / jarsPerPage)
+
+  // Get formatted currency amount
+  const getCurrencyAmount = (jar: any) => {
+    if (jar.currency?.toLowerCase() === ETH_ADDRESS.toLowerCase()) {
+      return ethers.formatEther(jar.currencyHeldByJar || "0")
+    } else {
+      // For ERC20 tokens, we might need to handle different decimals
+      // TODO: Could be enhanced to fetch actual decimals per token
+      return ethers.formatUnits(jar.currencyHeldByJar || "0", 18) // Assuming 18 decimals for now
     }
-
-    // Apply admin filter if selected
-    if (filterOption === "admin") {
-      filtered = filtered.filter((jar) => adminJars[jar.jarAddress])
-    }
-
-    return filtered
-  }, [cookieJarsData, searchTerm, filterOption, allowlistedJars, adminJars])
-
-  // Calculate pagination
-  const { currentJars, totalPages } = useMemo(() => {
-    const indexOfLastJar = currentPage * jarsPerPage
-    const indexOfFirstJar = indexOfLastJar - jarsPerPage
-    return {
-      currentJars: filteredJars.slice(indexOfFirstJar, indexOfLastJar),
-      totalPages: Math.ceil(filteredJars.length / jarsPerPage),
-    }
-  }, [filteredJars, currentPage, jarsPerPage])
-
-  // Reset to first page when search or filter changes
-  useEffect(() => {
-    setCurrentPage(1)
-  }, [searchTerm, filterOption])
-
-  // Check role status (allowlist and admin) for each jar - optimized version
-  useEffect(() => {
-    const checkRoleStatus = async () => {
-      if (!userAddress || cookieJarsData.length === 0) return
-
-      setIsCheckingAllowlist(true)
-      setIsCheckingAdmin(true)
-
-      const allowlistStatuses: Record<string, boolean> = { ...allowlistedJars }
-      const adminStatuses: Record<string, boolean> = { ...adminJars }
-
-      // Define role constants
-      const JAR_ALLOWLISTED = keccak256(toUtf8Bytes("JAR_ALLOWLISTED")) as `0x${string}`
-      const JAR_OWNER_ROLE = keccak256(toUtf8Bytes("JAR_OWNER")) as `0x${string}`
-
-      // Create a provider
-      const provider = window.ethereum ? new ethers.BrowserProvider(window.ethereum) : null
-      if (!provider) {
-        setIsCheckingAllowlist(false)
-        setIsCheckingAdmin(false)
-        return
-      }
-
-      // Check only the first few jars to reduce initial load time
-      const jarsToCheck = cookieJarsData.slice(0, Math.min(cookieJarsData.length, 5))
-
-      for (const jar of jarsToCheck) {
-        try {
-          // Create a contract instance
-          const contract = new ethers.Contract(
-            jar.jarAddress,
-            [
-              {
-                inputs: [
-                  { name: "role", type: "bytes32" },
-                  { name: "account", type: "address" },
-                ],
-                name: "hasRole",
-                outputs: [{ name: "", type: "bool" }],
-                stateMutability: "view",
-                type: "function",
-              },
-            ],
-            provider,
-          )
-
-          // Check allowlist role
-          const hasAllowlistRole = await contract.hasRole(JAR_ALLOWLISTED, userAddress)
-          allowlistStatuses[jar.jarAddress] = hasAllowlistRole
-
-          // Check admin role
-          const hasAdminRole = await contract.hasRole(JAR_OWNER_ROLE, userAddress)
-          adminStatuses[jar.jarAddress] = hasAdminRole
-
-        } catch (error) {
-          console.error(`Error checking roles for ${jar.jarAddress}:`, error)
-          allowlistStatuses[jar.jarAddress] = false
-          adminStatuses[jar.jarAddress] = false
-        }
-      }
-
-      setAllowlistedJars(allowlistStatuses)
-      setAdminJars(adminStatuses)
-      setIsCheckingAllowlist(false)
-      setIsCheckingAdmin(false)
-    }
-
-    // Debounce the role checking to prevent excessive calls
-    const timeoutId = setTimeout(checkRoleStatus, 1000)
-    return () => clearTimeout(timeoutId)
-  }, [cookieJarsData, userAddress])
-
-  const navigateToJar = (address: string) => {
-    router.push(`/jar/${address}`)
   }
 
-  return (
-    <div className="container mx-auto py-10 px-4 space-y-6 bg-[#2b1d0e] min-h-screen">
-      <div className="mb-6">
-        <BackButton />
-      </div>
+  // 🚀 FIX: Get currency symbol with real ERC20 token symbols
+  const getCurrencySymbol = (jar: any) => {
+    if (jar.currency?.toLowerCase() === ETH_ADDRESS.toLowerCase()) {
+      return nativeCurrency.symbol
+    } else {
+      // Use the fetched token symbols instead of hardcoded "TOKEN"
+      return tokenSymbols[jar.currency?.toLowerCase()] || "TOKEN"
+    }
+  }
 
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-        <div>
-          <h1 className="text-4xl font-bold text-white">Cookie Jars on {getNetworkName(chainId)}</h1>
-          <p className="text-xl text-[#a89a8c] mt-2">To view jars on another network, change to that network.</p>
-        </div>
-        <div className="flex flex-col sm:flex-row gap-4 w-full md:w-auto">
-          <div className="flex gap-2 w-full sm:w-auto">
-            <div className="w-40">
-              <Select value={filterOption} onValueChange={setFilterOption}>
-                <SelectTrigger className="bg-white border-[#f0e6d8] text-[#3c2a14] focus-visible:ring-[#ff5e14]">
-                  <SelectValue placeholder="Filter jars" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Jars</SelectItem>
-                  <SelectItem value="allowlisted">Allowlisted</SelectItem>
-                  <SelectItem value="admin">Admin</SelectItem>
-                </SelectContent>
-              </Select>
+  // Get withdrawal amount display
+  const getWithdrawalAmountDisplay = (jar: any) => {
+    if (jar.withdrawalOption === 0) { // Fixed
+      return `Fixed: ${ethers.formatEther(jar.fixedAmount || "0")} ${getCurrencySymbol(jar)}`
+    } else { // Variable
+      return `Max: ${ethers.formatEther(jar.maxWithdrawal || "0")} ${getCurrencySymbol(jar)}`
+    }
+  }
+
+  // Parse jar name from metadata
+  const getJarName = (jar: any) => {
+    if (jar.metadata) {
+      try {
+        const parsed = JSON.parse(jar.metadata)
+        return parsed.name || 'Cookie Jar'
+      } catch (e) {
+        return jar.metadata || 'Cookie Jar'
+      }
+    }
+    return 'Cookie Jar'
+  }
+
+  // Progress indicator during loading
+  if (isLoading && fetchProgress) {
+    console.log('📊 JarContentLazy: Rendering progress state')
+    return (
+      <div className="space-y-6">
+        <Card>
+          <CardContent className="p-6">
+            <div className="flex items-center gap-3 mb-4">
+              <Loader2 className="animate-spin" size={20} />
+              <div className="flex-1">
+                <p className="text-sm font-medium">
+                  Loading jars... {fetchProgress.completed}/{fetchProgress.total}
+                </p>
+                <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                  <div 
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    style={{ width: `${(fetchProgress.completed / fetchProgress.total) * 100}%` }}
+                  />
+                </div>
+                <p className="text-xs text-gray-600 mt-1">
+                  {fetchProgress.successful} successful, {fetchProgress.failed} failed
+                </p>
+              </div>
             </div>
+          </CardContent>
+        </Card>
+        <JarGridSkeleton />
+      </div>
+    )
+  }
 
-            <div className="relative w-full sm:w-64">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#a89a8c]" />
+  // Loading state
+  if (isLoading) {
+    console.log('⏳ JarContentLazy: Rendering loading state')
+    return <JarGridSkeleton />
+  }
+
+  // Error state
+  if (error) {
+    console.error('❌ JarContentLazy: Rendering error state:', error)
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] cj-card-primary rounded-lg p-8">
+        <div className="text-center space-y-4">
+          <ShieldAlert className="h-16 w-16 text-red-500 mx-auto" />
+          <h3 className="text-xl font-semibold text-[hsl(var(--cj-dark-brown))]">Failed to Load Cookie Jars</h3>
+          <p className="text-[hsl(var(--cj-medium-brown))] max-w-md">{error.message}</p>
+          <Button onClick={handleRefresh} disabled={isRefreshing} className="mt-4">
+            <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+            Try Again
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+  // Empty state
+  if (cookieJarsData.length === 0) {
+    console.log('📭 JarContentLazy: Rendering empty state')
+    return (
+      <div className="flex flex-col items-center justify-center min-h-[400px] cj-card-primary rounded-lg p-8">
+        <div className="text-center space-y-4">
+          <div className="text-6xl mb-4">🍪</div>
+          <h3 className="text-xl font-semibold text-[hsl(var(--cj-dark-brown))]">No Cookie Jars Found</h3>
+          <p className="text-[hsl(var(--cj-medium-brown))] max-w-md">
+            There are no cookie jars on {getNetworkName(chainId)} yet. Create the first one to get started!
+          </p>
+          <Button 
+            onClick={() => router.push("/create")}
+            className="cj-btn-primary"
+          >
+            Create First Cookie Jar
+          </Button>
+        </div>
+      </div>
+    )
+  }
+
+
+  return (
+    <div className="max-w-7xl mx-auto">
+
+        {/* Compact Header with Controls and Stats */}
+        <div className="cj-card-primary backdrop-blur-sm rounded-lg p-4 mb-6 shadow-sm">
+          {/* Top Row: Controls */}
+          <div className="flex flex-col lg:flex-row gap-4 mb-4">
+            {/* Search */}
+            <div className="relative w-full lg:flex-1">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[hsl(var(--cj-medium-brown))] h-4 w-4" />
               <Input
                 placeholder="Search jars..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 bg-white border-[#f0e6d8] text-[#3c2a14] focus-visible:ring-[#ff5e14]"
+                className="pl-10 w-full"
               />
             </div>
-          </div>
-          <div className="flex gap-3">
-            <Button onClick={() => router.push("/create")} className="bg-[#ff5e14] hover:bg-[#e54d00] text-white">
-              Create New Jar
-            </Button>
-            <Button
-              onClick={refresh}
+            
+            {/* Chain Display */}
+            <div className="w-full lg:w-auto">
+              <ChainDisplay chainId={chainId} />
+            </div>
+            
+            {/* Filter */}
+            <Select value={filterOption} onValueChange={setFilterOption}>
+              <SelectTrigger className="w-full lg:w-48">
+                <SelectValue placeholder="Filter by access" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Jars</SelectItem>
+              </SelectContent>
+            </Select>
+
+            {/* Refresh */}
+            <Button 
               variant="outline"
-              disabled={isLoading}
+              onClick={handleRefresh}
+              disabled={isRefreshing}
+              className="w-full lg:w-auto whitespace-nowrap"
             >
-              {isLoading ? <RefreshCw className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
+              <RefreshCw className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+              Refresh
             </Button>
           </div>
-        </div>
-      </div>
 
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded mb-4">
-          <p>Error: {error.message}</p>
-        </div>
-      )}
-
-      {isLoading && cookieJarsData.length === 0 ? (
-        <JarGridSkeleton />
-      ) : (
-        <>
-          {filteredJars.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-xl text-[#4a3520]">No jars found matching your search.</p>
+          {/* Bottom Row: Stats */}
+          <div className="flex-between-safe text-responsive-sm text-[hsl(var(--cj-medium-brown))] pt-2 border-t border-border">
+            <div className="flex items-center gap-2 sm:gap-4 flex-wrap min-w-0">
+              <span className="flex-shrink-0">Network: <strong className="text-[hsl(var(--cj-dark-brown))]">{getNetworkName(chainId)}</strong></span>
+              <span className="flex-shrink-0">Total: <strong className="text-[hsl(var(--cj-dark-brown))]">{cookieJarsData.length}</strong></span>
+              {searchTerm && (
+                <span className="flex-shrink-0">Filtered: <strong className="text-[hsl(var(--cj-dark-brown))]">{filteredJars.length}</strong></span>
+              )}
             </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {currentJars.map((jar, index) => {
-                const indexOfLastJar = currentPage * jarsPerPage
-                const indexOfFirstJar = indexOfLastJar - jarsPerPage
-                const isAllowlisted = allowlistedJars[jar.jarAddress]
-                const isAdmin = adminJars[jar.jarAddress]
+            <div className="content-caption flex-shrink-0">
+              {isConnected ? 'Connected' : 'Browse Mode'}
+            </div>
+          </div>
+        </div>
 
-                return (
-                  <Card
-                    key={jar.jarAddress}
-                    className="jar-card bg-white border-none shadow-md hover:shadow-xl transition-all duration-300 relative overflow-hidden before:content-[''] before:absolute before:bottom-0 before:left-0 before:w-full before:h-1 before:bg-[#ff5e14]"
-                  >
-                    {isAllowlisted && (
-                      <Badge
-                        variant="outline"
-                        className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-[#e6f7e6] text-[#2e7d32] border-[#2e7d32] px-3 py-1"
-                      >
-                        <Users className="h-3 w-3 mr-1" />
-                        <span className="text-xs">Allowlisted</span>
-                      </Badge>
-                    )}
-                    {isAdmin && (
-                      <Badge
-                        variant="outline"
-                        className="absolute top-2 right-8 z-10 flex items-center gap-1 bg-[#fce4ec] text-[#c2185b] border-[#c2185b] px-3 py-1"
-                      >
-                        <ShieldAlert className="h-3 w-3 mr-1" />
-                        <span className="text-xs">Admin</span>
-                      </Badge>
-                    )}
-                    <div className="absolute top-0 right-0 w-8 h-8 bg-[#ff5e14] transform rotate-45 translate-x-4 -translate-y-4"></div>
-                    <CardHeader className="pb-2">
-                      <CardTitle className="text-xl font-bold text-[#3c2a14]">
-                        {jar.metadata || `Cookie Jar #${indexOfFirstJar + index + 1}`}
-                      </CardTitle>
-                      <CardDescription className="text-sm text-[#a89a8c] truncate">{jar.jarAddress}</CardDescription>
-                    </CardHeader>
-
-                    <CardContent className="pt-0">
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                          <span className="text-[#8b7355] font-medium">Access:</span>
-                          <div className="flex items-center gap-2">
-                            <span className="text-[#3c2a14]">{jar.accessType === 0 ? "Allowlist" : "NFT-Gated"}</span>
-                          </div>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-[#8b7355] font-medium">Withdrawal Type:</span>
-                          <span className="text-[#3c2a14]">
-                            {jar.withdrawalOption === 0 ? "Fixed" : "Variable"}
-                          </span>
-                        </div>
-                        <div className="flex justify-between items-center">
-                          <span className="text-[#8b7355] font-medium">Currency:</span>
-                          <span className="text-[#3c2a14] truncate max-w-[180px] text-right">
-                            {jar.currency === "0x0000000000000000000000000000000000000003" ? nativeCurrency.symbol : jar.currency}
-                          </span>
-                        </div>
+        {/* Jar Grid */}
+        {filteredJars.length === 0 ? (
+          <div className="text-center py-12">
+            <p className="text-[hsl(var(--cj-medium-brown))]">No jars match your search criteria.</p>
+          </div>
+        ) : (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+              {currentJars.map((jar) => (
+                <Card 
+                  key={jar.jarAddress} 
+                  className="cj-card-primary hover:shadow-lg transition-all duration-200 cursor-pointer group transform hover:-translate-y-1 overflow-hidden p-0"
+                  onClick={() => handleJarClick(jar.jarAddress)}
+                >
+                  {/* Image Section - Full width, no padding */}
+                  <JarImage metadata={jar.metadata} jarName={getJarName(jar)} />
+                  
+                  <CardHeader className="pb-3 px-6 pt-6">
+                    <CardTitle className="content-title text-[hsl(var(--cj-dark-brown))] group-hover:text-[hsl(var(--cj-brand-orange))] transition-colors">
+                      {getJarName(jar)}
+                    </CardTitle>
+                    <div className="flex items-center gap-2 mt-1">
+                      <CardDescription className="address-text-mobile text-[hsl(var(--cj-medium-brown))] truncate flex-1 min-w-0">
+                        {jar.jarAddress.slice(0, 6)}...{jar.jarAddress.slice(-4)}
+                      </CardDescription>
+                      <div className="flex-shrink-0 ml-auto">
+                        <JarStatusBadge jarAddress={jar.jarAddress} />
                       </div>
-                    </CardContent>
+                    </div>
+                  </CardHeader>
+                  
+                  <CardContent className="space-y-3 px-6 pb-6">
+                    <div className="flex-between-safe">
+                      <span className="text-responsive-sm text-[hsl(var(--cj-medium-brown))] flex-shrink-0">Balance:</span>
+                      <span className="font-semibold text-[hsl(var(--cj-dark-brown))] text-responsive-sm truncate text-right">
+                        {getCurrencyAmount(jar)} {getCurrencySymbol(jar)}
+                      </span>
+                    </div>
+                    
+                    <div className="flex-between-safe">
+                      <span className="text-responsive-sm text-[hsl(var(--cj-medium-brown))] flex-shrink-0">Withdrawal:</span>
+                      <span className="text-responsive-sm text-[hsl(var(--cj-dark-brown))] truncate text-right">
+                        {getWithdrawalAmountDisplay(jar)}
+                      </span>
+                    </div>
 
-                    <CardFooter className="flex justify-end pt-4 border-t border-[#f0e6d8]">
-                      <Button
-                        onClick={() => navigateToJar(jar.jarAddress)}
-                        className="bg-[#ff5e14] text-white hover:bg-white hover:text-[#ff5e14] hover:border-[#ff5e14] border transition-all"
-                      >
-                        <ArrowUpRight className="h-4 w-4 mr-2" /> Open the jar
-                      </Button>
-                    </CardFooter>
-                  </Card>
-                )
-              })}
+                    <div className="flex-between-safe">
+                      <span className="text-responsive-sm text-[hsl(var(--cj-medium-brown))] flex-shrink-0">Access:</span>
+                      <div className="flex items-center gap-1 min-w-0">
+                        <Users className="h-3 w-3 flex-shrink-0" />
+                        <span className="text-responsive-sm text-[hsl(var(--cj-dark-brown))] truncate">
+                          {getAccessTypeName(jar.accessType)}
+                        </span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
-          )}
 
-          {/* Pagination controls */}
-          {filteredJars.length > jarsPerPage && (
-            <div className="flex justify-center items-center mt-8 space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
-                disabled={currentPage === 1}
-                className="border-[#f0e6d8] text-[#8b7355] hover:bg-[#fff7ec] hover:text-[#ff5e14]"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-
-              <div className="flex items-center space-x-1">
-                {[...Array(totalPages)].map((_, i) => (
-                  <Button
-                    key={i}
-                    variant={currentPage === i + 1 ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setCurrentPage(i + 1)}
-                    className={
-                      currentPage === i + 1
-                        ? "bg-[#ff5e14] text-white hover:bg-[#e54d00]"
-                        : "border-[#f0e6d8] text-[#8b7355] hover:bg-[#fff7ec] hover:text-[#ff5e14]"
-                    }
-                  >
-                    {i + 1}
-                  </Button>
-                ))}
+            {/* Pagination */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
+                  disabled={currentPage === 1}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                
+                <span className="px-4 py-2 text-sm">
+                  Page {currentPage} of {totalPages}
+                </span>
+                
+                <Button
+                  variant="outline"
+                  onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
+                  disabled={currentPage === totalPages}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
               </div>
+            )}
+          </>
+        )}
 
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage((prev) => Math.min(prev + 1, totalPages))}
-                disabled={currentPage === totalPages}
-                className="border-[#f0e6d8] text-[#8b7355] hover:bg-[#fff7ec] hover:text-[#ff5e14]"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          )}
-        </>
-      )}
-
-      {isLoading && cookieJarsData.length > 0 && (
-        <div className="flex items-center justify-center mt-8">
-          <RefreshCw className="h-5 w-5 mr-2 animate-spin text-[#ff5e14]" />
-          <span className="text-[#4a3520]">Loading more cookie jars...</span>
-        </div>
-      )}
-
-      <p className="text-sm text-[#ff5e14] mt-8 font-medium">
-        Total jars loaded: {filteredJars.length}
-        {filterOption === "allowlisted" && ` (${filteredJars.length} allowlisted)`}
-        {filterOption === "admin" && ` (${filteredJars.length} admin)`}
-      </p>
+        {/* Failed Jars Retry Section */}
+        {failedJars.length > 0 && (
+          <Card className="mt-6 border-yellow-200 bg-yellow-50">
+            <CardContent className="p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="font-medium text-yellow-800">
+                    {failedJars.length} jar(s) failed to load
+                  </p>
+                  <p className="text-sm text-yellow-600">
+                    {failedJars.filter(f => f.canRetry).length} can be retried
+                  </p>
+                  {failedJars.length > 0 && (
+                    <details className="mt-2">
+                      <summary className="text-xs text-yellow-700 cursor-pointer hover:text-yellow-800">
+                        Show error details
+                      </summary>
+                      <div className="mt-2 space-y-1">
+                        {failedJars.map((failure, index) => (
+                          <div key={index} className="text-xs text-yellow-700">
+                            <strong>{failure.jarAddress.slice(0, 8)}...:</strong> {failure.errorMessage}
+                          </div>
+                        ))}
+                      </div>
+                    </details>
+                  )}
+                </div>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={retryFailedJars}
+                  disabled={failedJars.filter(f => f.canRetry).length === 0}
+                  className="text-yellow-800 border-yellow-300 hover:bg-yellow-100"
+                >
+                  <RotateCcw size={16} className="mr-2" />
+                  Retry Failed
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
     </div>
   )
 }

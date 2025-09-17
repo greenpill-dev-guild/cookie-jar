@@ -28,7 +28,7 @@ interface MockConfig {
 }
 
 interface MockWithdrawFunctions {
-  whitelist: (amount: bigint, purpose: string) => void
+  allowlist: (amount: bigint, purpose: string) => void
   nft: (amount: bigint, purpose: string, gateAddress: string, tokenId: string) => void
   poap: (amount: bigint, purpose: string, tokenId: string) => void
   unlock: (amount: bigint, purpose: string) => void
@@ -54,7 +54,7 @@ const MockProtocolAwareWithdrawal: React.FC<{
 
   const getAccessTypeInfo = () => {
     switch (config.accessType) {
-      case 'Whitelist':
+      case 'Allowlist':
         return { name: 'Allowlist Access', description: 'Your address is pre-approved for access' }
       case 'NFTGated':
         return { name: 'NFT Collection Access', description: 'Prove ownership of required NFT' }
@@ -127,8 +127,8 @@ const MockProtocolAwareWithdrawal: React.FC<{
     const amount = getWithdrawalAmount()
     
     switch (config.accessType) {
-      case 'Whitelist':
-        onWithdraw.whitelist(amount, withdrawPurpose)
+      case 'Allowlist':
+        onWithdraw.allowlist(amount, withdrawPurpose)
         break
       case 'NFTGated':
         onWithdraw.nft(amount, withdrawPurpose, nftGateAddress, nftTokenId)
@@ -307,7 +307,7 @@ const MockProtocolAwareWithdrawal: React.FC<{
 describe('ProtocolAwareWithdrawal', () => {
   const user = userEvent.setup()
   const mockOnWithdraw = {
-    whitelist: jest.fn(),
+    allowlist: jest.fn(),
     nft: jest.fn(),
     poap: jest.fn(),
     unlock: jest.fn(),
@@ -320,9 +320,9 @@ describe('ProtocolAwareWithdrawal', () => {
   })
 
   describe('Access Type Adaptation', () => {
-    it('adapts UI for Whitelist access', () => {
+    it('adapts UI for Allowlist access', () => {
       const config: MockConfig = {
-        accessType: 'Whitelist',
+        accessType: 'Allowlist',
         withdrawalOption: 'Fixed',
         currency: '0x0000000000000000000000000000000000000003',
         fixedAmount: BigInt('100000000000000000'), // 0.1 ETH
@@ -384,7 +384,7 @@ describe('ProtocolAwareWithdrawal', () => {
   describe('Withdrawal Options', () => {
     it('handles Fixed withdrawal correctly', () => {
       const config: MockConfig = {
-        accessType: 'Whitelist',
+        accessType: 'Allowlist',
         withdrawalOption: 'Fixed',
         currency: '0x0000000000000000000000000000000000000003',
         fixedAmount: BigInt('100000000000000000'), // 0.1 ETH
@@ -404,7 +404,7 @@ describe('ProtocolAwareWithdrawal', () => {
 
     it('handles Variable withdrawal correctly', () => {
       const config: MockConfig = {
-        accessType: 'Whitelist',
+        accessType: 'Allowlist',
         withdrawalOption: 'Variable',
         currency: '0x0000000000000000000000000000000000000003',
         maxWithdrawal: BigInt('250000000000000000'), // 0.25 ETH
@@ -425,7 +425,7 @@ describe('ProtocolAwareWithdrawal', () => {
   describe('Purpose Requirements', () => {
     it('shows purpose input when strictPurpose is enabled', () => {
       const config: MockConfig = {
-        accessType: 'Whitelist',
+        accessType: 'Allowlist',
         withdrawalOption: 'Fixed',
         currency: '0x0000000000000000000000000000000000000003',
         fixedAmount: BigInt('100000000000000000'),
@@ -443,7 +443,7 @@ describe('ProtocolAwareWithdrawal', () => {
 
     it('hides purpose input when strictPurpose is disabled', () => {
       const config: MockConfig = {
-        accessType: 'Whitelist',
+        accessType: 'Allowlist',
         withdrawalOption: 'Fixed',
         currency: '0x0000000000000000000000000000000000000003',
         fixedAmount: BigInt('100000000000000000'),
@@ -459,7 +459,7 @@ describe('ProtocolAwareWithdrawal', () => {
 
     it('validates purpose length in real-time', async () => {
       const config: MockConfig = {
-        accessType: 'Whitelist',
+        accessType: 'Allowlist',
         withdrawalOption: 'Fixed',
         currency: '0x0000000000000000000000000000000000000003',
         fixedAmount: BigInt('100000000000000000'),
@@ -482,9 +482,9 @@ describe('ProtocolAwareWithdrawal', () => {
   })
 
   describe('Withdrawal Execution', () => {
-    it('calls correct withdrawal function for Whitelist', async () => {
+    it('calls correct withdrawal function for Allowlist', async () => {
       const config: MockConfig = {
-        accessType: 'Whitelist',
+        accessType: 'Allowlist',
         withdrawalOption: 'Fixed',
         currency: '0x0000000000000000000000000000000000000003',
         fixedAmount: BigInt('100000000000000000'),
@@ -498,7 +498,7 @@ describe('ProtocolAwareWithdrawal', () => {
       const withdrawButton = screen.getByTestId('withdraw-button')
       await user.click(withdrawButton)
       
-      expect(mockOnWithdraw.whitelist).toHaveBeenCalledWith(BigInt('100000000000000000'), '')
+      expect(mockOnWithdraw.allowlist).toHaveBeenCalledWith(BigInt('100000000000000000'), '')
     })
 
     it('calls correct withdrawal function for NFT-gated', async () => {
@@ -582,7 +582,7 @@ describe('ProtocolAwareWithdrawal', () => {
 
     it('validates purpose length when required', async () => {
       const config: MockConfig = {
-        accessType: 'Whitelist',
+        accessType: 'Allowlist',
         withdrawalOption: 'Fixed',
         currency: '0x0000000000000000000000000000000000000003',
         fixedAmount: BigInt('100000000000000000'),
@@ -609,7 +609,7 @@ describe('ProtocolAwareWithdrawal', () => {
 
     it('validates withdrawal amount for Variable withdrawals', async () => {
       const config: MockConfig = {
-        accessType: 'Whitelist',
+        accessType: 'Allowlist',
         withdrawalOption: 'Variable',
         currency: '0x0000000000000000000000000000000000000003',
         maxWithdrawal: BigInt('250000000000000000'),
@@ -688,7 +688,7 @@ describe('ProtocolAwareWithdrawal', () => {
   describe('Loading States', () => {
     it('shows loading state during withdrawal', () => {
       const config: MockConfig = {
-        accessType: 'Whitelist',
+        accessType: 'Allowlist',
         withdrawalOption: 'Fixed',
         currency: '0x0000000000000000000000000000000000000003',
         fixedAmount: BigInt('100000000000000000'),
@@ -754,7 +754,7 @@ describe('ProtocolAwareWithdrawal', () => {
   describe('Integration Flow', () => {
     it('completes full withdrawal flow for Variable + Purpose', async () => {
       const config: MockConfig = {
-        accessType: 'Whitelist',
+        accessType: 'Allowlist',
         withdrawalOption: 'Variable',
         currency: '0x0000000000000000000000000000000000000003',
         maxWithdrawal: BigInt('250000000000000000'),
@@ -777,7 +777,7 @@ describe('ProtocolAwareWithdrawal', () => {
       
       await user.click(withdrawButton)
       
-      expect(mockOnWithdraw.whitelist).toHaveBeenCalledWith(
+      expect(mockOnWithdraw.allowlist).toHaveBeenCalledWith(
         BigInt('150000000000000000'), // 0.15 ETH in wei
         'Valid withdrawal purpose for testing'
       )

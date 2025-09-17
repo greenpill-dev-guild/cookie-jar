@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react'
-import { useAccount, useReadContract } from 'wagmi'
+import { useState, useEffect, useMemo } from 'react'
+import { useAccount, useReadContract, useChainId } from 'wagmi'
 import { isAddress } from 'viem'
+import { Web3Service } from '@unlock-protocol/unlock-js'
 
 // Unlock Protocol types
-interface LockInfo {
+export interface LockInfo {
   address: string
   name?: string
   symbol?: string
@@ -107,8 +108,48 @@ const PUBLIC_LOCK_ABI = [
   }
 ] as const
 
+// Unlock Protocol contract addresses per network
+const UNLOCK_ADDRESSES: Record<number, string> = {
+  1: '0x3d5409CcE1d45233dE1D4eBDEe74b8E004abDD44', // Ethereum Mainnet
+  10: '0x99b1348a9129ac49c6de7F11245773dE2f51fB0c', // Optimism
+  100: '0x14bb3586Ce2946E71B95Fe00Fc73dd30ed830863', // Gnosis Chain
+  8453: '0xd0b14797b9D08493BD8D5DdB5d75A825f5c40C82', // Base
+  42161: '0xeC83f7Ba8E6c55de8B8F704c63C7e6cEe8f61fca', // Arbitrum
+  137: '0xE8E5cd156f89F7bdB267EabD5C43Af3d5AF2A78f', // Polygon
+  11155111: '0x627118a4fB747016911e5cDA82e2E77C531e8206', // Sepolia
+}
+
+// Get RPC URL for chain - simplified for now, would use from config in real app
+const getRPCUrl = (chainId: number): string => {
+  switch (chainId) {
+    case 1: return process.env.NEXT_PUBLIC_ETHEREUM_RPC_URL || 'https://eth.drpc.org'
+    case 10: return process.env.NEXT_PUBLIC_OPTIMISM_RPC_URL || 'https://optimism.drpc.org'
+    case 100: return process.env.NEXT_PUBLIC_GNOSIS_RPC_URL || 'https://gnosis.drpc.org'
+    case 8453: return process.env.NEXT_PUBLIC_BASE_RPC_URL || 'https://base.drpc.org'
+    case 42161: return process.env.NEXT_PUBLIC_ARBITRUM_RPC_URL || 'https://arbitrum.drpc.org'
+    case 137: return process.env.NEXT_PUBLIC_POLYGON_RPC_URL || 'https://polygon.drpc.org'
+    case 11155111: return process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL || 'https://sepolia.drpc.org'
+    default: return 'https://eth.drpc.org' // Fallback to Ethereum
+  }
+}
+
+// Helper function to get network name
+const getNetworkName = (chainId: number): string => {
+  switch (chainId) {
+    case 1: return 'mainnet'
+    case 10: return 'optimism'
+    case 100: return 'gnosis'
+    case 8453: return 'base'
+    case 42161: return 'arbitrum'
+    case 137: return 'polygon'
+    case 11155111: return 'sepolia'
+    default: return 'mainnet'
+  }
+}
+
 export function useUnlockLocks(options: UseUnlockLocksOptions = {}): UseUnlockLocksResult {
   const { address: userAddress } = useAccount()
+  const chainId = useChainId()
   const [lockInfo, setLockInfo] = useState<LockInfo | null>(null)
   const [userKeys, setUserKeys] = useState<UserKey[]>([])
   const [isLoadingLock, setIsLoadingLock] = useState(false)
@@ -120,112 +161,50 @@ export function useUnlockLocks(options: UseUnlockLocksOptions = {}): UseUnlockLo
   const isLoading = isLoadingLock || isLoadingKeys || isCheckingValidity
   const error = lockError || keysError
 
-  // Check if user has valid key using on-chain contract call
-  const { 
-    data: hasValidKey,
-    isLoading: isCheckingOnChain,
-    error: validityError,
-    refetch: refetchValidity
-  } = useReadContract({
-    address: options.lockAddress && isAddress(options.lockAddress) ? options.lockAddress as `0x${string}` : undefined,
-    abi: PUBLIC_LOCK_ABI,
-    functionName: 'getHasValidKey',
-    args: userAddress ? [userAddress] : undefined,
-    query: {
-      enabled: !!(options.lockAddress && userAddress && options.checkValidity)
-    }
-  })
-
-  // Get lock basic info using on-chain calls
-  const { data: lockName } = useReadContract({
-    address: options.lockAddress && isAddress(options.lockAddress) ? options.lockAddress as `0x${string}` : undefined,
-    abi: PUBLIC_LOCK_ABI,
-    functionName: 'name',
-    query: { enabled: !!(options.lockAddress && isAddress(options.lockAddress)) }
-  })
-
-  const { data: lockSymbol } = useReadContract({
-    address: options.lockAddress && isAddress(options.lockAddress) ? options.lockAddress as `0x${string}` : undefined,
-    abi: PUBLIC_LOCK_ABI,
-    functionName: 'symbol',
-    query: { enabled: !!(options.lockAddress && isAddress(options.lockAddress)) }
-  })
-
-  const { data: keyPrice } = useReadContract({
-    address: options.lockAddress && isAddress(options.lockAddress) ? options.lockAddress as `0x${string}` : undefined,
-    abi: PUBLIC_LOCK_ABI,
-    functionName: 'keyPrice',
-    query: { enabled: !!(options.lockAddress && isAddress(options.lockAddress)) }
-  })
-
-  const { data: maxKeys } = useReadContract({
-    address: options.lockAddress && isAddress(options.lockAddress) ? options.lockAddress as `0x${string}` : undefined,
-    abi: PUBLIC_LOCK_ABI,
-    functionName: 'maxNumberOfKeys',
-    query: { enabled: !!(options.lockAddress && isAddress(options.lockAddress)) }
-  })
-
-  const { data: totalSupply } = useReadContract({
-    address: options.lockAddress && isAddress(options.lockAddress) ? options.lockAddress as `0x${string}` : undefined,
-    abi: PUBLIC_LOCK_ABI,
-    functionName: 'totalSupply',
-    query: { enabled: !!(options.lockAddress && isAddress(options.lockAddress)) }
-  })
-
-  const { data: expirationDuration } = useReadContract({
-    address: options.lockAddress && isAddress(options.lockAddress) ? options.lockAddress as `0x${string}` : undefined,
-    abi: PUBLIC_LOCK_ABI,
-    functionName: 'expirationDuration',
-    query: { enabled: !!(options.lockAddress && isAddress(options.lockAddress)) }
-  })
-
-  // Update lock info when on-chain data changes
-  useEffect(() => {
-    if (options.lockAddress && lockName) {
-      const info: LockInfo = {
-        address: options.lockAddress,
-        name: lockName,
-        symbol: lockSymbol,
-        keyPrice: keyPrice ? (Number(keyPrice) / 1e18).toString() : undefined,
-        maxNumberOfKeys: maxKeys ? Number(maxKeys) : undefined,
-        totalSupply: totalSupply ? Number(totalSupply) : undefined,
-        expirationDuration: expirationDuration ? Number(expirationDuration) : undefined
+  // Initialize Web3Service with current network
+  const web3Service = useMemo(() => {
+    const networks = {
+      [chainId]: {
+        unlockAddress: UNLOCK_ADDRESSES[chainId] || UNLOCK_ADDRESSES[1],
+        provider: getRPCUrl(chainId),
+        name: getNetworkName(chainId),
       }
-      setLockInfo(info)
-      setLockError(null)
     }
-  }, [options.lockAddress, lockName, lockSymbol, keyPrice, maxKeys, totalSupply, expirationDuration])
+    return new Web3Service(networks)
+  }, [chainId])
 
-  // Fetch user's keys for the lock
+
+  // Fetch user's keys for the lock using real Unlock SDK
   const fetchUserKeys = async (lockAddress: string, userAddress: string) => {
     setIsLoadingKeys(true)
     setKeysError(null)
 
     try {
-      // Note: This is a mock implementation
-      // Real implementation would use Unlock SDK or Graph Protocol:
-      // const keys = await sdk.getUserKeys(userAddress, lockAddress)
+      // Use real Unlock Protocol SDK to get user's key
+      const key = await web3Service.getKeyByLockForOwner(lockAddress, userAddress)
       
-      // For now, we'll rely on the on-chain hasValidKey check
-      // and create a mock key if user has access
-      const mockKeys: UserKey[] = hasValidKey ? [{
-        lock: lockAddress,
-        tokenId: '1',
-        keyId: '1',
-        expiration: Date.now() / 1000 + (365 * 24 * 60 * 60), // 1 year from now
-        isValid: true
-      }] : []
-
-      setUserKeys(mockKeys)
+      if (key && key.expiration > Date.now() / 1000) {
+        const userKey: UserKey = {
+          lock: lockAddress,
+          tokenId: key.tokenId.toString(),
+          keyId: key.tokenId.toString(),
+          expiration: key.expiration,
+          isValid: key.expiration > Date.now() / 1000
+        }
+        setUserKeys([userKey])
+      } else {
+        setUserKeys([])
+      }
     } catch (error) {
       console.error('Error fetching user keys:', error)
       setKeysError('Failed to fetch your membership keys')
+      setUserKeys([])
     } finally {
       setIsLoadingKeys(false)
     }
   }
 
-  // Validate lock address
+  // Validate lock address using real Unlock SDK
   const validateLockAddress = async (address: string): Promise<LockInfo | null> => {
     if (!isAddress(address)) {
       throw new Error('Invalid contract address format')
@@ -235,18 +214,34 @@ export function useUnlockLocks(options: UseUnlockLocksOptions = {}): UseUnlockLo
     setLockError(null)
 
     try {
-      // The on-chain calls will handle validation
-      // This function is mainly for manual validation
-      return null // Will be set by useEffect when on-chain data loads
+      // Use real Unlock Protocol SDK to get lock information
+      const lock = await web3Service.getLock(address, chainId)
+      
+      const lockInfo: LockInfo = {
+        address: address,
+        name: lock.name,
+        symbol: lock.symbol || undefined,
+        keyPrice: lock.keyPrice ? (Number(lock.keyPrice) / 1e18).toString() : undefined,
+        maxNumberOfKeys: lock.maxNumberOfKeys === -1 ? undefined : lock.maxNumberOfKeys,
+        totalSupply: lock.outstandingKeys,
+        expirationDuration: lock.expirationDuration,
+        currencySymbol: lock.currencyContractAddress === '0x0000000000000000000000000000000000000000' ? 'ETH' : 'TOKEN'
+      }
+      
+      setLockInfo(lockInfo)
+      setLockError(null)
+      return lockInfo
     } catch (error) {
+      console.error('Lock validation failed:', error)
       setLockError('Invalid Unlock Protocol lock contract')
+      setLockInfo(null)
       return null
     } finally {
       setIsLoadingLock(false)
     }
   }
 
-  // Check user key validity
+  // Check user key validity using real Unlock SDK
   const checkUserKeyValidity = async (lockAddress: string): Promise<boolean> => {
     if (!userAddress || !isAddress(lockAddress)) {
       return false
@@ -255,9 +250,10 @@ export function useUnlockLocks(options: UseUnlockLocksOptions = {}): UseUnlockLo
     setIsCheckingValidity(true)
     
     try {
-      // This will trigger the on-chain call via the useReadContract hook
-      refetchValidity()
-      return hasValidKey || false
+      // Use real Unlock Protocol SDK to check key validity
+      const key = await web3Service.getKeyByLockForOwner(lockAddress, userAddress)
+      const isValid = key && key.expiration > Date.now() / 1000
+      return Boolean(isValid)
     } catch (error) {
       console.error('Error checking key validity:', error)
       return false
@@ -271,8 +267,8 @@ export function useUnlockLocks(options: UseUnlockLocksOptions = {}): UseUnlockLo
     if (options.lockAddress && userAddress && options.fetchUserKeys) {
       fetchUserKeys(options.lockAddress, userAddress)
     }
-    if (hasValidKey !== undefined) {
-      refetchValidity()
+    if (options.lockAddress && isAddress(options.lockAddress)) {
+      validateLockAddress(options.lockAddress)
     }
   }
 
@@ -281,23 +277,23 @@ export function useUnlockLocks(options: UseUnlockLocksOptions = {}): UseUnlockLo
     if (options.lockAddress && userAddress && options.fetchUserKeys) {
       fetchUserKeys(options.lockAddress, userAddress)
     }
-  }, [options.lockAddress, userAddress, options.fetchUserKeys, hasValidKey])
+  }, [options.lockAddress, userAddress, options.fetchUserKeys, web3Service])
 
-  // Handle validity check errors
+  // Auto-validate lock when provided
   useEffect(() => {
-    if (validityError) {
-      setKeysError('Failed to check membership validity')
+    if (options.lockAddress && isAddress(options.lockAddress)) {
+      validateLockAddress(options.lockAddress)
     }
-  }, [validityError])
+  }, [options.lockAddress, web3Service])
 
   return {
     lockInfo,
     userKeys,
-    hasValidKey: hasValidKey || false,
+    hasValidKey: userKeys.length > 0 && userKeys[0]?.isValid,
     isLoading,
     isLoadingLock,
     isLoadingKeys,
-    isCheckingValidity: isCheckingValidity || isCheckingOnChain,
+    isCheckingValidity,
     error,
     lockError,
     keysError,

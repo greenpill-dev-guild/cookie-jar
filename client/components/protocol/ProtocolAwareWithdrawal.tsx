@@ -28,7 +28,7 @@ import type { SelectedNFT } from '@/components/forms/NFTSelector'
 interface ProtocolAwareWithdrawalProps {
   /** Jar configuration object */
   config: {
-    accessType: string // 'Whitelist' | 'NFTGated' | 'POAP' | 'Unlock' | 'Hypercert' | 'Hats'
+    accessType: string // 'Allowlist' | 'NFTGated' | 'POAP' | 'Unlock' | 'Hypercert' | 'Hats'
     withdrawalOption: string // 'Fixed' | 'Variable'
     currency: string
     fixedAmount?: bigint
@@ -44,7 +44,7 @@ interface ProtocolAwareWithdrawalProps {
   }
   /** Withdrawal functions for different access types */
   onWithdraw: {
-    whitelist: (amount: bigint, purpose: string) => void
+    allowlist: (amount: bigint, purpose: string) => void
     nft: (amount: bigint, purpose: string, gateAddress: string, tokenId: string) => void
     poap: (amount: bigint, purpose: string, tokenId: string) => void
     unlock: (amount: bigint, purpose: string) => void
@@ -83,7 +83,7 @@ export const ProtocolAwareWithdrawal: React.FC<ProtocolAwareWithdrawalProps> = (
   // Determine access type icon and info
   const getAccessTypeInfo = () => {
     switch (config.accessType) {
-      case 'Whitelist':
+      case 'Allowlist':
         return {
           icon: <Users className="h-5 w-5" />,
           name: 'Allowlist Access',
@@ -203,8 +203,8 @@ export const ProtocolAwareWithdrawal: React.FC<ProtocolAwareWithdrawalProps> = (
     const amount = getWithdrawalAmount()
     
     switch (config.accessType) {
-      case 'Whitelist':
-        onWithdraw.whitelist(amount, withdrawPurpose)
+      case 'Allowlist':
+        onWithdraw.allowlist(amount, withdrawPurpose)
         break
         
       case 'NFTGated':
@@ -494,7 +494,7 @@ export const ProtocolAwareWithdrawal: React.FC<ProtocolAwareWithdrawalProps> = (
       <div className="text-xs text-[#8b7355] bg-gray-50 p-3 rounded">
         <p className="font-medium mb-1">How {accessInfo.name} works:</p>
         <ul className="space-y-1 list-disc list-inside">
-          {config.accessType === 'Whitelist' && (
+          {config.accessType === 'Allowlist' && (
             <li>Your address has been pre-approved by the jar admin</li>
           )}
           {config.accessType === 'NFTGated' && (
