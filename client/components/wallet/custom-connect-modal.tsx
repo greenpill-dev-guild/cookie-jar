@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/design/use-toast";
+import { useToast } from "@/hooks/useToast";
 import { Loader2, Wallet, ExternalLink, AlertCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useConnect, useAccount, Connector } from "wagmi";

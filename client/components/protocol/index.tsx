@@ -12,7 +12,6 @@ import { UnlockMembershipStatus as _UnlockMembershipStatus } from './UnlockMembe
 import { HypercertGateConfig as _HypercertGateConfig } from './HypercertGateConfig'
 import { HatsGateConfig as _HatsGateConfig } from './HatsGateConfig'
 import { ProtocolGateSelector as _ProtocolGateSelector } from './ProtocolGateSelector'
-import { ProtocolAwareWithdrawal as _ProtocolAwareWithdrawal } from './ProtocolAwareWithdrawal'
 
 // Wrapped components with error boundaries
 export const POAPGateConfig = withProtocolErrorBoundary(_POAPGateConfig, {
@@ -51,11 +50,6 @@ export const ProtocolGateSelector = withProtocolErrorBoundary(_ProtocolGateSelec
   showDetails: process.env.NODE_ENV === 'development'
 })
 
-export const ProtocolAwareWithdrawal = withProtocolErrorBoundary(_ProtocolAwareWithdrawal, {
-  protocolName: 'Protocol Withdrawal',
-  maxRetries: 3,
-  showDetails: process.env.NODE_ENV === 'development'
-})
 
 // Re-export the original components for cases where error boundaries aren't needed
 export { 

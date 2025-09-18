@@ -2,23 +2,14 @@
 
 import type React from "react"
 import { useState, useEffect } from "react"
-import { useNavigateToTop } from "@/hooks/use-navigate-to-top"
+import { useNavigateToTop } from "@/hooks/useNavigateToTop"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { parseEther, keccak256, toHex } from "viem"
 import { ETH_ADDRESS, parseTokenAmount, useTokenInfo } from "@/lib/utils/token-utils"
 import {
-  // Commented out missing hooks
-  // useWriteCookieJarTransferJarOwnership,
   useReadCookieJarHasRole,
-  // useWriteCookieJarGrantJarBlacklistRole,
-  // useWriteCookieJarRevokeJarBlacklistRole,
-  // useWriteCookieJarEmergencyWithdrawWithoutState,
-  // useWriteCookieJarEmergencyWithdrawCurrencyWithState,
   useWriteCookieJarEmergencyWithdraw,
-  useWriteCookieJarAddNftGate,
-  useWriteCookieJarRemoveNftGate,
   cookieJarAbi,
 } from "../../generated"
 import { useWriteContract } from "wagmi"
@@ -26,17 +17,11 @@ import { cookieJarV1Abi } from "@/lib/abis/cookie-jar-v1-abi"
 import { isV2Chain } from "@/config/supported-networks"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { AlertCircle, Shield, UserPlus, UserMinus, AlertTriangle, Tag, Loader2 } from "lucide-react"
-import { useToast } from "@/hooks/design/use-toast"
+import { AlertCircle, UserPlus, AlertTriangle } from "lucide-react"
+import { useToast } from "@/hooks/useToast"
 import { useAccount, useChainId } from "wagmi"
 import { getNativeCurrency } from '@/config/supported-networks'
-// import AllowlistManagement from "./AllowlistManagement" // Component not found
-
-enum NFTType {
-  None = 0,
-  ERC721 = 1,
-  ERC1155 = 2,
-}
+import { AllowlistManagement } from "./AllowListManagement"
 
 interface AdminFunctionsProps {
   address: `0x${string}`
@@ -49,7 +34,6 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
   const chainId = useChainId();
   const nativeCurrency = getNativeCurrency(chainId);
   const { scrollToTop } = useNavigateToTop();
-  const [newJarOwner, setNewJarOwner] = useState("")
   const [withdrawalAmount, setWithdrawalAmount] = useState("")
   const [tokenAddress, setTokenAddress] = useState("")
   const [tokenToWithdraw, setTokenToWithdraw] = useState<`0x${string}`>(ETH_ADDRESS as `0x${string}`)
@@ -64,230 +48,32 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
   }, [tokenAddress])
 
   // Get token info including decimals and symbol
-  const { symbol, decimals, isERC20 } = useTokenInfo(tokenToWithdraw)
-  const [addressToUpdate, setAddressToUpdate] = useState("")
-  const [nftAddress, setNftAddress] = useState("")
-  const [nftTokenId, setNftTokenId] = useState("")
-  const [isTransferring, setIsTransferring] = useState(false)
+  const { symbol, decimals } = useTokenInfo(tokenToWithdraw)
   const { toast } = useToast()
   const { address: currentUserAddress } = useAccount()
 
   // Check if current user has the JAR_OWNER role
-  const { data: hasJarOwnerRole, refetch: refetchOwnerRole } = useReadCookieJarHasRole({
+  const { data: hasJarOwnerRole } = useReadCookieJarHasRole({
     address,
     args: [JAR_OWNER_ROLE, currentUserAddress || '0x0000000000000000000000000000000000000000' as `0x${string}`],
   })
 
-  // Transfer jar ownership hook - commented out due to missing hook
-  /*
-  const {
-    writeContract: transferJarOwnership,
-    data: transferData,
-    error: transferError,
-    isSuccess: isTransferSuccess,
-    isPending: isTransferPending,
-  } = useWriteCookieJarTransferJarOwnership()
-  */
-  // Mock values for the commented out hook
-  const transferJarOwnership = undefined;
-  const transferData = undefined;
-  const transferError = undefined;
-  const isTransferSuccess = false;
-  const isTransferPending = false;
-
   // Emergency withdraw hook
   const {
     writeContract: emergencyWithdraw,
-    data: emergencyWithdrawData,
     error: emergencyWithdrawError,
     isSuccess: isEmergencyWithdrawSuccess,
   } = useWriteCookieJarEmergencyWithdraw()
 
-  // Version-aware ABI and function selection
-  const isV2 = isV2Chain(chainId);
-  const abi = isV2 ? cookieJarAbi : cookieJarV1Abi;
-  const grantFunction = isV2 ? 'grantJarAllowlistRole' : 'grantJarWhitelistRole';
-  const revokeFunction = isV2 ? 'revokeJarAllowlistRole' : 'revokeJarWhitelistRole';
-
-  const {
-    writeContract: grantJarAllowlistRole,
-    data: allowlistGrantData,
-    error: allowlistGrantError,
-    isSuccess: isAllowlistGrantSuccess,
-  } = useWriteContract()
-
-  const {
-    writeContract: revokeJarAllowlistRole,
-    data: allowlistRevokeData,
-    error: allowlistRevokeError,
-    isSuccess: isAllowlistRevokeSuccess,
-  } = useWriteContract()
-
-  // Blacklist role hooks - commented out due to missing hooks
-  /*
-  const {
-    writeContract: grantJarBlacklistRole,
-    data: blacklistGrantData,
-    error: blacklistGrantError,
-    isSuccess: isBlacklistGrantSuccess,
-  } = useWriteCookieJarGrantJarBlacklistRole()
-
-  const {
-    writeContract: revokeJarBlacklistRole,
-    data: blacklistRevokeData,
-    error: blacklistRevokeError,
-    isSuccess: isBlacklistRevokeSuccess,
-  } = useWriteCookieJarRevokeJarBlacklistRole()
-  */
-  // Mock values for commented out hooks
-  const grantJarBlacklistRole = undefined;
-  const blacklistGrantData = undefined;
-  const blacklistGrantError = undefined;
-  const isBlacklistGrantSuccess = false;
-
-  const revokeJarBlacklistRole = undefined;
-  const blacklistRevokeData = undefined;
-  const blacklistRevokeError = undefined;
-  const isBlacklistRevokeSuccess = false;
-
-  const {
-    writeContract: addNftGate,
-    data: nftGateData,
-    error: nftGateError,
-    isSuccess: isNftGateSuccess,
-  } = useWriteCookieJarAddNftGate()
-
-  const {
-    writeContract: removeNftGate,
-    data: removeNftGateData,
-    error: removeNftGateError,
-    isSuccess: isRemoveNftGateSuccess,
-  } = useWriteCookieJarRemoveNftGate()
-
   // Show success toasts
   useEffect(() => {
-    if (isTransferSuccess) {
-      toast({
-        title: "Ownership Transferred",
-        description: "The jar ownership has been successfully transferred.",
-      })
-      setIsTransferring(false)
-      setNewJarOwner("")
-
-      // Refresh the owner role data after successful transfer
-      setTimeout(() => {
-        refetchOwnerRole()
-        // Owner role data will be refetched, UI components will update automatically
-      }, 2000)
-    }
-
     if (isEmergencyWithdrawSuccess) {
       toast({
         title: "Emergency Withdrawal Complete",
         description: "Funds have been successfully withdrawn.",
       })
     }
-    if (isAllowlistGrantSuccess) {
-      toast({
-        title: "Allowlist Updated",
-        description: "Address has been added to the allowlist.",
-      })
-    }
-    if (isAllowlistRevokeSuccess) {
-      toast({
-        title: "Allowlist Updated",
-        description: "Address has been removed from the allowlist.",
-      })
-    }
-    if (isBlacklistGrantSuccess) {
-      toast({
-        title: "Blacklist Updated",
-        description: "Address has been added to the blacklist.",
-      })
-    }
-    if (isBlacklistRevokeSuccess) {
-      toast({
-        title: "Blacklist Updated",
-        description: "Address has been removed from the blacklist.",
-      })
-    }
-    if (isNftGateSuccess) {
-      toast({
-        title: "NFT Gate Added",
-        description: "New NFT gate has been added successfully.",
-      })
-    }
-    if (isRemoveNftGateSuccess) {
-      toast({
-        title: "NFT Gate Removed",
-        description: "NFT gate has been removed successfully.",
-      })
-    }
-  }, [
-    isTransferSuccess,
-    isEmergencyWithdrawSuccess,
-    isAllowlistGrantSuccess,
-    isAllowlistRevokeSuccess,
-    isBlacklistGrantSuccess,
-    isBlacklistRevokeSuccess,
-    isNftGateSuccess,
-    isRemoveNftGateSuccess,
-    toast,
-    refetchOwnerRole,
-  ])
-
-  // Handle transfer error
-  useEffect(() => {
-    if (transferError) {
-      toast({
-        title: "Transfer Failed",
-        description: "Failed to transfer ownership. Please try again.",
-        variant: "destructive",
-      })
-      setIsTransferring(false)
-    }
-  }, [transferError, toast])
-
-  // Admin functions
-  const handleTransferJarOwnership = async () => {
-    toast({
-      title: "Feature Unavailable",
-      description: "Transfer jar ownership is currently unavailable.",
-      variant: "destructive",
-    });
-    return;
-
-    /*
-    if (!newJarOwner || !newJarOwner.startsWith("0x")) {
-      toast({
-        title: "Invalid Address",
-        description: "Please enter a valid Ethereum address",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsTransferring(true);
-
-    try {
-      await transferJarOwnership({
-        address,
-        args: [newJarOwner as `0x${string}`],
-      });
-
-      // Success message shown when isTransferSuccess becomes true
-    } catch (error) {
-      console.error("Error transferring jar ownership:", error);
-      toast({
-        title: "Transfer Failed",
-        description: "Failed to transfer ownership. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsTransferring(false);
-    }
-    */
-  }
+  }, [isEmergencyWithdrawSuccess, toast])
 
   // Emergency withdraw function
   const handleEmergencyWithdraw = () => {
@@ -316,86 +102,6 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
     }
   }
 
-  // Grant blacklist role function - commented out due to missing hook
-  const handleGrantJarBlacklistRole = () => {
-    // Function commented out due to missing hook
-    toast({
-      title: "Feature Unavailable",
-      description: "Granting blacklist role is currently unavailable.",
-      variant: "destructive",
-    });
-    return;
-
-    /*
-    if (!addressToUpdate) return
-    console.log(`"Adding addresses to blacklist:`, addressToUpdate)
-    grantJarBlacklistRole({
-      address: address,
-      args: [[addressToUpdate as `0x${string}`]],
-    })
-    */
-  }
-
-  // Revoke blacklist role function - commented out due to missing hook
-  const handleRevokeJarBlacklistRole = () => {
-    // Function commented out due to missing hook
-    toast({
-      title: "Feature Unavailable",
-      description: "Revoking blacklist role is currently unavailable.",
-      variant: "destructive",
-    });
-    return;
-
-    /*
-    if (!addressToUpdate) return
-    console.log(`Removing address from blacklist:`, addressToUpdate)
-    revokeJarBlacklistRole({
-      address: address,
-      args: [[addressToUpdate as `0x${string}`]],
-    })
-    */
-  }
-
-  const handleGrantJarAllowlistRole = () => {
-    if (!addressToUpdate) return
-    console.log(`Adding address to allowlist:`, addressToUpdate)
-    grantJarAllowlistRole({
-      address: address,
-      abi,
-      functionName: grantFunction,
-      args: [[addressToUpdate as `0x${string}`]],
-    })
-  }
-
-  const handleRevokeJarAllowlistRole = () => {
-    if (!addressToUpdate) return
-    console.log(`Removing address from allowlist:`, addressToUpdate)
-    revokeJarAllowlistRole({
-      address: address,
-      abi,
-      functionName: revokeFunction,
-      args: [[addressToUpdate as `0x${string}`]],
-    })
-  }
-
-  const handleAddNFTGate = () => {
-    if (!nftAddress || !nftTokenId) return
-    console.log("Adding NFT gate:", nftAddress, nftTokenId)
-    addNftGate({
-      address: address,
-      args: [nftAddress as `0x${string}`, Number.parseInt(nftTokenId, 10)],
-    })
-  }
-
-  const handleRemoveNFTGate = () => {
-    if (!nftAddress) return
-    console.log("Removing NFT gate:", nftAddress)
-    removeNftGate({
-      address: address,
-      args: [nftAddress as `0x${string}`],
-    })
-  }
-
   // Check if current user has the JAR_OWNER role
   const isCurrentUserOwner = hasJarOwnerRole === true
 
@@ -410,7 +116,6 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
         }}
       >
         <TabsList className="mb-6 bg-[#fff8f0] p-1">
-
           <TabsTrigger
             value="access"
             className="data-[state=active]:bg-white data-[state=active]:text-[#ff5e14] data-[state=active]:shadow-sm text-[#4a3520]"
@@ -425,79 +130,7 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
             <AlertTriangle className="h-4 w-4 mr-2" />
             Emergency
           </TabsTrigger>
-          {/* no longer possible w/ updated scs. <3MSG may15-25 */}
-          {/* <TabsTrigger
-            value="ownership"
-            className="data-[state=active]:bg-white data-[state=active]:text-[#ff5e14] data-[state=active]:shadow-sm text-[#4a3520]"
-          >
-            <Shield className="h-4 w-4 mr-2" />
-            Ownership
-          </TabsTrigger> */}
-          {/* <TabsTrigger
-            value="nft"
-            className="data-[state=active]:bg-white data-[state=active]:text-[#ff5e14] data-[state=active]:shadow-sm text-[#4a3520]"
-          >
-            <Tag className="h-4 w-4 mr-2" />
-            NFT Gates
-          </TabsTrigger> */}
         </TabsList>
-        {/* no longer possible w/ updated scs. <3MSG may15-25 */}
-        {/* <TabsContent value="ownership" className="mt-0">
-          <Card className="border-none shadow-sm">
-            <CardHeader className="bg-[#fff8f0] rounded-t-lg">
-              <CardTitle className="text-xl text-[#3c2a14] flex items-center">
-                <Shield className="h-5 w-5 mr-2 text-[#ff5e14]" />
-                Transfer Jar Ownership
-              </CardTitle>
-              <CardDescription className="text-[#8b7355]">
-                Transfer ownership of this jar to another address
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="space-y-4">
-                <div className="bg-[#fff8f0] p-4 rounded-lg mb-4">
-                  <p className="text-[#3c2a14] font-medium">Jar Administration</p>
-                  <p className="text-sm text-[#8b7355] mt-1">
-                    {isCurrentUserOwner
-                      ? "You have JAR_OWNER role for this jar"
-                      : "You do not have JAR_OWNER role for this jar"}
-                  </p>
-                </div>
-
-                <div className="space-y-2">
-                  <label htmlFor="newOwner" className="text-[#ff5e14] font-medium">
-                    New Owner Address
-                  </label>
-                  <Input
-                    id="newOwner"
-                    placeholder="0x..."
-                    value={newJarOwner}
-                    onChange={(e) => setNewJarOwner(e.target.value)}
-                    className="border-[#f0e6d8] bg-white text-[#3c2a14]"
-                    disabled={isTransferring}
-                  />
-                  <p className="text-sm text-[#8b7355]">The new address will have full owner rights to this jar</p>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter className="bg-[#fff8f0] p-4 rounded-b-lg flex justify-end">
-              <Button
-                onClick={handleTransferJarOwnership}
-                className="bg-[#ff5e14] hover:bg-[#e54d00] text-white"
-                disabled={!newJarOwner || !newJarOwner.startsWith("0x") || isTransferring}
-              >
-                {isTransferring ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Transferring...
-                  </>
-                ) : (
-                  "Transfer Ownership"
-                )}
-              </Button>
-            </CardFooter>
-          </Card>
-        </TabsContent> */}
 
         <TabsContent value="access" className="mt-0">
           <Card className="border-none shadow-sm">
@@ -511,8 +144,7 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
               </CardDescription>
             </CardHeader>
             <CardContent className="p-6">
-              {/* <AllowlistManagement cookieJarAddress={address as `0x${string}`} /> */}
-              <p className="text-[#8b7355]">Allowlist management component not available</p>
+              <AllowlistManagement cookieJarAddress={address as `0x${string}`} />
             </CardContent>
           </Card>
         </TabsContent>
@@ -583,77 +215,6 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="nft" className="mt-0">
-          <Card className="border-none shadow-sm">
-            <CardHeader className="bg-[#fff8f0] rounded-t-lg">
-              <CardTitle className="text-xl text-[#3c2a14] flex items-center">
-                <Tag className="h-5 w-5 mr-2 text-[#ff5e14]" />
-                NFT Gate Management
-              </CardTitle>
-              <CardDescription className="text-[#8b7355]">
-                Control access to the jar using NFT ownership
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="p-6">
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label htmlFor="nftAddress" className="text-[#ff5e14] font-medium">
-                      NFT Contract Address
-                    </label>
-                    <Input
-                      id="nftAddress"
-                      placeholder="0x..."
-                      value={nftAddress}
-                      onChange={(e) => setNftAddress(e.target.value)}
-                      className="border-[#f0e6d8] bg-white text-[#3c2a14]"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <label htmlFor="nftType" className="text-[#ff5e14] font-medium">
-                      NFT Type & Token ID
-                    </label>
-                    <div className="flex gap-2">
-                      <Select onValueChange={setNftTokenId}>
-                        <SelectTrigger className="border-[#f0e6d8] bg-white text-[#3c2a14]">
-                          <SelectValue placeholder="Select NFT Type" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {Object.entries(NFTType)
-                            .filter(([key]) => isNaN(Number(key)))
-                            .map(([key, value]) => (
-                              <SelectItem key={value} value={String(value)}>
-                                {key}
-                              </SelectItem>
-                            ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-            <CardFooter className="bg-[#fff8f0] p-4 rounded-b-lg flex justify-between">
-              <Button
-                onClick={handleRemoveNFTGate}
-                variant="outline"
-                className="border-[#f0e6d8] text-[#8b7355] hover:bg-[#fff0e0] hover:text-[#ff5e14]"
-                disabled={!nftAddress || !nftAddress.startsWith("0x")}
-              >
-                Remove NFT Gate
-              </Button>
-
-              <Button
-                onClick={handleAddNFTGate}
-                className="bg-[#ff5e14] hover:bg-[#e54d00] text-white"
-                disabled={!nftAddress || !nftAddress.startsWith("0x") || !nftTokenId}
-              >
-                Add NFT Gate
-              </Button>
-            </CardFooter>
-          </Card>
-        </TabsContent>
       </Tabs>
     </div>
   )

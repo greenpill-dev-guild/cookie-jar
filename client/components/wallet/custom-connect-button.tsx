@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/design/use-toast";
+import { useToast } from "@/hooks/useToast";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Loader2 } from "lucide-react";
 import { memo, useState, useEffect } from "react";

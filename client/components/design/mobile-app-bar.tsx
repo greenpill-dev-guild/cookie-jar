@@ -6,7 +6,7 @@ import Link from 'next/link'
 import { Cookie, ChefHat, User } from 'lucide-react'
 import { cn } from '@/lib/utils/utils'
 import { useIsMobile } from '@/components/ui/use-mobile'
-import { useNavigateToTop } from '@/hooks/use-navigate-to-top'
+import { useNavigateToTop } from '@/hooks/useNavigateToTop'
 
 const mobileNavItems = [
   { name: "Jars", href: "/jars", icon: Cookie },

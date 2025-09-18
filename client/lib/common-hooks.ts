@@ -6,7 +6,7 @@
  */
 
 import { useState, useEffect, useCallback, useRef } from 'react'
-import { useToast } from '@/hooks/design/use-toast'
+import { useToast } from '@/hooks/useToast'
 
 /**
  * Common async operation states

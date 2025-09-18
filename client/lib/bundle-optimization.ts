@@ -208,8 +208,8 @@ export const ComponentLoader = {
         () => import('@/components/forms/NFTSelector')
       ],
       '/jar/[address]': [
-        () => import('@/components/protocol/ProtocolAwareWithdrawal'),
-        () => import('@/components/users/ConfigView')
+        () => import('@/components/users/AllowlistWithdrawalSection'),
+        () => import('@/components/users/NFTGatedWithdrawalSection')
       ],
       '/admin': [
         () => import('@/components/admin/AdminFunctions')

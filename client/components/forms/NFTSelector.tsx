@@ -7,8 +7,6 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { useUserNfts } from '@/hooks/useUserNfts'
 import type { UserNFT } from '@/hooks/useUserNfts'
-import { VirtualGrid, VirtualGridLoadingPlaceholder, VirtualGridEmptyState } from '@/components/design/virtual-grid'
-import { useCachedAsyncData } from '@/hooks/useCache'
 
 export interface SelectedNFT {
   contractAddress: string

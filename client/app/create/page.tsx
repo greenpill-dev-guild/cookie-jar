@@ -25,8 +25,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { LoadingOverlay } from "@/components/design/loading-overlay"
 import { AlertCircle } from "lucide-react"
 import { MemoizedCustomConnectButton } from "@/components/wallet/custom-connect-button"
-import { useToast } from "@/hooks/design/use-toast"
-import { ErrorBoundary } from "@/components/design/error-boundary"
+import { useToast } from "@/hooks/useToast"
+import { ProtocolErrorBoundary } from "@/components/design/protocol-error-boundary"
 import { ProtocolGateSelector } from "@/components/protocol/ProtocolGateSelector"
 import { NFTGateInput } from "@/components/forms/NFTGateInput"
 import { shortenAddress } from "@/lib/utils/utils"
@@ -1179,7 +1179,7 @@ export default function CreateCookieJarForm() {
   }, [isConnected, address, pendingSubmission, showWalletModal])
 
   return (
-    <ErrorBoundary>
+    <ProtocolErrorBoundary protocolName="Cookie Jar Creation" maxRetries={2} showDetails={process.env.NODE_ENV === 'development'}>
       <div className="max-w-2xl mx-auto">
             <div className="mb-6">
               <div className="flex items-center justify-between mb-2">
@@ -1371,6 +1371,6 @@ export default function CreateCookieJarForm() {
             }
           />
         )}
-    </ErrorBoundary>
+    </ProtocolErrorBoundary>
   )
 }

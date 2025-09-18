@@ -10,7 +10,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
-import { useToast } from "@/hooks/design/use-toast";
+import { useToast } from "@/hooks/useToast";
 import { useReadContract, useWriteContract, useChainId } from "wagmi";
 import { cookieJarAbi } from "@/generated";
 import { cookieJarV1Abi } from "@/lib/abis/cookie-jar-v1-abi";
