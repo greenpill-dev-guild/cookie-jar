@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /// @title CookieJarFactory
 /// @notice A factory contract to deploy "cookie jars" for users.
-/// @notice A cookie jar is a contract that allows users to deposit funds, and create a whitelist for users that can "claim", example airdrops.
+/// @notice A cookie jar is a contract that allows users to deposit funds, and create an allowlist for users that can "claim", example airdrops.
 /// @notice DO NOT DIRECTLY SEND FUNDS TO THIS CONTRACT, USE DEPOSIT FUNCTIONS TO DEPOSIT AND STORE THE DATA IN THIS CONTRACT.
 /// @dev Handles Protocol Access Control and jar deployments.
 contract CookieJarFactory is AccessControl {
@@ -116,81 +116,6 @@ contract CookieJarFactory is AccessControl {
 
     // --- Public Functions ---
 
-    /// @notice Creates a new CookieJar contract and updates jar data in CookieJarRegistry.
-    /// @notice Currently only one currency ERC20 is supported.
-    /// @notice Creator needs to call deposit function before creating a jar, and all the funds deposited will be sent to new jar.
-    /// @param _cookieJarOwner Address of the new CookieJar owner.
-    /// @param _supportedCurrency Address of the supported currency for the jar CookieJarLib.ETH_ADDRESS if native ETH.
-    /// @param _accessType Claim mode: Whitelist or NFTGated.
-    /// @param _nftAddresses Array of NFT contract addresses (only for NFTGated mode).
-    /// @param _nftTypes Array of NFT types corresponding to _nftAddresses.
-    /// @param _withdrawalOption Fixed or Variable withdrawal type.
-    /// @param _fixedAmount Withdrawal amount if Fixed.
-    /// @param _maxWithdrawal Maximum allowed withdrawal if Variable.
-    /// @param _withdrawalInterval Time interval between withdrawals.
-    /// @param _strictPurpose If true, requires a purpose length ≥20 characters.
-    /// @param _emergencyWithdrawalEnabled If true, emergency withdrawal is enabled.
-    /// @param metadata Optional metadata for off-chain tracking.
-    function createCookieJar(
-        address _cookieJarOwner,
-        address _supportedCurrency,
-        CookieJarLib.AccessType _accessType,
-        address[] calldata _nftAddresses,
-        CookieJarLib.NFTType[] calldata _nftTypes,
-        CookieJarLib.WithdrawalTypeOptions _withdrawalOption,
-        uint256 _fixedAmount,
-        uint256 _maxWithdrawal,
-        uint256 _withdrawalInterval,
-        bool _strictPurpose,
-        bool _emergencyWithdrawalEnabled,
-        bool _oneTimeWithdrawal,
-        address[] calldata _whitelist,
-        string calldata metadata
-    ) external onlyNotBlacklisted(msg.sender) returns (address) {
-        // Validate metadata
-        if (bytes(metadata).length == 0) revert CookieJarFactory__InvalidMetadata();
-        if (bytes(metadata).length > 8192) revert CookieJarFactory__MetadataTooLong();
-
-        uint256 minDeposit = minETHDeposit;
-        if (_supportedCurrency != CookieJarLib.ETH_ADDRESS) {
-            if (ERC20(_supportedCurrency).decimals() == 0) revert CookieJarFactory__NotValidERC20();
-            minDeposit = minERC20Deposit;
-        }
-        // Create configuration structs to avoid stack too deep
-        CookieJarLib.JarConfig memory config = CookieJarLib.JarConfig({
-            jarOwner: _cookieJarOwner,
-            supportedCurrency: _supportedCurrency,
-            accessType: _accessType,
-            withdrawalOption: _withdrawalOption,
-            fixedAmount: _fixedAmount,
-            maxWithdrawal: _maxWithdrawal,
-            withdrawalInterval: _withdrawalInterval,
-            minDeposit: minDeposit,
-            feePercentageOnDeposit: defaultFeePercentage,
-            strictPurpose: _strictPurpose,
-            feeCollector: defaultFeeCollector,
-            emergencyWithdrawalEnabled: _emergencyWithdrawalEnabled,
-            oneTimeWithdrawal: _oneTimeWithdrawal
-        });
-
-        CookieJarLib.AccessConfig memory accessConfig = CookieJarLib.AccessConfig({
-            nftAddresses: _nftAddresses,
-            nftTypes: _nftTypes,
-            whitelist: _whitelist
-        });
-
-        CookieJar newJar = new CookieJar(config, accessConfig);
-
-        address jarAddress = address(newJar);
-        uint256 newIndex = cookieJars.length; // Pre-calculate index
-        cookieJars.push(jarAddress);
-        metadatas.push(metadata);
-        jarIndex[jarAddress] = newIndex; // Use pre-calculated index
-
-        emit CookieJarCreated(msg.sender, jarAddress, metadata);
-        return jarAddress;
-    }
-
     function getCookieJars() external view returns (address[] memory) {
         return cookieJars;
     }
@@ -243,11 +168,10 @@ contract CookieJarFactory is AccessControl {
         }
     }
 
-    /// @notice Creates a new CookieJar contract with custom fee percentage (legacy interface)
-    /// @dev This function provides backward compatibility by delegating to the optimized version
+    /// @notice Creates a new CookieJar contract with custom fee percentage
     /// @param _cookieJarOwner Address of the new CookieJar owner.
     /// @param _supportedCurrency Address of the supported currency for the jar CookieJarLib.ETH_ADDRESS if native ETH.
-    /// @param _accessType Claim mode: Whitelist or NFTGated.
+    /// @param _accessType Claim mode: Allowlist or NFTGated.
     /// @param _nftAddresses Array of NFT contract addresses (only for NFTGated mode).
     /// @param _nftTypes Array of NFT types corresponding to _nftAddresses.
     /// @param _withdrawalOption Fixed or Variable withdrawal type.
@@ -257,7 +181,7 @@ contract CookieJarFactory is AccessControl {
     /// @param _strictPurpose If true, requires a purpose length ≥20 characters.
     /// @param _emergencyWithdrawalEnabled If true, emergency withdrawal is enabled.
     /// @param _oneTimeWithdrawal If true, each recipient can only claim from the jar once.
-    /// @param _whitelist Array of whitelisted addresses.
+    /// @param _allowlist Array of allowlisted addresses.
     /// @param metadata Optional metadata for off-chain tracking.
     /// @param customFeePercentage Custom fee percentage for this jar (0-10000, where 10000 = 100%)
     function createCookieJarWithFee(
@@ -273,41 +197,86 @@ contract CookieJarFactory is AccessControl {
         bool _strictPurpose,
         bool _emergencyWithdrawalEnabled,
         bool _oneTimeWithdrawal,
-        address[] calldata _whitelist,
+        address[] calldata _allowlist,
         string calldata metadata,
         uint256 customFeePercentage
     ) external onlyNotBlacklisted(msg.sender) returns (address) {
-        // Create structs in assembly to minimize stack usage
-        CookieJarLib.CreateJarParams memory params;
-        params.cookieJarOwner = _cookieJarOwner;
-        params.supportedCurrency = _supportedCurrency;
-        params.accessType = _accessType;
-        params.withdrawalOption = _withdrawalOption;
-        params.fixedAmount = _fixedAmount;
-        params.maxWithdrawal = _maxWithdrawal;
-        params.withdrawalInterval = _withdrawalInterval;
-        params.strictPurpose = _strictPurpose;
-        params.emergencyWithdrawalEnabled = _emergencyWithdrawalEnabled;
-        params.oneTimeWithdrawal = _oneTimeWithdrawal;
-        params.metadata = metadata;
-        params.customFeePercentage = customFeePercentage;
-
-        CookieJarLib.AccessConfig memory accessConfig;
-        accessConfig.nftAddresses = _nftAddresses;
-        accessConfig.nftTypes = _nftTypes;
-        accessConfig.whitelist = _whitelist;
-
-        return _createJarInternal(params, accessConfig);
+        return _createJarInternal(
+            CookieJarLib.CreateJarParams({
+                cookieJarOwner: _cookieJarOwner,
+                supportedCurrency: _supportedCurrency,
+                accessType: _accessType,
+                withdrawalOption: _withdrawalOption,
+                fixedAmount: _fixedAmount,
+                maxWithdrawal: _maxWithdrawal,
+                withdrawalInterval: _withdrawalInterval,
+                strictPurpose: _strictPurpose,
+                emergencyWithdrawalEnabled: _emergencyWithdrawalEnabled,
+                oneTimeWithdrawal: _oneTimeWithdrawal,
+                metadata: metadata,
+                customFeePercentage: customFeePercentage
+            }),
+            CookieJarLib.AccessConfig({
+                nftAddresses: _nftAddresses,
+                nftTypes: _nftTypes,
+                allowlist: _allowlist,
+                poapReq: CookieJarLib.POAPRequirement(0, address(0)),
+                unlockReq: CookieJarLib.UnlockRequirement(address(0)),
+                hypercertReq: CookieJarLib.HypercertRequirement(address(0), 0, 1),
+                hatsReq: CookieJarLib.HatsRequirement(0, address(0))
+            })
+        );
     }
 
-    /// @notice Optimized jar creation function using parameter structs (eliminates stack too deep)
-    /// @param params Grouped jar configuration parameters
-    /// @param accessConfig Access control settings (NFTs and whitelist)
-    /// @return jarAddress Address of the newly created CookieJar
+    /// @notice Creates a new CookieJar contract using default fee percentage
+    function createCookieJar(
+        address _cookieJarOwner,
+        address _supportedCurrency,
+        CookieJarLib.AccessType _accessType,
+        address[] calldata _nftAddresses,
+        CookieJarLib.NFTType[] calldata _nftTypes,
+        CookieJarLib.WithdrawalTypeOptions _withdrawalOption,
+        uint256 _fixedAmount,
+        uint256 _maxWithdrawal,
+        uint256 _withdrawalInterval,
+        bool _strictPurpose,
+        bool _emergencyWithdrawalEnabled,
+        bool _oneTimeWithdrawal,
+        address[] calldata _allowlist,
+        string calldata metadata
+    ) external onlyNotBlacklisted(msg.sender) returns (address) {
+        return _createJarInternal(
+            CookieJarLib.CreateJarParams({
+                cookieJarOwner: _cookieJarOwner,
+                supportedCurrency: _supportedCurrency,
+                accessType: _accessType,
+                withdrawalOption: _withdrawalOption,
+                fixedAmount: _fixedAmount,
+                maxWithdrawal: _maxWithdrawal,
+                withdrawalInterval: _withdrawalInterval,
+                strictPurpose: _strictPurpose,
+                emergencyWithdrawalEnabled: _emergencyWithdrawalEnabled,
+                oneTimeWithdrawal: _oneTimeWithdrawal,
+                metadata: metadata,
+                customFeePercentage: 0 // Use default fee
+            }),
+            CookieJarLib.AccessConfig({
+                nftAddresses: _nftAddresses,
+                nftTypes: _nftTypes,
+                allowlist: _allowlist,
+                poapReq: CookieJarLib.POAPRequirement(0, address(0)),
+                unlockReq: CookieJarLib.UnlockRequirement(address(0)),
+                hypercertReq: CookieJarLib.HypercertRequirement(address(0), 0, 1),
+                hatsReq: CookieJarLib.HatsRequirement(0, address(0))
+            })
+        );
+    }
+
+    /// @notice Optimized jar creation using parameter structs
     function createCookieJarOptimized(
         CookieJarLib.CreateJarParams calldata params,
         CookieJarLib.AccessConfig calldata accessConfig
-    ) external onlyNotBlacklisted(msg.sender) returns (address jarAddress) {
+    ) external onlyNotBlacklisted(msg.sender) returns (address) {
         return _createJarInternal(params, accessConfig);
     }
 

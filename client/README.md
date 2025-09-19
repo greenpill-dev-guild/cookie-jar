@@ -13,9 +13,13 @@ Cookie Jar is a platform that enables teams, communities, and organizations to m
 
 ## Key Features
 
-### Dual Access Control
+### Multi-Protocol Access Control
 - **Allowlist Mode**: Only pre-approved addresses can access funds
-- **NFT-Gated Mode**: Access is granted to holders of specific NFTs (supports ERC721, ERC1155)
+- **NFT-Gated Mode**: Access granted to holders of specific NFTs (supports ERC721, ERC1155)
+- **POAP Mode**: Access granted to holders of specific POAP event badges
+- **Unlock Protocol Mode**: Access granted to members with valid keys from Unlock Protocol locks
+- **Hypercert Mode**: Access granted to holders of specific impact certificates with minimum balance requirements
+- **Hats Protocol Mode**: Access granted to users wearing specific organizational roles/hats
 
 ### Configurable Withdrawals
 - **Fixed Amount**: Everyone withdraws the same predefined amount each time
@@ -86,6 +90,16 @@ cookie-jar-v3/
 │   │   ├── checkbox.tsx
 │   │   ├── input.tsx
 │   │   └── ...
+│   ├── forms/                # Form-related components
+│   │   ├── NFTGateInput.tsx  # NFT address input with validation
+│   │   └── NFTSelector.tsx   # Visual NFT selection grid
+│   ├── protocol/             # Protocol-specific components
+│   │   ├── POAPGateConfig.tsx        # POAP event configuration
+│   │   ├── UnlockGateConfig.tsx      # Unlock Protocol configuration
+│   │   ├── HypercertGateConfig.tsx   # Hypercert configuration
+│   │   ├── HatsGateConfig.tsx        # Hats Protocol configuration
+│   │   ├── ProtocolGateSelector.tsx  # Unified access method selector
+│   │   └── ProtocolAwareWithdrawal.tsx # Dynamic withdrawal UI
 │   ├── users/                # Jar User-related components
 │   │   ├── ConfigDetailsSection.tsx
 │   │   ├── ConfigItem.tsx
@@ -93,7 +107,7 @@ cookie-jar-v3/
 │   │   ├── CountdownTimer.tsx
 │   │   ├── FundingSection.tsx
 │   │   ├── NFTGatedWithdrawalSection.tsx
-│   │   ├── AllowlistWithdrawalSection.tsx
+│   │   ├── WhitelistWithdrawalSection.tsx
 │   │   └── WithdrawlHistorySection.tsx
 │   └── wallet/               # Wallet-related components
 │       ├── custom-connect-button.tsx
@@ -102,12 +116,20 @@ cookie-jar-v3/
 │       └── wallet-auth-layer.tsx
 |
 ├── hooks/                   
-│   |
-│   ├── wallet/               # Wallet-related hooks
-│   │   └── use-wagmi.tsx
+│   ├── design/               # Design-related hooks
+│   │   ├── use-mobile.tsx    # Mobile detection
+│   │   └── use-toast.ts      # Toast notifications
+│   ├── protocol/             # Protocol-specific hooks
+│   │   ├── usePoapEvents.ts  # POAP event search and validation
+│   │   ├── useUnlockLocks.ts # Unlock Protocol membership validation
+│   │   ├── useHypercerts.ts  # Hypercert verification
+│   │   └── useHats.ts        # Hats Protocol role validation
+│   ├── useNftValidation.ts   # NFT contract validation via EIP-165
+│   ├── useUserNfts.ts        # User NFT collection fetching (Alchemy)
 │   ├── use-cookie-jar.ts     # Jar interaction hook
 │   ├── use-cookie-jar-factory.ts
-│   └── use-cookie-jar-registry.ts
+│   ├── use-cookie-jar-registry.ts
+│   └── use-whitelist-status.ts
 ├── lib/                      # Utility libraries
 │   └── utils/                # Utility functions
 │       ├── format.ts         # Formatting utilities
@@ -128,10 +150,15 @@ cookie-jar-v3/
 - **RainbowKit**: Wallet connection UI
 - **wagmi**: React hooks for Ethereum
 
-### Blockchain
+### Blockchain & Web3 Integrations
 - **Solidity**: Smart contract language
-- **ethers.js/viem**: Ethereum library
+- **viem**: Ethereum library for TypeScript
 - **WAGMI**: React hooks for Ethereum
+- **POAP API**: For event attendance verification
+- **Unlock Protocol**: For membership-based access control
+- **Hypercerts**: For impact certificate verification
+- **Hats Protocol**: For organizational role management
+- **Alchemy API**: For NFT collection data and validation
 
 ### Supported Networks
 - Base
@@ -140,19 +167,61 @@ cookie-jar-v3/
 - Base Sepolia (Testnet)
 - Arbitrum (coming soon)
 
+## Testing Infrastructure
+
+### Frontend Tests
+- **Jest**: Unit testing framework
+- **React Testing Library**: Component testing utilities
+- **User Event**: User interaction simulation
+- **Comprehensive Test Coverage**: Hooks, components, and protocol integrations
+
+#### Test Organization
+```
+client/__tests__/
+├── hooks/                    # Hook unit tests
+│   ├── useNftValidation.test.ts     # NFT validation logic
+│   ├── useUserNfts.test.ts          # Alchemy NFT fetching
+│   └── usePoapEvents.test.ts        # POAP event handling
+├── components/               # Component tests
+│   ├── NFTGateInput.test.tsx        # NFT input validation
+│   ├── ProtocolGateSelector.test.tsx # Access method selection
+│   └── ProtocolAwareWithdrawal.test.tsx # Dynamic withdrawal UI
+└── utils/                    # Utility tests
+    └── ProtocolValidation.test.ts   # Validation helpers
+```
+
+### Contract Tests
+- **Foundry**: Solidity testing framework
+- **Mock Contracts**: For protocol integration testing
+- **Comprehensive Coverage**: All access types and withdrawal methods
+
+#### Contract Test Organization
+```
+contracts/test/
+├── CookieJar.t.sol          # Core functionality tests
+└── CookieJarProtocols.t.sol # Multi-protocol access tests
+```
+
 ## Smart Contracts
 
 ### CookieJar.sol
-The main contract that implements all the jar functionality, including deposits, withdrawals, and access control.
+The main contract implementing comprehensive jar functionality with multi-protocol access control:
+- **Core Features**: Deposits, withdrawals, access control, purpose tracking
+- **Access Types**: Allowlist, NFT-gated, POAP, Unlock Protocol, Hypercerts, Hats Protocol
+- **Withdrawal Methods**: `withdrawAllowlistMode`, `withdrawNFTMode`, `withdrawPOAPMode`, `withdrawUnlockMode`, `withdrawHypercertMode`, `withdrawHatsMode`
+- **Protocol Integration**: Built-in support for external protocol verification
 
 ### CookieJarFactory.sol
-A factory contract for creating new CookieJar instances and maintaining a registry of all created jars.
+Factory contract for creating new CookieJar instances with multi-protocol support:
+- **Jar Creation**: Handles complex access configuration for all supported protocols
+- **Registry Integration**: Maintains comprehensive jar registry
+- **Access Configuration**: Supports all 6 access control methods
 
-### CookieJarRegistry.sol
-A registry contract that stores metadata about all created jars.
-
-### ICookieJar.sol
-An interface defining the core structures and events for the CookieJar contract.
+### CookieJarLib.sol
+Library containing core data structures and constants:
+- **Access Types**: `Whitelist`, `NFTGated`, `POAP`, `Unlock`, `Hypercert`, `Hats`
+- **Protocol Requirements**: Dedicated structs for each protocol's specific needs
+- **Error Handling**: Custom errors for secure transaction processing
 
 ## Getting Started
 

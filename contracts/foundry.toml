@@ -1,13 +1,16 @@
 [profile.default]
 via_ir = true
 optimizer = true
-optimizer_runs = 1000
+optimizer_runs = 200
 src = "src"
 out = "out"
 libs = ["lib"]
 remappings = [
     "openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/"
 ]
+# Load environment variables from root directory
+env_file = "../.env.local"
+dot_env = "../.env.local"
 
 # Lightweight profile for quick compilation (no CREATE2)
 [profile.lite]
@@ -20,6 +23,9 @@ libs = ["lib"]
 remappings = [
     "openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/"
 ]
+# Load environment variables from root directory  
+env_file = "../.env.local"
+dot_env = "../.env.local"
 PRIVATE_KEY = "${PRIVATE_KEY}"
 RPC_URL = "${RPC_URL}"
 # Allow writing deployment files for local development

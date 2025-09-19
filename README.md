@@ -2,6 +2,24 @@
 
 Cookie Jar is a decentralized funding protocol that enables controlled distribution of ETH or ERC20 tokens from shared pools. The system uses smart contracts to manage access control (via allowlists or NFT ownership) and periodic withdrawal limits, creating transparent and permissioned funding mechanisms for DAOs and communities.
 
+## 🚀 Quick Start
+
+**Zero configuration needed!** Get started in 3 commands:
+
+```bash
+git clone https://github.com/greenpill-dev-guild/cookie-jar.git
+cd cookie-jar && pnpm install
+pnpm dev
+```
+
+**That's it!** Open http://localhost:3000 and explore 4 pre-seeded demo jars with Cookie Monster NFTs! 🍪
+
+> **✨ What happens during `pnpm install`:**
+> - Installs all Node.js dependencies for both client and contracts
+> - Automatically initializes git submodules (Foundry dependencies)
+> - Runs `forge install` to set up smart contract libraries
+> - Sets up the complete development environment
+
 ## 📋 Prerequisites
 
 Before getting started, ensure you have the following installed:
@@ -18,7 +36,7 @@ Before getting started, ensure you have the following installed:
 
 ### Optional (for enhanced development)
 - **VS Code** with Solidity extension
-- **Metamask** or compatible Web3 wallet
+- **Web3 Wallet**: [MetaMask](https://metamask.io/), [Rabby](https://rabby.io/), or [Coinbase Wallet](https://www.coinbase.com/wallet)
 - **Docker** (for alternative development setup)
 
 ### System Requirements
@@ -26,39 +44,63 @@ Before getting started, ensure you have the following installed:
 - **Storage**: 2GB free space
 - **OS**: macOS, Linux, or Windows (WSL2 recommended)
 
-## 🚀 Quick Start
+## 💻 Development Options
 
-**Zero configuration needed!** This project uses **pnpm workspaces** for monorepo management with friction-free local development:
+**Choose your development mode:**
 
 ```bash
-# 1. Clone the repository
-git clone https://github.com/greenpill-dev-guild/cookie-jar.git
-cd cookie-jar
-
-# 2. Install all dependencies (contracts + client)
+# 1. Install dependencies
 pnpm install
 
-# 3. Start the full development environment (no .env setup required!)
-pnpm dev
-
-# Or start with mainnet fork (slower but has real state)
-pnpm dev:fork
+# 2. Choose your development environment:
+pnpm dev                   # Local development (fastest)
+pnpm dev:ethereum          # Fork Ethereum mainnet
+pnpm dev:celo              # Fork Celo network
+pnpm dev:base-sepolia      # Fork Base Sepolia testnet
 ```
 
-**That's it!** The development environment automatically:
-- ✅ Uses hardcoded Anvil Account #0 (funded with 1000 ETH)
-- ✅ No `.env` files or private keys to configure initially
-- ✅ Safe by design (only works on local chain ID 31337)
-- ✅ **Auto-deploys Cookie Monster NFTs** for testing NFT-gated jars!
-- ✅ **Pre-seeds 4 demo jars** with different configurations
-
-This single command will:
-- ✅ Start Anvil (local blockchain) with Ethereum mainnet fork
-- ✅ Deploy contracts automatically
-- ✅ **Seed demo environment with Cookie Monster NFTs & 4 demo jars**
-- ✅ Watch for contract changes and auto-redeploy
-- ✅ Start client dev server with hot reload
+**What happens automatically:**
+- ✅ Start Anvil (local blockchain) 
+- ✅ Deploy contracts with deterministic addresses
+- ✅ Seed demo environment with Cookie Monster NFTs & 4 demo jars
+- ✅ Watch for contract changes and auto-redeploy  
+- ✅ Start client dev server with hot reload (Turbo mode)
 - ✅ Generate TypeScript types automatically
+- ✅ Uses hardcoded Anvil Account #0 (safe for local development)
+
+## 🎭 Demo Environment Showcase
+
+When you run any `pnpm dev` command, you get **4 pre-configured demo jars** ready for testing:
+
+### 1. **🏛️ Community Stipend** 
+- **Access**: Whitelist-gated (pre-approved addresses)
+- **Token**: ETH 
+- **Withdrawals**: Fixed amount, periodic intervals
+- **Use Case**: Regular community payments, DAO member stipends
+- **Status**: ✅ Ready to test
+
+### 2. **💰 Grants Program**
+- **Access**: Whitelist-gated (committee members)
+- **Token**: DEMO ERC20 tokens
+- **Withdrawals**: Variable amounts (admin controlled)
+- **Use Case**: Flexible grant distributions, project funding
+- **Status**: ✅ Ready to test
+
+### 3. **🍪 Cookie Monster Benefits** 
+- **Access**: NFT-gated (Cookie Monster NFT holders)
+- **Token**: ETH
+- **Withdrawals**: Variable amounts 
+- **Use Case**: NFT holder perks, community rewards
+- **Status**: ✅ Ready to test (NFTs auto-minted to test accounts)
+
+### 4. **🎁 Cookie Monster Airdrop**
+- **Access**: NFT-gated (Cookie Monster NFT holders)
+- **Token**: DEMO ERC20 tokens
+- **Withdrawals**: One-time only per address
+- **Use Case**: Exclusive airdrops, limited distributions  
+- **Status**: ✅ Ready to test
+
+> **💡 Pro Tip**: Use the pre-funded test accounts below to try different access patterns!
 
 ## 📦 Monorepo Structure
 
@@ -172,9 +214,14 @@ pnpm seed:demo
 **Auto-configured local blockchain (no setup required):**
 
 - **Local Blockchain**: `http://127.0.0.1:8545`
-- **Chain ID**: `31337` 
-- **Forked Network**: Ethereum Mainnet (or Celo with --fork flag)
+- **Chain ID**: `31337`
+- **Available Modes**:
+  - `pnpm dev` - Pure local mode (fastest)
+  - `pnpm dev:ethereum` - Ethereum mainnet fork  
+  - `pnpm dev:celo` - Celo network fork
+  - `pnpm dev:base-sepolia` - Base Sepolia testnet fork
 - **Auto-funded Accounts**: 10 accounts, each with 1000 ETH
+- **Deployment**: Deterministic CREATE2 addresses (same every time)
 
 ### 🔑 Pre-funded Test Accounts
 
@@ -191,9 +238,14 @@ pnpm seed:demo
 ## 🛠️ Available Commands
 
 ```bash
+# Setup & Installation  
+pnpm install               # Install all dependencies (automatically initializes submodules and forge)
+
 # Development
-pnpm dev                   # Start full development environment
-pnpm dev:fork              # Start with mainnet fork
+pnpm dev                   # Local development (fastest)
+pnpm dev:ethereum          # Fork Ethereum mainnet  
+pnpm dev:celo              # Fork Celo network
+pnpm dev:base-sepolia      # Fork Base Sepolia testnet
 
 # Build commands  
 pnpm build                 # Build both contracts + client
@@ -205,19 +257,26 @@ pnpm test                  # Test both contracts + client
 pnpm test:contracts        # Test only contracts
 pnpm test:client           # Test only client
 
-# Linting
+# Code Quality
 pnpm lint                  # Lint both contracts + client
 pnpm lint:contracts        # Lint only contracts  
 pnpm lint:client           # Lint only client
+pnpm format                # Format both contracts + client
+pnpm format:contracts      # Format only contracts
+pnpm format:client         # Format only client
 
 # Deployment & Management
 pnpm deploy:local          # Deploy contracts to local Anvil
+pnpm deploy:ethereum       # Deploy to Ethereum mainnet
+pnpm deploy:celo           # Deploy to Celo network
+pnpm deploy:base-sepolia   # Deploy to Base Sepolia testnet
 pnpm seed:demo             # Seed demo environment with test data
 pnpm seed:reset            # Reset and restart development environment
 pnpm copy:deployment       # Copy deployment files to client
 pnpm generate              # Generate client types from contracts
 
-# Utilities
+# Development Tools
+pnpm contracts:watch       # Watch contracts for changes and auto-redeploy
 pnpm accounts:list         # List pre-funded test accounts
 pnpm sync:check            # Check deployment file synchronization
 pnpm clean                 # Clean both projects
@@ -263,14 +322,21 @@ contracts/
 3. Check Foundry installation: `forge --version`
 4. Reinstall dependencies: `rm -rf node_modules */node_modules && pnpm install`
 
+#### Submodule/Foundry Setup Issues
+1. **Missing forge-std or openzeppelin-contracts**: Run `git submodule update --init --recursive && cd contracts && forge install`
+2. **Git submodule errors**: Ensure git is installed and repository access is working
+3. **Forge command not found**: Install Foundry: `curl -L https://foundry.paradigm.xyz | bash && foundryup`
+4. **Permission errors during setup**: Check git credentials and repository access
+
 #### Wallet Connection Issues
-1. Add local network to MetaMask:
-   - Network Name: `Anvil Local`
-   - RPC URL: `http://127.0.0.1:8545`
-   - Chain ID: `31337`
-   - Currency Symbol: `ETH`
+1. Add local network to your Web3 wallet (MetaMask, Rabby, or Coinbase Wallet):
+   - **Network Name**: `Anvil Local`
+   - **RPC URL**: `http://127.0.0.1:8545`
+   - **Chain ID**: `31337`
+   - **Currency Symbol**: `ETH`
 2. Import test account using private key from table above
-3. Ensure you're on the correct network in MetaMask
+3. Ensure you're on the correct network in your wallet
+4. Try switching between wallets if connection issues persist
 
 ### Performance Issues
 - **Slow builds**: Increase Node.js memory: `export NODE_OPTIONS="--max_old_space_size=4096"`
@@ -284,26 +350,30 @@ Monitor development services:
 ```bash
 # View logs in real-time
 tail -f contracts/anvil.log          # Blockchain logs
-tail -f client/client-dev.log        # Client development logs
+tail -f contracts/client-dev.log     # Client development logs  
+tail -f contracts/watch-deploy.log   # Contract watcher logs
 
-# Check all logs
-pnpm logs
+# All log files are in contracts/ directory for easy access
 ```
 
 ## 🎯 Getting Started Guide
 
 1. **Prerequisites**: Install Node.js (18+), pnpm (8+), and Foundry
 2. **Clone & Install**: `git clone <repo> && cd cookie-jar && pnpm install`
-3. **Start Development**: `pnpm dev`
+3. **Start Development**: Choose your mode:
+   - `pnpm dev` - Local development (fastest)
+   - `pnpm dev:ethereum` - With Ethereum fork
+   - `pnpm dev:celo` - With Celo fork  
+   - `pnpm dev:base-sepolia` - With Base Sepolia fork
 4. **Open Client**: Navigate to http://localhost:3000  
-5. **Connect Wallet**: Add local network (Chain ID: 31337) to MetaMask
+5. **Connect Wallet**: Add local network (Chain ID: 31337) to your Web3 wallet
 6. **Import Test Account**: Use Account #0 private key from the table above
-7. **Explore Demo Jars**: 4 pre-seeded jars with different configurations
+7. **Explore Demo Jars**: 4 pre-seeded jars with different access patterns
 8. **Start Building**: Edit contracts in `contracts/src/` or client in `client/`
 
-### 🎉 That's It! 
+### 🎉 Zero Configuration Setup! 
 
-No complex environment files, no configuration hassles, no setup friction. Just clone, install, and develop! The hardcoded approach makes local development seamless while staying secure through chain ID restrictions.
+No complex environment files, no configuration hassles, no setup friction. Just clone, install, and develop! The unified scripts approach [[memory:8871571]] makes local development seamless while staying secure through chain ID restrictions.
 
 ## 🤝 Contributing
 

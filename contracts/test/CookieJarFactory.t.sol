@@ -20,7 +20,7 @@ contract CookieJarFactoryTest is Test {
     uint256 public withdrawalInterval = 1 days;
     bool public strictPurpose = true;
     address[] public users;
-    address[] public emptyWhitelist;
+    address[] public emptyAllowlist;
     HelperConfig.NetworkConfig config;
     ERC20Mock testToken;
 
@@ -31,7 +31,7 @@ contract CookieJarFactoryTest is Test {
         users = new address[](2);
         users[0] = user;
         users[1] = user2;
-        emptyWhitelist = new address[](0);
+        emptyAllowlist = new address[](0);
 
         testToken = new ERC20Mock();
         testToken.mint(user, 100e18);
@@ -61,7 +61,7 @@ contract CookieJarFactoryTest is Test {
         factory.createCookieJar(
             owner,
             address(3),
-            CookieJarLib.AccessType.Whitelist,
+            CookieJarLib.AccessType.Allowlist,
             emptyAddresses,
             emptyTypes,
             CookieJarLib.WithdrawalTypeOptions.Fixed,
@@ -71,7 +71,7 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true, // emergencyWithdrawalEnabled
             false,
-            emptyWhitelist,
+            emptyAllowlist,
             "Test Metadata"
         );
         address[] memory cookieJars = factory.getCookieJars();
@@ -103,7 +103,7 @@ contract CookieJarFactoryTest is Test {
         factory.createCookieJar(
             owner,
             address(3),
-            CookieJarLib.AccessType.Whitelist,
+            CookieJarLib.AccessType.Allowlist,
             emptyAddresses,
             emptyTypes,
             CookieJarLib.WithdrawalTypeOptions.Fixed,
@@ -113,21 +113,21 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true, // emergencyWithdrawalEnabled
             false,
-            emptyWhitelist,
+            emptyAllowlist,
             "Test Metadata"
         );
         address[] memory cookieJars = factory.getCookieJars();
         assertEq(cookieJars.length, 0);
     }
 
-    /// @notice Test creating a CookieJar in Whitelist mode and verifying registry creator.
-    function testCreateETHCookieJarWhitelist() public {
+    /// @notice Test creating a CookieJar in Allowlist mode and verifying registry creator.
+    function testCreateETHCookieJarAllowlist() public {
         vm.prank(user);
         address jarAddress = factory.createCookieJar(
             user,
             address(3),
             /// @dev address(3) for ETH jars.
-            CookieJarLib.AccessType.Whitelist,
+            CookieJarLib.AccessType.Allowlist,
             emptyAddresses,
             emptyTypes,
             CookieJarLib.WithdrawalTypeOptions.Fixed,
@@ -137,22 +137,22 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true, // emergencyWithdrawalEnabled
             false,
-            emptyWhitelist,
+            emptyAllowlist,
             "Test Metadata"
         );
-        assertTrue(CookieJar(payable(jarAddress)).accessType() == CookieJarLib.AccessType.Whitelist);
+        assertTrue(CookieJar(payable(jarAddress)).accessType() == CookieJarLib.AccessType.Allowlist);
         address[] memory cookieJars = factory.getCookieJars();
         assertEq(cookieJars.length, 1);
         assertEq(cookieJars[0], jarAddress);
     }
 
-    function testCreateERC20CookieJarWhitelist() public {
+    function testCreateERC20CookieJarAllowlist() public {
         vm.prank(user);
         address jarAddress = factory.createCookieJar(
             user,
             address(testToken),
             /// @dev address(3) for ETH jars.
-            CookieJarLib.AccessType.Whitelist,
+            CookieJarLib.AccessType.Allowlist,
             emptyAddresses,
             emptyTypes,
             CookieJarLib.WithdrawalTypeOptions.Fixed,
@@ -162,10 +162,10 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true, // emergencyWithdrawalEnabled
             false,
-            emptyWhitelist,
+            emptyAllowlist,
             "Test Metadata"
         );
-        assertTrue(CookieJar(payable(jarAddress)).accessType() == CookieJarLib.AccessType.Whitelist);
+        assertTrue(CookieJar(payable(jarAddress)).accessType() == CookieJarLib.AccessType.Allowlist);
         address[] memory cookieJars = factory.getCookieJars();
         assertEq(cookieJars.length, 1);
         assertEq(cookieJars[0], jarAddress);
@@ -192,7 +192,7 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true, // emergencyWithdrawalEnabled
             false,
-            emptyWhitelist,
+            emptyAllowlist,
             "Test Metadata"
         );
         assertTrue(CookieJar(payable(jarAddress)).accessType() == CookieJarLib.AccessType.NFTGated);
@@ -221,7 +221,7 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true, // emergencyWithdrawalEnabled
             false,
-            emptyWhitelist,
+            emptyAllowlist,
             "Test Metadata"
         );
         assertTrue(CookieJar(payable(jarAddress)).accessType() == CookieJarLib.AccessType.NFTGated);
@@ -248,7 +248,7 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true, // emergencyWithdrawalEnabled
             false,
-            emptyWhitelist,
+            emptyAllowlist,
             "Test Metadata"
         );
         address[] memory cookieJars = factory.getCookieJars();
@@ -263,7 +263,7 @@ contract CookieJarFactoryTest is Test {
         address jarAddress = factory.createCookieJar(
             user,
             address(3), // ETH
-            CookieJarLib.AccessType.Whitelist,
+            CookieJarLib.AccessType.Allowlist,
             emptyAddresses,
             emptyTypes,
             CookieJarLib.WithdrawalTypeOptions.Fixed,
@@ -273,7 +273,7 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true, // emergency withdrawal
             false, // one time withdrawal
-            emptyWhitelist,
+            emptyAllowlist,
             "Initial metadata"
         );
         vm.stopPrank();
@@ -298,7 +298,7 @@ contract CookieJarFactoryTest is Test {
         address jarAddress = factory.createCookieJar(
             user,
             address(3),
-            CookieJarLib.AccessType.Whitelist,
+            CookieJarLib.AccessType.Allowlist,
             emptyAddresses,
             emptyTypes,
             CookieJarLib.WithdrawalTypeOptions.Fixed,
@@ -308,7 +308,7 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true,
             false,
-            emptyWhitelist,
+            emptyAllowlist,
             "Initial metadata"
         );
         vm.stopPrank();
@@ -335,7 +335,7 @@ contract CookieJarFactoryTest is Test {
         address jarAddress = factory.createCookieJar(
             user,
             address(3),
-            CookieJarLib.AccessType.Whitelist,
+            CookieJarLib.AccessType.Allowlist,
             emptyAddresses,
             emptyTypes,
             CookieJarLib.WithdrawalTypeOptions.Fixed,
@@ -345,7 +345,7 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true,
             false,
-            emptyWhitelist,
+            emptyAllowlist,
             "Initial metadata"
         );
 
@@ -361,7 +361,7 @@ contract CookieJarFactoryTest is Test {
         address jarAddress = factory.createCookieJar(
             user,
             address(3),
-            CookieJarLib.AccessType.Whitelist,
+            CookieJarLib.AccessType.Allowlist,
             emptyAddresses,
             emptyTypes,
             CookieJarLib.WithdrawalTypeOptions.Fixed,
@@ -371,7 +371,7 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true,
             false,
-            emptyWhitelist,
+            emptyAllowlist,
             "Initial metadata"
         );
 
@@ -389,7 +389,7 @@ contract CookieJarFactoryTest is Test {
         address jarAddress = factory.createCookieJar(
             user,
             address(3),
-            CookieJarLib.AccessType.Whitelist,
+            CookieJarLib.AccessType.Allowlist,
             emptyAddresses,
             emptyTypes,
             CookieJarLib.WithdrawalTypeOptions.Fixed,
@@ -399,7 +399,7 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true,
             false,
-            emptyWhitelist,
+            emptyAllowlist,
             "Initial metadata"
         );
         vm.stopPrank();
@@ -422,7 +422,7 @@ contract CookieJarFactoryTest is Test {
         address jarAddress = factory.createCookieJar(
             user,
             address(3),
-            CookieJarLib.AccessType.Whitelist,
+            CookieJarLib.AccessType.Allowlist,
             emptyAddresses,
             emptyTypes,
             CookieJarLib.WithdrawalTypeOptions.Fixed,
@@ -432,7 +432,7 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true,
             false,
-            emptyWhitelist,
+            emptyAllowlist,
             originalMetadata
         );
         vm.stopPrank();
@@ -456,7 +456,7 @@ contract CookieJarFactoryTest is Test {
         address jarAddress = factory.createCookieJarWithFee(
             user,
             address(3),
-            CookieJarLib.AccessType.Whitelist,
+            CookieJarLib.AccessType.Allowlist,
             emptyAddresses,
             emptyTypes,
             CookieJarLib.WithdrawalTypeOptions.Fixed,
@@ -466,7 +466,7 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true,
             false,
-            emptyWhitelist,
+            emptyAllowlist,
             metadata,
             customFee
         );
@@ -493,7 +493,7 @@ contract CookieJarFactoryTest is Test {
         address jarAddress = factory.createCookieJarWithFee(
             user,
             address(3),
-            CookieJarLib.AccessType.Whitelist,
+            CookieJarLib.AccessType.Allowlist,
             emptyAddresses,
             emptyTypes,
             CookieJarLib.WithdrawalTypeOptions.Fixed,
@@ -503,7 +503,7 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true,
             false,
-            emptyWhitelist,
+            emptyAllowlist,
             "Test metadata",
             excessiveFee
         );
@@ -521,7 +521,7 @@ contract CookieJarFactoryTest is Test {
         address jarAddress = factory.createCookieJarWithFee(
             user,
             address(3),
-            CookieJarLib.AccessType.Whitelist,
+            CookieJarLib.AccessType.Allowlist,
             emptyAddresses,
             emptyTypes,
             CookieJarLib.WithdrawalTypeOptions.Fixed,
@@ -531,7 +531,7 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true,
             false,
-            emptyWhitelist,
+            emptyAllowlist,
             "Zero fee jar",
             zeroFee
         );
@@ -548,7 +548,7 @@ contract CookieJarFactoryTest is Test {
         factory.createCookieJarWithFee(
             user,
             address(3),
-            CookieJarLib.AccessType.Whitelist,
+            CookieJarLib.AccessType.Allowlist,
             emptyAddresses,
             emptyTypes,
             CookieJarLib.WithdrawalTypeOptions.Fixed,
@@ -558,7 +558,7 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true,
             false,
-            emptyWhitelist,
+            emptyAllowlist,
             "", // Empty metadata
             100
         );
@@ -572,7 +572,7 @@ contract CookieJarFactoryTest is Test {
         address jar1 = factory.createCookieJar(
             user,
             address(3),
-            CookieJarLib.AccessType.Whitelist,
+            CookieJarLib.AccessType.Allowlist,
             emptyAddresses,
             emptyTypes,
             CookieJarLib.WithdrawalTypeOptions.Fixed,
@@ -582,7 +582,7 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true,
             false,
-            emptyWhitelist,
+            emptyAllowlist,
             "First jar"
         );
 
@@ -590,7 +590,7 @@ contract CookieJarFactoryTest is Test {
         address jar2 = factory.createCookieJar(
             user,
             address(3),
-            CookieJarLib.AccessType.Whitelist,
+            CookieJarLib.AccessType.Allowlist,
             emptyAddresses,
             emptyTypes,
             CookieJarLib.WithdrawalTypeOptions.Fixed,
@@ -600,7 +600,7 @@ contract CookieJarFactoryTest is Test {
             strictPurpose,
             true,
             false,
-            emptyWhitelist,
+            emptyAllowlist,
             "Second jar"
         );
 

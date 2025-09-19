@@ -41,269 +41,185 @@ contract SeedLocalScript is Script {
     function run() external {
         console.log("Seeding Cookie Monster demo environment...");
         
-        // Use hardcoded CREATE2 factory address (deterministic)
-        address factoryAddress = 0x4F4B4F5Bcb55950807b88bDfece764Ca96eD548F;
+        // FIX: Read the factory address from environment variable instead of hardcoding
+        // This should be set by the deployment script
+        address factoryAddress = vm.envOr("DEPLOYED_FACTORY_ADDRESS", address(0));
+        
+        // If no env var, try to read from common deployment addresses
+        if (factoryAddress == address(0)) {
+            // Try the most common local deployment addresses
+            address[3] memory possibleAddresses = [
+                0x9d9D2f191D8970Bbf830Aa4D7F4e8C19937572C4, // Current deployment
+                0xd77fDE87C2dC9Fde3323ACdb2ccF89ff0b3B265E, // Previous deployment
+                0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0  // Fallback
+            ];
+            
+            for (uint i = 0; i < possibleAddresses.length; i++) {
+                if (possibleAddresses[i].code.length > 0) {
+                    factoryAddress = possibleAddresses[i];
+                    console.log("Found factory at address:", factoryAddress);
+                    break;
+                }
+            }
+        }
+        
+        // Final check - if still no factory found, exit with error
+        require(factoryAddress != address(0), "ERROR: CookieJarFactory not found! Deploy contracts first.");
+        require(factoryAddress.code.length > 0, "ERROR: No contract found at factory address!");
+        
         factory = CookieJarFactory(factoryAddress);
-        console.log("Using CookieJarFactory at:", factoryAddress);
-        console.log("CREATE2 address is deterministic and consistent!");
+        console.log("SUCCESS: Using CookieJarFactory at:", factoryAddress);
         
         vm.startBroadcast(DEPLOYER_KEY);
         
-        // 1. Deploy Cookie Monster NFT Collection
-        _deployCookieMonsterNFT();
-        
-        // 2. Deploy Demo ERC20 Token
-        _deployDemoToken();
-        
-        // 3. Create Demo Cookie Jars
-        address[] memory jarAddresses = _createDemoJars();
-        
-        // 4. Fund the jars with initial deposits
-        _fundJars(jarAddresses);
-        
-        vm.stopBroadcast();
-        
-        // 5. Save seeded data for client
-        _saveSeededData(jarAddresses);
-        
-        console.log("Cookie Monster demo environment ready!");
-        _printSummary(jarAddresses);
-    }
-    
-    function _deployCookieMonsterNFT() internal {
+        // Deploy Cookie Monster NFT collection for testing NFT gates
         console.log("Deploying Cookie Monster NFT collection...");
-        
         cookieMonsterNFT = new CookieMonsterNFT();
         
-        // Mint Cookie Monster NFTs to special accounts
-        cookieMonsterNFT.mint(COOKIE_MONSTER); // Token ID 0 to Cookie Monster account
-        cookieMonsterNFT.mint(COOKIE_FAN);     // Token ID 1 to Cookie Fan account
-        
+        // Mint special NFTs to test accounts (User A and User B get special NFTs)
+        cookieMonsterNFT.mint(COOKIE_MONSTER); // Token ID 0
+        cookieMonsterNFT.mint(COOKIE_FAN);     // Token ID 1
         console.log("Cookie Monster NFTs minted to special accounts!");
-    }
+        console.log("NFT Contract Address:", address(cookieMonsterNFT));
+        console.log("NOTE: NFT address will change on Anvil restart. Use 'pnpm nft:address' to get current address.");
     
-    function _deployDemoToken() internal {
+        // Deploy demo ERC20 token for testing
         console.log("Deploying DEMO ERC20 token...");
+        demoToken = new DummyERC20(); // Constructor hardcodes name/symbol, mints 1B tokens
         
-        demoToken = new DummyERC20();
-        
-        // Mint tokens to accounts
-        demoToken.mint(DEPLOYER, 1000000 * 10**18);      // 1M tokens to deployer
-        demoToken.mint(COOKIE_MONSTER, 100000 * 10**18);  // 100K to Cookie Monster
-        demoToken.mint(COOKIE_FAN, 100000 * 10**18);      // 100K to Cookie Fan
-        
+        // Mint additional tokens to test accounts
+        demoToken.mint(DEPLOYER, 1_000_000 ether);      // 1M extra to deployer
+        demoToken.mint(COOKIE_MONSTER, 100_000 ether);  // 100K to User A  
+        demoToken.mint(COOKIE_FAN, 100_000 ether);      // 100K to User B
         console.log("DEMO tokens minted to test accounts!");
-    }
     
-    function _createDemoJars() internal returns (address[] memory) {
+        // Create 4 different types of demo cookie jars
         console.log("Creating 4 demo cookie jars...");
         
-        address[] memory jars = new address[](4);
+        // 1. Whitelist ETH jar with fixed withdrawals (community stipend)
+        address[] memory allowlist1 = new address[](2);
+        allowlist1[0] = COOKIE_MONSTER;
+        allowlist1[1] = COOKIE_FAN;
         
-        // 1. Community Stipend (Whitelist + ETH + Fixed)
-        jars[0] = _createCommunityStipendJar();
-        
-        // 2. Grants Program (Whitelist + ERC20 + Variable)
-        jars[1] = _createGrantsProgramJar();
-        
-        // 3. Cookie Monster Benefits (NFT-Gated + ETH + Variable)
-        jars[2] = _createCookieMonsterBenefitsJar();
-        
-        // 4. Cookie Monster Airdrop (NFT-Gated + ERC20 + One-time)
-        jars[3] = _createCookieMonsterAirdropJar();
-        
-        console.log("All demo jars created!");
-        return jars;
-    }
-    
-    function _createCommunityStipendJar() internal returns (address) {
-        address[] memory whitelist = new address[](2);
-        whitelist[0] = COOKIE_MONSTER;
-        whitelist[1] = COOKIE_FAN;
-        
-        address[] memory emptyNFTAddresses = new address[](0);
-        CookieJarLib.NFTType[] memory emptyNFTTypes = new CookieJarLib.NFTType[](0);
-        
-        return factory.createCookieJar(
-            DEPLOYER,                                    // owner
-            CookieJarLib.ETH_ADDRESS,                   // ETH jar
-            CookieJarLib.AccessType.Whitelist,          // whitelist access
-            emptyNFTAddresses,                          // no NFTs
-            emptyNFTTypes,                              // no NFT types
-            CookieJarLib.WithdrawalTypeOptions.Fixed,   // fixed withdrawals
-            0.1 ether,                                  // 0.1 ETH per withdrawal
-            1 ether,                                    // max withdrawal (unused for fixed)
-            7 days,                                     // weekly withdrawals
-            false,                                      // no strict purpose
-            true,                                       // emergency withdrawal enabled
-            false,                                      // not one-time
-            whitelist,                                  // whitelisted users
+        factory.createCookieJar(
+            DEPLOYER,                    // jar owner
+            CookieJarLib.ETH_ADDRESS,   // ETH currency
+            CookieJarLib.AccessType.Allowlist,  // whitelist access
+            new address[](0),           // no NFT addresses 
+            new CookieJarLib.NFTType[](0),            // no NFT types
+            CookieJarLib.WithdrawalTypeOptions.Fixed, // fixed withdrawals
+            0.1 ether,                  // fixed amount: 0.1 ETH
+            1 ether,                    // max withdrawal (ignored for fixed)
+            7 days,                     // withdrawal interval: 1 week
+            false,                      // no strict purpose required
+            true,                       // emergency withdrawal enabled
+            false,                      // not one-time only
+            allowlist1,                 // initial allowlist
             "Community Stipend - Weekly 0.1 ETH for community members"
         );
-    }
-    
-    function _createGrantsProgramJar() internal returns (address) {
-        address[] memory whitelist = new address[](2);
-        whitelist[0] = COOKIE_MONSTER;
-        whitelist[1] = COOKIE_FAN;
+
+        // Fund the first jar with 5 ETH
+        address firstJar = factory.getCookieJars()[0];
+        CookieJar(firstJar).depositETH{value: 5 ether}();
+        console.log("SUCCESS: Jar 1: Community Stipend (Allowlist, ETH, Fixed 0.1) - 5 ETH funded");
+
+        // 2. Whitelist ERC20 jar with variable withdrawals (grants program)  
+        address[] memory allowlist2 = new address[](3);
+        allowlist2[0] = COOKIE_MONSTER;
+        allowlist2[1] = COOKIE_FAN; 
+        allowlist2[2] = DEPLOYER;
         
-        address[] memory emptyNFTAddresses = new address[](0);
-        CookieJarLib.NFTType[] memory emptyNFTTypes = new CookieJarLib.NFTType[](0);
-        
-        return factory.createCookieJar(
-            DEPLOYER,                                      // owner
-            address(demoToken),                            // ERC20 jar
-            CookieJarLib.AccessType.Whitelist,            // whitelist access
-            emptyNFTAddresses,                            // no NFTs
-            emptyNFTTypes,                                // no NFT types
-            CookieJarLib.WithdrawalTypeOptions.Variable,  // variable withdrawals
-            1000 * 10**18,                                // fixed amount (unused for variable)
-            10000 * 10**18,                               // max 10K tokens per withdrawal
-            30 days,                                      // monthly grants
-            true,                                         // strict purpose required
-            true,                                         // emergency withdrawal enabled
-            false,                                        // not one-time
-            whitelist,                                    // whitelisted grantees
-            "Grants Program - Up to 10K DEMO tokens monthly with purpose"
+        factory.createCookieJar(
+            DEPLOYER,                    // jar owner
+            address(demoToken),         // DEMO token currency
+            CookieJarLib.AccessType.Allowlist,  // whitelist access
+            new address[](0),           // no NFT addresses
+            new CookieJarLib.NFTType[](0),            // no NFT types  
+            CookieJarLib.WithdrawalTypeOptions.Variable, // variable withdrawals
+            0,                          // fixed amount (ignored for variable)
+            1000 ether,                 // max withdrawal: 1000 DEMO per request
+            1 days,                     // withdrawal interval: daily
+            true,                       // strict purpose required
+            true,                       // emergency withdrawal enabled
+            false,                      // not one-time only
+            allowlist2,                 // initial allowlist  
+            "Development Grants - Up to 1000 DEMO tokens for approved projects"
         );
-    }
-    
-    function _createCookieMonsterBenefitsJar() internal returns (address) {
+
+        // Fund the second jar with 50,000 DEMO tokens
+        address secondJar = factory.getCookieJars()[1]; 
+        demoToken.approve(secondJar, 50_000 ether);
+        CookieJar(secondJar).depositCurrency(50_000 ether);
+        console.log("SUCCESS: Jar 2: Development Grants (Allowlist, DEMO, Variable 1000) - 50K DEMO funded");
+
+        // 3. NFT-gated ETH jar (NFT holder benefits)
         address[] memory nftAddresses = new address[](1);
         nftAddresses[0] = address(cookieMonsterNFT);
         
         CookieJarLib.NFTType[] memory nftTypes = new CookieJarLib.NFTType[](1);
         nftTypes[0] = CookieJarLib.NFTType.ERC721;
         
-        address[] memory emptyWhitelist = new address[](0);
-        
-        return factory.createCookieJar(
-            DEPLOYER,                                      // owner
-            CookieJarLib.ETH_ADDRESS,                     // ETH jar
-            CookieJarLib.AccessType.NFTGated,             // NFT-gated access
-            nftAddresses,                                 // Cookie Monster NFT required
-            nftTypes,                                     // ERC721 type
-            CookieJarLib.WithdrawalTypeOptions.Variable,  // variable withdrawals
-            0.05 ether,                                   // fixed amount (unused for variable)
-            0.25 ether,                                   // max 0.25 ETH per withdrawal
-            14 days,                                      // bi-weekly claims
-            false,                                        // no strict purpose
-            false,                                        // no emergency withdrawal
-            false,                                        // not one-time
-            emptyWhitelist,                               // no whitelist needed
-            "Cookie Monster Benefits - Up to 0.25 ETH bi-weekly for NFT holders"
+        factory.createCookieJar(
+            DEPLOYER,                    // jar owner
+            CookieJarLib.ETH_ADDRESS,   // ETH currency
+            CookieJarLib.AccessType.NFTGated,   // NFT-gated access
+            nftAddresses,               // Cookie Monster NFT required
+            nftTypes,                   // ERC721 type
+            CookieJarLib.WithdrawalTypeOptions.Fixed,  // fixed withdrawals
+            0.05 ether,                 // fixed amount: 0.05 ETH
+            0,                          // max withdrawal (ignored)
+            3 days,                     // withdrawal interval: every 3 days
+            false,                      // no strict purpose required
+            false,                      // no emergency withdrawal
+            false,                      // not one-time only
+            new address[](0),           // no initial allowlist (NFT-gated)
+            "Cookie Monster Holder Rewards - 0.05 ETH every 3 days for NFT holders"
         );
-    }
-    
-    function _createCookieMonsterAirdropJar() internal returns (address) {
-        address[] memory nftAddresses = new address[](1);
-        nftAddresses[0] = address(cookieMonsterNFT);
-        
-        CookieJarLib.NFTType[] memory nftTypes = new CookieJarLib.NFTType[](1);
-        nftTypes[0] = CookieJarLib.NFTType.ERC721;
-        
-        address[] memory emptyWhitelist = new address[](0);
-        
-        return factory.createCookieJar(
-            DEPLOYER,                                    // owner
-            address(demoToken),                          // ERC20 jar
-            CookieJarLib.AccessType.NFTGated,           // NFT-gated access
-            nftAddresses,                               // Cookie Monster NFT required
-            nftTypes,                                   // ERC721 type
-            CookieJarLib.WithdrawalTypeOptions.Fixed,   // fixed withdrawals
-            5000 * 10**18,                              // 5K tokens per claim
-            5000 * 10**18,                              // max withdrawal (same as fixed)
-            0,                                          // no time limit
-            false,                                      // no strict purpose
-            false,                                      // no emergency withdrawal
-            true,                                       // ONE-TIME withdrawal only!
-            emptyWhitelist,                             // no whitelist needed
-            "Cookie Monster Airdrop - One-time 5K DEMO tokens for NFT holders"
+
+        // Fund the third jar with 2 ETH
+        address thirdJar = factory.getCookieJars()[2];
+        CookieJar(thirdJar).depositETH{value: 2 ether}();
+        console.log("SUCCESS: Jar 3: NFT Holder Rewards (NFT-Gated, ETH, Fixed 0.05) - 2 ETH funded");
+
+        // 4. NFT-gated ERC20 jar with one-time withdrawals (airdrop style)
+        factory.createCookieJar(
+            DEPLOYER,                    // jar owner  
+            address(demoToken),         // DEMO token currency
+            CookieJarLib.AccessType.NFTGated,   // NFT-gated access
+            nftAddresses,               // Cookie Monster NFT required
+            nftTypes,                   // ERC721 type
+            CookieJarLib.WithdrawalTypeOptions.Fixed,  // fixed withdrawals
+            500 ether,                  // fixed amount: 500 DEMO
+            0,                          // max withdrawal (ignored)
+            0,                          // withdrawal interval: 0 (one-time only)
+            true,                       // strict purpose required
+            false,                      // no emergency withdrawal
+            true,                       // ONE-TIME WITHDRAWAL ONLY
+            new address[](0),           // no initial allowlist (NFT-gated)
+            "Cookie Monster Airdrop - One-time 500 DEMO claim for NFT holders"
         );
-    }
-    
-    function _fundJars(address[] memory jarAddresses) internal {
-        console.log("Funding demo jars with initial deposits...");
-        
-        // Fund Community Stipend Jar with 10 ETH (ETH jar - use depositETH)
-        CookieJar(payable(jarAddresses[0])).depositETH{value: 10 ether}();
-        
-        // Fund Grants Program Jar with 100K DEMO tokens (ERC20 jar - use depositCurrency)
-        demoToken.approve(jarAddresses[1], 100000 * 10**18);
-        CookieJar(payable(jarAddresses[1])).depositCurrency(100000 * 10**18);
-        
-        // Fund Cookie Monster Benefits Jar with 5 ETH (ETH jar - use depositETH)
-        CookieJar(payable(jarAddresses[2])).depositETH{value: 5 ether}();
-        
-        // Fund Cookie Monster Airdrop Jar with 50K DEMO tokens (ERC20 jar - use depositCurrency)
-        demoToken.approve(jarAddresses[3], 50000 * 10**18);
-        CookieJar(payable(jarAddresses[3])).depositCurrency(50000 * 10**18);
-        
-        console.log("All jars funded and ready for testing!");
-    }
-    
-    function _saveSeededData(address[] memory jarAddresses) internal {
-        // Create JSON with all seeded data info for client
-        string memory json = string.concat(
-            '{"seedTimestamp":', vm.toString(block.timestamp),
-            ',"demoToken":"', vm.toString(address(demoToken)),
-            '","cookieMonsterNFT":"', vm.toString(address(cookieMonsterNFT)),
-            '","jars":{"communityStipend":"', vm.toString(jarAddresses[0]),
-            '","grantsProgram":"', vm.toString(jarAddresses[1]),
-            '","cookieMonsterBenefits":"', vm.toString(jarAddresses[2]),
-            '","cookieMonsterAirdrop":"', vm.toString(jarAddresses[3]),
-            '"}}'
-        );
-        
-        // Print seeded addresses (file writing disabled to avoid permission issues)
-        console.log("=== SEEDED CONTRACT ADDRESSES ===");
-        console.log("DemoToken:", address(demoToken));
-        console.log("CookieMonsterNFT:", address(cookieMonsterNFT));
-        console.log("Community Stipend Jar:", jarAddresses[0]);
-        console.log("Grants Program Jar:", jarAddresses[1]);
-        console.log("Cookie Monster Benefits Jar:", jarAddresses[2]);
-        console.log("Cookie Monster Airdrop Jar:", jarAddresses[3]);
-        console.log("=== All contracts deployed and funded! ===");
-    }
-    
-    function _printSummary(address[] memory jarAddresses) internal view {
+
+        // Fund the fourth jar with 10,000 DEMO tokens
+        address fourthJar = factory.getCookieJars()[3];
+        demoToken.approve(fourthJar, 10_000 ether);
+        CookieJar(fourthJar).depositCurrency(10_000 ether);
+        console.log("SUCCESS: Jar 4: NFT Airdrop (NFT-Gated, DEMO, One-time 500) - 10K DEMO funded");
+
+        vm.stopBroadcast();
+
+        console.log("COMPLETE: Demo environment seeded successfully!");
+        console.log("SUMMARY:");
+        console.log("  - 4 Cookie Jars created with different configurations");
+        console.log("  - Cookie Monster NFT deployed at:", address(cookieMonsterNFT));
+        console.log("  - DEMO ERC20 token deployed at:", address(demoToken));
+        console.log("  - NFTs minted to User A (Cookie Monster) and User B (Cookie Fan)");
+        console.log("  - Jars funded with ETH and DEMO tokens");
         console.log("");
-        console.log("COOKIE MONSTER DEMO ENVIRONMENT READY!");
-        console.log("=====================================");
-        console.log("");
-        console.log("Cookie Monster NFT Collection:");
-        console.log("  Contract:", address(cookieMonsterNFT));
-        console.log("  Token ID 0: Cookie Monster account");
-        console.log("  Token ID 1: Cookie Fan account");
-        console.log("");
-        console.log("DEMO Token:");
-        console.log("  Contract:", address(demoToken));
-        console.log("  Deployer: 1,000,000 DEMO");
-        console.log("  Cookie Monster: 100,000 DEMO");
-        console.log("  Cookie Fan: 100,000 DEMO");
-        console.log("");
-        console.log("Demo Cookie Jars Created:");
-        console.log("  1. Community Stipend:", jarAddresses[0]);
-        console.log("      (Whitelist + ETH + Fixed 0.1 ETH weekly)");
-        console.log("  2. Grants Program:", jarAddresses[1]);
-        console.log("      (Whitelist + ERC20 + Variable up to 10K monthly)");
-        console.log("  3. Cookie Monster Benefits:", jarAddresses[2]);
-        console.log("      (NFT-Gated + ETH + Variable up to 0.25 ETH bi-weekly)");
-        console.log("  4. Cookie Monster Airdrop:", jarAddresses[3]);
-        console.log("      (NFT-Gated + ERC20 + One-time 5K DEMO)");
-        console.log("");
-        console.log("Test Account Roles:");
-        console.log("  Deployer (Owner):", DEPLOYER);
-        console.log("  Cookie Monster (NFT #0):", COOKIE_MONSTER);
-        console.log("  Cookie Fan (NFT #1):", COOKIE_FAN);
-        console.log("  Test User (No NFT):", TEST_USER);
-        console.log("");
-        console.log("Ready to Code!");
-        console.log("  Connect Cookie Monster or Cookie Fan accounts");
-        console.log("  Try accessing NFT-gated jars");
-        console.log("  Test withdrawals from different jar types");
-        console.log("  Switch between accounts to test access controls");
-        console.log("  Build your own jars with custom rules!");
-        console.log("");
+        console.log("TEST different scenarios:");
+        console.log("  - Connect as Cookie Monster (0x70997...dc79C8) to access all jars");
+        console.log("  - Connect as Cookie Fan (0x3C44Cd...4293BC) to access allowlist + NFT jars");
+        console.log("  - Connect as other address to see access restrictions");
+        console.log("  - Try withdrawing with/without purpose descriptions");
+        console.log("  - Test one-time withdrawal limits on Jar 4");
     }
 }
