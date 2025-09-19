@@ -202,11 +202,11 @@ export default function CookieJarConfigDetails() {
     updateMetadata({
       address: factoryAddress,
       abi: cookieJarFactoryAbi,
-      functionName: 'updateMetadata',
+      functionName: "updateMetadata",
       args: [addressString, metadataJson],
     })
-  }
 
+  }
 
   // Version-aware ABI and function selection
   const isV2 = isV2Chain(chainId);

@@ -5,7 +5,7 @@ import { JarGridSkeleton } from "@/components/loading/jar-skeleton"
 
 // Lazy load the heavy jar content component
 const JarContentLazy = lazy(() => 
-  import("@/components/jars/jar-content-lazy").then(module => ({ default: module.JarContentLazy }))
+  import("@/components/jars/JarContentLazy").then(module => ({ default: module.JarContentLazy }))
 )
 
 export default function CookieJarPage() {

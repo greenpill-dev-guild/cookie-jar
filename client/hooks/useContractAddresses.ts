@@ -80,16 +80,8 @@ export function useContractAddresses() {
 
       loadLocalDeployment()
       
-      // Set up polling for local development
-      const interval = setInterval(() => {
-        console.log('🔄 useContractAddresses: Polling for deployment updates...')
-        loadLocalDeployment()
-      }, 5000) // Check every 5 seconds
-
-      return () => {
-        console.log('🛑 useContractAddresses: Cleaning up polling interval')
-        clearInterval(interval)
-      }
+      // Polling disabled - only load once per chain change
+      // This prevents race conditions with jar creation on Anvil
     } else {
       console.log('🌐 useContractAddresses: Using static addresses for chainId:', chainId)
       setIsLoading(false)

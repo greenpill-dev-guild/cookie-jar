@@ -11,20 +11,23 @@ import {
   celoAlfajores
 } from 'wagmi/chains'
 
-// V2 Contract Chains - Add chain IDs here as v2 contracts get deployed  
-export const V2_CHAINS = [
-  31337, // Anvil local
-  // Add new chain IDs here as v2 contracts are deployed
-  // Example: 8453, // Base
-  // Example: 10,   // Optimism  
-] as const
+// Import auto-generated deployment configuration
+// This file is automatically updated when contracts are deployed
+import { 
+  V2_CHAINS as AUTO_V2_CHAINS, 
+  FACTORY_ADDRESSES as AUTO_FACTORY_ADDRESSES,
+  isV2Chain as autoIsV2Chain 
+} from './deployments.auto'
 
-// Helper function to check if a chain uses v2 contracts
+// Re-export auto-generated configuration
+export const V2_CHAINS = AUTO_V2_CHAINS
+
+// Helper function to check if a chain uses v2 contracts (auto-generated)
 export function isV2Chain(chainId: number): boolean {
-  return V2_CHAINS.includes(chainId as any)
+  return autoIsV2Chain(chainId)
 }
 
-// Local Anvil chain (Ethereum fork with multicall3 support)
+// Local Anvil chain (Pure local development without fork)
 export const anvilLocal = {
   id: 31337,
   name: "Anvil Local",
@@ -41,12 +44,7 @@ export const anvilLocal = {
   blockExplorers: {
     default: { name: "Local", url: "http://127.0.0.1:8545" },
   },
-  contracts: {
-    multicall3: {
-      address: '0xca11bde05977b3631167028862be2a173976ca11',
-      blockCreated: 14353601,
-    },
-  },
+  // No multicall3 contract in pure local mode - wagmi will fallback to individual calls
   testnet: true,
 } as const
 import { Chain } from '@rainbow-me/rainbowkit'
@@ -159,17 +157,25 @@ export function getNativeCurrency(chainId: number): NativeCurrency {
   return nativeCurrencies[chainId] || nativeCurrencies[mainnet.id]
 }
 
-// Default addresses for deployments (fallback)
+// Auto-generated factory addresses from deployments
 export const contractAddresses: ContractAddresses = {
   cookieJarFactory: {
+    // Legacy addresses (manually maintained)
     [gnosis.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9" as Address,
     [base.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9" as Address,
     [optimism.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9" as Address,
     [celo.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9" as Address,
-    [baseSepolia.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9" as Address,
     [optimismSepolia.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9" as Address,
     [mainnet.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9" as Address,
-    [anvilLocal.id]: "0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0" as Address, // Static fallback for local development
+    
+    // Auto-generated addresses - DO NOT EDIT MANUALLY!
+    // These are automatically updated by the deployment script
+    ...Object.fromEntries(
+      Object.entries(AUTO_FACTORY_ADDRESSES).map(([chainId, address]) => [
+        parseInt(chainId), 
+        address as Address
+      ])
+    ),
   },
 }
 

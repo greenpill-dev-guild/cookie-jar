@@ -276,11 +276,145 @@ pnpm copy:deployment       # Copy deployment files to client
 pnpm generate              # Generate client types from contracts
 
 # Development Tools
-pnpm contracts:watch       # Watch contracts for changes and auto-redeploy
-pnpm accounts:list         # List pre-funded test accounts
 pnpm sync:check            # Check deployment file synchronization
 pnpm clean                 # Clean both projects
 pnpm stop                  # Stop all running services
+```
+
+## 🚀 Production Deployment Guide
+
+Cookie Jar uses **Foundry** for secure, efficient deployments to any EVM chain. The system automatically updates client configuration when contracts are deployed.
+
+### **📋 Prerequisites**
+
+1. **Foundry installed** (`curl -L https://foundry.paradigm.xyz | bash && foundryup`)
+2. **Deployment wallet** with funds for the target chain
+3. **Environment variables** configured
+4. **Etherscan API key** (for contract verification)
+
+### **🔧 Environment Setup**
+
+1. **Copy and configure environment variables:**
+   ```bash
+   cp .env.example .env
+   # Edit .env with your actual values
+   ```
+
+2. **Required environment variables:**
+   ```bash
+   # API Keys
+   ETHERSCAN_API_KEY=your_etherscan_api_key_here
+   
+   # RPC URLs (chain-specific)
+   BASE_SEPOLIA_RPC_URL=https://sepolia.base.org
+   ETHEREUM_SEPOLIA_RPC_URL=https://rpc.sepolia.dev
+   CELO_ALFAJORES_RPC_URL=https://alfajores-forno.celo-testnet.org
+   
+   # Factory Configuration
+   FEE_COLLECTOR=0xYourFeeCollectorAddressHere      # Fee recipient
+   FACTORY_OWNER=0xYourFactoryOwnerAddressHere       # Admin address
+   FEE_PERCENTAGE=100                                 # 1% = 100 bps
+   MIN_ETH_DEPOSIT=10000000000000000                 # 0.01 ETH minimum
+   MIN_ERC20_DEPOSIT=1000000000000000000000          # 1000 token minimum
+   ```
+
+### **🔐 Secure Wallet Setup**
+
+**Use Foundry Keystore (recommended)** - No private keys in files!
+
+```bash
+# Import your deployment wallet securely
+cast wallet import deployer --interactive
+# Enter private key when prompted and set password
+
+# Verify keystore was created
+cast wallet list
+```
+
+### **🌐 Deploy to Any Chain**
+
+**Universal deployment command that works on any EVM chain:**
+
+```bash
+# Export environment variables
+export $(cat .env | xargs)
+
+# Deploy to your target chain (examples):
+cd contracts
+
+# Deploy to Base Sepolia
+forge script script/Deploy.s.sol:Deploy \
+  --rpc-url base-sepolia \
+  --account deployer \
+  --broadcast \
+  --verify
+
+# Deploy to Ethereum Mainnet  
+forge script script/Deploy.s.sol:Deploy \
+  --rpc-url mainnet \
+  --account deployer \
+  --broadcast \
+  --verify
+
+# Deploy to any chain using custom RPC
+forge script script/Deploy.s.sol:Deploy \
+  --rpc-url $YOUR_CHAIN_RPC_URL \
+  --account deployer \
+  --broadcast \
+  --verify
+```
+
+### **✅ Post-Deployment**
+
+After successful deployment:
+
+1. **Automatic Client Updates**: The client configuration automatically updates when contracts are deployed
+2. **Contract Verification**: Contracts are verified on Etherscan/block explorer automatically  
+3. **V2 Detection**: New deployments are automatically detected as V2 contracts
+4. **Factory Address**: Copy the deployed factory address to your frontend configuration if needed
+
+### **🔍 Deployment Verification**
+
+Verify your deployment was successful:
+
+```bash
+# Check contract size is under limit
+forge build --sizes | grep CookieJarFactory
+
+# Verify on block explorer
+cast call $FACTORY_ADDRESS "owner()" --rpc-url $RPC_URL
+
+# Test factory functionality
+cast call $FACTORY_ADDRESS "getCookieJars()" --rpc-url $RPC_URL
+```
+
+### **🐛 Troubleshooting Deployments**
+
+**Contract size too large:**
+```bash
+# Check sizes
+forge build --sizes
+
+# Solution: Contract has been optimized to fit under 24KB limit
+# If still too large, increase optimizer runs in foundry.toml
+```
+
+**Environment variables not found:**
+```bash
+# Export variables explicitly
+export $(cat .env | xargs)
+
+# Or source the file
+source .env
+```
+
+**Keystore password issues:**
+```bash
+# List available keystores
+cast wallet list
+
+# Re-import if needed
+cast wallet import deployer --interactive
 ```
 
 ## 📁 Generated Files

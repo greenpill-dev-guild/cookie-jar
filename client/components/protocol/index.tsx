@@ -59,7 +59,6 @@ export {
   _HypercertGateConfig as HypercertGateConfigUnsafe,
   _HatsGateConfig as HatsGateConfigUnsafe,
   _ProtocolGateSelector as ProtocolGateSelectorUnsafe,
-  _ProtocolAwareWithdrawal as ProtocolAwareWithdrawalUnsafe
 }
 
 // Export error boundary components

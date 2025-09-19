@@ -5,7 +5,7 @@ import { Users } from "lucide-react"
 import { getAccessTypeName } from "@/lib/access-type-utils"
 import { JarImage } from "./JarImage"
 import { JarStatusBadge } from "./JarStatusBadge"
-import type { JarData, getCurrencyAmount, getCurrencySymbol, getWithdrawalAmountDisplay, getJarName } from "@/lib/utils/jar-utils"
+import { JarData, getCurrencyAmount, getCurrencySymbol, getWithdrawalAmountDisplay, getJarName } from "@/lib/utils/jar-utils"
 import type { NativeCurrency } from "@/config/supported-networks"
 
 interface JarCardProps {
@@ -16,50 +16,6 @@ interface JarCardProps {
 }
 
 export function JarCard({ jar, nativeCurrency, tokenSymbols, onClick }: JarCardProps) {
-  // Import utility functions inline to avoid circular dependency issues
-  const getCurrencyAmount = (jarData: JarData) => {
-    const { ethers } = require("ethers")
-    const { ETH_ADDRESS } = require("@/lib/utils/token-utils")
-    
-    if (jarData.currency?.toLowerCase() === ETH_ADDRESS.toLowerCase()) {
-      return ethers.formatEther(jarData.currencyHeldByJar || "0")
-    } else {
-      return ethers.formatUnits(jarData.currencyHeldByJar || "0", 18)
-    }
-  }
-
-  const getCurrencySymbol = (jarData: JarData) => {
-    const { ETH_ADDRESS } = require("@/lib/utils/token-utils")
-    
-    if (jarData.currency?.toLowerCase() === ETH_ADDRESS.toLowerCase()) {
-      return nativeCurrency.symbol
-    } else {
-      return tokenSymbols[jarData.currency?.toLowerCase() || ""] || "TOKEN"
-    }
-  }
-
-  const getWithdrawalAmountDisplay = (jarData: JarData) => {
-    const { ethers } = require("ethers")
-    const symbol = getCurrencySymbol(jarData)
-    
-    if (jarData.withdrawalOption === 0) { // Fixed
-      return `Fixed: ${ethers.formatEther(jarData.fixedAmount || "0")} ${symbol}`
-    } else { // Variable
-      return `Max: ${ethers.formatEther(jarData.maxWithdrawal || "0")} ${symbol}`
-    }
-  }
-
-  const getJarName = (jarData: JarData) => {
-    if (jarData.metadata) {
-      try {
-        const parsed = JSON.parse(jarData.metadata)
-        return parsed.name || 'Cookie Jar'
-      } catch (e) {
-        return jarData.metadata || 'Cookie Jar'
-      }
-    }
-    return 'Cookie Jar'
-  }
 
   const jarName = getJarName(jar)
 
@@ -89,14 +45,14 @@ export function JarCard({ jar, nativeCurrency, tokenSymbols, onClick }: JarCardP
         <div className="flex-between-safe">
           <span className="text-responsive-sm text-[hsl(var(--cj-medium-brown))] flex-shrink-0">Balance:</span>
           <span className="font-semibold text-[hsl(var(--cj-dark-brown))] text-responsive-sm truncate text-right">
-            {getCurrencyAmount(jar)} {getCurrencySymbol(jar)}
+            {getCurrencyAmount(jar)} {getCurrencySymbol(jar, nativeCurrency, tokenSymbols)}
           </span>
         </div>
         
         <div className="flex-between-safe">
           <span className="text-responsive-sm text-[hsl(var(--cj-medium-brown))] flex-shrink-0">Withdrawal:</span>
           <span className="text-responsive-sm text-[hsl(var(--cj-dark-brown))] truncate text-right">
-            {getWithdrawalAmountDisplay(jar)}
+            {getWithdrawalAmountDisplay(jar, nativeCurrency, tokenSymbols)}
           </span>
         </div>
 
@@ -105,7 +61,7 @@ export function JarCard({ jar, nativeCurrency, tokenSymbols, onClick }: JarCardP
           <div className="flex items-center gap-1 min-w-0">
             <Users className="h-3 w-3 flex-shrink-0" />
             <span className="text-responsive-sm text-[hsl(var(--cj-dark-brown))] truncate">
-              {getAccessTypeName(jar.accessType)}
+              {getAccessTypeName(jar.accessType ?? 0)}
             </span>
           </div>
         </div>

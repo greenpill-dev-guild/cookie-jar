@@ -134,9 +134,31 @@ function categorizeError(error: any, jarAddress: Address): JarFetchError {
 // Helper function to fetch jar details
 async function fetchJarDetails(publicClient: any, jarAddress: Address): Promise<CookieJarInfo | null> {
   try {
-    const [currency, accessType, withdrawalOption, fixedAmount, maxWithdrawal, withdrawalInterval, 
-           strictPurpose, emergencyWithdrawalEnabled, oneTimeWithdrawal, currencyHeldByJar] = 
-      await publicClient.multicall({
+    // Check if we're on local chain (31337) and use individual calls instead of multicall
+    const chainId = await publicClient.getChainId()
+    const isLocalChain = chainId === 31337
+    
+    let currency, accessType, withdrawalOption, fixedAmount, maxWithdrawal, withdrawalInterval, 
+        strictPurpose, emergencyWithdrawalEnabled, oneTimeWithdrawal, currencyHeldByJar
+    
+    if (isLocalChain) {
+      // Use individual calls for local development (no multicall3 contract)
+      [currency, accessType, withdrawalOption, fixedAmount, maxWithdrawal, withdrawalInterval, 
+       strictPurpose, emergencyWithdrawalEnabled, oneTimeWithdrawal, currencyHeldByJar] = await Promise.all([
+        publicClient.readContract({ address: jarAddress, abi: cookieJarAbi, functionName: 'currency' }),
+        publicClient.readContract({ address: jarAddress, abi: cookieJarAbi, functionName: 'accessType' }),
+        publicClient.readContract({ address: jarAddress, abi: cookieJarAbi, functionName: 'withdrawalOption' }),
+        publicClient.readContract({ address: jarAddress, abi: cookieJarAbi, functionName: 'fixedAmount' }),
+        publicClient.readContract({ address: jarAddress, abi: cookieJarAbi, functionName: 'maxWithdrawal' }),
+        publicClient.readContract({ address: jarAddress, abi: cookieJarAbi, functionName: 'withdrawalInterval' }),
+        publicClient.readContract({ address: jarAddress, abi: cookieJarAbi, functionName: 'strictPurpose' }),
+        publicClient.readContract({ address: jarAddress, abi: cookieJarAbi, functionName: 'emergencyWithdrawalEnabled' }),
+        publicClient.readContract({ address: jarAddress, abi: cookieJarAbi, functionName: 'oneTimeWithdrawal' }),
+        publicClient.readContract({ address: jarAddress, abi: cookieJarAbi, functionName: 'currencyHeldByJar' })
+      ])
+    } else {
+      // Use multicall for other chains that support it
+      const results = await publicClient.multicall({
         contracts: [
           { address: jarAddress, abi: cookieJarAbi, functionName: 'currency' },
           { address: jarAddress, abi: cookieJarAbi, functionName: 'accessType' },
@@ -150,22 +172,26 @@ async function fetchJarDetails(publicClient: any, jarAddress: Address): Promise<
           { address: jarAddress, abi: cookieJarAbi, functionName: 'currencyHeldByJar' }
         ]
       })
+      
+      ;[currency, accessType, withdrawalOption, fixedAmount, maxWithdrawal, withdrawalInterval, 
+        strictPurpose, emergencyWithdrawalEnabled, oneTimeWithdrawal, currencyHeldByJar] = results
+    }
     
-    const accessTypeNum = accessType.result as number
+    const accessTypeNum = isLocalChain ? accessType as number : accessType.result as number
     const supportsProtocols = accessTypeNum >= 2
     
     return {
       jarAddress,
-      currency: currency.result as Address,
+      currency: isLocalChain ? currency as Address : currency.result as Address,
       accessType: accessTypeNum,
-      withdrawalOption: withdrawalOption.result as number,
-      fixedAmount: fixedAmount.result as bigint,
-      maxWithdrawal: maxWithdrawal.result as bigint,
-      withdrawalInterval: withdrawalInterval.result as bigint,
-      strictPurpose: strictPurpose.result as boolean,
-      emergencyWithdrawalEnabled: emergencyWithdrawalEnabled.result as boolean,
-      oneTimeWithdrawal: oneTimeWithdrawal.result as boolean,
-      currencyHeldByJar: currencyHeldByJar.result as bigint,
+      withdrawalOption: isLocalChain ? withdrawalOption as number : withdrawalOption.result as number,
+      fixedAmount: isLocalChain ? fixedAmount as bigint : fixedAmount.result as bigint,
+      maxWithdrawal: isLocalChain ? maxWithdrawal as bigint : maxWithdrawal.result as bigint,
+      withdrawalInterval: isLocalChain ? withdrawalInterval as bigint : withdrawalInterval.result as bigint,
+      strictPurpose: isLocalChain ? strictPurpose as boolean : strictPurpose.result as boolean,
+      emergencyWithdrawalEnabled: isLocalChain ? emergencyWithdrawalEnabled as boolean : emergencyWithdrawalEnabled.result as boolean,
+      oneTimeWithdrawal: isLocalChain ? oneTimeWithdrawal as boolean : oneTimeWithdrawal.result as boolean,
+      currencyHeldByJar: isLocalChain ? currencyHeldByJar as bigint : currencyHeldByJar.result as bigint,
       supportsProtocols
     }
   } catch (err) {
@@ -208,9 +234,10 @@ export function useCookieJarFactory() {
         functionName: 'getCookieJars'
       }) as Address[]
       
-      // Get metadata differently based on version
+      // Get metadata - now works for both V1 and V2!
       let metadatas: string[]
       if (isV2Contract) {
+        // V2: Use getMetadatas batch function (now available!)
         metadatas = await publicClient.readContract({
           address: factoryAddress,
           abi: factoryAbi,

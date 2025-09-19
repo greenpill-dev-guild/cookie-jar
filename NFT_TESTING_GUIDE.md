@@ -63,9 +63,6 @@ pnpm run dev
 # Get NFT contract address quickly
 pnpm nft:address
 
-# List all test account addresses
-pnpm accounts:list
-
 # Restart clean environment  
 pnpm seed:reset
 ```

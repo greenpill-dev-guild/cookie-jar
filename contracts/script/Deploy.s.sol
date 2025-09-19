@@ -1,49 +1,156 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.24;
 
-import {Script, console} from "forge-std/Script.sol";
-import {CookieJarFactory} from "../src/CookieJarFactory.sol";
-import {HelperConfig} from "./HelperConfig.s.sol";
-import "@openzeppelin/contracts/mocks/token/ERC20Mock.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "forge-std/Script.sol";
+import "../src/CookieJarFactory.sol";
 
-contract ERC721Mock is ERC721 {
-    constructor(string memory name, string memory symbol) ERC721(name, symbol) {}
-
-    function mint(address to, uint256 tokenId) public {
-        _mint(to, tokenId);
-    }
-}
-
+/// @title Universal Deploy Script with Auto-Config Updates
+/// @notice Deploys contracts and automatically updates client configuration
+/// @dev Reads from .env, writes to deployments.auto.ts for automatic client updates
 contract Deploy is Script {
-    HelperConfig helperConfig;
-    HelperConfig.NetworkConfig config;
+    using stdJson for string;
 
-    function run() public {
-        helperConfig = new HelperConfig();
-        config = helperConfig.getAnvilConfig();
-        uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        address deployer = vm.addr(deployerPrivateKey);
-        vm.startBroadcast(deployerPrivateKey);
-        bytes32 devguildSalt = keccak256(abi.encodePacked("devguild"));
-
-        // Deploy Factory with Registry address
-        CookieJarFactory factory = new CookieJarFactory{salt: devguildSalt}(
-            config.defaultFeeCollector,
-            0x487a30c88900098b765d76285c205c7c47582512,
-            config.feePercentageOnDeposit,
-            config.minETHDeposit,
-            config.minERC20Deposit
+    function run() external {
+        // Read configuration from environment variables
+        address feeCollector = vm.envAddress("FEE_COLLECTOR");
+        address owner = vm.envAddress("FACTORY_OWNER"); 
+        uint256 feePercentage = vm.envUint("FEE_PERCENTAGE");
+        uint256 minETHDeposit = vm.envUint("MIN_ETH_DEPOSIT");
+        uint256 minERC20Deposit = vm.envUint("MIN_ERC20_DEPOSIT");
+        
+        // Log deployment configuration
+        console.log("=== Cookie Jar Factory Deployment ===");
+        console.log("Chain ID:", block.chainid);
+        console.log("Fee Collector:", feeCollector);
+        console.log("Factory Owner:", owner);
+        console.log("Fee Percentage:", feePercentage, "bps");
+        console.log("Min ETH Deposit:", minETHDeposit, "wei");
+        console.log("Min ERC20 Deposit:", minERC20Deposit, "wei");
+        console.log("=====================================");
+        
+        // Deploy the factory
+        vm.startBroadcast();
+        
+        CookieJarFactory factory = new CookieJarFactory(
+            feeCollector,
+            owner, 
+            feePercentage,
+            minETHDeposit,
+            minERC20Deposit
         );
-
-        console.log("CookieJarFactory deployed at: ", address(factory));
-
-        ERC721Mock erc721 = new ERC721Mock{salt: devguildSalt}("TestNFT", "TNFT");
-
-        erc721.mint(deployer, 1);
-        console.log("ERC721Mock deployed at:", address(erc721));
-        console.log("Token ID 1 minted to:", deployer);
-
+        
         vm.stopBroadcast();
+        
+        // Log successful deployment
+        console.log("SUCCESS: CookieJarFactory deployed to:", address(factory));
+        console.log("Block Number:", block.number);
+        console.log("Timestamp:", block.timestamp);
+        
+        // Update client configuration automatically
+        _updateClientConfig(address(factory));
+        
+        console.log("ACTION: Client configuration updated automatically");
+        console.log("INFO: V2 chain detection enabled for Chain ID:", block.chainid);
+    }
+
+    /// @notice Updates the client configuration file with new deployment
+    /// @param factoryAddress The deployed factory address
+    function _updateClientConfig(address factoryAddress) internal {
+        // Generate TypeScript configuration
+        string memory configContent = _generateConfigFile(factoryAddress);
+        
+        // Write to client config file
+        string memory configPath = "../client/config/deployments.auto.ts";
+        vm.writeFile(configPath, configContent);
+        
+        console.log("Updated:", configPath);
+    }
+
+    /// @notice Generates the TypeScript configuration file content
+    /// @param factoryAddress The deployed factory address
+    /// @return The complete TypeScript file content
+    function _generateConfigFile(address factoryAddress) internal view returns (string memory) {
+        // Create deployment entry for current chain
+        string memory deploymentEntry = string(abi.encodePacked(
+            "  ", vm.toString(block.chainid), ": {\n",
+            "    chainId: ", vm.toString(block.chainid), ",\n",
+            "    factoryAddress: \"", vm.toString(factoryAddress), "\",\n",
+            "    isV2: true,\n",
+            "    blockNumber: ", vm.toString(block.number), ",\n",
+            "    timestamp: ", vm.toString(block.timestamp), "\n",
+            "  }"
+        ));
+
+        // Generate complete file content
+        return string(abi.encodePacked(
+            "/**\n",
+            " * AUTO-GENERATED FILE - DO NOT EDIT MANUALLY!\n", 
+            " * \n",
+            " * This file is automatically updated when contracts are deployed.\n",
+            " * It contains the latest factory addresses and V2 chain detection.\n",
+            " * \n",
+            " * Generated by: contracts/script/Deploy.s.sol\n",
+            " * Last updated: ", vm.toString(block.timestamp), "\n",
+            " * Chain ID: ", vm.toString(block.chainid), "\n",
+            " */\n\n",
+            
+            "export interface DeploymentInfo {\n",
+            "  chainId: number\n",
+            "  factoryAddress: string\n", 
+            "  blockNumber?: number\n",
+            "  timestamp?: number\n",
+            "  isV2: boolean\n",
+            "  deploymentHash?: string\n",
+            "}\n\n",
+            
+            "// Auto-generated deployment registry\n",
+            "export const DEPLOYMENTS: Record<number, DeploymentInfo> = {\n",
+            "  // Auto-generated deployment (latest)\n",
+            deploymentEntry, ",\n\n",
+            
+            "  // Legacy V1 deployments (manually maintained)\n",
+            "  42220: {\n",
+            "    chainId: 42220,\n",
+            "    factoryAddress: \"0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9\",\n",
+            "    isV2: false\n",
+            "  },\n",
+            "  44787: {\n",
+            "    chainId: 44787,\n", 
+            "    factoryAddress: \"0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9\",\n",
+            "    isV2: false\n",
+            "  }\n",
+            "}\n\n",
+            
+            "// Auto-generated V2 chain list\n",
+            "export const V2_CHAINS = Object.entries(DEPLOYMENTS)\n",
+            "  .filter(([_, info]) => info.isV2)\n",
+            "  .map(([chainId, _]) => parseInt(chainId))\n\n",
+            
+            "// Auto-generated factory addresses\n",
+            "export const FACTORY_ADDRESSES = Object.fromEntries(\n",
+            "  Object.entries(DEPLOYMENTS).map(([chainId, info]) => [\n",
+            "    chainId,\n", 
+            "    info.factoryAddress\n",
+            "  ])\n",
+            ") as Record<number, string>\n\n",
+            
+            "// Helper functions\n",
+            "export function isV2Chain(chainId: number): boolean {\n",
+            "  return DEPLOYMENTS[chainId]?.isV2 || false\n",
+            "}\n\n",
+            
+            "export function getFactoryAddress(chainId: number): string | undefined {\n",
+            "  return DEPLOYMENTS[chainId]?.factoryAddress\n",
+            "}\n\n",
+            
+            "export function getDeploymentInfo(chainId: number): DeploymentInfo | undefined {\n",
+            "  return DEPLOYMENTS[chainId]\n",
+            "}\n\n",
+            
+            "// Generation metadata\n",
+            "export const GENERATED_AT = \"", vm.toString(block.timestamp), "\"\n",
+            "export const GENERATOR = \"Cookie Jar Deployment System v2.0\"\n",
+            "export const DEPLOYED_CHAIN = ", vm.toString(block.chainid), "\n"
+        ));
     }
 }

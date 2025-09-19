@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useAccount } from "wagmi"
-import { TermsAndConditionsAuth } from "@/components/wallet/terms-and-conditions-auth"
+// Note: TermsAndConditionsAuth is deprecated and commented out
 
 export function WalletAuthLayer({ children }: { children: React.ReactNode }) {
   const { isConnected } = useAccount()
@@ -16,5 +16,6 @@ export function WalletAuthLayer({ children }: { children: React.ReactNode }) {
     )
   }
 
-  return <TermsAndConditionsAuth>{children}</TermsAndConditionsAuth>
+  // Note: TermsAndConditionsAuth was deprecated, rendering children directly
+  return <>{children}</>
 }

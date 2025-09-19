@@ -7,6 +7,12 @@ library CookieJarLib {
     address public constant ETH_ADDRESS = address(3);
     /// @dev Base for percentage calculations (10000 = 100%)
     uint256 public constant PERCENTAGE_BASE = 10000;
+    /// @dev Maximum number of NFT gates allowed per jar (gas optimization)
+    uint256 public constant MAX_NFT_GATES = 24;
+    /// @dev Maximum withdrawal history entries to prevent unbounded array growth
+    uint256 public constant MAX_WITHDRAWAL_HISTORY = 1000;
+    /// @dev Period for withdrawal limits (1 week)
+    uint256 public constant WITHDRAWAL_PERIOD = 7 days;
     
     // --- Enums ---
     /// @notice The mode for access control.
@@ -86,6 +92,7 @@ library CookieJarLib {
         address feeCollector;
         bool emergencyWithdrawalEnabled;
         bool oneTimeWithdrawal;
+        uint256 maxWithdrawalPerPeriod; // 0 means unlimited
     }
 
     /// @notice NFT and allowlist configuration struct
@@ -114,31 +121,36 @@ library CookieJarLib {
         bool oneTimeWithdrawal;
         string metadata;
         uint256 customFeePercentage; // 0 means use default fee
+        uint256 maxWithdrawalPerPeriod; // 0 means unlimited
     }
 
     // --- Events ---
     /// @notice Emitted when a deposit is made.
-    event Deposit(address indexed sender, uint256 amount, address token);
+    event Deposit(address indexed sender, uint256 amount, address indexed token);
     /// @notice Emitted when a withdrawal occurs.
-    event Withdrawal(address indexed recipient, uint256 amount, string purpose);
+    event Withdrawal(address indexed recipient, uint256 indexed amount, string purpose);
     /// @notice Emitted when the fee collector address is updated.
     event FeeCollectorUpdated(address indexed oldFeeCollector, address indexed newFeeCollector);
     /// @notice Emitted when an NFT gate is added.
-    event NFTGateAdded(address nftAddress, NFTType nftType);
+    event NFTGateAdded(address indexed nftAddress, NFTType nftType);
     /// @notice Emitted when an emergency withdrawal is executed.
-    event EmergencyWithdrawal(address indexed admin, address token, uint256 amount);
+    event EmergencyWithdrawal(address indexed admin, address indexed token, uint256 amount);
     /// @notice Emitted when an NFT gate is removed.
-    event NFTGateRemoved(address nftAddress);
+    event NFTGateRemoved(address indexed nftAddress);
     /// @notice Emitted when maximum withdrawal amount is updated.
-    event MaxWithdrawalUpdated(uint256 newMaxWithdrawal);
+    event MaxWithdrawalUpdated(uint256 indexed newMaxWithdrawal);
     /// @notice Emitted when fixed withdrawal amount is updated.
-    event FixedWithdrawalAmountUpdated(uint256 newFixedAmount);
+    event FixedWithdrawalAmountUpdated(uint256 indexed newFixedAmount);
     /// @notice Emitted when withdrawal interval is updated.
-    event WithdrawalIntervalUpdated(uint256 newWithdrawalInterval);
+    event WithdrawalIntervalUpdated(uint256 indexed newWithdrawalInterval);
     /// @notice Emitted when a deposit fee is collected.
-    event FeeCollected(address indexed collector, uint256 feeAmount, address token);
+    event FeeCollected(address indexed collector, uint256 feeAmount, address indexed token);
     /// @notice Emitted when NFT access is successfully validated.
-    event NFTAccessValidated(address indexed user, address indexed nftContract, uint256 tokenId);
+    event NFTAccessValidated(address indexed user, address indexed nftContract, uint256 indexed tokenId);
+    /// @notice Emitted when jar is paused/unpaused.
+    event PausedStateChanged(bool indexed isPaused);
+    /// @notice Emitted when period withdrawal limit is updated.
+    event PeriodWithdrawalLimitUpdated(uint256 indexed newLimit);
 
     // --- Custom Errors ---
     error AdminCannotBeZeroAddress();
@@ -194,4 +206,7 @@ library CookieJarLib {
     error WithdrawalAlreadyDone();
     error WithdrawalTooSoon(uint256 nextAllowedTime);
     error WithdrawalAmountNotAllowed(uint256 provided, uint256 required);
+    error WithdrawalHistoryLimitReached();
+    error ContractPaused();
+    error PeriodWithdrawalLimitExceeded(uint256 requested, uint256 available);
 }
