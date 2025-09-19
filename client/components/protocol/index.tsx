@@ -5,7 +5,7 @@
  * for better error handling and user experience.
  */
 
-import { withProtocolErrorBoundary } from '@/components/design/protocol-error-boundary'
+import { withProtocolErrorBoundary } from '@/components/design/ProtocolErrorBoundary'
 import { POAPGateConfig as _POAPGateConfig } from './POAPGateConfig'
 import { UnlockGateConfig as _UnlockGateConfig } from './UnlockGateConfig'
 import { UnlockMembershipStatus as _UnlockMembershipStatus } from './UnlockMembershipStatus'
@@ -62,4 +62,4 @@ export {
 }
 
 // Export error boundary components
-export { ProtocolErrorBoundary, useProtocolErrorBoundary } from '@/components/design/protocol-error-boundary'
+export { ProtocolErrorBoundary, useProtocolErrorBoundary } from '@/components/design/ProtocolErrorBoundary'

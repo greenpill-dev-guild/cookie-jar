@@ -1,6 +1,6 @@
 # 🍪 Cookie Jar Protocol
 
-Cookie Jar is a decentralized funding protocol that enables controlled distribution of ETH or ERC20 tokens from shared pools. The system uses smart contracts to manage access control (via allowlists or NFT ownership) and periodic withdrawal limits, creating transparent and permissioned funding mechanisms for DAOs and communities.
+Cookie Jar is a decentralized funding protocol that enables controlled distribution of ETH or ERC20 tokens from shared pools. The system uses smart contracts to manage multi-protocol access control (allowlist, NFT ownership, POAP events, Unlock Protocol, Hypercerts, and Hats Protocol) with configurable withdrawal limits, creating transparent and permissioned funding mechanisms for DAOs and communities.
 
 ## 🚀 Quick Start
 
@@ -15,34 +15,27 @@ pnpm dev
 **That's it!** Open http://localhost:3000 and explore 4 pre-seeded demo jars with Cookie Monster NFTs! 🍪
 
 > **✨ What happens during `pnpm install`:**
-> - Installs all Node.js dependencies for both client and contracts
+> - Installs all dependencies for client and contracts
 > - Automatically initializes git submodules (Foundry dependencies)
 > - Runs `forge install` to set up smart contract libraries
 > - Sets up the complete development environment
 
 ## 📋 Prerequisites
 
-Before getting started, ensure you have the following installed:
-
 ### Required Dependencies
-- **Node.js** (v18.0.0 or later) - [Download here](https://nodejs.org/)
-- **pnpm** (v8.0.0 or later) - Install with: `npm install -g pnpm`
-- **Foundry** (latest) - [Installation guide](https://book.getfoundry.sh/getting-started/installation)
+- **Node.js** (v18.0.0+) - [Download](https://nodejs.org/)
+- **pnpm** (v8.0.0+) - `npm install -g pnpm`
+- **Foundry** - [Installation guide](https://book.getfoundry.sh/getting-started/installation)
   ```bash
   curl -L https://foundry.paradigm.xyz | bash
   foundryup
   ```
-- **Git** - [Download here](https://git-scm.com/)
-
-### Optional (for enhanced development)
-- **VS Code** with Solidity extension
-- **Web3 Wallet**: [MetaMask](https://metamask.io/), [Rabby](https://rabby.io/), or [Coinbase Wallet](https://www.coinbase.com/wallet)
-- **Docker** (for alternative development setup)
+- **Git** - [Download](https://git-scm.com/)
 
 ### System Requirements
 - **Memory**: 4GB RAM minimum (8GB recommended)
 - **Storage**: 2GB free space
-- **OS**: macOS, Linux, or Windows (WSL2 recommended)
+- **OS**: macOS, Linux, or Windows (WSL2)
 
 ## 💻 Development Options
 
@@ -66,7 +59,45 @@ pnpm dev:base-sepolia      # Fork Base Sepolia testnet
 - ✅ Watch for contract changes and auto-redeploy  
 - ✅ Start client dev server with hot reload (Turbo mode)
 - ✅ Generate TypeScript types automatically
-- ✅ Uses hardcoded Anvil Account #0 (safe for local development)
+
+## 🔧 Environment Configuration
+
+### For Local Development
+**No configuration needed!** The development environment uses secure defaults for local blockchain testing.
+
+### For Production Deployments
+Copy and configure the environment template:
+
+```bash
+cp .env.sample .env.local
+# Edit .env.local with your values
+```
+
+See [`.env.sample`](.env.sample) for all available configuration options including:
+- **WalletConnect Project ID** - Required for wallet connections
+- **Alchemy API Key** - Recommended for better RPC performance  
+- **RPC Endpoints** - For different networks
+- **Factory Configuration** - Fee settings and deployment parameters
+
+## 🔐 Secure Wallet Setup (Production)
+
+### Foundry Keystore (Recommended)
+**No private keys in files!** Use Foundry's secure keystore for deployments:
+
+```bash
+# Import your deployment wallet securely
+cast wallet import deployer --interactive
+# Enter private key when prompted and set password
+
+# Verify keystore was created
+cast wallet list
+```
+
+**Why Keystore?**
+- ✅ Private keys encrypted with password
+- ✅ No secrets in environment files
+- ✅ Industry standard security practice
+- ✅ Works with all Foundry deployment commands
 
 ## 🎭 Demo Environment Showcase
 
@@ -102,79 +133,65 @@ When you run any `pnpm dev` command, you get **4 pre-configured demo jars** read
 
 > **💡 Pro Tip**: Use the pre-funded test accounts below to try different access patterns!
 
-## 📦 Monorepo Structure
+## 📦 Project Structure
 
 ```
 cookie-jar/
-├── package.json           # Root package with workspace scripts
-├── pnpm-workspace.yaml    # Workspace configuration
-├── .env.sample            # Environment configuration template
-├── contracts/             # Smart contracts (Foundry/Solidity)
-├── client/                # Next.js client application
-└── scripts/               # Shared utility scripts
+├── package.json           # Root workspace configuration
+├── pnpm-workspace.yaml    # Monorepo setup
+├── .env.sample            # Environment template (see production setup)
+│
+├── contracts/             # 🏗️ Smart contracts (Foundry/Solidity)
+│   ├── README.md          # Contract-specific documentation
+│   ├── src/               # Solidity contracts
+│   ├── test/              # Contract tests
+│   └── script/            # Deployment scripts
+│
+├── client/                # 🌐 Next.js web application
+│   ├── README.md          # Client-specific documentation
+│   ├── app/               # Next.js App Router
+│   ├── components/        # React components
+│   ├── hooks/             # Custom React hooks
+│   └── __tests__/         # Frontend tests
+│
+├── docs/                  # 📚 Documentation
+│   ├── PROTOCOL_GUIDE.md  # Multi-protocol access control guide
+│   └── NFT_TESTING_GUIDE.md # NFT development testing guide
+│
+└── scripts/               # 🛠️ Shared utility scripts
 ```
 
-**Benefits:**
-- ✅ Single `pnpm install` for all dependencies
-- ✅ Unified scripts from root directory
-- ✅ Shared development commands
-- ✅ Optimized dependency management
-- ✅ Consolidated environment configuration
+> 📖 **Documentation Links**:
+> - **Contract Details**: [contracts/README.md](contracts/README.md)
+> - **Client Architecture**: [client/README.md](client/README.md)  
+> - **Access Control Guide**: [docs/PROTOCOL_GUIDE.md](docs/PROTOCOL_GUIDE.md)
+> - **NFT Testing**: [docs/NFT_TESTING_GUIDE.md](docs/NFT_TESTING_GUIDE.md)
 
-## 🔧 Environment Setup (Optional)
 
-For production deployments or custom configuration, copy the sample environment file:
+## ✨ Core Features
 
-```bash
-# Copy the sample environment file
-cp .env.sample .env.local
+### **Multi-Protocol Access Control**
+- **Allowlist Mode**: Pre-approved addresses only
+- **NFT-Gated Mode**: ERC721/ERC1155 token ownership
+- **POAP Mode**: Event attendance verification  
+- **Unlock Protocol**: Membership-based access
+- **Hypercerts**: Impact certificate holders
+- **Hats Protocol**: Organizational role-based access
 
-# Edit with your values
-nano .env.local
-```
+> 📖 **Detailed Guide**: See [docs/PROTOCOL_GUIDE.md](docs/PROTOCOL_GUIDE.md) for comprehensive access control documentation
 
-### Key Environment Variables:
-- `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID` - Required for wallet connections
-- `NEXT_PUBLIC_ALCHEMY_ID` - Recommended for better RPC performance
-- `PRIVATE_KEY` - For testnet/mainnet deployments (⚠️ never commit real keys!)
-- `ANVIL_PRIVATE_KEY` - Hardcoded for local development (safe to commit)
+### **Flexible Distribution Mechanics**
+- **Multi-Token Support**: ETH and any ERC20 token
+- **Withdrawal Patterns**: Fixed amounts, variable limits, one-time distributions
+- **Time Controls**: Configurable cooldown periods between withdrawals
+- **Purpose Tracking**: Optional requirement for withdrawal explanations
+- **Admin Controls**: Comprehensive jar management and emergency functions
 
-## How Does Cookie Jar Work?
-
-### 🔐 **Access Control Methods:**
-
-1. **Allowlisted Members**: Only members who have been added to the allowlist can access the Cookie Jar. This ensures that only approved participants are able to withdraw funds from the communal jar.
-
-2. **NFT Gating**: Holders of specific NFT collections can access the jar by proving ownership of qualifying tokens. Supports both ERC721 and ERC1155 standards.
-
-### 💰 **Distribution Mechanics:**
-
-3. **Periodic Withdrawals**: A predefined amount of ETH is made available for withdrawal at regular intervals. This could be weekly, monthly, or any other time period defined by the Admin.
-
-4. **Communal Pool**: The funds are stored in a shared smart contract (the "jar"), and any withdrawal request is handled directly through interactions with the contract.
-
-5. **Admin Controls**: The rules for withdrawals, such as the amount and frequency, can be adjusted by the admin.
-
-## ✨ Features
-
-### **Core Features:**
-- **Dual Access Control**: Both allowlist and NFT-gated access modes
-- **Multi-Token Support**: Works with ETH and any ERC20 token
-- **Flexible Withdrawals**: Fixed or variable withdrawal amounts
-- **Rich Metadata**: Jar names, images, and external links
-- **Custom Fees**: Optional donation fees per jar
-
-### **Advanced Features:**
-- **Periodic Limits**: Time-based withdrawal restrictions
-- **Admin Controls**: Comprehensive jar management
-- **Event Tracking**: Full audit trail via blockchain events
-- **Client Integration**: Beautiful, responsive web interface
-
-### **Security & Transparency:**
-- **Decentralized**: All operations governed by smart contracts
-- **Transparent**: All withdrawals and interactions are publicly verifiable
-- **Permissioned**: Controlled access ensures fair distribution
-- **Auditable**: Complete transaction history on-chain
+### **Security & Transparency**
+- **Smart Contract Governed**: All operations handled by audited contracts
+- **Complete Transparency**: Public transaction history and audit trails
+- **Secure Deployment**: Foundry-based deployment with keystore security
+- **Emergency Controls**: Optional admin recovery mechanisms
 
 ## 📋 Development Workflow
 
@@ -283,60 +300,43 @@ pnpm stop                  # Stop all running services
 
 ## 🚀 Production Deployment Guide
 
-Cookie Jar uses **Foundry** for secure, efficient deployments to any EVM chain. The system automatically updates client configuration when contracts are deployed.
+Cookie Jar uses **Foundry** for secure, efficient deployments to any EVM chain with automatic client configuration updates.
 
 ### **📋 Prerequisites**
 
 1. **Foundry installed** (`curl -L https://foundry.paradigm.xyz | bash && foundryup`)
-2. **Deployment wallet** with funds for the target chain
-3. **Environment variables** configured
+2. **Deployment wallet** with funds for the target chain  
+3. **Environment variables** configured (see [.env.sample](.env.sample))
 4. **Etherscan API key** (for contract verification)
 
 ### **🔧 Environment Setup**
 
 1. **Copy and configure environment variables:**
    ```bash
-   cp .env.example .env
-   # Edit .env with your actual values
+   cp .env.sample .env
+   # Edit .env with your actual values - see .env.sample for all options
    ```
 
-2. **Required environment variables:**
-   ```bash
-   # API Keys
-   ETHERSCAN_API_KEY=your_etherscan_api_key_here
-   
-   # RPC URLs (chain-specific)
-   BASE_SEPOLIA_RPC_URL=https://sepolia.base.org
-   ETHEREUM_SEPOLIA_RPC_URL=https://rpc.sepolia.dev
-   CELO_ALFAJORES_RPC_URL=https://alfajores-forno.celo-testnet.org
-   
-   # Factory Configuration
-   FEE_COLLECTOR=0xYourFeeCollectorAddressHere      # Fee recipient
-   FACTORY_OWNER=0xYourFactoryOwnerAddressHere       # Admin address
-   FEE_PERCENTAGE=100                                 # 1% = 100 bps
-   MIN_ETH_DEPOSIT=10000000000000000                 # 0.01 ETH minimum
-   MIN_ERC20_DEPOSIT=1000000000000000000000          # 1000 token minimum
-   ```
+2. **Key configuration sections** (see [.env.sample](.env.sample) for complete list):
+   - **API Keys**: Etherscan verification keys
+   - **RPC URLs**: Network endpoints (Base, Ethereum, Celo, etc.)
+   - **Factory Configuration**: Fee settings, minimum deposits, admin addresses
 
-### **🔐 Secure Wallet Setup**
+### **🔐 Secure Deployment Wallet**
 
-**Use Foundry Keystore (recommended)** - No private keys in files!
+**✅ Recommended: Foundry Keystore**
 
-```bash
-# Import your deployment wallet securely
-cast wallet import deployer --interactive
-# Enter private key when prompted and set password
-
-# Verify keystore was created
-cast wallet list
-```
+Already covered in the [Secure Wallet Setup](#-secure-wallet-setup-production) section above. This approach:
+- Encrypts private keys with password
+- Keeps secrets out of environment files  
+- Works seamlessly with all deployment commands
 
 ### **🌐 Deploy to Any Chain**
 
-**Universal deployment command that works on any EVM chain:**
+**Universal deployment using secure keystore:**
 
 ```bash
-# Export environment variables
+# Export environment variables  
 export $(cat .env | xargs)
 
 # Deploy to your target chain (examples):
@@ -349,7 +349,7 @@ forge script script/Deploy.s.sol:Deploy \
   --broadcast \
   --verify
 
-# Deploy to Ethereum Mainnet  
+# Deploy to Ethereum Mainnet (requires --verify flag)
 forge script script/Deploy.s.sol:Deploy \
   --rpc-url mainnet \
   --account deployer \
@@ -363,6 +363,8 @@ forge script script/Deploy.s.sol:Deploy \
   --broadcast \
   --verify
 ```
+
+> **💡 Security Tip**: The `--account deployer` flag uses your secure keystore. You'll be prompted for your password during deployment.
 
 ### **✅ Post-Deployment**
 
@@ -413,7 +415,7 @@ source .env
 # List available keystores
 cast wallet list
 
-# Re-import if needed
+# Re-import if needed (uses secure keystore approach)
 cast wallet import deployer --interactive
 ```
 
@@ -492,22 +494,27 @@ tail -f contracts/watch-deploy.log   # Contract watcher logs
 
 ## 🎯 Getting Started Guide
 
-1. **Prerequisites**: Install Node.js (18+), pnpm (8+), and Foundry
-2. **Clone & Install**: `git clone <repo> && cd cookie-jar && pnpm install`
-3. **Start Development**: Choose your mode:
-   - `pnpm dev` - Local development (fastest)
-   - `pnpm dev:ethereum` - With Ethereum fork
-   - `pnpm dev:celo` - With Celo fork  
-   - `pnpm dev:base-sepolia` - With Base Sepolia fork
-4. **Open Client**: Navigate to http://localhost:3000  
-5. **Connect Wallet**: Add local network (Chain ID: 31337) to your Web3 wallet
-6. **Import Test Account**: Use Account #0 private key from the table above
-7. **Explore Demo Jars**: 4 pre-seeded jars with different access patterns
-8. **Start Building**: Edit contracts in `contracts/src/` or client in `client/`
+### For Local Development (Fastest Path)
+1. **Install Prerequisites**: Node.js (18+), pnpm (8+), and Foundry
+2. **Clone & Setup**: 
+   ```bash
+   git clone https://github.com/greenpill-dev-guild/cookie-jar.git
+   cd cookie-jar && pnpm install
+   pnpm dev
+   ```
+3. **Open Client**: Navigate to http://localhost:3000  
+4. **Connect Wallet**: Add local network (Chain ID: 31337) to your Web3 wallet
+5. **Import Test Account**: Use any account from the pre-funded test accounts table
+6. **Explore Demo Jars**: 4 pre-seeded jars with different access patterns ready to test
 
-### 🎉 Zero Configuration Setup! 
+### For Production Deployment
+1. **Environment Setup**: Copy `.env.sample` to `.env` and configure
+2. **Secure Wallet**: Set up Foundry keystore with `cast wallet import deployer --interactive` 
+3. **Deploy**: Use the deployment commands in the [Production Deployment Guide](#-production-deployment-guide)
 
-No complex environment files, no configuration hassles, no setup friction. Just clone, install, and develop! The unified scripts approach [[memory:8871571]] makes local development seamless while staying secure through chain ID restrictions.
+### 🎉 Zero Configuration for Development
+
+No complex setup needed for local development! The monorepo approach makes it seamless - just clone, install, and develop with automatic contract deployment and client configuration.
 
 ## 🤝 Contributing
 
@@ -521,8 +528,21 @@ No complex environment files, no configuration hassles, no setup friction. Just 
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 🔗 Links
+## 📚 Additional Resources
 
-- **Documentation**: [Coming Soon]
+### **📖 Documentation**
+- **[contracts/README.md](contracts/README.md)** - Smart contract architecture, development tools, and deployment details
+- **[client/README.md](client/README.md)** - Frontend architecture, component structure, and testing setup
+- **[docs/PROTOCOL_GUIDE.md](docs/PROTOCOL_GUIDE.md)** - Comprehensive guide to all 6 access control methods
+- **[docs/NFT_TESTING_GUIDE.md](docs/NFT_TESTING_GUIDE.md)** - Complete NFT testing workflow for development
+- **[.env.sample](.env.sample)** - Environment configuration template with all options
+
+### **🛠️ Developer Tools**
+- **[Foundry Documentation](https://book.getfoundry.sh/)** - Smart contract development framework
+- **[Next.js Documentation](https://nextjs.org/docs)** - React framework and App Router
+- **[RainbowKit Documentation](https://www.rainbowkit.com/)** - Wallet connection components
+
+### **🌐 Community & Support**
 - **Discord**: [Greenpill Dev Guild](https://discord.gg/greenpill)
 - **Twitter**: [@greenpill](https://twitter.com/greenpill)
+- **GitHub Issues**: For bug reports and feature requests
