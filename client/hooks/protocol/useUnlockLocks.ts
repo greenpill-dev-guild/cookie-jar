@@ -181,7 +181,7 @@ export function useUnlockLocks(options: UseUnlockLocksOptions = {}): UseUnlockLo
 
     try {
       // Use real Unlock Protocol SDK to get user's key
-      const key = await web3Service.getKeyByLockForOwner(lockAddress, userAddress)
+      const key = await web3Service.getKeyByLockForOwner(lockAddress, userAddress, chainId)
       
       if (key && key.expiration > Date.now() / 1000) {
         const userKey: UserKey = {
@@ -251,7 +251,7 @@ export function useUnlockLocks(options: UseUnlockLocksOptions = {}): UseUnlockLo
     
     try {
       // Use real Unlock Protocol SDK to check key validity
-      const key = await web3Service.getKeyByLockForOwner(lockAddress, userAddress)
+      const key = await web3Service.getKeyByLockForOwner(lockAddress, userAddress, chainId)
       const isValid = key && key.expiration > Date.now() / 1000
       return Boolean(isValid)
     } catch (error) {

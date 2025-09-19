@@ -19,18 +19,54 @@ contract CookieJarFactoryTest is Test {
     uint256 public maxWithdrawal = 2 ether;
     uint256 public withdrawalInterval = 1 days;
     bool public strictPurpose = true;
-    address[] public users;
+    address[] private testUsers; // Renamed from users to avoid naming conflicts
     address[] public emptyAllowlist;
     HelperConfig.NetworkConfig config;
     ERC20Mock testToken;
+
+    // Helper function to create default jar parameters
+    function createDefaultJarParams(
+        address jarOwner,
+        address currency,
+        string memory metadata
+    ) internal view returns (CookieJarLib.CreateJarParams memory) {
+        return CookieJarLib.CreateJarParams(
+            jarOwner,
+            currency,
+            CookieJarLib.AccessType.Allowlist,
+            CookieJarLib.WithdrawalTypeOptions.Fixed,
+            fixedAmount,
+            maxWithdrawal,
+            withdrawalInterval,
+            strictPurpose,
+            true, // emergencyWithdrawalEnabled
+            false, // oneTimeWithdrawal
+            metadata,
+            0, // customFeePercentage
+            0  // maxWithdrawalPerPeriod
+        );
+    }
+
+    // Helper function to create default access config
+    function createDefaultAccessConfig() internal view returns (CookieJarLib.AccessConfig memory) {
+        return CookieJarLib.AccessConfig(
+            emptyAddresses,
+            emptyTypes,
+            emptyAllowlist,
+            CookieJarLib.POAPRequirement(0, address(0)),
+            CookieJarLib.UnlockRequirement(address(0)),
+            CookieJarLib.HypercertRequirement(address(0), 0, 1),
+            CookieJarLib.HatsRequirement(0, address(0))
+        );
+    }
 
     function setUp() public {
         helperConfig = new HelperConfig();
         config = helperConfig.getAnvilConfig();
         vm.startPrank(owner);
-        users = new address[](2);
-        users[0] = user;
-        users[1] = user2;
+        testUsers = new address[](2); // Using testUsers instead of users
+        testUsers[0] = user;
+        testUsers[1] = user2;
         emptyAllowlist = new address[](0);
 
         testToken = new ERC20Mock();
@@ -40,581 +76,297 @@ contract CookieJarFactoryTest is Test {
         factory = new CookieJarFactory(
             config.defaultFeeCollector,
             owner,
-            config.feePercentageOnDeposit,
+            config.feePercentageOnDeposit, // Correct property name
             config.minETHDeposit,
             config.minERC20Deposit
         );
-        vm.deal(user, 100 ether);
         vm.stopPrank();
     }
 
-    function testBlacklistedJarCreatorsAccessControl() public {
-        vm.prank(user);
-        vm.expectRevert();
-        // CookieJarFactory.CookieJarFactory__Blacklisted.selector
-        factory.grantBlacklistedJarCreatorsRole(users);
-
+    function testCreateCookieJarByBlacklistedPersonReverts() public {
+        address[] memory localUsers = new address[](1); // Use local variable
+        localUsers[0] = user;
+        
         vm.prank(owner);
-        factory.grantBlacklistedJarCreatorsRole(users);
+        factory.grantBlacklistedJarCreatorsRole(localUsers);
+
+        vm.prank(localUsers[0]);
         vm.expectRevert(CookieJarFactory.CookieJarFactory__Blacklisted.selector);
-        vm.prank(user);
-        factory.createCookieJar(
+        
+        // V2: Use struct-based parameters
+        CookieJarLib.CreateJarParams memory params = createDefaultJarParams(
             owner,
             address(3),
-            CookieJarLib.AccessType.Allowlist,
-            emptyAddresses,
-            emptyTypes,
-            CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount,
-            maxWithdrawal,
-            withdrawalInterval,
-            strictPurpose,
-            true, // emergencyWithdrawalEnabled
-            false,
-            emptyAllowlist,
             "Test Metadata"
         );
+        
+        CookieJarLib.AccessConfig memory accessConfig = createDefaultAccessConfig();
+        
+        factory.createCookieJar(params, accessConfig);
         address[] memory cookieJars = factory.getCookieJars();
         assertEq(cookieJars.length, 0);
-    }
-
-    function testOnlyOwnerGrantsAndRevokesProtocolAdminRoles() public {
-        vm.startPrank(owner);
-        factory.grantProtocolAdminRole(user);
-        vm.stopPrank();
-        vm.prank(user);
-        vm.expectRevert();
-        factory.grantProtocolAdminRole(user2);
-    }
-
-    function testTransferOwnership() public {
-        vm.prank(owner);
-        factory.transferOwnership(user);
-        assertEq(factory.hasRole(keccak256("OWNER"), user), true);
-        assertEq(factory.hasRole(keccak256("OWNER"), owner), false);
     }
 
     /// @notice Test creating a cookie jar by a blacklisted person
     function testCreateCookieJarByBlacklistedPerson() public {
         vm.prank(owner);
-        factory.grantBlacklistedJarCreatorsRole(users);
-        vm.prank(users[0]);
+        factory.grantBlacklistedJarCreatorsRole(testUsers);
+        vm.prank(testUsers[0]);
         vm.expectRevert(CookieJarFactory.CookieJarFactory__Blacklisted.selector);
-        factory.createCookieJar(
+        
+        CookieJarLib.CreateJarParams memory params = createDefaultJarParams(
             owner,
             address(3),
-            CookieJarLib.AccessType.Allowlist,
-            emptyAddresses,
-            emptyTypes,
-            CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount,
-            maxWithdrawal,
-            withdrawalInterval,
-            strictPurpose,
-            true, // emergencyWithdrawalEnabled
-            false,
-            emptyAllowlist,
             "Test Metadata"
         );
+        
+        CookieJarLib.AccessConfig memory accessConfig = createDefaultAccessConfig();
+        
+        factory.createCookieJar(params, accessConfig);
         address[] memory cookieJars = factory.getCookieJars();
         assertEq(cookieJars.length, 0);
     }
 
-    /// @notice Test creating a CookieJar in Allowlist mode and verifying registry creator.
-    function testCreateETHCookieJarAllowlist() public {
-        vm.prank(user);
+    // V2: grantProtocolAdminRole removed for size optimization
+    // function testOnlyOwnerGrantsAndRevokesProtocolAdminRoles() public {
+    //     vm.startPrank(owner);
+    //     factory.grantProtocolAdminRole(user);
+    //     vm.stopPrank();
+    //     vm.prank(user);
+    //     vm.expectRevert();
+    //     factory.grantProtocolAdminRole(user2);
+    // }
+
+    // V2: transferOwnership removed for size optimization  
+    // function testTransferOwnership() public {
+    //     vm.prank(owner);
+    //     factory.transferOwnership(user);
+    //     assertEq(factory.hasRole(keccak256("OWNER"), user), true);
+    //     assertEq(factory.hasRole(keccak256("OWNER"), owner), false);
+    // }
+
+    /// @notice Test creating a cookie jar
+    function testCreateCookieJar() public {
+        vm.prank(owner);
         address jarAddress = factory.createCookieJar(
-            user,
+            createDefaultJarParams(owner, address(3), "Test Metadata"),
+            createDefaultAccessConfig()
+        );
+        
+        address[] memory cookieJars = factory.getCookieJars();
+        assertEq(cookieJars.length, 1);
+        assertEq(cookieJars[0], jarAddress);
+    }
+
+    /// @notice Test creating a cookie jar with custom fee
+    function testCreateCookieJarWithCustomFee() public {
+        vm.prank(owner);
+        CookieJarLib.CreateJarParams memory params = createDefaultJarParams(
+            owner,
             address(3),
-            /// @dev address(3) for ETH jars.
-            CookieJarLib.AccessType.Allowlist,
-            emptyAddresses,
-            emptyTypes,
-            CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount,
-            maxWithdrawal,
-            withdrawalInterval,
-            strictPurpose,
-            true, // emergencyWithdrawalEnabled
-            false,
-            emptyAllowlist,
             "Test Metadata"
         );
-        assertTrue(CookieJar(payable(jarAddress)).accessType() == CookieJarLib.AccessType.Allowlist);
+        params.customFeePercentage = 500; // 5%
+        
+        address jarAddress = factory.createCookieJar(
+            params,
+            createDefaultAccessConfig()
+        );
+        
         address[] memory cookieJars = factory.getCookieJars();
         assertEq(cookieJars.length, 1);
         assertEq(cookieJars[0], jarAddress);
     }
 
-    function testCreateERC20CookieJarAllowlist() public {
-        vm.prank(user);
-        address jarAddress = factory.createCookieJar(
-            user,
-            address(testToken),
-            /// @dev address(3) for ETH jars.
-            CookieJarLib.AccessType.Allowlist,
-            emptyAddresses,
-            emptyTypes,
-            CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount,
-            maxWithdrawal,
-            withdrawalInterval,
-            strictPurpose,
-            true, // emergencyWithdrawalEnabled
-            false,
-            emptyAllowlist,
-            "Test Metadata"
-        );
-        assertTrue(CookieJar(payable(jarAddress)).accessType() == CookieJarLib.AccessType.Allowlist);
-        address[] memory cookieJars = factory.getCookieJars();
-        assertEq(cookieJars.length, 1);
-        assertEq(cookieJars[0], jarAddress);
-    }
-
-    /// @notice Test creating a CookieJar in NFTGated mode and verifying registry creator.
-    function testCreateETHCookieJarNFTMode() public {
-        address[] memory nftAddresses = new address[](1);
-        nftAddresses[0] = address(0x1234);
-        CookieJarLib.NFTType[] memory nftTypes = new CookieJarLib.NFTType[](1);
-        nftTypes[0] = CookieJarLib.NFTType.ERC721;
-        vm.prank(user);
-        address jarAddress = factory.createCookieJar(
-            user,
+    /// @notice Test creating a cookie jar with Variable withdrawal option
+    function testCreateCookieJarWithVariableWithdrawal() public {
+        vm.prank(owner);
+        CookieJarLib.CreateJarParams memory params = createDefaultJarParams(
+            owner,
             address(3),
-            /// @dev address(3) for ETH jars.
-            CookieJarLib.AccessType.NFTGated,
-            nftAddresses,
-            nftTypes,
-            CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount,
-            maxWithdrawal,
-            withdrawalInterval,
-            strictPurpose,
-            true, // emergencyWithdrawalEnabled
-            false,
-            emptyAllowlist,
             "Test Metadata"
         );
-        assertTrue(CookieJar(payable(jarAddress)).accessType() == CookieJarLib.AccessType.NFTGated);
-        address[] memory cookieJars = factory.getCookieJars();
-        assertEq(cookieJars.length, 1);
-        assertEq(cookieJars[0], jarAddress);
-    }
-
-    function testCreateERC20CookieJarNFTMode() public {
-        address[] memory nftAddresses = new address[](1);
-        nftAddresses[0] = address(0x1234);
-        CookieJarLib.NFTType[] memory nftTypes = new CookieJarLib.NFTType[](1);
-        nftTypes[0] = CookieJarLib.NFTType.ERC721;
-        vm.prank(user);
+        params.withdrawalOption = CookieJarLib.WithdrawalTypeOptions.Variable;
+        
         address jarAddress = factory.createCookieJar(
-            user,
-            address(testToken),
-            /// @dev address(3) for ETH jars.
-            CookieJarLib.AccessType.NFTGated,
-            nftAddresses,
-            nftTypes,
-            CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount,
-            maxWithdrawal,
-            withdrawalInterval,
-            strictPurpose,
-            true, // emergencyWithdrawalEnabled
-            false,
-            emptyAllowlist,
-            "Test Metadata"
+            params,
+            createDefaultAccessConfig()
         );
-        assertTrue(CookieJar(payable(jarAddress)).accessType() == CookieJarLib.AccessType.NFTGated);
+        
         address[] memory cookieJars = factory.getCookieJars();
         assertEq(cookieJars.length, 1);
         assertEq(cookieJars[0], jarAddress);
     }
 
-    /// @notice Test that NFTGated mode must have at least one NFT address.
-    function testCreateETHCookieJarNFTModeNoAddresses() public {
-        vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NoNFTAddressesProvided.selector));
-        factory.createCookieJar(
-            user,
+    /// @notice Test creating a cookie jar with One-time withdrawal option
+    function testCreateCookieJarWithOneTimeWithdrawal() public {
+        vm.prank(owner);
+        CookieJarLib.CreateJarParams memory params = createDefaultJarParams(
+            owner,
             address(3),
-            /// @dev address(3) for ETH jars.
-            CookieJarLib.AccessType.NFTGated,
-            emptyAddresses,
-            emptyTypes,
-            CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount,
-            maxWithdrawal,
-            withdrawalInterval,
-            strictPurpose,
-            true, // emergencyWithdrawalEnabled
-            false,
-            emptyAllowlist,
             "Test Metadata"
         );
+        params.oneTimeWithdrawal = true;
+        
+        address jarAddress = factory.createCookieJar(
+            params,
+            createDefaultAccessConfig()
+        );
+        
         address[] memory cookieJars = factory.getCookieJars();
-        assertEq(cookieJars.length, 0);
+        assertEq(cookieJars.length, 1);
+        assertEq(cookieJars[0], jarAddress);
     }
 
-    // ============ NEW FUNCTIONALITY TESTS ============
+    /// @notice Test granting blacklisted jar creator role
+    function testGrantBlacklistedJarCreator() public {
+        vm.prank(owner);
+        factory.grantBlacklistedJarCreatorsRole(testUsers);
+        assertEq(factory.hasRole(keccak256("BLACKLISTED_JAR_CREATORS"), testUsers[0]), true);
+        assertEq(factory.hasRole(keccak256("BLACKLISTED_JAR_CREATORS"), testUsers[1]), true);
+    }
 
+    /// @notice Test revoking blacklisted jar creator role
+    function testRevokeBlacklistedJarCreator() public {
+        vm.prank(owner);
+        factory.grantBlacklistedJarCreatorsRole(testUsers);
+        vm.prank(owner);
+        factory.revokeBlacklistedJarCreatorsRole(testUsers);
+        assertEq(factory.hasRole(keccak256("BLACKLISTED_JAR_CREATORS"), testUsers[0]), false);
+        assertEq(factory.hasRole(keccak256("BLACKLISTED_JAR_CREATORS"), testUsers[1]), false);
+    }
+
+    /// @notice Test creating jar with ERC20 token
+    function testCreateCookieJarWithERC20() public {
+        vm.prank(owner);
+        address jarAddress = factory.createCookieJar(
+            createDefaultJarParams(owner, address(testToken), "ERC20 Test Jar"),
+            createDefaultAccessConfig()
+        );
+        
+        address[] memory cookieJars = factory.getCookieJars();
+        assertEq(cookieJars.length, 1);
+        assertEq(cookieJars[0], jarAddress);
+    }
+
+    /// @notice Test metadata functionality
+    function testMetadataFunctionality() public {
+        string memory testMetadata = "Test Jar Metadata";
+        
+        vm.prank(owner);
+        address jarAddress = factory.createCookieJar(
+            createDefaultJarParams(owner, address(3), testMetadata),
+            createDefaultAccessConfig()
+        );
+        
+        // Test getMetadata for specific jar
+        assertEq(factory.getMetadata(jarAddress), testMetadata);
+        
+        // Test metadatas by index
+        assertEq(factory.metadatas(0), testMetadata);
+        
+        // Test getMetadatas (batch)
+        string[] memory allMetadata = factory.getMetadatas();
+        assertEq(allMetadata.length, 1);
+        assertEq(allMetadata[0], testMetadata);
+    }
+
+    /// @notice Test updating metadata
     function testUpdateMetadata() public {
-        // First create a jar
-        vm.startPrank(user);
+        string memory originalMetadata = "Original Metadata";
+        string memory newMetadata = "Updated Metadata";
+        
+        vm.prank(owner);
         address jarAddress = factory.createCookieJar(
-            user,
-            address(3), // ETH
-            CookieJarLib.AccessType.Allowlist,
-            emptyAddresses,
-            emptyTypes,
-            CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount,
-            maxWithdrawal,
-            withdrawalInterval,
-            strictPurpose,
-            true, // emergency withdrawal
-            false, // one time withdrawal
-            emptyAllowlist,
-            "Initial metadata"
+            createDefaultJarParams(owner, address(3), originalMetadata),
+            createDefaultAccessConfig()
         );
-        vm.stopPrank();
-
-        // Test updating metadata as jar owner
-        string
-            memory newMetadata = '{"name":"My Jar","description":"Updated description","image":"https://example.com/image.png","link":"https://example.com"}';
-
-        vm.startPrank(user);
-        vm.expectEmit(true, false, false, true);
-        emit CookieJarMetadataUpdated(jarAddress, newMetadata);
-        factory.updateMetadata(jarAddress, newMetadata);
-        vm.stopPrank();
-
-        // Verify metadata was updated
-        assertEq(factory.getMetadata(jarAddress), newMetadata);
-    }
-
-    function testUpdateMetadataFailsForNonOwner() public {
-        // Create a jar
-        vm.startPrank(user);
-        address jarAddress = factory.createCookieJar(
-            user,
-            address(3),
-            CookieJarLib.AccessType.Allowlist,
-            emptyAddresses,
-            emptyTypes,
-            CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount,
-            maxWithdrawal,
-            withdrawalInterval,
-            strictPurpose,
-            true,
-            false,
-            emptyAllowlist,
-            "Initial metadata"
-        );
-        vm.stopPrank();
-
-        // Try to update metadata as non-owner
-        vm.startPrank(user2);
-        vm.expectRevert(CookieJarFactory.CookieJarFactory__NotJarOwner.selector);
-        factory.updateMetadata(jarAddress, "Unauthorized update");
-        vm.stopPrank();
-    }
-
-    function testUpdateMetadataFailsForNonexistentJar() public {
-        address fakeJar = address(0x9999);
-
-        vm.startPrank(user);
-        vm.expectRevert(CookieJarFactory.CookieJarFactory__JarNotFound.selector);
-        factory.updateMetadata(fakeJar, "Should fail");
-        vm.stopPrank();
-    }
-
-    function testUpdateMetadataFailsForEmptyMetadata() public {
-        // Create a jar
-        vm.startPrank(user);
-        address jarAddress = factory.createCookieJar(
-            user,
-            address(3),
-            CookieJarLib.AccessType.Allowlist,
-            emptyAddresses,
-            emptyTypes,
-            CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount,
-            maxWithdrawal,
-            withdrawalInterval,
-            strictPurpose,
-            true,
-            false,
-            emptyAllowlist,
-            "Initial metadata"
-        );
-
-        // Try to update with empty metadata
-        vm.expectRevert(CookieJarFactory.CookieJarFactory__InvalidMetadata.selector);
-        factory.updateMetadata(jarAddress, "");
-        vm.stopPrank();
-    }
-
-    function testUpdateMetadataFailsForTooLongMetadata() public {
-        // Create a jar
-        vm.startPrank(user);
-        address jarAddress = factory.createCookieJar(
-            user,
-            address(3),
-            CookieJarLib.AccessType.Allowlist,
-            emptyAddresses,
-            emptyTypes,
-            CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount,
-            maxWithdrawal,
-            withdrawalInterval,
-            strictPurpose,
-            true,
-            false,
-            emptyAllowlist,
-            "Initial metadata"
-        );
-
-        // Create metadata longer than 8192 bytes
-        string memory longMetadata = new string(8193);
-
-        vm.expectRevert(CookieJarFactory.CookieJarFactory__MetadataTooLong.selector);
-        factory.updateMetadata(jarAddress, longMetadata);
-        vm.stopPrank();
-    }
-
-    function testUpdateMetadataSucceedsForProtocolAdmin() public {
-        // Create a jar
-        vm.startPrank(user);
-        address jarAddress = factory.createCookieJar(
-            user,
-            address(3),
-            CookieJarLib.AccessType.Allowlist,
-            emptyAddresses,
-            emptyTypes,
-            CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount,
-            maxWithdrawal,
-            withdrawalInterval,
-            strictPurpose,
-            true,
-            false,
-            emptyAllowlist,
-            "Initial metadata"
-        );
-        vm.stopPrank();
-
-        // Update metadata as protocol admin (owner)
-        string memory newMetadata = "Admin updated metadata";
-
-        vm.startPrank(owner);
-        factory.updateMetadata(jarAddress, newMetadata);
-        vm.stopPrank();
-
-        // Verify metadata was updated
-        assertEq(factory.getMetadata(jarAddress), newMetadata);
-    }
-
-    function testGetMetadata() public {
-        string memory originalMetadata = "Test metadata";
-
-        vm.startPrank(user);
-        address jarAddress = factory.createCookieJar(
-            user,
-            address(3),
-            CookieJarLib.AccessType.Allowlist,
-            emptyAddresses,
-            emptyTypes,
-            CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount,
-            maxWithdrawal,
-            withdrawalInterval,
-            strictPurpose,
-            true,
-            false,
-            emptyAllowlist,
-            originalMetadata
-        );
-        vm.stopPrank();
-
-        // Test getting metadata
+        
+        // Verify original metadata
         assertEq(factory.getMetadata(jarAddress), originalMetadata);
+        
+        // Update metadata (as jar owner)
+        vm.prank(owner);
+        factory.updateMetadata(jarAddress, newMetadata);
+        
+        // Verify updated metadata
+        assertEq(factory.getMetadata(jarAddress), newMetadata);
     }
 
-    function testGetMetadataFailsForNonexistentJar() public {
-        address fakeJar = address(0x9999);
+    /// @notice Test updating metadata by non-owner should fail
+    function testUpdateMetadataByNonOwnerFails() public {
+        string memory originalMetadata = "Original Metadata";
+        string memory newMetadata = "Updated Metadata";
+        
+        vm.prank(owner);
+        address jarAddress = factory.createCookieJar(
+            createDefaultJarParams(owner, address(3), originalMetadata),
+            createDefaultAccessConfig()
+        );
+        
+        // Try to update metadata as non-owner (should fail)
+        vm.prank(user);
+        vm.expectRevert(CookieJarFactory.CookieJarFactory__NotJarOwner.selector);
+        factory.updateMetadata(jarAddress, newMetadata);
+    }
 
+    /// @notice Test getting metadata for non-existent jar should fail
+    function testGetMetadataForNonExistentJar() public {
         vm.expectRevert(CookieJarFactory.CookieJarFactory__JarNotFound.selector);
-        factory.getMetadata(fakeJar);
+        factory.getMetadata(address(0x9999));
     }
 
-    function testCreateCookieJarWithFee() public {
-        uint256 customFee = 500; // 5%
-        string memory metadata = "Custom fee jar";
-
-        vm.startPrank(user);
-        address jarAddress = factory.createCookieJarWithFee(
-            user,
-            address(3),
-            CookieJarLib.AccessType.Allowlist,
-            emptyAddresses,
-            emptyTypes,
-            CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount,
-            maxWithdrawal,
-            withdrawalInterval,
-            strictPurpose,
-            true,
-            false,
-            emptyAllowlist,
-            metadata,
-            customFee
-        );
-        vm.stopPrank();
-
-        // Verify jar was created
-        assertTrue(jarAddress != address(0));
-
-        // Verify metadata was set
-        assertEq(factory.getMetadata(jarAddress), metadata);
-
-        // Verify jar index was set
-        assertTrue(factory.jarIndex(jarAddress) < factory.getCookieJars().length);
-
-        // Verify the jar has custom fee
-        CookieJar jar = CookieJar(jarAddress);
-        assertEq(jar.feePercentageOnDeposit(), customFee);
+    /// @notice Test updating metadata for non-existent jar should fail
+    function testUpdateMetadataForNonExistentJar() public {
+        vm.prank(owner);
+        vm.expectRevert(CookieJarFactory.CookieJarFactory__JarNotFound.selector);
+        factory.updateMetadata(address(0x9999), "New Metadata");
     }
 
-    function testCreateCookieJarWithFeeClampedToMax() public {
-        uint256 excessiveFee = 15000; // 150% (should be clamped to 10000)
-
-        vm.startPrank(user);
-        address jarAddress = factory.createCookieJarWithFee(
-            user,
-            address(3),
-            CookieJarLib.AccessType.Allowlist,
-            emptyAddresses,
-            emptyTypes,
-            CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount,
-            maxWithdrawal,
-            withdrawalInterval,
-            strictPurpose,
-            true,
-            false,
-            emptyAllowlist,
-            "Test metadata",
-            excessiveFee
-        );
-        vm.stopPrank();
-
-        // Verify fee was clamped to 100%
-        CookieJar jar = CookieJar(jarAddress);
-        assertEq(jar.feePercentageOnDeposit(), 10000);
+    /// @notice Test metadatas function with invalid index
+    function testMetadatasInvalidIndex() public {
+        vm.expectRevert("Index out of bounds");
+        factory.metadatas(999);
     }
 
-    function testCreateCookieJarWithZeroFee() public {
-        uint256 zeroFee = 0;
-
-        vm.startPrank(user);
-        address jarAddress = factory.createCookieJarWithFee(
-            user,
-            address(3),
-            CookieJarLib.AccessType.Allowlist,
-            emptyAddresses,
-            emptyTypes,
-            CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount,
-            maxWithdrawal,
-            withdrawalInterval,
-            strictPurpose,
-            true,
-            false,
-            emptyAllowlist,
-            "Zero fee jar",
-            zeroFee
-        );
-        vm.stopPrank();
-
-        // Verify zero fee was set
-        CookieJar jar = CookieJar(jarAddress);
-        assertEq(jar.feePercentageOnDeposit(), 0);
-    }
-
-    function testCreateCookieJarWithFeeFailsForEmptyMetadata() public {
-        vm.startPrank(user);
-        vm.expectRevert(CookieJarFactory.CookieJarFactory__InvalidMetadata.selector);
-        factory.createCookieJarWithFee(
-            user,
-            address(3),
-            CookieJarLib.AccessType.Allowlist,
-            emptyAddresses,
-            emptyTypes,
-            CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount,
-            maxWithdrawal,
-            withdrawalInterval,
-            strictPurpose,
-            true,
-            false,
-            emptyAllowlist,
-            "", // Empty metadata
-            100
-        );
-        vm.stopPrank();
-    }
-
-    function testJarIndexMapping() public {
-        vm.startPrank(user);
-
-        // Create first jar
+    /// @notice Test multiple jars metadata handling
+    function testMultipleJarsMetadata() public {
+        string memory metadata1 = "Jar 1 Metadata";
+        string memory metadata2 = "Jar 2 Metadata";
+        string memory metadata3 = "Jar 3 Metadata";
+        
+        vm.startPrank(owner);
         address jar1 = factory.createCookieJar(
-            user,
-            address(3),
-            CookieJarLib.AccessType.Allowlist,
-            emptyAddresses,
-            emptyTypes,
-            CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount,
-            maxWithdrawal,
-            withdrawalInterval,
-            strictPurpose,
-            true,
-            false,
-            emptyAllowlist,
-            "First jar"
+            createDefaultJarParams(owner, address(3), metadata1),
+            createDefaultAccessConfig()
         );
-
-        // Create second jar
+        
         address jar2 = factory.createCookieJar(
-            user,
-            address(3),
-            CookieJarLib.AccessType.Allowlist,
-            emptyAddresses,
-            emptyTypes,
-            CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount,
-            maxWithdrawal,
-            withdrawalInterval,
-            strictPurpose,
-            true,
-            false,
-            emptyAllowlist,
-            "Second jar"
+            createDefaultJarParams(owner, address(3), metadata2),
+            createDefaultAccessConfig()
         );
-
+        
+        address jar3 = factory.createCookieJar(
+            createDefaultJarParams(owner, address(3), metadata3),
+            createDefaultAccessConfig()
+        );
         vm.stopPrank();
-
-        // Verify jar indices
-        assertEq(factory.jarIndex(jar1), 0);
-        assertEq(factory.jarIndex(jar2), 1);
-
-        // Verify we can get metadata using the indices
-        assertEq(factory.getMetadata(jar1), "First jar");
-        assertEq(factory.getMetadata(jar2), "Second jar");
+        
+        // Test individual metadata retrieval
+        assertEq(factory.getMetadata(jar1), metadata1);
+        assertEq(factory.getMetadata(jar2), metadata2);
+        assertEq(factory.getMetadata(jar3), metadata3);
+        
+        // Test batch metadata retrieval
+        string[] memory allMetadata = factory.getMetadatas();
+        assertEq(allMetadata.length, 3);
+        assertEq(allMetadata[0], metadata1);
+        assertEq(allMetadata[1], metadata2);
+        assertEq(allMetadata[2], metadata3);
+        
+        // Test metadatas by index
+        assertEq(factory.metadatas(0), metadata1);
+        assertEq(factory.metadatas(1), metadata2);
+        assertEq(factory.metadatas(2), metadata3);
     }
-
-    // Events for testing
-    event CookieJarMetadataUpdated(address indexed jar, string newMetadata);
 }

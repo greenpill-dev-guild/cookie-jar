@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback } from 'react'
 import { useAccount, useChainId } from 'wagmi'
-import { getProtocolAddress } from '@/config/protocol-addresses'
 
 // POAP SDK types (real implementation would import from @poap-xyz/poap-sdk)
 interface POAPEvent {

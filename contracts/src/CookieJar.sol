@@ -6,8 +6,10 @@ import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/utils/Pausable.sol";
 
 import {CookieJarLib} from "./libraries/CookieJarLib.sol";
+import {CookieJarValidation} from "./libraries/CookieJarValidation.sol";
 
 // Protocol interfaces
 interface IPOAP {
@@ -30,7 +32,7 @@ interface IHats {
 /// @notice A decentralized smart contract for controlled fund withdrawals.
 /// @notice Supports both allowlist and NFT‐gated access modes.
 /// @dev Deposits accept ETH and ERC20 tokens (deducting fees) and withdrawals are subject to configurable rules.
-contract CookieJar is AccessControl {
+contract CookieJar is AccessControl, Pausable {
     using SafeERC20 for IERC20;
 
     /// @notice Array of approved NFT gates (used in NFTGated mode).
@@ -55,6 +57,8 @@ contract CookieJar is AccessControl {
 
     /// @notice Mapping for optimized NFT gate lookup.
     mapping(address => CookieJarLib.NFTType) private _nftGateMapping;
+    /// @notice Mapping for O(1) NFT gate index lookup (gas optimization)
+    mapping(address => uint256) private _nftGateIndex;
 
     uint256 public currencyHeldByJar;
     address public immutable currency;
@@ -80,6 +84,11 @@ contract CookieJar is AccessControl {
     address public feeCollector;
     /// @notice If true, emergency withdrawal is enabled.
     bool public immutable emergencyWithdrawalEnabled;
+    /// @notice Maximum withdrawal allowed per period (0 = unlimited)
+    uint256 public maxWithdrawalPerPeriod;
+    /// @notice Tracking withdrawals per user per period
+    mapping(address => uint256) public currentPeriodStart;
+    mapping(address => uint256) public withdrawnInCurrentPeriod;
 
     // --- Timelock Mappings ---
     /// @notice Stores the last withdrawal timestamp for each allowlisted address for allowlist mode.
@@ -146,6 +155,7 @@ contract CookieJar is AccessControl {
         feePercentageOnDeposit = config.feePercentageOnDeposit;
         emergencyWithdrawalEnabled = config.emergencyWithdrawalEnabled;
         oneTimeWithdrawal = config.oneTimeWithdrawal;
+        maxWithdrawalPerPeriod = config.maxWithdrawalPerPeriod;
 
         _setRoleAdmin(CookieJarLib.JAR_ALLOWLISTED, CookieJarLib.JAR_OWNER);
         _grantRole(CookieJarLib.JAR_OWNER, config.jarOwner);
@@ -153,6 +163,25 @@ contract CookieJar is AccessControl {
     }
 
     // --- Admin Functions ---
+
+    /// @notice Pauses all jar operations (deposits and withdrawals)
+    function pause() external onlyRole(CookieJarLib.JAR_OWNER) {
+        _pause();
+        emit CookieJarLib.PausedStateChanged(true);
+    }
+
+    /// @notice Unpauses jar operations
+    function unpause() external onlyRole(CookieJarLib.JAR_OWNER) {
+        _unpause();
+        emit CookieJarLib.PausedStateChanged(false);
+    }
+
+    /// @notice Updates the maximum withdrawal limit per period
+    /// @param _newLimit The new maximum withdrawal limit per period (0 = unlimited)
+    function updatePeriodWithdrawalLimit(uint256 _newLimit) external onlyRole(CookieJarLib.JAR_OWNER) {
+        maxWithdrawalPerPeriod = _newLimit;
+        emit CookieJarLib.PeriodWithdrawalLimitUpdated(_newLimit);
+    }
 
     /// @notice Updates the jar allowlist status of a user.
     /// @param _users The address of the user.
@@ -181,6 +210,7 @@ contract CookieJar is AccessControl {
     /// @param _nftType The NFT type.
     function addNFTGate(address _nftAddress, CookieJarLib.NFTType _nftType) external onlyRole(CookieJarLib.JAR_OWNER) {
         if (accessType != CookieJarLib.AccessType.NFTGated) revert CookieJarLib.InvalidAccessType();
+        if (nftGates.length >= CookieJarLib.MAX_NFT_GATES) revert CookieJarLib.TooManyNFTGates();
         _addNFTGate(_nftAddress, _nftType);
     }
 
@@ -190,18 +220,21 @@ contract CookieJar is AccessControl {
         if (accessType != CookieJarLib.AccessType.NFTGated) revert CookieJarLib.InvalidAccessType();
         if (_nftGateMapping[_nftAddress] == CookieJarLib.NFTType.None) revert CookieJarLib.NFTGateNotFound();
 
-        delete _nftGateMapping[_nftAddress];
-
-        uint256 gateIndex;
-        uint256 numGates = nftGates.length;
-        for (uint256 i = 0; i < numGates; i++) {
-            if (nftGates[i].nftAddress == _nftAddress) {
-                gateIndex = i;
-                break;
-            }
+        // Use the index mapping for O(1) lookup instead of loop
+        uint256 gateIndex = _nftGateIndex[_nftAddress];
+        uint256 lastIndex = nftGates.length - 1;
+        
+        // If not the last element, swap with last and update its index
+        if (gateIndex != lastIndex) {
+            address lastGateAddress = nftGates[lastIndex].nftAddress;
+            nftGates[gateIndex] = nftGates[lastIndex];
+            _nftGateIndex[lastGateAddress] = gateIndex;
         }
-        nftGates[gateIndex] = nftGates[nftGates.length - 1];
+        
+        // Remove the last element and clean up mappings
         nftGates.pop();
+        delete _nftGateMapping[_nftAddress];
+        delete _nftGateIndex[_nftAddress];
 
         emit CookieJarLib.NFTGateRemoved(_nftAddress);
     }
@@ -256,7 +289,7 @@ contract CookieJar is AccessControl {
     // --- User Functions ---
 
     /// @notice Deposits ETH into the contract, deducting deposit fee. Only works if the jar's currency is ETH.
-    function depositETH() public payable {
+    function depositETH() public payable whenNotPaused {
         if (msg.value == 0) revert CookieJarLib.ZeroAmount();
         if (currency != CookieJarLib.ETH_ADDRESS) revert CookieJarLib.InvalidTokenAddress();
         if (msg.value < minDeposit) revert CookieJarLib.LessThanMinimumDeposit();
@@ -274,7 +307,7 @@ contract CookieJar is AccessControl {
     /// @notice Deposits Currency tokens into the contract, deducting deposit fee. Only works if the jar's currency is
     ///  an ERC20 token.
     /// @param amount The amount of tokens to deposit.
-    function depositCurrency(uint256 amount) public {
+    function depositCurrency(uint256 amount) public whenNotPaused {
         if (amount == 0) revert CookieJarLib.ZeroAmount();
         if (currency == CookieJarLib.ETH_ADDRESS) revert CookieJarLib.InvalidTokenAddress();
         if (amount < minDeposit) revert CookieJarLib.LessThanMinimumDeposit();
@@ -296,7 +329,7 @@ contract CookieJar is AccessControl {
     function withdrawAllowlistMode(
         uint256 amount,
         string calldata purpose
-    ) external onlyRole(CookieJarLib.JAR_ALLOWLISTED) {
+    ) external onlyRole(CookieJarLib.JAR_ALLOWLISTED) whenNotPaused {
         if (accessType != CookieJarLib.AccessType.Allowlist) revert CookieJarLib.InvalidAccessType();
         _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalAllowlist[msg.sender]);
         lastWithdrawalAllowlist[msg.sender] = block.timestamp;
@@ -308,7 +341,7 @@ contract CookieJar is AccessControl {
     /// @param purpose A description for the withdrawal.
     /// @param gateAddress The NFT contract address used for gating.
     /// @param tokenId The NFT token id used for gating.
-    function withdrawNFTMode(uint256 amount, string calldata purpose, address gateAddress, uint256 tokenId) external {
+    function withdrawNFTMode(uint256 amount, string calldata purpose, address gateAddress, uint256 tokenId) external whenNotPaused {
         if (accessType != CookieJarLib.AccessType.NFTGated) revert CookieJarLib.InvalidAccessType();
         if (gateAddress == address(0)) revert CookieJarLib.InvalidNFTGate();
         _checkAccessNFT(gateAddress, tokenId);
@@ -321,7 +354,7 @@ contract CookieJar is AccessControl {
     /// @param amount The amount to withdraw.
     /// @param purpose A description for the withdrawal.
     /// @param tokenId The POAP token ID to use for access.
-    function withdrawPOAPMode(uint256 amount, string calldata purpose, uint256 tokenId) external {
+    function withdrawPOAPMode(uint256 amount, string calldata purpose, uint256 tokenId) external whenNotPaused {
         if (accessType != CookieJarLib.AccessType.POAP) revert CookieJarLib.InvalidAccessType();
         _checkAccessPOAP(tokenId);
         _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalPOAP[tokenId]);
@@ -332,7 +365,7 @@ contract CookieJar is AccessControl {
     /// @notice Withdraws funds (ETH or ERC20) for Unlock Protocol key holders.
     /// @param amount The amount to withdraw.
     /// @param purpose A description for the withdrawal.
-    function withdrawUnlockMode(uint256 amount, string calldata purpose) external {
+    function withdrawUnlockMode(uint256 amount, string calldata purpose) external whenNotPaused {
         if (accessType != CookieJarLib.AccessType.Unlock) revert CookieJarLib.InvalidAccessType();
         _checkAccessUnlock();
         _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalProtocol[msg.sender]);
@@ -344,7 +377,7 @@ contract CookieJar is AccessControl {
     /// @param amount The amount to withdraw.
     /// @param purpose A description for the withdrawal.
     /// @param tokenId The hypercert token ID to use for access.
-    function withdrawHypercertMode(uint256 amount, string calldata purpose, uint256 tokenId) external {
+    function withdrawHypercertMode(uint256 amount, string calldata purpose, uint256 tokenId) external whenNotPaused {
         if (accessType != CookieJarLib.AccessType.Hypercert) revert CookieJarLib.InvalidAccessType();
         _checkAccessHypercert(tokenId);
         _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalProtocol[msg.sender]);
@@ -355,7 +388,7 @@ contract CookieJar is AccessControl {
     /// @notice Withdraws funds (ETH or ERC20) for Hats Protocol hat wearers.
     /// @param amount The amount to withdraw.
     /// @param purpose A description for the withdrawal.
-    function withdrawHatsMode(uint256 amount, string calldata purpose) external {
+    function withdrawHatsMode(uint256 amount, string calldata purpose) external whenNotPaused {
         if (accessType != CookieJarLib.AccessType.Hats) revert CookieJarLib.InvalidAccessType();
         _checkAccessHats();
         _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalProtocol[msg.sender]);
@@ -371,14 +404,10 @@ contract CookieJar is AccessControl {
         return nftGates;
     }
 
-    /// @notice Returns the withdrawal data array.
-    /// @return CookieJarLib.WithdrawalData[] The array of withdrawal data.
     function getWithdrawalDataArray() external view returns (CookieJarLib.WithdrawalData[] memory) {
         return withdrawalData;
     }
 
-    /// @notice Returns the allowlist of addresses.
-    /// @return address[] The array of allowlisted addresses.
     function getAllowlist() external view returns (address[] memory) {
         return allowlist;
     }
@@ -424,27 +453,21 @@ contract CookieJar is AccessControl {
         if (_nftAddress == address(0)) revert CookieJarLib.InvalidNFTGate();
         if (_nftType == CookieJarLib.NFTType.None) revert CookieJarLib.InvalidNFTType();
         if (_nftGateMapping[_nftAddress] != CookieJarLib.NFTType.None) revert CookieJarLib.DuplicateNFTGate();
+        if (nftGates.length >= CookieJarLib.MAX_NFT_GATES) revert CookieJarLib.TooManyNFTGates();
+        
         CookieJarLib.NFTGate memory gate = CookieJarLib.NFTGate({nftAddress: _nftAddress, nftType: _nftType});
+        uint256 newIndex = nftGates.length;
         nftGates.push(gate);
         _nftGateMapping[_nftAddress] = _nftType;
+        _nftGateIndex[_nftAddress] = newIndex; // Store index for O(1) removal
         emit CookieJarLib.NFTGateAdded(_nftAddress, _nftType);
     }
 
-    /// @notice Calculates fee and remaining amount from principal
-    /// @param _principalAmount The total amount before fee deduction
-    /// @return fee The calculated fee amount
-    /// @return amountRemaining The amount after fee deduction
     function _calculateFee(uint256 _principalAmount) internal view returns (uint256 fee, uint256 amountRemaining) {
         fee = (_principalAmount * feePercentageOnDeposit) / CookieJarLib.PERCENTAGE_BASE;
         amountRemaining = _principalAmount - fee;
     }
 
-    /// @notice Validates NFT-gated access for the caller
-    /// @dev Checks if caller owns/holds the specified NFT token required for access.
-    ///      Supports both ERC721 (ownership) and ERC1155 (balance > 0) token types.
-    ///      The NFT contract must be registered as a valid gate in the system.
-    /// @param gateAddress The NFT contract address used for gating
-    /// @param tokenId The NFT token id to check ownership/balance for
     function _checkAccessNFT(address gateAddress, uint256 tokenId) internal {
         // Lookup NFT type from registered gates
         CookieJarLib.NFTType nftType = _nftGateMapping[gateAddress];
@@ -469,9 +492,6 @@ contract CookieJar is AccessControl {
         emit CookieJarLib.NFTAccessValidated(msg.sender, gateAddress, tokenId);
     }
 
-    /// @notice Validates POAP access for the caller
-    /// @dev Checks if caller owns the required POAP token from the specified event
-    /// @param tokenId The POAP token ID to check ownership for
     function _checkAccessPOAP(uint256 tokenId) internal view {
         // Use configurable POAP contract address from requirement
         // Fallback to canonical address if not set (for backwards compatibility)
@@ -493,8 +513,6 @@ contract CookieJar is AccessControl {
         // Currently relies on off-chain filtering of valid token IDs per event
     }
 
-    /// @notice Validates Unlock Protocol access for the caller
-    /// @dev Checks if caller has a valid (non-expired) key for the specified lock
     function _checkAccessUnlock() internal view {
         address lockAddress = unlockRequirement.lockAddress;
         
@@ -508,9 +526,6 @@ contract CookieJar is AccessControl {
         }
     }
 
-    /// @notice Validates Hypercert access for the caller
-    /// @dev Checks if caller holds at least the minimum balance of the specified hypercert token
-    /// @param tokenId The hypercert token ID to check (must match requirement)
     function _checkAccessHypercert(uint256 tokenId) internal view {
         if (tokenId != hypercertRequirement.tokenId) {
             revert CookieJarLib.InvalidAccessType();
@@ -530,8 +545,6 @@ contract CookieJar is AccessControl {
         }
     }
 
-    /// @notice Validates Hats Protocol access for the caller
-    /// @dev Checks if caller is currently wearing the required hat (role)
     function _checkAccessHats() internal view {
         uint256 hatId = hatsRequirement.hatId;
         address hatsContract = hatsRequirement.hatsContract;
@@ -560,24 +573,31 @@ contract CookieJar is AccessControl {
         // Basic amount validation
         if (amount == 0) revert CookieJarLib.ZeroAmount();
         
-        // Purpose validation if strict mode enabled
-        if (strictPurpose && bytes(purpose).length < 10) revert CookieJarLib.InvalidPurpose();
+        // Use library for validations to reduce contract size
+        CookieJarValidation.validatePurpose(strictPurpose, purpose);
+        CookieJarValidation.validateOneTimeWithdrawal(oneTimeWithdrawal, lastWithdrawal);
+        CookieJarValidation.validateWithdrawalInterval(lastWithdrawal, withdrawalInterval, block.timestamp);
         
-        // One-time withdrawal enforcement
-        if (oneTimeWithdrawal && lastWithdrawal != 0) revert CookieJarLib.WithdrawalAlreadyDone();
-        
-        // Time-lock validation - ensure enough time has passed since last withdrawal
-        uint256 nextAllowed = lastWithdrawal + withdrawalInterval;
-        if (block.timestamp < nextAllowed) revert CookieJarLib.WithdrawalTooSoon(nextAllowed);
-        
-        // Amount limit validation based on withdrawal type
-        if (withdrawalOption == CookieJarLib.WithdrawalTypeOptions.Fixed) {
-            // Fixed withdrawal: amount must match exactly
-            if (amount != fixedAmount) revert CookieJarLib.WithdrawalAmountNotAllowed(amount, fixedAmount);
-        } else {
-            // Variable withdrawal: amount must not exceed maximum
-            if (amount > maxWithdrawal) revert CookieJarLib.WithdrawalAmountNotAllowed(amount, maxWithdrawal);
+        // Period withdrawal limit check
+        if (maxWithdrawalPerPeriod > 0) {
+            (bool needsReset, uint256 newTotal) = CookieJarValidation.validatePeriodLimit(
+                maxWithdrawalPerPeriod,
+                currentPeriodStart[msg.sender],
+                withdrawnInCurrentPeriod[msg.sender],
+                amount,
+                block.timestamp
+            );
+            
+            if (needsReset) {
+                currentPeriodStart[msg.sender] = block.timestamp;
+                withdrawnInCurrentPeriod[msg.sender] = newTotal;
+            } else {
+                withdrawnInCurrentPeriod[msg.sender] = newTotal;
+            }
         }
+        
+        // Amount limit validation
+        CookieJarValidation.validateWithdrawalAmount(withdrawalOption, amount, fixedAmount, maxWithdrawal);
         
         // Balance sufficiency check
         if (currencyHeldByJar < amount) revert CookieJarLib.InsufficientBalance();
@@ -585,13 +605,17 @@ contract CookieJar is AccessControl {
         // Update internal state
         currencyHeldByJar -= amount;
         
-        // Record withdrawal data for transparency
-        CookieJarLib.WithdrawalData memory temp = CookieJarLib.WithdrawalData({
+        // Check withdrawal history limit
+        if (withdrawalData.length >= CookieJarLib.MAX_WITHDRAWAL_HISTORY) {
+            revert CookieJarLib.WithdrawalHistoryLimitReached();
+        }
+        
+        // Record withdrawal data
+        withdrawalData.push(CookieJarLib.WithdrawalData({
             amount: amount,
             purpose: purpose,
             recipient: msg.sender
-        });
-        withdrawalData.push(temp);
+        }));
     }
 
     function _withdraw(uint256 amount, string calldata purpose) internal {

@@ -1,6 +1,6 @@
 {
   "name": "cookie-jar",
-  "version": "2.0.0",
+  "version": "3.1.0",
   "description": "A decentralized funding protocol with smart contract pools and frontend interface",
   "private": true,
   "author": "Greenpill Dev Guild",
@@ -9,30 +9,27 @@
     "postinstall": "git submodule update --init --recursive && (command -v forge > /dev/null && cd contracts && forge install || echo 'Forge not found, skipping forge install')",
     
     "dev": "./scripts/dev-start.sh",
-    "dev:celo": "ANVIL_FORK=true ANVIL_FORK_URL=https://forno.celo.org ./scripts/dev-start.sh",
-    "dev:ethereum": "ANVIL_FORK=true ANVIL_FORK_URL=https://eth.drpc.org ./scripts/dev-start.sh",
-    "dev:base-sepolia": "ANVIL_FORK=true ANVIL_FORK_URL=https://sepolia.base.org ./scripts/dev-start.sh",
+    "dev:client": "pnpm --filter client run dev",
     
     "build": "pnpm run build:contracts && pnpm run copy:deployment && pnpm run build:client",
-    "build:contracts": "cd contracts && forge build",
     "build:client": "pnpm --filter client run build",
+    "build:contracts": "cd contracts && forge build",
     "copy:deployment": "./scripts/copy-deployment.sh && pnpm generate",
     
-    "test": "pnpm run test:contracts; pnpm run test:client",
-    "test:all": "pnpm run test:contracts && pnpm run test:client",
-    "test:contracts": "cd contracts && forge test",
+    "test": "pnpm run test:contracts && pnpm run test:client",
     "test:client": "pnpm --filter client run test",
+    "test:contracts": "cd contracts && forge test",
     
     "lint": "pnpm run lint:contracts && pnpm run lint:client",
-    "lint:contracts": "cd contracts && solhint 'src/**/*.sol' 'test/**/*.sol' 'script/**/*.sol'",
     "lint:client": "pnpm --filter client run lint",
+    "lint:contracts": "cd contracts && solhint 'src/**/*.sol' 'test/**/*.sol' 'script/**/*.sol'",
     
     "format": "pnpm run format:contracts && pnpm run format:client",
-    "format:contracts": "cd contracts && prettier --write 'src/**/*.sol' 'test/**/*.sol' 'script/**/*.sol'",
     "format:client": "pnpm --filter client run format",
+    "format:contracts": "cd contracts && prettier --write 'src/**/*.sol' 'test/**/*.sol' 'script/**/*.sol'",
     "clean": "pnpm run clean:contracts && pnpm run clean:client",
-    "clean:contracts": "cd contracts && forge clean",
     "clean:client": "rm -rf client/build client/.next client/dist",
+    "clean:contracts": "cd contracts && forge clean",
     "generate": "pnpm --filter client run generate",
     
     "deploy:local": "cd contracts && forge script script/DeployLocal.s.sol --rpc-url http://127.0.0.1:8545 --broadcast --sender 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 && cd .. && pnpm copy:deployment",
@@ -43,9 +40,7 @@
     "seed:demo": "cd contracts && forge script script/SeedLocal.s.sol --rpc-url http://127.0.0.1:8545 --broadcast --sender 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 && cd .. && pnpm copy:deployment",
     "seed:reset": "pnpm stop && pnpm dev",
     "sync:check": "./scripts/sync-check.sh",
-    "accounts:list": "echo '👥 Test Accounts:' && echo '🔑 Deployer: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266' && echo '🍪 Cookie Monster: 0x70997970C51812dc3A010C7d01b50e0d17dc79C8' && echo '👤 Cookie Fan: 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC' && echo '🧪 Test User: 0x90F79bf6EB2c4f870365E785982E1f101E93b906'",
     "nft:address": "./scripts/get-nft-address.sh",
-    "contracts:watch": "./scripts/watch-deploy.sh",
     "stop": "pkill -f anvil || true && pkill -f 'forge script.*watch' || true && pkill -f 'next dev' || true && pkill -f 'npm run dev' || true"
   },
   "devDependencies": {

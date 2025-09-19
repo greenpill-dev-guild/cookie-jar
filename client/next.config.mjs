@@ -32,22 +32,24 @@ const nextConfig = {
     NEXT_PUBLIC_ALCHEMY_ID: process.env.NEXT_PUBLIC_ALCHEMY_ID,
   },
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   // ⚡ OPTIMIZED: Enable image optimization
   images: {
     domains: ['localhost'],
     formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60,
+    unoptimized: process.env.NODE_ENV === 'development', // Skip optimization in dev for faster builds
   },
   experimental: {
     webpackBuildWorker: true,
     parallelServerBuildTraces: true,
     parallelServerCompiles: true,
     scrollRestoration: true, // Enable automatic scroll restoration for route changes
+    optimizePackageImports: ['@radix-ui/react-icons', 'lucide-react', '@hookform/resolvers'],
   },
   // ⚡ Performance optimizations
   compress: true,
@@ -71,6 +73,13 @@ const nextConfig = {
         tls: false,
       };
     }
+
+    // Optimize tree shaking and dead code elimination
+    config.optimization = {
+      ...config.optimization,
+      usedExports: true,
+      sideEffects: false,
+    };
     
     // Bundle analyzer for production builds only
     if (!dev && !isServer && process.env.ANALYZE === 'true') {

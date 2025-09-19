@@ -146,7 +146,8 @@ contract CookieJarProtocolsTest is Test {
                 strictPurpose: _strictPurpose,
                 feeCollector: _feeCollectorAddr,
                 emergencyWithdrawalEnabled: _emergencyEnabled,
-                oneTimeWithdrawal: _oneTimeWithdrawal
+                oneTimeWithdrawal: _oneTimeWithdrawal,
+                maxWithdrawalPerPeriod: 0 // unlimited
             });
     }
 

@@ -1,0 +1,60 @@
+[profile.default]
+via_ir = true
+optimizer = true
+optimizer_runs = 10000
+# Optimize for smaller size without stack issues
+src = "src"
+out = "out"
+libs = ["lib"]
+test = "skip-test-for-now"
+script = "script"
+# Skip certora harness files that have missing dependencies
+skip = ["lib/openzeppelin-contracts/certora/**/*.sol"]
+remappings = [
+    "openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/"
+]
+# Load environment variables from root directory
+env_file = "../.env"
+
+# File system permissions for auto-generated configuration updates
+fs_permissions = [
+    { access = "read-write", path = "./" },
+    { access = "read-write", path = "../client/config/" },
+    { access = "read-write", path = "../client/public/contracts/" },
+    { access = "read", path = "../" }
+]
+
+# Lightweight profile for quick compilation (no CREATE2)
+[profile.lite]
+via_ir = false
+optimizer = false
+optimizer_runs = 1
+src = "src"
+out = "out"
+libs = ["lib"]
+remappings = [
+    "openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/"
+]
+# Load environment variables from root directory  
+env_file = "../.env.local"
+dot_env = "../.env.local"
+PRIVATE_KEY = "${PRIVATE_KEY}"
+RPC_URL = "${RPC_URL}"
+# Allow writing deployment files for local development
+fs_permissions = [
+    { access = "read-write", path = "./" },
+    { access = "read-write", path = "." },
+    { access = "read-write", path = "local-deployment.json" }
+]
+
+[rpc_endpoints]
+base-sepolia = "${BASE_SEPOLIA_RPC_URL}"
+sepolia = "${ETHEREUM_SEPOLIA_RPC_URL}"
+celo-alfajores = "${CELO_ALFAJORES_RPC_URL}"
+
+# Single API key for all chains
+[etherscan]
+base-sepolia = { key = "${ETHERSCAN_API_KEY}" }
+sepolia = { key = "${ETHERSCAN_API_KEY}" }
+
+# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

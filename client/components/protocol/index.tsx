@@ -5,14 +5,13 @@
  * for better error handling and user experience.
  */
 
-import { withProtocolErrorBoundary } from '@/components/design/protocol-error-boundary'
+import { withProtocolErrorBoundary } from '@/components/design/ProtocolErrorBoundary'
 import { POAPGateConfig as _POAPGateConfig } from './POAPGateConfig'
 import { UnlockGateConfig as _UnlockGateConfig } from './UnlockGateConfig'
 import { UnlockMembershipStatus as _UnlockMembershipStatus } from './UnlockMembershipStatus'
 import { HypercertGateConfig as _HypercertGateConfig } from './HypercertGateConfig'
 import { HatsGateConfig as _HatsGateConfig } from './HatsGateConfig'
 import { ProtocolGateSelector as _ProtocolGateSelector } from './ProtocolGateSelector'
-import { ProtocolAwareWithdrawal as _ProtocolAwareWithdrawal } from './ProtocolAwareWithdrawal'
 
 // Wrapped components with error boundaries
 export const POAPGateConfig = withProtocolErrorBoundary(_POAPGateConfig, {
@@ -51,11 +50,6 @@ export const ProtocolGateSelector = withProtocolErrorBoundary(_ProtocolGateSelec
   showDetails: process.env.NODE_ENV === 'development'
 })
 
-export const ProtocolAwareWithdrawal = withProtocolErrorBoundary(_ProtocolAwareWithdrawal, {
-  protocolName: 'Protocol Withdrawal',
-  maxRetries: 3,
-  showDetails: process.env.NODE_ENV === 'development'
-})
 
 // Re-export the original components for cases where error boundaries aren't needed
 export { 
@@ -65,8 +59,7 @@ export {
   _HypercertGateConfig as HypercertGateConfigUnsafe,
   _HatsGateConfig as HatsGateConfigUnsafe,
   _ProtocolGateSelector as ProtocolGateSelectorUnsafe,
-  _ProtocolAwareWithdrawal as ProtocolAwareWithdrawalUnsafe
 }
 
 // Export error boundary components
-export { ProtocolErrorBoundary, useProtocolErrorBoundary } from '@/components/design/protocol-error-boundary'
+export { ProtocolErrorBoundary, useProtocolErrorBoundary } from '@/components/design/ProtocolErrorBoundary'

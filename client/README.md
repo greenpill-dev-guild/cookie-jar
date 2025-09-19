@@ -99,7 +99,6 @@ cookie-jar-v3/
 │   │   ├── HypercertGateConfig.tsx   # Hypercert configuration
 │   │   ├── HatsGateConfig.tsx        # Hats Protocol configuration
 │   │   ├── ProtocolGateSelector.tsx  # Unified access method selector
-│   │   └── ProtocolAwareWithdrawal.tsx # Dynamic withdrawal UI
 │   ├── users/                # Jar User-related components
 │   │   ├── ConfigDetailsSection.tsx
 │   │   ├── ConfigItem.tsx
@@ -185,7 +184,6 @@ client/__tests__/
 ├── components/               # Component tests
 │   ├── NFTGateInput.test.tsx        # NFT input validation
 │   ├── ProtocolGateSelector.test.tsx # Access method selection
-│   └── ProtocolAwareWithdrawal.test.tsx # Dynamic withdrawal UI
 └── utils/                    # Utility tests
     └── ProtocolValidation.test.ts   # Validation helpers
 ```

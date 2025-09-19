@@ -1,22 +1,30 @@
-import Link from "next/link"
-import Image from "next/image"
-// import { SocialMediaButtons } from "@/components/page/home/social-media-buttons"
+"use client"
 
-const FooterTop = () => (
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-8">
-          <div className="md:col-span-5">
-            <Link href="/" className="flex items-center gap-3">
-              <Image src="/logo.png" alt="Cookie Jar Logo" width={48} height={48} />
-              <span className="text-2xl font-bold text-[#4a3520]">Cookie Jar V3</span>
-            </Link>
-            <p className="mt-4 text-lg text-[#4a3520]">
-              A platform for creating and managing shared token pools with customizable access rules.
+import Link from "next/link"
+
+export function Footer() {
+  return (
+    <footer className="cj-bg-main py-16 md:py-20 mt-32">
+      <div className="container mx-auto px-4 md:px-6 lg:px-8">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
+          {/* Brand */}
+          <div className="md:col-span-2">
+            <h2 className="text-2xl font-bold text-[#4a3520] mb-4">Cookie Jar</h2>
+            <p className="text-[#4a3520] max-w-md leading-relaxed">
+              Share resources with customizable access rules, withdrawal limits, and transparent tracking. 
+              Built for communities, teams, and organizations.
             </p>
           </div>
 
-          <div className="md:col-span-2">
-            <h3 className="font-semibold text-xl mb-4 text-[#4a3520]">Product</h3>
-            <ul className="space-y-3 text-lg">
+          {/* Navigation */}
+          <div>
+            <h3 className="font-semibold text-xl mb-4 text-[#4a3520]">Navigate</h3>
+            <ul className="space-y-3">
+              <li>
+                <Link href="/" className="text-[#4a3520] hover:text-primary transition-colors">
+                  Home
+                </Link>
+              </li>
               <li>
                 <Link href="/jars" className="text-[#4a3520] hover:text-primary transition-colors">
                   Explore Jars
@@ -27,59 +35,45 @@ const FooterTop = () => (
                   Create Jar
                 </Link>
               </li>
-              {/* <li>
+              <li>
                 <Link href="/docs" className="text-[#4a3520] hover:text-primary transition-colors">
                   Documentation
                 </Link>
-              </li> */}
-            </ul>
-          </div>
-
-          <div className="md:col-span-3">
-            <h3 className="font-semibold text-xl mb-4 text-[#4a3520]">Connect</h3>
-            <ul className="space-y-3 text-lg">
-              <li>
-                <Link  
-                href="https://github.com/Cookie-Jar-DAO/cookie-jar-v3"
-                target="_blank"
-                rel="noopener noreferrer" 
-                className="text-[#4a3520] hover:text-primary transition-colors"
-                >
-                Github
-                </Link>
-              </li>
-              <li>
-              <Link  
-                href="https://t.me/+nD0-6jFTfUY2NTkx"
-                target="_blank"
-                rel="noopener noreferrer" 
-                className="text-[#4a3520] hover:text-primary transition-colors"
-                >
-                Support via Telegram
-                </Link>
-              </li>
-              <li>
-                <Link href="mailto:support@cookiejar.wtf" className="text-[#4a3520] hover:text-primary transition-colors">
-                  support@cookiejar.wtf
-                </Link>
               </li>
             </ul>
           </div>
 
-          {/* <div className="md:col-span-2 flex flex-col items-center">
-            <h3 className="font-semibold text-xl mb-4 text-[#4a3520]">Connect</h3>
-            <SocialMediaButtons />
-          </div> */}
+          {/* Resources */}
+          <div>
+            <h3 className="font-semibold text-xl mb-4 text-[#4a3520]">Resources</h3>
+            <ul className="space-y-3">
+              <li>
+                <Link href="/profile" className="text-[#4a3520] hover:text-primary transition-colors">
+                  Profile
+                </Link>
+              </li>
+              <li>
+                <a 
+                  href="https://github.com/greenpill-dev-guild/cookie-jar" 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="text-[#4a3520] hover:text-primary transition-colors"
+                >
+                  GitHub
+                </a>
+              </li>
+            </ul>
+          </div>
         </div>
-)
 
-export function Footer() {
-  return (
-    <footer className="border-t cream-bg">
-      <div className="section-container py-6 px-6 md:px-8">
-
-        <div className="text-center text-lg text-[#4a3520]">
-          <p>© {new Date().getFullYear()} Cookie Jar V3. All rights reserved.</p>
+        {/* Bottom Bar */}
+        <div className="mt-12 pt-8 border-t border-[#4a3520]/20 flex flex-col md:flex-row items-center justify-between">
+          <p className="text-[#4a3520] text-sm">
+            © {new Date().getFullYear()} Cookie Jar. Built by Greenpill Dev Guild.
+          </p>
+          <p className="text-[#4a3520] text-sm mt-4 md:mt-0">
+            Decentralized resource sharing for communities.
+          </p>
         </div>
       </div>
     </footer>
