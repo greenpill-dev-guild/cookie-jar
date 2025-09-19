@@ -1,7 +1,7 @@
 "use client"
 
 import React from "react"
-import { useState, useEffect } from "react"
+import { useState, useEffect, lazy, Suspense } from "react"
 import { useAccount, useChainId } from "wagmi"
 import { isV2Chain } from "@/config/supported-networks"
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
@@ -10,9 +10,11 @@ import { Loader2, CheckCircle2, ArrowLeft, ArrowRight } from "lucide-react"
 import { ProtocolErrorBoundary } from "@/components/design/ProtocolErrorBoundary"
 import { useJarCreation } from "@/hooks/useJarCreation"
 import { useStepNavigation } from "@/hooks/useStepNavigation"
-import { StepContent } from "@/components/create/StepContent"
-import { StatusCards } from "@/components/create/StatusCards"
-import { CreateJarModals } from "@/components/create/CreateJarModals"
+
+// Lazy load heavy components for better bundle splitting
+const StepContent = lazy(() => import("@/components/create/StepContent").then(module => ({ default: module.StepContent })))
+const StatusCards = lazy(() => import("@/components/create/StatusCards").then(module => ({ default: module.StatusCards })))
+const CreateJarModals = lazy(() => import("@/components/create/CreateJarModals").then(module => ({ default: module.CreateJarModals })))
 
 export default function CreateCookieJarForm() {
   const { isConnected, address } = useAccount()
@@ -126,11 +128,13 @@ export default function CreateCookieJarForm() {
           </CardHeader>
           
           <CardContent>
-            <StepContent 
-              step={currentStep} 
-              formData={formData} 
-              isV2Contract={isV2Contract} 
-            />
+            <Suspense fallback={<div className="flex items-center justify-center p-4"><Loader2 className="h-6 w-6 animate-spin" /></div>}>
+              <StepContent 
+                step={currentStep} 
+                formData={formData} 
+                isV2Contract={isV2Contract} 
+              />
+            </Suspense>
           </CardContent>
 
           <CardFooter className="flex flex-col gap-3 md:flex-row md:justify-between">
@@ -183,21 +187,25 @@ export default function CreateCookieJarForm() {
           </CardFooter>
         </Card>
 
-        <StatusCards 
-          newJarPreview={formData.newJarPreview}
-          formErrors={formData.formErrors}
-          isFormError={formData.isFormError}
-          ETH_ADDRESS={formData.ETH_ADDRESS}
-        />
+        <Suspense fallback={<div className="h-32 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />}>
+          <StatusCards 
+            newJarPreview={formData.newJarPreview}
+            formErrors={formData.formErrors}
+            isFormError={formData.isFormError}
+            ETH_ADDRESS={formData.ETH_ADDRESS}
+          />
+        </Suspense>
       </div>
 
-      <CreateJarModals 
-        showWalletModal={showWalletModal}
-        setShowWalletModal={setShowWalletModal}
-        setPendingSubmission={setPendingSubmission}
-        isCreating={formData.isCreating}
-        isWaitingForTx={formData.isWaitingForTx}
-      />
+      <Suspense fallback={null}>
+        <CreateJarModals 
+          showWalletModal={showWalletModal}
+          setShowWalletModal={setShowWalletModal}
+          setPendingSubmission={setPendingSubmission}
+          isCreating={formData.isCreating}
+          isWaitingForTx={formData.isWaitingForTx}
+        />
+      </Suspense>
     </ProtocolErrorBoundary>
   )
 }

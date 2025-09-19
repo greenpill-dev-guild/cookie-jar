@@ -155,8 +155,7 @@ cookie-jar/
 │   └── __tests__/         # Frontend tests
 │
 ├── docs/                  # 📚 Documentation
-│   ├── PROTOCOL_GUIDE.md  # Multi-protocol access control guide
-│   └── NFT_TESTING_GUIDE.md # NFT development testing guide
+│   └── PROTOCOL_GUIDE.md  # Multi-protocol access control guide
 │
 └── scripts/               # 🛠️ Shared utility scripts
 ```
@@ -165,7 +164,6 @@ cookie-jar/
 > - **Contract Details**: [contracts/README.md](contracts/README.md)
 > - **Client Architecture**: [client/README.md](client/README.md)  
 > - **Access Control Guide**: [docs/PROTOCOL_GUIDE.md](docs/PROTOCOL_GUIDE.md)
-> - **NFT Testing**: [docs/NFT_TESTING_GUIDE.md](docs/NFT_TESTING_GUIDE.md)
 
 
 ## ✨ Core Features
@@ -534,7 +532,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **[contracts/README.md](contracts/README.md)** - Smart contract architecture, development tools, and deployment details
 - **[client/README.md](client/README.md)** - Frontend architecture, component structure, and testing setup
 - **[docs/PROTOCOL_GUIDE.md](docs/PROTOCOL_GUIDE.md)** - Comprehensive guide to all 6 access control methods
-- **[docs/NFT_TESTING_GUIDE.md](docs/NFT_TESTING_GUIDE.md)** - Complete NFT testing workflow for development
 - **[.env.sample](.env.sample)** - Environment configuration template with all options
 
 ### **🛠️ Developer Tools**
