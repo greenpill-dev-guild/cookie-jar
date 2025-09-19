@@ -1,7 +1,7 @@
 "use client"
 
 import { Globe2 } from "lucide-react"
-import { getNetworkName } from "@/lib/utils/network-utils"
+import { getNetworkName } from "@/lib/network-utils"
 
 interface ChainDisplayProps {
   chainId: number

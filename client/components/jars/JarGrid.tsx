@@ -3,7 +3,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { JarCard } from "./JarCard"
-import type { JarData } from "@/lib/utils/jar-utils"
+import type { JarData } from "@/lib/jar-utils"
 import type { NativeCurrency } from "@/config/supported-networks"
 
 interface JarGridProps {

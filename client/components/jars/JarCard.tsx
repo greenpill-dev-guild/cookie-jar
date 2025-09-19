@@ -5,7 +5,7 @@ import { Users } from "lucide-react"
 import { getAccessTypeName } from "@/lib/access-type-utils"
 import { JarImage } from "./JarImage"
 import { JarStatusBadge } from "./JarStatusBadge"
-import { JarData, getCurrencyAmount, getCurrencySymbol, getWithdrawalAmountDisplay, getJarName } from "@/lib/utils/jar-utils"
+import { JarData, getCurrencyAmount, getCurrencySymbol, getWithdrawalAmountDisplay, getJarName } from "@/lib/jar-utils"
 import type { NativeCurrency } from "@/config/supported-networks"
 
 interface JarCardProps {

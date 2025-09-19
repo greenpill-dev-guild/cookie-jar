@@ -10,7 +10,7 @@ import { Checkbox } from "@/components/ui/checkbox"
 import { Trash2 } from "lucide-react"
 import { ProtocolGateSelector } from "@/components/protocol/ProtocolGateSelector"
 import { NFTGateInput } from "@/components/forms/NFTGateInput"
-import { shortenAddress } from "@/lib/utils/utils"
+import { shortenAddress } from "@/lib/utils"
 import { isAddress } from "viem"
 import { AccessType, WithdrawalTypeOptions, NFTType } from "@/hooks/useJarCreation"
 

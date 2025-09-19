@@ -6,7 +6,7 @@ import { useNavigateToTop } from "@/hooks/useNavigateToTop"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { parseEther, keccak256, toHex } from "viem"
-import { ETH_ADDRESS, parseTokenAmount, useTokenInfo } from "@/lib/utils/token-utils"
+import { ETH_ADDRESS, parseTokenAmount, useTokenInfo } from "@/lib/token-utils"
 import {
   useReadCookieJarHasRole,
   useWriteCookieJarEmergencyWithdraw,

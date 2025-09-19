@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useRouter, usePathname } from "next/navigation"
 import { ArrowLeft } from "lucide-react"
-import { cn } from "@/lib/utils/utils"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 

@@ -1,7 +1,7 @@
 "use client"
 import { Suspense, lazy } from "react"
 import { useAccount } from "wagmi"
-import { JarGridSkeleton } from "@/components/loading/jar-skeleton"
+import { JarGridSkeleton } from "@/components/jars/JarSkeleton"
 
 // Lazy load the heavy jar content component
 const JarContentLazy = lazy(() => 

@@ -6,8 +6,8 @@ import { ConnectButton } from '@rainbow-me/rainbowkit'
 import { Copy, Check, ExternalLink, LogOut, Wallet, Eye, Search, Edit } from 'lucide-react'
 import { Card } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { shortenAddress } from '@/lib/utils/utils'
-import { getExplorerAddressUrl } from '@/lib/utils/network-utils'
+import { shortenAddress } from '@/lib/utils'
+import { getExplorerAddressUrl } from '@/lib/network-utils'
 import { useChainId } from 'wagmi'
 
 interface ConnectedMobileViewProps {

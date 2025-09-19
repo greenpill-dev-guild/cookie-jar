@@ -15,7 +15,7 @@ import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Loader2 } from "lucide-react";
 import { memo, useState, useEffect } from "react";
 import { useAccount, useChainId, useDisconnect, useSignMessage } from "wagmi";
-import { CustomConnectModal } from "./custom-connect-modal";
+import { CustomConnectModal } from "./CustomConnectModal";
 
 // Terms and conditions message that users will sign
 const TERMS_MESSAGE = `Welcome to Cookie Jar V3!

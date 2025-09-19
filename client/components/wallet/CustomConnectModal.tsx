@@ -127,4 +127,4 @@ export function CustomConnectModal({ isOpen, onClose }: ConnectModalProps) {
       </DialogContent>
     </Dialog>
   );
-} 
+}

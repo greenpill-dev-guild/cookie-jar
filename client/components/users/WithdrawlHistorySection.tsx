@@ -4,8 +4,8 @@ import type React from "react"
 import type { Address } from "viem"
 
 // Import token utilities
-import { ETH_ADDRESS, useTokenInfo, formatTokenAmount } from "@/lib/utils/token-utils"
-import { formatAddress } from "@/lib/utils/format"
+import { ETH_ADDRESS, useTokenInfo, formatTokenAmount } from "@/lib/token-utils"
+import { formatAddress } from "@/lib/format"
 
 // Export the Withdrawal interface so it can be imported elsewhere
 export interface Withdrawal {

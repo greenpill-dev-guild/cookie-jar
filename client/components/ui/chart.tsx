@@ -36,13 +36,16 @@ export function ChartContainer({
 // Tooltip component for charts
 export function ChartTooltip<T>({
   className,
+  active,
+  payload,
+  label,
   ...props
 }: React.ComponentProps<"div"> & {
-  payload?: TooltipProps<number, string>["payload"]
+  payload?: Array<{ name?: string; value: number; color?: string; dataKey?: string }>
   label?: string
   active?: boolean
 }) {
-  if (!props.active || !props.payload?.length) {
+  if (!active || !payload?.length) {
     return null
   }
 
@@ -56,7 +59,11 @@ export function ChartTooltipContent<T>({
   label,
   className,
   ...props
-}: TooltipProps<number, string> & React.ComponentProps<"div">) {
+}: React.ComponentProps<"div"> & {
+  payload?: Array<{ name?: string; value: number; color?: string; dataKey?: string }>
+  label?: string
+  active?: boolean
+}) {
   if (!active || !payload?.length) {
     return null
   }

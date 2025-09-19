@@ -3,16 +3,16 @@ import { useCookieJarFactory } from "@/hooks/useCookieJarFactory"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { ShieldAlert, Loader2, RotateCcw } from "lucide-react"
-import { JarGridSkeleton } from "@/components/loading/jar-skeleton"
+import { JarGridSkeleton } from "@/components/jars/JarSkeleton"
 import { useRouter } from "next/navigation"
 import { useChainId, useAccount } from "wagmi"
 import { getNativeCurrency } from '@/config/supported-networks'
 import { useState, useMemo, useCallback } from "react"
-import { ETH_ADDRESS } from "@/lib/utils/token-utils"
+import { ETH_ADDRESS } from "@/lib/token-utils"
 import { JarControls } from "./JarControls"
 import { JarGrid } from "./JarGrid"
 import { useMultipleTokenSymbols } from "@/hooks/useMultipleTokenSymbols"
-import { getNetworkName } from "@/lib/utils/network-utils"
+import { getNetworkName } from "@/lib/network-utils"
 
 interface JarContentProps {
   userAddress?: string;

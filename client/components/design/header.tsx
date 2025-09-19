@@ -4,7 +4,7 @@ import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { Home, Cookie, ChefHat } from "lucide-react"
-import { cn } from "@/lib/utils/utils"
+import { cn } from "@/lib/utils"
 import { ConnectButton } from "@rainbow-me/rainbowkit"
 
 export function Header() {
@@ -69,4 +69,3 @@ export function Header() {
     </header>
   )
 }
-

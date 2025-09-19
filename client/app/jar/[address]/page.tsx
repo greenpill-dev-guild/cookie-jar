@@ -24,9 +24,9 @@ import { cookieJarFactoryAbi } from "@/generated"
 import { contractAddresses } from "@/config/supported-networks"
 import { useWaitForTransactionReceipt } from "wagmi"
 import { AdminFunctions } from "@/components/admin/AdminFunctions"
-import { formatAddress } from "@/lib/utils/format"
-import { getExplorerAddressUrl } from "@/lib/utils/network-utils"
-import DefaultFeeCollector from "@/components/FeeCollector/DefaultFeeCollector"
+import { formatAddress } from "@/lib/format"
+import { getExplorerAddressUrl } from "@/lib/network-utils"
+import DefaultFeeCollector from "@/components/create/DefaultFeeCollector"
 import { Button } from "@/components/ui/button"
 import { useToast } from "@/hooks/useToast"
 import { Input } from "@/components/ui/input"
@@ -40,9 +40,9 @@ import { CountdownTimer } from "@/components/users/CountdownTimer"
 import { WithdrawalHistorySection, type Withdrawal } from "@/components/users/WithdrawlHistorySection"
 
 // Import token utilities
-import { ETH_ADDRESS, useTokenInfo, parseTokenAmount, formatTokenAmount } from "@/lib/utils/token-utils"
+import { ETH_ADDRESS, useTokenInfo, parseTokenAmount, formatTokenAmount } from "@/lib/token-utils"
 import { getNativeCurrency } from '@/config/supported-networks'
-import { formatTimeComponents, formatTimeString } from "@/lib/utils/time-utils"
+import { formatTimeComponents, formatTimeString } from "@/lib/time-utils"
 
 // Hash the JAR_OWNER role
 const JAR_OWNER_ROLE = keccak256(toUtf8Bytes("JAR_OWNER")) as `0x${string}`

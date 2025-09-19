@@ -3,8 +3,8 @@
 import React from "react"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
-import { LoadingOverlay } from "@/components/design/loading-overlay"
-import { MemoizedCustomConnectButton } from "@/components/wallet/custom-connect-button"
+import { LoadingOverlay } from "@/components/design/LoadingOverlay"
+import { MemoizedCustomConnectButton } from "@/components/wallet/CustomConnectButton"
 
 interface CreateJarModalsProps {
   showWalletModal: boolean

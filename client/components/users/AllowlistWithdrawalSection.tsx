@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { Textarea } from "@/components/ui/textarea"
 import { ArrowUpToLine } from "lucide-react"
-import { ETH_ADDRESS, useTokenInfo, parseTokenAmount, formatTokenAmount, checkDecimals } from "@/lib/utils/token-utils"
+import { ETH_ADDRESS, useTokenInfo, parseTokenAmount, formatTokenAmount, checkDecimals } from "@/lib/token-utils"
 
 interface AllowlistWithdrawalSectionProps {
   config: any // Ideally this would be more specifically typed

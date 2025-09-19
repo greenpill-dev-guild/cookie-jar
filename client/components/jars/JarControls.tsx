@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { ChainDisplay } from "./ChainDisplay"
-import { getNetworkName } from "@/lib/utils/network-utils"
+import { getNetworkName } from "@/lib/network-utils"
 
 interface JarControlsProps {
   searchTerm: string
