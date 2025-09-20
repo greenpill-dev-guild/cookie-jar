@@ -23,6 +23,10 @@ export type NFTValidationResult = {
   detectedType: 'ERC721' | 'ERC1155' | null
   isLoading: boolean
   error: string | null
+  isMalicious?: boolean
+  isActive?: boolean
+  gasUsed?: number
+  warnings?: string[]
 }
 
 export function useNftValidation(nftAddress: string): NFTValidationResult {
@@ -87,7 +91,8 @@ export function useNftValidation(nftAddress: string): NFTValidationResult {
         isValid: false,
         detectedType: null,
         isLoading: false,
-        error: nftAddress ? 'Invalid contract address format' : null
+        error: nftAddress ? 'Invalid contract address format' : null,
+        warnings: []
       })
       return
     }
@@ -96,11 +101,28 @@ export function useNftValidation(nftAddress: string): NFTValidationResult {
     const error = errorERC165 || errorERC721 || errorERC1155
 
     if (error) {
+      // Enhanced error handling with malicious contract detection
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error'
+      const warnings: string[] = []
+      let isMalicious = false
+      
+      // Detect potential malicious behaviors
+      if (errorMessage.includes('execution reverted') || errorMessage.includes('out of gas')) {
+        isMalicious = true
+        warnings.push('Contract may consume excessive gas or revert unexpectedly')
+      }
+      
+      if (errorMessage.includes('timeout') || errorMessage.includes('network')) {
+        warnings.push('Network issues detected - retry validation')
+      }
+      
       setResult({
         isValid: false,
         detectedType: null,
         isLoading: false,
-        error: 'Failed to validate contract. Not a valid NFT contract or network error.'
+        error: 'Failed to validate contract. Not a valid NFT contract or network error.',
+        isMalicious,
+        warnings
       })
       return
     }
@@ -120,14 +142,16 @@ export function useNftValidation(nftAddress: string): NFTValidationResult {
         isValid: false,
         detectedType: null,
         isLoading: false,
-        error: 'Contract does not support ERC165 interface detection'
+        error: 'Contract does not support ERC165 interface detection',
+        warnings: ['Contract may not be a standard NFT implementation']
       })
       return
     }
 
-    // Determine the NFT type
+    // Determine the NFT type with enhanced validation
     let detectedType: 'ERC721' | 'ERC1155' | null = null
     let isValid = false
+    const warnings: string[] = []
 
     if (supportsERC721 === true) {
       detectedType = 'ERC721'
@@ -137,11 +161,32 @@ export function useNftValidation(nftAddress: string): NFTValidationResult {
       isValid = true
     }
 
+    // Additional safety checks
+    if (isValid) {
+      // Check for known malicious patterns (this would be expanded with real data)
+      const suspiciousPatterns = [
+        '0x0000000000000000000000000000000000000000',
+        '0x000000000000000000000000000000000000dead'
+      ]
+      
+      if (suspiciousPatterns.some(pattern => 
+        nftAddress.toLowerCase().includes(pattern.toLowerCase())
+      )) {
+        warnings.push('Contract address appears suspicious')
+      }
+      
+      // In a real implementation, you'd check against known malicious contract databases
+      // or use services like Forta, OpenSea's security API, etc.
+    }
+
     setResult({
       isValid,
       detectedType,
       isLoading: false,
-      error: isValid ? null : 'Contract does not support ERC721 or ERC1155 interfaces'
+      error: isValid ? null : 'Contract does not support ERC721 or ERC1155 interfaces',
+      isMalicious: false, // Would be determined by actual security checks
+      isActive: isValid, // Assume active if valid (would check recent activity in real impl)
+      warnings
     })
 
   }, [

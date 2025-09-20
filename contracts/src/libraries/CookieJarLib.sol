@@ -13,6 +13,23 @@ library CookieJarLib {
     uint256 public constant MAX_WITHDRAWAL_HISTORY = 1000;
     /// @dev Period for withdrawal limits (1 week)
     uint256 public constant WITHDRAWAL_PERIOD = 7 days;
+    /// @dev Maximum gas allowed for NFT validation calls (increased for safety)
+    uint256 public constant MAX_NFT_VALIDATION_GAS = 150000;
+    /// @dev Maximum blocks a balance proof can be old (increased for better UX)
+    uint256 public constant MAX_BALANCE_PROOF_AGE = 10;
+    /// @dev Maximum batch size for operations to prevent gas issues
+    uint256 public constant MAX_BATCH_SIZE = 50;
+    
+    // --- NFT Gate Bit Flags ---
+    /// @dev Bit flag: Gate is active and can be used
+    uint8 public constant GATE_ACTIVE = 1 << 0;           // Bit 0
+    /// @dev Bit flag: Gate has quantity requirements (ERC1155)
+    uint8 public constant GATE_QUANTITY_BASED = 1 << 1;   // Bit 1
+    /// @dev Bit flag: Gate has trait-based requirements (future)
+    uint8 public constant GATE_TRAIT_BASED = 1 << 2;      // Bit 2
+    /// @dev Bit flag: Gate has analytics tracking enabled
+    // TEMPORARILY REMOVED: Analytics constants
+    // uint8 public constant GATE_ANALYTICS_ENABLED = 1 << 3;
     
     // --- Enums ---
     /// @notice The mode for access control.
@@ -76,6 +93,16 @@ library CookieJarLib {
         string purpose; // Reason for the withdrawal.
         address recipient; // Address of the user who withdrew
     }
+
+    // --- Enhanced NFT Structs ---
+    
+    // TEMPORARILY REMOVED: PackedNFTGate struct to reduce contract size
+    // struct PackedNFTGate { ... }
+
+    // TEMPORARILY REMOVED: Analytics structs to reduce contract size under 24KB limit
+    // These will be re-enabled in a future version with external analytics library
+    // struct NFTGateStats { ... }
+    // struct WithdrawalAnalytics { ... }
 
     /// @notice Configuration struct for CookieJar constructor to avoid stack too deep
     struct JarConfig {
@@ -151,6 +178,19 @@ library CookieJarLib {
     event PausedStateChanged(bool indexed isPaused);
     /// @notice Emitted when period withdrawal limit is updated.
     event PeriodWithdrawalLimitUpdated(uint256 indexed newLimit);
+    
+    // --- Enhanced NFT Events ---
+    /// @notice Emitted when balance proof withdrawal is used.
+    event NFTBalanceProofWithdrawal(address indexed user, address indexed nftContract, uint256 indexed tokenId, uint256 expectedBalance, uint256 actualBalance);
+    /// @notice Emitted when high gas usage is detected in NFT validation.
+    event HighGasUsageWarning(address indexed nftContract, uint256 gasUsed);
+    /// @notice Emitted when NFT gates are added in batch.
+    event NFTGatesBatchAdded(address[] nftAddresses, uint8[] nftTypes);
+    /// @notice Emitted when NFT gates are removed in batch.
+    event NFTGatesBatchRemoved(address[] nftAddresses);
+    /// @notice Emitted when NFT withdrawal analytics are recorded.
+    // TEMPORARILY REMOVED: Analytics events
+    // event NFTWithdrawalAnalytics(...);
 
     // --- Custom Errors ---
     error AdminCannotBeZeroAddress();
@@ -209,4 +249,20 @@ library CookieJarLib {
     error WithdrawalHistoryLimitReached();
     error ContractPaused();
     error PeriodWithdrawalLimitExceeded(uint256 requested, uint256 available);
+    
+    // --- Enhanced NFT Errors ---
+    /// @notice Thrown when balance proof is too old (more than 5 blocks)
+    error StaleBalanceProof();
+    /// @notice Thrown when NFT validation uses excessive gas
+    error ExcessiveGasUsage();
+    /// @notice Thrown when NFT validation fails due to network or contract issues
+    error NFTValidationFailed();
+    /// @notice Thrown when user doesn't have sufficient NFT balance for ERC1155
+    error InsufficientNFTBalance();
+    /// @notice Thrown when user has excessive NFT quantity (above max limit)
+    error ExcessiveNFTQuantity();
+    /// @notice Thrown when trying to perform quantity validation on ERC721
+    error QuantityValidationNotSupported();
+    /// @notice Thrown when array lengths don't match in batch operations
+    error ArrayLengthMismatch();
 }

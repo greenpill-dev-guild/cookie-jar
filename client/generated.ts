@@ -784,6 +784,25 @@ export const cookieJarAbi = [
     anonymous: false,
     inputs: [
       {
+        name: 'nftContract',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'gasUsed',
+        internalType: 'uint256',
+        type: 'uint256',
+        indexed: false,
+      },
+    ],
+    name: 'HighGasUsageWarning',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
         name: 'newMaxWithdrawal',
         internalType: 'uint256',
         type: 'uint256',
@@ -1016,6 +1035,7 @@ export const cookieJarAbi = [
   { type: 'error', inputs: [], name: 'LessThanMinimumDeposit' },
   { type: 'error', inputs: [], name: 'NFTArrayLengthMismatch' },
   { type: 'error', inputs: [], name: 'NFTGateNotFound' },
+  { type: 'error', inputs: [], name: 'NFTValidationFailed' },
   { type: 'error', inputs: [], name: 'NoNFTAddressesProvided' },
   { type: 'error', inputs: [], name: 'NotAuthorized' },
   { type: 'error', inputs: [], name: 'NotFeeCollector' },
@@ -2430,6 +2450,15 @@ export const useWatchCookieJarFixedWithdrawalAmountUpdatedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarAbi,
     eventName: 'FixedWithdrawalAmountUpdated',
+  })
+
+/**
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"HighGasUsageWarning"`
+ */
+export const useWatchCookieJarHighGasUsageWarningEvent =
+  /*#__PURE__*/ createUseWatchContractEvent({
+    abi: cookieJarAbi,
+    eventName: 'HighGasUsageWarning',
   })
 
 /**

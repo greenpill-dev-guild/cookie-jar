@@ -1,7 +1,9 @@
 [profile.default]
 via_ir = true
 optimizer = true
-optimizer_runs = 200  # Changed from 10000 - optimize for size over gas efficiency
+optimizer_runs = 1    # Aggressively optimize for size to stay under 24KB limit
+bytecode_hash = "none"  # Remove metadata hash to save ~53 bytes
+cbor_metadata = false   # Disable CBOR metadata encoding
 # Prioritize contract size to keep functionality
 src = "src"
 out = "out"
@@ -24,11 +26,15 @@ fs_permissions = [
     { access = "read", path = "../" }
 ]
 
-# Lightweight profile for quick compilation (no CREATE2)
-[profile.lite]
-via_ir = false
-optimizer = false
+# Size-optimized profile for deployment
+[profile.size]
+via_ir = true
+optimizer = true
 optimizer_runs = 1
+bytecode_hash = "none"
+cbor_metadata = false
+# Disable some features for smaller bytecode
+solc_version = "0.8.25"
 src = "src"
 out = "out"
 libs = ["lib"]
