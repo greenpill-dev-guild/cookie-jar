@@ -72,7 +72,7 @@ contract CookieJar is Ownable, ReentrancyGuard {
     /// @notice Deposit native tokens with slippage protection
     /// @param minOut Minimum amount of jar tokens to receive
     /// @param path Custom swap path (empty for default)
-    function depositNative(uint256 minOut, address[] calldata path) external payable nonReentrant {
+    function depositNative(uint256 minOut, address[] calldata path) external payable virtual nonReentrant {
         _depositNative(msg.sender, msg.value, minOut, path);
     }
 
@@ -86,7 +86,7 @@ contract CookieJar is Ownable, ReentrancyGuard {
         uint256 amount,
         uint256 minOut,
         address[] calldata path
-    ) external nonReentrant {
+    ) external virtual nonReentrant {
         require(tokenIn != address(0), "Use depositNative for native");
         require(amount > 0, "ZeroAmount");
 
@@ -127,7 +127,7 @@ contract CookieJar is Ownable, ReentrancyGuard {
         uint8 v,
         bytes32 r,
         bytes32 s
-    ) external nonReentrant {
+    ) external virtual nonReentrant {
         require(tokenIn != address(0), "Use depositNative for native");
         require(amount > 0, "ZeroAmount");
 
