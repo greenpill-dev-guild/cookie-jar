@@ -8,39 +8,43 @@ import { useEnhancedNFTs } from '@/hooks/useEnhancedNFTs'
 import { useNFTBalanceProof, validateBalanceProof } from '@/hooks/useNFTBalanceProof'
 import { useJarCreation } from '@/hooks/useJarCreation'
 
-// Mock wagmi hooks with controllable behavior
-const mockUseAccount = jest.fn()
-const mockUseChainId = jest.fn()
-const mockUseBlockNumber = jest.fn()
-const mockUseReadContract = jest.fn()
-const mockUseWriteContract = jest.fn()
-const mockUseWaitForTransactionReceipt = jest.fn()
+// Import types
+import type { EnhancedNFT } from '@/lib/nft-providers/AlchemyProvider'
+import type { UseQueryResult } from '@tanstack/react-query'
+import type { UseAccountReturnType, UseReadContractReturnType, UseWriteContractReturnType, UseWaitForTransactionReceiptReturnType } from 'wagmi'
 
-jest.mock('wagmi', () => ({
-  useAccount: mockUseAccount,
-  useChainId: mockUseChainId,
-  useBlockNumber: mockUseBlockNumber,
-  useReadContract: mockUseReadContract,
-  useWriteContract: mockUseWriteContract,
-  useWaitForTransactionReceipt: mockUseWaitForTransactionReceipt,
-}))
+import { vi } from 'vitest'
+
+// Mock wagmi hooks with controllable behavior
+vi.mock('wagmi', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('wagmi')>()
+  return {
+    ...actual,
+    useAccount: vi.fn(),
+    useChainId: vi.fn(),
+    useBlockNumber: vi.fn(),
+    useReadContract: vi.fn(),
+    useWriteContract: vi.fn(),
+    useWaitForTransactionReceipt: vi.fn(),
+  }
+})
 
 // Mock router
-jest.mock('next/navigation', () => ({
+vi.mock('next/navigation', () => ({
   useRouter: () => ({
-    push: jest.fn(),
+    push: vi.fn(),
   }),
 }))
 
 // Mock Alchemy SDK with controllable timing
 const mockAlchemyProvider = {
-  getUserNFTs: jest.fn(),
-  getNFTMetadata: jest.fn(),
-  validateContract: jest.fn(),
+  getUserNFTs: vi.fn(),
+  getNFTMetadata: vi.fn(),
+  validateContract: vi.fn(),
 }
 
-jest.Mock('@/lib/nft-providers/AlchemyProvider', () => ({
-  AlchemyNFTProvider: jest.fn().mockImplementation(() => mockAlchemyProvider),
+vi.mock('@/lib/nft-providers/AlchemyProvider', () => ({
+  AlchemyNFTProvider: vi.fn().mockImplementation(() => mockAlchemyProvider),
 }))
 
 // Test utilities
@@ -64,27 +68,45 @@ const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
 describe('Race Conditions and Edge Cases', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
+    
+    // Import wagmi properly
+    const { useAccount, useChainId, useBlockNumber, useReadContract, useWriteContract, useWaitForTransactionReceipt } = require('wagmi')
     
     // Default mock implementations
-    mockUseAccount.mockReturnValue({
-      address: '0x1234567890123456789012345678901234567890',
+    vi.mocked(useAccount).mockReturnValue({
+      address: '0x1234567890123456789012345678901234567890' as `0x${string}`,
       isConnected: true
-    })
-    mockUseChainId.mockReturnValue(1)
-    mockUseBlockNumber.mockReturnValue({ data: 100n, isLoading: false })
-    mockUseReadContract.mockReturnValue({ data: 5n, isLoading: false, error: null })
-    mockUseWriteContract.mockReturnValue({
-      writeContract: jest.fn(),
-      data: '0xabcdef',
+    } as any)
+    
+    vi.mocked(useChainId).mockReturnValue(1)
+    
+    vi.mocked(useBlockNumber).mockReturnValue({ 
+      data: 100n, 
+      isLoading: false, 
+      error: null
+    } as any)
+    
+    vi.mocked(useReadContract).mockReturnValue({ 
+      data: 5n, 
+      isLoading: false, 
+      error: null,
+      refetch: vi.fn()
+    } as any)
+    
+    vi.mocked(useWriteContract).mockReturnValue({
+      writeContract: vi.fn(),
+      data: '0xabcdef' as `0x${string}`,
       error: null,
       isPending: false
-    })
-    mockUseWaitForTransactionReceipt.mockReturnValue({
+    } as any)
+    
+    vi.mocked(useWaitForTransactionReceipt).mockReturnValue({
       isLoading: false,
       isSuccess: false,
-      data: null
-    })
+      data: null,
+      error: null
+    } as any)
   })
 
   describe('Network Switching Race Conditions', () => {
@@ -94,13 +116,15 @@ describe('Race Conditions and Edge Cases', () => {
 
       mockAlchemyProvider.getUserNFTs.mockImplementation(async (address: string) => {
         const currentRequestId = ++requestId
-        const chainId = mockUseChainId()
+        const { useChainId } = require('wagmi')
+        const mockUseChainId = vi.mocked(useChainId)
+        const chainId = mockUseChainId.mock.results[mockUseChainId.mock.results.length - 1]?.value ?? 1
 
         // Simulate different response times for different networks
         const delay = chainId === 1 ? 300 : chainId === 8453 ? 100 : 200
         await new Promise(resolve => setTimeout(resolve, delay))
 
-        const response = [{
+        const response: EnhancedNFT[] = [{
           contractAddress: '0x' + chainId.toString().padStart(40, '0'),
           tokenId: '1',
           tokenType: 'ERC721' as const,
@@ -114,8 +138,9 @@ describe('Race Conditions and Edge Cases', () => {
       })
 
       const { result, rerender } = renderHook(
-        ({ chainId }) => {
-          mockUseChainId.mockReturnValue(chainId)
+        ({ chainId }: { chainId: number }) => {
+          const { useChainId } = require('wagmi')
+          vi.mocked(useChainId).mockReturnValue(chainId)
           return useEnhancedNFTs({ enabled: true })
         },
         { 
@@ -168,8 +193,9 @@ describe('Race Conditions and Edge Cases', () => {
       })
 
       const { result, rerender } = renderHook(
-        ({ chainId }) => {
-          mockUseChainId.mockReturnValue(chainId)
+        ({ chainId }: { chainId: number }) => {
+          const { useChainId } = require('wagmi')
+          vi.mocked(useChainId).mockReturnValue(chainId)
           return useEnhancedNFTs({ enabled: true })
         },
         { 
@@ -202,24 +228,25 @@ describe('Race Conditions and Edge Cases', () => {
       let currentBalance = 5n
       let currentBlock = 100n
 
-      mockUseReadContract.mockImplementation(() => ({
+      const { useReadContract, useBlockNumber } = require('wagmi')
+      
+      vi.mocked(useReadContract).mockImplementation(() => ({
         data: currentBalance,
         isLoading: false,
         error: null
       }))
 
-      mockUseBlockNumber.mockImplementation(() => ({
+      vi.mocked(useBlockNumber).mockImplementation(() => ({
         data: currentBlock,
         isLoading: false
       }))
 
       const { result, rerender } = renderHook(
-        () => useNFTBalanceProof(
-          '0x1234567890123456789012345678901234567890',
-          '1',
-          1n,
-          currentBlock
-        ),
+        () => useNFTBalanceProof({
+          contractAddress: '0x1234567890123456789012345678901234567890',
+          tokenId: '1',
+          tokenType: "ERC721"
+        }),
         { wrapper: createWrapper() }
       )
 
@@ -245,37 +272,39 @@ describe('Race Conditions and Edge Cases', () => {
     it('validates stale balance proofs correctly', () => {
       const validProof = {
         balance: 5n,
-        blockNumber: 100n,
-        timestamp: Date.now() - 30000 // 30 seconds ago
+        blockNumber: 100,
+        timestamp: Date.now() - 30000, // 30 seconds ago
+        isValid: true
       }
 
       const staleProof = {
         balance: 5n,
-        blockNumber: 85n, // More than 10 blocks old
-        timestamp: Date.now() - 300000 // 5 minutes ago
+        blockNumber: 85, // More than 10 blocks old
+        timestamp: Date.now() - 300000, // 5 minutes ago
+        isValid: false
       }
 
-      const currentBlock = 100n
+      const currentBlock = 100
 
-      expect(validateBalanceProof(validProof, 1n, currentBlock)).toBe(true)
-      expect(validateBalanceProof(staleProof, 1n, currentBlock)).toBe(false)
+      expect(validateBalanceProof(validProof, currentBlock, 1n).isValid).toBe(true)
+      expect(validateBalanceProof(staleProof, currentBlock, 1n).isValid).toBe(false)
     })
 
     it('handles ERC1155 balance proof edge cases', async () => {
       // Test zero balance
-      mockUseReadContract.mockReturnValue({
+      const { useReadContract } = require('wagmi')
+      vi.mocked(useReadContract).mockReturnValue({
         data: 0n,
         isLoading: false,
         error: null
       })
 
       const { result } = renderHook(
-        () => useNFTBalanceProof(
-          '0x1234567890123456789012345678901234567890',
-          '1',
-          1n, // Require at least 1
-          100n
-        ),
+        () => useNFTBalanceProof({
+          contractAddress: '0x1234567890123456789012345678901234567890',
+          tokenId: '1',
+          tokenType: "ERC1155"
+        }),
         { wrapper: createWrapper() }
       )
 
@@ -287,8 +316,9 @@ describe('Race Conditions and Edge Cases', () => {
 
   describe('Transaction Race Conditions', () => {
     it('handles concurrent jar creation attempts', async () => {
-      const writeContractMock = jest.fn()
-      mockUseWriteContract.mockReturnValue({
+      const writeContractMock = vi.fn()
+      const { useWriteContract } = require('wagmi')
+      vi.mocked(useWriteContract).mockReturnValue({
         writeContract: writeContractMock,
         data: undefined,
         error: null,
@@ -324,8 +354,8 @@ describe('Race Conditions and Edge Cases', () => {
 
       // Start two concurrent jar creation attempts
       act(() => {
-        result1.current.handleCreateJar(jarConfig, accessConfig)
-        result2.current.handleCreateJar(jarConfig, accessConfig)
+        result1.current.confirmSubmit()
+        result2.current.confirmSubmit()
       })
 
       // Should only call writeContract once (the second should be prevented by pending state)
@@ -335,29 +365,30 @@ describe('Race Conditions and Edge Cases', () => {
     })
 
     it('handles transaction confirmation race conditions', async () => {
-      const writeContractMock = jest.fn()
+      const writeContractMock = vi.fn()
       let transactionState = { isLoading: true, isSuccess: false, data: null }
 
-      mockUseWriteContract.mockReturnValue({
+      const { useWriteContract, useWaitForTransactionReceipt } = require('wagmi')
+      vi.mocked(useWriteContract).mockReturnValue({
         writeContract: writeContractMock,
         data: '0x123',
         error: null,
         isPending: false
       })
 
-      mockUseWaitForTransactionReceipt.mockReturnValue(transactionState)
+      vi.mocked(useWaitForTransactionReceipt).mockReturnValue(transactionState)
 
       const { result, rerender } = renderHook(() => useJarCreation(), { wrapper: createWrapper() })
 
       // Simulate transaction state changes
       act(() => {
-        transactionState = { isLoading: false, isSuccess: true, data: { blockHash: '0xabc' } }
+        transactionState = { isLoading: false, isSuccess: true, data: { blockHash: '0xabc' } as any }
       })
 
       rerender()
 
       await waitFor(() => {
-        expect(result.current.transactionState.isSuccess).toBe(true)
+        expect(result.current.txConfirmed).toBe(true)
       })
     })
   })
@@ -398,7 +429,7 @@ describe('Race Conditions and Edge Cases', () => {
       })
 
       const { result, rerender } = renderHook(
-        ({ enabled }) => useEnhancedNFTs({ enabled }),
+        ({ enabled }: { enabled: boolean }) => useEnhancedNFTs({ enabled }),
         { 
           wrapper: createWrapper(),
           initialProps: { enabled: true }
@@ -448,12 +479,11 @@ describe('Race Conditions and Edge Cases', () => {
 
     it('properly cleans up intervals and timers', async () => {
       const { unmount } = renderHook(
-        () => useNFTBalanceProof(
-          '0x1234567890123456789012345678901234567890',
-          '1',
-          1n,
-          100n
-        ),
+        () => useNFTBalanceProof({
+          contractAddress: '0x1234567890123456789012345678901234567890',
+          tokenId: '1',
+          tokenType: "ERC721"
+        }),
         { wrapper: createWrapper() }
       )
 
@@ -546,7 +576,7 @@ describe('Race Conditions and Edge Cases', () => {
     it('handles high-frequency updates without performance degradation', async () => {
       let updateCount = 0
       const { result, rerender } = renderHook(
-        ({ userAddress }) => {
+        ({ userAddress }: { userAddress: string }) => {
           updateCount++
           return useEnhancedNFTs({ userAddress, enabled: true })
         },

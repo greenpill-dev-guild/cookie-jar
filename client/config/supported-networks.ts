@@ -8,7 +8,7 @@ import {
   baseSepolia,
   celo,
   optimismSepolia,
-  celoAlfajores
+  celoSepolia
 } from 'wagmi/chains'
 
 // Import auto-generated deployment configuration
@@ -60,7 +60,7 @@ const chains = [
   optimism,
   baseSepolia,
   optimismSepolia,
-  // celoAlfajores,
+  // celoSepolia,
   // Mainnets
   // mainnet,
 ];
@@ -133,7 +133,7 @@ export const nativeCurrencies: Record<number, NativeCurrency> = {
     decimals: 18,
     address: "0x0000000000000000000000000000000000000003"
   },
-  [celoAlfajores.id]: {
+  [celoSepolia.id]: {
     symbol: "CELO",
     name: "Celo",
     decimals: 18,
@@ -337,7 +337,7 @@ export const wagmiConfig = createConfig({
       ]
     ),
     // Celo Alfajores Testnet - POKT not available, keep as is
-    [celoAlfajores.id]: createFallbackTransport(
+    [celoSepolia.id]: createFallbackTransport(
       [
         'https://alfajores-forno.celo-testnet.org'
       ],

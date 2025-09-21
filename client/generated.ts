@@ -1097,14 +1097,14 @@ export const cookieJarFactoryAbi = [
   {
     type: 'function',
     inputs: [],
-    name: 'BLACKLISTED_JAR_CREATORS',
+    name: 'DEFAULT_ADMIN_ROLE',
     outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
     stateMutability: 'view',
   },
   {
     type: 'function',
     inputs: [],
-    name: 'DEFAULT_ADMIN_ROLE',
+    name: 'DENYLISTED_JAR_CREATORS',
     outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
     stateMutability: 'view',
   },
@@ -1303,7 +1303,7 @@ export const cookieJarFactoryAbi = [
   {
     type: 'function',
     inputs: [{ name: '_users', internalType: 'address[]', type: 'address[]' }],
-    name: 'grantBlacklistedJarCreatorsRole',
+    name: 'grantDenylistedJarCreatorsRole',
     outputs: [],
     stateMutability: 'nonpayable',
   },
@@ -1361,7 +1361,7 @@ export const cookieJarFactoryAbi = [
   {
     type: 'function',
     inputs: [{ name: '_users', internalType: 'address[]', type: 'address[]' }],
-    name: 'revokeBlacklistedJarCreatorsRole',
+    name: 'revokeDenylistedJarCreatorsRole',
     outputs: [],
     stateMutability: 'nonpayable',
   },
@@ -1499,7 +1499,7 @@ export const cookieJarFactoryAbi = [
     ],
     name: 'AccessControlUnauthorizedAccount',
   },
-  { type: 'error', inputs: [], name: 'CookieJarFactory__Blacklisted' },
+  { type: 'error', inputs: [], name: 'CookieJarFactory__Denylisted' },
   { type: 'error', inputs: [], name: 'CookieJarFactory__JarNotFound' },
   { type: 'error', inputs: [], name: 'CookieJarFactory__NotJarOwner' },
   { type: 'error', inputs: [], name: 'CookieJarFactory__NotValidERC20' },
@@ -2586,21 +2586,21 @@ export const useReadCookieJarFactory = /*#__PURE__*/ createUseReadContract({
 })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"BLACKLISTED_JAR_CREATORS"`
- */
-export const useReadCookieJarFactoryBlacklistedJarCreators =
-  /*#__PURE__*/ createUseReadContract({
-    abi: cookieJarFactoryAbi,
-    functionName: 'BLACKLISTED_JAR_CREATORS',
-  })
-
-/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"DEFAULT_ADMIN_ROLE"`
  */
 export const useReadCookieJarFactoryDefaultAdminRole =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarFactoryAbi,
     functionName: 'DEFAULT_ADMIN_ROLE',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"DENYLISTED_JAR_CREATORS"`
+ */
+export const useReadCookieJarFactoryDenylistedJarCreators =
+  /*#__PURE__*/ createUseReadContract({
+    abi: cookieJarFactoryAbi,
+    functionName: 'DENYLISTED_JAR_CREATORS',
   })
 
 /**
@@ -2753,12 +2753,12 @@ export const useWriteCookieJarFactoryCreateCookieJar =
   })
 
 /**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"grantBlacklistedJarCreatorsRole"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"grantDenylistedJarCreatorsRole"`
  */
-export const useWriteCookieJarFactoryGrantBlacklistedJarCreatorsRole =
+export const useWriteCookieJarFactoryGrantDenylistedJarCreatorsRole =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarFactoryAbi,
-    functionName: 'grantBlacklistedJarCreatorsRole',
+    functionName: 'grantDenylistedJarCreatorsRole',
   })
 
 /**
@@ -2780,12 +2780,12 @@ export const useWriteCookieJarFactoryRenounceRole =
   })
 
 /**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"revokeBlacklistedJarCreatorsRole"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"revokeDenylistedJarCreatorsRole"`
  */
-export const useWriteCookieJarFactoryRevokeBlacklistedJarCreatorsRole =
+export const useWriteCookieJarFactoryRevokeDenylistedJarCreatorsRole =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarFactoryAbi,
-    functionName: 'revokeBlacklistedJarCreatorsRole',
+    functionName: 'revokeDenylistedJarCreatorsRole',
   })
 
 /**
@@ -2822,12 +2822,12 @@ export const useSimulateCookieJarFactoryCreateCookieJar =
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"grantBlacklistedJarCreatorsRole"`
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"grantDenylistedJarCreatorsRole"`
  */
-export const useSimulateCookieJarFactoryGrantBlacklistedJarCreatorsRole =
+export const useSimulateCookieJarFactoryGrantDenylistedJarCreatorsRole =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarFactoryAbi,
-    functionName: 'grantBlacklistedJarCreatorsRole',
+    functionName: 'grantDenylistedJarCreatorsRole',
   })
 
 /**
@@ -2849,12 +2849,12 @@ export const useSimulateCookieJarFactoryRenounceRole =
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"revokeBlacklistedJarCreatorsRole"`
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"revokeDenylistedJarCreatorsRole"`
  */
-export const useSimulateCookieJarFactoryRevokeBlacklistedJarCreatorsRole =
+export const useSimulateCookieJarFactoryRevokeDenylistedJarCreatorsRole =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarFactoryAbi,
-    functionName: 'revokeBlacklistedJarCreatorsRole',
+    functionName: 'revokeDenylistedJarCreatorsRole',
   })
 
 /**

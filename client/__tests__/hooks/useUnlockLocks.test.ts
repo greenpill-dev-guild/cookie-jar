@@ -2,31 +2,32 @@
 import '@testing-library/jest-dom'
 import { renderHook, waitFor } from '@testing-library/react'
 import { useUnlockLocks } from '@/hooks/protocol/useUnlockLocks'
+import { vi } from 'vitest'
 
 // Mock wagmi hooks
-jest.mock('wagmi', () => ({
-  useAccount: jest.fn(() => ({ 
+vi.mock('wagmi', () => ({
+  useAccount: vi.fn(() => ({ 
     address: '0x1234567890123456789012345678901234567890' 
   })),
-  useChainId: jest.fn(() => 1), // Default to Ethereum mainnet
-  useReadContract: jest.fn(() => ({
+  useChainId: vi.fn(() => 1), // Default to Ethereum mainnet
+  useReadContract: vi.fn(() => ({
     data: undefined,
     isLoading: false,
     error: null,
-    refetch: jest.fn()
+    refetch: vi.fn()
   }))
 }))
 
 // Mock the Unlock Protocol SDK
-jest.mock('@unlock-protocol/unlock-js', () => ({
-  Web3Service: jest.fn().mockImplementation(() => ({
-    getLock: jest.fn(),
-    getKeyByLockForOwner: jest.fn(),
-    getHasValidKey: jest.fn()
+vi.mock('@unlock-protocol/unlock-js', () => ({
+  Web3Service: vi.fn().mockImplementation(() => ({
+    getLock: vi.fn(),
+    getKeyByLockForOwner: vi.fn(),
+    getHasValidKey: vi.fn()
   })),
-  SubgraphService: jest.fn().mockImplementation(() => ({
-    locks: jest.fn(),
-    keys: jest.fn()
+  SubgraphService: vi.fn().mockImplementation(() => ({
+    locks: vi.fn(),
+    keys: vi.fn()
   }))
 }))
 
@@ -34,15 +35,15 @@ jest.mock('@unlock-protocol/unlock-js', () => ({
 import { Web3Service } from '@unlock-protocol/unlock-js'
 
 const mockWeb3Service = {
-  getLock: jest.fn(),
-  getKeyByLockForOwner: jest.fn(),
-  getHasValidKey: jest.fn()
+  getLock: vi.fn(),
+  getKeyByLockForOwner: vi.fn(),
+  getHasValidKey: vi.fn()
 }
 
 // Mock implementation setup
 beforeEach(() => {
-  jest.clearAllMocks()
-  ;(Web3Service as jest.MockedClass<typeof Web3Service>).mockImplementation(() => mockWeb3Service as any)
+  vi.clearAllMocks()
+  ;(Web3Service as ReturnType<typeof vi.fn>).mockImplementation(() => mockWeb3Service as any)
 })
 
 describe('useUnlockLocks Hook - Real SDK Integration', () => {
@@ -260,7 +261,7 @@ describe('useUnlockLocks Hook - Real SDK Integration', () => {
       const { useChainId } = require('wagmi')
       
       // Temporarily mock unsupported chain ID
-      ;(useChainId as jest.Mock).mockReturnValueOnce(999999)
+      ;(useChainId as ReturnType<typeof vi.fn>).mockReturnValueOnce(999999)
 
       const { result } = renderHook(() => 
         useUnlockLocks({ lockAddress: testLockAddress })
@@ -270,7 +271,7 @@ describe('useUnlockLocks Hook - Real SDK Integration', () => {
       expect(Web3Service).toHaveBeenCalled()
 
       // Reset to default chain ID for subsequent tests
-      ;(useChainId as jest.Mock).mockReturnValue(1)
+      ;(useChainId as ReturnType<typeof vi.fn>).mockReturnValue(1)
     })
   })
 
@@ -420,7 +421,7 @@ describe('useUnlockLocks Hook - Real SDK Integration', () => {
       )
 
       // Clear previous calls
-      jest.clearAllMocks()
+      vi.clearAllMocks()
 
       // Call refetch
       result.current.refetch()

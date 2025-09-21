@@ -5,7 +5,7 @@ import {
   sepolia,
   baseSepolia,
   optimismSepolia,
-  celoAlfajores
+  celoSepolia
 } from 'viem/chains'
 
 // Load local deployment if exists
@@ -21,7 +21,7 @@ const contractAddresses = {
     [sepolia.id]: "0x010CE87d0E7F8E818805a27C95E09cb4961C8c6f" as `0x${string}`,
     [baseSepolia.id]: "0x010CE87d0E7F8E818805a27C95E09cb4961C8c6f" as `0x${string}`,
     [optimismSepolia.id]: "0x010CE87d0E7F8E818805a27C95E09cb4961C8c6f" as `0x${string}`,
-    [celoAlfajores.id]: "0x010CE87d0E7F8E818805a27C95E09cb4961C8c6f" as `0x${string}`,
+    [celoSepolia.id]: "0x010CE87d0E7F8E818805a27C95E09cb4961C8c6f" as `0x${string}`,
     // Local development
     31337: localDeployment.CookieJarFactory as `0x${string}`
   }

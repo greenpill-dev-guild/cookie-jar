@@ -3,36 +3,32 @@ import { renderHook, waitFor } from '@testing-library/react'
 import { useNFTBalanceProof, validateBalanceProof } from '@/hooks/useNFTBalanceProof'
 import { useEnhancedNFTs } from '@/hooks/useEnhancedNFTs'
 
-// Declare Jest globals for TypeScript
-declare const describe: any
-declare const it: any
-declare const expect: any
-declare const beforeEach: any
-declare const jest: any
+import { vi } from 'vitest'
+
 
 // Mock wagmi hooks
-jest.mock('wagmi', () => ({
-  useAccount: jest.fn(() => ({ address: '0x1234567890123456789012345678901234567890' })),
-  useChainId: jest.fn(() => 1), // Ethereum mainnet
-  useBlockNumber: jest.fn(() => ({ data: 100, isLoading: false })),
-  useReadContract: jest.fn(),
+vi.mock('wagmi', () => ({
+  useAccount: vi.fn(() => ({ address: '0x1234567890123456789012345678901234567890' })),
+  useChainId: vi.fn(() => 1), // Ethereum mainnet
+  useBlockNumber: vi.fn(() => ({ data: 100, isLoading: false })),
+  useReadContract: vi.fn(),
 }))
 
 // Mock React Query
-jest.mock('@tanstack/react-query', () => ({
-  useQuery: jest.fn(),
+vi.mock('@tanstack/react-query', () => ({
+  useQuery: vi.fn(),
 }))
 
 // Mock Alchemy SDK
-jest.mock('alchemy-sdk', () => ({
-  Alchemy: jest.fn().mockImplementation(() => ({
+vi.mock('alchemy-sdk', () => ({
+  Alchemy: vi.fn().mockImplementation(() => ({
     nft: {
-      getNftsForOwner: jest.fn(),
-      getNftMetadata: jest.fn(),
-      getFloorPrice: jest.fn(),
+      getNftsForOwner: vi.fn(),
+      getNftMetadata: vi.fn(),
+      getFloorPrice: vi.fn(),
     },
     core: {
-      getContractMetadata: jest.fn(),
+      getContractMetadata: vi.fn(),
     }
   })),
   Network: {
@@ -52,7 +48,7 @@ jest.mock('alchemy-sdk', () => ({
 
 describe('Enhanced NFT Integration Tests', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
     
     // Setup environment variables
     process.env.NEXT_PUBLIC_ALCHEMY_API_KEY = 'test-api-key'
@@ -73,7 +69,7 @@ describe('Enhanced NFT Integration Tests', () => {
         data: BigInt(10), // User has 10 tokens
         isLoading: false,
         error: null,
-        refetch: jest.fn()
+        refetch: vi.fn()
       })
 
       const { result } = renderHook(() =>
@@ -170,7 +166,7 @@ describe('Enhanced NFT Integration Tests', () => {
         data: mockNFTs,
         isLoading: false,
         error: null,
-        refetch: jest.fn()
+        refetch: vi.fn()
       })
 
       const { result } = renderHook(() =>
@@ -222,7 +218,7 @@ describe('Enhanced NFT Integration Tests', () => {
         data: mockNFTs,
         isLoading: false,
         error: null,
-        refetch: jest.fn()
+        refetch: vi.fn()
       })
 
       const { result } = renderHook(() => useEnhancedNFTs({}))
@@ -260,7 +256,7 @@ describe('Enhanced NFT Integration Tests', () => {
         data: mockNFTs,
         isLoading: false,
         error: null,
-        refetch: jest.fn()
+        refetch: vi.fn()
       })
 
       const { result } = renderHook(() => useEnhancedNFTs({}))
@@ -299,7 +295,7 @@ describe('Enhanced NFT Integration Tests', () => {
         data: largeCollection,
         isLoading: false,
         error: null,
-        refetch: jest.fn()
+        refetch: vi.fn()
       })
 
       const { result } = renderHook(() => useEnhancedNFTs({}))
@@ -323,7 +319,7 @@ describe('Enhanced NFT Integration Tests', () => {
         data: [],
         isLoading: false,
         error: new Error('Alchemy API rate limit exceeded'),
-        refetch: jest.fn()
+        refetch: vi.fn()
       })
 
       const { result } = renderHook(() => useEnhancedNFTs({}))
@@ -434,7 +430,7 @@ describe('Enhanced NFT Integration Tests', () => {
         data: undefined,
         isLoading: false,
         error: new Error('Network error'),
-        refetch: jest.fn()
+        refetch: vi.fn()
       })
 
       const { result } = renderHook(() =>

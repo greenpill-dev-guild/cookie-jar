@@ -1,15 +1,16 @@
 import '@testing-library/jest-dom'
+import { vi } from 'vitest'
 
 // Polyfills for viem and crypto libraries
-import { TextEncoder, TextDecoder } from 'util'
+Object.assign(global, {
+  TextEncoder: typeof TextEncoder !== 'undefined' ? TextEncoder : require('util').TextEncoder,
+  TextDecoder: typeof TextDecoder !== 'undefined' ? TextDecoder : require('util').TextDecoder,
+})
 
-global.TextEncoder = TextEncoder
-global.TextDecoder = TextDecoder
-
-// Mock crypto for Node.js environment
+// Mock crypto for Node.js environment  
 if (typeof global.crypto === 'undefined') {
   global.crypto = {
-    getRandomValues: (arr) => {
+    getRandomValues: (arr: Uint8Array) => {
       for (let i = 0; i < arr.length; i++) {
         arr[i] = Math.floor(Math.random() * 256)
       }
@@ -18,25 +19,26 @@ if (typeof global.crypto === 'undefined') {
     subtle: {
       digest: async () => new ArrayBuffer(32)
     }
-  }
+  } as any
 }
 
 // Global test utilities
-global.ResizeObserver = jest.fn().mockImplementation(() => ({
-  observe: jest.fn(),
-  unobserve: jest.fn(),
-  disconnect: jest.fn(),
+global.ResizeObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
 }))
 
-global.IntersectionObserver = jest.fn().mockImplementation(() => ({
-  observe: jest.fn(),
-  unobserve: jest.fn(),
-  disconnect: jest.fn(),
+global.IntersectionObserver = vi.fn().mockImplementation(() => ({
+  observe: vi.fn(),
+  unobserve: vi.fn(),
+  disconnect: vi.fn(),
 }))
 
 // Mock URL constructor for validation tests
 global.URL = global.URL || class URL {
-  constructor(url) {
+  href: string
+  constructor(url: string) {
     if (!url || typeof url !== 'string') {
       throw new Error('Invalid URL')
     }

@@ -2,13 +2,7 @@ import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
-
-// Declare Jest globals for TypeScript
-declare const describe: any
-declare const it: any
-declare const expect: any
-declare const beforeEach: any
-declare const jest: any
+import { vi } from 'vitest'
 
 // Mock the ProtocolGateSelector component logic
 type AccessType = 'Allowlist' | 'NFT' | 'POAP' | 'Unlock' | 'Hypercert' | 'Hats'
@@ -201,7 +195,7 @@ const MockProtocolGateSelector: React.FC<{
 
 describe('ProtocolGateSelector', () => {
   const user = userEvent.setup()
-  const mockOnConfigChange = jest.fn()
+  const mockOnConfigChange = vi.fn()
 
   beforeEach(() => {
     mockOnConfigChange.mockClear()

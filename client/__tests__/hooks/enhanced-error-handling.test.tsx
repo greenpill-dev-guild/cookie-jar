@@ -2,28 +2,29 @@ import { renderHook, waitFor } from '@testing-library/react'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { ReactNode } from 'react'
 import '@testing-library/jest-dom'
+import { vi } from 'vitest'
 
 // Import hooks to test
 import { useEnhancedNFTs, useNFTMetadata, useEnhancedNFTValidation } from '@/hooks/useEnhancedNFTs'
 import { useNFTBalanceProof } from '@/hooks/useNFTBalanceProof'
 
 // Mock wagmi hooks
-jest.mock('wagmi', () => ({
-  useAccount: jest.fn(() => ({ address: '0x1234567890123456789012345678901234567890' })),
-  useChainId: jest.fn(() => 1), // Ethereum mainnet
-  useBlockNumber: jest.fn(() => ({ data: 100, isLoading: false })),
-  useReadContract: jest.fn(),
+vi.mock('wagmi', () => ({
+  useAccount: vi.fn(() => ({ address: '0x1234567890123456789012345678901234567890' })),
+  useChainId: vi.fn(() => 1), // Ethereum mainnet
+  useBlockNumber: vi.fn(() => ({ data: 100, isLoading: false })),
+  useReadContract: vi.fn(),
 }))
 
 // Mock Alchemy SDK with controllable failures
 const mockAlchemyProvider = {
-  getUserNFTs: jest.fn(),
-  getNFTMetadata: jest.fn(),
-  validateContract: jest.fn(),
+  getUserNFTs: vi.fn(),
+  getNFTMetadata: vi.fn(),
+  validateContract: vi.fn(),
 }
 
-jest.mock('@/lib/nft-providers/AlchemyProvider', () => ({
-  AlchemyNFTProvider: jest.fn().mockImplementation(() => mockAlchemyProvider),
+vi.mock('@/lib/nft-providers/AlchemyProvider', () => ({
+  AlchemyNFTProvider: vi.fn().mockImplementation(() => mockAlchemyProvider),
 }))
 
 // Mock environment variables
@@ -57,7 +58,7 @@ const createWrapper = () => {
 
 describe('Enhanced Error Handling Tests', () => {
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   describe('useEnhancedNFTs Error Scenarios', () => {
@@ -289,26 +290,25 @@ describe('Enhanced Error Handling Tests', () => {
 
   describe('useNFTBalanceProof Error Scenarios', () => {
     it('handles stale balance proofs', async () => {
-      const mockUseReadContract = require('wagmi').useReadContract as jest.Mock
+      const mockUseReadContract = require('wagmi').useReadContract as ReturnType<typeof vi.fn>
       mockUseReadContract.mockReturnValue({
         data: 5n, // User has 5 tokens
         isLoading: false,
         error: null
       })
 
-      const mockUseBlockNumber = require('wagmi').useBlockNumber as jest.Mock
+      const mockUseBlockNumber = require('wagmi').useBlockNumber as ReturnType<typeof vi.fn>
       mockUseBlockNumber.mockReturnValue({
         data: 200n, // Current block is much higher
         isLoading: false
       })
 
       const { result } = renderHook(
-        () => useNFTBalanceProof(
-          '0x1234567890123456789012345678901234567890',
-          '1',
-          1n, // Required minimum balance
-          150n // Old block number
-        ),
+        () => useNFTBalanceProof({
+          contractAddress: '0x1234567890123456789012345678901234567890',
+          tokenId: '1',
+          tokenType: "ERC721"
+        }),
         { wrapper: createWrapper() }
       )
 
@@ -319,7 +319,7 @@ describe('Enhanced Error Handling Tests', () => {
     })
 
     it('handles contract read errors', async () => {
-      const mockUseReadContract = require('wagmi').useReadContract as jest.Mock
+      const mockUseReadContract = require('wagmi').useReadContract as ReturnType<typeof vi.fn>
       mockUseReadContract.mockReturnValue({
         data: undefined,
         isLoading: false,
@@ -327,12 +327,11 @@ describe('Enhanced Error Handling Tests', () => {
       })
 
       const { result } = renderHook(
-        () => useNFTBalanceProof(
-          '0x1234567890123456789012345678901234567890',
-          '1',
-          1n,
-          100n
-        ),
+        () => useNFTBalanceProof({
+          contractAddress: '0x1234567890123456789012345678901234567890',
+          tokenId: '1',
+          tokenType: "ERC721"
+        }),
         { wrapper: createWrapper() }
       )
 

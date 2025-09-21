@@ -56,9 +56,11 @@ const BasicConfigStep: React.FC<{ formData: any }> = ({ formData }) => {
           <Label htmlFor="jarName">Jar Name *</Label>
           <Input
             id="jarName"
+            data-testid="jar-name-input"
             value={formData.jarName}
             onChange={(e) => formData.setJarName(e.target.value)}
             placeholder="e.g., Community Fund, Dev Grants"
+            aria-label="Enter a name for your cookie jar"
           />
         </div>
 
@@ -67,10 +69,12 @@ const BasicConfigStep: React.FC<{ formData: any }> = ({ formData }) => {
           <div className="relative">
             <Input
               id="jarOwner"
+              data-testid="jar-owner-input"
               value={formData.jarOwnerAddress}
               onChange={(e) => formData.setJarOwnerAddress(e.target.value as `0x${string}`)}
               placeholder="0x... (defaults to your connected wallet)"
               className="pr-12"
+              aria-label="Enter the Ethereum address that will own this jar"
             />
             <Button
               type="button"
@@ -108,7 +112,7 @@ const BasicConfigStep: React.FC<{ formData: any }> = ({ formData }) => {
             value={formData.showCustomCurrency ? "CUSTOM" : formData.supportedCurrency}
             onValueChange={formData.handleCurrencyChange}
           >
-            <SelectTrigger>
+            <SelectTrigger data-testid="currency-selector" aria-label="Select currency type for your jar">
               <SelectValue placeholder="Select currency" />
             </SelectTrigger>
             <SelectContent>

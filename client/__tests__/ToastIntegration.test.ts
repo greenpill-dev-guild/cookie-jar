@@ -1,4 +1,5 @@
 // Test for toast notification integration
+import { vi } from 'vitest'
 
 describe('Toast Integration', () => {
   // Mock toast functionality
@@ -171,7 +172,7 @@ describe('Toast Integration', () => {
 
   describe('Confetti Integration', () => {
     it('triggers confetti on successful jar creation', () => {
-      const mockConfetti = jest.fn()
+      const mockConfetti = vi.fn()
       
       // Simulate confetti call
       mockConfetti({
@@ -188,7 +189,7 @@ describe('Toast Integration', () => {
     })
 
     it('configures confetti with correct parameters', () => {
-      const mockConfetti = jest.fn()
+      const mockConfetti = vi.fn()
       
       // Test different confetti configurations
       mockConfetti({ particleCount: 50, spread: 60 })

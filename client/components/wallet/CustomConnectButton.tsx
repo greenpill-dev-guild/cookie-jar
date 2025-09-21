@@ -140,6 +140,8 @@ Nonce: ${nonce}`;
                     <Button
                       onClick={() => setShowConnectModal(true)}
                       className="w-full cj-btn-primary"
+                      data-testid="connect-wallet-button"
+                      aria-label="Connect your Web3 wallet"
                     >
                       Connect Wallet
                     </Button>
@@ -148,7 +150,12 @@ Nonce: ${nonce}`;
 
                 if (chain.unsupported) {
                   return (
-                    <Button onClick={openChainModal} variant="destructive">
+                    <Button 
+                      onClick={openChainModal} 
+                      variant="destructive"
+                      data-testid="wrong-network-button"
+                      aria-label="Switch to correct network"
+                    >
                       Wrong network
                     </Button>
                   );
@@ -161,6 +168,8 @@ Nonce: ${nonce}`;
                       variant="outline"
                       size="sm"
                       className="flex items-center gap-1"
+                      data-testid="account-modal-button"
+                      aria-label={`Connected to ${chain.name} - View account details`}
                     >
                       {chain.hasIcon && (
                         <div className="w-4 h-4">
@@ -181,6 +190,8 @@ Nonce: ${nonce}`;
                       variant="outline"
                       size="sm"
                       className="flex items-center gap-1"
+                      data-testid="change-network-button"
+                      aria-label="Switch to different blockchain network"
                     >
                       Change Networks
                     </Button>

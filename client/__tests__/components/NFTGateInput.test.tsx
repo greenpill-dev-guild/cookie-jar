@@ -2,13 +2,7 @@ import React from 'react'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import '@testing-library/jest-dom'
-
-// Declare Jest globals for TypeScript
-declare const describe: any
-declare const it: any
-declare const expect: any
-declare const beforeEach: any
-declare const jest: any
+import { vi } from 'vitest'
 
 // Mock the NFTGateInput component logic
 enum NFTType {
@@ -175,7 +169,7 @@ const MockNFTGateInput: React.FC<{
 
 describe('NFTGateInput', () => {
   const user = userEvent.setup()
-  const mockOnAddNFT = jest.fn()
+  const mockOnAddNFT = vi.fn()
 
   beforeEach(() => {
     mockOnAddNFT.mockClear()

@@ -1,5 +1,6 @@
 import React from 'react'
 import { render, screen } from '@testing-library/react'
+import { vi } from 'vitest'
 
 // CurrencyLabel component logic for testing
 const CurrencyLabel: React.FC<{ 
@@ -30,7 +31,7 @@ describe('CurrencyLabel', () => {
   })
 
   it('renders formatted address when symbol not available', () => {
-    const mockFormat = jest.fn().mockReturnValue('0x1234...5678')
+    const mockFormat = vi.fn().mockReturnValue('0x1234...5678')
     
     render(<CurrencyLabel address="0x123456789abcdef" formatAddress={mockFormat} />)
     expect(screen.getByText('0x1234...5678')).toBeInTheDocument()

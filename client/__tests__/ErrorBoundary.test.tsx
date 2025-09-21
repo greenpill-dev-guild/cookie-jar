@@ -1,5 +1,6 @@
 import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
+import { vi } from 'vitest'
 
 // Simple ErrorBoundary implementation for testing
 class TestErrorBoundary extends React.Component<
@@ -63,7 +64,7 @@ describe('ErrorBoundary', () => {
   // Suppress console.error for these tests
   const originalError = console.error
   beforeAll(() => {
-    console.error = jest.fn()
+    console.error = vi.fn()
   })
   
   afterAll(() => {
@@ -71,7 +72,7 @@ describe('ErrorBoundary', () => {
   })
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    vi.clearAllMocks()
   })
 
   it('renders children when no error occurs', () => {
@@ -97,8 +98,7 @@ describe('ErrorBoundary', () => {
   })
 
   it('shows error details in development mode', () => {
-    const originalEnv = process.env.NODE_ENV
-    process.env.NODE_ENV = 'development'
+    vi.stubEnv('NODE_ENV', 'development')
 
     render(
       <TestErrorBoundary>
@@ -109,12 +109,11 @@ describe('ErrorBoundary', () => {
     expect(screen.getByTestId('error-details')).toBeInTheDocument()
     expect(screen.getByText('Test error message')).toBeInTheDocument()
 
-    process.env.NODE_ENV = originalEnv
+    vi.unstubAllEnvs()
   })
 
   it('hides error details in production mode', () => {
-    const originalEnv = process.env.NODE_ENV
-    process.env.NODE_ENV = 'production'
+    vi.stubEnv('NODE_ENV', 'production')
 
     render(
       <TestErrorBoundary>
@@ -124,7 +123,7 @@ describe('ErrorBoundary', () => {
 
     expect(screen.queryByTestId('error-details')).not.toBeInTheDocument()
 
-    process.env.NODE_ENV = originalEnv
+    vi.unstubAllEnvs()
   })
 
   it('resets error state when try again is clicked', () => {

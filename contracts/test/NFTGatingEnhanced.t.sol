@@ -90,7 +90,7 @@ contract NFTGatingEnhancedTest is Test {
             jarOwner: owner,
             supportedCurrency: CookieJarLib.ETH_ADDRESS,
             accessType: CookieJarLib.AccessType.NFTGated,
-            withdrawalType: CookieJarLib.WithdrawalTypeOptions.Variable,
+            withdrawalOption: CookieJarLib.WithdrawalTypeOptions.Variable,
             fixedAmount: fixedAmount,
             maxWithdrawal: maxWithdrawal,
             withdrawalInterval: withdrawalInterval,
@@ -99,14 +99,19 @@ contract NFTGatingEnhancedTest is Test {
             strictPurpose: true,
             feeCollector: feeCollector,
             emergencyWithdrawalEnabled: true,
-            oneTimeWithdrawal: false
+            oneTimeWithdrawal: false,
+            maxWithdrawalPerPeriod: 0 // Added missing field
         });
         
         // Create access configuration
         CookieJarLib.AccessConfig memory accessConfig = CookieJarLib.AccessConfig({
             nftAddresses: nftAddresses,
             nftTypes: nftTypes,
-            allowlist: emptyAllowlist
+            allowlist: emptyAllowlist,
+            poapReq: CookieJarLib.POAPRequirement(0, address(0)),
+            unlockReq: CookieJarLib.UnlockRequirement(address(0)),
+            hypercertReq: CookieJarLib.HypercertRequirement(address(0), 0, 1),
+            hatsReq: CookieJarLib.HatsRequirement(0, address(0))
         });
         
         // Deploy the jar

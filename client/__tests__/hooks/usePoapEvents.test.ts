@@ -1,10 +1,6 @@
 // Test for usePoapEvents hook
 import '@testing-library/jest-dom'
-
-// Declare Jest globals for TypeScript
-declare const describe: any
-declare const it: any
-declare const expect: any
+import { vi } from 'vitest'
 
 interface POAPEvent {
   id: string
@@ -99,7 +95,7 @@ describe('usePoapEvents Hook Logic', () => {
         const userPOAPsToCheck = options.fetchUserPOAPs ? mockUserPOAPs : []
         return userPOAPsToCheck.some(poap => poap.event.id === eventId)
       },
-      refetch: jest.fn()
+      refetch: vi.fn()
     }
   }
 
