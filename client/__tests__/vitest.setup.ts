@@ -1,7 +1,7 @@
 import "@testing-library/jest-dom";
 import { vi } from "vitest";
 
-// Polyfills for viem and crypto libraries
+// Polyfills for Node.js environment compatibility
 Object.assign(global, {
   TextEncoder:
     typeof TextEncoder !== "undefined"
@@ -12,6 +12,12 @@ Object.assign(global, {
       ? TextDecoder
       : require("util").TextDecoder,
 });
+
+// Fix for webidl-conversions and whatwg-url compatibility
+globalThis.WeakMap = globalThis.WeakMap || WeakMap;
+globalThis.WeakSet = globalThis.WeakSet || WeakSet;
+globalThis.Map = globalThis.Map || Map;
+globalThis.Set = globalThis.Set || Set;
 
 // Mock crypto for Node.js environment
 if (typeof global.crypto === "undefined") {

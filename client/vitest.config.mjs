@@ -9,9 +9,10 @@ const __dirname = path.dirname(__filename);
 export default defineConfig({
   plugins: [react()],
   test: {
-    environment: "jsdom",
+    environment: "happy-dom",
     globals: true,
     setupFiles: ["./__tests__/vitest.setup.ts"],
+    pool: "forks",
     coverage: {
       provider: "v8",
       reporter: ["text", "json", "html"],
@@ -37,6 +38,11 @@ export default defineConfig({
       "**/*.{test,spec}.{js,jsx,ts,tsx}",
     ],
     exclude: ["node_modules/", "dist/", ".next/"],
+    server: {
+      deps: {
+        external: ["webidl-conversions", "whatwg-url"],
+      },
+    },
   },
   resolve: {
     alias: {
