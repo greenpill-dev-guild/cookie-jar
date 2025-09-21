@@ -123,8 +123,14 @@ contract NFTGatingEnhancedTest is Test {
 
     // RESTORED: Basic NFT gating tests - testing currently available functionality
     function test_BasicNFTWithdrawal_ERC721() public {
-        // Ensure jar has sufficient balance and user starts fresh
-        vm.deal(address(jar), 10 ether);
+        // Fund the jar properly using depositETH (this updates currencyHeldByJar)
+        address depositor = address(0x999);
+        vm.deal(depositor, 15 ether); // Give depositor enough ETH including fees
+        
+        vm.prank(depositor);
+        jar.depositETH{value: 10 ether}();
+        
+        // Reset user balance for clean test
         vm.deal(user, 0);
         
         // Mint ERC721 token to user
@@ -154,8 +160,14 @@ contract NFTGatingEnhancedTest is Test {
     }
     
     function test_BasicNFTWithdrawal_ERC1155() public {
-        // Ensure jar has sufficient balance and user starts fresh
-        vm.deal(address(jar), 10 ether);
+        // Fund the jar properly using depositETH (this updates currencyHeldByJar)
+        address depositor = address(0x999);
+        vm.deal(depositor, 15 ether); // Give depositor enough ETH including fees
+        
+        vm.prank(depositor);
+        jar.depositETH{value: 10 ether}();
+        
+        // Reset user balance for clean test
         vm.deal(user, 0);
         
         // Mint ERC1155 tokens to user
@@ -288,8 +300,14 @@ contract NFTGatingEnhancedTest is Test {
     }
 
     function test_GasConsumptionWithinLimits() public {
-        // Ensure jar has sufficient balance and user starts fresh
-        vm.deal(address(jar), 10 ether);
+        // Fund the jar properly using depositETH (this updates currencyHeldByJar)
+        address depositor = address(0x999);
+        vm.deal(depositor, 15 ether); // Give depositor enough ETH including fees
+        
+        vm.prank(depositor);
+        jar.depositETH{value: 10 ether}();
+        
+        // Reset user balance for clean test
         vm.deal(user, 0);
         
         // Mint NFT to user

@@ -30,12 +30,14 @@ jobs:
       with:
         version: nightly
     
-    - name: Build contracts (leveraging deploy.sh logic)
+    # Skip all pnpm/Node.js dependencies - contracts tests don't need them
+    
+    - name: Build contracts
       run: |
-        echo "🔧 Building contracts with enhanced validation..."
+        echo "🔧 Building contracts..."
         cd contracts
         
-        # Use forge build with same flags as deploy.sh for consistency
+        # Build contracts with size reporting
         forge build --sizes
         
         if [ $? -ne 0 ]; then
@@ -104,9 +106,14 @@ jobs:
         echo "🔍 Running basic security analysis..."
         cd contracts
         
-        # Check for common issues using forge
         echo "📋 Checking compilation warnings:"
-        forge build 2>&1 | grep -E "(Warning|Error):" || echo "No compilation warnings found"
+        forge build 2>&1 | tee build-warnings.log
+        
+        if grep -E "(Warning|Error):" build-warnings.log; then
+          echo "⚠️  Found compilation warnings/errors"
+        else
+          echo "✅ No compilation warnings found"
+        fi
         
         echo ""
         echo "📋 Contract complexity analysis:"
@@ -128,6 +135,7 @@ jobs:
           contracts/out/
           contracts/lcov.info
           contracts/cache/
+          contracts/build-warnings.log
         retention-days: 7
     
     - name: Test Summary

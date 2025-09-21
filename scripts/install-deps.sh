@@ -64,9 +64,13 @@ else
     echo -e "${GREEN}✅ pnpm v$(get_version pnpm) already installed${NC}"
 fi
 
-# Install Foundry if missing  
+# Install Foundry if missing (skip in CI where official action handles it)
 if ! command_exists forge || ! command_exists anvil; then
-    echo -e "${YELLOW}🔧 Installing Foundry...${NC}"
+    # Skip Foundry installation in CI environments
+    if [ "$CI" = "true" ] || [ "$GITHUB_ACTIONS" = "true" ]; then
+        echo -e "${YELLOW}⏭️  Skipping Foundry installation in CI (handled by official action)${NC}"
+    else
+        echo -e "${YELLOW}🔧 Installing Foundry...${NC}"
     
     # Check if Windows (Git Bash, WSL detection)
     if [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "cygwin" ]]; then
@@ -97,13 +101,18 @@ if ! command_exists forge || ! command_exists anvil; then
         echo "   Try running: foundryup"
         echo "   Or visit: https://book.getfoundry.sh/getting-started/installation"
         exit 1
+        fi
+        
+        echo -e "${GREEN}✅ Foundry installed successfully${NC}"
+        echo -e "${YELLOW}💡 You may need to restart your terminal or run: source ~/.bashrc${NC}"
     fi
-    
-    echo -e "${GREEN}✅ Foundry installed successfully${NC}"
-    echo -e "${YELLOW}💡 You may need to restart your terminal or run: source ~/.bashrc${NC}"
 else
     FORGE_VERSION=$(get_version forge)
-    echo -e "${GREEN}✅ Foundry already installed: $FORGE_VERSION${NC}"
+    if [ "$CI" = "true" ] || [ "$GITHUB_ACTIONS" = "true" ]; then
+        echo -e "${GREEN}✅ Foundry available in CI: $FORGE_VERSION${NC}"
+    else
+        echo -e "${GREEN}✅ Foundry already installed: $FORGE_VERSION${NC}"
+    fi
 fi
 
 echo ""
