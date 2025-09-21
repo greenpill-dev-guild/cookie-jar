@@ -66,9 +66,13 @@ fi
 
 # Install Foundry if missing (skip in CI where official action handles it)
 if ! command_exists forge || ! command_exists anvil; then
-    # Skip Foundry installation in CI environments
-    if [ "$CI" = "true" ] || [ "$GITHUB_ACTIONS" = "true" ]; then
-        echo -e "${YELLOW}⏭️  Skipping Foundry installation in CI (handled by official action)${NC}"
+    # Skip Foundry installation in CI environments or when SKIP_CONTRACTS is set
+    if [ "$CI" = "true" ] || [ "$GITHUB_ACTIONS" = "true" ] || [ "$SKIP_CONTRACTS" = "true" ]; then
+        if [ "$SKIP_CONTRACTS" = "true" ]; then
+            echo -e "${YELLOW}⏭️  Skipping Foundry installation (SKIP_CONTRACTS=true)${NC}"
+        else
+            echo -e "${YELLOW}⏭️  Skipping Foundry installation in CI (handled by official action)${NC}"
+        fi
     else
         echo -e "${YELLOW}🔧 Installing Foundry...${NC}"
     
@@ -110,6 +114,8 @@ else
     FORGE_VERSION=$(get_version forge)
     if [ "$CI" = "true" ] || [ "$GITHUB_ACTIONS" = "true" ]; then
         echo -e "${GREEN}✅ Foundry available in CI: $FORGE_VERSION${NC}"
+    elif [ "$SKIP_CONTRACTS" = "true" ]; then
+        echo -e "${GREEN}✅ Foundry available but skipping (SKIP_CONTRACTS=true): $FORGE_VERSION${NC}"
     else
         echo -e "${GREEN}✅ Foundry already installed: $FORGE_VERSION${NC}"
     fi

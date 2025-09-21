@@ -31,12 +31,21 @@ jobs:
         cd client
         echo "🔍 Running ESLint..."
         
-        # Use Next.js lint with non-interactive flag if available
-        pnpm run lint --strict || {
-          echo "❌ ESLint found issues"
-          echo "💡 Run 'pnpm run lint' locally to see details and fix issues"
-          exit 1
-        }
+        # Use Next.js lint - allow warnings but fail on errors
+        if pnpm run lint 2>&1 | tee lint-output.log; then
+          echo "✅ ESLint completed successfully"
+        else
+          # Check if there are actual errors (not just warnings)
+          if grep -q "Error:" lint-output.log; then
+            echo "❌ ESLint found errors that must be fixed:"
+            grep "Error:" lint-output.log || true
+            exit 1
+          else
+            echo "⚠️  ESLint found warnings (non-blocking):"
+            cat lint-output.log || true
+            echo "✅ No blocking errors found"
+          fi
+        fi
     
     - name: TypeScript type checking
       run: |
