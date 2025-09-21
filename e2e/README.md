@@ -1,21 +1,17 @@
-# 🧪 Cookie Jar E2E Testing
+# 🧪 E2E Testing
 
-End-to-end testing setup for Cookie Jar using Playwright, designed to work with your existing development environment.
+Playwright end-to-end testing for Cookie Jar protocol, designed to work seamlessly with the existing development environment.
 
 ## 🚀 Quick Start
 
 ```bash
-# 1. Start development environment (in one terminal)
+# Terminal 1: Start development environment
 pnpm dev
 
-# 2. Run E2E tests (in another terminal)
-pnpm test:e2e
-
-# 3. Run with UI for debugging
-pnpm test:e2e:ui
-
-# 4. Debug specific test
-pnpm test:e2e:debug jar-creation.spec.ts
+# Terminal 2: Run tests
+pnpm test:e2e              # Run all E2E tests
+pnpm test:e2e:ui           # Visual test runner
+pnpm test:e2e:debug        # Debug mode
 ```
 
 ## 📋 Test Structure
@@ -36,61 +32,27 @@ e2e/
     └── global-teardown.ts       # Cleanup
 ```
 
-## 🔑 Test Accounts (Your Existing Anvil Accounts)
+## 🔑 Test Accounts
 
-| Account | Role | Address | Use Case |
-|---------|------|---------|----------|
-| **Deployer** | Admin | `0xf39Fd6...` | Jar creation, admin functions |
-| **Cookie Monster** | NFT Holder | `0x70997970...` | Has NFT #0, allowlisted user |
-| **Cookie Fan** | NFT Holder | `0x3C44CdDd...` | Has NFT #1, allowlisted user |
-| **Test User** | Regular | `0x90F79bf6...` | Non-allowlisted, no NFTs |
+| Role | Address | Use Case |
+|------|---------|----------|
+| **Deployer** | `0xf39Fd6...` | Jar creation, admin functions |
+| **Cookie Monster** | `0x70997970...` | NFT holder, allowlisted |
+| **Cookie Fan** | `0x3C44CdDd...` | NFT holder, allowlisted |
+| **Test User** | `0x90F79bf6...` | Non-allowlisted, no NFTs |
 
 ## 🎯 Test Categories
 
-### **🟢 Basic Setup Tests**
-- Homepage loading
-- Navigation links
-- Development environment verification
-- Responsive design basics
+**🟢 Basic Setup**: Homepage loading, navigation, environment verification  
+**🟡 Core Functions**: Jar creation, deposits/withdrawals, access control  
+**🔴 Admin Functions**: Allowlist management, NFT gates, metadata updates  
+**♿ Accessibility**: WCAG compliance, keyboard navigation, screen reader  
+**⚡ Performance**: Load times, cache efficiency, memory monitoring
 
-### **🟡 Core Functionality Tests**
-- Jar creation (allowlist and NFT-gated)
-- Deposit and withdrawal flows
-- Access control enforcement
-- Cooldown period validation
+## 🛠️ Wallet Testing
 
-### **🔴 Admin Function Tests**
-- Allowlist management (add/remove users)
-- NFT gate management (v2 contracts)
-- Metadata updates
-- Emergency withdrawals
-
-### **♿ Accessibility Tests**
-- WCAG compliance scanning
-- Keyboard navigation
-- Screen reader compatibility
-- Color contrast validation
-
-### **⚡ Performance Tests**
-- Page load times
-- React Query cache efficiency
-- Memory usage monitoring
-- Mobile performance
-
-## 🛠️ How Wallet Testing Works
-
-The E2E tests use a **simulated wallet approach** that:
-
-1. **Injects wallet state** into the browser window
-2. **Simulates transaction signing** without requiring real MetaMask
-3. **Uses your existing Anvil accounts** for realistic testing
-4. **Triggers wagmi events** to update UI state
-
-This approach is:
-- ✅ **Fast**: No real wallet extension needed
-- ✅ **Reliable**: Consistent transaction simulation
-- ✅ **Realistic**: Tests actual component behavior
-- ✅ **CI-friendly**: Runs in headless environments
+**Simulated wallet approach**: Injects wallet state, simulates transactions, triggers wagmi events  
+**Benefits**: Fast (no extensions), reliable (consistent), realistic (actual behavior), CI-friendly
 
 ## 🧭 Running Specific Tests
 

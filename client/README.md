@@ -1,59 +1,23 @@
-# Cookie Jar V3 🍪
+# Cookie Jar Client 🍪
 
-A decentralized platform for creating and managing shared token pools with customizable access rules, withdrawal limits, and transparent tracking.
-
-## Interface 
-
-![image](https://github.com/user-attachments/assets/0e7cbea8-7d26-4de1-9176-fc06d2463c1f)
-
+Next.js frontend for Cookie Jar protocol - decentralized funding pools with multi-protocol access control.
 
 ## Overview
 
-Cookie Jar is a platform that enables teams, communities, and organizations to manage shared funds in a transparent and accountable way. It allows for the creation of "jars" - smart contract-based token pools with customizable rules for access and withdrawals.
+React frontend for creating and managing Cookie Jar funding pools with customizable access control, withdrawal rules, and transparent on-chain tracking.
 
-## Key Features
+## Features
 
-### Multi-Protocol Access Control
-- **Allowlist Mode**: Only pre-approved addresses can access funds
-- **NFT-Gated Mode**: Access granted to holders of specific NFTs (supports ERC721, ERC1155)
-- **POAP Mode**: Access granted to holders of specific POAP event badges
-- **Unlock Protocol Mode**: Access granted to members with valid keys from Unlock Protocol locks
-- **Hypercert Mode**: Access granted to holders of specific impact certificates with minimum balance requirements
-- **Hats Protocol Mode**: Access granted to users wearing specific organizational roles/hats
+**Access Control**: Allowlist, NFT-gated, POAP, Unlock Protocol, Hypercerts, Hats Protocol  
+**Withdrawals**: Fixed/variable amounts, time restrictions, purpose tracking  
+**Assets**: ETH + any ERC20 token  
+**Admin**: Allowlist management, NFT gates, emergency controls  
+**Security**: On-chain transparency, custom error handling
 
-### Configurable Withdrawals
-- **Fixed Amount**: Everyone withdraws the same predefined amount each time
-- **Variable Amount**: Users can withdraw any amount up to a configurable maximum
-- **Time Restrictions**: Enforced waiting periods between withdrawals
-
-### Transparent Purpose Tracking
-- Optional 'strict purpose' requirement where users must explain withdrawals
-- Minimum character count ensures meaningful explanations
-- All purposes are stored on-chain for complete transparency
-
-### Simple Fee Structure
-- Automatic 1% fee on all deposits
-- Fees go directly to a designated fee collector address
-
-### Comprehensive Security Features
-- Denylist functionality to block problematic addresses
-- Emergency withdrawal option for admin (can be disabled)
-- Custom error handling for secure transaction processing
-
-### Full Asset Support
-- Native ETH
-- Any ERC20 token
-
-### Flexible Administration
-- Manage allowlist and denylist entries
-- Add NFT gates (up to 5 different collections)
-- Transfer admin rights when needed
-- Update the fee collector address
-
-## Project Architecture
+## Architecture
 
 ```
-cookie-jar-v3/
+client/
 ├── app/                      # Next.js App Router
 │   ├── admin/                # Admin pages
 │   ├── create/               # Jar creation page
@@ -137,34 +101,13 @@ cookie-jar-v3/
 └── public/                   # Static assets
 ```
 
-## Technology Stack
+## Tech Stack
 
-### Frontend
-- **Next.js 15**: React framework with App Router
-- **React 18**: UI library
-- **TypeScript**: Type-safe JavaScript
-- **Tailwind CSS**: Utility-first CSS framework
-- **shadcn/ui**: Reusable UI components
-- **Framer Motion**: Animation library
-- **RainbowKit**: Wallet connection UI
-- **wagmi**: React hooks for Ethereum
-
-### Blockchain & Web3 Integrations
-- **Solidity**: Smart contract language
-- **viem**: Ethereum library for TypeScript
-- **WAGMI**: React hooks for Ethereum
-- **POAP API**: For event attendance verification
-- **Unlock Protocol**: For membership-based access control
-- **Hypercerts**: For impact certificate verification
-- **Hats Protocol**: For organizational role management
-- **Alchemy API**: For NFT collection data and validation
-
-### Supported Networks
-- Base
-- Optimism
-- Gnosis Chain
-- Base Sepolia (Testnet)
-- Arbitrum (coming soon)
+**Frontend**: Next.js 15, React 18, TypeScript, Tailwind CSS, shadcn/ui  
+**Web3**: viem, wagmi, RainbowKit  
+**Protocol APIs**: POAP, Unlock Protocol, Hypercerts, Hats Protocol, Alchemy  
+**Testing**: Vitest, React Testing Library  
+**Networks**: Base, Optimism, Gnosis Chain, Base Sepolia
 
 ## Testing Infrastructure
 
