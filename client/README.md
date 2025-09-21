@@ -36,7 +36,7 @@ Cookie Jar is a platform that enables teams, communities, and organizations to m
 - Fees go directly to a designated fee collector address
 
 ### Comprehensive Security Features
-- Blacklist functionality to block problematic addresses
+- Denylist functionality to block problematic addresses
 - Emergency withdrawal option for admin (can be disabled)
 - Custom error handling for secure transaction processing
 
@@ -45,7 +45,7 @@ Cookie Jar is a platform that enables teams, communities, and organizations to m
 - Any ERC20 token
 
 ### Flexible Administration
-- Manage whitelist and blacklist entries
+- Manage allowlist and denylist entries
 - Add NFT gates (up to 5 different collections)
 - Transfer admin rights when needed
 - Update the fee collector address
@@ -253,7 +253,7 @@ Create a `.env.local` file with the following variables:
 
 ```plaintext
 NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=your_wallet_connect_project_id
-NEXT_PUBLIC_ALCHEMY_ID=your_alchemy_api_key
+NEXT_PUBLIC_ALCHEMY_API_KEY=your_alchemy_api_key
 ```
 
 4. Run the development server:
@@ -293,7 +293,7 @@ As a jar admin, you can:
 
 - Transfer jar ownership
 - Add/remove addresses from whitelist
-- Add/remove addresses from blacklist
+- Add/remove addresses from denylist
 - Add/remove NFT gates
 - Perform emergency withdrawals (if enabled)
 

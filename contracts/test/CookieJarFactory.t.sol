@@ -83,15 +83,15 @@ contract CookieJarFactoryTest is Test {
         vm.stopPrank();
     }
 
-    function testCreateCookieJarByBlacklistedPersonReverts() public {
+    function testCreateCookieJarByDenylistedPersonReverts() public {
         address[] memory localUsers = new address[](1); // Use local variable
         localUsers[0] = user;
         
         vm.prank(owner);
-        factory.grantBlacklistedJarCreatorsRole(localUsers);
+        factory.grantDenylistedJarCreatorsRole(localUsers);
 
         vm.prank(localUsers[0]);
-        vm.expectRevert(CookieJarFactory.CookieJarFactory__Blacklisted.selector);
+        vm.expectRevert(CookieJarFactory.CookieJarFactory__Denylisted.selector);
         
         // V2: Use struct-based parameters
         CookieJarLib.CreateJarParams memory params = createDefaultJarParams(
@@ -107,12 +107,12 @@ contract CookieJarFactoryTest is Test {
         assertEq(cookieJars.length, 0);
     }
 
-    /// @notice Test creating a cookie jar by a blacklisted person
-    function testCreateCookieJarByBlacklistedPerson() public {
+    /// @notice Test creating a cookie jar by a denylisted person
+    function testCreateCookieJarByDenylistedPerson() public {
         vm.prank(owner);
-        factory.grantBlacklistedJarCreatorsRole(testUsers);
+        factory.grantDenylistedJarCreatorsRole(testUsers);
         vm.prank(testUsers[0]);
-        vm.expectRevert(CookieJarFactory.CookieJarFactory__Blacklisted.selector);
+        vm.expectRevert(CookieJarFactory.CookieJarFactory__Denylisted.selector);
         
         CookieJarLib.CreateJarParams memory params = createDefaultJarParams(
             owner,
@@ -218,22 +218,22 @@ contract CookieJarFactoryTest is Test {
         assertEq(cookieJars[0], jarAddress);
     }
 
-    /// @notice Test granting blacklisted jar creator role
-    function testGrantBlacklistedJarCreator() public {
+    /// @notice Test granting denylisted jar creator role
+    function testGrantDenylistedJarCreator() public {
         vm.prank(owner);
-        factory.grantBlacklistedJarCreatorsRole(testUsers);
-        assertEq(factory.hasRole(keccak256("BLACKLISTED_JAR_CREATORS"), testUsers[0]), true);
-        assertEq(factory.hasRole(keccak256("BLACKLISTED_JAR_CREATORS"), testUsers[1]), true);
+        factory.grantDenylistedJarCreatorsRole(testUsers);
+        assertEq(factory.hasRole(keccak256("DENYLISTED_JAR_CREATORS"), testUsers[0]), true);
+        assertEq(factory.hasRole(keccak256("DENYLISTED_JAR_CREATORS"), testUsers[1]), true);
     }
 
-    /// @notice Test revoking blacklisted jar creator role
-    function testRevokeBlacklistedJarCreator() public {
+    /// @notice Test revoking denylisted jar creator role
+    function testRevokeDenylistedJarCreator() public {
         vm.prank(owner);
-        factory.grantBlacklistedJarCreatorsRole(testUsers);
+        factory.grantDenylistedJarCreatorsRole(testUsers);
         vm.prank(owner);
-        factory.revokeBlacklistedJarCreatorsRole(testUsers);
-        assertEq(factory.hasRole(keccak256("BLACKLISTED_JAR_CREATORS"), testUsers[0]), false);
-        assertEq(factory.hasRole(keccak256("BLACKLISTED_JAR_CREATORS"), testUsers[1]), false);
+        factory.revokeDenylistedJarCreatorsRole(testUsers);
+        assertEq(factory.hasRole(keccak256("DENYLISTED_JAR_CREATORS"), testUsers[0]), false);
+        assertEq(factory.hasRole(keccak256("DENYLISTED_JAR_CREATORS"), testUsers[1]), false);
     }
 
     /// @notice Test creating jar with ERC20 token

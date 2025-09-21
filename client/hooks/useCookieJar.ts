@@ -32,7 +32,7 @@ export const useCookieJarConfig = (address: `0x${string}`) => {
   const chainId = useChainId()
 
   const JAR_OWNER = keccak256(toHex("JAR_OWNER")) as `0x${string}`
-  const JAR_BLACKLISTED = keccak256(toHex("JAR_BLACKLISTED")) as `0x${string}`
+  const JAR_DENYLISTED = keccak256(toHex("JAR_DENYLISTED")) as `0x${string}`
   
   // Use correct role name based on contract version
   const allowlistRoleName = isV2Chain(chainId) ? "JAR_ALLOWLISTED" : "JAR_WHITELISTED"
@@ -55,7 +55,7 @@ export const useCookieJarConfig = (address: `0x${string}`) => {
     { address, abi: cookieJarAbi, functionName: "getWithdrawalDataArray" },
     { address, abi: cookieJarAbi, functionName: "feeCollector" },
     { address, abi: cookieJarAbi, functionName: "hasRole", args: [JAR_ALLOWLISTED, userAddress || '0x0000000000000000000000000000000000000000' as `0x${string}`] },
-    { address, abi: cookieJarAbi, functionName: "hasRole", args: [JAR_BLACKLISTED, userAddress || '0x0000000000000000000000000000000000000000' as `0x${string}`] },
+    { address, abi: cookieJarAbi, functionName: "hasRole", args: [JAR_DENYLISTED, userAddress || '0x0000000000000000000000000000000000000000' as `0x${string}`] },
     { address, abi: cookieJarAbi, functionName: lastWithdrawalFunctionName, args: [userAddress || '0x0000000000000000000000000000000000000000' as `0x${string}`] },
     { address, abi: cookieJarAbi, functionName: "lastWithdrawalNFT", args: [userAddress || '0x0000000000000000000000000000000000000000' as `0x${string}`, BigInt(0)] },
     { address, abi: cookieJarAbi, functionName: "currencyHeldByJar" },
@@ -120,7 +120,7 @@ export const useCookieJarConfig = (address: `0x${string}`) => {
     pastWithdrawals: r9 as readonly { amount: bigint; purpose: string; recipient: `0x${string}` }[] | undefined,
     feeCollector: r10 as `0x${string}` | undefined,
     allowlist: r11 as boolean | undefined,
-    blacklist: r12 as boolean | undefined,
+    denylist: r12 as boolean | undefined,
     lastWithdrawalAllowlist: r13 as bigint | undefined, // Works for both v1 (whitelist) and v2 (allowlist) data
     lastWithdrawalNft: r14 as bigint | undefined,
     balance: r15 as bigint | undefined,

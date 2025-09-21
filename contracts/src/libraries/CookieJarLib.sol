@@ -213,7 +213,7 @@ library CookieJarLib {
     error PurposeTooShort();
     error UnauthorizedUser();
     error UserNotAllowlisted();
-    error UserBlacklisted();
+    error UserDenylisted();
     error InvalidNFTGate();
     error NFTTokenDoesNotExist();
     error CallerMustOwnToken();
