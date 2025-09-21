@@ -88,7 +88,11 @@ test.describe('💰 Jar Operations E2E', () => {
       console.log('ℹ️ User cannot withdraw (not allowlisted)')
       
       // Should see access denied message
-      await expect(page.locator('text=Not Allowlisted, text=access denied')).toBeVisible()
+      await expect(
+        page.locator('text=Not Allowlisted').or(
+          page.locator('text=access denied')
+        )
+      ).toBeVisible()
     }
   })
 
@@ -152,7 +156,13 @@ test.describe('💰 Jar Operations E2E', () => {
     await page.click(SELECTORS.tabs.withdraw)
     
     // Should see access denied
-    await expect(page.locator('text=Not Allowlisted, text=access denied, text=cannot')).toBeVisible()
+    await expect(
+      page.locator('text=Not Allowlisted').or(
+        page.locator('text=access denied').or(
+          page.locator('text=cannot')
+        )
+      )
+    ).toBeVisible()
     
     // Withdrawal button should either be disabled or not visible
     const withdrawButton = page.locator(SELECTORS.buttons.withdraw)
@@ -198,7 +208,11 @@ test.describe('💰 Jar Operations E2E', () => {
       await page.click(SELECTORS.tabs.withdraw)
       
       // Should see cooldown message or disabled state
-      const hasCountdown = await page.isVisible('text=cooldown, text=wait, text=next withdrawal')
+      const hasCountdown = await page.locator('text=cooldown').or(
+        page.locator('text=wait').or(
+          page.locator('text=next withdrawal')
+        )
+      ).isVisible()
       
       if (hasCountdown) {
         console.log('✅ Cooldown period properly enforced')

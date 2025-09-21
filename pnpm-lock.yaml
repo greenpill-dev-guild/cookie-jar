@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  axios: '>=1.12.0'
+
 importers:
 
   .:
@@ -2400,7 +2403,7 @@ packages:
   '@unlock-protocol/unlock-js@0.51.2':
     resolution: {integrity: sha512-NR1Gi8NqjZUPVnKtvfnlGP1dI32x9Q5wz+mTXwOG1JVCWwXn472mA/Zq2XT0dGjQOIyx8LDRjiEZQWKqfo45Pg==}
     peerDependencies:
-      axios: 1.7.9
+      axios: '>=1.12.0'
       ethers: ^6.13.0
 
   '@unrs/resolver-binding-android-arm-eabi@1.11.1':

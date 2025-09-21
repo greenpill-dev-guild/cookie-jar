@@ -128,7 +128,7 @@ export function checkDecimals(
     return { value, error: null };
   }
 
-  if (/^[0-9]*\.?[0-9]*$/.test(value)) {
+  if (/^([0-9]+\.?[0-9]*|\.[0-9]+|0)$/.test(value)) {
     // Validate that the number of decimal places doesn't exceed the token's decimal precision
     const parts = value.split(".");
     if (
