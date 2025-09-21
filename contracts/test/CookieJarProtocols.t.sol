@@ -442,7 +442,7 @@ contract CookieJarProtocolsTest is Test {
         
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidAccessType.selector));
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAuthorized.selector));
         jarHypercert.withdrawHypercertMode(fixedAmount, purpose, testTokenId + 1);
     }
 

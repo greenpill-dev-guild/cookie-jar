@@ -108,10 +108,10 @@ contract NFTGatingEnhancedTest is Test {
             nftAddresses: nftAddresses,
             nftTypes: nftTypes,
             allowlist: emptyAllowlist,
-            poapReq: CookieJarLib.POAPRequirement(0, address(0)),
-            unlockReq: CookieJarLib.UnlockRequirement(address(0)),
-            hypercertReq: CookieJarLib.HypercertRequirement(address(0), 0, 1),
-            hatsReq: CookieJarLib.HatsRequirement(0, address(0))
+            poapReq: CookieJarLib.POAPRequirement({eventId: 0, poapContract: address(0)}),
+            unlockReq: CookieJarLib.UnlockRequirement({lockAddress: address(0)}),
+            hypercertReq: CookieJarLib.HypercertRequirement({tokenContract: address(0), tokenId: 0, minBalance: 0}),
+            hatsReq: CookieJarLib.HatsRequirement({hatId: 0, hatsContract: address(0)})
         });
         
         // Deploy the jar

@@ -32,11 +32,13 @@ export const useCookieJarConfig = (address: `0x${string}`) => {
   const chainId = useChainId()
 
   const JAR_OWNER = keccak256(toHex("JAR_OWNER")) as `0x${string}`
-  const JAR_DENYLISTED = keccak256(toHex("JAR_DENYLISTED")) as `0x${string}`
   
-  // Use correct role name based on contract version
+  // Use correct role names based on contract version
   const allowlistRoleName = isV2Chain(chainId) ? "JAR_ALLOWLISTED" : "JAR_WHITELISTED"
   const JAR_ALLOWLISTED = keccak256(toHex(allowlistRoleName)) as `0x${string}`
+  
+  const denylistRoleName = isV2Chain(chainId) ? "JAR_DENYLISTED" : "JAR_BLACKLISTED"
+  const JAR_DENYLISTED = keccak256(toHex(denylistRoleName)) as `0x${string}`
   
   // Use correct function name based on contract version
   const lastWithdrawalFunctionName = isV2Chain(chainId) ? "lastWithdrawalAllowlist" : "lastWithdrawalWhitelist"

@@ -303,6 +303,13 @@ export const cookieJarAbi = [
   },
   {
     type: 'function',
+    inputs: [{ name: '_users', internalType: 'address[]', type: 'address[]' }],
+    name: 'grantJarDenylistRole',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
     inputs: [
       { name: 'role', internalType: 'bytes32', type: 'bytes32' },
       { name: 'account', internalType: 'address', type: 'address' },
@@ -484,6 +491,13 @@ export const cookieJarAbi = [
     type: 'function',
     inputs: [{ name: '_users', internalType: 'address[]', type: 'address[]' }],
     name: 'revokeJarAllowlistRole',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '_users', internalType: 'address[]', type: 'address[]' }],
+    name: 'revokeJarDenylistRole',
     outputs: [],
     stateMutability: 'nonpayable',
   },
@@ -1054,6 +1068,7 @@ export const cookieJarAbi = [
   },
   { type: 'error', inputs: [], name: 'TooManyNFTGates' },
   { type: 'error', inputs: [], name: 'TransferFailed' },
+  { type: 'error', inputs: [], name: 'UserDenylisted' },
   { type: 'error', inputs: [], name: 'WithdrawalAlreadyDone' },
   {
     type: 'error',
@@ -2030,6 +2045,15 @@ export const useWriteCookieJarGrantJarAllowlistRole =
   })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"grantJarDenylistRole"`
+ */
+export const useWriteCookieJarGrantJarDenylistRole =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: cookieJarAbi,
+    functionName: 'grantJarDenylistRole',
+  })
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"grantRole"`
  */
 export const useWriteCookieJarGrantRole = /*#__PURE__*/ createUseWriteContract({
@@ -2070,6 +2094,15 @@ export const useWriteCookieJarRevokeJarAllowlistRole =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarAbi,
     functionName: 'revokeJarAllowlistRole',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"revokeJarDenylistRole"`
+ */
+export const useWriteCookieJarRevokeJarDenylistRole =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: cookieJarAbi,
+    functionName: 'revokeJarDenylistRole',
   })
 
 /**
@@ -2239,6 +2272,15 @@ export const useSimulateCookieJarGrantJarAllowlistRole =
   })
 
 /**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"grantJarDenylistRole"`
+ */
+export const useSimulateCookieJarGrantJarDenylistRole =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: cookieJarAbi,
+    functionName: 'grantJarDenylistRole',
+  })
+
+/**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"grantRole"`
  */
 export const useSimulateCookieJarGrantRole =
@@ -2281,6 +2323,15 @@ export const useSimulateCookieJarRevokeJarAllowlistRole =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
     functionName: 'revokeJarAllowlistRole',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"revokeJarDenylistRole"`
+ */
+export const useSimulateCookieJarRevokeJarDenylistRole =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: cookieJarAbi,
+    functionName: 'revokeJarDenylistRole',
   })
 
 /**

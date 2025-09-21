@@ -36,6 +36,15 @@ interface IHats {
 contract CookieJar is AccessControl, Pausable {
     using SafeERC20 for IERC20;
 
+
+    /// @notice Modifier to check if user is not denylisted
+    modifier notDenylisted() {
+        if (hasRole(CookieJarLib.JAR_DENYLISTED, msg.sender)) {
+            revert CookieJarLib.UserDenylisted();
+        }
+        _;
+    }
+
     /// @notice Array of approved NFT gates (used in NFTGated mode).
     CookieJarLib.NFTGate[] public nftGates;
 
@@ -159,6 +168,7 @@ contract CookieJar is AccessControl, Pausable {
         maxWithdrawalPerPeriod = config.maxWithdrawalPerPeriod;
 
         _setRoleAdmin(CookieJarLib.JAR_ALLOWLISTED, CookieJarLib.JAR_OWNER);
+        _setRoleAdmin(CookieJarLib.JAR_DENYLISTED, CookieJarLib.JAR_OWNER);
         _grantRole(CookieJarLib.JAR_OWNER, config.jarOwner);
         _grantRoles(CookieJarLib.JAR_ALLOWLISTED, accessConfig.allowlist);
     }
@@ -194,6 +204,18 @@ contract CookieJar is AccessControl, Pausable {
     function revokeJarAllowlistRole(address[] calldata _users) external onlyRole(CookieJarLib.JAR_OWNER) {
         if (accessType != CookieJarLib.AccessType.Allowlist) revert CookieJarLib.InvalidAccessType();
         _revokeRoles(CookieJarLib.JAR_ALLOWLISTED, _users);
+    }
+
+    /// @notice Grant denylist role to users to prevent them from withdrawing
+    /// @param _users Array of addresses to add to denylist
+    function grantJarDenylistRole(address[] calldata _users) external onlyRole(CookieJarLib.JAR_OWNER) {
+        _grantRoles(CookieJarLib.JAR_DENYLISTED, _users);
+    }
+
+    /// @notice Revoke denylist role from users to allow them to withdraw again
+    /// @param _users Array of addresses to remove from denylist
+    function revokeJarDenylistRole(address[] calldata _users) external onlyRole(CookieJarLib.JAR_OWNER) {
+        _revokeRoles(CookieJarLib.JAR_DENYLISTED, _users);
     }
 
     /// @notice Updates the fee collector address. Only the fee collector can call this function.
@@ -488,7 +510,7 @@ contract CookieJar is AccessControl, Pausable {
     function withdrawAllowlistMode(
         uint256 amount,
         string calldata purpose
-    ) external onlyRole(CookieJarLib.JAR_ALLOWLISTED) whenNotPaused {
+    ) external onlyRole(CookieJarLib.JAR_ALLOWLISTED) whenNotPaused notDenylisted {
         if (accessType != CookieJarLib.AccessType.Allowlist) revert CookieJarLib.InvalidAccessType();
         _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalAllowlist[msg.sender]);
         lastWithdrawalAllowlist[msg.sender] = block.timestamp;
@@ -500,7 +522,12 @@ contract CookieJar is AccessControl, Pausable {
     /// @param purpose A description for the withdrawal.
     /// @param gateAddress The NFT contract address used for gating.
     /// @param tokenId The NFT token id used for gating.
-    function withdrawNFTMode(uint256 amount, string calldata purpose, address gateAddress, uint256 tokenId) external whenNotPaused {
+    function withdrawNFTMode(
+        uint256 amount, 
+        string calldata purpose, 
+        address gateAddress, 
+        uint256 tokenId
+    ) external whenNotPaused notDenylisted {
         if (accessType != CookieJarLib.AccessType.NFTGated) revert CookieJarLib.InvalidAccessType();
         if (gateAddress == address(0)) revert CookieJarLib.InvalidNFTGate();
         _checkAccessNFT(gateAddress, tokenId);
@@ -576,7 +603,11 @@ contract CookieJar is AccessControl, Pausable {
     /// @param amount The amount to withdraw.
     /// @param purpose A description for the withdrawal.
     /// @param tokenId The POAP token ID to use for access.
-    function withdrawPOAPMode(uint256 amount, string calldata purpose, uint256 tokenId) external whenNotPaused {
+    function withdrawPOAPMode(
+        uint256 amount, 
+        string calldata purpose, 
+        uint256 tokenId
+    ) external whenNotPaused notDenylisted {
         if (accessType != CookieJarLib.AccessType.POAP) revert CookieJarLib.InvalidAccessType();
         _checkAccessPOAP(tokenId);
         _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalPOAP[tokenId]);
@@ -587,7 +618,7 @@ contract CookieJar is AccessControl, Pausable {
     /// @notice Withdraws funds (ETH or ERC20) for Unlock Protocol key holders.
     /// @param amount The amount to withdraw.
     /// @param purpose A description for the withdrawal.
-    function withdrawUnlockMode(uint256 amount, string calldata purpose) external whenNotPaused {
+    function withdrawUnlockMode(uint256 amount, string calldata purpose) external whenNotPaused notDenylisted {
         if (accessType != CookieJarLib.AccessType.Unlock) revert CookieJarLib.InvalidAccessType();
         _checkAccessUnlock();
         _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalProtocol[msg.sender]);
@@ -599,7 +630,11 @@ contract CookieJar is AccessControl, Pausable {
     /// @param amount The amount to withdraw.
     /// @param purpose A description for the withdrawal.
     /// @param tokenId The hypercert token ID to use for access.
-    function withdrawHypercertMode(uint256 amount, string calldata purpose, uint256 tokenId) external whenNotPaused {
+    function withdrawHypercertMode(
+        uint256 amount, 
+        string calldata purpose, 
+        uint256 tokenId
+    ) external whenNotPaused notDenylisted {
         if (accessType != CookieJarLib.AccessType.Hypercert) revert CookieJarLib.InvalidAccessType();
         _checkAccessHypercert(tokenId);
         _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalProtocol[msg.sender]);
@@ -610,7 +645,7 @@ contract CookieJar is AccessControl, Pausable {
     /// @notice Withdraws funds (ETH or ERC20) for Hats Protocol hat wearers.
     /// @param amount The amount to withdraw.
     /// @param purpose A description for the withdrawal.
-    function withdrawHatsMode(uint256 amount, string calldata purpose) external whenNotPaused {
+    function withdrawHatsMode(uint256 amount, string calldata purpose) external whenNotPaused notDenylisted {
         if (accessType != CookieJarLib.AccessType.Hats) revert CookieJarLib.InvalidAccessType();
         _checkAccessHats();
         _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalProtocol[msg.sender]);
@@ -783,7 +818,7 @@ contract CookieJar is AccessControl, Pausable {
 
     function _checkAccessHypercert(uint256 tokenId) internal view {
         if (tokenId != hypercertRequirement.tokenId) {
-            revert CookieJarLib.InvalidAccessType();
+            revert CookieJarLib.NotAuthorized();
         }
         
         address tokenContract = hypercertRequirement.tokenContract;
