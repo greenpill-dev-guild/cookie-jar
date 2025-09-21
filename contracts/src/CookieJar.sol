@@ -783,7 +783,7 @@ contract CookieJar is AccessControl, Pausable {
 
     function _checkAccessHypercert(uint256 tokenId) internal view {
         if (tokenId != hypercertRequirement.tokenId) {
-            revert CookieJarLib.InvalidAccessType();
+            revert CookieJarLib.NotAuthorized();
         }
         
         address tokenContract = hypercertRequirement.tokenContract;
