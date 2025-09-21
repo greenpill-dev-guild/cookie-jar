@@ -30,7 +30,24 @@ jobs:
       run: |
         cd client
         echo "🧪 Running client unit tests..."
-        pnpm run test:coverage --reporter=verbose
+        
+        # Verify vitest config exists
+        if [ ! -f "vitest.config.ts" ]; then
+          echo "❌ vitest.config.ts not found"
+          exit 1
+        fi
+        
+        echo "📁 Vitest config found, running tests..."
+        
+        # Try running tests with explicit config
+        NODE_OPTIONS="--loader ts-node/esm" pnpm run test:coverage --reporter=verbose || {
+          echo "⚠️  Trying without NODE_OPTIONS..."
+          pnpm run test:coverage --reporter=verbose || {
+            echo "❌ Unit tests failed"
+            echo "💡 Check vitest configuration and dependencies"
+            exit 1
+          }
+        }
     
     - name: Upload coverage reports to Codecov
       uses: codecov/codecov-action@v4

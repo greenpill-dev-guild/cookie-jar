@@ -29,7 +29,28 @@ jobs:
     - name: Lint client code
       run: |
         cd client
-        pnpm run lint
+        echo "🔍 Running ESLint..."
+        
+        # Check if ESLint config exists, if not create one
+        if [ ! -f ".eslintrc.json" ] && [ ! -f "eslint.config.js" ] && [ ! -f ".eslintrc.js" ]; then
+          echo "⚠️  No ESLint config found, but .eslintrc.json should exist"
+        fi
+        
+        # Use ESLint directly to avoid interactive prompts
+        if command -v npx &> /dev/null; then
+          echo "Using ESLint CLI directly..."
+          npx eslint . --ext .ts,.tsx,.js,.jsx --max-warnings 0 || {
+            echo "❌ ESLint found issues"
+            echo "💡 Run 'npx eslint . --ext .ts,.tsx,.js,.jsx --fix' to fix auto-fixable issues"
+            exit 1
+          }
+        else
+          echo "Falling back to Next.js lint..."
+          timeout 30 pnpm run lint || {
+            echo "❌ Lint command timed out or failed"
+            exit 1
+          }
+        fi
     
     - name: TypeScript type checking
       run: |
