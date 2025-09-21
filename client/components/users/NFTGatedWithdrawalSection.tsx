@@ -12,7 +12,8 @@ import { AlertCircle, CheckCircle2, Loader2, Eye, EyeOff } from "lucide-react"
 import { ETH_ADDRESS, useTokenInfo, parseTokenAmount, formatTokenAmount } from "@/lib/token-utils"
 import { NFTSelector } from "@/components/forms/NFTSelector"
 import type { SelectedNFT } from "@/components/forms/NFTSelector"
-import { useReadContract, useAccount } from "wagmi"
+import { useReadContract, useAccount, useBlockNumber } from "wagmi"
+import { useNFTBalanceProof, validateBalanceProof } from "@/hooks/useNFTBalanceProof"
 import { isAddress } from "viem"
 
 interface NFTGatedWithdrawalSectionProps {
@@ -25,6 +26,15 @@ interface NFTGatedWithdrawalSectionProps {
   setTokenId: (value: string) => void
   handleWithdrawNFT: () => void
   handleWithdrawNFTVariable: () => void
+  // Enhanced withdrawal handlers with balance proof
+  handleWithdrawNFTWithProof?: (balanceProof: {
+    expectedMinBalance: bigint
+    blockNumberSnapshot: number
+  }) => void
+  handleWithdrawNFTVariableWithProof?: (balanceProof: {
+    expectedMinBalance: bigint
+    blockNumberSnapshot: number
+  }) => void
 }
 
 // ERC721/ERC1155 ABI for balance checking
@@ -61,13 +71,31 @@ export const NFTGatedWithdrawalSection: React.FC<NFTGatedWithdrawalSectionProps>
   setTokenId,
   handleWithdrawNFT,
   handleWithdrawNFTVariable,
+  handleWithdrawNFTWithProof,
+  handleWithdrawNFTVariableWithProof,
 }) => {
   const { address: userAddress } = useAccount()
+  const { data: currentBlock } = useBlockNumber({ watch: true })
   const [selectedNFT, setSelectedNFT] = useState<SelectedNFT | null>(null)
   const [showManualInput, setShowManualInput] = useState(false)
   const [balanceCheckLoading, setBalanceCheckLoading] = useState(false)
   const [balanceError, setBalanceError] = useState<string | null>(null)
   const [ownershipVerified, setOwnershipVerified] = useState(false)
+
+  // Enhanced balance proof for race condition protection
+  const { 
+    proof: balanceProof, 
+    isStale: isProofStale, 
+    refreshProof, 
+    isLoading: proofLoading,
+    error: proofError
+  } = useNFTBalanceProof({
+    contractAddress: selectedNFT?.contractAddress || '',
+    tokenId: selectedNFT?.tokenId || '',
+    tokenType: selectedNFT?.tokenType || 'ERC721',
+    userAddress,
+    enabled: !!selectedNFT && !!userAddress
+  })
 
   // Get token information using the token utils
   const { symbol: tokenSymbol, decimals: tokenDecimals } = useTokenInfo(
@@ -115,7 +143,7 @@ export const NFTGatedWithdrawalSection: React.FC<NFTGatedWithdrawalSectionProps>
     }
   }, [selectedNFT, setGateAddress, setTokenId])
 
-  // Verify ownership in real-time
+  // Enhanced ownership verification using balance proof
   useEffect(() => {
     if (!selectedNFT || !userAddress) {
       setOwnershipVerified(false)
@@ -123,11 +151,11 @@ export const NFTGatedWithdrawalSection: React.FC<NFTGatedWithdrawalSectionProps>
       return
     }
 
-    const isLoading = erc721Loading || erc1155Loading
-    const error = erc721Error || erc1155Error
+    const isLoading = erc721Loading || erc1155Loading || proofLoading
+    const error = erc721Error || erc1155Error || proofError
 
     if (error) {
-      setBalanceError('Failed to verify NFT ownership')
+      setBalanceError(proofError || 'Failed to verify NFT ownership')
       setOwnershipVerified(false)
       return
     }
@@ -139,23 +167,80 @@ export const NFTGatedWithdrawalSection: React.FC<NFTGatedWithdrawalSectionProps>
 
     setBalanceCheckLoading(false)
 
-    if (selectedNFT.tokenType === 'ERC721') {
-      const isOwner = erc721Owner?.toLowerCase() === userAddress.toLowerCase()
-      setOwnershipVerified(isOwner)
-      setBalanceError(isOwner ? null : 'You no longer own this NFT')
-    } else if (selectedNFT.tokenType === 'ERC1155') {
-      const hasBalance = erc1155Balance && erc1155Balance > BigInt(0)
-      setOwnershipVerified(!!hasBalance)
-      setBalanceError(hasBalance ? null : 'You no longer have balance of this NFT')
+    // Use balance proof for enhanced validation
+    if (balanceProof) {
+      const validation = validateBalanceProof(balanceProof, Number(currentBlock || 0), 1n)
+      setOwnershipVerified(validation.isValid)
+      
+      if (!validation.isValid) {
+        setBalanceError(validation.reason || 'NFT ownership validation failed')
+      } else if (isProofStale) {
+        setBalanceError('Balance proof is stale - please refresh')
+        setOwnershipVerified(false)
+      } else {
+        setBalanceError(null)
+      }
+    } else {
+      // Fallback to legacy verification while proof is loading
+      if (selectedNFT.tokenType === 'ERC721') {
+        const isOwner = erc721Owner?.toLowerCase() === userAddress.toLowerCase()
+        setOwnershipVerified(isOwner)
+        setBalanceError(isOwner ? null : 'You no longer own this NFT')
+      } else if (selectedNFT.tokenType === 'ERC1155') {
+        const hasBalance = erc1155Balance && erc1155Balance > BigInt(0)
+        setOwnershipVerified(!!hasBalance)
+        setBalanceError(hasBalance ? null : 'You no longer have balance of this NFT')
+      }
     }
-  }, [selectedNFT, userAddress, erc721Owner, erc1155Balance, erc721Loading, erc1155Loading, erc721Error, erc1155Error])
+  }, [
+    selectedNFT, 
+    userAddress, 
+    balanceProof, 
+    isProofStale, 
+    currentBlock,
+    proofLoading,
+    proofError,
+    erc721Owner, 
+    erc1155Balance, 
+    erc721Loading, 
+    erc1155Loading, 
+    erc721Error, 
+    erc1155Error
+  ])
 
   const handleNFTSelect = (nft: SelectedNFT) => {
     setSelectedNFT(nft)
     setShowManualInput(false)
   }
 
-  const isWithdrawalReady = selectedNFT && ownershipVerified && !balanceCheckLoading && !balanceError
+  // Enhanced withdrawal handlers that use balance proof for ERC1155
+  const handleEnhancedWithdraw = () => {
+    if (selectedNFT?.tokenType === 'ERC1155' && balanceProof && handleWithdrawNFTWithProof) {
+      // Use balance proof for ERC1155 to prevent race conditions
+      handleWithdrawNFTWithProof({
+        expectedMinBalance: balanceProof.balance,
+        blockNumberSnapshot: balanceProof.blockNumber
+      })
+    } else {
+      // Fallback to standard withdrawal for ERC721 or when no proof available
+      handleWithdrawNFT()
+    }
+  }
+
+  const handleEnhancedWithdrawVariable = () => {
+    if (selectedNFT?.tokenType === 'ERC1155' && balanceProof && handleWithdrawNFTVariableWithProof) {
+      // Use balance proof for ERC1155 to prevent race conditions
+      handleWithdrawNFTVariableWithProof({
+        expectedMinBalance: balanceProof.balance,
+        blockNumberSnapshot: balanceProof.blockNumber
+      })
+    } else {
+      // Fallback to standard withdrawal for ERC721 or when no proof available
+      handleWithdrawNFTVariable()
+    }
+  }
+
+  const isWithdrawalReady = selectedNFT && ownershipVerified && !balanceCheckLoading && !balanceError && !isProofStale
 
   return (
     <div className="space-y-6">
@@ -226,10 +311,28 @@ export const NFTGatedWithdrawalSection: React.FC<NFTGatedWithdrawalSectionProps>
                       <Loader2 className="h-4 w-4 animate-spin" />
                       <span className="text-xs">Verifying...</span>
                     </div>
-                  ) : ownershipVerified ? (
+                  ) : ownershipVerified && !isProofStale ? (
                     <div className="flex items-center gap-2 text-green-600">
                       <CheckCircle2 className="h-4 w-4" />
-                      <span className="text-xs">Verified</span>
+                      <span className="text-xs">
+                        Verified
+                        {balanceProof && selectedNFT?.tokenType === 'ERC1155' && (
+                          <span className="ml-1">({balanceProof.balance.toString()})</span>
+                        )}
+                      </span>
+                    </div>
+                  ) : isProofStale ? (
+                    <div className="flex items-center gap-2 text-yellow-600">
+                      <AlertCircle className="h-4 w-4" />
+                      <span className="text-xs">Proof stale</span>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={refreshProof}
+                        className="h-4 px-1 text-xs"
+                      >
+                        Refresh
+                      </Button>
                     </div>
                   ) : (
                     <div className="flex items-center gap-2 text-red-600">
@@ -273,7 +376,7 @@ export const NFTGatedWithdrawalSection: React.FC<NFTGatedWithdrawalSectionProps>
 
       {/* Withdrawal Button */}
       <Button
-        onClick={config.withdrawalOption === "VARIABLE" ? handleWithdrawNFTVariable : handleWithdrawNFT}
+        onClick={config.withdrawalOption === "VARIABLE" ? handleEnhancedWithdrawVariable : handleEnhancedWithdraw}
         className="w-full bg-[#ff5e14] hover:bg-[#e54d00] text-white"
         disabled={
           !isWithdrawalReady || 
@@ -309,8 +412,10 @@ export const NFTGatedWithdrawalSection: React.FC<NFTGatedWithdrawalSectionProps>
         <p className="font-medium mb-1">How it works:</p>
         <ul className="space-y-1 list-disc list-inside">
           <li>Select an NFT from your collection that's approved for this jar</li>
-          <li>We'll verify you still own the NFT in real-time</li>
+          <li>We'll verify you still own the NFT in real-time with balance proof protection</li>
+          <li>For ERC1155 tokens, we prevent race conditions by validating balance at transaction time</li>
           <li>Click withdraw to claim your cookie using the selected NFT</li>
+          <li>If the proof becomes stale ({">"}5 blocks old), use the refresh button to update it</li>
         </ul>
       </div>
     </div>

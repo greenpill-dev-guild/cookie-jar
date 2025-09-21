@@ -1,5 +1,5 @@
 import { LandingHero } from "@/components/page/home/LandingHero"
-import { Footer } from "@/components/page/home/Footer"
+import { Footer } from "@/components/page/home/footer"
 
 export default function Home() {
   return (

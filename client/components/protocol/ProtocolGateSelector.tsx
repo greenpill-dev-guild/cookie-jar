@@ -13,6 +13,7 @@ import {
   CheckCircle2
 } from 'lucide-react'
 import { NFTGateInput } from '@/components/forms/NFTGateInput'
+import { EnhancedNFTGateInput, EnhancedNFTGatesList, type EnhancedNFTGate } from '@/components/forms/EnhancedNFTGateInput'
 import { POAPGateConfig } from './POAPGateConfig'
 import { UnlockGateConfig } from './UnlockGateConfig'
 import { HypercertGateConfig } from './HypercertGateConfig'
@@ -22,7 +23,9 @@ export type AccessType = 'Allowlist' | 'NFT' | 'POAP' | 'Unlock' | 'Hypercert' |
 
 interface ProtocolConfig {
   accessType: AccessType
-  // NFT specific
+  // Enhanced NFT specific
+  nftGates?: EnhancedNFTGate[]
+  // Legacy NFT specific (for backward compatibility)
   nftAddresses?: string[]
   nftTypes?: number[]
   // POAP specific
@@ -132,6 +135,39 @@ export const ProtocolGateSelector: React.FC<ProtocolGateSelectorProps> = ({
     onConfigChange(newConfig)
   }
 
+  const handleEnhancedNFTAdd = (gate: EnhancedNFTGate) => {
+    const newConfig = {
+      ...config,
+      accessType: 'NFT' as AccessType,
+      nftGates: [...(config.nftGates || []), gate],
+      // Also maintain legacy format for backward compatibility
+      nftAddresses: [...(config.nftAddresses || []), gate.address],
+      nftTypes: [...(config.nftTypes || []), gate.type]
+    }
+    setConfig(newConfig)
+    onConfigChange(newConfig)
+  }
+
+  const handleEnhancedNFTRemove = (index: number) => {
+    const newGates = [...(config.nftGates || [])]
+    const newAddresses = [...(config.nftAddresses || [])]
+    const newTypes = [...(config.nftTypes || [])]
+    
+    newGates.splice(index, 1)
+    newAddresses.splice(index, 1)
+    newTypes.splice(index, 1)
+    
+    const newConfig = {
+      ...config,
+      nftGates: newGates,
+      nftAddresses: newAddresses,
+      nftTypes: newTypes
+    }
+    setConfig(newConfig)
+    onConfigChange(newConfig)
+  }
+
+  // Legacy NFT handler for backward compatibility
   const handleNFTAdd = (address: string, type: number) => {
     const newConfig = {
       ...config,
@@ -237,8 +273,18 @@ export const ProtocolGateSelector: React.FC<ProtocolGateSelectorProps> = ({
           <div>
             {selectedMethod === 'NFT' && (
               <div data-testid="nft-config">
-                <p>NFT Collection Configuration</p>
-                <input data-testid="nft-address-input" placeholder="NFT Contract Address" />
+                <EnhancedNFTGateInput
+                  onAddNFT={handleEnhancedNFTAdd}
+                  existingGates={config.nftGates || []}
+                  className="mt-4"
+                />
+                
+                <div className="mt-6">
+                  <EnhancedNFTGatesList
+                    gates={config.nftGates || []}
+                    onRemove={handleEnhancedNFTRemove}
+                  />
+                </div>
               </div>
             )}
             
@@ -294,11 +340,38 @@ export const ProtocolGateSelector: React.FC<ProtocolGateSelectorProps> = ({
 
       {/* Configuration Summary */}
       <div data-testid="config-summary" className="bg-[#f8f5f0] p-4 rounded-lg">
-        <h3>Configuration Summary</h3>
-        <p data-testid="selected-method">
-          Method: {gateMethods.find(m => m.id === selectedMethod)?.name}
-        </p>
-            
+        <h3 className="text-base font-semibold text-[#3c2a14] mb-3">Configuration Summary</h3>
+        <div className="space-y-2 text-sm">
+          <p data-testid="selected-method">
+            <strong>Access Method:</strong> {gateMethods.find(m => m.id === selectedMethod)?.name}
+          </p>
+          
+          {selectedMethod === 'NFT' && config.nftGates && config.nftGates.length > 0 && (
+            <div>
+              <strong>NFT Gates ({config.nftGates.length}):</strong>
+              <ul className="ml-4 mt-1 space-y-1 list-disc">
+                {config.nftGates.map((gate, index) => (
+                  <li key={index} className="text-xs">
+                    <span className="font-mono">{gate.address.slice(0, 10)}...</span>
+                    <span className="ml-2 text-gray-600">
+                      ({gate.type === 1 ? 'ERC721' : 'ERC1155'})
+                      {gate.name && ` - ${gate.name}`}
+                    </span>
+                    {gate.enableQuantityGating && gate.minQuantity && (
+                      <span className="ml-2 text-blue-600 text-xs">
+                        Qty: {gate.minQuantity}{gate.maxQuantity ? `-${gate.maxQuantity}` : '+'}
+                      </span>
+                    )}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+          
+          {selectedMethod === 'NFT' && (!config.nftGates || config.nftGates.length === 0) && (
+            <p className="text-orange-600">⚠️ No NFT gates configured</p>
+          )}
+        </div>
       </div>
     </div>
   )
