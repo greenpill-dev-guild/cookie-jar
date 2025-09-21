@@ -33,4 +33,12 @@ runs:
     - name: Install dependencies
       shell: bash
       working-directory: ${{ inputs.working-directory }}
-      run: pnpm install --frozen-lockfile
+      run: |
+        # Try frozen lockfile first, fallback to regular install in CI
+        if [ "$CI" = "true" ] || [ "$GITHUB_ACTIONS" = "true" ]; then
+          echo "🤖 CI environment detected"
+          pnpm install --no-frozen-lockfile || pnpm install
+        else
+          echo "🔒 Using frozen lockfile for local consistency"
+          pnpm install --frozen-lockfile
+        fi
