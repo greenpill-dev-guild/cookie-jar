@@ -79,12 +79,13 @@ const nextConfig = {
       };
     }
 
-    // Optimize tree shaking and dead code elimination
-    config.optimization = {
-      ...config.optimization,
-      usedExports: true,
-      sideEffects: false,
-    };
+    // REMOVED conflicting optimization settings that conflict with Next.js 15's cacheUnaffected
+    // Next.js handles tree shaking and dead code elimination automatically
+    // config.optimization = {
+    //   ...config.optimization,
+    //   usedExports: true,
+    //   sideEffects: false,
+    // };
 
     // Bundle analyzer for production builds only
     if (!dev && !isServer && process.env.ANALYZE === "true") {

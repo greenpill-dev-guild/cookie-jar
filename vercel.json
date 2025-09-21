@@ -1,9 +1,9 @@
 {
+  "$schema": "https://openapi.vercel.sh/vercel.json",
   "version": 2,
   "buildCommand": "pnpm run build",
   "installCommand": "pnpm install --ignore-scripts",
   "outputDirectory": ".next",
-  "rootDirectory": "client",
   "framework": "nextjs",
   "ignoreCommand": "git diff HEAD^ HEAD --quiet ./client",
   "env": {
