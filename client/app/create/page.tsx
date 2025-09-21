@@ -1,88 +1,115 @@
-"use client"
+"use client";
 
-import React from "react"
-import { useState, useEffect, lazy, Suspense } from "react"
-import { useAccount, useChainId } from "wagmi"
-import { isV2Chain } from "@/config/supported-networks"
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Loader2, CheckCircle2, ArrowLeft, ArrowRight } from "lucide-react"
-import { ProtocolErrorBoundary } from "@/components/design/ProtocolErrorBoundary"
-import { useJarCreation } from "@/hooks/useJarCreation"
-import { useStepNavigation } from "@/hooks/useStepNavigation"
+import React from "react";
+import { useState, useEffect, lazy, Suspense } from "react";
+import { useAccount, useChainId } from "wagmi";
+import { isV2Chain } from "@/config/supported-networks";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Loader2, CheckCircle2, ArrowLeft, ArrowRight } from "lucide-react";
+import { ProtocolErrorBoundary } from "@/components/design/ProtocolErrorBoundary";
+import { useJarCreation } from "@/hooks/useJarCreation";
+import { useStepNavigation } from "@/hooks/useStepNavigation";
 
 // Lazy load heavy components for better bundle splitting
-const StepContent = lazy(() => import("@/components/create/StepContent").then(module => ({ default: module.StepContent })))
-const StatusCards = lazy(() => import("@/components/create/StatusCards").then(module => ({ default: module.StatusCards })))
-const CreateJarModals = lazy(() => import("@/components/create/CreateJarModals").then(module => ({ default: module.CreateJarModals })))
+const StepContent = lazy(() =>
+  import("@/components/create/StepContent").then((module) => ({
+    default: module.StepContent,
+  })),
+);
+const StatusCards = lazy(() =>
+  import("@/components/create/StatusCards").then((module) => ({
+    default: module.StatusCards,
+  })),
+);
+const CreateJarModals = lazy(() =>
+  import("@/components/create/CreateJarModals").then((module) => ({
+    default: module.CreateJarModals,
+  })),
+);
 
 export default function CreateCookieJarForm() {
-  const { isConnected, address } = useAccount()
-  const chainId = useChainId()
-  const isV2Contract = isV2Chain(chainId)
-  
+  const { isConnected, address } = useAccount();
+  const chainId = useChainId();
+  const isV2Contract = isV2Chain(chainId);
+
   // All form state and logic moved to custom hook
-  const formData = useJarCreation()
-  
+  const formData = useJarCreation();
+
   // Step navigation moved to custom hook
-  const { currentStep, totalSteps, nextStep, prevStep } = useStepNavigation(isV2Contract)
-  
+  const { currentStep, totalSteps, nextStep, prevStep } =
+    useStepNavigation(isV2Contract);
+
   // Modal state (keep minimal state in main component)
-  const [showWalletModal, setShowWalletModal] = useState(false)
-  const [pendingSubmission, setPendingSubmission] = useState(false)
-  
+  const [showWalletModal, setShowWalletModal] = useState(false);
+  const [pendingSubmission, setPendingSubmission] = useState(false);
+
   // Check if current step is valid
   const isCurrentStepValid = () => {
     switch (currentStep) {
       case 1:
-        return formData.validateStep1().isValid
+        return formData.validateStep1().isValid;
       case 2:
-        return formData.validateStep2().isValid
+        return formData.validateStep2().isValid;
       case 3:
         // Skip validation for step 3 on v1 chains
-        return isV2Contract ? formData.validateStep3().isValid : true
+        return isV2Contract ? formData.validateStep3().isValid : true;
       case 4:
-        return formData.validateStep4().isValid
+        return formData.validateStep4().isValid;
       default:
-        return false
+        return false;
     }
-  }
-  
+  };
+
   // Auto-retry jar creation when wallet connects
   useEffect(() => {
     if (isConnected && address && pendingSubmission && showWalletModal) {
-      setShowWalletModal(false)
-      setPendingSubmission(false)
+      setShowWalletModal(false);
+      setPendingSubmission(false);
       // Retry the submission
       setTimeout(() => {
-        formData.confirmSubmit()
-      }, 100) // Small delay to ensure modal closes first
+        formData.confirmSubmit();
+      }, 100); // Small delay to ensure modal closes first
     }
-  }, [isConnected, address, pendingSubmission, showWalletModal, formData])
-  
+  }, [isConnected, address, pendingSubmission, showWalletModal, formData]);
+
   // Handle wallet connection modal trigger
   const handleSubmit = () => {
     if (!isConnected) {
-      setShowWalletModal(true)
-      setPendingSubmission(true)
-      return
+      setShowWalletModal(true);
+      setPendingSubmission(true);
+      return;
     }
-    formData.confirmSubmit()
-  }
+    formData.confirmSubmit();
+  };
 
   return (
-    <ProtocolErrorBoundary protocolName="Cookie Jar Creation" maxRetries={2} showDetails={process.env.NODE_ENV === 'development'}>
+    <ProtocolErrorBoundary
+      protocolName="Cookie Jar Creation"
+      maxRetries={2}
+      showDetails={process.env.NODE_ENV === "development"}
+    >
       <div className="max-w-2xl mx-auto">
         {/* Header */}
         <div className="mb-6">
           <div className="flex items-center justify-between mb-2">
-            <h1 className="text-2xl md:text-3xl font-bold text-[hsl(var(--cj-dark-brown))]">Create Cookie Jar</h1>
-            <div className={`px-3 py-1 rounded-full text-sm font-medium ${
-              isV2Contract 
-                ? 'bg-blue-100 text-blue-800' 
-                : 'bg-orange-100 text-orange-800'
-            }`}>
-              {isV2Contract ? '🚀 v2 Contract' : '📦 v1 Contract'}
+            <h1 className="text-2xl md:text-3xl font-bold text-[hsl(var(--cj-dark-brown))]">
+              Create Cookie Jar
+            </h1>
+            <div
+              className={`px-3 py-1 rounded-full text-sm font-medium ${
+                isV2Contract
+                  ? "bg-blue-100 text-blue-800"
+                  : "bg-orange-100 text-orange-800"
+              }`}
+            >
+              {isV2Contract ? "🚀 v2 Contract" : "📦 v1 Contract"}
             </div>
           </div>
           <p className="text-[hsl(var(--cj-medium-brown))]">
@@ -98,11 +125,15 @@ export default function CreateCookieJarForm() {
         {/* Progress Indicator */}
         <div className="mb-8">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm text-[hsl(var(--cj-medium-brown))]">Step {currentStep} of {totalSteps}</span>
-            <span className="text-sm text-[hsl(var(--cj-medium-brown))]">{Math.round((currentStep / totalSteps) * 100)}% complete</span>
+            <span className="text-sm text-[hsl(var(--cj-medium-brown))]">
+              Step {currentStep} of {totalSteps}
+            </span>
+            <span className="text-sm text-[hsl(var(--cj-medium-brown))]">
+              {Math.round((currentStep / totalSteps) * 100)}% complete
+            </span>
           </div>
           <div className="w-full bg-secondary rounded-full h-2">
-            <div 
+            <div
               className="bg-[hsl(var(--cj-brand-orange))] h-2 rounded-full transition-all duration-300"
               style={{ width: `${(currentStep / totalSteps) * 100}%` }}
             />
@@ -126,13 +157,19 @@ export default function CreateCookieJarForm() {
               )}
             </CardTitle>
           </CardHeader>
-          
+
           <CardContent>
-            <Suspense fallback={<div className="flex items-center justify-center p-4"><Loader2 className="h-6 w-6 animate-spin" /></div>}>
-              <StepContent 
-                step={currentStep} 
-                formData={formData} 
-                isV2Contract={isV2Contract} 
+            <Suspense
+              fallback={
+                <div className="flex items-center justify-center p-4">
+                  <Loader2 className="h-6 w-6 animate-spin" />
+                </div>
+              }
+            >
+              <StepContent
+                step={currentStep}
+                formData={formData}
+                isV2Contract={isV2Contract}
               />
             </Suspense>
           </CardContent>
@@ -149,7 +186,9 @@ export default function CreateCookieJarForm() {
               </Button>
             )}
 
-            <div className={`w-full md:w-auto ${currentStep === 1 ? 'md:ml-auto' : ''}`}>
+            <div
+              className={`w-full md:w-auto ${currentStep === 1 ? "md:ml-auto" : ""}`}
+            >
               {currentStep < totalSteps ? (
                 <Button
                   onClick={nextStep}
@@ -162,7 +201,11 @@ export default function CreateCookieJarForm() {
               ) : (
                 <Button
                   onClick={handleSubmit}
-                  disabled={(!isCurrentStepValid() && isConnected) || formData.isCreating || formData.isWaitingForTx}
+                  disabled={
+                    (!isCurrentStepValid() && isConnected) ||
+                    formData.isCreating ||
+                    formData.isWaitingForTx
+                  }
                   className="w-full md:w-auto cj-btn-primary flex items-center justify-center gap-2"
                 >
                   {formData.isCreating || formData.isWaitingForTx ? (
@@ -187,8 +230,12 @@ export default function CreateCookieJarForm() {
           </CardFooter>
         </Card>
 
-        <Suspense fallback={<div className="h-32 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />}>
-          <StatusCards 
+        <Suspense
+          fallback={
+            <div className="h-32 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />
+          }
+        >
+          <StatusCards
             newJarPreview={formData.newJarPreview}
             formErrors={formData.formErrors}
             isFormError={formData.isFormError}
@@ -198,7 +245,7 @@ export default function CreateCookieJarForm() {
       </div>
 
       <Suspense fallback={null}>
-        <CreateJarModals 
+        <CreateJarModals
           showWalletModal={showWalletModal}
           setShowWalletModal={setShowWalletModal}
           setPendingSubmission={setPendingSubmission}
@@ -207,5 +254,5 @@ export default function CreateCookieJarForm() {
         />
       </Suspense>
     </ProtocolErrorBoundary>
-  )
+  );
 }

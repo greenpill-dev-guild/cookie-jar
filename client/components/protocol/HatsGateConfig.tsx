@@ -1,92 +1,105 @@
-import React, { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Badge } from '@/components/ui/badge'
-import { Loader2, CheckCircle2, AlertCircle, Crown, Search, ExternalLink } from 'lucide-react'
-import { useChainId } from 'wagmi'
+import React, { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+  Crown,
+  Search,
+  ExternalLink,
+} from "lucide-react";
+import { useChainId } from "wagmi";
 
 // Hats Protocol SDK integration
 interface HatInfo {
-  id: string
-  name?: string
-  description?: string
-  imageUri?: string
-  isActive?: boolean
-  wearerCount?: number
-  maxSupply?: number
+  id: string;
+  name?: string;
+  description?: string;
+  imageUri?: string;
+  isActive?: boolean;
+  wearerCount?: number;
+  maxSupply?: number;
   tree?: {
-    id: string
-    name?: string
-  }
+    id: string;
+    name?: string;
+  };
 }
 
 // Hats contract addresses per network
 const HATS_CONTRACTS: Record<number, string> = {
-  1: '0x3bc1A0Ad72417f2d411118085256fC53CBdDd137', // Ethereum Mainnet
-  10: '0x3bc1A0Ad72417f2d411118085256fC53CBdDd137', // Optimism
-  100: '0x3bc1A0Ad72417f2d411118085256fC53CBdDd137', // Gnosis Chain
-  8453: '0x3bc1A0Ad72417f2d411118085256fC53CBdDd137', // Base
-  42161: '0x3bc1A0Ad72417f2d411118085256fC53CBdDd137', // Arbitrum
+  1: "0x3bc1A0Ad72417f2d411118085256fC53CBdDd137", // Ethereum Mainnet
+  10: "0x3bc1A0Ad72417f2d411118085256fC53CBdDd137", // Optimism
+  100: "0x3bc1A0Ad72417f2d411118085256fC53CBdDd137", // Gnosis Chain
+  8453: "0x3bc1A0Ad72417f2d411118085256fC53CBdDd137", // Base
+  42161: "0x3bc1A0Ad72417f2d411118085256fC53CBdDd137", // Arbitrum
   // Add testnets as needed
-  11155111: '0x3bc1A0Ad72417f2d411118085256fC53CBdDd137', // Sepolia
-  84532: '0x3bc1A0Ad72417f2d411118085256fC53CBdDd137', // Base Sepolia
-}
+  11155111: "0x3bc1A0Ad72417f2d411118085256fC53CBdDd137", // Sepolia
+  84532: "0x3bc1A0Ad72417f2d411118085256fC53CBdDd137", // Base Sepolia
+};
 
 interface HatsGateConfigProps {
-  onConfigChange: (config: { 
-    hatId: string
-    hatsContract: string
-    hatInfo?: HatInfo 
-  }) => void
-  initialConfig?: { 
-    hatId: string
-    hatsContract: string
-    hatInfo?: HatInfo 
-  }
-  className?: string
+  onConfigChange: (config: {
+    hatId: string;
+    hatsContract: string;
+    hatInfo?: HatInfo;
+  }) => void;
+  initialConfig?: {
+    hatId: string;
+    hatsContract: string;
+    hatInfo?: HatInfo;
+  };
+  className?: string;
 }
 
 export const HatsGateConfig: React.FC<HatsGateConfigProps> = ({
   onConfigChange,
   initialConfig,
-  className = ''
+  className = "",
 }) => {
-  const chainId = useChainId()
-  const [hatId, setHatId] = useState(initialConfig?.hatId || '')
-  const [hatInfo, setHatInfo] = useState<HatInfo | null>(initialConfig?.hatInfo || null)
-  const [isValidating, setIsValidating] = useState(false)
-  const [validationError, setValidationError] = useState<string | null>(null)
-  const [searchTerm, setSearchTerm] = useState('')
-  const [searchResults, setSearchResults] = useState<HatInfo[]>([])
-  const [isSearching, setIsSearching] = useState(false)
-  const [debouncedHatId, setDebouncedHatId] = useState('')
+  const chainId = useChainId();
+  const [hatId, setHatId] = useState(initialConfig?.hatId || "");
+  const [hatInfo, setHatInfo] = useState<HatInfo | null>(
+    initialConfig?.hatInfo || null,
+  );
+  const [isValidating, setIsValidating] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState<HatInfo[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [debouncedHatId, setDebouncedHatId] = useState("");
 
   // Get Hats contract address for current network
-  const hatsContract = HATS_CONTRACTS[chainId] || HATS_CONTRACTS[1] // Default to mainnet
+  const hatsContract = HATS_CONTRACTS[chainId] || HATS_CONTRACTS[1]; // Default to mainnet
 
   // Debounce hat ID input
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedHatId(hatId)
-    }, 500)
-    
-    return () => clearTimeout(timer)
-  }, [hatId])
+      setDebouncedHatId(hatId);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [hatId]);
 
   // Validate hat ID when debounced value changes
   useEffect(() => {
-    if (debouncedHatId && !isNaN(Number(debouncedHatId)) && Number(debouncedHatId) > 0) {
-      validateHatId(debouncedHatId)
+    if (
+      debouncedHatId &&
+      !isNaN(Number(debouncedHatId)) &&
+      Number(debouncedHatId) > 0
+    ) {
+      validateHatId(debouncedHatId);
     } else if (debouncedHatId) {
-      setValidationError('Hat ID must be a positive number')
-      setHatInfo(null)
+      setValidationError("Hat ID must be a positive number");
+      setHatInfo(null);
     } else {
-      setValidationError(null)
-      setHatInfo(null)
+      setValidationError(null);
+      setHatInfo(null);
     }
-  }, [debouncedHatId])
+  }, [debouncedHatId]);
 
   // Notify parent when configuration changes
   useEffect(() => {
@@ -94,14 +107,14 @@ export const HatsGateConfig: React.FC<HatsGateConfigProps> = ({
       onConfigChange({
         hatId,
         hatsContract,
-        hatInfo
-      })
+        hatInfo,
+      });
     }
-  }, [hatId, hatInfo, validationError, hatsContract, onConfigChange])
+  }, [hatId, hatInfo, validationError, hatsContract, onConfigChange]);
 
   const validateHatId = async (id: string) => {
-    setIsValidating(true)
-    setValidationError(null)
+    setIsValidating(true);
+    setValidationError(null);
 
     try {
       // Note: This is a mock implementation
@@ -109,89 +122,94 @@ export const HatsGateConfig: React.FC<HatsGateConfigProps> = ({
       // import { HatsSubgraphClient } from '@hatsprotocol/sdk-v1-subgraph'
       // const client = new HatsSubgraphClient()
       // const hat = await client.getHat({ hatId: id })
-      
+
       // Mock validation
       const mockHatInfo: HatInfo = {
         id,
         name: `Hat #${id}`,
-        description: 'Governance role in the organization',
-        imageUri: 'https://example.com/hat.png',
+        description: "Governance role in the organization",
+        imageUri: "https://example.com/hat.png",
         isActive: true,
         wearerCount: 5,
         maxSupply: 10,
         tree: {
-          id: '1',
-          name: 'Organization Tree'
-        }
-      }
-      
-      setHatInfo(mockHatInfo)
+          id: "1",
+          name: "Organization Tree",
+        },
+      };
+
+      setHatInfo(mockHatInfo);
     } catch (error) {
-      setValidationError('Hat ID not found or invalid')
-      setHatInfo(null)
+      setValidationError("Hat ID not found or invalid");
+      setHatInfo(null);
     } finally {
-      setIsValidating(false)
+      setIsValidating(false);
     }
-  }
+  };
 
   const searchHats = async (query: string) => {
-    setIsSearching(true)
+    setIsSearching(true);
     try {
       // Note: This is a mock implementation
       // In a real implementation, you would use the Hats SDK:
       // const client = new HatsSubgraphClient()
       // const results = await client.getHats({ name_contains: query })
-      
+
       // Mock search results
       const mockResults: HatInfo[] = [
         {
-          id: '12345',
+          id: "12345",
           name: `${query} Admin`,
-          description: 'Administrative role',
+          description: "Administrative role",
           isActive: true,
           wearerCount: 3,
           maxSupply: 5,
-          tree: { id: '1', name: 'Main Tree' }
+          tree: { id: "1", name: "Main Tree" },
         },
         {
-          id: '12346',
+          id: "12346",
           name: `${query} Member`,
-          description: 'General member role',
+          description: "General member role",
           isActive: true,
           wearerCount: 15,
           maxSupply: 50,
-          tree: { id: '1', name: 'Main Tree' }
-        }
-      ]
-      
-      setSearchResults(mockResults)
+          tree: { id: "1", name: "Main Tree" },
+        },
+      ];
+
+      setSearchResults(mockResults);
     } catch (error) {
-      console.error('Error searching hats:', error)
-      setSearchResults([])
+      console.error("Error searching hats:", error);
+      setSearchResults([]);
     } finally {
-      setIsSearching(false)
+      setIsSearching(false);
     }
-  }
+  };
 
   const handleHatSelect = (hat: HatInfo) => {
-    setHatId(hat.id)
-    setHatInfo(hat)
-    setSearchTerm('')
-    setSearchResults([])
-  }
+    setHatId(hat.id);
+    setHatInfo(hat);
+    setSearchTerm("");
+    setSearchResults([]);
+  };
 
   const getValidationIcon = () => {
-    if (!debouncedHatId) return null
-    if (isValidating) return <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
-    if (hatInfo && !validationError) return <CheckCircle2 className="h-4 w-4 text-green-500" />
-    if (validationError) return <AlertCircle className="h-4 w-4 text-red-500" />
-    return null
-  }
+    if (!debouncedHatId) return null;
+    if (isValidating)
+      return <Loader2 className="h-4 w-4 animate-spin text-gray-400" />;
+    if (hatInfo && !validationError)
+      return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+    if (validationError)
+      return <AlertCircle className="h-4 w-4 text-red-500" />;
+    return null;
+  };
 
   return (
     <div className={`space-y-6 ${className}`}>
       <div>
-        <Label className="text-[#3c2a14] text-base font-semibold">Hats Protocol Configuration</Label>
+        <Label className="text-[#3c2a14] text-base font-semibold">
+          Hats Protocol Configuration
+        </Label>
         <p className="text-sm text-[#8b7355] mt-1">
           Configure which hat (role) wearers can access this jar
         </p>
@@ -203,7 +221,10 @@ export const HatsGateConfig: React.FC<HatsGateConfigProps> = ({
           <div className="flex items-center gap-2">
             <Crown className="h-4 w-4 text-blue-600" />
             <span className="text-sm font-medium text-blue-900">
-              Hats Contract: {hatsContract ? `${hatsContract.slice(0, 10)}...${hatsContract.slice(-8)}` : 'Not available on this network'}
+              Hats Contract:{" "}
+              {hatsContract
+                ? `${hatsContract.slice(0, 10)}...${hatsContract.slice(-8)}`
+                : "Not available on this network"}
             </span>
           </div>
         </CardContent>
@@ -231,7 +252,8 @@ export const HatsGateConfig: React.FC<HatsGateConfigProps> = ({
             <p className="text-xs text-green-600 mt-1">✓ Valid hat found</p>
           )}
           <p className="text-xs text-[#8b7355] mt-1">
-            Hat IDs are large numbers that encode the hat's position in the tree structure
+            Hat IDs are large numbers that encode the hat's position in the tree
+            structure
           </p>
         </div>
 
@@ -254,7 +276,11 @@ export const HatsGateConfig: React.FC<HatsGateConfigProps> = ({
               variant="outline"
               className="border-[#ff5e14] text-[#ff5e14]"
             >
-              {isSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Search'}
+              {isSearching ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                "Search"
+              )}
             </Button>
           </div>
         </div>
@@ -265,7 +291,7 @@ export const HatsGateConfig: React.FC<HatsGateConfigProps> = ({
             <Label className="text-sm text-[#3c2a14]">Search Results</Label>
             <div className="max-h-60 overflow-y-auto space-y-2">
               {searchResults.map((hat) => (
-                <Card 
+                <Card
                   key={hat.id}
                   className="cursor-pointer hover:bg-gray-50 transition-colors"
                   onClick={() => handleHatSelect(hat)}
@@ -275,12 +301,18 @@ export const HatsGateConfig: React.FC<HatsGateConfigProps> = ({
                       <div className="flex-1">
                         <div className="flex items-center gap-2">
                           <Crown className="h-4 w-4 text-[#ff5e14]" />
-                          <h4 className="font-medium text-[#3c2a14]">{hat.name}</h4>
-                          <Badge variant={hat.isActive ? "default" : "secondary"}>
+                          <h4 className="font-medium text-[#3c2a14]">
+                            {hat.name}
+                          </h4>
+                          <Badge
+                            variant={hat.isActive ? "default" : "secondary"}
+                          >
                             {hat.isActive ? "Active" : "Inactive"}
                           </Badge>
                         </div>
-                        <p className="text-sm text-[#8b7355] mt-1">{hat.description}</p>
+                        <p className="text-sm text-[#8b7355] mt-1">
+                          {hat.description}
+                        </p>
                         <div className="flex items-center gap-4 mt-2">
                           <span className="text-xs text-[#8b7355]">
                             ID: {hat.id}
@@ -333,7 +365,9 @@ export const HatsGateConfig: React.FC<HatsGateConfigProps> = ({
                 </div>
                 {hatInfo.wearerCount !== undefined && (
                   <div>
-                    <Label className="text-xs text-[#8b7355]">Current Wearers</Label>
+                    <Label className="text-xs text-[#8b7355]">
+                      Current Wearers
+                    </Label>
                     <p className="text-sm font-medium text-[#3c2a14]">
                       {hatInfo.wearerCount}
                       {hatInfo.maxSupply && ` / ${hatInfo.maxSupply}`}
@@ -349,7 +383,7 @@ export const HatsGateConfig: React.FC<HatsGateConfigProps> = ({
                   </div>
                 )}
               </div>
-              
+
               {hatInfo.description && (
                 <div className="mt-4">
                   <Label className="text-xs text-[#8b7355]">Description</Label>
@@ -370,7 +404,12 @@ export const HatsGateConfig: React.FC<HatsGateConfigProps> = ({
                       variant="ghost"
                       size="sm"
                       className="h-6 w-6 p-0"
-                      onClick={() => window.open(`https://etherscan.io/address/${hatsContract}`, '_blank')}
+                      onClick={() =>
+                        window.open(
+                          `https://etherscan.io/address/${hatsContract}`,
+                          "_blank",
+                        )
+                      }
                     >
                       <ExternalLink className="h-3 w-3" />
                     </Button>
@@ -385,15 +424,17 @@ export const HatsGateConfig: React.FC<HatsGateConfigProps> = ({
         <div className="bg-blue-50 p-4 rounded-lg">
           <h4 className="font-medium text-[#3c2a14] mb-2">Finding Hat IDs</h4>
           <p className="text-xs text-[#8b7355] mb-3">
-            Hat IDs are complex numbers that encode the hat's position in the organization tree.
-            Use these resources to find the correct ID:
+            Hat IDs are complex numbers that encode the hat's position in the
+            organization tree. Use these resources to find the correct ID:
           </p>
           <div className="space-y-2">
             <Button
               variant="outline"
               size="sm"
               className="w-full justify-start text-left"
-              onClick={() => window.open('https://app.hatsprotocol.xyz/', '_blank')}
+              onClick={() =>
+                window.open("https://app.hatsprotocol.xyz/", "_blank")
+              }
             >
               <ExternalLink className="h-4 w-4 mr-2" />
               Hats Protocol App (browse organizations)
@@ -402,7 +443,9 @@ export const HatsGateConfig: React.FC<HatsGateConfigProps> = ({
               variant="outline"
               size="sm"
               className="w-full justify-start text-left"
-              onClick={() => window.open('https://subgraph.hatsprotocol.xyz/', '_blank')}
+              onClick={() =>
+                window.open("https://subgraph.hatsprotocol.xyz/", "_blank")
+              }
             >
               <ExternalLink className="h-4 w-4 mr-2" />
               Hats Subgraph Explorer
@@ -412,24 +455,34 @@ export const HatsGateConfig: React.FC<HatsGateConfigProps> = ({
 
         {/* Help Text */}
         <div className="bg-gray-50 p-4 rounded-lg">
-          <h4 className="font-medium text-[#3c2a14] mb-2">How Hats Protocol Gating Works</h4>
+          <h4 className="font-medium text-[#3c2a14] mb-2">
+            How Hats Protocol Gating Works
+          </h4>
           <ul className="text-xs text-[#8b7355] space-y-1 list-disc list-inside">
             <li>Only wearers of the specified hat (role) can access the jar</li>
-            <li>Hats represent roles and responsibilities in an organization</li>
-            <li>Hat wearers are checked in real-time for eligibility and good standing</li>
+            <li>
+              Hats represent roles and responsibilities in an organization
+            </li>
+            <li>
+              Hat wearers are checked in real-time for eligibility and good
+              standing
+            </li>
             <li>Access can be revoked by removing the hat from a user</li>
-            <li>Hats form hierarchical trees representing organizational structure</li>
+            <li>
+              Hats form hierarchical trees representing organizational structure
+            </li>
           </ul>
-          
+
           <div className="mt-3 pt-3 border-t">
             <p className="text-xs text-[#8b7355] font-medium">Integration:</p>
             <p className="text-xs text-[#8b7355]">
-              The contract verifies eligibility by calling isWearerOfHat() on the Hats Protocol contract,
-              which checks both hat ownership and the wearer's good standing.
+              The contract verifies eligibility by calling isWearerOfHat() on
+              the Hats Protocol contract, which checks both hat ownership and
+              the wearer's good standing.
             </p>
           </div>
         </div>
       </div>
     </div>
-  )
-}
+  );
+};

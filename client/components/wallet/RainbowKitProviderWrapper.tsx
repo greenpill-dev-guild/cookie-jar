@@ -37,17 +37,17 @@ import { WagmiProvider } from "wagmi";
 // RainbowKit requires hex values, so we use the computed value
 const getOrangeColor = (isDark: boolean = false) => {
   // Default fallback for SSR/initial render
-  if (typeof window === 'undefined') {
-    return isDark ? '#c17a47' : '#ff5e14'; // Desaturated for dark mode
+  if (typeof window === "undefined") {
+    return isDark ? "#c17a47" : "#ff5e14"; // Desaturated for dark mode
   }
-  
+
   // Theme-aware orange colors (converted from HSL to hex)
   if (isDark) {
     // Dark mode: 20 55% 45% = more desaturated orange
-    return '#c17a47';
+    return "#c17a47";
   } else {
     // Light mode: 20 95% 50% = bright orange
-    return '#ff5e14';
+    return "#ff5e14";
   }
 };
 
@@ -59,9 +59,9 @@ export function RainbowKitProviderWrapper({
   children: ReactNode;
 }) {
   const { theme } = useTheme();
-  
+
   const isDarkMode = theme === "dark";
-  
+
   // Get the current orange color (theme-aware)
   const currentOrangeColor = getOrangeColor(isDarkMode);
 
@@ -97,7 +97,7 @@ export function RainbowKitProviderWrapper({
       modalBackground: isDarkMode ? "#1f1611" : "#fff8f0",
       modalBackdrop: "rgba(0, 0, 0, 0.5)",
       modalBorder: isDarkMode ? "#3d2f22" : "#e8d6c1",
-      // Account modal colors  
+      // Account modal colors
       profileAction: isDarkMode ? "#25201a" : "#f5e6d8",
       profileActionHover: isDarkMode ? "#3d2f22" : "#e8d6c1",
       profileForeground: isDarkMode ? "#f5e6d8" : "#3c2a14",

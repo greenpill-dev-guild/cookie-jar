@@ -1,24 +1,28 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { X } from "lucide-react"
-import { Button } from "@/components/ui/button"
+import { useState, useEffect } from "react";
+import { X } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface LoadingOverlayProps {
-  message?: string
-  isOpen: boolean
-  onClose?: () => void
+  message?: string;
+  isOpen: boolean;
+  onClose?: () => void;
 }
 
-export function LoadingOverlay({ message = "Processing...", isOpen, onClose }: LoadingOverlayProps) {
+export function LoadingOverlay({
+  message = "Processing...",
+  isOpen,
+  onClose,
+}: LoadingOverlayProps) {
   // If component is mounted
-  const [mounted, setMounted] = useState(false)
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
-    setMounted(true)
-  }, [])
+    setMounted(true);
+  }, []);
 
-  if (!mounted || !isOpen) return null
+  if (!mounted || !isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm">
@@ -65,5 +69,5 @@ export function LoadingOverlay({ message = "Processing...", isOpen, onClose }: L
         <p className="text-white text-xl font-medium mt-4">{message}</p>
       </div>
     </div>
-  )
+  );
 }

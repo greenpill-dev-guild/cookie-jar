@@ -1,79 +1,85 @@
-"use client"
-import { useCookieJarFactory } from "@/hooks/useCookieJarFactory"
-import { Card, CardContent } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { ShieldAlert, Loader2, RotateCcw } from "lucide-react"
-import { JarGridSkeleton } from "@/components/jars/JarSkeleton"
-import { useRouter } from "next/navigation"
-import { useChainId, useAccount } from "wagmi"
-import { getNativeCurrency } from '@/config/supported-networks'
-import { useState, useMemo, useCallback } from "react"
-import { ETH_ADDRESS } from "@/lib/token-utils"
-import { JarControls } from "./JarControls"
-import { JarGrid } from "./JarGrid"
-import { useMultipleTokenSymbols } from "@/hooks/useMultipleTokenSymbols"
-import { getNetworkName } from "@/lib/network-utils"
+"use client";
+import { useCookieJarFactory } from "@/hooks/useCookieJarFactory";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { ShieldAlert, Loader2, RotateCcw } from "lucide-react";
+import { JarGridSkeleton } from "@/components/jars/JarSkeleton";
+import { useRouter } from "next/navigation";
+import { useChainId, useAccount } from "wagmi";
+import { getNativeCurrency } from "@/config/supported-networks";
+import { useState, useMemo, useCallback } from "react";
+import { ETH_ADDRESS } from "@/lib/token-utils";
+import { JarControls } from "./JarControls";
+import { JarGrid } from "./JarGrid";
+import { useMultipleTokenSymbols } from "@/hooks/useMultipleTokenSymbols";
+import { getNetworkName } from "@/lib/network-utils";
 
 interface JarContentProps {
   userAddress?: string;
 }
 
 export function JarContentLazy({ userAddress }: JarContentProps) {
-  const router = useRouter()
-  const chainId = useChainId()
-  const { isConnected } = useAccount()
-  
+  const router = useRouter();
+  const chainId = useChainId();
+  const { isConnected } = useAccount();
+
   // Use the enhanced hook with progress tracking
-  const { 
-    cookieJarsData, 
-    isLoading, 
-    error, 
-    refresh, 
-    fetchProgress, 
-    failedJars, 
-    retryFailedJars 
-  } = useCookieJarFactory()
-  
-  const nativeCurrency = getNativeCurrency(chainId)
-  const [searchTerm, setSearchTerm] = useState("")
-  const [currentPage, setCurrentPage] = useState(1)
-  const jarsPerPage = 9
-  const [filterOption, setFilterOption] = useState("all")
-  const [isRefreshing, setIsRefreshing] = useState(false)
+  const {
+    cookieJarsData,
+    isLoading,
+    error,
+    refresh,
+    fetchProgress,
+    failedJars,
+    retryFailedJars,
+  } = useCookieJarFactory();
+
+  const nativeCurrency = getNativeCurrency(chainId);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const jarsPerPage = 9;
+  const [filterOption, setFilterOption] = useState("all");
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Get unique ERC20 currency addresses from all jars (exclude ETH)
   const uniqueERC20Currencies = useMemo(() => {
-    const currencies = new Set<string>()
-    cookieJarsData.forEach(jar => {
-      if (jar.currency && jar.currency.toLowerCase() !== ETH_ADDRESS.toLowerCase()) {
-        currencies.add(jar.currency)
+    const currencies = new Set<string>();
+    cookieJarsData.forEach((jar) => {
+      if (
+        jar.currency &&
+        jar.currency.toLowerCase() !== ETH_ADDRESS.toLowerCase()
+      ) {
+        currencies.add(jar.currency);
       }
-    })
-    return Array.from(currencies)
-  }, [cookieJarsData])
+    });
+    return Array.from(currencies);
+  }, [cookieJarsData]);
 
   // Fetch all unique token symbols
-  const tokenSymbols = useMultipleTokenSymbols(uniqueERC20Currencies)
+  const tokenSymbols = useMultipleTokenSymbols(uniqueERC20Currencies);
 
   // Handle jar card click
-  const handleJarClick = useCallback((jarAddress: string) => {
-    router.push(`/jar/${jarAddress}`)
-  }, [router])
+  const handleJarClick = useCallback(
+    (jarAddress: string) => {
+      router.push(`/jar/${jarAddress}`);
+    },
+    [router],
+  );
 
   // Enhanced refresh function with loading state
   const handleRefresh = useCallback(async () => {
-    setIsRefreshing(true)
-    console.log('🔄 Manual refresh triggered by user')
-    
+    setIsRefreshing(true);
+    console.log("🔄 Manual refresh triggered by user");
+
     try {
-      await refresh()
+      await refresh();
       // Small delay to show the refresh animation
-      setTimeout(() => setIsRefreshing(false), 500)
+      setTimeout(() => setIsRefreshing(false), 500);
     } catch (error) {
-      console.error('❌ Refresh failed:', error)
-      setIsRefreshing(false)
+      console.error("❌ Refresh failed:", error);
+      setIsRefreshing(false);
     }
-  }, [refresh])
+  }, [refresh]);
 
   // Filter jars based on search term and filter option
   const filteredJars = useMemo(() => {
@@ -81,21 +87,21 @@ export function JarContentLazy({ userAddress }: JarContentProps) {
       (jar) =>
         jar.metadata?.toLowerCase().includes(searchTerm.toLowerCase()) ||
         jar.jarAddress.toLowerCase().includes(searchTerm.toLowerCase()),
-    )
-  }, [cookieJarsData, searchTerm, filterOption])
+    );
+  }, [cookieJarsData, searchTerm, filterOption]);
 
   // Get jars for the current page
   const currentJars = useMemo(() => {
-    const startIndex = (currentPage - 1) * jarsPerPage
-    const endIndex = startIndex + jarsPerPage
-    return filteredJars.slice(startIndex, endIndex)
-  }, [filteredJars, currentPage])
+    const startIndex = (currentPage - 1) * jarsPerPage;
+    const endIndex = startIndex + jarsPerPage;
+    return filteredJars.slice(startIndex, endIndex);
+  }, [filteredJars, currentPage]);
 
-  const totalPages = Math.ceil(filteredJars.length / jarsPerPage)
+  const totalPages = Math.ceil(filteredJars.length / jarsPerPage);
 
   // Progress indicator during loading
   if (isLoading && fetchProgress) {
-    console.log('📊 JarContentLazy: Rendering progress state')
+    console.log("📊 JarContentLazy: Rendering progress state");
     return (
       <div className="space-y-6">
         <Card>
@@ -104,16 +110,20 @@ export function JarContentLazy({ userAddress }: JarContentProps) {
               <Loader2 className="animate-spin" size={20} />
               <div className="flex-1">
                 <p className="text-sm font-medium">
-                  Loading jars... {fetchProgress.completed}/{fetchProgress.total}
+                  Loading jars... {fetchProgress.completed}/
+                  {fetchProgress.total}
                 </p>
                 <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
-                  <div 
+                  <div
                     className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                    style={{ width: `${(fetchProgress.completed / fetchProgress.total) * 100}%` }}
+                    style={{
+                      width: `${(fetchProgress.completed / fetchProgress.total) * 100}%`,
+                    }}
                   />
                 </div>
                 <p className="text-xs text-gray-600 mt-1">
-                  {fetchProgress.successful} successful, {fetchProgress.failed} failed
+                  {fetchProgress.successful} successful, {fetchProgress.failed}{" "}
+                  failed
                 </p>
               </div>
             </div>
@@ -121,45 +131,58 @@ export function JarContentLazy({ userAddress }: JarContentProps) {
         </Card>
         <JarGridSkeleton />
       </div>
-    )
+    );
   }
 
   // Loading state
   if (isLoading) {
-    console.log('⏳ JarContentLazy: Rendering loading state')
-    return <JarGridSkeleton />
+    console.log("⏳ JarContentLazy: Rendering loading state");
+    return <JarGridSkeleton />;
   }
 
   // Error state
   if (error) {
-    console.error('❌ JarContentLazy: Rendering error state:', error)
+    console.error("❌ JarContentLazy: Rendering error state:", error);
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] cj-card-primary rounded-lg p-8">
         <div className="text-center space-y-4">
           <ShieldAlert className="h-16 w-16 text-red-500 mx-auto" />
-          <h3 className="text-xl font-semibold text-[hsl(var(--cj-dark-brown))]">Failed to Load Cookie Jars</h3>
-          <p className="text-[hsl(var(--cj-medium-brown))] max-w-md">{error.message}</p>
-          <Button onClick={handleRefresh} disabled={isRefreshing} className="mt-4">
-            <Loader2 className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`} />
+          <h3 className="text-xl font-semibold text-[hsl(var(--cj-dark-brown))]">
+            Failed to Load Cookie Jars
+          </h3>
+          <p className="text-[hsl(var(--cj-medium-brown))] max-w-md">
+            {error.message}
+          </p>
+          <Button
+            onClick={handleRefresh}
+            disabled={isRefreshing}
+            className="mt-4"
+          >
+            <Loader2
+              className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`}
+            />
             Try Again
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
   // Empty state
   if (cookieJarsData.length === 0) {
-    console.log('📭 JarContentLazy: Rendering empty state')
+    console.log("📭 JarContentLazy: Rendering empty state");
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] cj-card-primary rounded-lg p-8">
         <div className="text-center space-y-4">
           <div className="text-6xl mb-4">🍪</div>
-          <h3 className="text-xl font-semibold text-[hsl(var(--cj-dark-brown))]">No Cookie Jars Found</h3>
+          <h3 className="text-xl font-semibold text-[hsl(var(--cj-dark-brown))]">
+            No Cookie Jars Found
+          </h3>
           <p className="text-[hsl(var(--cj-medium-brown))] max-w-md">
-            There are no cookie jars on {getNetworkName(chainId)} yet. Create the first one to get started!
+            There are no cookie jars on {getNetworkName(chainId)} yet. Create
+            the first one to get started!
           </p>
-          <Button 
+          <Button
             onClick={() => router.push("/create")}
             className="cj-btn-primary"
           >
@@ -167,7 +190,7 @@ export function JarContentLazy({ userAddress }: JarContentProps) {
           </Button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -205,7 +228,7 @@ export function JarContentLazy({ userAddress }: JarContentProps) {
                   {failedJars.length} jar(s) failed to load
                 </p>
                 <p className="text-sm text-yellow-600">
-                  {failedJars.filter(f => f.canRetry).length} can be retried
+                  {failedJars.filter((f) => f.canRetry).length} can be retried
                 </p>
                 {failedJars.length > 0 && (
                   <details className="mt-2">
@@ -215,18 +238,19 @@ export function JarContentLazy({ userAddress }: JarContentProps) {
                     <div className="mt-2 space-y-1">
                       {failedJars.map((failure, index) => (
                         <div key={index} className="text-xs text-yellow-700">
-                          <strong>{failure.jarAddress.slice(0, 8)}...:</strong> {failure.errorMessage}
+                          <strong>{failure.jarAddress.slice(0, 8)}...:</strong>{" "}
+                          {failure.errorMessage}
                         </div>
                       ))}
                     </div>
                   </details>
                 )}
               </div>
-              <Button 
-                variant="outline" 
-                size="sm" 
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={retryFailedJars}
-                disabled={failedJars.filter(f => f.canRetry).length === 0}
+                disabled={failedJars.filter((f) => f.canRetry).length === 0}
                 className="text-yellow-800 border-yellow-300 hover:bg-yellow-100"
               >
                 <RotateCcw size={16} className="mr-2" />
@@ -237,5 +261,5 @@ export function JarContentLazy({ userAddress }: JarContentProps) {
         </Card>
       )}
     </div>
-  )
+  );
 }

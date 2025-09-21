@@ -34,6 +34,8 @@ export const loadLocalDeployment = async () => {
   }
 };
 
-export const getLocalContractAddress = (name: "CookieJarFactory"): `0x${string}` | undefined => {
+export const getLocalContractAddress = (
+  name: "CookieJarFactory",
+): `0x${string}` | undefined => {
   return localDeployment[name] as `0x${string}` | undefined;
 };

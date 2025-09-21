@@ -1,242 +1,107 @@
 # 🍪 Cookie Jar Protocol
 
-Cookie Jar is a decentralized funding protocol that enables controlled distribution of ETH or ERC20 tokens from shared pools. The system uses smart contracts to manage multi-protocol access control (allowlist, NFT ownership, POAP events, Unlock Protocol, Hypercerts, and Hats Protocol) with configurable withdrawal limits, creating transparent and permissioned funding mechanisms for DAOs and communities.
-
-## 🚀 Quick Start
-
-**Zero configuration needed!** Get started in 3 commands:
-
-```bash
-git clone https://github.com/greenpill-dev-guild/cookie-jar.git
-cd cookie-jar && pnpm install
-pnpm dev
-```
-
-**That's it!** Open http://localhost:3000 and explore 4 pre-seeded demo jars with Cookie Monster NFTs! 🍪
-
-> **✨ What happens during `pnpm install`:**
-> - Installs all dependencies for client and contracts
-> - Automatically initializes git submodules (Foundry dependencies)
-> - Runs `forge install` to set up smart contract libraries
-> - Sets up the complete development environment
+Decentralized funding pools with smart access control. Create shared ETH/ERC20 pools with allowlist, NFT, POAP, Unlock Protocol, Hypercerts, and Hats Protocol gating plus configurable withdrawal rules.
 
 ## 📋 Prerequisites
 
-### Required Dependencies
-- **Node.js** (v18.0.0+) - [Download](https://nodejs.org/)
-- **pnpm** (v8.0.0+) - `npm install -g pnpm`
-- **Foundry** - [Installation guide](https://book.getfoundry.sh/getting-started/installation)
-  ```bash
-  curl -L https://foundry.paradigm.xyz | bash
-  foundryup
-  ```
-- **Git** - [Download](https://git-scm.com/)
+**Manual Install**: Node.js 18+, Git  
+**Auto-Install**: pnpm, Foundry *(installed automatically)*  
+**System**: 4GB+ RAM, 2GB storage
 
-### System Requirements
-- **Memory**: 4GB RAM minimum (8GB recommended)
-- **Storage**: 2GB free space
-- **OS**: macOS, Linux, or Windows (WSL2)
+## 🚀 Quick Start
 
-## 💻 Development Options
-
-**Choose your development mode:**
+**True zero configuration** - everything installs automatically:
 
 ```bash
-# 1. Install dependencies
-pnpm install
-
-# 2. Choose your development environment:
-pnpm dev                   # Local development (fastest)
-pnpm dev:ethereum          # Fork Ethereum mainnet
-pnpm dev:celo              # Fork Celo network
-pnpm dev:base-sepolia      # Fork Base Sepolia testnet
+git clone https://github.com/greenpill-dev-guild/cookie-jar.git
+cd cookie-jar
+npm install  # Auto-installs pnpm + Foundry + all dependencies
+npm run dev  # Start development environment
 ```
 
-**What happens automatically:**
-- ✅ Start Anvil (local blockchain) 
-- ✅ Deploy contracts with deterministic addresses
-- ✅ Seed demo environment with Cookie Monster NFTs & 4 demo jars
-- ✅ Watch for contract changes and auto-redeploy  
-- ✅ Start client dev server with hot reload (Turbo mode)
-- ✅ Generate TypeScript types automatically
+Open http://localhost:3000 and explore 4 pre-seeded demo jars with Cookie Monster NFTs! 🍪
 
-## 🔧 Environment Configuration
+> **✨ Auto-setup**: Shell script checks system, installs pnpm + Foundry if missing, then sets up complete dev environment.
 
-### For Local Development
-**No configuration needed!** The development environment uses secure defaults for local blockchain testing.
-
-### For Production Deployments
-Copy and configure the environment template:
+## 💻 Development
 
 ```bash
-cp .env.sample .env.local
-# Edit .env.local with your values
+npm run dev                # or pnpm dev - Local development (fastest)
+npm run dev:ethereum       # Fork Ethereum mainnet  
+npm run dev:celo           # Fork Celo network
+npm run dev:base-sepolia   # Fork Base Sepolia testnet
 ```
 
-See [`.env.sample`](.env.sample) for all available configuration options including:
-- **WalletConnect Project ID** - Required for wallet connections
-- **Alchemy API Key** - Recommended for better RPC performance  
-- **RPC Endpoints** - For different networks
-- **Factory Configuration** - Fee settings and deployment parameters
+**Auto-included**: Anvil blockchain, contract deployment, demo seeding, hot reload, type generation.
 
-## 🔐 Secure Wallet Setup (Production)
+## 🔧 Configuration
 
-### Foundry Keystore (Recommended)
-**No private keys in files!** Use Foundry's secure keystore for deployments:
+**Local**: Zero config needed  
+**Production**: `cp .env.sample .env.local` and edit with your API keys
+
+See [`.env.sample`](.env.sample) for WalletConnect, Alchemy, RPC endpoints, and factory settings.
+
+## 🔐 Production Wallet (Foundry Keystore)
 
 ```bash
-# Import your deployment wallet securely
-cast wallet import deployer --interactive
-# Enter private key when prompted and set password
-
-# Verify keystore was created
-cast wallet list
+cast wallet import deployer --interactive  # Enter private key + password
+cast wallet list  # Verify keystore created
 ```
 
-**Why Keystore?**
-- ✅ Private keys encrypted with password
-- ✅ No secrets in environment files
-- ✅ Industry standard security practice
-- ✅ Works with all Foundry deployment commands
+**Benefits**: Encrypted keys, no env secrets, industry standard
 
-## 🎭 Demo Environment Showcase
+## 🎭 Pre-Seeded Demo Jars
 
-When you run any `pnpm dev` command, you get **4 pre-configured demo jars** ready for testing:
+**4 ready-to-test jars with different patterns:**
 
-### 1. **🏛️ Community Stipend** 
-- **Access**: Whitelist-gated (pre-approved addresses)
-- **Token**: ETH 
-- **Withdrawals**: Fixed amount, periodic intervals
-- **Use Case**: Regular community payments, DAO member stipends
-- **Status**: ✅ Ready to test
+1. **🏛️ Community Stipend**: Whitelist + ETH + Fixed amounts + Periodic intervals
+2. **💰 Grants Program**: Whitelist + ERC20 + Variable amounts + Purpose required
+3. **🍪 Cookie Monster Benefits**: NFT-gated + ETH + Variable amounts + NFT rewards
+4. **🎁 Cookie Monster Airdrop**: NFT-gated + ERC20 + One-time claims + Token distribution
 
-### 2. **💰 Grants Program**
-- **Access**: Whitelist-gated (committee members)
-- **Token**: DEMO ERC20 tokens
-- **Withdrawals**: Variable amounts (admin controlled)
-- **Use Case**: Flexible grant distributions, project funding
-- **Status**: ✅ Ready to test
-
-### 3. **🍪 Cookie Monster Benefits** 
-- **Access**: NFT-gated (Cookie Monster NFT holders)
-- **Token**: ETH
-- **Withdrawals**: Variable amounts 
-- **Use Case**: NFT holder perks, community rewards
-- **Status**: ✅ Ready to test (NFTs auto-minted to test accounts)
-
-### 4. **🎁 Cookie Monster Airdrop**
-- **Access**: NFT-gated (Cookie Monster NFT holders)
-- **Token**: DEMO ERC20 tokens
-- **Withdrawals**: One-time only per address
-- **Use Case**: Exclusive airdrops, limited distributions  
-- **Status**: ✅ Ready to test
-
-> **💡 Pro Tip**: Use the pre-funded test accounts below to try different access patterns!
+> 💡 **Use the pre-funded test accounts below to try different access patterns!**
 
 ## 📦 Project Structure
 
 ```
 cookie-jar/
-├── package.json           # Root workspace configuration
-├── pnpm-workspace.yaml    # Monorepo setup
-├── .env.sample            # Environment template (see production setup)
-│
-├── contracts/             # 🏗️ Smart contracts (Foundry/Solidity)
-│   ├── README.md          # Contract-specific documentation
-│   ├── src/               # Solidity contracts
-│   ├── test/              # Contract tests
-│   └── script/            # Deployment scripts
-│
-├── client/                # 🌐 Next.js web application
-│   ├── README.md          # Client-specific documentation
-│   ├── app/               # Next.js App Router
-│   ├── components/        # React components
-│   ├── hooks/             # Custom React hooks
-│   └── __tests__/         # Frontend tests
-│
-├── docs/                  # 📚 Documentation
-│   └── PROTOCOL_GUIDE.md  # Multi-protocol access control guide
-│
-└── scripts/               # 🛠️ Shared utility scripts
+├── contracts/          # Smart contracts (Foundry/Solidity)
+├── client/             # Next.js frontend 
+├── docs/               # Documentation
+├── e2e/                # Playwright tests
+└── scripts/            # Development utilities
 ```
 
-> 📖 **Documentation Links**:
-> - **Contract Details**: [contracts/README.md](contracts/README.md)
-> - **Client Architecture**: [client/README.md](client/README.md)  
-> - **Access Control Guide**: [docs/PROTOCOL_GUIDE.md](docs/PROTOCOL_GUIDE.md)
+**Key docs**: [contracts/README.md](contracts/README.md) • [client/README.md](client/README.md) • [docs/PROTOCOL_GUIDE.md](docs/PROTOCOL_GUIDE.md)
 
 
 ## ✨ Core Features
 
-### **Multi-Protocol Access Control**
-- **Allowlist Mode**: Pre-approved addresses only
-- **NFT-Gated Mode**: ERC721/ERC1155 token ownership
-- **POAP Mode**: Event attendance verification  
-- **Unlock Protocol**: Membership-based access
-- **Hypercerts**: Impact certificate holders
-- **Hats Protocol**: Organizational role-based access
+**Access Control**: Allowlist, NFT-gated, POAP, Unlock Protocol, Hypercerts, Hats Protocol  
+**Distribution**: ETH/ERC20 support, fixed/variable amounts, time controls, purpose tracking  
+**Security**: Smart contract governed, transparent, emergency controls, Foundry deployment  
 
-> 📖 **Detailed Guide**: See [docs/PROTOCOL_GUIDE.md](docs/PROTOCOL_GUIDE.md) for comprehensive access control documentation
-
-### **Flexible Distribution Mechanics**
-- **Multi-Token Support**: ETH and any ERC20 token
-- **Withdrawal Patterns**: Fixed amounts, variable limits, one-time distributions
-- **Time Controls**: Configurable cooldown periods between withdrawals
-- **Purpose Tracking**: Optional requirement for withdrawal explanations
-- **Admin Controls**: Comprehensive jar management and emergency functions
-
-### **Security & Transparency**
-- **Smart Contract Governed**: All operations handled by audited contracts
-- **Complete Transparency**: Public transaction history and audit trails
-- **Secure Deployment**: Foundry-based deployment with keystore security
-- **Emergency Controls**: Optional admin recovery mechanisms
+> 📚 **Detailed Guide**: [docs/PROTOCOL_GUIDE.md](docs/PROTOCOL_GUIDE.md)
 
 ## 📋 Development Workflow
 
-### 1. **Contract Development**
-- Edit files in `contracts/src/`
-- Changes automatically trigger:
-  - Recompilation with Forge
-  - Redeployment to local Anvil
-  - Client type regeneration
+**Contracts**: Edit in `contracts/src/` → Auto-recompile → Auto-redeploy → Regen types  
+**Client**: `localhost:3000` with hot reload on Chain ID 31337  
+**Testing**: `pnpm test` (both contracts + client)
 
-### 2. **Client Development**  
-- Client runs at `http://localhost:3000`
-- Automatically connected to local contracts
-- Hot reload on code changes
-- Uses local blockchain (Chain ID: 31337)
-
-### 3. **Testing Workflow**
 ```bash
-# Test contracts
-pnpm test:contracts
-
-# Test client  
-pnpm test:client
-
-# Test everything
-pnpm test
-
-# Manual contract deployment (if needed)
-pnpm deploy:local
-
-# Seed demo environment
-pnpm seed:demo
+pnpm test:contracts     # Smart contract tests
+pnpm test:client        # Frontend tests  
+pnpm deploy:local       # Manual deployment
+pnpm seed:demo          # Refresh demo data
 ```
 
 ## 🔧 Network Configuration
 
-**Auto-configured local blockchain (no setup required):**
-
-- **Local Blockchain**: `http://127.0.0.1:8545`
-- **Chain ID**: `31337`
-- **Available Modes**:
-  - `pnpm dev` - Pure local mode (fastest)
-  - `pnpm dev:ethereum` - Ethereum mainnet fork  
-  - `pnpm dev:celo` - Celo network fork
-  - `pnpm dev:base-sepolia` - Base Sepolia testnet fork
-- **Auto-funded Accounts**: 10 accounts, each with 1000 ETH
-- **Deployment**: Deterministic CREATE2 addresses (same every time)
+**Local blockchain**: `http://127.0.0.1:8545` (Chain ID: 31337)  
+**Accounts**: 10 pre-funded (1000 ETH each)  
+**Addresses**: Deterministic CREATE2 (consistent across restarts)  
+**Fork modes**: Ethereum, Celo, Base Sepolia available
 
 ### 🔑 Pre-funded Test Accounts
 
@@ -253,47 +118,26 @@ pnpm seed:demo
 ## 🛠️ Available Commands
 
 ```bash
-# Setup & Installation  
-pnpm install               # Install all dependencies (automatically initializes submodules and forge)
+# Essential
+pnpm install               # Setup everything (deps, submodules, forge)
+pnpm dev                   # Start local development
+pnpm test                  # Run all tests
+pnpm build                 # Build contracts + client
 
-# Development
-pnpm dev                   # Local development (fastest)
-pnpm dev:ethereum          # Fork Ethereum mainnet  
+# Development variants  
+pnpm dev:ethereum          # Fork Ethereum mainnet
 pnpm dev:celo              # Fork Celo network
 pnpm dev:base-sepolia      # Fork Base Sepolia testnet
 
-# Build commands  
-pnpm build                 # Build both contracts + client
-pnpm build:contracts       # Build only contracts
-pnpm build:client          # Build only client
+# Deployment
+pnpm deploy:local          # Deploy to Anvil
+pnpm deploy:ethereum       # Deploy to mainnet
+pnpm seed:demo             # Refresh demo data
+pnpm generate              # Regenerate types
 
-# Testing
-pnpm test                  # Test both contracts + client
-pnpm test:contracts        # Test only contracts
-pnpm test:client           # Test only client
-
-# Code Quality
-pnpm lint                  # Lint both contracts + client
-pnpm lint:contracts        # Lint only contracts  
-pnpm lint:client           # Lint only client
-pnpm format                # Format both contracts + client
-pnpm format:contracts      # Format only contracts
-pnpm format:client         # Format only client
-
-# Deployment & Management
-pnpm deploy:local          # Deploy contracts to local Anvil
-pnpm deploy:ethereum       # Deploy to Ethereum mainnet
-pnpm deploy:celo           # Deploy to Celo network
-pnpm deploy:base-sepolia   # Deploy to Base Sepolia testnet
-pnpm seed:demo             # Seed demo environment with test data
-pnpm seed:reset            # Reset and restart development environment
-pnpm copy:deployment       # Copy deployment files to client
-pnpm generate              # Generate client types from contracts
-
-# Development Tools
-pnpm sync:check            # Check deployment file synchronization
-pnpm clean                 # Clean both projects
-pnpm stop                  # Stop all running services
+# Utilities
+pnpm lint / pnpm format    # Code quality
+pnpm clean / pnpm stop     # Cleanup
 ```
 
 ## 🚀 Production Deployment Guide

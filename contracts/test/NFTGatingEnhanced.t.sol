@@ -100,7 +100,7 @@ contract NFTGatingEnhancedTest is Test {
             feeCollector: feeCollector,
             emergencyWithdrawalEnabled: true,
             oneTimeWithdrawal: false,
-            maxWithdrawalPerPeriod: 0
+            maxWithdrawalPerPeriod: 0 // Added missing field
         });
         
         // Create access configuration
@@ -123,8 +123,22 @@ contract NFTGatingEnhancedTest is Test {
 
     // RESTORED: Basic NFT gating tests - testing currently available functionality
     function test_BasicNFTWithdrawal_ERC721() public {
+        // Fund the jar properly using depositETH (this updates currencyHeldByJar)
+        address depositor = address(0x999);
+        vm.deal(depositor, 15 ether); // Give depositor enough ETH including fees
+        
+        vm.prank(depositor);
+        jar.depositETH{value: 10 ether}();
+        
+        // Reset user balance for clean test
+        vm.deal(user, 0);
+        
         // Mint ERC721 token to user
         uint256 tokenId = nft721.mint(user);
+        
+        // Check jar balance before withdrawal
+        uint256 jarBalanceBefore = address(jar).balance;
+        assertGe(jarBalanceBefore, 1 ether, "Jar should have sufficient balance");
         
         vm.startPrank(user);
         
@@ -139,12 +153,29 @@ contract NFTGatingEnhancedTest is Test {
         vm.stopPrank();
         
         // Verify withdrawal worked
-        assertEq(address(user).balance, 1 ether);
+        assertEq(address(user).balance, 1 ether, "User should receive exactly 1 ether");
+        
+        // Verify jar balance decreased
+        assertLt(address(jar).balance, jarBalanceBefore, "Jar balance should decrease after withdrawal");
     }
     
     function test_BasicNFTWithdrawal_ERC1155() public {
+        // Fund the jar properly using depositETH (this updates currencyHeldByJar)
+        address depositor = address(0x999);
+        vm.deal(depositor, 15 ether); // Give depositor enough ETH including fees
+        
+        vm.prank(depositor);
+        jar.depositETH{value: 10 ether}();
+        
+        // Reset user balance for clean test
+        vm.deal(user, 0);
+        
         // Mint ERC1155 tokens to user
         nft1155.mint(user, 1, 10);
+        
+        // Check jar balance before withdrawal
+        uint256 jarBalanceBefore = address(jar).balance;
+        assertGe(jarBalanceBefore, 1 ether, "Jar should have sufficient balance");
         
         vm.startPrank(user);
         
@@ -159,7 +190,10 @@ contract NFTGatingEnhancedTest is Test {
         vm.stopPrank();
         
         // Verify withdrawal worked
-        assertEq(address(user).balance, 1 ether);
+        assertEq(address(user).balance, 1 ether, "User should receive exactly 1 ether");
+        
+        // Verify jar balance decreased
+        assertLt(address(jar).balance, jarBalanceBefore, "Jar balance should decrease after withdrawal");
     }
     
     function test_RevertWhen_NotNFTOwner_ERC721() public {
@@ -266,8 +300,22 @@ contract NFTGatingEnhancedTest is Test {
     }
 
     function test_GasConsumptionWithinLimits() public {
+        // Fund the jar properly using depositETH (this updates currencyHeldByJar)
+        address depositor = address(0x999);
+        vm.deal(depositor, 15 ether); // Give depositor enough ETH including fees
+        
+        vm.prank(depositor);
+        jar.depositETH{value: 10 ether}();
+        
+        // Reset user balance for clean test
+        vm.deal(user, 0);
+        
         // Mint NFT to user
         uint256 tokenId = nft721.mint(user);
+        
+        // Check jar balance before withdrawal
+        uint256 jarBalanceBefore = address(jar).balance;
+        assertGe(jarBalanceBefore, 1 ether, "Jar should have sufficient balance");
         
         vm.startPrank(user);
         
@@ -286,6 +334,9 @@ contract NFTGatingEnhancedTest is Test {
         assertLt(gasUsed, 200_000, "Gas consumption should be reasonable");
         
         // Verify withdrawal worked
-        assertEq(address(user).balance, 1 ether);
+        assertEq(address(user).balance, 1 ether, "User should receive exactly 1 ether");
+        
+        // Verify jar balance decreased
+        assertLt(address(jar).balance, jarBalanceBefore, "Jar balance should decrease after withdrawal");
     }
 }
