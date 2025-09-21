@@ -2,40 +2,8 @@ import "@testing-library/jest-dom";
 import { renderHook, waitFor, act } from "@testing-library/react";
 import { vi } from "vitest";
 import React from "react";
-
-// Mock the jar creation logic since the actual hook has complex dependencies
-const mockUseJarCreation = () => {
-  return {
-    jarName: "",
-    enableCustomFee: false,
-    customFee: "",
-    fixedAmount: "0",
-    withdrawalInterval: "0",
-    supportedCurrency: "0x0000000000000000000000000000000000000003",
-    accessType: 0,
-    withdrawalOption: 0,
-    ETH_ADDRESS: "0x0000000000000000000000000000000000000003",
-    isV2Contract: false,
-    setJarName: vi.fn(),
-    setEnableCustomFee: vi.fn(),
-    setCustomFee: vi.fn(),
-    setFixedAmount: vi.fn(),
-    setWithdrawalInterval: vi.fn(),
-    setSupportedCurrency: vi.fn(),
-    setAccessType: vi.fn(),
-    setWithdrawalOption: vi.fn(),
-    resetForm: vi.fn(),
-    prepopulateRandomData: vi.fn(),
-    handleCurrencyChange: vi.fn(),
-    handleCustomCurrencySubmit: vi.fn(),
-    validateStep1: () => ({ isValid: false, errors: ["Jar name is required"] }),
-    validateStep2: () => ({
-      isValid: false,
-      errors: ["Fixed withdrawal amount must be greater than 0"],
-    }),
-    validateStep4: () => ({ isValid: true, errors: [] }),
-  };
-};
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { useJarCreation } from "@/hooks/useJarCreation";
 
 // Mock wagmi hooks
 vi.mock("wagmi", () => ({
@@ -83,23 +51,38 @@ vi.mock("@/hooks/useToast", () => ({
 }));
 
 describe("useJarCreation", () => {
+  let queryClient: QueryClient;
+
   beforeEach(() => {
     vi.clearAllMocks();
+    queryClient = new QueryClient({
+      defaultOptions: {
+        queries: { retry: false },
+        mutations: { retry: false },
+      },
+    });
   });
+
+  const renderHookWithProviders = () => {
+    return renderHook(() => useJarCreation(), {
+      wrapper: ({ children }: { children: React.ReactNode }) => 
+        React.createElement(QueryClientProvider, { client: queryClient }, children),
+    });
+  };
 
   describe("🔧 ETH Address Fix", () => {
     it("should use address(3) for ETH address", () => {
-      const result = mockUseJarCreation();
+      const { result } = renderHookWithProviders();
 
-      expect(result.ETH_ADDRESS).toBe(
+      expect(result.current.ETH_ADDRESS).toBe(
         "0x0000000000000000000000000000000000000003",
       );
     });
 
     it("should initialize supportedCurrency with correct ETH address", () => {
-      const result = mockUseJarCreation();
+      const { result } = renderHookWithProviders();
 
-      expect(result.supportedCurrency).toBe(
+      expect(result.current.supportedCurrency).toBe(
         "0x0000000000000000000000000000000000000003",
       );
     });
@@ -107,130 +90,148 @@ describe("useJarCreation", () => {
 
   describe("🚀 V1 vs V2 Logic", () => {
     it("should detect v1 contracts correctly", () => {
-      const result = mockUseJarCreation();
+      const { result } = renderHookWithProviders();
 
       // Base mainnet should be v1
-      expect(result.isV2Contract).toBe(false);
+      expect(result.current.isV2Contract).toBe(false);
     });
 
     it("should detect v2 contracts correctly", () => {
-      const result = { ...mockUseJarCreation(), isV2Contract: true };
-
-      expect(result.isV2Contract).toBe(true);
+      // Mock Anvil chain (31337) as v2
+      vi.mocked(vi.fn()).mockReturnValue(31337);
+      vi.mocked(require("@/config/supported-networks").isV2Chain).mockReturnValue(true);
+      
+      const { result } = renderHookWithProviders();
+      expect(result.current.isV2Contract).toBe(true);
     });
 
     it("should disable custom fees for v1 contracts", () => {
-      const result = mockUseJarCreation();
+      const { result } = renderHookWithProviders();
 
       act(() => {
-        result.setEnableCustomFee(true);
+        result.current.setEnableCustomFee(true);
       });
 
-      // Should automatically disable custom fees for v1
-      expect(result.enableCustomFee).toBe(false);
+      // Should automatically disable custom fees for v1 when isV2Contract is false
+      expect(result.current.enableCustomFee).toBe(false);
     });
 
     it("should force allowlist access type for v1 contracts", () => {
-      const result = mockUseJarCreation();
+      const { result } = renderHookWithProviders();
 
       act(() => {
-        result.setAccessType(1); // NFTGated
+        result.current.setAccessType(1); // NFTGated
       });
 
       // Should automatically revert to allowlist for v1
-      expect(result.accessType).toBe(0); // Allowlist
+      expect(result.current.accessType).toBe(0); // Allowlist
     });
   });
 
   describe("📝 Form Validation", () => {
     it("should validate required jar name", () => {
-      const result = mockUseJarCreation();
+      const { result } = renderHookWithProviders();
 
-      const validation = result.validateStep1();
+      const validation = result.current.validateStep1();
 
       expect(validation.isValid).toBe(false);
       expect(validation.errors).toContain("Jar name is required");
     });
 
     it("should validate withdrawal amounts", () => {
-      const result = mockUseJarCreation();
+      const { result } = renderHookWithProviders();
 
       act(() => {
-        result.setWithdrawalOption(0); // Fixed
-        result.setFixedAmount("0");
+        result.current.setWithdrawalOption(0); // Fixed
+        result.current.setFixedAmount("0");
       });
 
-      const validation = result.validateStep2();
+      const validation = result.current.validateStep2();
 
       expect(validation.isValid).toBe(false);
+      expect(validation.errors).toContain("Fixed withdrawal amount must be greater than 0");
     });
 
     it("should validate withdrawal interval", () => {
-      const result = mockUseJarCreation();
+      const { result } = renderHookWithProviders();
 
       act(() => {
-        result.setWithdrawalInterval("0");
+        result.current.setWithdrawalInterval("0");
       });
 
-      const validation = result.validateStep2();
+      const validation = result.current.validateStep2();
 
       expect(validation.isValid).toBe(false);
+      expect(validation.errors).toContain("Withdrawal interval must be greater than 0 days");
     });
 
     it("should validate custom fee percentage", () => {
-      const result = mockUseJarCreation();
+      const { result } = renderHookWithProviders();
 
       act(() => {
-        result.setEnableCustomFee(true);
-        result.setCustomFee("150"); // Over 100%
+        result.current.setEnableCustomFee(true);
+        result.current.setCustomFee("150"); // Over 100%
       });
 
-      const validation = result.validateStep4();
+      const validation = result.current.validateStep4();
 
       expect(validation.isValid).toBe(false);
+      expect(validation.errors).toContain("Custom fee must be between 0 and 100 percent");
     });
   });
 
   describe("💱 Currency Handling", () => {
     it("should handle custom currency selection", () => {
-      const result = mockUseJarCreation();
+      const { result } = renderHookWithProviders();
 
       act(() => {
-        result.handleCurrencyChange("CUSTOM");
+        result.current.handleCurrencyChange("CUSTOM");
       });
 
-      // Mock doesn't track showCustomCurrency, so just verify function was called
-      expect(result.handleCurrencyChange).toBeDefined();
+      expect(result.current.showCustomCurrency).toBe(true);
     });
 
     it("should validate ERC20 addresses", async () => {
-      const result = mockUseJarCreation();
+      const { result } = renderHookWithProviders();
 
-      await act(async () => {
-        await result.handleCustomCurrencySubmit();
+      act(() => {
+        result.current.setCustomCurrencyAddress("0x1234567890123456789012345678901234567890");
       });
 
-      expect(result.handleCustomCurrencySubmit).toBeDefined();
+      await act(async () => {
+        await result.current.handleCustomCurrencySubmit();
+      });
+
+      // Should handle the submission (testing the function executes without throwing)
+      expect(result.current.handleCustomCurrencySubmit).toBeDefined();
     });
   });
 
   describe("🧹 Form Reset", () => {
     it("should reset all form fields", () => {
-      const result = mockUseJarCreation();
+      const { result } = renderHookWithProviders();
 
       // Set some values
       act(() => {
-        result.setJarName("Test Jar");
-        result.setFixedAmount("0.5");
-        result.setEnableCustomFee(true);
+        result.current.setJarName("Test Jar");
+        result.current.setFixedAmount("0.5");
+        result.current.setEnableCustomFee(true);
       });
+
+      // Verify values are set
+      expect(result.current.jarName).toBe("Test Jar");
+      expect(result.current.fixedAmount).toBe("0.5");
+      expect(result.current.enableCustomFee).toBe(true);
 
       // Reset form
       act(() => {
-        result.resetForm();
+        result.current.resetForm();
       });
 
-      expect(result.resetForm).toHaveBeenCalled();
+      // Verify values are reset
+      expect(result.current.jarName).toBe("");
+      expect(result.current.fixedAmount).toBe("0");
+      expect(result.current.enableCustomFee).toBe(false);
     });
   });
 
@@ -244,13 +245,15 @@ describe("useJarCreation", () => {
     });
 
     it("should populate random data in development", () => {
-      const result = mockUseJarCreation();
+      const { result } = renderHookWithProviders();
 
       act(() => {
-        result.prepopulateRandomData();
+        result.current.prepopulateRandomData();
       });
 
-      expect(result.prepopulateRandomData).toHaveBeenCalled();
+      // Should have populated some data
+      expect(result.current.jarName).toBeTruthy();
+      expect(result.current.fixedAmount).not.toBe("0");
     });
   });
 });
