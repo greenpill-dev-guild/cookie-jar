@@ -5,7 +5,7 @@
   "installCommand": "pnpm install --ignore-scripts",
   "outputDirectory": ".next",
   "framework": "nextjs",
-  "ignoreCommand": "git diff HEAD^ HEAD --quiet ./client",
+  "ignoreCommand": "git diff HEAD^ HEAD --quiet",
   "env": {
     "SKIP_CONTRACTS": "true",
     "NODE_ENV": "production"
