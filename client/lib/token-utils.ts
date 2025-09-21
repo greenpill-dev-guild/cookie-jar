@@ -1,9 +1,9 @@
-import { useReadContracts } from 'wagmi';
-import { parseUnits, formatUnits, erc20Abi, isAddress } from 'viem';
-import type { Address } from 'viem';
-import { log } from 'console';
-import { useChainId } from 'wagmi';
-import { getNativeCurrency } from '@/config/supported-networks';
+import { useReadContracts } from "wagmi";
+import { parseUnits, formatUnits, erc20Abi, isAddress } from "viem";
+import type { Address } from "viem";
+import { log } from "console";
+import { useChainId } from "wagmi";
+import { getNativeCurrency } from "@/config/supported-networks";
 
 // Known address constants
 export const ETH_ADDRESS = "0x0000000000000000000000000000000000000003";
@@ -44,7 +44,7 @@ export function useTokenInfo(tokenAddress: Address) {
       isERC20: false,
       isEth: true,
       error: false,
-      errorMessage: ""
+      errorMessage: "",
     };
   }
 
@@ -59,7 +59,8 @@ export function useTokenInfo(tokenAddress: Address) {
   let errorMessage = "";
   if (error) {
     if (!hasSymbol && !hasDecimals) {
-      errorMessage = "Invalid ERC20 token address or contract doesn't implement ERC20 standard";
+      errorMessage =
+        "Invalid ERC20 token address or contract doesn't implement ERC20 standard";
     } else if (!hasSymbol) {
       errorMessage = "Token contract doesn't implement symbol() method";
     } else if (!hasDecimals) {
@@ -73,7 +74,7 @@ export function useTokenInfo(tokenAddress: Address) {
     isERC20,
     isEth: false,
     error,
-    errorMessage
+    errorMessage,
   };
 }
 
@@ -89,7 +90,7 @@ export function formatTokenAmount(
   amount: bigint | undefined,
   decimals: number,
   symbol: string,
-  maxDecimals: number = 4
+  maxDecimals: number = 4,
 ) {
   if (!amount) return `0 ${symbol}`;
 
@@ -119,14 +120,17 @@ export function parseTokenAmount(amountStr: string, decimals: number) {
  * @param tokenDecimals The number of decimal places allowed for the token
  * @returns Object with validated value and error message if applicable
  */
-export function checkDecimals(value: string, tokenDecimals: number): { value: string | null; error: string | null } {
+export function checkDecimals(
+  value: string,
+  tokenDecimals: number,
+): { value: string | null; error: string | null } {
   if (value === "") {
     return { value, error: null };
   }
 
   if (/^[0-9]*\.?[0-9]*$/.test(value)) {
     // Validate that the number of decimal places doesn't exceed the token's decimal precision
-    const parts = value.split('.');
+    const parts = value.split(".");
     if (
       parts.length === 1 || // No decimal point
       parts[1].length <= tokenDecimals // Has decimal point but not exceeding max decimals
@@ -136,7 +140,7 @@ export function checkDecimals(value: string, tokenDecimals: number): { value: st
       // Too many decimal places
       return {
         value: null,
-        error: `You entered too many decimal places. This token only allows ${tokenDecimals} decimals.`
+        error: `You entered too many decimal places. This token only allows ${tokenDecimals} decimals.`,
       };
     }
   }

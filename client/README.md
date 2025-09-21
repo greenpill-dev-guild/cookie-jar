@@ -37,7 +37,7 @@ client/
 |   |
 │   ├── FeeCollector/         # Fee collector components
 │   │   └── DefaultFeeCollector.tsx
-│   │   
+│   │
 │   ├── page/                 # Page-specific components
 │   │   ├── docs/             # Documentation components
 │   │   │   ├── docs-content.tsx
@@ -78,7 +78,7 @@ client/
 │       ├── terms-and-conditions-auth.tsx
 │       └── wallet-auth-layer.tsx
 |
-├── hooks/                   
+├── hooks/
 │   ├── design/               # Design-related hooks
 │   │   ├── use-mobile.tsx    # Mobile detection
 │   │   └── use-toast.ts      # Toast notifications
@@ -112,12 +112,14 @@ client/
 ## Testing Infrastructure
 
 ### Frontend Tests
+
 - **Jest**: Unit testing framework
 - **React Testing Library**: Component testing utilities
 - **User Event**: User interaction simulation
 - **Comprehensive Test Coverage**: Hooks, components, and protocol integrations
 
 #### Test Organization
+
 ```
 client/__tests__/
 ├── hooks/                    # Hook unit tests
@@ -132,11 +134,13 @@ client/__tests__/
 ```
 
 ### Contract Tests
+
 - **Foundry**: Solidity testing framework
 - **Mock Contracts**: For protocol integration testing
 - **Comprehensive Coverage**: All access types and withdrawal methods
 
 #### Contract Test Organization
+
 ```
 contracts/test/
 ├── CookieJar.t.sol          # Core functionality tests
@@ -146,20 +150,26 @@ contracts/test/
 ## Smart Contracts
 
 ### CookieJar.sol
+
 The main contract implementing comprehensive jar functionality with multi-protocol access control:
+
 - **Core Features**: Deposits, withdrawals, access control, purpose tracking
 - **Access Types**: Allowlist, NFT-gated, POAP, Unlock Protocol, Hypercerts, Hats Protocol
 - **Withdrawal Methods**: `withdrawAllowlistMode`, `withdrawNFTMode`, `withdrawPOAPMode`, `withdrawUnlockMode`, `withdrawHypercertMode`, `withdrawHatsMode`
 - **Protocol Integration**: Built-in support for external protocol verification
 
 ### CookieJarFactory.sol
+
 Factory contract for creating new CookieJar instances with multi-protocol support:
+
 - **Jar Creation**: Handles complex access configuration for all supported protocols
 - **Registry Integration**: Maintains comprehensive jar registry
 - **Access Configuration**: Supports all 6 access control methods
 
 ### CookieJarLib.sol
+
 Library containing core data structures and constants:
+
 - **Access Types**: `Whitelist`, `NFTGated`, `POAP`, `Unlock`, `Hypercert`, `Hats`
 - **Protocol Requirements**: Dedicated structs for each protocol's specific needs
 - **Error Handling**: Custom errors for secure transaction processing
@@ -167,6 +177,7 @@ Library containing core data structures and constants:
 ## Getting Started
 
 ### Prerequisites
+
 - Node.js 18.18.0 or higher
 - npm or yarn
 - A Web3 wallet (MetaMask, Rainbow, etc.)
@@ -175,6 +186,7 @@ Library containing core data structures and constants:
 ### Installation
 
 1. Clone the repository:
+
 ```bash
 git clone https://github.com/yourusername/cookie-jar-v3.git
 cd cookie-jar-v3
@@ -183,7 +195,6 @@ cd cookie-jar-v3
 
 2. Install dependencies:
 
-
 ```shellscript
 npm install
 # or
@@ -191,8 +202,7 @@ yarn install
 ```
 
 3. Set up environment variables:
-Create a `.env.local` file with the following variables:
-
+   Create a `.env.local` file with the following variables:
 
 ```plaintext
 NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=your_wallet_connect_project_id
@@ -200,7 +210,6 @@ NEXT_PUBLIC_ALCHEMY_API_KEY=your_alchemy_api_key
 ```
 
 4. Run the development server:
-
 
 ```shellscript
 npm run dev
@@ -210,7 +219,6 @@ yarn dev
 
 5. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-
 ## Usage
 
 ### Creating a Cookie Jar
@@ -219,16 +227,13 @@ yarn dev
 2. Navigate to the "Create Jar" page
 3. Fill in the jar details:
 
-1. Basic information (name, description, currency)
-2. Access control settings (whitelist or NFT-gated)
-3. Withdrawal options (fixed or variable, amount, cooldown period)
-4. Additional features (strict purpose, emergency withdrawal)
+4. Basic information (name, description, currency)
+5. Access control settings (whitelist or NFT-gated)
+6. Withdrawal options (fixed or variable, amount, cooldown period)
+7. Additional features (strict purpose, emergency withdrawal)
 
-
-
-4. Review and confirm
-5. Sign the transaction
-
+8. Review and confirm
+9. Sign the transaction
 
 ### Managing a Cookie Jar
 
@@ -240,7 +245,6 @@ As a jar admin, you can:
 - Add/remove NFT gates
 - Perform emergency withdrawals (if enabled)
 
-
 ### Using a Cookie Jar
 
 As a whitelisted user or NFT holder, you can:
@@ -248,7 +252,6 @@ As a whitelisted user or NFT holder, you can:
 - Deposit funds into the jar
 - Withdraw funds according to the jar's rules
 - View withdrawal history
-
 
 ## Deployment
 
@@ -259,7 +262,6 @@ The smart contracts are deployed on the following networks:
 - Optimism: Coming soon
 - Gnosis Chain: Coming soon
 
-
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
@@ -269,7 +271,6 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 3. Commit your changes (`git commit -m 'Add some amazing feature'`)
 4. Push to the branch (`git push origin feature/amazing-feature`)
 5. Open a Pull Request
-
 
 ## License
 

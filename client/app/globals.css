@@ -5,24 +5,24 @@
 @layer base {
   :root {
     /* Cookie Jar Brand Colors */
-    --cj-brand-orange: 20 95% 50%;           /* #ff5e14 */
+    --cj-brand-orange: 20 95% 50%; /* #ff5e14 */
     --cj-brand-orange-light: 20 95% 60%;
     --cj-brand-orange-dark: 20 95% 40%;
-    
+
     /* Cookie Jar Semantic Light Mode Colors */
-    --cj-creme-bg: 30 25% 95%;               /* #fff8f0 - Main background */
-    --cj-warm-white: 30 20% 98%;             /* Card backgrounds */
-    --cj-nav-bg: 30 20% 88%;                 /* Light brown for navigation */
-    --cj-dark-brown: 25 40% 10%;             /* Darker, more solid brown text */
-    --cj-medium-brown: 25 35% 25%;           /* More solid medium text */
-    --cj-light-brown: 25 25% 60%;            /* More solid light text */
-    
+    --cj-creme-bg: 30 25% 95%; /* #fff8f0 - Main background */
+    --cj-warm-white: 30 20% 98%; /* Card backgrounds */
+    --cj-nav-bg: 30 20% 88%; /* Light brown for navigation */
+    --cj-dark-brown: 25 40% 10%; /* Darker, more solid brown text */
+    --cj-medium-brown: 25 35% 25%; /* More solid medium text */
+    --cj-light-brown: 25 25% 60%; /* More solid light text */
+
     /* Form & Input Colors - Light Mode */
-    --cj-input-bg: 25 35% 15%;               /* More solid dark input backgrounds */
-    --cj-input-text: 30 25% 98%;             /* Pure white text in inputs */
-    --cj-input-placeholder: 30 15% 75%;      /* More solid placeholder */
-    --cj-input-border: 25 30% 35%;           /* More solid input borders */
-    
+    --cj-input-bg: 25 35% 15%; /* More solid dark input backgrounds */
+    --cj-input-text: 30 25% 98%; /* Pure white text in inputs */
+    --cj-input-placeholder: 30 15% 75%; /* More solid placeholder */
+    --cj-input-border: 25 30% 35%; /* More solid input borders */
+
     /* Standard Shadcn Variables - Light Mode */
     --background: var(--cj-creme-bg);
     --foreground: var(--cj-dark-brown);
@@ -48,24 +48,24 @@
 
   .dark {
     /* Cookie Jar Dark Mode Button Colors - Desaturated */
-    --cj-brand-orange-dark-mode: 20 55% 45%;     /* Desaturated orange for buttons */
+    --cj-brand-orange-dark-mode: 20 55% 45%; /* Desaturated orange for buttons */
     --cj-brand-orange-light-dark-mode: 20 50% 55%;
     --cj-brand-orange-dark-dark-mode: 20 60% 35%;
-    
+
     /* Cookie Jar Semantic Dark Mode Colors */
-    --cj-creme-bg: 25 40% 5%;                /* Darker, more solid background */
-    --cj-warm-white: 25 35% 8%;              /* More solid dark card backgrounds */
-    --cj-nav-bg: 25 35% 12%;                 /* Light brown for navigation in dark mode */
-    --cj-dark-brown: 30 25% 95%;             /* Pure light text in dark mode */
-    --cj-medium-brown: 30 20% 80%;           /* More solid medium text */
-    --cj-light-brown: 30 15% 65%;            /* More solid light text */
-    
+    --cj-creme-bg: 25 40% 5%; /* Darker, more solid background */
+    --cj-warm-white: 25 35% 8%; /* More solid dark card backgrounds */
+    --cj-nav-bg: 25 35% 12%; /* Light brown for navigation in dark mode */
+    --cj-dark-brown: 30 25% 95%; /* Pure light text in dark mode */
+    --cj-medium-brown: 30 20% 80%; /* More solid medium text */
+    --cj-light-brown: 30 15% 65%; /* More solid light text */
+
     /* Form & Input Colors - Dark Mode */
-    --cj-input-bg: 25 40% 12%;               /* More solid dark inputs */
-    --cj-input-text: 30 25% 98%;             /* Pure white text in inputs */
-    --cj-input-placeholder: 30 20% 70%;      /* More solid placeholder */
-    --cj-input-border: 25 30% 25%;           /* More solid borders */
-    
+    --cj-input-bg: 25 40% 12%; /* More solid dark inputs */
+    --cj-input-text: 30 25% 98%; /* Pure white text in inputs */
+    --cj-input-placeholder: 30 20% 70%; /* More solid placeholder */
+    --cj-input-border: 25 30% 25%; /* More solid borders */
+
     /* Standard Shadcn Variables - Dark Mode */
     --background: var(--cj-creme-bg);
     --foreground: var(--cj-dark-brown);
@@ -73,19 +73,21 @@
     --card-foreground: var(--cj-dark-brown);
     --popover: var(--cj-warm-white);
     --popover-foreground: var(--cj-dark-brown);
-    --primary: var(--cj-brand-orange-dark-mode);    /* Use desaturated orange */
+    --primary: var(--cj-brand-orange-dark-mode); /* Use desaturated orange */
     --primary-foreground: 30 20% 98%;
     --secondary: 25 30% 20%;
     --secondary-foreground: var(--cj-dark-brown);
     --muted: 25 30% 20%;
     --muted-foreground: var(--cj-medium-brown);
-    --accent: var(--cj-brand-orange-light-dark-mode);  /* Use desaturated orange */
+    --accent: var(
+      --cj-brand-orange-light-dark-mode
+    ); /* Use desaturated orange */
     --accent-foreground: var(--cj-dark-brown);
     --destructive: 0 70% 45%;
     --destructive-foreground: var(--cj-dark-brown);
     --border: 25 30% 25%;
     --input: var(--cj-input-bg);
-    --ring: var(--cj-brand-orange-dark-mode);       /* Use desaturated orange */
+    --ring: var(--cj-brand-orange-dark-mode); /* Use desaturated orange */
   }
 
   html {
@@ -96,7 +98,7 @@
     /* Prevent overscroll bounce on mobile */
     overscroll-behavior: none;
   }
-  
+
   body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
@@ -109,7 +111,7 @@
   * {
     @apply border-border;
   }
-  
+
   /* Ensure root element has background color */
   /* #__next,
   [data-nextjs-scroll-focus-boundary] {
@@ -164,7 +166,7 @@
   .cj-text-muted {
     color: hsl(var(--cj-light-brown));
   }
-  
+
   /* Legacy support - gradually migrate from these */
   .text-light-gray {
     color: hsl(var(--cj-light-brown));
@@ -257,7 +259,7 @@
     @apply font-bold text-xl transition-colors;
     color: hsl(var(--cj-dark-brown));
   }
-  
+
   .secondary-cta:hover {
     color: hsl(var(--primary));
   }
@@ -266,15 +268,15 @@
   .cj-bg-main {
     background-color: hsl(var(--cj-creme-bg));
   }
-  
+
   .cj-bg-card {
     background-color: hsl(var(--cj-warm-white));
   }
-  
+
   .cj-bg-input {
     background-color: hsl(var(--cj-input-bg));
   }
-  
+
   /* Legacy support */
   .cream-bg {
     background-color: hsl(var(--cj-creme-bg));
@@ -286,11 +288,11 @@
     color: hsl(var(--cj-dark-brown));
     @apply rounded-2xl shadow-xl p-6 transition-all duration-300 hover:shadow-2xl border border-border;
   }
-  
+
   .cj-card-elevated {
     @apply cj-card-primary shadow-2xl hover:shadow-3xl;
   }
-  
+
   /* Legacy support */
   .feature-card {
     @apply cj-card-primary p-8;
@@ -302,14 +304,14 @@
     color: hsl(var(--primary-foreground));
     @apply hover:brightness-105 focus-visible:ring-2 focus-visible:ring-ring transition-all duration-200;
   }
-  
+
   .cj-btn-secondary {
     background-color: hsl(var(--cj-warm-white));
     color: hsl(var(--cj-dark-brown));
     border: 1px solid hsl(var(--border));
     @apply hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring transition-all duration-200;
   }
-  
+
   /* Header styles */
   .page-header {
     @apply sticky top-0 z-50 py-6 backdrop-blur-md;
@@ -643,7 +645,7 @@ body {
   body {
     padding-bottom: calc(80px + env(safe-area-inset-bottom));
   }
-  
+
   main {
     min-height: calc(100vh - 80px);
     background-color: inherit;
@@ -662,61 +664,61 @@ body {
     word-wrap: break-word;
     overflow-wrap: break-word;
   }
-  
+
   /* Flex container safety - CRITICAL for preventing overflow */
   .flex-safe {
     min-width: 0; /* Allows flex items to shrink below content size */
   }
-  
+
   /* Responsive text sizes */
   .text-responsive-lg {
     @apply text-base sm:text-lg md:text-xl;
   }
-  
+
   .text-responsive-base {
     @apply text-sm sm:text-base md:text-lg;
   }
-  
+
   .text-responsive-sm {
     @apply text-xs sm:text-sm md:text-base;
   }
-  
+
   /* Address/hash specific handling */
   .address-text {
     @apply font-mono text-xs truncate;
   }
-  
+
   .address-text-mobile {
     @apply font-mono text-xs truncate max-w-[100px] sm:max-w-[150px] md:max-w-none;
   }
-  
+
   /* Card content safety */
   .card-text-safe {
     @apply min-w-0 line-clamp-2 break-words;
   }
-  
+
   /* Safe flex layouts */
   .flex-between-safe {
     @apply flex justify-between items-center gap-2 min-w-0;
   }
-  
+
   .flex-start-safe {
     @apply flex justify-start items-center gap-2 min-w-0;
   }
-  
+
   /* Text content patterns */
   .content-title {
     @apply text-responsive-lg font-semibold line-clamp-2 min-w-0;
   }
-  
+
   .content-subtitle {
     @apply text-responsive-base text-gray-600 line-clamp-1 min-w-0;
   }
-  
+
   .content-body {
     @apply text-responsive-sm line-clamp-3 min-w-0;
   }
-  
+
   .content-caption {
     @apply text-xs text-gray-500 truncate min-w-0;
   }
@@ -729,25 +731,30 @@ body {
     word-wrap: break-word;
     overflow-wrap: break-word;
   }
-  
+
   /* Enhanced mobile handling for common elements */
-  h1, h2, h3, h4, h5, h6 {
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
     @apply break-words;
   }
-  
+
   /* Specifically handle long text in cards */
   [class*="card"] {
     overflow-wrap: break-word;
     word-wrap: break-word;
   }
-  
+
   /* Ensure buttons don't break */
   button {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
-  
+
   /* Handle long addresses and hashes on mobile */
   .font-mono {
     @apply text-xs max-w-[80px] truncate;

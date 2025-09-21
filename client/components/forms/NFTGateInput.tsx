@@ -1,10 +1,16 @@
-import React, { useState, useEffect } from 'react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
-import { PlusCircle, CheckCircle2, AlertCircle, Loader2 } from 'lucide-react'
-import { useNftValidation } from '@/hooks/useNftValidation'
+import React, { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { PlusCircle, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { useNftValidation } from "@/hooks/useNftValidation";
 
 enum NFTType {
   None = 0,
@@ -13,71 +19,79 @@ enum NFTType {
 }
 
 interface NFTGateInputProps {
-  onAddNFT: (address: string, type: number) => void
-  className?: string
+  onAddNFT: (address: string, type: number) => void;
+  className?: string;
 }
 
-export const NFTGateInput: React.FC<NFTGateInputProps> = ({ onAddNFT, className = '' }) => {
-  const [nftAddress, setNftAddress] = useState('')
-  const [selectedType, setSelectedType] = useState<number>(NFTType.ERC721)
-  const [debouncedAddress, setDebouncedAddress] = useState('')
-  
+export const NFTGateInput: React.FC<NFTGateInputProps> = ({
+  onAddNFT,
+  className = "",
+}) => {
+  const [nftAddress, setNftAddress] = useState("");
+  const [selectedType, setSelectedType] = useState<number>(NFTType.ERC721);
+  const [debouncedAddress, setDebouncedAddress] = useState("");
+
   // Debounce the address input to avoid excessive API calls
   useEffect(() => {
     const timer = setTimeout(() => {
-      setDebouncedAddress(nftAddress)
-    }, 500)
-    
-    return () => clearTimeout(timer)
-  }, [nftAddress])
+      setDebouncedAddress(nftAddress);
+    }, 500);
+
+    return () => clearTimeout(timer);
+  }, [nftAddress]);
 
   // Use the NFT validation hook
-  const { isValid, detectedType, isLoading, error } = useNftValidation(debouncedAddress)
+  const { isValid, detectedType, isLoading, error } =
+    useNftValidation(debouncedAddress);
 
   // Check if user-selected type matches detected type
-  const typeMatches = !detectedType || (
-    (detectedType === 'ERC721' && selectedType === NFTType.ERC721) ||
-    (detectedType === 'ERC1155' && selectedType === NFTType.ERC1155)
-  )
+  const typeMatches =
+    !detectedType ||
+    (detectedType === "ERC721" && selectedType === NFTType.ERC721) ||
+    (detectedType === "ERC1155" && selectedType === NFTType.ERC1155);
 
-  const canAdd = nftAddress && isValid && typeMatches && !isLoading
+  const canAdd = nftAddress && isValid && typeMatches && !isLoading;
 
   const handleAddNFT = () => {
     if (canAdd) {
-      onAddNFT(nftAddress, selectedType)
-      setNftAddress('')
-      setSelectedType(NFTType.ERC721)
+      onAddNFT(nftAddress, selectedType);
+      setNftAddress("");
+      setSelectedType(NFTType.ERC721);
     }
-  }
+  };
 
   const getValidationIcon = () => {
-    if (!debouncedAddress) return null
-    if (isLoading) return <Loader2 className="h-4 w-4 animate-spin text-gray-400" />
-    if (isValid && typeMatches) return <CheckCircle2 className="h-4 w-4 text-green-500" />
-    if (error || !typeMatches) return <AlertCircle className="h-4 w-4 text-red-500" />
-    return null
-  }
+    if (!debouncedAddress) return null;
+    if (isLoading)
+      return <Loader2 className="h-4 w-4 animate-spin text-gray-400" />;
+    if (isValid && typeMatches)
+      return <CheckCircle2 className="h-4 w-4 text-green-500" />;
+    if (error || !typeMatches)
+      return <AlertCircle className="h-4 w-4 text-red-500" />;
+    return null;
+  };
 
   const getValidationMessage = () => {
-    if (!debouncedAddress) return null
-    if (isLoading) return 'Validating contract...'
-    if (error) return error
+    if (!debouncedAddress) return null;
+    if (isLoading) return "Validating contract...";
+    if (error) return error;
     if (isValid && !typeMatches) {
-      return `Contract is ${detectedType} but type is set to ${selectedType === NFTType.ERC721 ? 'ERC721' : 'ERC1155'}`
+      return `Contract is ${detectedType} but type is set to ${selectedType === NFTType.ERC721 ? "ERC721" : "ERC1155"}`;
     }
     if (isValid && typeMatches) {
-      return `✓ Valid ${detectedType} contract`
+      return `✓ Valid ${detectedType} contract`;
     }
-    return null
-  }
+    return null;
+  };
 
   // Auto-populate type if detected type is different from selected
   useEffect(() => {
     if (detectedType && !typeMatches) {
-      const newType = detectedType === 'ERC721' ? NFTType.ERC721 : NFTType.ERC1155
-      setSelectedType(newType)
+      const newType =
+        detectedType === "ERC721" ? NFTType.ERC721 : NFTType.ERC1155;
+      setSelectedType(newType);
     }
-  }, [detectedType, typeMatches])
+  }, [detectedType, typeMatches]);
 
   return (
     <div className={`space-y-4 ${className}`}>
@@ -100,18 +114,20 @@ export const NFTGateInput: React.FC<NFTGateInputProps> = ({ onAddNFT, className 
           </div>
           {/* Validation message */}
           {debouncedAddress && (
-            <div className={`text-xs mt-1 ${
-              isValid && typeMatches 
-                ? 'text-green-600' 
-                : error || !typeMatches 
-                ? 'text-red-600' 
-                : 'text-gray-500'
-            }`}>
+            <div
+              className={`text-xs mt-1 ${
+                isValid && typeMatches
+                  ? "text-green-600"
+                  : error || !typeMatches
+                    ? "text-red-600"
+                    : "text-gray-500"
+              }`}
+            >
               {getValidationMessage()}
             </div>
           )}
         </div>
-        
+
         <div className="w-32">
           <Label className="text-sm text-[#3c2a14]">NFT Type</Label>
           <Select
@@ -127,7 +143,7 @@ export const NFTGateInput: React.FC<NFTGateInputProps> = ({ onAddNFT, className 
             </SelectContent>
           </Select>
         </div>
-        
+
         <Button
           type="button"
           variant="outline"
@@ -140,5 +156,5 @@ export const NFTGateInput: React.FC<NFTGateInputProps> = ({ onAddNFT, className 
         </Button>
       </div>
     </div>
-  )
-}
+  );
+};

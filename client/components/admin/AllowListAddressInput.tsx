@@ -1,14 +1,14 @@
 "use client";
 
-import React, { useState, useCallback } from 'react';
-import { isAddress } from 'viem';
+import React, { useState, useCallback } from "react";
+import { isAddress } from "viem";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
 
 interface AllowlistAddressInputProps {
-  mode: 'add' | 'remove';
+  mode: "add" | "remove";
   currentAllowlist: readonly `0x${string}`[];
   onSubmit: (addresses: `0x${string}`[]) => Promise<void>;
   buttonLabel?: string;
@@ -20,16 +20,16 @@ export const AllowlistAddressInput: React.FC<AllowlistAddressInputProps> = ({
   currentAllowlist,
   onSubmit,
   buttonLabel,
-  placeholder = 'Enter addresses, one per line, space, or comma'
+  placeholder = "Enter addresses, one per line, space, or comma",
 }) => {
-  const [inputValue, setInputValue] = useState<string>('');
+  const [inputValue, setInputValue] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
-   const validateAddresses = useCallback((input: string) => {
+  const validateAddresses = useCallback((input: string) => {
     const parts = input
       .split(/[\s,]+/)
-      .map(s => s.trim())
+      .map((s) => s.trim())
       .filter(Boolean);
 
     const valid: `0x${string}`[] = [];
@@ -45,19 +45,28 @@ export const AllowlistAddressInput: React.FC<AllowlistAddressInputProps> = ({
     }
 
     const uniqueValid = Array.from(new Set(valid));
-    
+
     return { valid: uniqueValid, invalid };
   }, []);
 
-  const filterByMode = useCallback((addrs: `0x${string}`[]) => {
-    const normalizedAllowlist = currentAllowlist.map(addr => addr.toLowerCase());
-    
-    if (mode === 'add') {
-      return addrs.filter(a => !normalizedAllowlist.includes(a.toLowerCase()));
-    } else {
-      return addrs.filter(a => normalizedAllowlist.includes(a.toLowerCase()));
-    }
-  }, [currentAllowlist, mode]);
+  const filterByMode = useCallback(
+    (addrs: `0x${string}`[]) => {
+      const normalizedAllowlist = currentAllowlist.map((addr) =>
+        addr.toLowerCase(),
+      );
+
+      if (mode === "add") {
+        return addrs.filter(
+          (a) => !normalizedAllowlist.includes(a.toLowerCase()),
+        );
+      } else {
+        return addrs.filter((a) =>
+          normalizedAllowlist.includes(a.toLowerCase()),
+        );
+      }
+    },
+    [currentAllowlist, mode],
+  );
 
   const handleSubmit = async () => {
     setError(null);
@@ -67,23 +76,23 @@ export const AllowlistAddressInput: React.FC<AllowlistAddressInputProps> = ({
       const { valid, invalid } = validateAddresses(inputValue);
 
       if (invalid.length > 0) {
-        setError(`Invalid addresses: ${invalid.join(', ')}`);
+        setError(`Invalid addresses: ${invalid.join(", ")}`);
         return;
       }
 
       const toSubmit = filterByMode(valid);
       if (toSubmit.length === 0) {
         setError(
-          mode === 'add'
-            ? 'All addresses are already allowlisted'
-            : 'None of the addresses are currently allowlisted'
+          mode === "add"
+            ? "All addresses are already allowlisted"
+            : "None of the addresses are currently allowlisted",
         );
         return;
       }
 
       setIsSubmitting(true);
       await onSubmit(toSubmit);
-      setInputValue('');
+      setInputValue("");
     } catch (err: any) {
       setError(`Transaction failed: ${err.message || err}`);
     } finally {
@@ -96,7 +105,7 @@ export const AllowlistAddressInput: React.FC<AllowlistAddressInputProps> = ({
       <Textarea
         placeholder={placeholder}
         value={inputValue}
-        onChange={e => setInputValue(e.target.value)}
+        onChange={(e) => setInputValue(e.target.value)}
         disabled={isSubmitting}
         className="min-h-[150px]"
       />
@@ -113,7 +122,7 @@ export const AllowlistAddressInput: React.FC<AllowlistAddressInputProps> = ({
         className="w-full"
       >
         {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        {buttonLabel || (mode === 'add' ? 'Add Addresses' : 'Remove Addresses')}
+        {buttonLabel || (mode === "add" ? "Add Addresses" : "Remove Addresses")}
       </Button>
     </div>
   );

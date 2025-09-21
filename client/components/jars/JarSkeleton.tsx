@@ -33,11 +33,14 @@ export function JarGridSkeleton() {
           </div>
         </div>
       </div>
-      
+
       {/* Grid skeleton */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="cj-card-primary rounded-lg shadow-sm border overflow-hidden">
+          <div
+            key={i}
+            className="cj-card-primary rounded-lg shadow-sm border overflow-hidden"
+          >
             {/* Image placeholder */}
             <div className="w-full h-40 bg-muted animate-pulse"></div>
             {/* Content placeholder */}

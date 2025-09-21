@@ -1,5 +1,5 @@
-import { LandingHero } from "@/components/page/home/LandingHero"
-import { Footer } from "@/components/page/home/footer"
+import { LandingHero } from "@/components/page/home/LandingHero";
+import { Footer } from "@/components/page/home/footer";
 
 export default function Home() {
   return (
@@ -7,5 +7,5 @@ export default function Home() {
       <LandingHero />
       <Footer />
     </div>
-  )
+  );
 }

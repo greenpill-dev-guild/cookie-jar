@@ -1,31 +1,32 @@
-import type React from "react"
-import { ThemeProvider } from "@/components/theme-provider"
-import { RainbowKitProviderWrapper } from "@/components/wallet/RainbowKitProviderWrapper"
-import { Toaster } from "@/components/ui/toaster"
-import { PageTransition } from "@/components/design/PageTransition"
-import { Header } from "@/components/design/header"
-import { MobileAppBar } from "@/components/design/MobileAppBar"
-import { NetworkSwitcher } from "@/components/network/NetworkSwitcher"
-import localFont from "next/font/local"
-import "./loading-animation.css"
-import "./globals.css"
+import type React from "react";
+import { ThemeProvider } from "@/components/theme-provider";
+import { RainbowKitProviderWrapper } from "@/components/wallet/RainbowKitProviderWrapper";
+import { Toaster } from "@/components/ui/toaster";
+import { PageTransition } from "@/components/design/PageTransition";
+import { Header } from "@/components/design/header";
+import { MobileAppBar } from "@/components/design/MobileAppBar";
+import { NetworkSwitcher } from "@/components/network/NetworkSwitcher";
+import localFont from "next/font/local";
+import "./loading-animation.css";
+import "./globals.css";
 
 const clashDisplay = localFont({
   src: "../public/ClashDisplay.ttf",
   variable: "--font-clash-display",
-  display: 'swap',     // ⚡ Add font-display: swap for faster rendering
-  preload: true,       // ⚡ Preload font for better performance
-})
+  display: "swap", // ⚡ Add font-display: swap for faster rendering
+  preload: true, // ⚡ Preload font for better performance
+});
 
 export const metadata = {
   title: "Cookie Jar V3 | Shared Token Pools",
-  description: "A platform for creating and managing shared token pools with customizable access rules",
-}
+  description:
+    "A platform for creating and managing shared token pools with customizable access rules",
+};
 
 export default function RootLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
@@ -34,7 +35,13 @@ export default function RootLayout({
       </head>
       <body className="custom-scrollbar cj-bg-main" suppressHydrationWarning>
         <div className={`${clashDisplay.variable} font-clash`}>
-          <ThemeProvider attribute="class" defaultTheme="system" enableSystem disableTransitionOnChange suppressHydrationWarning>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+            suppressHydrationWarning
+          >
             <RainbowKitProviderWrapper>
               <Header />
               <main className="pt-16 pb-4 md:pb-4 cj-bg-main">
@@ -50,5 +57,5 @@ export default function RootLayout({
         </div>
       </body>
     </html>
-  )
+  );
 }

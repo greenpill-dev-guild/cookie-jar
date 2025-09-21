@@ -1,217 +1,238 @@
-import React, { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Label } from '@/components/ui/label'
-import { Button } from '@/components/ui/button'
-import { Badge } from '@/components/ui/badge'
-import { 
-  Users, 
-  Image as ImageIcon, 
-  Award, 
-  Key, 
-  Crown, 
+import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  Users,
+  Image as ImageIcon,
+  Award,
+  Key,
+  Crown,
   Shield,
-  CheckCircle2
-} from 'lucide-react'
-import { NFTGateInput } from '@/components/forms/NFTGateInput'
-import { EnhancedNFTGateInput, EnhancedNFTGatesList, type EnhancedNFTGate } from '@/components/forms/EnhancedNFTGateInput'
-import { POAPGateConfig } from './POAPGateConfig'
-import { UnlockGateConfig } from './UnlockGateConfig'
-import { HypercertGateConfig } from './HypercertGateConfig'
-import { HatsGateConfig } from './HatsGateConfig'
+  CheckCircle2,
+} from "lucide-react";
+import { NFTGateInput } from "@/components/forms/NFTGateInput";
+import {
+  EnhancedNFTGateInput,
+  EnhancedNFTGatesList,
+  type EnhancedNFTGate,
+} from "@/components/forms/EnhancedNFTGateInput";
+import { POAPGateConfig } from "./POAPGateConfig";
+import { UnlockGateConfig } from "./UnlockGateConfig";
+import { HypercertGateConfig } from "./HypercertGateConfig";
+import { HatsGateConfig } from "./HatsGateConfig";
 
-export type AccessType = 'Allowlist' | 'NFT' | 'POAP' | 'Unlock' | 'Hypercert' | 'Hats'
+export type AccessType =
+  | "Allowlist"
+  | "NFT"
+  | "POAP"
+  | "Unlock"
+  | "Hypercert"
+  | "Hats";
 
 interface ProtocolConfig {
-  accessType: AccessType
+  accessType: AccessType;
   // Enhanced NFT specific
-  nftGates?: EnhancedNFTGate[]
+  nftGates?: EnhancedNFTGate[];
   // Legacy NFT specific (for backward compatibility)
-  nftAddresses?: string[]
-  nftTypes?: number[]
+  nftAddresses?: string[];
+  nftTypes?: number[];
   // POAP specific
-  eventId?: string
-  eventName?: string
+  eventId?: string;
+  eventName?: string;
   // Unlock specific
-  lockAddress?: string
-  lockInfo?: any
+  lockAddress?: string;
+  lockInfo?: any;
   // Hypercert specific
-  tokenContract?: string
-  tokenId?: string
-  minBalance?: string
-  hypercertInfo?: any
+  tokenContract?: string;
+  tokenId?: string;
+  minBalance?: string;
+  hypercertInfo?: any;
   // Hats specific
-  hatId?: string
-  hatsContract?: string
-  hatInfo?: any
+  hatId?: string;
+  hatsContract?: string;
+  hatInfo?: any;
 }
 
 const gateMethods = [
   {
-    id: 'Allowlist' as AccessType,
-    name: 'Allowlist',
-    description: 'Pre-approved addresses can access funds',
+    id: "Allowlist" as AccessType,
+    name: "Allowlist",
+    description: "Pre-approved addresses can access funds",
     icon: <Users className="h-6 w-6" />,
-    badge: 'Simple',
-    color: 'bg-blue-500',
-    pros: ['Direct control', 'Gas efficient', 'Simple to manage'],
-    cons: ['Manual management', 'Not scalable', 'Requires updates'],
-    bestFor: ['Small teams', 'Known participants', 'High control needs']
+    badge: "Simple",
+    color: "bg-blue-500",
+    pros: ["Direct control", "Gas efficient", "Simple to manage"],
+    cons: ["Manual management", "Not scalable", "Requires updates"],
+    bestFor: ["Small teams", "Known participants", "High control needs"],
   },
   {
-    id: 'NFT' as AccessType,
-    name: 'NFT Collection',
-    description: 'NFT holders from specific collections can access',
+    id: "NFT" as AccessType,
+    name: "NFT Collection",
+    description: "NFT holders from specific collections can access",
     icon: <ImageIcon className="h-6 w-6" />,
-    badge: 'Popular',
-    color: 'bg-purple-500',
-    pros: ['Scalable', 'Tradeable access', 'Automated'],
-    cons: ['Gas for validation', 'NFT dependency', 'Market volatility'],
-    bestFor: ['NFT communities', 'Token-gated access', 'Tradeable membership']
+    badge: "Popular",
+    color: "bg-purple-500",
+    pros: ["Scalable", "Tradeable access", "Automated"],
+    cons: ["Gas for validation", "NFT dependency", "Market volatility"],
+    bestFor: ["NFT communities", "Token-gated access", "Tradeable membership"],
   },
   {
-    id: 'POAP' as AccessType,
-    name: 'POAP Badge',
-    description: 'Event attendees with specific POAP can access',
+    id: "POAP" as AccessType,
+    name: "POAP Badge",
+    description: "Event attendees with specific POAP can access",
     icon: <Award className="h-6 w-6" />,
-    badge: 'Event-based',
-    color: 'bg-yellow-500',
-    pros: ['Event-based', 'Non-transferable', 'Proof of attendance'],
-    cons: ['Event limitation', 'POAP dependency', 'Limited validation'],
-    bestFor: ['Event perks', 'Attendee rewards', 'Non-transferable access']
+    badge: "Event-based",
+    color: "bg-yellow-500",
+    pros: ["Event-based", "Non-transferable", "Proof of attendance"],
+    cons: ["Event limitation", "POAP dependency", "Limited validation"],
+    bestFor: ["Event perks", "Attendee rewards", "Non-transferable access"],
   },
   {
-    id: 'Unlock' as AccessType,
-    name: 'Unlock Membership',
-    description: 'Active membership key holders can access',
+    id: "Unlock" as AccessType,
+    name: "Unlock Membership",
+    description: "Active membership key holders can access",
     icon: <Key className="h-6 w-6" />,
-    badge: 'Subscription',
-    color: 'bg-green-500',
-    pros: ['Subscription model', 'Expiration handling', 'Revenue generation'],
-    cons: ['Complexity', 'Unlock dependency', 'Key management'],
-    bestFor: ['Paid memberships', 'Subscription access', 'Revenue models']
+    badge: "Subscription",
+    color: "bg-green-500",
+    pros: ["Subscription model", "Expiration handling", "Revenue generation"],
+    cons: ["Complexity", "Unlock dependency", "Key management"],
+    bestFor: ["Paid memberships", "Subscription access", "Revenue models"],
   },
   {
-    id: 'Hypercert' as AccessType,
-    name: 'Impact Certificate',
-    description: 'Hypercert holders with verified impact can access',
+    id: "Hypercert" as AccessType,
+    name: "Impact Certificate",
+    description: "Hypercert holders with verified impact can access",
     icon: <Award className="h-6 w-6" />,
-    badge: 'Impact',
-    color: 'bg-emerald-500',
-    pros: ['Impact-based', 'Verifiable work', 'Fractional ownership'],
-    cons: ['New protocol', 'Limited adoption', 'Complex validation'],
-    bestFor: ['Impact projects', 'Contributor rewards', 'Work verification']
+    badge: "Impact",
+    color: "bg-emerald-500",
+    pros: ["Impact-based", "Verifiable work", "Fractional ownership"],
+    cons: ["New protocol", "Limited adoption", "Complex validation"],
+    bestFor: ["Impact projects", "Contributor rewards", "Work verification"],
   },
   {
-    id: 'Hats' as AccessType,
-    name: 'Organizational Role',
-    description: 'Role-based access via Hats Protocol',
+    id: "Hats" as AccessType,
+    name: "Organizational Role",
+    description: "Role-based access via Hats Protocol",
     icon: <Crown className="h-6 w-6" />,
-    badge: 'Governance',
-    color: 'bg-indigo-500',
-    pros: ['Role-based', 'Hierarchical', 'Dynamic permissions'],
-    cons: ['Protocol complexity', 'Role dependency', 'Learning curve'],
-    bestFor: ['DAOs', 'Hierarchical orgs', 'Role-based access']
-  }
-]
+    badge: "Governance",
+    color: "bg-indigo-500",
+    pros: ["Role-based", "Hierarchical", "Dynamic permissions"],
+    cons: ["Protocol complexity", "Role dependency", "Learning curve"],
+    bestFor: ["DAOs", "Hierarchical orgs", "Role-based access"],
+  },
+];
 
 interface ProtocolGateSelectorProps {
-  onConfigChange: (config: ProtocolConfig) => void
-  initialConfig?: ProtocolConfig
-  className?: string
+  onConfigChange: (config: ProtocolConfig) => void;
+  initialConfig?: ProtocolConfig;
+  className?: string;
 }
 
 export const ProtocolGateSelector: React.FC<ProtocolGateSelectorProps> = ({
   onConfigChange,
   initialConfig,
-  className = ''
+  className = "",
 }) => {
-  const [selectedMethod, setSelectedMethod] = useState<AccessType>(initialConfig?.accessType || 'Allowlist')
-  const [config, setConfig] = useState<ProtocolConfig>(initialConfig || { accessType: 'Allowlist' })
+  const [selectedMethod, setSelectedMethod] = useState<AccessType>(
+    initialConfig?.accessType || "Allowlist",
+  );
+  const [config, setConfig] = useState<ProtocolConfig>(
+    initialConfig || { accessType: "Allowlist" },
+  );
 
   const handleMethodSelect = (method: AccessType) => {
-    setSelectedMethod(method)
-    const newConfig: ProtocolConfig = { accessType: method }
-    setConfig(newConfig)
-    onConfigChange(newConfig)
-  }
+    setSelectedMethod(method);
+    const newConfig: ProtocolConfig = { accessType: method };
+    setConfig(newConfig);
+    onConfigChange(newConfig);
+  };
 
   const handleEnhancedNFTAdd = (gate: EnhancedNFTGate) => {
     const newConfig = {
       ...config,
-      accessType: 'NFT' as AccessType,
+      accessType: "NFT" as AccessType,
       nftGates: [...(config.nftGates || []), gate],
       // Also maintain legacy format for backward compatibility
       nftAddresses: [...(config.nftAddresses || []), gate.address],
-      nftTypes: [...(config.nftTypes || []), gate.type]
-    }
-    setConfig(newConfig)
-    onConfigChange(newConfig)
-  }
+      nftTypes: [...(config.nftTypes || []), gate.type],
+    };
+    setConfig(newConfig);
+    onConfigChange(newConfig);
+  };
 
   const handleEnhancedNFTRemove = (index: number) => {
-    const newGates = [...(config.nftGates || [])]
-    const newAddresses = [...(config.nftAddresses || [])]
-    const newTypes = [...(config.nftTypes || [])]
-    
-    newGates.splice(index, 1)
-    newAddresses.splice(index, 1)
-    newTypes.splice(index, 1)
-    
+    const newGates = [...(config.nftGates || [])];
+    const newAddresses = [...(config.nftAddresses || [])];
+    const newTypes = [...(config.nftTypes || [])];
+
+    newGates.splice(index, 1);
+    newAddresses.splice(index, 1);
+    newTypes.splice(index, 1);
+
     const newConfig = {
       ...config,
       nftGates: newGates,
       nftAddresses: newAddresses,
-      nftTypes: newTypes
-    }
-    setConfig(newConfig)
-    onConfigChange(newConfig)
-  }
+      nftTypes: newTypes,
+    };
+    setConfig(newConfig);
+    onConfigChange(newConfig);
+  };
 
   // Legacy NFT handler for backward compatibility
   const handleNFTAdd = (address: string, type: number) => {
     const newConfig = {
       ...config,
-      accessType: 'NFT' as AccessType,
+      accessType: "NFT" as AccessType,
       nftAddresses: [...(config.nftAddresses || []), address],
-      nftTypes: [...(config.nftTypes || []), type]
-    }
-    setConfig(newConfig)
-    onConfigChange(newConfig)
-  }
+      nftTypes: [...(config.nftTypes || []), type],
+    };
+    setConfig(newConfig);
+    onConfigChange(newConfig);
+  };
 
   const handleProtocolConfigChange = (protocolConfig: any) => {
-    const newConfig = { ...config, ...protocolConfig }
-    setConfig(newConfig)
-    onConfigChange(newConfig)
-  }
+    const newConfig = { ...config, ...protocolConfig };
+    setConfig(newConfig);
+    onConfigChange(newConfig);
+  };
 
   return (
-    <div className={`space-y-6 ${className}`} data-testid="protocol-gate-selector">
+    <div
+      className={`space-y-6 ${className}`}
+      data-testid="protocol-gate-selector"
+    >
       <div>
         <h2>Access Control Method</h2>
-        <p>
-          Choose how users will prove eligibility to access this jar
-        </p>
+        <p>Choose how users will prove eligibility to access this jar</p>
       </div>
 
       {/* Method Selection Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4" data-testid="method-grid">
+      <div
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 md:gap-4"
+        data-testid="method-grid"
+      >
         {gateMethods.map((method) => (
           <Card
             key={method.id}
             data-testid={`method-${method.id.toLowerCase()}`}
             className={`cursor-pointer transition-all duration-200 hover:shadow-lg ${
               selectedMethod === method.id
-                ? 'ring-2 ring-[#ff5e14] bg-orange-50 selected'
-                : 'hover:shadow-md'
+                ? "ring-2 ring-[#ff5e14] bg-orange-50 selected"
+                : "hover:shadow-md"
             }`}
             onClick={() => handleMethodSelect(method.id)}
             style={{
-              cursor: 'pointer',
-              padding: '16px',
-              margin: '8px',
-              borderRadius: '8px',
-              border: selectedMethod === method.id ? '2px solid orange' : '1px solid gray'
+              cursor: "pointer",
+              padding: "16px",
+              margin: "8px",
+              borderRadius: "8px",
+              border:
+                selectedMethod === method.id
+                  ? "2px solid orange"
+                  : "1px solid gray",
             }}
           >
             <CardHeader className="pb-3">
@@ -223,7 +244,10 @@ export const ProtocolGateSelector: React.FC<ProtocolGateSelectorProps> = ({
                   {method.badge}
                 </div>
               </div>
-              <h3 data-testid={`${method.id.toLowerCase()}-name`} className="text-base flex items-center gap-2">
+              <h3
+                data-testid={`${method.id.toLowerCase()}-name`}
+                className="text-base flex items-center gap-2"
+              >
                 {method.name}
                 {selectedMethod === method.id && (
                   <CheckCircle2 className="h-4 w-4 text-[#ff5e14]" />
@@ -231,8 +255,13 @@ export const ProtocolGateSelector: React.FC<ProtocolGateSelectorProps> = ({
               </h3>
             </CardHeader>
             <CardContent className="pt-0">
-              <p data-testid={`${method.id.toLowerCase()}-description`} className="text-sm text-[#8b7355] mb-3">{method.description}</p>
-              
+              <p
+                data-testid={`${method.id.toLowerCase()}-description`}
+                className="text-sm text-[#8b7355] mb-3"
+              >
+                {method.description}
+              </p>
+
               <div className="space-y-2 hidden md:block">
                 <div data-testid={`${method.id.toLowerCase()}-pros`}>
                   <p className="text-sm font-medium">Pros:</p>
@@ -242,7 +271,7 @@ export const ProtocolGateSelector: React.FC<ProtocolGateSelectorProps> = ({
                     ))}
                   </ul>
                 </div>
-                
+
                 <div data-testid={`${method.id.toLowerCase()}-cons`}>
                   <p className="text-sm font-medium">Considerations:</p>
                   <ul className="text-xs space-y-0.5 list-disc list-inside">
@@ -251,7 +280,7 @@ export const ProtocolGateSelector: React.FC<ProtocolGateSelectorProps> = ({
                     ))}
                   </ul>
                 </div>
-                
+
                 <div data-testid={`${method.id.toLowerCase()}-best-for`}>
                   <p className="text-sm font-medium">Best for:</p>
                   <ul className="text-xs space-y-0.5 list-disc list-inside">
@@ -267,18 +296,18 @@ export const ProtocolGateSelector: React.FC<ProtocolGateSelectorProps> = ({
       </div>
 
       {/* Configuration Panel */}
-      {selectedMethod !== 'Allowlist' && (
+      {selectedMethod !== "Allowlist" && (
         <div data-testid="config-panel">
           <h3>Configuration for {selectedMethod}</h3>
           <div>
-            {selectedMethod === 'NFT' && (
+            {selectedMethod === "NFT" && (
               <div data-testid="nft-config">
                 <EnhancedNFTGateInput
                   onAddNFT={handleEnhancedNFTAdd}
                   existingGates={config.nftGates || []}
                   className="mt-4"
                 />
-                
+
                 <div className="mt-6">
                   <EnhancedNFTGatesList
                     gates={config.nftGates || []}
@@ -287,31 +316,44 @@ export const ProtocolGateSelector: React.FC<ProtocolGateSelectorProps> = ({
                 </div>
               </div>
             )}
-            
-            {selectedMethod === 'POAP' && (
+
+            {selectedMethod === "POAP" && (
               <div data-testid="poap-config">
                 <p>POAP Event Configuration</p>
-                <input data-testid="poap-event-id-input" placeholder="POAP Event ID" />
-              </div>
-            )}
-            
-            {selectedMethod === 'Unlock' && (
-              <div data-testid="unlock-config">
-                <UnlockGateConfig 
-                  onConfigChange={handleProtocolConfigChange}
-                  initialConfig={config.lockAddress ? { lockAddress: config.lockAddress, lockInfo: config.lockInfo } : undefined}
+                <input
+                  data-testid="poap-event-id-input"
+                  placeholder="POAP Event ID"
                 />
               </div>
             )}
-            
-            {selectedMethod === 'Hypercert' && (
-              <div data-testid="hypercert-config">
-                <p>Hypercert Configuration</p>
-                <input data-testid="hypercert-contract-input" placeholder="Hypercert Contract Address" />
+
+            {selectedMethod === "Unlock" && (
+              <div data-testid="unlock-config">
+                <UnlockGateConfig
+                  onConfigChange={handleProtocolConfigChange}
+                  initialConfig={
+                    config.lockAddress
+                      ? {
+                          lockAddress: config.lockAddress,
+                          lockInfo: config.lockInfo,
+                        }
+                      : undefined
+                  }
+                />
               </div>
             )}
-            
-            {selectedMethod === 'Hats' && (
+
+            {selectedMethod === "Hypercert" && (
+              <div data-testid="hypercert-config">
+                <p>Hypercert Configuration</p>
+                <input
+                  data-testid="hypercert-contract-input"
+                  placeholder="Hypercert Contract Address"
+                />
+              </div>
+            )}
+
+            {selectedMethod === "Hats" && (
               <div data-testid="hats-config">
                 <p>Hats Protocol Configuration</p>
                 <input data-testid="hats-hat-id-input" placeholder="Hat ID" />
@@ -322,15 +364,18 @@ export const ProtocolGateSelector: React.FC<ProtocolGateSelectorProps> = ({
       )}
 
       {/* Allowlist Notice */}
-      {selectedMethod === 'Allowlist' && (
+      {selectedMethod === "Allowlist" && (
         <Card className="border-l-4 border-l-blue-500">
           <CardContent className="p-4">
             <div className="flex items-center gap-3">
               <Users className="h-5 w-5 text-blue-500" />
               <div>
-                <p className="font-medium text-[#3c2a14]">Allowlist Configuration</p>
+                <p className="font-medium text-[#3c2a14]">
+                  Allowlist Configuration
+                </p>
                 <p className="text-sm text-[#8b7355]">
-                  You can add allowlisted addresses after creating the jar using the admin controls.
+                  You can add allowlisted addresses after creating the jar using
+                  the admin controls.
                 </p>
               </div>
             </div>
@@ -340,39 +385,48 @@ export const ProtocolGateSelector: React.FC<ProtocolGateSelectorProps> = ({
 
       {/* Configuration Summary */}
       <div data-testid="config-summary" className="bg-[#f8f5f0] p-4 rounded-lg">
-        <h3 className="text-base font-semibold text-[#3c2a14] mb-3">Configuration Summary</h3>
+        <h3 className="text-base font-semibold text-[#3c2a14] mb-3">
+          Configuration Summary
+        </h3>
         <div className="space-y-2 text-sm">
           <p data-testid="selected-method">
-            <strong>Access Method:</strong> {gateMethods.find(m => m.id === selectedMethod)?.name}
+            <strong>Access Method:</strong>{" "}
+            {gateMethods.find((m) => m.id === selectedMethod)?.name}
           </p>
-          
-          {selectedMethod === 'NFT' && config.nftGates && config.nftGates.length > 0 && (
-            <div>
-              <strong>NFT Gates ({config.nftGates.length}):</strong>
-              <ul className="ml-4 mt-1 space-y-1 list-disc">
-                {config.nftGates.map((gate, index) => (
-                  <li key={index} className="text-xs">
-                    <span className="font-mono">{gate.address.slice(0, 10)}...</span>
-                    <span className="ml-2 text-gray-600">
-                      ({gate.type === 1 ? 'ERC721' : 'ERC1155'})
-                      {gate.name && ` - ${gate.name}`}
-                    </span>
-                    {gate.enableQuantityGating && gate.minQuantity && (
-                      <span className="ml-2 text-blue-600 text-xs">
-                        Qty: {gate.minQuantity}{gate.maxQuantity ? `-${gate.maxQuantity}` : '+'}
+
+          {selectedMethod === "NFT" &&
+            config.nftGates &&
+            config.nftGates.length > 0 && (
+              <div>
+                <strong>NFT Gates ({config.nftGates.length}):</strong>
+                <ul className="ml-4 mt-1 space-y-1 list-disc">
+                  {config.nftGates.map((gate, index) => (
+                    <li key={index} className="text-xs">
+                      <span className="font-mono">
+                        {gate.address.slice(0, 10)}...
                       </span>
-                    )}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-          
-          {selectedMethod === 'NFT' && (!config.nftGates || config.nftGates.length === 0) && (
-            <p className="text-orange-600">⚠️ No NFT gates configured</p>
-          )}
+                      <span className="ml-2 text-gray-600">
+                        ({gate.type === 1 ? "ERC721" : "ERC1155"})
+                        {gate.name && ` - ${gate.name}`}
+                      </span>
+                      {gate.enableQuantityGating && gate.minQuantity && (
+                        <span className="ml-2 text-blue-600 text-xs">
+                          Qty: {gate.minQuantity}
+                          {gate.maxQuantity ? `-${gate.maxQuantity}` : "+"}
+                        </span>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+          {selectedMethod === "NFT" &&
+            (!config.nftGates || config.nftGates.length === 0) && (
+              <p className="text-orange-600">⚠️ No NFT gates configured</p>
+            )}
         </div>
       </div>
     </div>
-  )
-}
+  );
+};

@@ -32,12 +32,16 @@ jobs:
         echo "🧪 Running client unit tests..."
         
         # Verify vitest config exists
-        if [ ! -f "vitest.config.ts" ]; then
-          echo "❌ vitest.config.ts not found"
+        if [ -f "vitest.config.mjs" ]; then
+          echo "📁 Vitest config found (vitest.config.mjs), running tests..."
+        elif [ -f "vitest.config.ts" ]; then
+          echo "📁 Vitest config found (vitest.config.ts), running tests..."
+        elif [ -f "vitest.config.js" ]; then
+          echo "📁 Vitest config found (vitest.config.js), running tests..."
+        else
+          echo "❌ No vitest config file found (checked .mjs, .ts, .js)"
           exit 1
         fi
-        
-        echo "📁 Vitest config found, running tests..."
         
         # Run tests with coverage in a clean way
         pnpm run test:coverage || {

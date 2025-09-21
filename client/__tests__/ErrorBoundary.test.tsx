@@ -1,6 +1,6 @@
-import React from 'react'
-import { render, screen, fireEvent } from '@testing-library/react'
-import { vi } from 'vitest'
+import React from "react";
+import { render, screen, fireEvent } from "@testing-library/react";
+import { vi } from "vitest";
 
 // Simple ErrorBoundary implementation for testing
 class TestErrorBoundary extends React.Component<
@@ -8,27 +8,29 @@ class TestErrorBoundary extends React.Component<
   { hasError: boolean; error?: Error }
 > {
   constructor(props: any) {
-    super(props)
-    this.state = { hasError: false }
+    super(props);
+    this.state = { hasError: false };
   }
 
   static getDerivedStateFromError(error: Error) {
-    return { hasError: true, error }
+    return { hasError: true, error };
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('ErrorBoundary caught an error:', error, errorInfo)
+    console.error("ErrorBoundary caught an error:", error, errorInfo);
   }
 
   resetError = () => {
-    this.setState({ hasError: false, error: undefined })
-  }
+    this.setState({ hasError: false, error: undefined });
+  };
 
   render() {
     if (this.state.hasError) {
       if (this.props.fallback) {
-        const Fallback = this.props.fallback
-        return <Fallback error={this.state.error} resetError={this.resetError} />
+        const Fallback = this.props.fallback;
+        return (
+          <Fallback error={this.state.error} resetError={this.resetError} />
+        );
       }
 
       return (
@@ -38,140 +40,148 @@ class TestErrorBoundary extends React.Component<
           <button onClick={this.resetError} data-testid="reset-button">
             Try Again
           </button>
-          {process.env.NODE_ENV === 'development' && this.state.error && (
+          {process.env.NODE_ENV === "development" && this.state.error && (
             <details data-testid="error-details">
               <summary>Error Details</summary>
               <pre>{this.state.error.message}</pre>
             </details>
           )}
         </div>
-      )
+      );
     }
 
-    return this.props.children
+    return this.props.children;
   }
 }
 
 // Test component that throws an error
-const ThrowError: React.FC<{ shouldThrow?: boolean }> = ({ shouldThrow = true }) => {
+const ThrowError: React.FC<{ shouldThrow?: boolean }> = ({
+  shouldThrow = true,
+}) => {
   if (shouldThrow) {
-    throw new Error('Test error message')
+    throw new Error("Test error message");
   }
-  return <div data-testid="success">No error occurred</div>
-}
+  return <div data-testid="success">No error occurred</div>;
+};
 
-describe('ErrorBoundary', () => {
+describe("ErrorBoundary", () => {
   // Suppress console.error for these tests
-  const originalError = console.error
+  const originalError = console.error;
   beforeAll(() => {
-    console.error = vi.fn()
-  })
-  
+    console.error = vi.fn();
+  });
+
   afterAll(() => {
-    console.error = originalError
-  })
+    console.error = originalError;
+  });
 
   beforeEach(() => {
-    vi.clearAllMocks()
-  })
+    vi.clearAllMocks();
+  });
 
-  it('renders children when no error occurs', () => {
+  it("renders children when no error occurs", () => {
     render(
       <TestErrorBoundary>
         <ThrowError shouldThrow={false} />
-      </TestErrorBoundary>
-    )
+      </TestErrorBoundary>,
+    );
 
-    expect(screen.getByTestId('success')).toBeInTheDocument()
-  })
+    expect(screen.getByTestId("success")).toBeInTheDocument();
+  });
 
-  it('catches errors and renders default fallback', () => {
+  it("catches errors and renders default fallback", () => {
     render(
       <TestErrorBoundary>
         <ThrowError />
-      </TestErrorBoundary>
-    )
+      </TestErrorBoundary>,
+    );
 
-    expect(screen.getByText('Something went wrong')).toBeInTheDocument()
-    expect(screen.getByText('An unexpected error occurred.')).toBeInTheDocument()
-    expect(screen.getByTestId('reset-button')).toBeInTheDocument()
-  })
+    expect(screen.getByText("Something went wrong")).toBeInTheDocument();
+    expect(
+      screen.getByText("An unexpected error occurred."),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("reset-button")).toBeInTheDocument();
+  });
 
-  it('shows error details in development mode', () => {
-    vi.stubEnv('NODE_ENV', 'development')
-
-    render(
-      <TestErrorBoundary>
-        <ThrowError />
-      </TestErrorBoundary>
-    )
-
-    expect(screen.getByTestId('error-details')).toBeInTheDocument()
-    expect(screen.getByText('Test error message')).toBeInTheDocument()
-
-    vi.unstubAllEnvs()
-  })
-
-  it('hides error details in production mode', () => {
-    vi.stubEnv('NODE_ENV', 'production')
+  it("shows error details in development mode", () => {
+    vi.stubEnv("NODE_ENV", "development");
 
     render(
       <TestErrorBoundary>
         <ThrowError />
-      </TestErrorBoundary>
-    )
+      </TestErrorBoundary>,
+    );
 
-    expect(screen.queryByTestId('error-details')).not.toBeInTheDocument()
+    expect(screen.getByTestId("error-details")).toBeInTheDocument();
+    expect(screen.getByText("Test error message")).toBeInTheDocument();
 
-    vi.unstubAllEnvs()
-  })
+    vi.unstubAllEnvs();
+  });
 
-  it('resets error state when try again is clicked', () => {
+  it("hides error details in production mode", () => {
+    vi.stubEnv("NODE_ENV", "production");
+
+    render(
+      <TestErrorBoundary>
+        <ThrowError />
+      </TestErrorBoundary>,
+    );
+
+    expect(screen.queryByTestId("error-details")).not.toBeInTheDocument();
+
+    vi.unstubAllEnvs();
+  });
+
+  it("resets error state when try again is clicked", () => {
     const { rerender } = render(
       <TestErrorBoundary>
         <ThrowError />
-      </TestErrorBoundary>
-    )
+      </TestErrorBoundary>,
+    );
 
-    expect(screen.getByTestId('error-fallback')).toBeInTheDocument()
+    expect(screen.getByTestId("error-fallback")).toBeInTheDocument();
 
     // Click try again
-    fireEvent.click(screen.getByTestId('reset-button'))
+    fireEvent.click(screen.getByTestId("reset-button"));
 
     // The error boundary should reset, but the component will throw again
     // In a real scenario, the props would change to prevent the error
-    expect(screen.getByTestId('error-fallback')).toBeInTheDocument()
-  })
+    expect(screen.getByTestId("error-fallback")).toBeInTheDocument();
+  });
 
-  it('uses custom fallback when provided', () => {
-    const CustomFallback: React.FC<{ error?: Error; resetError: () => void }> = ({ 
-      error, 
-      resetError 
-    }) => (
+  it("uses custom fallback when provided", () => {
+    const CustomFallback: React.FC<{
+      error?: Error;
+      resetError: () => void;
+    }> = ({ error, resetError }) => (
       <div data-testid="custom-fallback">
         <p>Custom error: {error?.message}</p>
-        <button onClick={resetError} data-testid="custom-reset">Reset</button>
+        <button onClick={resetError} data-testid="custom-reset">
+          Reset
+        </button>
       </div>
-    )
+    );
 
     render(
       <TestErrorBoundary fallback={CustomFallback}>
         <ThrowError />
-      </TestErrorBoundary>
-    )
+      </TestErrorBoundary>,
+    );
 
-    expect(screen.getByTestId('custom-fallback')).toBeInTheDocument()
-    expect(screen.getByText('Custom error: Test error message')).toBeInTheDocument()
-    expect(screen.getByTestId('custom-reset')).toBeInTheDocument()
-  })
+    expect(screen.getByTestId("custom-fallback")).toBeInTheDocument();
+    expect(
+      screen.getByText("Custom error: Test error message"),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("custom-reset")).toBeInTheDocument();
+  });
 
-  it('logs errors to console when they occur', () => {
+  it("logs errors to console when they occur", () => {
     render(
       <TestErrorBoundary>
         <ThrowError />
-      </TestErrorBoundary>
-    )
+      </TestErrorBoundary>,
+    );
 
-    expect(console.error).toHaveBeenCalled()
-  })
-})
+    expect(console.error).toHaveBeenCalled();
+  });
+});

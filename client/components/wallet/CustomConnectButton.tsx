@@ -150,8 +150,8 @@ Nonce: ${nonce}`;
 
                 if (chain.unsupported) {
                   return (
-                    <Button 
-                      onClick={openChainModal} 
+                    <Button
+                      onClick={openChainModal}
                       variant="destructive"
                       data-testid="wrong-network-button"
                       aria-label="Switch to correct network"
@@ -204,7 +204,7 @@ Nonce: ${nonce}`;
       </ConnectButton.Custom>
 
       {/* Custom Connect Modal */}
-      <CustomConnectModal 
+      <CustomConnectModal
         isOpen={showConnectModal}
         onClose={() => setShowConnectModal(false)}
       />

@@ -1,48 +1,48 @@
-import React, { useState, useMemo, useCallback, memo } from 'react'
-import { Grid } from 'react-window'
-import AutoSizer from 'react-virtualized-auto-sizer'
-import { motion, AnimatePresence } from 'framer-motion'
-import { CheckCircle2, Loader2, AlertCircle, ImageIcon } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Badge } from '@/components/ui/badge'
-import type { EnhancedNFT } from '@/lib/nft-providers/AlchemyProvider'
-import type { SelectedNFT } from '@/components/forms/NFTSelector'
+import React, { useState, useMemo, useCallback, memo } from "react";
+import { Grid } from "react-window";
+import AutoSizer from "react-virtualized-auto-sizer";
+import { motion, AnimatePresence } from "framer-motion";
+import { CheckCircle2, Loader2, AlertCircle, ImageIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Badge } from "@/components/ui/badge";
+import type { EnhancedNFT } from "@/lib/nft-providers/AlchemyProvider";
+import type { SelectedNFT } from "@/components/forms/NFTSelector";
 
 interface VirtualizedNFTSelectorProps {
-  nfts: EnhancedNFT[]
-  onSelect: (nft: SelectedNFT) => void
-  selectedNFT?: SelectedNFT
-  itemSize?: number
-  overscanCount?: number
-  className?: string
+  nfts: EnhancedNFT[];
+  onSelect: (nft: SelectedNFT) => void;
+  selectedNFT?: SelectedNFT;
+  itemSize?: number;
+  overscanCount?: number;
+  className?: string;
 }
 
 interface GridCellProps {
-  columnIndex: number
-  rowIndex: number
-  style: React.CSSProperties
+  columnIndex: number;
+  rowIndex: number;
+  style: React.CSSProperties;
   data: {
-    nfts: EnhancedNFT[]
-    onSelect: (nft: SelectedNFT) => void
-    selectedNFT?: SelectedNFT
-    itemsPerRow: number
-    itemSize: number
-  }
+    nfts: EnhancedNFT[];
+    onSelect: (nft: SelectedNFT) => void;
+    selectedNFT?: SelectedNFT;
+    itemsPerRow: number;
+    itemSize: number;
+  };
 }
 
 // Memoized NFT Card for optimal performance
 const NFTCard = memo<{
-  nft: EnhancedNFT
-  isSelected: boolean
-  onSelect: (nft: SelectedNFT) => void
-  style: React.CSSProperties
-  itemSize: number
+  nft: EnhancedNFT;
+  isSelected: boolean;
+  onSelect: (nft: SelectedNFT) => void;
+  style: React.CSSProperties;
+  itemSize: number;
 }>(({ nft, isSelected, onSelect, style, itemSize }) => {
-  const [imageLoaded, setImageLoaded] = useState(false)
-  const [imageError, setImageError] = useState(false)
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
 
   const handleSelect = useCallback(() => {
     onSelect({
@@ -50,36 +50,36 @@ const NFTCard = memo<{
       tokenId: nft.tokenId,
       name: nft.name,
       image: nft.image,
-      tokenType: nft.tokenType
-    })
-  }, [nft, onSelect])
+      tokenType: nft.tokenType,
+    });
+  }, [nft, onSelect]);
 
   const rarityColor = useMemo(() => {
-    if (!nft.rarity) return 'text-gray-500'
-    if (nft.rarity < 0.01) return 'text-red-500' // Legendary
-    if (nft.rarity < 0.05) return 'text-purple-500' // Epic  
-    if (nft.rarity < 0.1) return 'text-blue-500' // Rare
-    if (nft.rarity < 0.25) return 'text-green-500' // Uncommon
-    return 'text-gray-500' // Common
-  }, [nft.rarity])
+    if (!nft.rarity) return "text-gray-500";
+    if (nft.rarity < 0.01) return "text-red-500"; // Legendary
+    if (nft.rarity < 0.05) return "text-purple-500"; // Epic
+    if (nft.rarity < 0.1) return "text-blue-500"; // Rare
+    if (nft.rarity < 0.25) return "text-green-500"; // Uncommon
+    return "text-gray-500"; // Common
+  }, [nft.rarity]);
 
   return (
     <div style={style} className="p-2">
-      <Card 
+      <Card
         className={`cursor-pointer transition-all duration-200 overflow-hidden h-full ${
-          isSelected 
-            ? 'ring-2 ring-[#ff5e14] bg-orange-50' 
-            : 'hover:shadow-lg border-gray-200 hover:border-[#ff5e14]'
+          isSelected
+            ? "ring-2 ring-[#ff5e14] bg-orange-50"
+            : "hover:shadow-lg border-gray-200 hover:border-[#ff5e14]"
         }`}
         onClick={handleSelect}
       >
         <CardContent className="p-3 h-full flex flex-col">
           {/* Image Section */}
-          <div 
+          <div
             className="relative rounded-lg overflow-hidden bg-gray-100 mb-3"
-            style={{ 
-              height: `${itemSize * 0.6}px`, 
-              minHeight: '120px' 
+            style={{
+              height: `${itemSize * 0.6}px`,
+              minHeight: "120px",
             }}
           >
             {!imageError && nft.image && (
@@ -87,17 +87,17 @@ const NFTCard = memo<{
                 src={nft.image}
                 alt={nft.name || `Token #${nft.tokenId}`}
                 className={`w-full h-full object-cover transition-opacity duration-300 ${
-                  imageLoaded ? 'opacity-100' : 'opacity-0'
+                  imageLoaded ? "opacity-100" : "opacity-0"
                 }`}
                 loading="lazy"
                 onLoad={() => setImageLoaded(true)}
                 onError={() => {
-                  setImageError(true)
-                  setImageLoaded(true)
+                  setImageError(true);
+                  setImageLoaded(true);
                 }}
               />
             )}
-            
+
             {/* Fallback for missing/broken images */}
             {(imageError || !nft.image) && (
               <div className="w-full h-full flex items-center justify-center text-[#8b7355]">
@@ -117,24 +117,29 @@ const NFTCard = memo<{
 
             {/* Token type and balance badges */}
             <div className="absolute bottom-2 left-2 flex gap-1">
-              <Badge 
-                variant={nft.tokenType === 'ERC721' ? 'default' : 'secondary'}
+              <Badge
+                variant={nft.tokenType === "ERC721" ? "default" : "secondary"}
                 className="text-xs px-2 py-1"
               >
                 {nft.tokenType}
               </Badge>
-              
-              {nft.tokenType === 'ERC1155' && nft.balance && nft.balance > 1n && (
-                <Badge variant="outline" className="text-xs px-2 py-1">
-                  ×{nft.balance.toString()}
-                </Badge>
-              )}
+
+              {nft.tokenType === "ERC1155" &&
+                nft.balance &&
+                nft.balance > 1n && (
+                  <Badge variant="outline" className="text-xs px-2 py-1">
+                    ×{nft.balance.toString()}
+                  </Badge>
+                )}
             </div>
 
             {/* Rarity indicator */}
             {nft.rarity && (
               <div className="absolute top-2 left-2">
-                <Badge variant="outline" className={`text-xs px-2 py-1 ${rarityColor}`}>
+                <Badge
+                  variant="outline"
+                  className={`text-xs px-2 py-1 ${rarityColor}`}
+                >
                   {(nft.rarity * 100).toFixed(1)}%
                 </Badge>
               </div>
@@ -155,7 +160,7 @@ const NFTCard = memo<{
                 {nft.name || `Token #${nft.tokenId}`}
               </h4>
               <p className="text-xs text-[#8b7355] truncate">
-                {nft.collection.name || 'Unknown Collection'}
+                {nft.collection.name || "Unknown Collection"}
               </p>
             </div>
 
@@ -163,7 +168,8 @@ const NFTCard = memo<{
             {nft.collection.floorPrice && (
               <div className="mt-2">
                 <p className="text-xs text-[#8b7355]">
-                  Floor: {nft.collection.floorPrice.value} {nft.collection.floorPrice.currency}
+                  Floor: {nft.collection.floorPrice.value}{" "}
+                  {nft.collection.floorPrice.currency}
                 </p>
               </div>
             )}
@@ -192,23 +198,29 @@ const NFTCard = memo<{
         </CardContent>
       </Card>
     </div>
-  )
-})
+  );
+});
 
-NFTCard.displayName = 'NFTCard'
+NFTCard.displayName = "NFTCard";
 
-// Grid cell component for react-window  
-const GridCell: React.ComponentType<any> = ({ columnIndex, rowIndex, style, data }) => {
-  const { nfts, onSelect, selectedNFT, itemsPerRow, itemSize } = data
-  const index = rowIndex * itemsPerRow + columnIndex
-  const nft = nfts[index]
+// Grid cell component for react-window
+const GridCell: React.ComponentType<any> = ({
+  columnIndex,
+  rowIndex,
+  style,
+  data,
+}) => {
+  const { nfts, onSelect, selectedNFT, itemsPerRow, itemSize } = data;
+  const index = rowIndex * itemsPerRow + columnIndex;
+  const nft = nfts[index];
 
   if (!nft) {
-    return <div style={style} />
+    return <div style={style} />;
   }
 
-  const isSelected = selectedNFT?.contractAddress.toLowerCase() === nft.contractAddress.toLowerCase() &&
-                    selectedNFT?.tokenId === nft.tokenId
+  const isSelected =
+    selectedNFT?.contractAddress.toLowerCase() ===
+      nft.contractAddress.toLowerCase() && selectedNFT?.tokenId === nft.tokenId;
 
   return (
     <NFTCard
@@ -218,8 +230,8 @@ const GridCell: React.ComponentType<any> = ({ columnIndex, rowIndex, style, data
       style={style}
       itemSize={itemSize}
     />
-  )
-}
+  );
+};
 
 /**
  * Virtualized NFT Selector for efficient rendering of large NFT collections
@@ -231,47 +243,52 @@ export const VirtualizedNFTSelector: React.FC<VirtualizedNFTSelectorProps> = ({
   selectedNFT,
   itemSize = 220,
   overscanCount = 5,
-  className = ''
+  className = "",
 }) => {
-  const [searchTerm, setSearchTerm] = useState('')
-  const [containerWidth, setContainerWidth] = useState(0)
+  const [searchTerm, setSearchTerm] = useState("");
+  const [containerWidth, setContainerWidth] = useState(0);
 
   // Filter NFTs based on search term
   const filteredNFTs = useMemo(() => {
-    if (!searchTerm) return nfts
-    
-    const searchLower = searchTerm.toLowerCase()
-    return nfts.filter(nft => 
-      nft.name?.toLowerCase().includes(searchLower) ||
-      nft.collection.name?.toLowerCase().includes(searchLower) ||
-      nft.contractAddress.toLowerCase().includes(searchLower) ||
-      nft.tokenId.includes(searchTerm) ||
-      nft.traits?.some(trait => 
-        trait.trait_type.toLowerCase().includes(searchLower) ||
-        String(trait.value).toLowerCase().includes(searchLower)
-      )
-    )
-  }, [nfts, searchTerm])
+    if (!searchTerm) return nfts;
+
+    const searchLower = searchTerm.toLowerCase();
+    return nfts.filter(
+      (nft) =>
+        nft.name?.toLowerCase().includes(searchLower) ||
+        nft.collection.name?.toLowerCase().includes(searchLower) ||
+        nft.contractAddress.toLowerCase().includes(searchLower) ||
+        nft.tokenId.includes(searchTerm) ||
+        nft.traits?.some(
+          (trait) =>
+            trait.trait_type.toLowerCase().includes(searchLower) ||
+            String(trait.value).toLowerCase().includes(searchLower),
+        ),
+    );
+  }, [nfts, searchTerm]);
 
   // Calculate grid dimensions
   const itemsPerRow = useMemo(() => {
-    return Math.max(1, Math.floor(containerWidth / itemSize))
-  }, [containerWidth, itemSize])
+    return Math.max(1, Math.floor(containerWidth / itemSize));
+  }, [containerWidth, itemSize]);
 
-  const rowCount = Math.ceil(filteredNFTs.length / itemsPerRow)
+  const rowCount = Math.ceil(filteredNFTs.length / itemsPerRow);
 
   // Grid item data for react-window
-  const gridItemData = useMemo(() => ({
-    nfts: filteredNFTs,
-    onSelect,
-    selectedNFT,
-    itemsPerRow,
-    itemSize
-  }), [filteredNFTs, onSelect, selectedNFT, itemsPerRow, itemSize])
+  const gridItemData = useMemo(
+    () => ({
+      nfts: filteredNFTs,
+      onSelect,
+      selectedNFT,
+      itemsPerRow,
+      itemSize,
+    }),
+    [filteredNFTs, onSelect, selectedNFT, itemsPerRow, itemSize],
+  );
 
   const handleResize = useCallback(({ width }: { width: number }) => {
-    setContainerWidth(width)
-  }, [])
+    setContainerWidth(width);
+  }, []);
 
   if (nfts.length === 0) {
     return (
@@ -279,14 +296,16 @@ export const VirtualizedNFTSelector: React.FC<VirtualizedNFTSelectorProps> = ({
         <div className="text-center space-y-4">
           <AlertCircle className="h-12 w-12 text-[#8b7355] mx-auto" />
           <div>
-            <h3 className="text-lg font-semibold text-[#3c2a14] mb-2">No NFTs Found</h3>
+            <h3 className="text-lg font-semibold text-[#3c2a14] mb-2">
+              No NFTs Found
+            </h3>
             <p className="text-sm text-[#8b7355]">
               You don't have any NFTs in your wallet
             </p>
           </div>
         </div>
       </Card>
-    )
+    );
   }
 
   return (
@@ -302,7 +321,7 @@ export const VirtualizedNFTSelector: React.FC<VirtualizedNFTSelectorProps> = ({
             {searchTerm && ` matching "${searchTerm}"`}
           </p>
         </div>
-        
+
         {/* Performance indicator */}
         <Badge variant="outline" className="text-xs">
           Virtual Grid: {rowCount} rows
@@ -323,9 +342,11 @@ export const VirtualizedNFTSelector: React.FC<VirtualizedNFTSelectorProps> = ({
       <div className="h-[600px] w-full border border-gray-200 rounded-lg overflow-auto">
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 p-4">
           {filteredNFTs.map((nft, index) => {
-            const isSelected = selectedNFT?.contractAddress.toLowerCase() === nft.contractAddress.toLowerCase() &&
-                              selectedNFT?.tokenId === nft.tokenId
-            
+            const isSelected =
+              selectedNFT?.contractAddress.toLowerCase() ===
+                nft.contractAddress.toLowerCase() &&
+              selectedNFT?.tokenId === nft.tokenId;
+
             return (
               <NFTCard
                 key={`${nft.contractAddress}-${nft.tokenId}`}
@@ -335,18 +356,21 @@ export const VirtualizedNFTSelector: React.FC<VirtualizedNFTSelectorProps> = ({
                 style={{}}
                 itemSize={itemSize}
               />
-            )
+            );
           })}
         </div>
         <div className="p-4 bg-blue-50 text-blue-700 text-sm text-center">
-          ⚡ Fallback grid rendering - Virtual scrolling will be enabled in a future update
+          ⚡ Fallback grid rendering - Virtual scrolling will be enabled in a
+          future update
         </div>
       </div>
 
       {/* Collection Stats */}
       {filteredNFTs.length > 0 && (
         <div className="mt-4 p-4 bg-gray-50 rounded-lg">
-          <h4 className="text-sm font-medium text-[#3c2a14] mb-2">Performance Stats</h4>
+          <h4 className="text-sm font-medium text-[#3c2a14] mb-2">
+            Performance Stats
+          </h4>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
             <div>
               <span className="text-[#8b7355]">Total NFTs:</span>
@@ -354,11 +378,18 @@ export const VirtualizedNFTSelector: React.FC<VirtualizedNFTSelectorProps> = ({
             </div>
             <div>
               <span className="text-[#8b7355]">Visible:</span>
-              <span className="ml-2 font-medium">{Math.min(itemsPerRow * Math.ceil(600 / itemSize), filteredNFTs.length)}</span>
+              <span className="ml-2 font-medium">
+                {Math.min(
+                  itemsPerRow * Math.ceil(600 / itemSize),
+                  filteredNFTs.length,
+                )}
+              </span>
             </div>
             <div>
               <span className="text-[#8b7355]">Grid Size:</span>
-              <span className="ml-2 font-medium">{itemsPerRow} × {rowCount}</span>
+              <span className="ml-2 font-medium">
+                {itemsPerRow} × {rowCount}
+              </span>
             </div>
             <div>
               <span className="text-[#8b7355]">Item Size:</span>
@@ -378,7 +409,7 @@ export const VirtualizedNFTSelector: React.FC<VirtualizedNFTSelectorProps> = ({
             </p>
             <Button
               variant="ghost"
-              onClick={() => setSearchTerm('')}
+              onClick={() => setSearchTerm("")}
               className="mt-2 text-[#ff5e14]"
             >
               Clear Search
@@ -387,19 +418,19 @@ export const VirtualizedNFTSelector: React.FC<VirtualizedNFTSelectorProps> = ({
         </Card>
       )}
     </div>
-  )
-}
+  );
+};
 
 /**
  * Smart NFT Selector that automatically chooses between regular and virtualized rendering
  * based on collection size for optimal performance
  */
 interface SmartNFTSelectorProps {
-  nfts: EnhancedNFT[]
-  onSelect: (nft: SelectedNFT) => void
-  selectedNFT?: SelectedNFT
-  virtualScrollThreshold?: number
-  className?: string
+  nfts: EnhancedNFT[];
+  onSelect: (nft: SelectedNFT) => void;
+  selectedNFT?: SelectedNFT;
+  virtualScrollThreshold?: number;
+  className?: string;
 }
 
 export const SmartNFTSelector: React.FC<SmartNFTSelectorProps> = ({
@@ -407,9 +438,9 @@ export const SmartNFTSelector: React.FC<SmartNFTSelectorProps> = ({
   onSelect,
   selectedNFT,
   virtualScrollThreshold = 50,
-  className = ''
+  className = "",
 }) => {
-  const shouldUseVirtualScrolling = nfts.length > virtualScrollThreshold
+  const shouldUseVirtualScrolling = nfts.length > virtualScrollThreshold;
 
   if (shouldUseVirtualScrolling) {
     return (
@@ -422,17 +453,18 @@ export const SmartNFTSelector: React.FC<SmartNFTSelectorProps> = ({
             </span>
           </div>
           <p className="text-xs text-blue-600 mt-1">
-            Optimized rendering for {nfts.length} NFTs. Only visible items are rendered for better performance.
+            Optimized rendering for {nfts.length} NFTs. Only visible items are
+            rendered for better performance.
           </p>
         </div>
-        
+
         <VirtualizedNFTSelector
           nfts={nfts}
           onSelect={onSelect}
           selectedNFT={selectedNFT}
         />
       </div>
-    )
+    );
   }
 
   // Use simplified grid for smaller collections
@@ -441,25 +473,28 @@ export const SmartNFTSelector: React.FC<SmartNFTSelectorProps> = ({
       {nfts.length > 25 && (
         <div className="mb-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
           <p className="text-xs text-[#8b7355]">
-            Rendering {nfts.length} NFTs in standard mode. Virtual scrolling implementation in progress.
+            Rendering {nfts.length} NFTs in standard mode. Virtual scrolling
+            implementation in progress.
           </p>
         </div>
       )}
-      
+
       {/* Simplified NFT Grid */}
       <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 max-h-[600px] overflow-auto">
         {nfts.map((nft, index) => {
-          const isSelected = selectedNFT?.contractAddress.toLowerCase() === nft.contractAddress.toLowerCase() &&
-                            selectedNFT?.tokenId === nft.tokenId
-          
+          const isSelected =
+            selectedNFT?.contractAddress.toLowerCase() ===
+              nft.contractAddress.toLowerCase() &&
+            selectedNFT?.tokenId === nft.tokenId;
+
           const selectedNFTConverted = {
             contractAddress: nft.contractAddress,
             tokenId: nft.tokenId,
             name: nft.name,
             image: nft.image,
-            tokenType: nft.tokenType
-          }
-          
+            tokenType: nft.tokenType,
+          };
+
           return (
             <NFTCard
               key={`${nft.contractAddress}-${nft.tokenId}`}
@@ -469,12 +504,12 @@ export const SmartNFTSelector: React.FC<SmartNFTSelectorProps> = ({
               style={{}}
               itemSize={220}
             />
-          )
+          );
         })}
       </div>
     </div>
-  )
-}
+  );
+};
 
 // Export both components
-export { VirtualizedNFTSelector as default }
+export { VirtualizedNFTSelector as default };

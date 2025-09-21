@@ -1,70 +1,76 @@
-import React from 'react'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import userEvent from '@testing-library/user-event'
-import '@testing-library/jest-dom'
-import { vi } from 'vitest'
+import React from "react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import "@testing-library/jest-dom";
+import { vi } from "vitest";
 
 // Mock the ProtocolGateSelector component logic
-type AccessType = 'Allowlist' | 'NFT' | 'POAP' | 'Unlock' | 'Hypercert' | 'Hats'
+type AccessType =
+  | "Allowlist"
+  | "NFT"
+  | "POAP"
+  | "Unlock"
+  | "Hypercert"
+  | "Hats";
 
 interface ProtocolConfig {
-  accessType: AccessType
-  nftAddresses?: string[]
-  nftTypes?: number[]
-  eventId?: string
-  lockAddress?: string
-  tokenContract?: string
-  tokenId?: string
-  hatId?: string
+  accessType: AccessType;
+  nftAddresses?: string[];
+  nftTypes?: number[];
+  eventId?: string;
+  lockAddress?: string;
+  tokenContract?: string;
+  tokenId?: string;
+  hatId?: string;
 }
 
 const gateMethods = [
   {
-    id: 'Allowlist' as AccessType,
-    name: 'Allowlist',
-    description: 'Pre-approved addresses can access funds',
-    badge: 'Simple',
-    pros: ['Direct control', 'Gas efficient', 'Simple to manage'],
-    cons: ['Manual management', 'Not scalable', 'Requires updates'],
-    bestFor: ['Small teams', 'Known participants', 'High control needs']
+    id: "Allowlist" as AccessType,
+    name: "Allowlist",
+    description: "Pre-approved addresses can access funds",
+    badge: "Simple",
+    pros: ["Direct control", "Gas efficient", "Simple to manage"],
+    cons: ["Manual management", "Not scalable", "Requires updates"],
+    bestFor: ["Small teams", "Known participants", "High control needs"],
   },
   {
-    id: 'NFT' as AccessType,
-    name: 'NFT Collection',
-    description: 'NFT holders from specific collections can access',
-    badge: 'Popular',
-    pros: ['Scalable', 'Tradeable access', 'Automated'],
-    cons: ['Gas for validation', 'NFT dependency', 'Market volatility'],
-    bestFor: ['NFT communities', 'Token-gated access', 'Tradeable membership']
+    id: "NFT" as AccessType,
+    name: "NFT Collection",
+    description: "NFT holders from specific collections can access",
+    badge: "Popular",
+    pros: ["Scalable", "Tradeable access", "Automated"],
+    cons: ["Gas for validation", "NFT dependency", "Market volatility"],
+    bestFor: ["NFT communities", "Token-gated access", "Tradeable membership"],
   },
   {
-    id: 'POAP' as AccessType,
-    name: 'POAP Badge',
-    description: 'Event attendees with specific POAP can access',
-    badge: 'Event-based',
-    pros: ['Event-based', 'Non-transferable', 'Proof of attendance'],
-    cons: ['Event limitation', 'POAP dependency', 'Limited validation'],
-    bestFor: ['Event perks', 'Attendee rewards', 'Non-transferable access']
-  }
-]
+    id: "POAP" as AccessType,
+    name: "POAP Badge",
+    description: "Event attendees with specific POAP can access",
+    badge: "Event-based",
+    pros: ["Event-based", "Non-transferable", "Proof of attendance"],
+    cons: ["Event limitation", "POAP dependency", "Limited validation"],
+    bestFor: ["Event perks", "Attendee rewards", "Non-transferable access"],
+  },
+];
 
 const MockProtocolGateSelector: React.FC<{
-  onConfigChange: (config: ProtocolConfig) => void
-  initialConfig?: ProtocolConfig
+  onConfigChange: (config: ProtocolConfig) => void;
+  initialConfig?: ProtocolConfig;
 }> = ({ onConfigChange, initialConfig }) => {
   const [selectedMethod, setSelectedMethod] = React.useState<AccessType>(
-    initialConfig?.accessType || 'Allowlist'
-  )
+    initialConfig?.accessType || "Allowlist",
+  );
   const [config, setConfig] = React.useState<ProtocolConfig>(
-    initialConfig || { accessType: 'Allowlist' }
-  )
+    initialConfig || { accessType: "Allowlist" },
+  );
 
   const handleMethodSelect = (method: AccessType) => {
-    setSelectedMethod(method)
-    const newConfig: ProtocolConfig = { accessType: method }
-    setConfig(newConfig)
-    onConfigChange(newConfig)
-  }
+    setSelectedMethod(method);
+    const newConfig: ProtocolConfig = { accessType: method };
+    setConfig(newConfig);
+    onConfigChange(newConfig);
+  };
 
   return (
     <div data-testid="protocol-gate-selector">
@@ -77,20 +83,29 @@ const MockProtocolGateSelector: React.FC<{
           <div
             key={method.id}
             data-testid={`method-${method.id.toLowerCase()}`}
-            className={selectedMethod === method.id ? 'selected' : ''}
+            className={selectedMethod === method.id ? "selected" : ""}
             onClick={() => handleMethodSelect(method.id)}
-            style={{ 
-              cursor: 'pointer', 
-              border: selectedMethod === method.id ? '2px solid orange' : '1px solid gray',
-              padding: '16px',
-              margin: '8px',
-              borderRadius: '8px'
+            style={{
+              cursor: "pointer",
+              border:
+                selectedMethod === method.id
+                  ? "2px solid orange"
+                  : "1px solid gray",
+              padding: "16px",
+              margin: "8px",
+              borderRadius: "8px",
             }}
           >
-            <div data-testid={`${method.id.toLowerCase()}-badge`}>{method.badge}</div>
-            <h3 data-testid={`${method.id.toLowerCase()}-name`}>{method.name}</h3>
-            <p data-testid={`${method.id.toLowerCase()}-description`}>{method.description}</p>
-            
+            <div data-testid={`${method.id.toLowerCase()}-badge`}>
+              {method.badge}
+            </div>
+            <h3 data-testid={`${method.id.toLowerCase()}-name`}>
+              {method.name}
+            </h3>
+            <p data-testid={`${method.id.toLowerCase()}-description`}>
+              {method.description}
+            </p>
+
             <div data-testid={`${method.id.toLowerCase()}-pros`}>
               <p>Pros:</p>
               <ul>
@@ -99,7 +114,7 @@ const MockProtocolGateSelector: React.FC<{
                 ))}
               </ul>
             </div>
-            
+
             <div data-testid={`${method.id.toLowerCase()}-cons`}>
               <p>Considerations:</p>
               <ul>
@@ -108,7 +123,7 @@ const MockProtocolGateSelector: React.FC<{
                 ))}
               </ul>
             </div>
-            
+
             <div data-testid={`${method.id.toLowerCase()}-best-for`}>
               <p>Best for:</p>
               <ul>
@@ -122,303 +137,314 @@ const MockProtocolGateSelector: React.FC<{
       </div>
 
       {/* Show configuration panel for non-Allowlist methods */}
-      {selectedMethod !== 'Allowlist' && (
+      {selectedMethod !== "Allowlist" && (
         <div data-testid="config-panel">
           <h3>Configuration for {selectedMethod}</h3>
-          
-          {selectedMethod === 'NFT' && (
+
+          {selectedMethod === "NFT" && (
             <div data-testid="nft-config">
               <p>NFT Collection Configuration</p>
-              <input 
+              <input
                 data-testid="nft-address-input"
                 placeholder="NFT Contract Address"
               />
             </div>
           )}
-          
-          {selectedMethod === 'POAP' && (
+
+          {selectedMethod === "POAP" && (
             <div data-testid="poap-config">
               <p>POAP Event Configuration</p>
-              <input 
+              <input
                 data-testid="poap-event-id-input"
                 placeholder="POAP Event ID"
               />
             </div>
           )}
-          
-          {selectedMethod === 'Unlock' && (
+
+          {selectedMethod === "Unlock" && (
             <div data-testid="unlock-config">
               <p>Unlock Protocol Configuration</p>
-              <input 
+              <input
                 data-testid="unlock-lock-address-input"
                 placeholder="Lock Contract Address"
               />
             </div>
           )}
-          
-          {selectedMethod === 'Hypercert' && (
+
+          {selectedMethod === "Hypercert" && (
             <div data-testid="hypercert-config">
               <p>Hypercert Configuration</p>
-              <input 
+              <input
                 data-testid="hypercert-contract-input"
                 placeholder="Hypercert Contract"
               />
-              <input 
+              <input
                 data-testid="hypercert-token-id-input"
                 placeholder="Token ID"
               />
             </div>
           )}
-          
-          {selectedMethod === 'Hats' && (
+
+          {selectedMethod === "Hats" && (
             <div data-testid="hats-config">
               <p>Hats Protocol Configuration</p>
-              <input 
-                data-testid="hats-hat-id-input"
-                placeholder="Hat ID"
-              />
+              <input data-testid="hats-hat-id-input" placeholder="Hat ID" />
             </div>
           )}
         </div>
       )}
 
       {/* Configuration Summary */}
-      {selectedMethod !== 'Allowlist' && (
+      {selectedMethod !== "Allowlist" && (
         <div data-testid="config-summary">
           <h3>Configuration Summary</h3>
-          <p data-testid="selected-method">Method: {gateMethods.find(m => m.id === selectedMethod)?.name}</p>
+          <p data-testid="selected-method">
+            Method: {gateMethods.find((m) => m.id === selectedMethod)?.name}
+          </p>
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-describe('ProtocolGateSelector', () => {
-  const user = userEvent.setup()
-  const mockOnConfigChange = vi.fn()
+describe("ProtocolGateSelector", () => {
+  const user = userEvent.setup();
+  const mockOnConfigChange = vi.fn();
 
   beforeEach(() => {
-    mockOnConfigChange.mockClear()
-  })
+    mockOnConfigChange.mockClear();
+  });
 
-  it('renders all access control methods', () => {
-    render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />)
-    
-    expect(screen.getByText('Access Control Method')).toBeInTheDocument()
-    expect(screen.getByText('Allowlist')).toBeInTheDocument()
-    expect(screen.getByText('NFT Collection')).toBeInTheDocument()
-    expect(screen.getByText('POAP Badge')).toBeInTheDocument()
-  })
+  it("renders all access control methods", () => {
+    render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />);
 
-  it('shows method details correctly', () => {
-    render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />)
-    
+    expect(screen.getByText("Access Control Method")).toBeInTheDocument();
+    expect(screen.getByText("Allowlist")).toBeInTheDocument();
+    expect(screen.getByText("NFT Collection")).toBeInTheDocument();
+    expect(screen.getByText("POAP Badge")).toBeInTheDocument();
+  });
+
+  it("shows method details correctly", () => {
+    render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />);
+
     // Check Allowlist method details
-    expect(screen.getByTestId('allowlist-name')).toHaveTextContent('Allowlist')
-    expect(screen.getByTestId('allowlist-description')).toHaveTextContent('Pre-approved addresses can access funds')
-    expect(screen.getByTestId('allowlist-badge')).toHaveTextContent('Simple')
-    
+    expect(screen.getByTestId("allowlist-name")).toHaveTextContent("Allowlist");
+    expect(screen.getByTestId("allowlist-description")).toHaveTextContent(
+      "Pre-approved addresses can access funds",
+    );
+    expect(screen.getByTestId("allowlist-badge")).toHaveTextContent("Simple");
+
     // Check pros and cons are displayed
-    expect(screen.getByText('Direct control')).toBeInTheDocument()
-    expect(screen.getByText('Manual management')).toBeInTheDocument()
-    expect(screen.getByText('Small teams')).toBeInTheDocument()
-  })
+    expect(screen.getByText("Direct control")).toBeInTheDocument();
+    expect(screen.getByText("Manual management")).toBeInTheDocument();
+    expect(screen.getByText("Small teams")).toBeInTheDocument();
+  });
 
-  it('selects default method on mount', () => {
-    render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />)
-    
-    const allowlistMethod = screen.getByTestId('method-allowlist')
-    expect(allowlistMethod).toHaveClass('selected')
-  })
+  it("selects default method on mount", () => {
+    render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />);
 
-  it('changes selection when method is clicked', async () => {
-    render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />)
-    
-    const nftMethod = screen.getByTestId('method-nft')
-    await user.click(nftMethod)
-    
-    expect(nftMethod).toHaveClass('selected')
-    expect(mockOnConfigChange).toHaveBeenCalledWith({ accessType: 'NFT' })
-  })
+    const allowlistMethod = screen.getByTestId("method-allowlist");
+    expect(allowlistMethod).toHaveClass("selected");
+  });
 
-  it('shows configuration panel for non-Allowlist methods', async () => {
-    render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />)
-    
+  it("changes selection when method is clicked", async () => {
+    render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />);
+
+    const nftMethod = screen.getByTestId("method-nft");
+    await user.click(nftMethod);
+
+    expect(nftMethod).toHaveClass("selected");
+    expect(mockOnConfigChange).toHaveBeenCalledWith({ accessType: "NFT" });
+  });
+
+  it("shows configuration panel for non-Allowlist methods", async () => {
+    render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />);
+
     // Initially no config panel for Allowlist
-    expect(screen.queryByTestId('config-panel')).not.toBeInTheDocument()
-    
+    expect(screen.queryByTestId("config-panel")).not.toBeInTheDocument();
+
     // Select NFT method
-    await user.click(screen.getByTestId('method-nft'))
-    
+    await user.click(screen.getByTestId("method-nft"));
+
     // Config panel should appear
-    expect(screen.getByTestId('config-panel')).toBeInTheDocument()
-    expect(screen.getByTestId('nft-config')).toBeInTheDocument()
-    expect(screen.getByTestId('nft-address-input')).toBeInTheDocument()
-  })
+    expect(screen.getByTestId("config-panel")).toBeInTheDocument();
+    expect(screen.getByTestId("nft-config")).toBeInTheDocument();
+    expect(screen.getByTestId("nft-address-input")).toBeInTheDocument();
+  });
 
-  it('shows correct configuration for each method', async () => {
-    render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />)
-    
+  it("shows correct configuration for each method", async () => {
+    render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />);
+
     // Test POAP
-    await user.click(screen.getByTestId('method-poap'))
-    expect(screen.getByTestId('poap-config')).toBeInTheDocument()
-    expect(screen.getByTestId('poap-event-id-input')).toBeInTheDocument()
-    
+    await user.click(screen.getByTestId("method-poap"));
+    expect(screen.getByTestId("poap-config")).toBeInTheDocument();
+    expect(screen.getByTestId("poap-event-id-input")).toBeInTheDocument();
+
     // Test Unlock
-    await user.click(screen.getByTestId('method-unlock'))
-    expect(screen.getByTestId('unlock-config')).toBeInTheDocument()
-    expect(screen.getByTestId('unlock-lock-address-input')).toBeInTheDocument()
-  })
+    await user.click(screen.getByTestId("method-unlock"));
+    expect(screen.getByTestId("unlock-config")).toBeInTheDocument();
+    expect(screen.getByTestId("unlock-lock-address-input")).toBeInTheDocument();
+  });
 
-  it('updates configuration summary', async () => {
-    render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />)
-    
-    await user.click(screen.getByTestId('method-nft'))
-    
-    expect(screen.getByTestId('config-summary')).toBeInTheDocument()
-    expect(screen.getByTestId('selected-method')).toHaveTextContent('Method: NFT Collection')
-  })
+  it("updates configuration summary", async () => {
+    render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />);
 
-  it('handles initial configuration correctly', () => {
+    await user.click(screen.getByTestId("method-nft"));
+
+    expect(screen.getByTestId("config-summary")).toBeInTheDocument();
+    expect(screen.getByTestId("selected-method")).toHaveTextContent(
+      "Method: NFT Collection",
+    );
+  });
+
+  it("handles initial configuration correctly", () => {
     const initialConfig: ProtocolConfig = {
-      accessType: 'POAP',
-      eventId: '12345'
-    }
-    
+      accessType: "POAP",
+      eventId: "12345",
+    };
+
     render(
-      <MockProtocolGateSelector 
+      <MockProtocolGateSelector
         onConfigChange={mockOnConfigChange}
         initialConfig={initialConfig}
-      />
-    )
-    
-    const poapMethod = screen.getByTestId('method-poap')
-    expect(poapMethod).toHaveClass('selected')
-  })
+      />,
+    );
 
-  it('calls onConfigChange when selection changes', async () => {
-    render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />)
-    
-    await user.click(screen.getByTestId('method-poap'))
-    
-    expect(mockOnConfigChange).toHaveBeenCalledWith({ accessType: 'POAP' })
-  })
+    const poapMethod = screen.getByTestId("method-poap");
+    expect(poapMethod).toHaveClass("selected");
+  });
 
-  describe('Method Information Display', () => {
-    it('displays correct information for each method', () => {
-      render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />)
-      
+  it("calls onConfigChange when selection changes", async () => {
+    render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />);
+
+    await user.click(screen.getByTestId("method-poap"));
+
+    expect(mockOnConfigChange).toHaveBeenCalledWith({ accessType: "POAP" });
+  });
+
+  describe("Method Information Display", () => {
+    it("displays correct information for each method", () => {
+      render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />);
+
       // Test NFT method information
-      expect(screen.getByTestId('nft-badge')).toHaveTextContent('Popular')
-      expect(screen.getByText('Scalable')).toBeInTheDocument()
-      expect(screen.getByText('NFT communities')).toBeInTheDocument()
-      
+      expect(screen.getByTestId("nft-badge")).toHaveTextContent("Popular");
+      expect(screen.getByText("Scalable")).toBeInTheDocument();
+      expect(screen.getByText("NFT communities")).toBeInTheDocument();
+
       // Test POAP method information
-      expect(screen.getByTestId('poap-badge')).toHaveTextContent('Event-based')
-      expect(screen.getByText('Non-transferable')).toBeInTheDocument()
-      expect(screen.getByText('Event perks')).toBeInTheDocument()
-    })
+      expect(screen.getByTestId("poap-badge")).toHaveTextContent("Event-based");
+      expect(screen.getByText("Non-transferable")).toBeInTheDocument();
+      expect(screen.getByText("Event perks")).toBeInTheDocument();
+    });
 
-    it('shows pros and cons for decision making', () => {
-      render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />)
-      
+    it("shows pros and cons for decision making", () => {
+      render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />);
+
       // All methods should show pros and cons
-      gateMethods.forEach(method => {
-        method.pros.forEach(pro => {
-          expect(screen.getByText(pro)).toBeInTheDocument()
-        })
-        method.cons.forEach(con => {
-          expect(screen.getByText(con)).toBeInTheDocument()
-        })
-        method.bestFor.forEach(use => {
-          expect(screen.getByText(use)).toBeInTheDocument()
-        })
-      })
-    })
-  })
+      gateMethods.forEach((method) => {
+        method.pros.forEach((pro) => {
+          expect(screen.getByText(pro)).toBeInTheDocument();
+        });
+        method.cons.forEach((con) => {
+          expect(screen.getByText(con)).toBeInTheDocument();
+        });
+        method.bestFor.forEach((use) => {
+          expect(screen.getByText(use)).toBeInTheDocument();
+        });
+      });
+    });
+  });
 
-  describe('Configuration State Management', () => {
-    it('maintains configuration state between method switches', async () => {
-      render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />)
-      
+  describe("Configuration State Management", () => {
+    it("maintains configuration state between method switches", async () => {
+      render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />);
+
       // Switch to NFT method
-      await user.click(screen.getByTestId('method-nft'))
-      expect(mockOnConfigChange).toHaveBeenLastCalledWith({ accessType: 'NFT' })
-      
+      await user.click(screen.getByTestId("method-nft"));
+      expect(mockOnConfigChange).toHaveBeenLastCalledWith({
+        accessType: "NFT",
+      });
+
       // Switch to POAP method
-      await user.click(screen.getByTestId('method-poap'))
-      expect(mockOnConfigChange).toHaveBeenLastCalledWith({ accessType: 'POAP' })
-      
-      expect(mockOnConfigChange).toHaveBeenCalledTimes(2)
-    })
+      await user.click(screen.getByTestId("method-poap"));
+      expect(mockOnConfigChange).toHaveBeenLastCalledWith({
+        accessType: "POAP",
+      });
 
-    it('resets configuration when switching methods', async () => {
-      render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />)
-      
+      expect(mockOnConfigChange).toHaveBeenCalledTimes(2);
+    });
+
+    it("resets configuration when switching methods", async () => {
+      render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />);
+
       // Each method switch should create a fresh config
-      await user.click(screen.getByTestId('method-nft'))
-      expect(mockOnConfigChange).toHaveBeenCalledWith({ accessType: 'NFT' })
-      
-      await user.click(screen.getByTestId('method-unlock'))
-      expect(mockOnConfigChange).toHaveBeenCalledWith({ accessType: 'Unlock' })
-    })
-  })
+      await user.click(screen.getByTestId("method-nft"));
+      expect(mockOnConfigChange).toHaveBeenCalledWith({ accessType: "NFT" });
 
-  describe('Accessibility', () => {
-    it('has proper keyboard navigation', async () => {
-      render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />)
-      
-      const firstMethod = screen.getByTestId('method-allowlist')
-      const secondMethod = screen.getByTestId('method-nft')
-      
+      await user.click(screen.getByTestId("method-unlock"));
+      expect(mockOnConfigChange).toHaveBeenCalledWith({ accessType: "Unlock" });
+    });
+  });
+
+  describe("Accessibility", () => {
+    it("has proper keyboard navigation", async () => {
+      render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />);
+
+      const firstMethod = screen.getByTestId("method-allowlist");
+      const secondMethod = screen.getByTestId("method-nft");
+
       // Tab to first method and press Enter
-      firstMethod.focus()
-      fireEvent.keyDown(firstMethod, { key: 'Enter' })
-      
+      firstMethod.focus();
+      fireEvent.keyDown(firstMethod, { key: "Enter" });
+
       // Should work with click handlers
-      expect(firstMethod).toHaveClass('selected')
-    })
+      expect(firstMethod).toHaveClass("selected");
+    });
 
-    it('has descriptive labels for screen readers', () => {
-      render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />)
-      
+    it("has descriptive labels for screen readers", () => {
+      render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />);
+
       // Check that important information is available for screen readers
-      expect(screen.getByText('Access Control Method')).toBeInTheDocument()
-      expect(screen.getByText('Choose how users will prove eligibility to access this jar')).toBeInTheDocument()
-    })
-  })
+      expect(screen.getByText("Access Control Method")).toBeInTheDocument();
+      expect(
+        screen.getByText(
+          "Choose how users will prove eligibility to access this jar",
+        ),
+      ).toBeInTheDocument();
+    });
+  });
 
-  describe('Visual Feedback', () => {
-    it('shows visual selection state', async () => {
-      render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />)
-      
-      const allowlistMethod = screen.getByTestId('method-allowlist')
-      const nftMethod = screen.getByTestId('method-nft')
-      
+  describe("Visual Feedback", () => {
+    it("shows visual selection state", async () => {
+      render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />);
+
+      const allowlistMethod = screen.getByTestId("method-allowlist");
+      const nftMethod = screen.getByTestId("method-nft");
+
       // Initially allowlist is selected
-      expect(allowlistMethod).toHaveClass('selected')
-      expect(nftMethod).not.toHaveClass('selected')
-      
-      // Click NFT method
-      await user.click(nftMethod)
-      
-      expect(nftMethod).toHaveClass('selected')
-      expect(allowlistMethod).not.toHaveClass('selected')
-    })
+      expect(allowlistMethod).toHaveClass("selected");
+      expect(nftMethod).not.toHaveClass("selected");
 
-    it('shows configuration panel only for applicable methods', async () => {
-      render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />)
-      
+      // Click NFT method
+      await user.click(nftMethod);
+
+      expect(nftMethod).toHaveClass("selected");
+      expect(allowlistMethod).not.toHaveClass("selected");
+    });
+
+    it("shows configuration panel only for applicable methods", async () => {
+      render(<MockProtocolGateSelector onConfigChange={mockOnConfigChange} />);
+
       // No config panel for Allowlist
-      expect(screen.queryByTestId('config-panel')).not.toBeInTheDocument()
-      
+      expect(screen.queryByTestId("config-panel")).not.toBeInTheDocument();
+
       // Config panel appears for other methods
-      await user.click(screen.getByTestId('method-nft'))
-      expect(screen.getByTestId('config-panel')).toBeInTheDocument()
-      
+      await user.click(screen.getByTestId("method-nft"));
+      expect(screen.getByTestId("config-panel")).toBeInTheDocument();
+
       // Switch back to Allowlist
-      await user.click(screen.getByTestId('method-allowlist'))
-      expect(screen.queryByTestId('config-panel')).not.toBeInTheDocument()
-    })
-  })
-})
+      await user.click(screen.getByTestId("method-allowlist"));
+      expect(screen.queryByTestId("config-panel")).not.toBeInTheDocument();
+    });
+  });
+});

@@ -1,32 +1,32 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import { Image as ImageIcon } from "lucide-react"
-import Image from "next/image"
+import { useState, useEffect } from "react";
+import { Image as ImageIcon } from "lucide-react";
+import Image from "next/image";
 
 interface JarImageProps {
-  metadata?: string
-  jarName: string
+  metadata?: string;
+  jarName: string;
 }
 
 export function JarImage({ metadata, jarName }: JarImageProps) {
-  const [imageUrl, setImageUrl] = useState<string | null>(null)
-  const [imageError, setImageError] = useState(false)
-  
+  const [imageUrl, setImageUrl] = useState<string | null>(null);
+  const [imageError, setImageError] = useState(false);
+
   useEffect(() => {
     if (metadata) {
       try {
-        const parsed = JSON.parse(metadata)
+        const parsed = JSON.parse(metadata);
         if (parsed.image) {
-          setImageUrl(parsed.image)
-          setImageError(false)
+          setImageUrl(parsed.image);
+          setImageError(false);
         }
       } catch (e) {
         // Ignore JSON parse errors
       }
     }
-  }, [metadata])
-  
+  }, [metadata]);
+
   if (!imageUrl || imageError) {
     return (
       <div className="w-full h-40 bg-[hsl(var(--cj-warm-white))] flex items-center justify-center relative overflow-hidden m-0">
@@ -43,7 +43,7 @@ export function JarImage({ metadata, jarName }: JarImageProps) {
           <span className="text-sm font-medium">Cookie Jar</span>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -56,5 +56,5 @@ export function JarImage({ metadata, jarName }: JarImageProps) {
         onError={() => setImageError(true)}
       />
     </div>
-  )
+  );
 }

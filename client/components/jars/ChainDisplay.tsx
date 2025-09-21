@@ -1,10 +1,10 @@
-"use client"
+"use client";
 
-import { Globe2 } from "lucide-react"
-import { getNetworkName } from "@/lib/network-utils"
+import { Globe2 } from "lucide-react";
+import { getNetworkName } from "@/lib/network-utils";
 
 interface ChainDisplayProps {
-  chainId: number
+  chainId: number;
 }
 
 export function ChainDisplay({ chainId }: ChainDisplayProps) {
@@ -15,5 +15,5 @@ export function ChainDisplay({ chainId }: ChainDisplayProps) {
         {getNetworkName(chainId)}
       </span>
     </div>
-  )
+  );
 }
