@@ -181,7 +181,7 @@ export const contractAddresses: ContractAddresses = {
 
 // Get environment variables
 const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || ""
-const alchemyId = process.env.NEXT_PUBLIC_ALCHEMY_ID || ""
+const alchemyId = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || ""
 
 // Helper function to create fallback transports with automatic failover
 function createFallbackTransport(primary: string[], fallbackUrls: string[]) {

@@ -88,7 +88,7 @@ export function useUserNfts(options: UseUserNftsOptions = {}): UseUserNftsResult
   const [pageKey, setPageKey] = useState<string | undefined>()
   const [hasMore, setHasMore] = useState(true)
 
-  const alchemyId = process.env.NEXT_PUBLIC_ALCHEMY_ID
+  const alchemyId = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY
   const alchemyNetwork = ALCHEMY_NETWORKS[chainId]
 
   const fetchNFTs = useCallback(async (isLoadMore = false) => {

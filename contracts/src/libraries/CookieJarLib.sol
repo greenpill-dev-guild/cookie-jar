@@ -56,6 +56,7 @@ library CookieJarLib {
     // --- Constants ---
     bytes32 public constant JAR_OWNER = keccak256("JAR_OWNER");
     bytes32 public constant JAR_ALLOWLISTED = keccak256("JAR_ALLOWLISTED");
+    bytes32 public constant JAR_DENYLISTED = keccak256("JAR_DENYLISTED");
 
     // --- Structs ---
     /// @notice Represents an NFT gate with a contract address and its NFT type.
@@ -213,7 +214,7 @@ library CookieJarLib {
     error PurposeTooShort();
     error UnauthorizedUser();
     error UserNotAllowlisted();
-    error UserBlacklisted();
+    error UserDenylisted();
     error InvalidNFTGate();
     error NFTTokenDoesNotExist();
     error CallerMustOwnToken();

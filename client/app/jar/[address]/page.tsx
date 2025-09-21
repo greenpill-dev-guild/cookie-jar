@@ -664,8 +664,8 @@ export default function CookieJarConfigDetails() {
                     <div className="flex justify-between items-center py-2">
                       <span className="text-[#4a3520] font-medium">Your Status</span>
                       <div className="flex items-center">
-                        {config.blacklist ? (
-                          <span className="font-medium px-3 py-1 rounded-full text-white bg-red-500">Blacklisted</span>
+                        {config.denylist ? (
+                          <span className="font-medium px-3 py-1 rounded-full text-white bg-red-500">Denylisted</span>
                         ) : (
                           <span
                             className={`font-medium px-3 py-1 rounded-full text-white ${config.allowlist ? "bg-green-500" : "bg-red-500"}`}
@@ -712,13 +712,13 @@ export default function CookieJarConfigDetails() {
                       <div className="mt-6">
                         <h3 className="text-base font-semibold text-[#3c2a14] mb-2">Your Status</h3>
                         <div className="flex flex-wrap gap-2">
-                          {config.blacklist ? (
+                          {config.denylist ? (
                             <Badge
                               variant="outline"
                               className="flex items-center gap-1 bg-[#ffebee] text-[#c62828] border-[#c62828] px-3 py-1"
                             >
                               <ShieldAlert className="h-3 w-3 mr-1" />
-                              Blacklisted
+                              Denylisted
                             </Badge>
                           ) : (
                             showUserFunctions && (
@@ -878,10 +878,10 @@ export default function CookieJarConfigDetails() {
                   <CardDescription className="text-[#8b7355]">Receive cookies from this jar</CardDescription>
                 </CardHeader>
                 <CardContent className="p-8 relative min-h-[400px]">
-                  {config.blacklist ? (
+                  {config.denylist ? (
                     <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-10 rounded-b-lg">
                       <div className="bg-red-500 text-white font-medium px-6 py-2 rounded-full text-lg">
-                        You are Blacklisted
+                        You are Denylisted
                       </div>
                     </div>
                   ) : isInCooldown ? (

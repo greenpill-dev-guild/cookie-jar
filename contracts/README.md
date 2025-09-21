@@ -12,7 +12,7 @@ This directory contains the smart contracts for the Cookie Jar Protocol - a dece
    - Handles protocol access control
    - Manages jar deployments
    - Controls minimum deposit requirements
-   - Maintains protocol-level blacklist
+   - Maintains protocol-level denylist
 
 2. **CookieJar**
    - Manages individual jar logic

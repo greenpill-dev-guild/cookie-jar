@@ -11,7 +11,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 contract CookieJarFactory is AccessControl {
     bytes32 public constant OWNER = keccak256("OWNER");
     bytes32 public constant PROTOCOL_ADMIN = keccak256("PROTOCOL_ADMIN");
-    bytes32 public constant BLACKLISTED_JAR_CREATORS = keccak256("BLACKLISTED_JAR_CREATORS");
+    bytes32 public constant DENYLISTED_JAR_CREATORS = keccak256("DENYLISTED_JAR_CREATORS");
     bytes32 public constant JAR_OWNER = keccak256("JAR_OWNER");
 
     address[] public cookieJars;
@@ -24,7 +24,7 @@ contract CookieJarFactory is AccessControl {
     uint256 public immutable minETHDeposit;
     uint256 public immutable minERC20Deposit;
 
-    error CookieJarFactory__Blacklisted();
+    error CookieJarFactory__Denylisted();
     error CookieJarFactory__NotValidERC20();
     error CookieJarFactory__JarNotFound();
     error CookieJarFactory__NotJarOwner();
@@ -32,8 +32,8 @@ contract CookieJarFactory is AccessControl {
     event CookieJarCreated(address indexed creator, address cookieJarAddress);
     event MetadataUpdated(address indexed jarAddress, string metadata);
 
-    modifier onlyNotBlacklisted(address _user) {
-        if (hasRole(BLACKLISTED_JAR_CREATORS, _user)) revert CookieJarFactory__Blacklisted();
+    modifier onlyNotDenylisted(address _user) {
+        if (hasRole(DENYLISTED_JAR_CREATORS, _user)) revert CookieJarFactory__Denylisted();
         _;
     }
 
@@ -52,7 +52,7 @@ contract CookieJarFactory is AccessControl {
         _grantRole(OWNER, _owner);
         _grantRole(PROTOCOL_ADMIN, _owner);
         _setRoleAdmin(PROTOCOL_ADMIN, OWNER);
-        _setRoleAdmin(BLACKLISTED_JAR_CREATORS, OWNER);
+        _setRoleAdmin(DENYLISTED_JAR_CREATORS, OWNER);
     }
 
     function getCookieJars() external view returns (address[] memory) {
@@ -117,7 +117,7 @@ contract CookieJarFactory is AccessControl {
     function createCookieJar(
         CookieJarLib.CreateJarParams calldata params,
         CookieJarLib.AccessConfig calldata accessConfig
-    ) external onlyNotBlacklisted(msg.sender) returns (address) {
+    ) external onlyNotDenylisted(msg.sender) returns (address) {
         uint256 minDeposit = minETHDeposit;
         if (params.supportedCurrency != CookieJarLib.ETH_ADDRESS) {
             if (ERC20(params.supportedCurrency).decimals() == 0) revert CookieJarFactory__NotValidERC20();
@@ -155,16 +155,16 @@ contract CookieJarFactory is AccessControl {
         return jarAddress;
     }
 
-    // Admin functions for blacklisting (essential for security)
-    function grantBlacklistedJarCreatorsRole(address[] calldata _users) external onlyRole(PROTOCOL_ADMIN) {
+    // Admin functions for denylisting (essential for security)
+    function grantDenylistedJarCreatorsRole(address[] calldata _users) external onlyRole(PROTOCOL_ADMIN) {
         for (uint256 i = 0; i < _users.length; i++) {
-            _grantRole(BLACKLISTED_JAR_CREATORS, _users[i]);
+            _grantRole(DENYLISTED_JAR_CREATORS, _users[i]);
         }
     }
 
-    function revokeBlacklistedJarCreatorsRole(address[] calldata _users) external onlyRole(PROTOCOL_ADMIN) {
+    function revokeDenylistedJarCreatorsRole(address[] calldata _users) external onlyRole(PROTOCOL_ADMIN) {
         for (uint256 i = 0; i < _users.length; i++) {
-            _revokeRole(BLACKLISTED_JAR_CREATORS, _users[i]);
+            _revokeRole(DENYLISTED_JAR_CREATORS, _users[i]);
         }
     }
 }

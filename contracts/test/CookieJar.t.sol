@@ -310,7 +310,7 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 true // oneTimeWithdrawal
             ),
-            createAccessConfig(nftAddresses, nftTypes, emptyAllowlist)
+            createAccessConfig(emptyAddresses, emptyTypes, users)
         );
 
         jarNFTERC20OneTimeWithdrawal = new CookieJar(
