@@ -128,16 +128,44 @@ export function checkDecimals(
     return { value, error: null };
   }
 
-  if (/^([0-9]+\.?[0-9]*|\.[0-9]+|0)$/.test(value)) {
-    // Validate that the number of decimal places doesn't exceed the token's decimal precision
-    const parts = value.split(".");
-    if (
-      parts.length === 1 || // No decimal point
-      parts[1].length <= tokenDecimals // Has decimal point but not exceeding max decimals
-    ) {
-      return { value, error: null };
-    } else {
-      // Too many decimal places
+  // Input length validation to prevent ReDoS attacks
+  if (value.length > 50) {
+    return { value: null, error: "Number input too long." };
+  }
+
+  // Use JavaScript's built-in parsing instead of regex to avoid ReDoS
+  // Allow only digits, single decimal point, and leading decimal point
+  const trimmed = value.trim();
+  
+  // Quick character-based validation (much faster than regex)
+  let hasDecimal = false;
+  let decimalIndex = -1;
+  
+  for (let i = 0; i < trimmed.length; i++) {
+    const char = trimmed[i];
+    if (char === '.') {
+      if (hasDecimal) {
+        // Multiple decimal points
+        return { value: null, error: "Please enter a valid number." };
+      }
+      hasDecimal = true;
+      decimalIndex = i;
+    } else if (char < '0' || char > '9') {
+      // Invalid character
+      return { value: null, error: "Please enter a valid number." };
+    }
+  }
+
+  // Check for edge cases
+  if (trimmed === '.' || trimmed === '') {
+    if (trimmed === '') return { value, error: null };
+    return { value: null, error: "Please enter a valid number." };
+  }
+
+  // Validate decimal places if there's a decimal point
+  if (hasDecimal) {
+    const decimalPlaces = trimmed.length - decimalIndex - 1;
+    if (decimalPlaces > tokenDecimals) {
       return {
         value: null,
         error: `You entered too many decimal places. This token only allows ${tokenDecimals} decimals.`,
@@ -145,5 +173,5 @@ export function checkDecimals(
     }
   }
 
-  return { value: null, error: "Please enter a valid number." };
+  return { value, error: null };
 }

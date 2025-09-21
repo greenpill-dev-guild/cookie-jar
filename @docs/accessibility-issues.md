@@ -42,6 +42,16 @@ Some interactive elements may lack visible focus indicators:
 - **Issue:** Elements might not show clear focus state for keyboard navigation
 - **Fix:** Ensure all interactive elements have `:focus-visible` styles with sufficient contrast
 
+## 🏷️ Button Accessibility
+
+Icon buttons without accessible names:
+
+### Close/Cancel Buttons
+- **Issue:** Buttons with only icons (no visible text) lack `aria-label` attributes
+- **Location:** Create form page - likely close/cancel buttons
+- **Fix:** Add `aria-label="Close"` or `aria-label="Cancel"` to icon-only buttons
+- **Example:** `<button aria-label="Close dialog">❌</button>`
+
 ## ✅ Implementation Plan
 
 1. **Update CSS Custom Properties** - Adjust color variables in the design system
