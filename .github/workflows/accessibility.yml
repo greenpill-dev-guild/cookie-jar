@@ -1,0 +1,226 @@
+name: Accessibility Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 6 * * 1'  # Weekly on Mondays at 6 AM UTC
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18'
+  PNPM_VERSION: '8'
+
+jobs:
+  accessibility-tests:
+    name: A11y Compliance Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup Node.js and pnpm
+      uses: ./.github/actions/setup-node-pnpm
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        pnpm-version: ${{ env.PNPM_VERSION }}
+
+    - name: Install Foundry
+      uses: foundry-rs/foundry-toolchain@v1
+      with:
+        version: nightly
+
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+
+    - name: Setup test environment (minimal)
+      run: |
+        echo "🚀 Setting up minimal environment for accessibility tests..."
+        
+        # Start Anvil
+        cd contracts
+        anvil --host 0.0.0.0 --port 8545 --chain-id 31337 \
+          --accounts 10 --balance 1000 > anvil.log 2>&1 &
+        ANVIL_PID=$!
+        echo "ANVIL_PID=$ANVIL_PID" >> $GITHUB_ENV
+        
+        # Wait for Anvil
+        for i in {1..20}; do
+          if curl -s -X POST -H "Content-Type: application/json" \
+             --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' \
+             http://127.0.0.1:8545 > /dev/null 2>&1; then
+            break
+          fi
+          sleep 1
+        done
+        
+        # Quick contract build and deploy
+        forge build
+        forge script script/DeployLocal.s.sol:DeployLocalScript \
+          --rpc-url http://127.0.0.1:8545 \
+          --broadcast \
+          --sender 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 \
+          --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+        
+        cd ..
+        ./scripts/create-deployment-file.sh
+        ./scripts/copy-deployment.sh
+        
+        # Start client
+        cd client
+        pnpm generate
+        npm run dev &
+        CLIENT_PID=$!
+        echo "CLIENT_PID=$CLIENT_PID" >> $GITHUB_ENV
+        
+        # Wait for client
+        cd ..
+        for i in {1..30}; do
+          if curl -s http://localhost:3000 > /dev/null 2>&1; then
+            echo "✅ Test environment ready!"
+            break
+          fi
+          sleep 2
+        done
+
+    - name: Run accessibility tests
+      run: |
+        echo "♿ Running accessibility compliance tests..."
+        
+        # Run only accessibility-focused tests
+        npx playwright test --grep "accessibility" --reporter=github
+        
+        if [ $? -eq 0 ]; then
+          echo ""
+          echo "✅ Accessibility tests passed!"
+        else
+          echo ""
+          echo "❌ Accessibility issues detected"
+          echo "💡 Check the detailed report for WCAG compliance issues"
+        fi
+
+    - name: Generate accessibility report
+      if: always()
+      run: |
+        echo "📊 Generating accessibility compliance summary..."
+        
+        # Generate HTML report for accessibility tests
+        npx playwright show-report --host=0.0.0.0 --port=9323 > /dev/null 2>&1 &
+        REPORT_PID=$!
+        sleep 2
+        
+        # Create summary
+        echo ""
+        echo "♿ ACCESSIBILITY SUMMARY"
+        echo "======================="
+        echo "📋 This workflow tests WCAG 2.1 Level AA compliance"
+        echo "🔍 Areas covered:"
+        echo "  • Keyboard navigation"
+        echo "  • Screen reader compatibility"
+        echo "  • Color contrast ratios"
+        echo "  • Focus management"
+        echo "  • Semantic HTML structure"
+        echo "  • ARIA labels and roles"
+        echo ""
+        
+        if [ -d "e2e/playwright-report" ]; then
+          echo "📊 Detailed report available in artifacts"
+        else
+          echo "⚠️  No detailed report generated"
+        fi
+        
+        kill $REPORT_PID 2>/dev/null || true
+
+    - name: Accessibility recommendations
+      if: always()
+      run: |
+        echo ""
+        echo "💡 ACCESSIBILITY BEST PRACTICES"
+        echo "================================"
+        echo "✅ Automated testing completed"
+        echo ""
+        echo "🔍 Additional manual testing recommended:"
+        echo "  • Test with actual screen readers (NVDA, JAWS, VoiceOver)"
+        echo "  • Verify keyboard-only navigation flows"
+        echo "  • Test with high contrast mode"
+        echo "  • Validate with zoom up to 200%"
+        echo "  • Check color blindness simulation"
+        echo ""
+        echo "🛠️  Tools for manual testing:"
+        echo "  • axe DevTools browser extension"
+        echo "  • WAVE Web Accessibility Evaluator"
+        echo "  • Lighthouse accessibility audit"
+        echo "  • Color contrast analyzers"
+        echo ""
+        echo "📚 Resources:"
+        echo "  • WCAG 2.1 Guidelines: https://www.w3.org/WAI/WCAG21/quickref/"
+        echo "  • A11y Project: https://www.a11yproject.com/"
+        echo "  • WebAIM: https://webaim.org/"
+
+    - name: Cleanup
+      if: always()
+      run: |
+        if [ ! -z "$ANVIL_PID" ]; then
+          kill $ANVIL_PID || true
+        fi
+        if [ ! -z "$CLIENT_PID" ]; then
+          kill $CLIENT_PID || true
+        fi
+        pkill anvil || true
+        pkill -f "next dev" || true
+
+    - name: Upload accessibility report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: accessibility-report
+        path: e2e/playwright-report/
+        retention-days: 30
+
+    - name: Upload test results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: accessibility-test-results
+        path: e2e/test-results/
+        retention-days: 30
+
+  accessibility-summary:
+    name: Accessibility Summary
+    runs-on: ubuntu-latest
+    needs: [accessibility-tests]
+    if: always()
+    
+    steps:
+    - name: Summary
+      run: |
+        echo "♿ ACCESSIBILITY TESTING COMPLETED"
+        echo "=================================="
+        echo ""
+        echo "📊 Test Results: ${{ needs.accessibility-tests.result }}"
+        echo ""
+        
+        if [ "${{ needs.accessibility-tests.result }}" = "success" ]; then
+          echo "✅ Accessibility tests passed!"
+          echo "🎉 Cookie Jar meets automated WCAG compliance checks"
+          echo "💡 Continue with manual testing for comprehensive coverage"
+        else
+          echo "⚠️  Accessibility issues detected"
+          echo "💡 Review test artifacts for detailed WCAG violations"
+          echo "🔧 Fix accessibility issues before production deployment"
+        fi
+        
+        echo ""
+        echo "🔄 This analysis runs:"
+        echo "  • On every push to main branch"
+        echo "  • On every PR to main branch"
+        echo "  • Weekly on Monday at 6 AM UTC"
+        echo "  • Manually via workflow dispatch"
+        echo ""
+        echo "🎯 Goal: Ensure Cookie Jar is accessible to all users"

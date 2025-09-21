@@ -17,6 +17,16 @@ SETUP_ONLY=false
 SKIP_SETUP=false
 UI_MODE=false
 DEBUG_MODE=false
+CI_MODE=false
+
+# Check if running in CI environment
+if [ "$CI" = "true" ] || [ "$GITHUB_ACTIONS" = "true" ]; then
+    echo -e "${BLUE}🤖 CI environment detected${NC}"
+    CI_MODE=true
+    # CI-specific defaults
+    UI_MODE=false
+    DEBUG_MODE=false
+fi
 
 while [[ $# -gt 0 ]]; do
   case $1 in
@@ -36,6 +46,12 @@ while [[ $# -gt 0 ]]; do
       DEBUG_MODE=true
       shift
       ;;
+    --ci)
+      CI_MODE=true
+      UI_MODE=false
+      DEBUG_MODE=false
+      shift
+      ;;
     -h|--help)
       echo "Usage: $0 [OPTIONS]"
       echo ""
@@ -44,6 +60,7 @@ while [[ $# -gt 0 ]]; do
       echo "  --skip-setup    Skip setup validation, run tests directly"
       echo "  --ui            Run tests in interactive UI mode"
       echo "  --debug         Run tests in debug mode"
+      echo "  --ci            Force CI mode with GitHub Actions reporter"
       echo "  -h, --help      Show this help message"
       echo ""
       echo "Examples:"
@@ -186,29 +203,35 @@ DEV_PID=""
 if curl -s http://localhost:3000 > /dev/null 2>&1; then
     echo -e "${GREEN}✅ Client is running on localhost:3000${NC}"
 else
-    echo -e "${YELLOW}⚠️  Client not running. You may need to start 'pnpm dev' first${NC}"
-    echo -e "${BLUE}   Attempting to start development environment...${NC}"
-    
-    # Try to start dev environment in background
-    pnpm dev > dev.log 2>&1 &
-    DEV_PID=$!
-    
-    echo "📋 Waiting for development environment (up to 2 minutes)..."
-    
-    # Wait for dev environment with timeout
-    for i in {1..40}; do
-      if curl -s http://localhost:3000 > /dev/null 2>&1; then
-        echo -e "${GREEN}✅ Development environment ready!${NC}"
-        break
-      fi
-      echo "Waiting... ($i/40)"
-      sleep 3
-      if [ $i -eq 40 ]; then
-        echo -e "${YELLOW}⚠️  Development environment taking longer than expected${NC}"
-        echo -e "${BLUE}   You may need to start 'pnpm dev' manually in another terminal${NC}"
-        break
-      fi
-    done
+    if [ "$CI_MODE" = "true" ]; then
+        echo -e "${YELLOW}⚠️  Client not running in CI mode${NC}"
+        echo -e "${BLUE}   CI should have development environment running already${NC}"
+        echo -e "${BLUE}   Continuing with tests...${NC}"
+    else
+        echo -e "${YELLOW}⚠️  Client not running. You may need to start 'pnpm dev' first${NC}"
+        echo -e "${BLUE}   Attempting to start development environment...${NC}"
+        
+        # Try to start dev environment in background
+        pnpm dev > dev.log 2>&1 &
+        DEV_PID=$!
+        
+        echo "📋 Waiting for development environment (up to 2 minutes)..."
+        
+        # Wait for dev environment with timeout
+        for i in {1..40}; do
+          if curl -s http://localhost:3000 > /dev/null 2>&1; then
+            echo -e "${GREEN}✅ Development environment ready!${NC}"
+            break
+          fi
+          echo "Waiting... ($i/40)"
+          sleep 3
+          if [ $i -eq 40 ]; then
+            echo -e "${YELLOW}⚠️  Development environment taking longer than expected${NC}"
+            echo -e "${BLUE}   You may need to start 'pnpm dev' manually in another terminal${NC}"
+            break
+          fi
+        done
+    fi
 fi
 
 # Check Anvil blockchain
@@ -233,6 +256,9 @@ if [ "$UI_MODE" = "true" ]; then
 elif [ "$DEBUG_MODE" = "true" ]; then
     TEST_CMD="npx playwright test --debug"
     echo -e "${BLUE}   Running in debug mode${NC}"
+elif [ "$CI_MODE" = "true" ]; then
+    TEST_CMD="npx playwright test --reporter=github"
+    echo -e "${BLUE}   Running with GitHub Actions reporter (CI mode)${NC}"
 else
     TEST_CMD="npx playwright test --reporter=list"
     echo -e "${BLUE}   Running all tests with list reporter${NC}"

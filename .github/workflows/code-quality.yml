@@ -1,0 +1,76 @@
+name: Code Quality & Linting
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18'
+  PNPM_VERSION: '8'
+
+jobs:
+  code-quality:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js and pnpm
+      uses: ./.github/actions/setup-node-pnpm
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        pnpm-version: ${{ env.PNPM_VERSION }}
+    
+    - name: Lint client code
+      run: |
+        cd client
+        pnpm run lint
+    
+    - name: TypeScript type checking
+      run: |
+        cd client  
+        pnpm run type-check
+    
+    - name: Format check
+      run: |
+        cd client
+        if ! pnpm run format:check 2>/dev/null; then
+          echo "⚠️  Format check script not found, checking with prettier directly"
+          npx prettier --check "**/*.{ts,tsx,js,jsx,json,md}" --ignore-path .gitignore || {
+            echo ""
+            echo "❌ Code formatting issues found!"
+            echo "💡 Run 'pnpm run format' or 'npx prettier --write .' to fix"
+            exit 1
+          }
+        fi
+    
+    - name: Check for unused dependencies
+      run: |
+        cd client
+        if command -v depcheck &> /dev/null; then
+          echo "📦 Checking for unused dependencies..."
+          npx depcheck --ignores="@types/*,@typescript-eslint/*,eslint-*"
+        else
+          echo "⚠️  Skipping dependency check (depcheck not available)"
+        fi
+      continue-on-error: true  # Don't fail build on unused deps
+    
+    - name: Summary
+      if: always()
+      run: |
+        echo ""
+        echo "✅ Code quality checks completed!"
+        echo "📋 This workflow provides fast feedback on:"
+        echo "  • ESLint rule compliance"
+        echo "  • TypeScript compilation"  
+        echo "  • Code formatting consistency"
+        echo ""
+        if [ "${{ job.status }}" = "success" ]; then
+          echo "🎉 All checks passed - code is ready for review!"
+        else
+          echo "❌ Some checks failed - please review and fix issues above"
+        fi

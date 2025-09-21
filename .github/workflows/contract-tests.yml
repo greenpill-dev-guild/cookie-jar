@@ -1,0 +1,147 @@
+name: Smart Contract Tests
+
+on:
+  push:
+    paths:
+      - 'contracts/**'
+      - 'lib/**'
+      - '.github/workflows/contract-tests.yml'
+  pull_request:
+    paths:
+      - 'contracts/**'
+      - 'lib/**'
+      - '.github/workflows/contract-tests.yml'
+  workflow_dispatch:
+
+jobs:
+  contract-tests:
+    name: Foundry Tests & Analysis
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Install Foundry
+      uses: foundry-rs/foundry-toolchain@v1
+      with:
+        version: nightly
+    
+    - name: Build contracts (leveraging deploy.sh logic)
+      run: |
+        echo "🔧 Building contracts with enhanced validation..."
+        cd contracts
+        
+        # Use forge build with same flags as deploy.sh for consistency
+        forge build --sizes
+        
+        if [ $? -ne 0 ]; then
+          echo "❌ Contract compilation failed"
+          exit 1
+        fi
+        
+        echo "✅ Contracts compiled successfully"
+        echo ""
+        echo "📊 Contract sizes:"
+        forge build --sizes | tail -20  # Show size information
+    
+    - name: Run contract tests
+      run: |
+        echo "🧪 Running Foundry test suite..."
+        cd contracts
+        
+        # Run tests with detailed output and gas reporting
+        forge test -vvv --gas-report
+        
+        if [ $? -eq 0 ]; then
+          echo ""
+          echo "✅ All contract tests passed!"
+        else
+          echo ""
+          echo "❌ Some contract tests failed"
+          exit 1
+        fi
+    
+    - name: Generate and upload coverage report
+      run: |
+        echo "📊 Generating coverage report..."
+        cd contracts
+        
+        # Generate coverage in lcov format for better tooling support
+        forge coverage --report lcov
+        
+        if [ -f lcov.info ]; then
+          echo "✅ Coverage report generated"
+          echo ""
+          echo "📈 Coverage summary:"
+          # Show basic coverage info if lcov tools are available
+          if command -v lcov &> /dev/null; then
+            lcov --summary lcov.info
+          else
+            echo "📄 Coverage data saved to lcov.info"
+          fi
+        else
+          echo "⚠️  Coverage report not generated"
+        fi
+      continue-on-error: true  # Don't fail build if coverage fails
+    
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v4
+      if: always()
+      with:
+        files: ./contracts/lcov.info
+        flags: contract-tests
+        name: contract-coverage
+        token: ${{ secrets.CODECOV_TOKEN }}
+        fail_ci_if_error: false
+    
+    - name: Contract security analysis
+      run: |
+        echo "🔍 Running basic security analysis..."
+        cd contracts
+        
+        # Check for common issues using forge
+        echo "📋 Checking compilation warnings:"
+        forge build 2>&1 | grep -E "(Warning|Error):" || echo "No compilation warnings found"
+        
+        echo ""
+        echo "📋 Contract complexity analysis:"
+        find src -name "*.sol" -exec wc -l {} + | sort -n | tail -10
+        
+        echo ""
+        echo "💡 For comprehensive security analysis, consider:"
+        echo "  • Slither static analysis"
+        echo "  • Mythril symbolic execution"  
+        echo "  • Manual audit for mainnet deployment"
+      continue-on-error: true
+    
+    - name: Archive test artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: contract-test-artifacts
+        path: |
+          contracts/out/
+          contracts/lcov.info
+          contracts/cache/
+        retention-days: 7
+    
+    - name: Test Summary
+      if: always()
+      run: |
+        echo ""
+        echo "🏗️  CONTRACT TESTS COMPLETED"
+        echo "==========================="
+        if [ "${{ job.status }}" = "success" ]; then
+          echo "✅ All contract tests passed!"
+          echo "📊 Coverage reports generated"
+          echo "🔧 Contracts compiled successfully"
+          echo "🎉 Smart contracts are ready for deployment"
+        else
+          echo "❌ Contract tests failed"
+          echo "💡 Check output above for details"
+          echo "🔧 Fix issues before deployment"
+        fi
