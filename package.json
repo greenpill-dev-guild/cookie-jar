@@ -6,6 +6,7 @@
   "author": "Greenpill Dev Guild",
   "license": "MIT",
   "scripts": {
+    "preinstall": "./scripts/install-deps.sh",
     "postinstall": "git submodule update --init --recursive && (command -v forge > /dev/null && cd contracts && forge install || echo 'Forge not found, skipping forge install')",
     "dev": "./scripts/dev-start.sh",
     "dev:client": "pnpm --filter client run dev",
