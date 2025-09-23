@@ -16,7 +16,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { shortenAddress } from "@/lib/app/utils";
-import { getExplorerAddressUrl } from "@/lib/network/utils";
+import { getExplorerAddressUrl } from "@/lib/blockchain/networks";
 import { useChainId } from "wagmi";
 
 interface ConnectedMobileViewProps {

@@ -43,10 +43,10 @@ export interface NFTProviderConfig {
 export function getNFTProviderConfig(): NFTProviderConfig {
   const config: NFTProviderConfig = {
     alchemy: {
-      mainnet: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY_MAINNET,
-      base: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY_BASE,
-      sepolia: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY_SEPOLIA,
-      baseSepolia: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY_BASE_SEPOLIA,
+      mainnet: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
+      base: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
+      sepolia: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
+      baseSepolia: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
       fallback: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
     },
 

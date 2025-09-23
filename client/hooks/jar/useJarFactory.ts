@@ -8,7 +8,7 @@ import { cookieJarAbi, cookieJarFactoryAbi } from "@/generated";
 import { cookieJarFactoryV1Abi } from "@/lib/blockchain/cookie-jar-v1-abi";
 import { isV2Chain } from "@/config/supported-networks";
 
-import { useContractAddresses } from "../app/useContractAddresses";
+import { useContractAddresses } from "../blockchain/useContractAddresses";
 import { useToast } from "../app/useToast";
 
 /**

@@ -1,43 +1,28 @@
 import { isAddress } from "viem";
 import { useState, useEffect } from "react";
 import { useAccount, useReadContract, useChainId } from "wagmi";
+import { hatsProvider, HatDetails as ProviderHatDetails, HatWearer } from "@/lib/nft/protocols/HatsProvider";
 
 /**
- * Hat information structure from Hats Protocol
- * Note: Real implementation would import from @hatsprotocol/sdk-v1-subgraph
+ * Hat information structure - extends the provider interface
  */
-interface HatInfo {
-  /** Unique hat identifier */
-  id: string;
+export interface HatInfo extends Omit<ProviderHatDetails, 'maxSupply'> {
   /** Display name of the hat */
   name?: string;
   /** Hat description */
   description?: string;
-  /** Hat image URI */
-  imageUri?: string;
   /** Whether the hat is currently active */
   isActive?: boolean;
   /** Number of current hat wearers */
   wearerCount?: number;
   /** Maximum number of wearers allowed */
   maxSupply?: number;
-  /** Hat tree information */
-  tree?: {
-    id: string;
-    name?: string;
-  };
-  /** Admin hat or address */
-  admin?: string;
-  /** Eligibility module address */
-  eligibility?: string;
-  /** Toggle module address */
-  toggle?: string;
 }
 
 /**
  * User's hat data with status information
  */
-interface UserHat {
+export interface UserHat {
   /** Hat ID */
   hatId: string;
   /** Full hat information */
@@ -297,49 +282,28 @@ export function useHats(options: UseHatsOptions = {}): UseHatsResult {
     setHatsError(null);
 
     try {
-      // Note: This is a mock implementation
-      // Real implementation would use Hats SDK:
-      // import { HatsSubgraphClient } from '@hatsprotocol/sdk-v1-subgraph'
-      // const client = new HatsSubgraphClient()
-      // const userHats = await client.getWearerHats({ wearerAddress: address })
+      const result = await hatsProvider.getUserHats(address, chainId, {
+        limit: 50,
+        activeOnly: true,
+      });
 
-      // Mock data for demonstration
-      const mockUserHats: UserHat[] = [
-        {
-          hatId: "12345",
-          hat: {
-            id: "12345",
-            name: "DAO Member",
-            description: "General member of the DAO",
-            imageUri: "https://example.com/hat1.png",
-            isActive: true,
-            wearerCount: 150,
-            maxSupply: 200,
-            tree: { id: "1", name: "Main DAO" },
-          },
-          isWearing: true,
-          isEligible: true,
-          isInGoodStanding: true,
-        },
-        {
-          hatId: "12346",
-          hat: {
-            id: "12346",
-            name: "Project Lead",
-            description: "Lead developer for special projects",
-            imageUri: "https://example.com/hat2.png",
-            isActive: true,
-            wearerCount: 5,
-            maxSupply: 10,
-            tree: { id: "1", name: "Main DAO" },
-          },
-          isWearing: isWearingHat || false,
-          isEligible: isEligible || false,
-          isInGoodStanding: isInGoodStanding || false,
-        },
-      ];
+      // Convert to hook format
+      const userHats: UserHat[] = result.hats.map(hat => ({
+        hatId: hat.id,
+        hat: {
+          ...hat,
+          name: hat.details || `Hat #${hat.prettyId}`,
+          description: hat.details || '',
+          isActive: hat.status,
+          wearerCount: parseInt(hat.currentSupply) || 0,
+          maxSupply: parseInt(hat.maxSupply) || 0,
+        } as HatInfo,
+        isWearing: true, // They're in the user's hat list, so they're wearing it
+        isEligible: true, // Assume eligible if they're wearing it
+        isInGoodStanding: true, // Assume good standing if they're wearing it
+      }));
 
-      setUserHats(mockUserHats);
+      setUserHats(userHats);
     } catch (error) {
       console.error("Error fetching user hats:", error);
       setHatsError("Failed to fetch your organizational roles");
@@ -351,31 +315,21 @@ export function useHats(options: UseHatsOptions = {}): UseHatsResult {
   // Search for hats
   const searchHats = async (query: string): Promise<HatInfo[]> => {
     try {
-      // Note: This is a mock implementation
-      // Real implementation would use Hats SDK search
+      const result = await hatsProvider.searchHats(query, chainId, {
+        limit: 20,
+        activeOnly: true,
+        includeSubHats: true,
+      });
 
-      const mockResults: HatInfo[] = [
-        {
-          id: "12345",
-          name: `${query} Admin`,
-          description: "Administrative role",
-          isActive: true,
-          wearerCount: 3,
-          maxSupply: 5,
-          tree: { id: "1", name: "Main Tree" },
-        },
-        {
-          id: "12346",
-          name: `${query} Member`,
-          description: "General member role",
-          isActive: true,
-          wearerCount: 15,
-          maxSupply: 50,
-          tree: { id: "1", name: "Main Tree" },
-        },
-      ];
-
-      return mockResults;
+      // Convert to hook format
+      return result.hats.map(hat => ({
+        ...hat,
+        name: hat.details || `Hat #${hat.prettyId}`,
+        description: hat.details || '',
+        isActive: hat.status,
+        wearerCount: parseInt(hat.currentSupply) || 0,
+        maxSupply: parseInt(hat.maxSupply) || 0,
+      } as HatInfo));
     } catch (error) {
       console.error("Error searching hats:", error);
       return [];
@@ -392,21 +346,23 @@ export function useHats(options: UseHatsOptions = {}): UseHatsResult {
     setEligibilityError(null);
 
     try {
-      // Note: This is a mock implementation
-      // Real implementation would fetch from Hats subgraph or on-chain
+      const hat = await hatsProvider.getHat(hatId, chainId);
+      
+      if (!hat) {
+        throw new Error("Hat not found");
+      }
 
-      const mockHat: HatInfo = {
-        id: hatId,
-        name: `Hat #${hatId}`,
-        description: "Organizational role",
-        isActive: true,
-        wearerCount: hatSupply ? Number(hatSupply) : 5,
-        maxSupply: 10,
-        tree: { id: "1", name: "Organization Tree" },
+      const hatInfo: HatInfo = {
+        ...hat,
+        name: hat.details || `Hat #${hat.prettyId}`,
+        description: hat.details || '',
+        isActive: hat.status,
+        wearerCount: parseInt(hat.currentSupply) || 0,
+        maxSupply: parseInt(hat.maxSupply) || 0,
       };
 
-      setHatInfo(mockHat);
-      return mockHat;
+      setHatInfo(hatInfo);
+      return hatInfo;
     } catch (error) {
       console.error("Error validating hat ID:", error);
       setEligibilityError("Hat ID not found or invalid");

@@ -1,39 +1,23 @@
 import { useState, useEffect } from "react";
 import { useAccount, useChainId } from "wagmi";
+import { poapProvider, POAPEvent as ProviderPOAPEvent, POAPToken } from "@/lib/nft/protocols/POAPProvider";
 
 /**
- * POAP event information structure
- * Note: Real implementation would import from @poap-xyz/poap-sdk
+ * POAP event information structure - extends the provider interface
  */
-interface POAPEvent {
+export interface POAPEvent extends ProviderPOAPEvent {
   /** Unique event identifier */
-  id: string;
-  /** Display name of the event */
-  name: string;
-  /** Description of the event */
-  description: string;
-  /** Image URL for the POAP */
-  image_url?: string;
-  /** Event start date */
-  start_date?: string;
-  /** Event end date */
-  end_date?: string;
-  /** Total number of POAPs minted for this event */
-  supply?: number;
-  /** When the event was created */
-  created_date?: string;
+  id: number;
 }
 
 /**
- * User's POAP token data
+ * User's POAP token data - extends the provider interface
  */
-interface UserPOAP {
-  /** Event information */
-  event: POAPEvent;
+export interface UserPOAP extends POAPToken {
   /** Token ID of the POAP */
   tokenId: string;
-  /** When the POAP was minted/created */
-  created: string;
+  /** Event information */
+  event: POAPEvent;
 }
 
 /**
@@ -158,44 +142,37 @@ export function usePOAPs(
     setUserPOAPsError(null);
 
     try {
-      // Note: This is a mock implementation
-      // Real implementation would use POAP SDK:
-      // import { PoapSDK } from '@poap-xyz/poap-sdk'
-      // const sdk = new PoapSDK()
-      // const poaps = await sdk.getUserPOAPs(address)
+      // Check cache first
+      const cached = userPOAPCache.get(address);
+      if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+        setUserPOAPs(cached.data);
+        setIsLoadingUserPOAPs(false);
+        return;
+      }
 
-      // Mock data for demonstration
-      const mockUserPOAPs: UserPOAP[] = [
-        {
-          event: {
-            id: "12345",
-            name: "ETH Denver 2024",
-            description: "Attended ETH Denver 2024",
-            image_url: "https://example.com/poap1.png",
-            start_date: "2024-02-01",
-            supply: 5000,
-          },
-          tokenId: "987654",
-          created: "2024-02-03T10:00:00Z",
-        },
-        {
-          event: {
-            id: "12346",
-            name: "Web3 Workshop NYC",
-            description: "Participated in Web3 development workshop",
-            image_url: "https://example.com/poap2.png",
-            start_date: "2024-01-15",
-            supply: 100,
-          },
-          tokenId: "987655",
-          created: "2024-01-15T14:30:00Z",
-        },
-      ];
+      const result = await poapProvider.getUserPOAPs(address, {
+        limit: 50, // Get more POAPs for better UX
+      });
 
-      setUserPOAPs(mockUserPOAPs);
+      // Convert to hook format
+      const userPOAPs: UserPOAP[] = result.tokens.map(token => ({
+        ...token,
+        event: {
+          ...token.event,
+          id: token.event.id,
+        } as POAPEvent,
+      }));
+
+      // Cache the results
+      userPOAPCache.set(address, {
+        data: userPOAPs,
+        timestamp: Date.now(),
+      });
+
+      setUserPOAPs(userPOAPs);
     } catch (error) {
       console.error("Error fetching user POAPs:", error);
-      setUserPOAPsError("Failed to fetch your POAP collection");
+      setUserPOAPsError("Failed to fetch your POAP collection. Please check your API key.");
     } finally {
       setIsLoadingUserPOAPs(false);
     }
@@ -207,20 +184,23 @@ export function usePOAPs(
     setEventError(null);
 
     try {
-      // Note: This is a mock implementation
-      // Real implementation would use POAP SDK:
-      // const event = await sdk.getEvent(eventId)
+      // Check cache first
+      const cached = eventCache.get(eventId);
+      if (cached) {
+        setEventInfo(cached);
+        setIsLoadingEvent(false);
+        return;
+      }
 
-      const mockEvent: POAPEvent = {
-        id: eventId,
-        name: `Event #${eventId}`,
-        description: "Community event POAP",
-        start_date: "2024-01-01",
-        supply: 1000,
-        created_date: "2024-01-01",
-      };
+      const event = await poapProvider.getEvent(parseInt(eventId));
+      
+      if (!event) {
+        throw new Error("Event not found");
+      }
 
-      setEventInfo(mockEvent);
+      const poapEvent = event as POAPEvent;
+      eventCache.set(eventId, poapEvent);
+      setEventInfo(poapEvent);
     } catch (error) {
       console.error("Error fetching event info:", error);
       setEventError("Event not found or invalid");
@@ -233,29 +213,13 @@ export function usePOAPs(
   // Search for events
   const searchEvents = async (query: string): Promise<POAPEvent[]> => {
     try {
-      // Note: This is a mock implementation
-      // Real implementation would use POAP SDK search
+      const result = await poapProvider.searchEvents(query, {
+        limit: 20,
+        sortBy: 'start_date',
+        sortDirection: 'desc',
+      });
 
-      const mockResults: POAPEvent[] = [
-        {
-          id: "12345",
-          name: `${query} Conference 2024`,
-          description: "Annual blockchain conference",
-          image_url: "https://example.com/event1.png",
-          start_date: "2024-03-15",
-          supply: 500,
-        },
-        {
-          id: "12346",
-          name: `${query} Workshop`,
-          description: "Technical workshop on DeFi",
-          image_url: "https://example.com/event2.png",
-          start_date: "2024-04-01",
-          supply: 100,
-        },
-      ];
-
-      return mockResults;
+      return result.events as POAPEvent[];
     } catch (error) {
       console.error("Error searching events:", error);
       return [];
@@ -267,20 +231,12 @@ export function usePOAPs(
     eventId: string,
   ): Promise<POAPEvent | null> => {
     try {
-      // Note: Mock implementation - real would call POAP API
       if (!/^\d+$/.test(eventId)) {
         throw new Error("Event ID must be numeric");
       }
 
-      const mockEvent: POAPEvent = {
-        id: eventId,
-        name: `Event #${eventId}`,
-        description: "Valid POAP event",
-        start_date: "2024-01-01",
-        supply: 1000,
-      };
-
-      return mockEvent;
+      const event = await poapProvider.getEvent(parseInt(eventId));
+      return event as POAPEvent || null;
     } catch (error) {
       console.error("Error validating event ID:", error);
       return null;
@@ -289,7 +245,8 @@ export function usePOAPs(
 
   // Check if user has POAP from specific event
   const checkUserHasPOAP = (eventId: string): boolean => {
-    return userPOAPs.some((poap) => poap.event.id === eventId);
+    const numericEventId = parseInt(eventId);
+    return userPOAPs.some((poap) => poap.event.id === numericEventId);
   };
 
   // Refetch all data

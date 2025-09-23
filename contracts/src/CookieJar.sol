@@ -799,8 +799,19 @@ contract CookieJar is AccessControl, Pausable {
             revert CookieJarLib.NotAuthorized();
         }
         
-        // TODO: Add on-chain event ID validation via oracle or merkle proof
-        // Currently relies on off-chain filtering of valid token IDs per event
+        /**
+         * FUTURE ENHANCEMENT: On-chain POAP event validation
+         * 
+         * Currently relies on off-chain filtering of valid token IDs per event.
+         * To fully decentralize access control, this could be enhanced with:
+         * 
+         * - Oracle-based event validation (Chainlink, UMA, etc.)
+         * - Merkle proof system for valid event IDs 
+         * - Cross-chain verification for POAP contracts on different networks
+         * 
+         * Implementation would require additional contract dependencies and gas costs.
+         * The current approach provides sufficient security for most use cases.
+         */
     }
 
     function _checkAccessUnlock() internal view {

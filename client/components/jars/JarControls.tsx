@@ -11,7 +11,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ChainDisplay } from "./ChainDisplay";
-import { getNetworkName } from "@/lib/network/utils";
+import { getNetworkName } from "@/lib/blockchain/networks";
 
 interface JarControlsProps {
   searchTerm: string;

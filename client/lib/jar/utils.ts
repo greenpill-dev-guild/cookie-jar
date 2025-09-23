@@ -12,15 +12,19 @@ export type JarData = CookieJarInfo;
 
 /**
  * Get formatted currency amount from jar data
+ * 
+ * @param jar - The jar data containing currency information
+ * @param tokenDecimals - Optional mapping of token addresses to their decimal counts
+ * @returns Formatted currency amount string
  */
-export function getCurrencyAmount(jar: JarData) {
+export function getCurrencyAmount(jar: JarData, tokenDecimals?: Record<string, number>) {
   const amount = jar.currencyHeldByJar || BigInt(0);
   if (jar.currency.toLowerCase() === ETH_ADDRESS.toLowerCase()) {
     return ethers.formatEther(amount);
   } else {
-    // For ERC20 tokens, we might need to handle different decimals
-    // TODO: Could be enhanced to fetch actual decimals per token
-    return ethers.formatUnits(amount, 18); // Assuming 18 decimals for now
+    // Use actual token decimals if available, otherwise default to 18
+    const decimals = tokenDecimals?.[jar.currency.toLowerCase()] ?? 18;
+    return ethers.formatUnits(amount, decimals);
   }
 }
 
@@ -42,20 +46,35 @@ export function getCurrencySymbol(
 
 /**
  * Get withdrawal amount display string for a jar
+ * 
+ * @param jar - The jar data containing withdrawal information  
+ * @param nativeCurrency - Native currency configuration
+ * @param tokenSymbols - Mapping of token addresses to symbols
+ * @param tokenDecimals - Optional mapping of token addresses to their decimal counts
+ * @returns Formatted withdrawal amount display string
  */
 export function getWithdrawalAmountDisplay(
   jar: JarData,
   nativeCurrency: NativeCurrency,
   tokenSymbols: Record<string, string>,
+  tokenDecimals?: Record<string, number>,
 ) {
   const symbol = getCurrencySymbol(jar, nativeCurrency, tokenSymbols);
+  const isEth = jar.currency.toLowerCase() === ETH_ADDRESS.toLowerCase();
+  const decimals = tokenDecimals?.[jar.currency.toLowerCase()] ?? 18;
 
   if (jar.withdrawalOption === 0) {
     // Fixed
-    return `Fixed: ${ethers.formatEther(jar.fixedAmount || BigInt(0))} ${symbol}`;
+    const amount = isEth 
+      ? ethers.formatEther(jar.fixedAmount || BigInt(0))
+      : ethers.formatUnits(jar.fixedAmount || BigInt(0), decimals);
+    return `Fixed: ${amount} ${symbol}`;
   } else {
     // Variable
-    return `Max: ${ethers.formatEther(jar.maxWithdrawal || BigInt(0))} ${symbol}`;
+    const amount = isEth 
+      ? ethers.formatEther(jar.maxWithdrawal || BigInt(0))
+      : ethers.formatUnits(jar.maxWithdrawal || BigInt(0), decimals);
+    return `Max: ${amount} ${symbol}`;
   }
 }
 

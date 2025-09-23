@@ -4,10 +4,10 @@
 
 @layer base {
   :root {
-    /* Cookie Jar Brand Colors */
-    --cj-brand-orange: 20 95% 50%; /* #ff5e14 */
-    --cj-brand-orange-light: 20 95% 60%;
-    --cj-brand-orange-dark: 20 95% 40%;
+    /* Cookie Jar Brand Colors - Improved accessibility */
+    --cj-brand-orange: 20 85% 42%; /* Darker orange for better contrast */
+    --cj-brand-orange-light: 20 85% 52%;
+    --cj-brand-orange-dark: 20 85% 32%;
 
     /* Cookie Jar Semantic Light Mode Colors */
     --cj-creme-bg: 30 25% 95%; /* #fff8f0 - Main background */
@@ -298,18 +298,34 @@
     @apply cj-card-primary p-8;
   }
 
-  /* Cookie Jar Button Classes */
+  /* Cookie Jar Button Classes - Accessibility Enhanced */
   .cj-btn-primary {
     background-color: hsl(var(--primary));
     color: hsl(var(--primary-foreground));
-    @apply hover:brightness-105 focus-visible:ring-2 focus-visible:ring-ring transition-all duration-200;
+    @apply hover:brightness-105 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-all duration-200;
+    /* Ensure minimum touch target size */
+    min-height: 44px;
+    min-width: 44px;
   }
 
   .cj-btn-secondary {
     background-color: hsl(var(--cj-warm-white));
     color: hsl(var(--cj-dark-brown));
     border: 1px solid hsl(var(--border));
-    @apply hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring transition-all duration-200;
+    @apply hover:bg-accent focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition-all duration-200;
+    /* Ensure minimum touch target size */
+    min-height: 44px;
+    min-width: 44px;
+  }
+
+  /* Mobile-specific button improvements */
+  @media (max-width: 767px) {
+    .cj-btn-primary,
+    .cj-btn-secondary {
+      /* Full width on mobile for better touch targets */
+      width: 100%;
+      padding: 0.75rem 1rem; /* Ensure adequate padding */
+    }
   }
 
   /* Header styles */
@@ -721,6 +737,26 @@ body {
 
   .content-caption {
     @apply text-xs text-gray-500 truncate min-w-0;
+  }
+
+  /* Accessibility-focused button utilities */
+  .btn-accessible {
+    @apply min-h-[44px] min-w-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+  }
+  
+  .btn-mobile-full {
+    @apply w-full md:w-auto;
+  }
+  
+  /* Icon-only button accessibility */
+  .btn-icon-accessible {
+    @apply min-h-[44px] min-w-[44px] p-2 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+  }
+
+  /* High contrast text utilities for better readability */
+  .text-high-contrast {
+    @apply font-medium;
+    color: hsl(var(--cj-dark-brown));
   }
 }
 

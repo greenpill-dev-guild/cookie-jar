@@ -11,8 +11,8 @@ import { useState, useMemo, useCallback } from "react";
 import { ETH_ADDRESS } from "@/lib/blockchain/token-utils";
 import { JarControls } from "./JarControls";
 import { JarGrid } from "./JarGrid";
-import { useMultipleTokenSymbols } from "@/hooks/app/useMultipleTokenSymbols";
-import { getNetworkName } from "@/lib/network/utils";
+import { useMultipleTokenSymbols } from "@/hooks/blockchain/useMultipleTokenSymbols";
+import { getNetworkName } from "@/lib/blockchain/networks";
 
 interface JarContentProps {
   userAddress?: string;

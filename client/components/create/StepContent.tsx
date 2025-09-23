@@ -16,6 +16,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Trash2 } from "lucide-react";
 import { ProtocolGateSelector } from "@/components/nft/ProtocolGateSelector";
 import { NFTGateInput } from "@/components/nft/NFTGateInput";
+import { UnifiedNFTSelector, type SelectedNFT } from "@/components/nft/UnifiedNFTSelector";
 import { shortenAddress } from "@/lib/app/utils";
 import { isAddress } from "viem";
 import {
@@ -383,39 +384,82 @@ const AccessControlStep: React.FC<{ formData: any }> = ({ formData }) => {
       />
 
       {formData.accessType === AccessType.NFTGated && (
-        <div className="mt-6">
-          <NFTGateInput onAddNFT={formData.handleAddNFT} />
+        <div className="mt-6 space-y-6">
+          <div className="border rounded-lg p-4">
+            <Label className="text-base font-medium mb-4 block">
+              Select NFT for Access Control
+            </Label>
+            <p className="text-sm text-muted-foreground mb-4">
+              Choose an NFT that users must own to access this jar. You can search public collections or select from your own NFTs.
+            </p>
+            
+            <UnifiedNFTSelector
+              onNFTSelect={(selectedNFT: SelectedNFT) => {
+                // Convert SelectedNFT to the format expected by handleAddNFT
+                const nftType = selectedNFT.tokenType === "ERC721" ? NFTType.ERC721 : NFTType.ERC1155;
+                formData.handleAddNFT(selectedNFT.contractAddress, nftType);
+              }}
+              mode="inline"
+              maxHeight="max-h-[400px]"
+              className="mt-4"
+            />
+          </div>
 
           {formData.nftAddresses.length > 0 && (
-            <div className="mt-4 space-y-2">
-              <Label>Added NFT Contracts:</Label>
-              {formData.nftAddresses.map((address: string, index: number) => (
-                <div
-                  key={index}
-                  className="flex items-center justify-between p-2 bg-muted rounded"
-                >
-                  <span className="text-sm">{address}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {formData.nftTypes[index] === NFTType.ERC721
-                      ? "ERC721"
-                      : "ERC1155"}
-                  </span>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      formData.setNftAddresses((prev: string[]) =>
-                        prev.filter((_, i) => i !== index),
-                      );
-                      formData.setNftTypes((prev: number[]) =>
-                        prev.filter((_, i) => i !== index),
-                      );
-                    }}
+            <div className="space-y-3">
+              <Label className="text-base font-medium">Selected NFT Requirements:</Label>
+              <div className="space-y-2">
+                {formData.nftAddresses.map((address: string, index: number) => (
+                  <div
+                    key={index}
+                    className="flex items-center justify-between p-3 bg-muted rounded-lg border"
                   >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="text-sm font-medium">NFT Contract</span>
+                        <span className={`text-xs px-2 py-0.5 rounded ${
+                          formData.nftTypes[index] === NFTType.ERC721 
+                            ? "bg-purple-100 text-purple-800" 
+                            : "bg-blue-100 text-blue-800"
+                        }`}>
+                          {formData.nftTypes[index] === NFTType.ERC721 ? "ERC721" : "ERC1155"}
+                        </span>
+                      </div>
+                      <p className="text-sm text-muted-foreground font-mono truncate">
+                        {address}
+                      </p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => {
+                        formData.setNftAddresses((prev: string[]) =>
+                          prev.filter((_, i) => i !== index),
+                        );
+                        formData.setNftTypes((prev: number[]) =>
+                          prev.filter((_, i) => i !== index),
+                        );
+                      }}
+                      className="text-red-500 hover:text-red-700 hover:bg-red-50"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  </div>
+                ))}
+              </div>
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-800">
+                  ✓ Users must own NFTs from {formData.nftAddresses.length} selected collection{formData.nftAddresses.length !== 1 ? 's' : ''} to access this jar.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {formData.nftAddresses.length === 0 && (
+            <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
+              <p className="text-sm text-amber-800">
+                ⚠️ Please select at least one NFT collection to enable NFT-gated access.
+              </p>
             </div>
           )}
         </div>

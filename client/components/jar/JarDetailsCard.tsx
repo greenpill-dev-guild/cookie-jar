@@ -17,7 +17,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { formatAddress } from "@/lib/app/utils";
-import { getExplorerAddressUrl } from "@/lib/network/utils";
+import { getExplorerAddressUrl } from "@/lib/blockchain/networks";
 import { formatUnits } from "viem";
 import { formatTimeComponents, formatTimeString } from "@/lib/display/time";
 import { formatJarBalance, copyToClipboard } from "@/lib/display/jar-display";

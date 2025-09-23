@@ -28,7 +28,7 @@ import {
   Cookie,
 } from "lucide-react";
 import { shortenAddress } from "@/lib/app/utils";
-import { getExplorerAddressUrl, getNetworkName } from "@/lib/network/utils";
+import { getExplorerAddressUrl, getNetworkName } from "@/lib/blockchain/networks";
 import { BackButton } from "@/components/app/BackButton";
 import { getAccessTypeName } from "@/lib/jar/access-types";
 // import { contractAddresses } from "@/config/supported-networks";

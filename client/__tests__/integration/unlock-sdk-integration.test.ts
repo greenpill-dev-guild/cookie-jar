@@ -22,8 +22,11 @@ describe("Unlock Protocol SDK Integration Test", () => {
   });
 
   // This test verifies our SDK integration can fetch real lock data
-  // Skip by default to avoid rate limiting during regular test runs
-  describe.skip("Real API Integration", () => {
+  // Conditionally skip based on environment variable to avoid rate limiting during regular test runs
+  const shouldRunIntegrationTests = process.env.RUN_INTEGRATION_TESTS === "true";
+  const integrationDescribe = shouldRunIntegrationTests ? describe : describe.skip;
+  
+  integrationDescribe("Real API Integration", () => {
     it("fetches real lock information from Ethereum", async () => {
       try {
         const lock = await web3Service.getLock(

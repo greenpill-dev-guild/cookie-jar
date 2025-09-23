@@ -286,7 +286,7 @@ contracts/
 #### Port Conflicts
 - Client: Port 3000
 - Anvil: Port 8545
-- **Solution**: Kill conflicting processes with `pnpm stop`
+- **Solution**: Kill conflicting processes with `pnpm dev:stop`
 
 #### Contract Changes Not Reflecting
 1. Check `contracts/anvil.log` for blockchain errors

@@ -282,7 +282,7 @@ if $TEST_CMD; then
     if [ ! -z "$DEV_PID" ] && kill -0 $DEV_PID 2>/dev/null; then
         echo ""
         echo -e "${BLUE}🧹 Development environment is still running (PID: $DEV_PID)${NC}"
-        echo -e "${YELLOW}   To stop: kill $DEV_PID or pnpm stop${NC}"
+        echo -e "${YELLOW}   To stop: kill $DEV_PID or pnpm dev:stop${NC}"
     fi
     
 else
