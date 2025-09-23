@@ -1,0 +1,77 @@
+{
+  "rules": [
+    {
+      "include": ".cursor/rules.md",
+      "description": "Greenpill Dev Guild coding standards and best practices"
+    }
+  ],
+  "composer": {
+    "includeEditedFiles": true,
+    "maxTokens": 100000
+  },
+  "chat": {
+    "maxTokens": 100000,
+    "temperature": 0.3
+  },
+  "features": {
+    "codeActions": true,
+    "diagnostics": true,
+    "hover": true,
+    "signatureHelp": true,
+    "documentSymbol": true,
+    "workspaceSymbol": true,
+    "references": true,
+    "rename": true,
+    "foldingRange": true,
+    "selectionRange": true,
+    "semanticTokens": true,
+    "inlayHints": true
+  },
+  "integrations": {
+    "mcp": {
+      "enabled": true,
+      "servers": [
+        {
+          "name": "cookie-jar-context",
+          "config": "mcp-server.json"
+        }
+      ]
+    },
+    "github": {
+      "enabled": true,
+      "autoLink": true,
+      "prTemplates": true
+    }
+  },
+  "project": {
+    "type": "monorepo",
+    "structure": {
+      "client": "Next.js + React + TypeScript",
+      "contracts": "Foundry + Solidity",
+      "docs": "Markdown documentation",
+      "e2e": "Playwright tests"
+    },
+    "packageManager": "pnpm",
+    "nodeVersion": ">=18.0.0"
+  },
+  "ai": {
+    "codeGeneration": {
+      "style": "functional",
+      "testing": "comprehensive",
+      "documentation": "minimal-but-clear",
+      "errorHandling": "explicit",
+      "security": "strict"
+    },
+    "preferences": {
+      "codeFirst": true,
+      "explainTradeoffs": true,
+      "assumptionsInComments": true,
+      "breakDownComplexTasks": true
+    }
+  },
+  "guild": {
+    "name": "Greenpill Dev Guild",
+    "standards": "open-source, transparent, regen-positive",
+    "projects": ["Green Goods", "Cookie Jar", "Community Host", "Allo Yeeter", "GreenWill"]
+  }
+}
