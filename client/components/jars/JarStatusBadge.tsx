@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Crown, Check } from "lucide-react";
 import { keccak256, toUtf8Bytes } from "ethers";
 import { useReadCookieJarHasRole } from "@/generated";
-import { useAllowlistStatus } from "@/hooks/useAllowlistStatus";
+import { useAllowlistStatus } from "@/hooks/jar/useJarAllowlistStatus";
 
 // Constants for roles
 const JAR_OWNER_ROLE = keccak256(toUtf8Bytes("JAR_OWNER")) as `0x${string}`;

@@ -1,4 +1,4 @@
-// Test for useNftValidation hook
+// Test for useNFTValidation hook
 import "@testing-library/jest-dom";
 
 // Declare Jest globals for TypeScript
@@ -6,7 +6,7 @@ declare const describe: any;
 declare const it: any;
 declare const expect: any;
 
-describe("useNftValidation Hook Logic", () => {
+describe("useNFTValidation Hook Logic", () => {
   // Mock the hook behavior for testing
   const mockValidationResult = (
     address: string,

@@ -4,7 +4,7 @@ import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 import { vi } from "vitest";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { NFTGateInput } from "@/components/forms/NFTGateInput";
+import { NFTGateInput } from "@/components/nft/NFTGateInput";
 
 enum NFTType {
   None = 0,
@@ -13,8 +13,8 @@ enum NFTType {
 }
 
 // Mock the validation hook with different return values based on address
-vi.mock("@/hooks/useNftValidation", () => ({
-  useNftValidation: vi.fn(),
+vi.mock("@/hooks/useNFTValidation", () => ({
+  useNFTValidation: vi.fn(),
 }));
 
 // Mock validation results for testing
@@ -49,11 +49,11 @@ describe("NFTGateInput", () => {
   const user = userEvent.setup();
   const mockOnAddNFT = vi.fn();
   let queryClient: QueryClient;
-  const mockUseNftValidation = vi.mocked(require("@/hooks/useNftValidation").useNftValidation);
+  const mockuseNFTValidation = vi.mocked(require("@/hooks/useNFTValidation").useNFTValidation);
 
   beforeEach(() => {
     mockOnAddNFT.mockClear();
-    mockUseNftValidation.mockClear();
+    mockuseNFTValidation.mockClear();
     
     queryClient = new QueryClient({
       defaultOptions: {
@@ -72,7 +72,7 @@ describe("NFTGateInput", () => {
   };
 
   it("renders input fields correctly", () => {
-    mockUseNftValidation.mockReturnValue({
+    mockuseNFTValidation.mockReturnValue({
       isValid: false,
       detectedType: null,
       isLoading: false,
@@ -88,7 +88,7 @@ describe("NFTGateInput", () => {
 
   it("validates NFT addresses in real-time", async () => {
     // Start with loading state
-    mockUseNftValidation.mockReturnValue({
+    mockuseNFTValidation.mockReturnValue({
       isValid: false,
       detectedType: null,
       isLoading: false,
@@ -100,7 +100,7 @@ describe("NFTGateInput", () => {
     const addressInput = screen.getByPlaceholderText("0x...");
 
     // Mock successful validation after debounce
-    mockUseNftValidation.mockReturnValue({
+    mockuseNFTValidation.mockReturnValue({
       isValid: true,
       detectedType: "ERC721",
       isLoading: false,
@@ -117,7 +117,7 @@ describe("NFTGateInput", () => {
   });
 
   it("shows loading state during validation", async () => {
-    mockUseNftValidation.mockReturnValue({
+    mockuseNFTValidation.mockReturnValue({
       isValid: false,
       detectedType: null,
       isLoading: true,
@@ -136,7 +136,7 @@ describe("NFTGateInput", () => {
   });
 
   it("shows error for invalid contracts", async () => {
-    mockUseNftValidation.mockReturnValue({
+    mockuseNFTValidation.mockReturnValue({
       isValid: false,
       detectedType: null,
       isLoading: false,
@@ -155,7 +155,7 @@ describe("NFTGateInput", () => {
   });
 
   it("auto-populates NFT type when detected", async () => {
-    mockUseNftValidation.mockReturnValue({
+    mockuseNFTValidation.mockReturnValue({
       isValid: true,
       detectedType: "ERC1155",
       isLoading: false,
@@ -176,7 +176,7 @@ describe("NFTGateInput", () => {
   });
 
   it("shows type mismatch warning", async () => {
-    mockUseNftValidation.mockReturnValue({
+    mockuseNFTValidation.mockReturnValue({
       isValid: true,
       detectedType: "ERC1155",
       isLoading: false,
@@ -196,7 +196,7 @@ describe("NFTGateInput", () => {
   });
 
   it("disables add button when validation fails", async () => {
-    mockUseNftValidation.mockReturnValue({
+    mockuseNFTValidation.mockReturnValue({
       isValid: false,
       detectedType: null,
       isLoading: false,
@@ -216,7 +216,7 @@ describe("NFTGateInput", () => {
   });
 
   it("enables add button when validation succeeds", async () => {
-    mockUseNftValidation.mockReturnValue({
+    mockuseNFTValidation.mockReturnValue({
       isValid: true,
       detectedType: "ERC721",
       isLoading: false,
@@ -236,7 +236,7 @@ describe("NFTGateInput", () => {
   });
 
   it("calls onAddNFT with correct parameters", async () => {
-    mockUseNftValidation.mockReturnValue({
+    mockuseNFTValidation.mockReturnValue({
       isValid: true,
       detectedType: "ERC721",
       isLoading: false,
@@ -263,7 +263,7 @@ describe("NFTGateInput", () => {
   });
 
   it("resets form after successful add", async () => {
-    mockUseNftValidation.mockReturnValue({
+    mockuseNFTValidation.mockReturnValue({
       isValid: true,
       detectedType: "ERC721",
       isLoading: false,
@@ -291,7 +291,7 @@ describe("NFTGateInput", () => {
 
   describe("Type Selection", () => {
     it("allows manual type selection", async () => {
-      mockUseNftValidation.mockReturnValue({
+      mockuseNFTValidation.mockReturnValue({
         isValid: false,
         detectedType: null,
         isLoading: false,
@@ -305,7 +305,7 @@ describe("NFTGateInput", () => {
     });
 
     it("shows both NFT type options", async () => {
-      mockUseNftValidation.mockReturnValue({
+      mockuseNFTValidation.mockReturnValue({
         isValid: false,
         detectedType: null,
         isLoading: false,
@@ -326,7 +326,7 @@ describe("NFTGateInput", () => {
   describe("Component Integration", () => {
     it("integrates validation hook correctly", async () => {
       // Test that the component properly uses the validation hook
-      mockUseNftValidation.mockReturnValue({
+      mockuseNFTValidation.mockReturnValue({
         isValid: true,
         detectedType: "ERC721",
         isLoading: false,
@@ -340,12 +340,12 @@ describe("NFTGateInput", () => {
 
       // Verify the hook was called with the address
       await waitFor(() => {
-        expect(mockUseNftValidation).toHaveBeenCalledWith(expect.stringMatching(/0x/));
+        expect(mockuseNFTValidation).toHaveBeenCalledWith(expect.stringMatching(/0x/));
       });
     });
 
     it("handles debouncing correctly", async () => {
-      mockUseNftValidation.mockReturnValue({
+      mockuseNFTValidation.mockReturnValue({
         isValid: false,
         detectedType: null,
         isLoading: false,
@@ -360,13 +360,13 @@ describe("NFTGateInput", () => {
       await user.type(addressInput, "0xERC");
 
       // Should handle debouncing properly
-      expect(mockUseNftValidation).toHaveBeenCalled();
+      expect(mockuseNFTValidation).toHaveBeenCalled();
     });
   });
 
   describe("Accessibility", () => {
     it("has proper labels and structure", () => {
-      mockUseNftValidation.mockReturnValue({
+      mockuseNFTValidation.mockReturnValue({
         isValid: false,
         detectedType: null,
         isLoading: false,

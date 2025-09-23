@@ -1,5 +1,5 @@
 "use client";
-import { useCookieJarFactory } from "@/hooks/useCookieJarFactory";
+import { useCookieJarFactory } from "@/hooks/jar/useJarFactory";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ShieldAlert, Loader2, RotateCcw } from "lucide-react";
@@ -8,11 +8,11 @@ import { useRouter } from "next/navigation";
 import { useChainId, useAccount } from "wagmi";
 import { getNativeCurrency } from "@/config/supported-networks";
 import { useState, useMemo, useCallback } from "react";
-import { ETH_ADDRESS } from "@/lib/token-utils";
+import { ETH_ADDRESS } from "@/lib/blockchain/token-utils";
 import { JarControls } from "./JarControls";
 import { JarGrid } from "./JarGrid";
-import { useMultipleTokenSymbols } from "@/hooks/useMultipleTokenSymbols";
-import { getNetworkName } from "@/lib/network-utils";
+import { useMultipleTokenSymbols } from "@/hooks/app/useMultipleTokenSymbols";
+import { getNetworkName } from "@/lib/network/utils";
 
 interface JarContentProps {
   userAddress?: string;

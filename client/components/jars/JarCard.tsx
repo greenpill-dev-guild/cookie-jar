@@ -8,7 +8,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Users } from "lucide-react";
-import { getAccessTypeName } from "@/lib/access-type-utils";
+import { getAccessTypeName } from "@/lib/jar/access-types";
 import { JarImage } from "./JarImage";
 import { JarStatusBadge } from "./JarStatusBadge";
 import {
@@ -17,7 +17,7 @@ import {
   getCurrencySymbol,
   getWithdrawalAmountDisplay,
   getJarName,
-} from "@/lib/jar-utils";
+} from "@/lib/jar/utils";
 import type { NativeCurrency } from "@/config/supported-networks";
 
 interface JarCardProps {

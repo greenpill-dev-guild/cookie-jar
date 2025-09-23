@@ -14,15 +14,15 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Trash2 } from "lucide-react";
-import { ProtocolGateSelector } from "@/components/protocol/ProtocolGateSelector";
-import { NFTGateInput } from "@/components/forms/NFTGateInput";
-import { shortenAddress } from "@/lib/utils";
+import { ProtocolGateSelector } from "@/components/nft/ProtocolGateSelector";
+import { NFTGateInput } from "@/components/nft/NFTGateInput";
+import { shortenAddress } from "@/lib/app/utils";
 import { isAddress } from "viem";
 import {
   AccessType,
   WithdrawalTypeOptions,
   NFTType,
-} from "@/hooks/useJarCreation";
+} from "@/hooks/jar/useJarCreation";
 
 interface StepContentProps {
   step: number;

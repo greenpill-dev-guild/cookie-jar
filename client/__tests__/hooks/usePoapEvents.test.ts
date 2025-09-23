@@ -1,4 +1,4 @@
-// Test for usePoapEvents hook
+// Test for usePOAPs hook
 import "@testing-library/jest-dom";
 import { vi } from "vitest";
 
@@ -19,9 +19,9 @@ interface UserPOAP {
   created: string;
 }
 
-describe("usePoapEvents Hook Logic", () => {
+describe("usePOAPs Hook Logic", () => {
   // Mock hook behavior
-  const mockUsePoapEvents = (
+  const mockusePOAPs = (
     userAddress?: string,
     options: { eventId?: string; fetchUserPOAPs?: boolean } = {},
   ) => {
@@ -105,12 +105,12 @@ describe("usePoapEvents Hook Logic", () => {
 
   describe("User POAP Fetching", () => {
     it("returns empty array when no address provided", () => {
-      const result = mockUsePoapEvents(undefined, { fetchUserPOAPs: true });
+      const result = mockusePOAPs(undefined, { fetchUserPOAPs: true });
       expect(result.userPOAPs).toEqual([]);
     });
 
     it("returns user POAPs when address provided", () => {
-      const result = mockUsePoapEvents(
+      const result = mockusePOAPs(
         "0x1234567890123456789012345678901234567890",
         { fetchUserPOAPs: true },
       );
@@ -122,7 +122,7 @@ describe("usePoapEvents Hook Logic", () => {
     });
 
     it("does not fetch user POAPs when option is disabled", () => {
-      const result = mockUsePoapEvents(
+      const result = mockusePOAPs(
         "0x1234567890123456789012345678901234567890",
         { fetchUserPOAPs: false },
       );
@@ -132,7 +132,7 @@ describe("usePoapEvents Hook Logic", () => {
 
   describe("Event Information", () => {
     it("fetches event info when eventId provided", () => {
-      const result = mockUsePoapEvents(
+      const result = mockusePOAPs(
         "0x1234567890123456789012345678901234567890",
         { eventId: "12345" },
       );
@@ -143,7 +143,7 @@ describe("usePoapEvents Hook Logic", () => {
     });
 
     it("returns null when no eventId provided", () => {
-      const result = mockUsePoapEvents(
+      const result = mockusePOAPs(
         "0x1234567890123456789012345678901234567890",
       );
       expect(result.eventInfo).toBeNull();
@@ -152,7 +152,7 @@ describe("usePoapEvents Hook Logic", () => {
 
   describe("Event Search", () => {
     it("searches events by query string", async () => {
-      const result = mockUsePoapEvents(
+      const result = mockusePOAPs(
         "0x1234567890123456789012345678901234567890",
       );
       const searchResults = await result.searchEvents("ETH");
@@ -164,7 +164,7 @@ describe("usePoapEvents Hook Logic", () => {
 
     it("returns empty array for failed searches", async () => {
       // In a real implementation, this would handle API errors
-      const result = mockUsePoapEvents(
+      const result = mockusePOAPs(
         "0x1234567890123456789012345678901234567890",
       );
       const searchResults = await result.searchEvents("");
@@ -176,7 +176,7 @@ describe("usePoapEvents Hook Logic", () => {
 
   describe("Event Validation", () => {
     it("validates numeric event IDs", async () => {
-      const result = mockUsePoapEvents(
+      const result = mockusePOAPs(
         "0x1234567890123456789012345678901234567890",
       );
 
@@ -189,7 +189,7 @@ describe("usePoapEvents Hook Logic", () => {
     });
 
     it("handles edge cases in event ID validation", async () => {
-      const result = mockUsePoapEvents(
+      const result = mockusePOAPs(
         "0x1234567890123456789012345678901234567890",
       );
 
@@ -207,7 +207,7 @@ describe("usePoapEvents Hook Logic", () => {
 
   describe("User POAP Checking", () => {
     it("correctly identifies if user has POAP from event", () => {
-      const result = mockUsePoapEvents(
+      const result = mockusePOAPs(
         "0x1234567890123456789012345678901234567890",
         { fetchUserPOAPs: true },
       );
@@ -221,7 +221,7 @@ describe("usePoapEvents Hook Logic", () => {
     });
 
     it("returns false when user has no POAPs", () => {
-      const result = mockUsePoapEvents(
+      const result = mockusePOAPs(
         "0x1234567890123456789012345678901234567890",
         { fetchUserPOAPs: false },
       );
@@ -232,7 +232,7 @@ describe("usePoapEvents Hook Logic", () => {
 
   describe("Loading States", () => {
     it("tracks loading states correctly", () => {
-      const result = mockUsePoapEvents(
+      const result = mockusePOAPs(
         "0x1234567890123456789012345678901234567890",
       );
 
@@ -245,7 +245,7 @@ describe("usePoapEvents Hook Logic", () => {
     it("combines loading states properly", () => {
       // Test that overall loading is true if any component is loading
       const mockLoadingResult = {
-        ...mockUsePoapEvents("0x1234567890123456789012345678901234567890"),
+        ...mockusePOAPs("0x1234567890123456789012345678901234567890"),
         isLoadingEvent: true,
         isLoadingUserPOAPs: false,
         isLoading: true, // Should be true if any sub-loading is true
@@ -258,7 +258,7 @@ describe("usePoapEvents Hook Logic", () => {
   describe("Error Handling", () => {
     it("handles user POAP fetch errors", () => {
       const mockErrorResult = {
-        ...mockUsePoapEvents("0x1234567890123456789012345678901234567890"),
+        ...mockusePOAPs("0x1234567890123456789012345678901234567890"),
         userPOAPsError: "Failed to fetch your POAP collection",
         error: "Failed to fetch your POAP collection",
       };
@@ -273,7 +273,7 @@ describe("usePoapEvents Hook Logic", () => {
 
     it("handles event fetch errors", () => {
       const mockErrorResult = {
-        ...mockUsePoapEvents("0x1234567890123456789012345678901234567890"),
+        ...mockusePOAPs("0x1234567890123456789012345678901234567890"),
         eventError: "Event not found or invalid",
         error: "Event not found or invalid",
       };
@@ -284,7 +284,7 @@ describe("usePoapEvents Hook Logic", () => {
 
     it("prioritizes first error when multiple errors exist", () => {
       const mockErrorResult = {
-        ...mockUsePoapEvents("0x1234567890123456789012345678901234567890"),
+        ...mockusePOAPs("0x1234567890123456789012345678901234567890"),
         userPOAPsError: "User error",
         eventError: "Event error",
         error: "User error", // Should be the first error
@@ -296,7 +296,7 @@ describe("usePoapEvents Hook Logic", () => {
 
   describe("Data Structure Validation", () => {
     it("returns proper POAP data structure", () => {
-      const result = mockUsePoapEvents(
+      const result = mockusePOAPs(
         "0x1234567890123456789012345678901234567890",
         { fetchUserPOAPs: true },
       );
@@ -312,7 +312,7 @@ describe("usePoapEvents Hook Logic", () => {
     });
 
     it("handles optional fields properly", () => {
-      const result = mockUsePoapEvents(
+      const result = mockusePOAPs(
         "0x1234567890123456789012345678901234567890",
         { fetchUserPOAPs: true },
       );

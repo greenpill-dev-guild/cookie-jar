@@ -3,8 +3,8 @@ import { renderHook, waitFor } from "@testing-library/react";
 import {
   useNFTBalanceProof,
   validateBalanceProof,
-} from "@/hooks/useNFTBalanceProof";
-import { useEnhancedNFTs } from "@/hooks/useEnhancedNFTs";
+} from "@/hooks/nft/useNFTBalanceProof";
+import { useEnhancedNFTs } from "@/hooks/nft/useEnhancedNFTs";
 
 import { vi } from "vitest";
 

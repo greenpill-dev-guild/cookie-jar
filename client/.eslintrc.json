@@ -1,9 +1,9 @@
 {
   "extends": ["next/core-web-vitals"],
   "rules": {
-    "no-unused-vars": "off",
-    "no-console": "off",
-    "react/no-unescaped-entities": "off",
+    "no-unused-vars": "warn",
+    "no-console": "warn",
+    "react/no-unescaped-entities": "warn",
     "@next/next/no-img-element": "warn",
     "react-hooks/exhaustive-deps": "warn",
     "react-hooks/rules-of-hooks": "error"

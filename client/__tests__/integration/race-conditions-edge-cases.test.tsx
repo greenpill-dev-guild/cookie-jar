@@ -4,15 +4,15 @@ import { ReactNode } from "react";
 import "@testing-library/jest-dom";
 
 // Import hooks to test
-import { useEnhancedNFTs } from "@/hooks/useEnhancedNFTs";
+import { useEnhancedNFTs } from "@/hooks/nft/useEnhancedNFTs";
 import {
   useNFTBalanceProof,
   validateBalanceProof,
-} from "@/hooks/useNFTBalanceProof";
-import { useJarCreation } from "@/hooks/useJarCreation";
+} from "@/hooks/nft/useNFTBalanceProof";
+import { useJarCreation } from "@/hooks/jar/useJarCreation";
 
 // Import types
-import type { EnhancedNFT } from "@/lib/nft-providers/AlchemyProvider";
+import type { EnhancedNFT } from "@/lib/nft/AlchemyProvider";
 import type { UseQueryResult } from "@tanstack/react-query";
 import type {
   UseAccountReturnType,

@@ -9,8 +9,8 @@ import {
   useEnhancedNFTs,
   useNFTMetadata,
   useEnhancedNFTValidation,
-} from "@/hooks/useEnhancedNFTs";
-import { useNFTBalanceProof } from "@/hooks/useNFTBalanceProof";
+} from "@/hooks/nft/useEnhancedNFTs";
+import { useNFTBalanceProof } from "@/hooks/nft/useNFTBalanceProof";
 
 // Mock wagmi hooks
 vi.mock("wagmi", () => ({

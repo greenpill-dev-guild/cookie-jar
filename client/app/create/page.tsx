@@ -13,9 +13,9 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle2, ArrowLeft, ArrowRight } from "lucide-react";
-import { ProtocolErrorBoundary } from "@/components/design/ProtocolErrorBoundary";
-import { useJarCreation } from "@/hooks/useJarCreation";
-import { useStepNavigation } from "@/hooks/useStepNavigation";
+import { ProtocolErrorBoundary } from "@/components/app/ProtocolErrorBoundary";
+import { useJarCreation } from "@/hooks/jar/useJarCreation";
+import { useStepNavigation } from "@/hooks/app/useStepNavigation";
 
 // Lazy load heavy components for better bundle splitting
 const StepContent = lazy(() =>

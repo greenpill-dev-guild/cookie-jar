@@ -28,6 +28,7 @@ contract CookieJarFactory is AccessControl {
     error CookieJarFactory__NotValidERC20();
     error CookieJarFactory__JarNotFound();
     error CookieJarFactory__NotJarOwner();
+    error CookieJarFactory__IndexOutOfBounds();
 
     event CookieJarCreated(address indexed creator, address cookieJarAddress);
     event MetadataUpdated(address indexed jarAddress, string metadata);
@@ -73,7 +74,7 @@ contract CookieJarFactory is AccessControl {
     /// @param index Index of the jar in the cookieJars array
     /// @return metadata string
     function metadatas(uint256 index) external view returns (string memory) {
-        require(index < cookieJars.length, "Index out of bounds");
+        if (index >= cookieJars.length) revert CookieJarFactory__IndexOutOfBounds();
         return _jarMetadata[index];
     }
 

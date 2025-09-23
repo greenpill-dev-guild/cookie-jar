@@ -1,13 +1,13 @@
-// Test for useUserNfts hook
+// Test for useUserNFTs hook
 import "@testing-library/jest-dom";
-import type { NFTMetadata, UserNFT, NFTCollection } from "@/hooks/useUserNfts";
+import type { NFTMetadata, UserNFT, NFTCollection } from "@/hooks/nft/useUserNFTs";
 
 // Declare Jest globals for TypeScript
 declare const describe: any;
 declare const it: any;
 declare const expect: any;
 
-describe("useUserNfts Hook Logic", () => {
+describe("useUserNFTs Hook Logic", () => {
   // Mock Alchemy response
   const mockAlchemyResponse = {
     ownedNfts: [

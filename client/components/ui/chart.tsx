@@ -2,7 +2,7 @@
 
 import * as React from "react";
 import type { TooltipProps } from "recharts";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/app/utils";
 
 // Chart container with CSS variables for colors
 export function ChartContainer({

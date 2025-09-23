@@ -10,15 +10,15 @@ import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import '@testing-library/jest-dom';
 import { vi, type Mock } from 'vitest';
-import { EnhancedNFTGateInput, type EnhancedNFTGate } from '@/components/forms/EnhancedNFTGateInput';
+import { EnhancedNFTGateInput, type EnhancedNFTGate } from '@/components/nft/EnhancedNFTGateInput';
 
 // Mock hooks and dependencies
 vi.mock('wagmi', () => ({
   useChainId: vi.fn(() => 1), // Ethereum mainnet
 }));
 
-vi.mock('@/hooks/useNftValidation', () => ({
-  useNftValidation: vi.fn(),
+vi.mock('@/hooks/nft/useNFTValidation', () => ({
+  useNFTValidation: vi.fn(),
 }));
 
 vi.mock('@/lib/nft-providers/config', () => ({
@@ -59,7 +59,7 @@ const mockValidCollectionPreview = {
 describe('EnhancedNFTGateInput Component Integration Tests', () => {
   let queryClient: QueryClient;
   let mockOnAddNFT: ReturnType<typeof vi.fn>;
-  const mockUseNftValidation = vi.mocked(require('@/hooks/useNftValidation').useNftValidation);
+  const mockuseNFTValidation = vi.mocked(require('@/hooks/useNFTValidation').useNFTValidation);
 
   beforeEach(() => {
     queryClient = new QueryClient({
@@ -70,7 +70,7 @@ describe('EnhancedNFTGateInput Component Integration Tests', () => {
     });
 
     mockOnAddNFT = vi.fn();
-    mockUseNftValidation.mockClear();
+    mockuseNFTValidation.mockClear();
     vi.clearAllMocks();
 
     // Mock isAddress from viem
@@ -94,7 +94,7 @@ describe('EnhancedNFTGateInput Component Integration Tests', () => {
 
   describe('Component Rendering', () => {
     it('renders the basic form elements', () => {
-      mockUseNftValidation.mockReturnValue({
+      mockuseNFTValidation.mockReturnValue({
         isValid: false,
         detectedType: null,
         isLoading: false,
@@ -110,7 +110,7 @@ describe('EnhancedNFTGateInput Component Integration Tests', () => {
     });
 
     it('shows advanced options when toggled', async () => {
-      mockUseNftValidation.mockReturnValue({
+      mockuseNFTValidation.mockReturnValue({
         isValid: false,
         detectedType: null,
         isLoading: false,
@@ -129,7 +129,7 @@ describe('EnhancedNFTGateInput Component Integration Tests', () => {
 
   describe('Input Validation', () => {
     it('validates NFT address format', async () => {
-      mockUseNftValidation.mockReturnValue({
+      mockuseNFTValidation.mockReturnValue({
         isValid: false,
         detectedType: null,
         isLoading: false,
@@ -147,7 +147,7 @@ describe('EnhancedNFTGateInput Component Integration Tests', () => {
     });
 
     it('shows loading state during validation', async () => {
-      mockUseNftValidation.mockReturnValue({
+      mockuseNFTValidation.mockReturnValue({
         isValid: false,
         detectedType: null,
         isLoading: true,
@@ -165,7 +165,7 @@ describe('EnhancedNFTGateInput Component Integration Tests', () => {
     });
 
     it('shows valid state when address is validated', async () => {
-      mockUseNftValidation.mockReturnValue({
+      mockuseNFTValidation.mockReturnValue({
         isValid: true,
         detectedType: 'ERC721',
         isLoading: false,
@@ -189,7 +189,7 @@ describe('EnhancedNFTGateInput Component Integration Tests', () => {
         name: 'Existing Collection',
       };
 
-      mockUseNftValidation.mockReturnValue({
+      mockuseNFTValidation.mockReturnValue({
         isValid: true,
         detectedType: 'ERC721',
         isLoading: false,
@@ -212,7 +212,7 @@ describe('EnhancedNFTGateInput Component Integration Tests', () => {
 
   describe('NFT Gate Addition', () => {
     it('successfully adds a valid NFT gate', async () => {
-      mockUseNftValidation.mockReturnValue({
+      mockuseNFTValidation.mockReturnValue({
         isValid: true,
         detectedType: 'ERC721',
         isLoading: false,
@@ -241,7 +241,7 @@ describe('EnhancedNFTGateInput Component Integration Tests', () => {
     });
 
     it('resets form after successful addition', async () => {
-      mockUseNftValidation.mockReturnValue({
+      mockuseNFTValidation.mockReturnValue({
         isValid: true,
         detectedType: 'ERC721',
         isLoading: false,
@@ -270,7 +270,7 @@ describe('EnhancedNFTGateInput Component Integration Tests', () => {
 
   describe('Advanced Features', () => {
     it('shows quantity controls for ERC1155 tokens', async () => {
-      mockUseNftValidation.mockReturnValue({
+      mockuseNFTValidation.mockReturnValue({
         isValid: true,
         detectedType: 'ERC1155',
         isLoading: false,
@@ -288,7 +288,7 @@ describe('EnhancedNFTGateInput Component Integration Tests', () => {
     });
 
     it('integrates validation hook correctly', async () => {
-      mockUseNftValidation.mockReturnValue({
+      mockuseNFTValidation.mockReturnValue({
         isValid: true,
         detectedType: 'ERC721',
         isLoading: false,
@@ -302,14 +302,14 @@ describe('EnhancedNFTGateInput Component Integration Tests', () => {
 
       // Verify the hook was called with the address
       await waitFor(() => {
-        expect(mockUseNftValidation).toHaveBeenCalledWith(expect.stringMatching(/0x/));
+        expect(mockuseNFTValidation).toHaveBeenCalledWith(expect.stringMatching(/0x/));
       });
     });
   });
 
   describe('Error Handling', () => {
     it('handles API errors gracefully', async () => {
-      mockUseNftValidation.mockReturnValue({
+      mockuseNFTValidation.mockReturnValue({
         isValid: false,
         detectedType: null,
         isLoading: false,

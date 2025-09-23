@@ -182,7 +182,13 @@ library CookieJarLib {
     
     // --- Enhanced NFT Events ---
     /// @notice Emitted when balance proof withdrawal is used.
-    event NFTBalanceProofWithdrawal(address indexed user, address indexed nftContract, uint256 indexed tokenId, uint256 expectedBalance, uint256 actualBalance);
+    event NFTBalanceProofWithdrawal(
+        address indexed user, 
+        address indexed nftContract, 
+        uint256 indexed tokenId, 
+        uint256 expectedBalance, 
+        uint256 actualBalance
+    );
     /// @notice Emitted when high gas usage is detected in NFT validation.
     event HighGasUsageWarning(address indexed nftContract, uint256 gasUsed);
     /// @notice Emitted when NFT gates are added in batch.

@@ -1,12 +1,13 @@
 import type React from "react";
-import { ThemeProvider } from "@/components/theme-provider";
+import { ThemeProvider } from "@/components/app/ThemeProvider";
 import { RainbowKitProviderWrapper } from "@/components/wallet/RainbowKitProviderWrapper";
 import { Toaster } from "@/components/ui/toaster";
-import { PageTransition } from "@/components/design/PageTransition";
-import { Header } from "@/components/design/header";
-import { MobileAppBar } from "@/components/design/MobileAppBar";
-import { NetworkSwitcher } from "@/components/network/NetworkSwitcher";
+import { PageTransition } from "@/components/app/PageTransition";
+import { Header } from "@/components/app/header";
+import { MobileAppBar } from "@/components/app/MobileAppBar";
+import { NetworkSwitcher } from "@/components/app/NetworkSwitcher";
 import localFont from "next/font/local";
+
 import "./loading-animation.css";
 import "./globals.css";
 

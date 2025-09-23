@@ -83,12 +83,12 @@ client/
 │   │   ├── use-mobile.tsx    # Mobile detection
 │   │   └── use-toast.ts      # Toast notifications
 │   ├── protocol/             # Protocol-specific hooks
-│   │   ├── usePoapEvents.ts  # POAP event search and validation
-│   │   ├── useUnlockLocks.ts # Unlock Protocol membership validation
+│   │   ├── usePOAPs.ts  # POAP event search and validation
+│   │   ├── useUnlock.ts # Unlock Protocol membership validation
 │   │   ├── useHypercerts.ts  # Hypercert verification
 │   │   └── useHats.ts        # Hats Protocol role validation
 │   ├── useNftValidation.ts   # NFT contract validation via EIP-165
-│   ├── useUserNfts.ts        # User NFT collection fetching (Alchemy)
+│   ├── useUserNFTs.ts        # User NFT collection fetching (Alchemy)
 │   ├── use-cookie-jar.ts     # Jar interaction hook
 │   ├── use-cookie-jar-factory.ts
 │   ├── use-cookie-jar-registry.ts
@@ -124,8 +124,8 @@ client/
 client/__tests__/
 ├── hooks/                    # Hook unit tests
 │   ├── useNftValidation.test.ts     # NFT validation logic
-│   ├── useUserNfts.test.ts          # Alchemy NFT fetching
-│   └── usePoapEvents.test.ts        # POAP event handling
+│   ├── useUserNFTs.test.ts          # Alchemy NFT fetching
+│   └── usePOAPs.test.ts        # POAP event handling
 ├── components/               # Component tests
 │   ├── NFTGateInput.test.tsx        # NFT input validation
 │   ├── ProtocolGateSelector.test.tsx # Access method selection

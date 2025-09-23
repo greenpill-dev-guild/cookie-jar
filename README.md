@@ -29,6 +29,7 @@ Open http://localhost:3000 and explore 4 pre-seeded demo jars with Cookie Monste
 npm run dev                # or pnpm dev - Local development (fastest)
 npm run dev:ethereum       # Fork Ethereum mainnet  
 npm run dev:celo           # Fork Celo network
+npm run dev:base           # Fork Base network
 npm run dev:base-sepolia   # Fork Base Sepolia testnet
 ```
 
@@ -37,9 +38,9 @@ npm run dev:base-sepolia   # Fork Base Sepolia testnet
 ## 🔧 Configuration
 
 **Local**: Zero config needed  
-**Production**: `cp .env.sample .env.local` and edit with your API keys
+**Production**: `cp .example.env .env.local` and edit with your API keys
 
-See [`.env.sample`](.env.sample) for WalletConnect, Alchemy, RPC endpoints, and factory settings.
+See [`.example.env`](.example.env) for WalletConnect, Alchemy, RPC endpoints, and factory settings.
 
 ## 🔐 Production Wallet (Foundry Keystore)
 
@@ -54,8 +55,8 @@ cast wallet list  # Verify keystore created
 
 **4 ready-to-test jars with different patterns:**
 
-1. **🏛️ Community Stipend**: Whitelist + ETH + Fixed amounts + Periodic intervals
-2. **💰 Grants Program**: Whitelist + ERC20 + Variable amounts + Purpose required
+1. **🏛️ Community Stipend**: Allowlist + ETH + Fixed amounts + Periodic intervals
+2. **💰 Grants Program**: Allowlist + ERC20 + Variable amounts + Purpose required
 3. **🍪 Cookie Monster Benefits**: NFT-gated + ETH + Variable amounts + NFT rewards
 4. **🎁 Cookie Monster Airdrop**: NFT-gated + ERC20 + One-time claims + Token distribution
 
@@ -65,8 +66,8 @@ cast wallet list  # Verify keystore created
 
 ```
 cookie-jar/
-├── contracts/          # Smart contracts (Foundry/Solidity)
 ├── client/             # Next.js frontend 
+├── contracts/          # Smart contracts (Foundry/Solidity)
 ├── docs/               # Documentation
 ├── e2e/                # Playwright tests
 └── scripts/            # Development utilities
@@ -101,7 +102,7 @@ pnpm seed:demo          # Refresh demo data
 **Local blockchain**: `http://127.0.0.1:8545` (Chain ID: 31337)  
 **Accounts**: 10 pre-funded (1000 ETH each)  
 **Addresses**: Deterministic CREATE2 (consistent across restarts)  
-**Fork modes**: Ethereum, Celo, Base Sepolia available
+**Fork modes**: Ethereum, Celo, Base, Base Sepolia available
 
 ### 🔑 Pre-funded Test Accounts
 
@@ -127,11 +128,16 @@ pnpm build                 # Build contracts + client
 # Development variants  
 pnpm dev:ethereum          # Fork Ethereum mainnet
 pnpm dev:celo              # Fork Celo network
+pnpm dev:base              # Fork Base network
 pnpm dev:base-sepolia      # Fork Base Sepolia testnet
 
 # Deployment
 pnpm deploy:local          # Deploy to Anvil
 pnpm deploy:ethereum       # Deploy to mainnet
+pnpm deploy:celo           # Deploy to celo
+pnpm deploy:base           # Deploy to base
+pnpm deploy:base-sepolia   # Deploy to mainnet
+
 pnpm seed:demo             # Refresh demo data
 pnpm generate              # Regenerate types
 
@@ -148,18 +154,18 @@ Cookie Jar uses **Foundry** for secure, efficient deployments to any EVM chain w
 
 1. **Foundry installed** (`curl -L https://foundry.paradigm.xyz | bash && foundryup`)
 2. **Deployment wallet** with funds for the target chain  
-3. **Environment variables** configured (see [.env.sample](.env.sample))
+3. **Environment variables** configured (see [.example.env](.example.env))
 4. **Etherscan API key** (for contract verification)
 
 ### **🔧 Environment Setup**
 
 1. **Copy and configure environment variables:**
    ```bash
-   cp .env.sample .env
-   # Edit .env with your actual values - see .env.sample for all options
+   cp .example.env .env
+   # Edit .env with your actual values - see .example.env for all options
    ```
 
-2. **Key configuration sections** (see [.env.sample](.env.sample) for complete list):
+2. **Key configuration sections** (see [.example.env](.example.env) for complete list):
    - **API Keys**: Etherscan verification keys
    - **RPC URLs**: Network endpoints (Base, Ethereum, Celo, etc.)
    - **Factory Configuration**: Fee settings, minimum deposits, admin addresses
@@ -350,7 +356,7 @@ tail -f contracts/watch-deploy.log   # Contract watcher logs
 6. **Explore Demo Jars**: 4 pre-seeded jars with different access patterns ready to test
 
 ### For Production Deployment
-1. **Environment Setup**: Copy `.env.sample` to `.env` and configure
+1. **Environment Setup**: Copy `.example.env` to `.env` and configure
 2. **Secure Wallet**: Set up Foundry keystore with `cast wallet import deployer --interactive` 
 3. **Deploy**: Use the deployment commands in the [Production Deployment Guide](#-production-deployment-guide)
 
@@ -376,7 +382,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - **[contracts/README.md](contracts/README.md)** - Smart contract architecture, development tools, and deployment details
 - **[client/README.md](client/README.md)** - Frontend architecture, component structure, and testing setup
 - **[docs/PROTOCOL_GUIDE.md](docs/PROTOCOL_GUIDE.md)** - Comprehensive guide to all 6 access control methods
-- **[.env.sample](.env.sample)** - Environment configuration template with all options
+- **[.example.env](.example.env)** - Environment configuration template with all options
 
 ### **🛠️ Developer Tools**
 - **[Foundry Documentation](https://book.getfoundry.sh/)** - Smart contract development framework
@@ -385,5 +391,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### **🌐 Community & Support**
 - **Discord**: [Greenpill Dev Guild](https://discord.gg/greenpill)
-- **Twitter**: [@greenpill](https://twitter.com/greenpill)
+- **Twitter**: [@greenpilldevs](https://twitter.com/greenpilldevs)
 - **GitHub Issues**: For bug reports and feature requests

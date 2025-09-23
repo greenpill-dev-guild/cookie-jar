@@ -3,7 +3,7 @@
 import React from "react";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { LoadingOverlay } from "@/components/design/LoadingOverlay";
+import { LoadingOverlay } from "@/components/app/LoadingOverlay";
 import { MemoizedCustomConnectButton } from "@/components/wallet/CustomConnectButton";
 
 interface CreateJarModalsProps {

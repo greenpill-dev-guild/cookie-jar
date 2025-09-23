@@ -3,11 +3,11 @@
   "rules": {
     "compiler-version": ["error", "^0.8.0"],
     "func-visibility": ["warn", {"ignoreConstructors": true}],
-    "max-line-length": ["warn", 120],
+    "max-line-length": ["warn", 148],
     "not-rely-on-time": "off",
     "avoid-suicide": "error",
     "avoid-sha3": "warn",
-    "code-complexity": ["warn", 10],
+    "code-complexity": ["warn", 25],
     "const-name-snakecase": "error",
     "constructor-syntax": "error",
     "contract-name-camelcase": "error", 

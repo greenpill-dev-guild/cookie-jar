@@ -3,10 +3,10 @@
 import { useEffect, useState } from "react";
 import { useAccount, useChainId } from "wagmi";
 import { useRouter } from "next/navigation";
-import { useIsMobile } from "@/hooks/useMobile";
-import { useNavigateToTop } from "@/hooks/useNavigateToTop";
-import { MobileProfile } from "@/components/design/MobileProfile";
-import { useCookieJarFactory } from "@/hooks/useCookieJarFactory";
+import { useIsMobile } from "@/hooks/app/useMobile";
+import { useNavigateToTop } from "@/hooks/app/useNavigateToTop";
+import { MobileProfile } from "@/components/profile/MobileProfile";
+import { CookieJarInfo, useCookieJarFactory } from "@/hooks/jar/useJarFactory";
 import {
   Card,
   CardContent,
@@ -27,11 +27,11 @@ import {
   Clock,
   Cookie,
 } from "lucide-react";
-import { shortenAddress } from "@/lib/utils";
-import { getExplorerAddressUrl, getNetworkName } from "@/lib/network-utils";
-import { BackButton } from "@/components/design/BackButton";
-import { getAccessTypeName } from "@/lib/access-type-utils";
-import { contractAddresses } from "@/config/supported-networks";
+import { shortenAddress } from "@/lib/app/utils";
+import { getExplorerAddressUrl, getNetworkName } from "@/lib/network/utils";
+import { BackButton } from "@/components/app/BackButton";
+import { getAccessTypeName } from "@/lib/jar/access-types";
+// import { contractAddresses } from "@/config/supported-networks";
 import { getNativeCurrency } from "@/config/supported-networks";
 
 export default function ProfilePage() {
@@ -69,7 +69,7 @@ function DesktopProfile() {
 
   // Filter jars created by the current user
   const userJars = cookieJarsData.filter(
-    (jar) =>
+    (jar: CookieJarInfo) =>
       jar.jarCreator &&
       address &&
       jar.jarCreator.toLowerCase() === address.toLowerCase(),

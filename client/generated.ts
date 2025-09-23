@@ -1515,6 +1515,7 @@ export const cookieJarFactoryAbi = [
     name: 'AccessControlUnauthorizedAccount',
   },
   { type: 'error', inputs: [], name: 'CookieJarFactory__Denylisted' },
+  { type: 'error', inputs: [], name: 'CookieJarFactory__IndexOutOfBounds' },
   { type: 'error', inputs: [], name: 'CookieJarFactory__JarNotFound' },
   { type: 'error', inputs: [], name: 'CookieJarFactory__NotJarOwner' },
   { type: 'error', inputs: [], name: 'CookieJarFactory__NotValidERC20' },

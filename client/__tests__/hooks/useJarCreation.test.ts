@@ -3,7 +3,7 @@ import { renderHook, waitFor, act } from "@testing-library/react";
 import { vi } from "vitest";
 import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { useJarCreation } from "@/hooks/useJarCreation";
+import { useJarCreation } from "@/hooks/jar/useJarCreation";
 
 // Mock wagmi hooks
 vi.mock("wagmi", () => ({
