@@ -38,6 +38,8 @@
     "format:client": "pnpm --filter client run format",
     "format:contracts": "cd contracts && prettier --write 'src/**/*.sol' 'test/**/*.sol' 'script/**/*.sol'",
     
+    "type-check": "pnpm --filter client run type-check",
+    
     "clean": "pnpm run clean:contracts && pnpm run clean:client",
     "clean:client": "rm -rf client/build client/.next client/dist",
     "clean:contracts": "cd contracts && forge clean",

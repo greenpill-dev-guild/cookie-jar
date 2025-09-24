@@ -65,6 +65,70 @@ export class HatsProvider {
     this.chainId = chainId;
   }
 
+  /**
+   * Get a single hat by ID (static method for protocol configs)
+   */
+  static async getHatById(hatId: string, contractAddress?: string): Promise<HatDetails | null> {
+    try {
+      const provider = new HatsProvider();
+      
+      const query = `
+        query GetHatById($hatId: ID!) {
+          hat(id: $hatId) {
+            id
+            prettyId
+            status
+            createdAt
+            details
+            maxSupply
+            eligibility
+            toggle
+            mutable
+            imageUri
+            levelAtLocalTree
+            currentSupply
+            tree {
+              id
+              domain
+              requestType
+            }
+            wearers {
+              id
+            }
+          }
+        }
+      `;
+
+      const data = await provider.executeGraphQLQuery(query, { hatId });
+      
+      if (!data?.hat) {
+        return null;
+      }
+
+      const hat = data.hat;
+      return {
+        id: hat.id,
+        prettyId: hat.prettyId,
+        status: hat.status,
+        createdAt: hat.createdAt,
+        details: hat.details,
+        maxSupply: hat.maxSupply,
+        eligibility: hat.eligibility,
+        toggle: hat.toggle,
+        mutable: hat.mutable,
+        imageUri: hat.imageUri,
+        levelAtLocalTree: hat.levelAtLocalTree,
+        currentSupply: hat.currentSupply,
+        tree: hat.tree,
+        wearers: hat.wearers || [],
+        subHats: [], // Not needed for single hat lookup
+      };
+    } catch (error) {
+      console.error('Error fetching hat by ID:', error);
+      return null;
+    }
+  }
+
   private getSubgraphEndpoint(chainId: number): string {
     const endpoints: { [key: number]: string } = {
       1: 'https://api.thegraph.com/subgraphs/name/hats-protocol/hats-v1',

@@ -1,157 +1,324 @@
-import React, { useState, useMemo } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useMemo, useCallback, memo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 import {
-  CheckCircle2,
+  Search,
+  Grid,
+  List,
+  Filter,
+  X,
   Loader2,
   AlertCircle,
-  ExternalLink,
-  Grid,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { useUserNFTs } from "@/hooks/nft/useUserNFTs";
-import type { UserNFT } from "@/hooks/nft/useUserNFTs";
+  ImageIcon,
+  CheckCircle2
+} from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Skeleton } from '@/components/ui/skeleton';
+import { cn } from '@/lib/app/utils';
+import { useNFTSearch } from '@/hooks/nft/useNFTSearch';
+import { useResponsive } from './hooks/useResponsive';
 
+// Unified NFT interface that handles all NFT types
 export interface SelectedNFT {
   contractAddress: string;
   tokenId: string;
   name?: string;
   image?: string;
   tokenType: "ERC721" | "ERC1155";
+  collection?: string;
+  verified?: boolean;
+  rarity?: number;
+  traits?: Array<{ trait_type: string; value: string | number }>;
 }
 
-interface NFTSelectorProps {
-  /** Specific contract addresses to filter by (for NFT-gated jars) */
-  contractAddresses?: string[];
+export interface NFTSelectorProps {
   /** Callback when an NFT is selected */
   onSelect: (nft: SelectedNFT) => void;
   /** Currently selected NFT */
-  selectedNFT?: SelectedNFT;
+  selectedNFT?: SelectedNFT | null;
+  /** Initial search query */
+  initialSearchQuery?: string;
+  /** Whether to only show NFTs owned by the connected user */
+  userCollectionOnly?: boolean;
+  /** Specific contract addresses to filter by */
+  contractAddresses?: string[];
+  /** Max height for the scrollable area */
+  maxHeight?: string;
+  /** Size of the NFT cards */
+  cardSize?: 'sm' | 'md' | 'lg';
   /** Custom CSS class */
   className?: string;
-  /** Use virtual scrolling for large collections (default: auto-detect) */
-  useVirtualScrolling?: boolean;
-  /** Threshold for enabling virtual scrolling (default: 50 items) */
-  virtualScrollThreshold?: number;
 }
 
+// Helper functions for different NFT data structures
+const getContractAddress = (nft: any): string => {
+  return nft.contract?.address || nft.contractAddress || '';
+};
+
+const getNFTName = (nft: any): string => {
+  return nft.metadata?.name || nft.name || `Token #${nft.tokenId}`;
+};
+
+const getNFTImage = (nft: any): string | undefined => {
+  return nft.metadata?.image || nft.image;
+};
+
+const getCollectionName = (nft: any): string | undefined => {
+  if (nft.contract?.name) return nft.contract.name;
+  if (typeof nft.collection === 'string') return nft.collection;
+  if (nft.collection?.name) return nft.collection.name;
+  return undefined;
+};
+
+const getTokenType = (nft: any): "ERC721" | "ERC1155" => {
+  const tokenType = nft.contract?.tokenType || nft.tokenType;
+  return tokenType === "UNKNOWN" ? "ERC721" : tokenType as "ERC721" | "ERC1155";
+};
+
+const getVerifiedStatus = (nft: any): boolean | undefined => {
+  if ('contract' in nft) {
+    return (nft as any).verified;
+  } else if (nft.collection && typeof nft.collection === 'object' && 'verified' in nft.collection) {
+    return nft.collection.verified;
+  } else {
+    return nft.verified;
+  }
+};
+
+// Performance-optimized NFT Card component
+const NFTCard = memo<{
+  nft: any;
+  isSelected: boolean;
+  onSelect: (nft: SelectedNFT) => void;
+  viewMode: 'grid' | 'list';
+  cardSize: 'sm' | 'md' | 'lg';
+}>(({ nft, isSelected, onSelect, viewMode, cardSize }) => {
+  const [imageLoaded, setImageLoaded] = useState(false);
+  const [imageError, setImageError] = useState(false);
+
+  const handleSelect = useCallback(() => {
+    const contractAddress = getContractAddress(nft);
+    const tokenType = getTokenType(nft);
+    const nftName = getNFTName(nft);
+    const nftImage = getNFTImage(nft);
+    const collectionName = getCollectionName(nft);
+
+    // Get verified status
+    const verified = getVerifiedStatus(nft);
+
+    onSelect({
+      contractAddress,
+      tokenId: nft.tokenId,
+      name: nftName,
+      image: nftImage,
+      tokenType,
+      collection: collectionName,
+      verified,
+      rarity: nft.rarity,
+      traits: nft.traits,
+    });
+  }, [nft, onSelect]);
+
+  const cardSizes = {
+    sm: { width: 120, height: 160 },
+    md: { width: 160, height: 220 },
+    lg: { width: 200, height: 280 },
+  };
+
+  const { width, height } = cardSizes[cardSize];
+
+  if (viewMode === 'list') {
+    return (
+      <Card
+        className={cn(
+          "cursor-pointer transition-all duration-200 hover:shadow-md",
+          isSelected
+            ? "ring-2 ring-[#ff5e14] bg-orange-50"
+            : "hover:border-[#ff5e14]"
+        )}
+        onClick={handleSelect}
+      >
+        <CardContent className="p-4">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
+              {getNFTImage(nft) && !imageError ? (
+                <img
+                  src={getNFTImage(nft)}
+                  alt={getNFTName(nft)}
+                  className={cn(
+                    "w-full h-full object-cover transition-opacity duration-200",
+                    imageLoaded ? "opacity-100" : "opacity-0"
+                  )}
+                  onLoad={() => setImageLoaded(true)}
+                  onError={() => setImageError(true)}
+                />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center">
+                  <ImageIcon className="w-6 h-6 text-gray-400" />
+                </div>
+              )}
+            </div>
+
+            <div className="flex-1 min-w-0">
+              <h3 className="font-medium truncate">
+                {getNFTName(nft)}
+              </h3>
+              {getCollectionName(nft) && (
+                <p className="text-sm text-gray-500 truncate">{getCollectionName(nft)}</p>
+              )}
+              <div className="flex items-center gap-2 mt-1">
+                <Badge variant="outline" className="text-xs">
+                  {getTokenType(nft)}
+                </Badge>
+                {getVerifiedStatus(nft) && (
+                  <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
+                    Verified
+                  </Badge>
+                )}
+              </div>
+            </div>
+
+            {isSelected && (
+              <CheckCircle2 className="w-6 h-6 text-[#ff5e14] flex-shrink-0" />
+            )}
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card
+      className={cn(
+        "relative cursor-pointer transition-all duration-200 hover:shadow-md group",
+        isSelected
+          ? "ring-2 ring-[#ff5e14] bg-orange-50"
+          : "hover:border-[#ff5e14]"
+      )}
+      style={{ width, height }}
+      onClick={handleSelect}
+    >
+      <CardContent className="relative p-0 w-full h-full flex flex-col">
+        {!imageLoaded && !imageError && (
+          <Skeleton className="w-full h-full" />
+        )}
+        
+        {getNFTImage(nft) && !imageError ? (
+          <img
+            src={getNFTImage(nft)}
+            alt={getNFTName(nft)}
+            className={cn(
+              "w-full h-full object-cover rounded transition-opacity duration-200",
+              imageLoaded ? "opacity-100" : "opacity-0"
+            )}
+            onLoad={() => setImageLoaded(true)}
+            onError={() => setImageError(true)}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center rounded bg-gray-100">
+            <ImageIcon className="w-8 h-8 text-gray-400" />
+          </div>
+        )}
+
+        {isSelected && (
+          <div className="absolute top-2 right-2 w-6 h-6 bg-[#ff5e14] rounded-full flex items-center justify-center">
+            <CheckCircle2 className="w-4 h-4 text-white" />
+          </div>
+        )}
+
+        {/* Hover Details */}
+        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-b">
+          <h3 className="font-medium text-sm truncate">
+            {getNFTName(nft)}
+          </h3>
+          
+          {getCollectionName(nft) && (
+            <p className="text-xs text-gray-300 truncate">{getCollectionName(nft)}</p>
+          )}
+          
+          <div className="flex flex-wrap gap-1 mt-1">
+            <Badge variant="outline" className="text-xs bg-white/20 text-white border-white/30">
+              {getTokenType(nft)}
+            </Badge>
+            {getVerifiedStatus(nft) && (
+              <Badge variant="secondary" className="text-xs bg-blue-100/20 text-blue-200 border-blue-300/30">
+                Verified
+              </Badge>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+});
+
+NFTCard.displayName = 'NFTCard';
+
 export const NFTSelector: React.FC<NFTSelectorProps> = ({
-  contractAddresses,
   onSelect,
   selectedNFT,
-  className = "",
-  useVirtualScrolling,
-  virtualScrollThreshold = 50,
+  initialSearchQuery = '',
+  userCollectionOnly = false,
+  contractAddresses,
+  maxHeight = '400px',
+  cardSize = 'md',
+  className,
 }) => {
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchQuery, setSearchQuery] = useState(initialSearchQuery);
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+  const { isMobile } = useResponsive();
 
-  const { nfts, collections, isLoading, error, refetch, hasMore, loadMore } =
-    useUserNFTs({
+  const {
+    nfts,
+    collections,
+    totalResults,
+    isLoading,
+    error,
+    hasNextPage,
+    fetchNextPage,
+    isFetchingNextPage,
+  } = useNFTSearch(searchQuery, {
+    userCollectionOnly,
       contractAddresses,
-      withMetadata: true,
-      pageSize: 50,
-      enabled: true,
-    });
-
-  // Filter NFTs based on search term
-  const filteredNFTs = nfts.filter((nft) => {
-    const searchLower = searchTerm.toLowerCase();
-    return (
-      nft.contract.name?.toLowerCase().includes(searchLower) ||
-      nft.contract.symbol?.toLowerCase().includes(searchLower) ||
-      nft.metadata?.name?.toLowerCase().includes(searchLower) ||
-      nft.contract.address.toLowerCase().includes(searchLower) ||
-      nft.tokenId.includes(searchTerm)
-    );
   });
 
-  const handleNFTSelect = (nft: UserNFT) => {
-    // Only select NFTs with known token types
-    if (
-      nft.contract.tokenType !== "ERC721" &&
-      nft.contract.tokenType !== "ERC1155"
-    ) {
-      return;
+  const filteredNfts = useMemo(() => {
+    if (!contractAddresses || contractAddresses.length === 0) {
+      return nfts;
     }
-
-    const selected: SelectedNFT = {
-      contractAddress: nft.contract.address,
-      tokenId: nft.tokenId,
-      name:
-        nft.metadata?.name ||
-        `${nft.contract.name || "Unknown"} #${nft.tokenId}`,
-      image: nft.metadata?.image,
-      tokenType: nft.contract.tokenType as "ERC721" | "ERC1155",
-    };
-    onSelect(selected);
-  };
-
-  const isSelected = (nft: UserNFT) => {
-    return (
-      selectedNFT?.contractAddress.toLowerCase() ===
-        nft.contract.address.toLowerCase() &&
-      selectedNFT?.tokenId === nft.tokenId
+    
+    return nfts.filter(nft => 
+      contractAddresses.includes(getContractAddress(nft))
     );
-  };
+  }, [nfts, contractAddresses]);
 
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: {
-        staggerChildren: 0.1,
-      },
-    },
-  };
+  const handleClearSearch = useCallback(() => {
+    setSearchQuery('');
+  }, []);
 
-  const cardVariants = {
-    hidden: {
-      opacity: 0,
-      y: 20,
-      scale: 0.95,
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        type: "spring",
-        stiffness: 300,
-        damping: 24,
-      },
-    },
-    hover: {
-      y: -4,
-      scale: 1.02,
-      transition: {
-        type: "spring",
-        stiffness: 400,
-        damping: 10,
-      },
-    },
-    tap: { scale: 0.98 },
-  };
+  const handleLoadMore = useCallback(() => {
+    if (hasNextPage && !isFetchingNextPage && fetchNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage]);
+
+  // Auto-switch to list view on mobile
+  const activeViewMode = isMobile ? 'list' : viewMode;
 
   if (error) {
     return (
-      <Card className={`p-6 ${className}`}>
-        <div className="text-center space-y-4">
-          <AlertCircle className="h-12 w-12 text-red-500 mx-auto" />
+      <Card className={cn("p-6", className)}>
+        <div className="flex items-center gap-3 text-red-600">
+          <AlertCircle className="h-5 w-5" />
           <div>
-            <h3 className="text-lg font-semibold text-[#3c2a14] mb-2">
-              Error Loading NFTs
-            </h3>
-            <p className="text-sm text-[#8b7355] mb-4">{error}</p>
-            <Button
-              onClick={refetch}
-              variant="outline"
-              className="border-[#ff5e14] text-[#ff5e14]"
-            >
-              Try Again
-            </Button>
+            <p className="font-medium">Error loading NFTs</p>
+            <p className="text-sm text-gray-600">
+              {typeof error === 'string' ? error : error.message || 'Unknown error occurred'}
+            </p>
           </div>
         </div>
       </Card>
@@ -159,211 +326,135 @@ export const NFTSelector: React.FC<NFTSelectorProps> = ({
   }
 
   return (
-    <div className={`space-y-4 ${className}`}>
-      {/* Header */}
-      <div className="space-y-2">
-        <Label className="text-[#3c2a14] text-base font-semibold">
-          Select Your NFT for Withdrawal
-        </Label>
-        <p className="text-sm text-[#8b7355]">
-          {contractAddresses && contractAddresses.length > 0
-            ? "Choose from your eligible NFTs for this jar"
-            : "Choose any NFT from your collection"}
-        </p>
-      </div>
-
-      {/* Search */}
-      <div className="relative">
+    <div className={cn("space-y-4", className)}>
+      {/* Search and Controls */}
+      <div className="flex flex-col sm:flex-row gap-3">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
         <Input
-          placeholder="Search by name, collection, or token ID..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="bg-white border-gray-300 text-[#3c2a14] placeholder:text-[#8b7355]"
-        />
+            type="text"
+            placeholder="Search NFTs..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-10 pr-10"
+          />
+          {searchQuery && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={handleClearSearch}
+              className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          )}
       </div>
 
-      {/* Loading State */}
-      {isLoading && nfts.length === 0 && (
-        <Card className="p-8">
-          <div className="text-center space-y-4">
-            <Loader2 className="h-8 w-8 animate-spin text-[#ff5e14] mx-auto" />
-            <p className="text-[#8b7355]">Loading your NFTs...</p>
+        {!isMobile && (
+          <div className="flex gap-2">
+            <Button
+              variant={viewMode === 'grid' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode('grid')}
+            >
+              <Grid className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'list' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setViewMode('list')}
+            >
+              <List className="h-4 w-4" />
+            </Button>
           </div>
-        </Card>
+        )}
+      </div>
+
+      {/* Results Count */}
+      {totalResults > 0 && (
+        <div className="text-sm text-gray-600">
+          Found {totalResults} NFTs
+          {userCollectionOnly && " in your collection"}
+        </div>
       )}
 
-      {/* Empty State */}
-      {!isLoading && filteredNFTs.length === 0 && nfts.length === 0 && (
-        <Card className="p-8">
-          <div className="text-center space-y-4">
-            <AlertCircle className="h-12 w-12 text-[#8b7355] mx-auto" />
-            <div>
-              <h3 className="text-lg font-semibold text-[#3c2a14] mb-2">
-                No NFTs Found
-              </h3>
-              <p className="text-sm text-[#8b7355]">
-                {contractAddresses && contractAddresses.length > 0
-                  ? "You don't have any NFTs from the required collections"
-                  : "You don't have any NFTs in your wallet"}
-              </p>
-            </div>
-          </div>
-        </Card>
-      )}
-
-      {/* Search Results Empty */}
-      {!isLoading && filteredNFTs.length === 0 && nfts.length > 0 && (
-        <Card className="p-6">
-          <div className="text-center">
-            <p className="text-[#8b7355]">No NFTs match your search term</p>
-          </div>
-        </Card>
-      )}
-
-      {/* NFT Grid */}
-      {filteredNFTs.length > 0 && (
-        <motion.div
-          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4"
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-        >
-          <AnimatePresence mode="popLayout">
-            {filteredNFTs.map((nft, index) => (
-              <motion.div
-                key={`${nft.contract.address}-${nft.tokenId}`}
-                variants={cardVariants}
-                whileHover="hover"
-                whileTap="tap"
-                layout
-              >
-                <Card
-                  className={`cursor-pointer transition-all duration-200 overflow-hidden ${
-                    isSelected(nft)
-                      ? "ring-2 ring-[#ff5e14] bg-orange-50"
-                      : "hover:shadow-lg border-gray-200"
-                  }`}
-                  onClick={() => handleNFTSelect(nft)}
-                >
-                  <CardContent className="p-3">
-                    {/* NFT Image */}
-                    <div className="aspect-square mb-3 relative rounded-lg overflow-hidden bg-gray-100">
-                      {nft.metadata?.image ? (
-                        <img
-                          src={nft.metadata.image}
-                          alt={nft.metadata.name || `Token #${nft.tokenId}`}
-                          className="w-full h-full object-cover"
-                          onError={(e) => {
-                            // Fallback to placeholder on image error
-                            (e.target as HTMLImageElement).src =
-                              "/placeholder.svg";
-                          }}
-                        />
-                      ) : (
-                        <div className="w-full h-full flex items-center justify-center text-[#8b7355]">
-                          <span className="text-sm">#{nft.tokenId}</span>
-                        </div>
-                      )}
-
-                      {/* Selection indicator */}
-                      {isSelected(nft) && (
-                        <motion.div
-                          className="absolute top-2 right-2"
-                          initial={{ scale: 0 }}
-                          animate={{ scale: 1 }}
-                          transition={{
-                            type: "spring",
-                            stiffness: 500,
-                            damping: 30,
-                          }}
-                        >
-                          <CheckCircle2 className="h-5 w-5 text-[#ff5e14] bg-white rounded-full" />
-                        </motion.div>
-                      )}
-
-                      {/* Token type badge */}
-                      <div className="absolute bottom-2 left-2">
-                        <span
-                          className={`text-xs px-2 py-1 rounded-full text-white font-medium ${
-                            nft.contract.tokenType === "ERC721"
-                              ? "bg-blue-500"
-                              : nft.contract.tokenType === "ERC1155"
-                                ? "bg-purple-500"
-                                : "bg-gray-500"
-                          }`}
-                        >
-                          {nft.contract.tokenType}
-                        </span>
-                      </div>
-
-                      {/* ERC1155 Balance */}
-                      {nft.contract.tokenType === "ERC1155" && nft.balance && (
-                        <div className="absolute bottom-2 right-2">
-                          <span className="text-xs px-2 py-1 rounded-full bg-black/70 text-white font-medium">
-                            {nft.balance}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-
-                    {/* NFT Info */}
-                    <div className="space-y-1">
-                      <h4 className="text-sm font-medium text-[#3c2a14] truncate">
-                        {nft.metadata?.name || `Token #${nft.tokenId}`}
-                      </h4>
-                      <p className="text-xs text-[#8b7355] truncate">
-                        {nft.contract.name || "Unknown Collection"}
-                      </p>
-                    </div>
-                  </CardContent>
-                </Card>
-              </motion.div>
+      {/* NFT Grid/List */}
+      <ScrollArea style={{ maxHeight }} className="rounded-md border">
+        {isLoading && filteredNfts.length === 0 ? (
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <Skeleton key={i} className="aspect-square rounded-lg" />
             ))}
-          </AnimatePresence>
-        </motion.div>
-      )}
+          </div>
+        ) : filteredNfts.length === 0 ? (
+          <div className="flex flex-col items-center justify-center py-12 px-4">
+            <ImageIcon className="h-12 w-12 text-gray-400 mb-4" />
+            <p className="text-lg font-medium text-gray-600 mb-2">No NFTs found</p>
+            <p className="text-sm text-gray-500 text-center max-w-sm">
+              {searchQuery 
+                ? `No NFTs match "${searchQuery}". Try adjusting your search terms.`
+                : userCollectionOnly
+                ? "You don't have any NFTs in your collection yet."
+                : "No NFTs available to display."
+              }
+            </p>
+            {searchQuery && (
+              <Button variant="outline" onClick={handleClearSearch} className="mt-4">
+                Clear search
+              </Button>
+            )}
+          </div>
+        ) : (
+          <div className="p-4">
+            <div className={cn(
+              activeViewMode === 'grid' 
+                ? "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+                : "space-y-3"
+            )}>
+              {filteredNfts.map((nft) => {
+                const nftContractAddress = getContractAddress(nft);
+                const isSelected = selectedNFT
+                  ? selectedNFT.contractAddress === nftContractAddress &&
+                    selectedNFT.tokenId === nft.tokenId
+                  : false;
+
+                return (
+                  <NFTCard
+                    key={`${nftContractAddress}-${nft.tokenId}`}
+                    nft={nft}
+                    isSelected={isSelected}
+                    onSelect={onSelect}
+                    viewMode={activeViewMode}
+                    cardSize={cardSize}
+                  />
+                );
+              })}
+                    </div>
 
       {/* Load More Button */}
-      {hasMore && !isLoading && (
-        <div className="text-center pt-4">
+            {hasNextPage && (
+              <div className="flex justify-center mt-6">
           <Button
-            onClick={loadMore}
             variant="outline"
-            className="border-[#ff5e14] text-[#ff5e14]"
-          >
-            Load More NFTs
+                  onClick={handleLoadMore}
+                  disabled={isFetchingNextPage}
+                >
+                  {isFetchingNextPage ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Loading...
+                    </>
+                  ) : (
+                    'Load More'
+                  )}
           </Button>
         </div>
       )}
-
-      {/* Loading More Indicator */}
-      {isLoading && nfts.length > 0 && (
-        <div className="text-center pt-4">
-          <div className="flex items-center justify-center space-x-2">
-            <Loader2 className="h-4 w-4 animate-spin" />
-            <span className="text-sm text-[#8b7355]">Loading more...</span>
-          </div>
         </div>
       )}
-
-      {/* Collection Summary */}
-      {collections.length > 0 && (
-        <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-          <h4 className="text-sm font-medium text-[#3c2a14] mb-2">
-            Collections Found
-          </h4>
-          <div className="flex flex-wrap gap-2">
-            {collections.map((collection) => (
-              <span
-                key={collection.contractAddress}
-                className="text-xs px-2 py-1 bg-white rounded-full text-[#8b7355] border"
-              >
-                {collection.name || "Unknown"} ({collection.nfts.length})
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
+      </ScrollArea>
     </div>
   );
 };
+
+export default NFTSelector;

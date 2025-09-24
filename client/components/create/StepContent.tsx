@@ -14,9 +14,9 @@ import {
 } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Trash2 } from "lucide-react";
-import { ProtocolGateSelector } from "@/components/nft/ProtocolGateSelector";
+import { ProtocolSelector } from "@/components/nft/ProtocolSelector";
 import { NFTGateInput } from "@/components/nft/NFTGateInput";
-import { UnifiedNFTSelector, type SelectedNFT } from "@/components/nft/UnifiedNFTSelector";
+import { NFTSelector, type SelectedNFT } from "@/components/nft/NFTSelector";
 import { shortenAddress } from "@/lib/app/utils";
 import { isAddress } from "viem";
 import {
@@ -378,7 +378,7 @@ const AccessControlStep: React.FC<{ formData: any }> = ({ formData }) => {
         </p>
       </div>
 
-      <ProtocolGateSelector
+      <ProtocolSelector
         onConfigChange={formData.handleProtocolConfigChange}
         initialConfig={formData.protocolConfig}
       />
@@ -393,14 +393,13 @@ const AccessControlStep: React.FC<{ formData: any }> = ({ formData }) => {
               Choose an NFT that users must own to access this jar. You can search public collections or select from your own NFTs.
             </p>
             
-            <UnifiedNFTSelector
-              onNFTSelect={(selectedNFT: SelectedNFT) => {
+            <NFTSelector
+              onSelect={(selectedNFT: SelectedNFT) => {
                 // Convert SelectedNFT to the format expected by handleAddNFT
                 const nftType = selectedNFT.tokenType === "ERC721" ? NFTType.ERC721 : NFTType.ERC1155;
                 formData.handleAddNFT(selectedNFT.contractAddress, nftType);
               }}
-              mode="inline"
-              maxHeight="max-h-[400px]"
+              maxHeight="400px"
               className="mt-4"
             />
           </div>

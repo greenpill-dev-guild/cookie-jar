@@ -112,6 +112,14 @@ pnpm test:e2e         # Full user flow validation
 
 ## 🎯 Common Patterns & Conventions
 
+### Documentation Standards
+- **Location**: All new documentation (markdown files) must be placed in the `/docs` folder at the root of the repository
+- **Naming**: Use kebab-case for documentation files (`api-reference.md`, `deployment-guide.md`)
+- **Structure**: Organize by topic with clear hierarchies (e.g., `/docs/api/`, `/docs/guides/`)
+- **Cross-references**: Always use relative links to other documentation within the repository
+- **Updates**: When adding features, update existing documentation rather than creating duplicate files
+- **Format**: Follow consistent markdown formatting with proper headers, code blocks, and linking
+
 ### Naming Conventions
 - **Files**: kebab-case (`cookie-jar-factory.ts`)
 - **Components**: PascalCase (`CookieJarCard.tsx`)  
@@ -133,6 +141,15 @@ pnpm test:e2e         # Full user flow validation
 - [ ] Linting passes (`pnpm lint`)
 - [ ] Coverage maintained (`pnpm test:coverage`)
 - [ ] E2E tests validate user flows (`pnpm test:e2e`)
+
+### Development Best Practices
+
+#### TypeScript Error Checking
+- **Use `pnpm type-check`** for fast TypeScript error checking (much faster than full builds)
+- **Root level**: `pnpm type-check` - checks client TypeScript
+- **Client level**: `cd client && pnpm type-check` - direct client check
+- **Avoid full builds** (`pnpm build:client`) just for type checking - it's slower and includes bundling/optimization
+- **Only use full builds** when testing the complete build pipeline or before deployment
 
 ### Web3 Deployment Checklist
 - [ ] Contracts verified on block explorer

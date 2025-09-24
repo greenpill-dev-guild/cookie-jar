@@ -6,21 +6,21 @@
  */
 
 import { withProtocolErrorBoundary } from "@/components/app/ProtocolErrorBoundary";
-import { POAPGateConfig as _POAPGateConfig } from "./POAPGateConfig";
-import { UnlockGateConfig as _UnlockGateConfig } from "./UnlockGateConfig";
+import { POAPConfig as _POAPConfig } from "./protocols/POAPConfig";
+import { UnlockConfig as _UnlockConfig } from "./protocols/UnlockConfig";
 import { UnlockMembershipStatus as _UnlockMembershipStatus } from "./UnlockMembershipStatus";
-import { HypercertGateConfig as _HypercertGateConfig } from "./HypercertGateConfig";
-import { HatsGateConfig as _HatsGateConfig } from "./HatsGateConfig";
-import { ProtocolGateSelector as _ProtocolGateSelector } from "./ProtocolGateSelector";
+import { HypercertConfig as _HypercertConfig } from "./protocols/HypercertConfig";
+import { HatsConfig as _HatsConfig } from "./protocols/HatsConfig";
+import { ProtocolSelector as _ProtocolSelector } from "./ProtocolSelector";
 
 // Wrapped components with error boundaries
-export const POAPGateConfig = withProtocolErrorBoundary(_POAPGateConfig, {
+export const POAPConfig = withProtocolErrorBoundary(_POAPConfig, {
   protocolName: "POAP",
   maxRetries: 2,
   showDetails: process.env.NODE_ENV === "development",
 });
 
-export const UnlockGateConfig = withProtocolErrorBoundary(_UnlockGateConfig, {
+export const UnlockConfig = withProtocolErrorBoundary(_UnlockConfig, {
   protocolName: "Unlock Protocol",
   maxRetries: 2,
   showDetails: process.env.NODE_ENV === "development",
@@ -35,8 +35,8 @@ export const UnlockMembershipStatus = withProtocolErrorBoundary(
   },
 );
 
-export const HypercertGateConfig = withProtocolErrorBoundary(
-  _HypercertGateConfig,
+export const HypercertConfig = withProtocolErrorBoundary(
+  _HypercertConfig,
   {
     protocolName: "Hypercerts",
     maxRetries: 2,
@@ -44,14 +44,14 @@ export const HypercertGateConfig = withProtocolErrorBoundary(
   },
 );
 
-export const HatsGateConfig = withProtocolErrorBoundary(_HatsGateConfig, {
+export const HatsConfig = withProtocolErrorBoundary(_HatsConfig, {
   protocolName: "Hats Protocol",
   maxRetries: 2,
   showDetails: process.env.NODE_ENV === "development",
 });
 
-export const ProtocolGateSelector = withProtocolErrorBoundary(
-  _ProtocolGateSelector,
+export const ProtocolSelector = withProtocolErrorBoundary(
+  _ProtocolSelector,
   {
     protocolName: "Protocol Selector",
     maxRetries: 1,
@@ -61,12 +61,12 @@ export const ProtocolGateSelector = withProtocolErrorBoundary(
 
 // Re-export the original components for cases where error boundaries aren't needed
 export {
-  _POAPGateConfig as POAPGateConfigUnsafe,
-  _UnlockGateConfig as UnlockGateConfigUnsafe,
+  _POAPConfig as POAPConfigUnsafe,
+  _UnlockConfig as UnlockConfigUnsafe,
   _UnlockMembershipStatus as UnlockMembershipStatusUnsafe,
-  _HypercertGateConfig as HypercertGateConfigUnsafe,
-  _HatsGateConfig as HatsGateConfigUnsafe,
-  _ProtocolGateSelector as ProtocolGateSelectorUnsafe,
+  _HypercertConfig as HypercertConfigUnsafe,
+  _HatsConfig as HatsConfigUnsafe,
+  _ProtocolSelector as ProtocolSelectorUnsafe,
 };
 
 // Export error boundary components

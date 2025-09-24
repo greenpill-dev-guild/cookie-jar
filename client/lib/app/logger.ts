@@ -20,15 +20,6 @@ interface LogEntry {
   timestamp: string;
 }
 
-// Create a no-op logger for SSR environments
-const createNoOpLogger = () => ({
-  debug: () => {},
-  info: () => {},
-  warn: () => {},
-  error: () => {},
-  dev: () => {},
-});
-
 // Safe environment checks
 const isSSR = typeof window === 'undefined';
 
@@ -37,13 +28,17 @@ class Logger {
   private minLevel: LogLevel;
 
   constructor() {
+    // Always initialize properties to avoid undefined errors
     if (isSSR) {
       // During SSR, set safe defaults
       this.isDevelopment = false;
       this.minLevel = LogLevel.WARN;
     } else {
-      // Client-side initialization
-      this.isDevelopment = typeof process !== 'undefined' && process.env?.NODE_ENV === 'development';
+      // Client-side initialization - check multiple environment indicators
+      this.isDevelopment = (
+        (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development') ||
+        (typeof window !== 'undefined' && window.location?.hostname === 'localhost')
+      );
       this.minLevel = this.isDevelopment ? LogLevel.DEBUG : LogLevel.WARN;
     }
   }
@@ -110,8 +105,12 @@ class Logger {
   }
 }
 
-// Export singleton instance - use no-op during SSR
-export const logger = isSSR ? createNoOpLogger() : new Logger();
+// Export singleton instance - always use Logger class to maintain proper context
+export const logger = new Logger();
 
-// Export convenience functions
-export const { debug, info, warn, error, dev } = logger;
+// Export convenience functions - bound to maintain proper 'this' context
+export const debug = logger.debug.bind(logger);
+export const info = logger.info.bind(logger);
+export const warn = logger.warn.bind(logger);
+export const error = logger.error.bind(logger);
+export const dev = logger.dev.bind(logger);

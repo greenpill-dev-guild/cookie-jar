@@ -1,0 +1,424 @@
+import React, { useState, useCallback } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Smartphone, Monitor, Shield, Users, Coins } from 'lucide-react';
+import { cn } from '@/lib/app/utils';
+import { useResponsive } from './hooks/useResponsive';
+
+// Import protocol configs
+import { POAPConfig } from './protocols/POAPConfig';
+import { HatsConfig } from './protocols/HatsConfig';
+import { HypercertConfig } from './protocols/HypercertConfig';
+import { UnlockConfig } from './protocols/UnlockConfig';
+import { NFTSelector } from './NFTSelector';
+
+export type AccessMethod = 'Allowlist' | 'NFT' | 'POAP' | 'Hats' | 'Hypercert' | 'Unlock';
+
+export interface ProtocolConfig {
+  method: AccessMethod;
+  // Method-specific config data
+  [key: string]: any;
+}
+
+export interface ProtocolSelectorProps {
+  onConfigChange: (config: ProtocolConfig) => void;
+  initialConfig?: Partial<ProtocolConfig>;
+  className?: string;
+  forceMobile?: boolean;
+  forceDesktop?: boolean;
+  showViewToggle?: boolean;
+}
+
+const ACCESS_METHODS = [
+  {
+    id: 'Allowlist' as AccessMethod,
+    name: 'Allowlist',
+    icon: <Users className="h-5 w-5" />,
+    description: 'Curated list of approved addresses',
+    color: 'bg-blue-500',
+    badge: <Badge className="bg-blue-100 text-blue-800">Simple</Badge>,
+    bestFor: ['Private communities', 'Exclusive access', 'Known members'],
+    pros: ['Full control', 'Gas efficient', 'Privacy'],
+    cons: ['Manual management', 'Not scalable'],
+  },
+  {
+    id: 'NFT' as AccessMethod,
+    name: 'NFT Collection',
+    icon: <Shield className="h-5 w-5" />,
+    description: 'Require ownership of specific NFTs',
+    color: 'bg-purple-500',
+    badge: <Badge className="bg-purple-100 text-purple-800">Flexible</Badge>,
+    bestFor: ['NFT communities', 'Token holders', 'Art collectors'],
+    pros: ['Tradeable access', 'Market driven', 'Composable'],
+    cons: ['Price volatility', 'Complex setup'],
+  },
+  {
+    id: 'POAP' as AccessMethod,
+    name: 'POAP',
+    icon: <span className="text-lg">🎖️</span>,
+    description: 'Proof of Attendance Protocol badges',
+    color: 'bg-purple-500',
+    badge: <Badge className="bg-purple-100 text-purple-800">Event</Badge>,
+    bestFor: ['Event attendees', 'Community participation', 'Achievements'],
+    pros: ['Proves participation', 'Non-transferable', 'Community building'],
+    cons: ['Event specific', 'Limited utility'],
+  },
+  {
+    id: 'Hats' as AccessMethod,
+    name: 'Hats Protocol',
+    icon: <span className="text-lg">🎩</span>,
+    description: 'Role-based access control',
+    color: 'bg-yellow-500',
+    badge: <Badge className="bg-yellow-100 text-yellow-800">Roles</Badge>,
+    bestFor: ['DAOs', 'Organizations', 'Role-based access'],
+    pros: ['Hierarchical', 'Revocable', 'Organizational'],
+    cons: ['Complex setup', 'Governance dependent'],
+  },
+  {
+    id: 'Hypercert' as AccessMethod,
+    name: 'Hypercerts',
+    icon: <span className="text-lg">🏆</span>,
+    description: 'Impact and contribution certificates',
+    color: 'bg-green-500',
+    badge: <Badge className="bg-green-100 text-green-800">Impact</Badge>,
+    bestFor: ['Impact work', 'Contributions', 'Public goods'],
+    pros: ['Impact tracking', 'Credential system', 'Public goods'],
+    cons: ['New protocol', 'Limited adoption'],
+  },
+  {
+    id: 'Unlock' as AccessMethod,
+    name: 'Unlock Protocol',
+    icon: <span className="text-lg">🔓</span>,
+    description: 'Membership and subscription NFTs',
+    color: 'bg-blue-500',
+    badge: <Badge className="bg-blue-100 text-blue-800">Subscription</Badge>,
+    bestFor: ['Memberships', 'Subscriptions', 'Recurring access'],
+    pros: ['Time-based', 'Subscription model', 'Recurring revenue'],
+    cons: ['Requires payment', 'Time limited'],
+  },
+];
+
+export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
+  onConfigChange,
+  initialConfig,
+  className,
+  forceMobile = false,
+  forceDesktop = false,
+  showViewToggle = true,
+}) => {
+  const [selectedMethod, setSelectedMethod] = useState<AccessMethod>(
+    initialConfig?.method || 'Allowlist'
+  );
+  const [viewMode, setViewMode] = useState<'auto' | 'mobile' | 'desktop'>('auto');
+  const [expandedConfig, setExpandedConfig] = useState<string | null>(
+    initialConfig?.method || null
+  );
+
+  const { isMobile } = useResponsive();
+
+  // Determine actual view mode
+  const actualViewMode = 
+    forceMobile || (viewMode === 'auto' && isMobile) || viewMode === 'mobile'
+      ? 'mobile' 
+      : 'desktop';
+
+  const handleMethodSelect = useCallback((method: AccessMethod) => {
+    setSelectedMethod(method);
+    setExpandedConfig(method);
+    onConfigChange({ method, ...initialConfig });
+  }, [onConfigChange, initialConfig]);
+
+  const handleConfigChange = useCallback((config: any) => {
+    onConfigChange({
+      method: selectedMethod,
+      ...config,
+    });
+  }, [selectedMethod, onConfigChange]);
+
+  if (actualViewMode === 'mobile') {
+    return (
+      <div className={cn("space-y-4", className)}>
+        {showViewToggle && !forceMobile && (
+          <div className="flex justify-end">
+            <Tabs 
+              value={viewMode} 
+              onValueChange={(value) => setViewMode(value as 'auto' | 'mobile' | 'desktop')}
+              className="w-fit"
+            >
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="auto" className="text-xs">Auto</TabsTrigger>
+                <TabsTrigger value="mobile" className="text-xs">
+                  <Smartphone className="h-3 w-3" />
+                </TabsTrigger>
+                <TabsTrigger value="desktop" className="text-xs">
+                  <Monitor className="h-3 w-3" />
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
+        )}
+
+        {/* Mobile: Compact Selection Grid */}
+        <div>
+          <h3 className="font-medium text-sm mb-3">Choose Access Method</h3>
+          <div className="grid grid-cols-3 gap-2">
+            {ACCESS_METHODS.map((method) => (
+              <Button
+                key={method.id}
+                variant={selectedMethod === method.id ? "default" : "outline"}
+                onClick={() => handleMethodSelect(method.id)}
+                className={cn(
+                  "flex flex-col items-center gap-1 h-16 p-2 text-xs transition-all",
+                  selectedMethod === method.id && "bg-[#ff5e14] border-[#ff5e14] text-white hover:bg-[#e5531b]"
+                )}
+              >
+                <span className="text-base">{method.icon}</span>
+                <span className="text-[10px] leading-tight text-center">
+                  {method.name}
+                </span>
+              </Button>
+            ))}
+          </div>
+        </div>
+
+        {/* Mobile: Configuration Accordion */}
+        {selectedMethod && (
+          <Accordion
+            type="single"
+            collapsible
+            value={expandedConfig || ''}
+            onValueChange={setExpandedConfig}
+          >
+            <AccordionItem value={selectedMethod}>
+              <Card className="border-l-4" style={{ 
+                borderLeftColor: ACCESS_METHODS.find(m => m.id === selectedMethod)?.color.replace('bg-', '#') || '#666'
+              }}>
+                <AccordionTrigger asChild>
+                  <CardHeader className="pb-3 cursor-pointer hover:bg-gray-50 transition-colors">
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-3">
+                        <div className={cn("w-6 h-6 rounded flex items-center justify-center text-white text-sm", 
+                          ACCESS_METHODS.find(m => m.id === selectedMethod)?.color
+                        )}>
+                          {ACCESS_METHODS.find(m => m.id === selectedMethod)?.icon}
+                        </div>
+                        <div className="text-left">
+                          <h4 className="font-medium text-[#3c2a14] text-sm">
+                            Configure {ACCESS_METHODS.find(m => m.id === selectedMethod)?.name}
+                          </h4>
+                          <p className="text-xs text-[#8b7355]">
+                            {ACCESS_METHODS.find(m => m.id === selectedMethod)?.description}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </CardHeader>
+                </AccordionTrigger>
+                
+                <AccordionContent>
+                  <CardContent className="pt-0 border-t">
+                    <div className="pt-4">
+                      <ConfigurationPanel
+                        method={selectedMethod}
+                        config={initialConfig}
+                        onConfigChange={handleConfigChange}
+                      />
+                    </div>
+                  </CardContent>
+                </AccordionContent>
+              </Card>
+            </AccordionItem>
+          </Accordion>
+        )}
+      </div>
+    );
+  }
+
+  // Desktop view
+  return (
+    <div className={cn("space-y-6", className)}>
+      {/* Header with optional view toggle */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h2 className="text-xl font-semibold text-[#3c2a14]">Access Control Method</h2>
+          <p className="text-sm text-[#8b7355] mt-1">Choose how users will prove eligibility to access this jar</p>
+        </div>
+        {showViewToggle && !forceDesktop && (
+          <Tabs 
+            value={viewMode} 
+            onValueChange={(value) => setViewMode(value as 'auto' | 'mobile' | 'desktop')}
+            className="w-fit"
+          >
+            <TabsList className="grid w-full grid-cols-3">
+              <TabsTrigger value="auto" className="text-xs">Auto</TabsTrigger>
+              <TabsTrigger value="mobile" className="text-xs">
+                <Smartphone className="h-3 w-3" />
+              </TabsTrigger>
+              <TabsTrigger value="desktop" className="text-xs">
+                <Monitor className="h-3 w-3" />
+              </TabsTrigger>
+            </TabsList>
+          </Tabs>
+        )}
+      </div>
+
+      {/* Method Selection Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        {ACCESS_METHODS.map((method) => (
+          <Card
+            key={method.id}
+            className={cn(
+              "cursor-pointer transition-all duration-200 hover:shadow-lg",
+              selectedMethod === method.id
+                ? "ring-2 ring-[#ff5e14] bg-orange-50"
+                : "hover:shadow-md"
+            )}
+            onClick={() => handleMethodSelect(method.id)}
+          >
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <div className={cn("p-2 rounded-lg text-white", method.color)}>
+                  {method.icon}
+                </div>
+                {method.badge}
+              </div>
+              <CardTitle className="text-lg font-semibold mt-2 text-[#3c2a14]">
+                {method.name}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-[#8b7355] mb-3">
+                {method.description}
+              </p>
+
+              <div className="space-y-3">
+                <div>
+                  <p className="text-sm font-medium text-[#3c2a14]">Best for:</p>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {method.bestFor.slice(0, 2).map((use, i) => (
+                      <Badge key={i} variant="outline" className="text-xs">
+                        {use}
+                      </Badge>
+                    ))}
+                    {method.bestFor.length > 2 && (
+                      <Badge variant="outline" className="text-xs">
+                        +{method.bestFor.length - 2}
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+                
+                <div className="space-y-1">
+                  <div className="flex items-center gap-1">
+                    <span className="text-xs font-medium text-green-600">✓</span>
+                    <span className="text-xs text-[#8b7355]">{method.pros[0]}</span>
+                  </div>
+                  {method.cons[0] && (
+                    <div className="flex items-center gap-1">
+                      <span className="text-xs font-medium text-orange-600">⚠</span>
+                      <span className="text-xs text-[#8b7355]">{method.cons[0]}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      {/* Configuration Panel */}
+      <div>
+        <ConfigurationPanel
+          method={selectedMethod}
+          config={initialConfig}
+          onConfigChange={handleConfigChange}
+        />
+      </div>
+    </div>
+  );
+};
+
+// Configuration Panel Component
+const ConfigurationPanel: React.FC<{
+  method: AccessMethod;
+  config?: any;
+  onConfigChange: (config: any) => void;
+}> = ({ method, config, onConfigChange }) => {
+  switch (method) {
+    case 'Allowlist':
+      return (
+        <Card className="p-4">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-[#3c2a14]">
+              Allowlist Configuration
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-[#8b7355]">
+              No additional configuration needed for Allowlist. Access is determined by a separate allowlist management system.
+            </p>
+          </CardContent>
+        </Card>
+      );
+
+    case 'NFT':
+      return (
+        <Card className="p-4">
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold text-[#3c2a14]">
+              NFT Collection Gate
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <NFTSelector
+              onSelect={(nft) => onConfigChange({ nftGates: [nft] })}
+              selectedNFT={config?.nftGates?.[0]}
+              userCollectionOnly={false}
+              maxHeight="300px"
+              cardSize="sm"
+            />
+          </CardContent>
+        </Card>
+      );
+
+    case 'POAP':
+      return (
+        <POAPConfig
+          onConfigChange={onConfigChange}
+          initialConfig={config}
+        />
+      );
+
+    case 'Hats':
+      return (
+        <HatsConfig
+          onConfigChange={onConfigChange}
+          initialConfig={config}
+        />
+      );
+
+    case 'Hypercert':
+      return (
+        <HypercertConfig
+          onConfigChange={onConfigChange}
+          initialConfig={config}
+        />
+      );
+
+    case 'Unlock':
+      return (
+        <UnlockConfig
+          onConfigChange={onConfigChange}
+          initialConfig={config}
+        />
+      );
+
+    default:
+      return null;
+  }
+};
+
+export default ProtocolSelector;

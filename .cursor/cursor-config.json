@@ -2,16 +2,33 @@
   "rules": [
     {
       "include": ".cursor/rules.md",
-      "description": "Greenpill Dev Guild coding standards and best practices"
+      "description": "Cookie Jar root-level rules - monorepo workflow, Guild standards, environment setup"
+    },
+    {
+      "include": "client/.cursor/rules.md",
+      "description": "Frontend rules - Next.js, React, Web3, component patterns, testing",
+      "when": "path.includes('client/')"
+    },
+    {
+      "include": "contracts/.cursor/rules.md", 
+      "description": "Smart contract rules - Foundry, Solidity, security, gas optimization",
+      "when": "path.includes('contracts/')"
+    },
+    {
+      "include": "e2e/.cursor/rules.md",
+      "description": "E2E testing rules - Playwright, accessibility, performance monitoring",
+      "when": "path.includes('e2e/')"
     }
   ],
   "composer": {
     "includeEditedFiles": true,
-    "maxTokens": 100000
+    "maxTokens": 150000,
+    "autoIncludeRelatedFiles": true
   },
   "chat": {
-    "maxTokens": 100000,
-    "temperature": 0.3
+    "maxTokens": 150000,
+    "temperature": 0.2,
+    "contextStrategy": "adaptive"
   },
   "features": {
     "codeActions": true,
@@ -25,53 +42,121 @@
     "foldingRange": true,
     "selectionRange": true,
     "semanticTokens": true,
-    "inlayHints": true
+    "inlayHints": true,
+    "autoImports": true
   },
   "integrations": {
-    "mcp": {
-      "enabled": true,
-      "servers": [
-        {
-          "name": "cookie-jar-context",
-          "config": "mcp-server.json"
-        }
-      ]
-    },
     "github": {
       "enabled": true,
       "autoLink": true,
-      "prTemplates": true
+      "prTemplates": true,
+      "issueContext": true
+    },
+    "testing": {
+      "enabled": true,
+      "frameworks": ["vitest", "playwright", "foundry"],
+      "autoRun": false
     }
   },
   "project": {
     "type": "monorepo",
+    "name": "Cookie Jar Protocol",
+    "description": "Decentralized funding pools with smart access control",
     "structure": {
-      "client": "Next.js + React + TypeScript",
-      "contracts": "Foundry + Solidity",
-      "docs": "Markdown documentation",
-      "e2e": "Playwright tests"
+      "client": {
+        "type": "frontend",
+        "framework": "Next.js 15 + React 18 + TypeScript",
+        "styling": "Tailwind CSS + shadcn/ui",
+        "web3": "viem + wagmi + RainbowKit",
+        "testing": "Vitest + React Testing Library"
+      },
+      "contracts": {
+        "type": "smart-contracts", 
+        "framework": "Foundry + Solidity ^0.8.0",
+        "libraries": "OpenZeppelin + Custom Libraries",
+        "testing": "Foundry Test Suite"
+      },
+      "e2e": {
+        "type": "testing",
+        "framework": "Playwright",
+        "focus": "User flows + Accessibility + Performance"
+      },
+      "docs": {
+        "type": "documentation",
+        "format": "Markdown + AI Agent Guidelines"
+      }
     },
     "packageManager": "pnpm",
-    "nodeVersion": ">=18.0.0"
+    "nodeVersion": ">=18.0.0",
+    "networks": ["Base", "Optimism", "Gnosis Chain", "Base Sepolia"],
+    "protocols": ["POAP", "Unlock Protocol", "Hypercerts", "Hats Protocol"]
   },
   "ai": {
     "codeGeneration": {
       "style": "functional",
       "testing": "comprehensive",
-      "documentation": "minimal-but-clear",
+      "documentation": "minimal-but-clear", 
       "errorHandling": "explicit",
-      "security": "strict"
+      "security": "strict",
+      "accessibility": "wcag-aa",
+      "performance": "optimized"
     },
     "preferences": {
       "codeFirst": true,
       "explainTradeoffs": true,
       "assumptionsInComments": true,
-      "breakDownComplexTasks": true
+      "breakDownComplexTasks": true,
+      "mobileFirst": true,
+      "web3Security": true
+    },
+    "quality": {
+      "testCoverage": "90%+",
+      "typeScriptStrict": true,
+      "lintingRequired": true,
+      "gasOptimization": true,
+      "bundleSize": "monitored"
+    }
+  },
+  "development": {
+    "commands": {
+      "dev": "pnpm dev",
+      "test": "pnpm test",
+      "testE2e": "pnpm test:e2e", 
+      "testContracts": "cd contracts && forge test",
+      "build": "pnpm build",
+      "lint": "pnpm lint",
+      "coverage": "pnpm test:coverage"
+    },
+    "environment": {
+      "blockchain": "Anvil (auto-started with pnpm dev)",
+      "frontend": "http://localhost:3000",
+      "hotReload": true,
+      "typeGeneration": true
     }
   },
   "guild": {
     "name": "Greenpill Dev Guild",
-    "standards": "open-source, transparent, regen-positive",
-    "projects": ["Green Goods", "Cookie Jar", "Community Host", "Allo Yeeter", "GreenWill"]
+    "principles": "open-source, transparent, regen-positive",
+    "projects": ["Green Goods", "Cookie Jar", "Community Host", "Allo Yeeter", "GreenWill"],
+    "standards": {
+      "web3": "viem over ethers, testnet-first, gas-conscious",
+      "frontend": "React functional, mobile-first PWA, accessibility",
+      "contracts": "OpenZeppelin, NatSpec docs, comprehensive testing",
+      "testing": "90%+ coverage, user-centric e2e flows"
+    }
+  },
+  "workspace": {
+    "fileAssociations": {
+      "*.sol": "solidity",
+      "*.t.sol": "solidity-test",
+      "*.spec.ts": "playwright-test"
+    },
+    "searchExcludes": [
+      "**/node_modules/**",
+      "**/out/**",
+      "**/cache/**",
+      "**/broadcast/**",
+      "**/.next/**"
+    ]
   }
 }

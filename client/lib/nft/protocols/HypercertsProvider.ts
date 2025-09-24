@@ -67,6 +67,74 @@ export class HypercertsProvider {
     this.baseUrl = this.getGraphQLEndpoint(chainId);
   }
 
+  /**
+   * Get a single hypercert by ID (static method for protocol configs)
+   */
+  static async getHypercertById(hypercertId: string): Promise<HypercertClaim | null> {
+    try {
+      const provider = new HypercertsProvider();
+      
+      const query = `
+        query GetHypercertById($hypercertId: String!) {
+          claims(where: { hypercert_id: $hypercertId }) {
+            id
+            tokenID
+            owner
+            totalUnits
+            contract
+            creation_block_number
+            creation_block_timestamp
+            uri
+          }
+        }
+      `;
+
+      const data = await provider.executeGraphQLQuery(query, { hypercertId });
+      
+      if (!data?.claims || data.claims.length === 0) {
+        return null;
+      }
+
+      const claim = data.claims[0];
+      
+      // Try to fetch metadata from URI
+      let metadata;
+      try {
+        if (claim.uri) {
+          const metadataResponse = await fetch(claim.uri);
+          if (metadataResponse.ok) {
+            metadata = await metadataResponse.json();
+          }
+        }
+      } catch (error) {
+        console.warn('Could not fetch hypercert metadata:', error);
+      }
+
+      return {
+        id: claim.id,
+        tokenID: claim.tokenID,
+        owner: claim.owner,
+        totalUnits: claim.totalUnits,
+        contract: claim.contract,
+        claim: {
+          id: claim.id,
+          creation_block_number: claim.creation_block_number,
+          creation_block_timestamp: claim.creation_block_timestamp,
+          creator: claim.owner,
+          hypercert_id: hypercertId,
+          last_update_block_number: claim.creation_block_number,
+          last_update_block_timestamp: claim.creation_block_timestamp,
+          totalUnits: claim.totalUnits,
+          uri: claim.uri,
+        },
+        metadata,
+      };
+    } catch (error) {
+      console.error('Error fetching hypercert by ID:', error);
+      return null;
+    }
+  }
+
   private getGraphQLEndpoint(chainId: number): string {
     const endpoints: { [key: number]: string } = {
       1: 'https://api.thegraph.com/subgraphs/name/hypercerts/hypercerts-mainnet',

@@ -69,6 +69,64 @@ export class UnlockProvider {
     this.subgraphUrl = this.getSubgraphEndpoint(chainId);
   }
 
+  /**
+   * Get lock details by contract address (static method for protocol configs)
+   */
+  static async getLockDetails(lockAddress: string): Promise<UnlockLock | null> {
+    try {
+      const provider = new UnlockProvider();
+      
+      const query = `
+        query GetLockDetails($lockAddress: String!) {
+          locks(where: { address: $lockAddress }) {
+            id
+            address
+            name
+            symbol
+            tokenAddress
+            price
+            expirationDuration
+            maxNumberOfKeys
+            outstandingKeys
+            version
+            createdAtBlock
+            lockManagers
+            totalSupply
+            maxKeysPerAddress
+          }
+        }
+      `;
+
+      const data = await provider.executeGraphQLQuery(query, { lockAddress: lockAddress.toLowerCase() });
+      
+      if (!data?.locks || data.locks.length === 0) {
+        return null;
+      }
+
+      const lock = data.locks[0];
+      
+      return {
+        id: lock.id,
+        address: lock.address,
+        name: lock.name || 'Unnamed Lock',
+        symbol: lock.symbol,
+        tokenAddress: lock.tokenAddress,
+        price: lock.price,
+        expirationDuration: lock.expirationDuration,
+        maxNumberOfKeys: lock.maxNumberOfKeys,
+        outstandingKeys: lock.outstandingKeys,
+        version: lock.version,
+        createdAtBlock: lock.createdAtBlock,
+        lockManagers: lock.lockManagers || [],
+        totalSupply: lock.totalSupply,
+        maxKeysPerAddress: lock.maxKeysPerAddress,
+      };
+    } catch (error) {
+      console.error('Error fetching lock details:', error);
+      return null;
+    }
+  }
+
   private getUnlockAddress(chainId: number): string {
     const addresses: { [key: number]: string } = {
       1: '0x3d5409CcE1d45233dE1D4eBDEe74b8E004abDD44', // Mainnet

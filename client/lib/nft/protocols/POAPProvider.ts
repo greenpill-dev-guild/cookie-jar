@@ -119,6 +119,53 @@ export class POAPProvider {
   }
 
   /**
+   * Get a single POAP event by ID
+   */
+  static async getEventById(eventId: string): Promise<POAPEvent | null> {
+    try {
+      const provider = new POAPProvider();
+      const response = await fetch(`${provider.baseUrl}/events/id/${eventId}`, {
+        headers: provider.apiKey ? {
+          'X-API-Key': provider.apiKey,
+        } : {},
+      });
+
+      if (!response.ok) {
+        return null;
+      }
+
+      const event = await response.json();
+      return {
+        id: event.id,
+        name: event.name,
+        description: event.description,
+        image_url: event.image_url,
+        start_date: event.start_date,
+        end_date: event.end_date,
+        supply: event.supply,
+        created_date: event.created_date || event.start_date,
+      };
+    } catch (error) {
+      console.error('Error fetching POAP event:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Search for POAP events
+   */
+  static async searchEvents(query: string): Promise<POAPEvent[]> {
+    try {
+      const provider = new POAPProvider();
+      const searchResult = await provider.searchEvents(query);
+      return searchResult.events;
+    } catch (error) {
+      console.error('Error searching POAP events:', error);
+      return [];
+    }
+  }
+
+  /**
    * Get POAPs owned by a specific address
    */
   async getUserPOAPs(

@@ -70,3 +70,19 @@ pnpm test:coverage     # Generate coverage report (90%+ required)
 - **Bundle size**: Monitor with `@next/bundle-analyzer`
 - **Keyboard navigation**: All interactive elements accessible
 - **Screen reader support**: Proper ARIA labels and semantic HTML
+
+## Development Commands
+```bash
+pnpm dev           # Start development server (Next.js with HMR)
+pnpm build         # Production build
+pnpm type-check    # Fast TypeScript error checking (preferred for type validation)
+pnpm test          # Run tests (Vitest)
+pnpm test:watch    # Run tests in watch mode
+pnpm lint          # ESLint checking
+pnpm generate      # Generate contract types (wagmi)
+```
+
+### TypeScript Development Tips
+- **Use `pnpm type-check`** for rapid TypeScript error validation
+- **Avoid `pnpm build`** for simple type checking - it's much slower (includes bundling/optimization)
+- **Full builds** are only needed before deployment or when testing complete build pipeline
