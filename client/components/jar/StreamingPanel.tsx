@@ -56,29 +56,19 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
   } = useStreamingData(jarAddress);
 
   const {
-    registerStream,
-    approveStream,
-    processStream,
+    createSuperStream,
     isRegistering,
     isApproving,
     isProcessing,
   } = useStreamingActions(jarAddress);
 
-  const handleRegisterStream = async () => {
-    await registerStream(newStreamSender, newStreamToken, newStreamRate);
-    
+  const handleCreateSuperStream = async () => {
+    await createSuperStream(newStreamToken, newStreamRate);
+
     // Reset form on success
     setNewStreamSender("");
     setNewStreamToken("");
     setNewStreamRate("");
-  };
-
-  const handleApproveStream = async (streamId: number) => {
-    await approveStream(streamId);
-  };
-
-  const handleProcessStream = async (streamId: number) => {
-    await processStream(streamId);
   };
 
   if (isLoadingStreams && !streams.length) {
@@ -159,7 +149,7 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
                       </div>
 
                       <div className="flex gap-2">
-                        {!stream.isApproved && isAdmin && (
+                        {/* {!stream.isApproved && isAdmin && (
                           <Button
                             size="sm"
                             onClick={() => handleApproveStream(stream.id)}
@@ -172,8 +162,8 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
                             )}
                             Approve
                           </Button>
-                        )}
-                        
+                        )} */}
+{/*                         
                         {stream.isApproved && (
                           <Button
                             size="sm"
@@ -188,7 +178,7 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
                             )}
                             Process
                           </Button>
-                        )}
+                        )} */}
                       </div>
                     </div>
                   </CardContent>
@@ -201,25 +191,15 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
             <TabsContent value="manage" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Register New Stream</CardTitle>
+                  <CardTitle className="text-lg">Create Superfluid Stream</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <Label htmlFor="sender">Stream Sender Address</Label>
+                      <Label htmlFor="superToken">Super Token Address</Label>
                       <Input
-                        id="sender"
-                        placeholder="0x..."
-                        value={newStreamSender}
-                        onChange={(e) => setNewStreamSender(e.target.value)}
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="token">Token Address</Label>
-                      <Input
-                        id="token"
-                        placeholder="0x..."
+                        id="superToken"
+                        placeholder="0x... (Super Token contract address)"
                         value={newStreamToken}
                         onChange={(e) => setNewStreamToken(e.target.value)}
                       />
@@ -237,7 +217,7 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
                   </div>
                   
                   <Button
-                    onClick={handleRegisterStream}
+                    onClick={handleCreateSuperStream}
                     disabled={isRegistering}
                     className="w-full"
                   >
@@ -246,7 +226,7 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
                     ) : (
                       <Settings className="h-4 w-4 mr-2" />
                     )}
-                    Register Stream
+                    Create Superfluid Stream
                   </Button>
                 </CardContent>
               </Card>

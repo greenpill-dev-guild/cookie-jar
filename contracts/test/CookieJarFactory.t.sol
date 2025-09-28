@@ -71,14 +71,34 @@ contract CookieJarFactoryTest is Test {
             poapReq: CookieJarLib.POAPRequirement({eventId: 0, poapContract: address(0)}),
             unlockReq: CookieJarLib.UnlockRequirement({lockAddress: address(0), requireValidKey: false}),
             hypercertReq: CookieJarLib.HypercertRequirement({
-                hypercertContract: address(0), 
-                requiredFractions: 0, 
-                allowedCreators: new address[](0), 
-                tokenId: 0, 
-                tokenContract: address(0), 
+                hypercertContract: address(0),
+                requiredFractions: 0,
+                allowedCreators: new address[](0),
+                tokenId: 0,
+                tokenContract: address(0),
                 minBalance: 1
             }),
             hatsReq: CookieJarLib.HatsRequirement({hatId: 0, hatsContract: address(0)})
+        });
+    }
+
+    // Helper function to create default multi-token config
+    function createDefaultMultiTokenConfig() internal view returns (CookieJarLib.MultiTokenConfig memory) {
+        return CookieJarLib.MultiTokenConfig({
+            enabled: false,
+            maxSlippagePercent: 500,
+            minSwapAmount: 0,
+            defaultFee: 0
+        });
+    }
+
+    // Helper function to create default streaming config
+    function createDefaultStreamingConfig() internal view returns (CookieJarLib.StreamingConfig memory) {
+        return CookieJarLib.StreamingConfig({
+            enabled: false,
+            autoAcceptStreams: false,
+            acceptedSuperTokens: new address[](0),
+            minFlowRate: 1e18
         });
     }
 
@@ -124,7 +144,7 @@ contract CookieJarFactoryTest is Test {
         
         CookieJarLib.AccessConfig memory accessConfig = createDefaultAccessConfig();
         
-        factory.createCookieJar(params, accessConfig);
+        factory.createCookieJar(params, accessConfig, createDefaultMultiTokenConfig(), createDefaultStreamingConfig());
         address[] memory cookieJars = factory.getAllJars();
         assertEq(cookieJars.length, 0);
     }
@@ -144,7 +164,7 @@ contract CookieJarFactoryTest is Test {
         
         CookieJarLib.AccessConfig memory accessConfig = createDefaultAccessConfig();
         
-        factory.createCookieJar(params, accessConfig);
+        factory.createCookieJar(params, accessConfig, createDefaultMultiTokenConfig(), createDefaultStreamingConfig());
         address[] memory cookieJars = factory.getAllJars();
         assertEq(cookieJars.length, 0);
     }
@@ -172,7 +192,9 @@ contract CookieJarFactoryTest is Test {
         vm.prank(owner);
         address jarAddress = factory.createCookieJar(
             createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, "Test Metadata"),
-            createDefaultAccessConfig()
+            createDefaultAccessConfig(),
+            createDefaultMultiTokenConfig(),
+            createDefaultStreamingConfig()
         );
         
         address[] memory cookieJars = factory.getAllJars();
@@ -192,7 +214,9 @@ contract CookieJarFactoryTest is Test {
         
         address jarAddress = factory.createCookieJar(
             params,
-            createDefaultAccessConfig()
+            createDefaultAccessConfig(),
+            createDefaultMultiTokenConfig(),
+            createDefaultStreamingConfig()
         );
         
         address[] memory cookieJars = factory.getAllJars();
@@ -212,7 +236,9 @@ contract CookieJarFactoryTest is Test {
         
         address jarAddress = factory.createCookieJar(
             params,
-            createDefaultAccessConfig()
+            createDefaultAccessConfig(),
+            createDefaultMultiTokenConfig(),
+            createDefaultStreamingConfig()
         );
         
         address[] memory cookieJars = factory.getAllJars();
@@ -232,7 +258,9 @@ contract CookieJarFactoryTest is Test {
         
         address jarAddress = factory.createCookieJar(
             params,
-            createDefaultAccessConfig()
+            createDefaultAccessConfig(),
+            createDefaultMultiTokenConfig(),
+            createDefaultStreamingConfig()
         );
         
         address[] memory cookieJars = factory.getAllJars();
@@ -263,7 +291,9 @@ contract CookieJarFactoryTest is Test {
         vm.prank(owner);
         address jarAddress = factory.createCookieJar(
             createDefaultJarParams(owner, address(testToken), "ERC20 Test Jar"),
-            createDefaultAccessConfig()
+            createDefaultAccessConfig(),
+            createDefaultMultiTokenConfig(),
+            createDefaultStreamingConfig()
         );
         
         address[] memory cookieJars = factory.getAllJars();
@@ -278,7 +308,9 @@ contract CookieJarFactoryTest is Test {
         vm.prank(owner);
         address jarAddress = factory.createCookieJar(
             createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, testMetadata),
-            createDefaultAccessConfig()
+            createDefaultAccessConfig(),
+            createDefaultMultiTokenConfig(),
+            createDefaultStreamingConfig()
         );
         
         // Test getMetadata for specific jar
@@ -298,7 +330,9 @@ contract CookieJarFactoryTest is Test {
         vm.prank(owner);
         address jarAddress = factory.createCookieJar(
             createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, originalMetadata),
-            createDefaultAccessConfig()
+            createDefaultAccessConfig(),
+            createDefaultMultiTokenConfig(),
+            createDefaultStreamingConfig()
         );
         
         // Verify original metadata
@@ -320,7 +354,9 @@ contract CookieJarFactoryTest is Test {
         vm.prank(owner);
         address jarAddress = factory.createCookieJar(
             createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, originalMetadata),
-            createDefaultAccessConfig()
+            createDefaultAccessConfig(),
+            createDefaultMultiTokenConfig(),
+            createDefaultStreamingConfig()
         );
         
         // Try to update metadata as non-owner (should fail)
@@ -357,17 +393,23 @@ contract CookieJarFactoryTest is Test {
         vm.startPrank(owner);
         address jar1 = factory.createCookieJar(
             createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, metadata1),
-            createDefaultAccessConfig()
+            createDefaultAccessConfig(),
+            createDefaultMultiTokenConfig(),
+            createDefaultStreamingConfig()
         );
-        
+
         address jar2 = factory.createCookieJar(
             createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, metadata2),
-            createDefaultAccessConfig()
+            createDefaultAccessConfig(),
+            createDefaultMultiTokenConfig(),
+            createDefaultStreamingConfig()
         );
-        
+
         address jar3 = factory.createCookieJar(
             createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, metadata3),
-            createDefaultAccessConfig()
+            createDefaultAccessConfig(),
+            createDefaultMultiTokenConfig(),
+            createDefaultStreamingConfig()
         );
         vm.stopPrank();
         

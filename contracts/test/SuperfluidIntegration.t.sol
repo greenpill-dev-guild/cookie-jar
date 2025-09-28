@@ -114,15 +114,15 @@ contract SuperfluidIntegrationTest is Test {
     
     function testSuperfluidConfigurationOnDeploy() public {
         // Test that Superfluid config is properly set during construction
-        CookieJarLib.SuperfluidConfig memory config = _jar.getSuperfluidConfig();
+        CookieJarLib.StreamingConfig memory config = _jar.getStreamingConfig();
         
-        assertTrue(config.superfluidEnabled);
+        assertTrue(config.enabled);
         assertFalse(config.autoAcceptStreams);
         assertEq(config.acceptedSuperTokens.length, 1);
         assertEq(config.acceptedSuperTokens[0], _superTokenAddress);
         assertEq(config.minFlowRate, 1e18);
-        assertFalse(config.useDistributionPool);
-        assertEq(config.distributionPool, address(0));
+        assertFalse(config.autoAcceptStreams);
+        assertEq(config.acceptedSuperTokens.length, 1);
         
         // Test that super token acceptance mapping is set
         assertTrue(_jar.isAcceptedSuperToken(_superTokenAddress));
@@ -137,27 +137,24 @@ contract SuperfluidIntegrationTest is Test {
         newSuperTokens[0] = _superTokenAddress;
         newSuperTokens[1] = address(0x888); // Add another super token
         
-        CookieJarLib.SuperfluidConfig memory newConfig = CookieJarLib.SuperfluidConfig({
-            superfluidEnabled: true,
+        CookieJarLib.StreamingConfig memory newConfig = CookieJarLib.StreamingConfig({
+            enabled: true,
             autoAcceptStreams: true, // Change to auto-accept
             acceptedSuperTokens: newSuperTokens,
-            minFlowRate: 2e18, // Increase minimum flow rate
-            useDistributionPool: true,
-            distributionPool: address(0x777)
+            minFlowRate: 2e18 // Increase minimum flow rate
         });
         
         // Expect event emission
         vm.expectEmit(true, true, true, true);
         emit SuperfluidConfigUpdated(true);
         
-        _jar.configureSuperfluid(newConfig);
+        _jar.configureStreaming(newConfig);
         
         // Verify configuration updated
-        CookieJarLib.SuperfluidConfig memory updatedConfig = _jar.getSuperfluidConfig();
+        CookieJarLib.StreamingConfig memory updatedConfig = _jar.getStreamingConfig();
         assertTrue(updatedConfig.autoAcceptStreams);
         assertEq(updatedConfig.minFlowRate, 2e18);
-        assertTrue(updatedConfig.useDistributionPool);
-        assertEq(updatedConfig.distributionPool, address(0x777));
+        assertEq(updatedConfig.acceptedSuperTokens.length, 2);
         
         // Verify new super token is accepted
         assertTrue(_jar.isAcceptedSuperToken(address(0x888)));
@@ -170,17 +167,15 @@ contract SuperfluidIntegrationTest is Test {
         address[] memory tokens = new address[](1);
         tokens[0] = _superTokenAddress;
         
-        CookieJarLib.SuperfluidConfig memory config = CookieJarLib.SuperfluidConfig({
-            superfluidEnabled: false,
+        CookieJarLib.StreamingConfig memory config = CookieJarLib.StreamingConfig({
+            enabled: false,
             autoAcceptStreams: false,
             acceptedSuperTokens: tokens,
-            minFlowRate: 1e18,
-            useDistributionPool: false,
-            distributionPool: address(0)
+            minFlowRate: 1e18
         });
         
         vm.expectRevert();
-        _jar.configureSuperfluid(config);
+        _jar.configureStreaming(config);
     }
     
     // ===================================
@@ -214,15 +209,13 @@ contract SuperfluidIntegrationTest is Test {
         address[] memory tokens = new address[](1);
         tokens[0] = _superTokenAddress;
         
-        CookieJarLib.SuperfluidConfig memory config = CookieJarLib.SuperfluidConfig({
-            superfluidEnabled: true,
+        CookieJarLib.StreamingConfig memory config = CookieJarLib.StreamingConfig({
+            enabled: true,
             autoAcceptStreams: true,
             acceptedSuperTokens: tokens,
-            minFlowRate: 1e18,
-            useDistributionPool: false,
-            distributionPool: address(0)
+            minFlowRate: 1e18
         });
-        _jar.configureSuperfluid(config);
+        _jar.configureStreaming(config);
         
         // Now create stream
         vm.prank(_user);
@@ -240,24 +233,22 @@ contract SuperfluidIntegrationTest is Test {
         address[] memory tokens = new address[](1);
         tokens[0] = _superTokenAddress;
         
-        CookieJarLib.SuperfluidConfig memory config = CookieJarLib.SuperfluidConfig({
-            superfluidEnabled: false, // Disabled
+        CookieJarLib.StreamingConfig memory config = CookieJarLib.StreamingConfig({
+            enabled: false, // Disabled
             autoAcceptStreams: false,
             acceptedSuperTokens: tokens,
-            minFlowRate: 1e18,
-            useDistributionPool: false,
-            distributionPool: address(0)
+            minFlowRate: 1e18
         });
-        _jar.configureSuperfluid(config);
+        _jar.configureStreaming(config);
         
         vm.prank(_user);
         vm.expectRevert(CookieJarLib.InvalidAccessType.selector);
         _jar.createSuperStream(_superTokenAddress, 2e18);
         
         // Re-enable for next tests
-        config.superfluidEnabled = true;
+        config.enabled = true;
         vm.prank(_owner);
-        _jar.configureSuperfluid(config);
+        _jar.configureStreaming(config);
         
         // Test: Invalid super token
         vm.prank(_user);
@@ -412,15 +403,15 @@ contract SuperfluidIntegrationTest is Test {
     }
     
     function testGetSuperfluidConfig() public {
-        CookieJarLib.SuperfluidConfig memory config = _jar.getSuperfluidConfig();
+        CookieJarLib.StreamingConfig memory config = _jar.getStreamingConfig();
         
-        assertTrue(config.superfluidEnabled);
+        assertTrue(config.enabled);
         assertFalse(config.autoAcceptStreams);
         assertEq(config.acceptedSuperTokens.length, 1);
         assertEq(config.acceptedSuperTokens[0], _superTokenAddress);
         assertEq(config.minFlowRate, 1e18);
-        assertFalse(config.useDistributionPool);
-        assertEq(config.distributionPool, address(0));
+        assertFalse(config.autoAcceptStreams);
+        assertEq(config.acceptedSuperTokens.length, 1);
     }
     
     function testGetSuperStream() public {
@@ -450,13 +441,9 @@ contract SuperfluidIntegrationTest is Test {
         // Verify that Superfluid functionality doesn't interfere with traditional streaming
         // Traditional streaming should still work independently
         
-        // Check that traditional streaming config is separate
-        (bool streamingEnabled, bool requireStreamApproval, uint256 maxStreamRate, uint256 minStreamDuration) = _jar.streamingConfig();
-        assertFalse(streamingEnabled); // Traditional streaming disabled
-        
         // Check that Superfluid streaming is enabled
-        CookieJarLib.SuperfluidConfig memory superConfig = _jar.getSuperfluidConfig();
-        assertTrue(superConfig.superfluidEnabled); // Superfluid streaming enabled
+        CookieJarLib.StreamingConfig memory streamingConfig = _jar.getStreamingConfig();
+        assertTrue(streamingConfig.enabled); // Superfluid streaming enabled
         
         // Both systems should coexist independently
         vm.prank(_user);
@@ -473,13 +460,11 @@ contract SuperfluidIntegrationTest is Test {
         address[] memory tokens = new address[](1);
         tokens[0] = _superTokenAddress;
         
-        CookieJarLib.SuperfluidConfig memory superfluidConfig = CookieJarLib.SuperfluidConfig({
-            superfluidEnabled: true,
+        CookieJarLib.StreamingConfig memory streamingConfig2 = CookieJarLib.StreamingConfig({
+            enabled: true,
             autoAcceptStreams: true,
             acceptedSuperTokens: tokens,
-            minFlowRate: 1e18,
-            useDistributionPool: false,
-            distributionPool: address(0)
+            minFlowRate: 1e18
         });
         
         // Create enhanced configuration
@@ -491,10 +476,10 @@ contract SuperfluidIntegrationTest is Test {
         });
         
         CookieJarLib.StreamingConfig memory streamingConfig = CookieJarLib.StreamingConfig({
-            streamingEnabled: false,
-            requireStreamApproval: false,
-            maxStreamRate: 0,
-            minStreamDuration: 0
+            enabled: false,
+            autoAcceptStreams: false,
+            acceptedSuperTokens: new address[](0),
+            minFlowRate: 1e18
         });
         
         // Create JarConfig after all other configs are ready
@@ -515,26 +500,24 @@ contract SuperfluidIntegrationTest is Test {
             maxWithdrawalPerPeriod: 5000e18,
             metadata: "Test Superfluid Jar",
             multiTokenConfig: multiTokenConfig,
-            streamingConfig: streamingConfig,
-            superfluidConfig: superfluidConfig
+            streamingConfig: streamingConfig2
         });
         
         // Deploy via factory
         vm.prank(_owner);
-        address newJarAddress = _factory.createFullFeaturedCookieJar(
+        address newJarAddress = _factory.createCookieJar(
             params,
             _accessConfig,
             multiTokenConfig,
-            streamingConfig,
-            superfluidConfig
+            streamingConfig
         );
         
         // Verify Superfluid configuration in factory-created jar
         CookieJar factoryJar = CookieJar(payable(newJarAddress));
         assertTrue(factoryJar.isAcceptedSuperToken(_superTokenAddress));
         
-        CookieJarLib.SuperfluidConfig memory config = factoryJar.getSuperfluidConfig();
-        assertTrue(config.superfluidEnabled);
+        CookieJarLib.StreamingConfig memory config = factoryJar.getStreamingConfig();
+        assertTrue(config.enabled);
         assertTrue(config.autoAcceptStreams);
     }
     
@@ -574,15 +557,13 @@ contract SuperfluidIntegrationTest is Test {
         tokens[0] = _superTokenAddress;
         tokens[1] = address(0x888); // Second token
         
-        CookieJarLib.SuperfluidConfig memory config = CookieJarLib.SuperfluidConfig({
-            superfluidEnabled: true,
+        CookieJarLib.StreamingConfig memory config = CookieJarLib.StreamingConfig({
+            enabled: true,
             autoAcceptStreams: true,
             acceptedSuperTokens: tokens,
-            minFlowRate: 1e18,
-            useDistributionPool: false,
-            distributionPool: address(0)
+            minFlowRate: 1e18
         });
-        _jar.configureSuperfluid(config);
+        _jar.configureStreaming(config);
         
         // Create multiple streams
         vm.prank(_user);
@@ -632,20 +613,18 @@ contract SuperfluidIntegrationTest is Test {
         address[] memory tokens = new address[](1);
         tokens[0] = _superTokenAddress;
         
-        CookieJarLib.SuperfluidConfig memory config = CookieJarLib.SuperfluidConfig({
-            superfluidEnabled: true,
+        CookieJarLib.StreamingConfig memory config = CookieJarLib.StreamingConfig({
+            enabled: true,
             autoAcceptStreams: true,
             acceptedSuperTokens: tokens,
-            minFlowRate: 1e18,
-            useDistributionPool: true,
-            distributionPool: mockDistributionPool
+            minFlowRate: 1e18
         });
-        _jar.configureSuperfluid(config);
+        _jar.configureStreaming(config);
         
         // Verify configuration
-        CookieJarLib.SuperfluidConfig memory updatedConfig = _jar.getSuperfluidConfig();
-        assertTrue(updatedConfig.useDistributionPool);
-        assertEq(updatedConfig.distributionPool, mockDistributionPool);
+        CookieJarLib.StreamingConfig memory updatedConfig = _jar.getStreamingConfig();
+        assertTrue(updatedConfig.autoAcceptStreams);
+        assertEq(updatedConfig.acceptedSuperTokens.length, 1);
     }
     
     function testSuperfluidMinFlowRateEnforcement() public {
@@ -655,15 +634,13 @@ contract SuperfluidIntegrationTest is Test {
         address[] memory tokens = new address[](1);
         tokens[0] = _superTokenAddress;
         
-        CookieJarLib.SuperfluidConfig memory config = CookieJarLib.SuperfluidConfig({
-            superfluidEnabled: true,
+        CookieJarLib.StreamingConfig memory config = CookieJarLib.StreamingConfig({
+            enabled: true,
             autoAcceptStreams: true,
             acceptedSuperTokens: tokens,
-            minFlowRate: 5e18, // Increase minimum to 5 tokens/sec
-            useDistributionPool: false,
-            distributionPool: address(0)
+            minFlowRate: 5e18
         });
-        _jar.configureSuperfluid(config);
+        _jar.configureStreaming(config);
         
         // Try to create stream below minimum - should fail
         vm.prank(_user);
@@ -687,15 +664,13 @@ contract SuperfluidIntegrationTest is Test {
             manyTokens[i] = address(uint160(0x1000 + i));
         }
         
-        CookieJarLib.SuperfluidConfig memory config = CookieJarLib.SuperfluidConfig({
-            superfluidEnabled: true,
+        CookieJarLib.StreamingConfig memory config = CookieJarLib.StreamingConfig({
+            enabled: true,
             autoAcceptStreams: true,
             acceptedSuperTokens: manyTokens,
-            minFlowRate: 1e18,
-            useDistributionPool: false,
-            distributionPool: address(0)
+            minFlowRate: 1e18
         });
-        _jar.configureSuperfluid(config);
+        _jar.configureStreaming(config);
         
         // Verify all tokens are accepted
         for (uint i = 0; i < 10; i++) {

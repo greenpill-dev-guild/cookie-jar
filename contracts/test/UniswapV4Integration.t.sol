@@ -46,21 +46,12 @@ contract UniswapV4IntegrationTest is Test {
         
         // Streaming and Superfluid configs (disabled for this test)
         _jarConfig.streamingConfig = CookieJarLib.StreamingConfig({
-            streamingEnabled: false,
-            requireStreamApproval: false,
-            maxStreamRate: 0,
-            minStreamDuration: 0
+            enabled: false,
+            autoAcceptStreams: false,
+            acceptedSuperTokens: new address[](0),
+            minFlowRate: 1e18
         });
         
-        address[] memory emptyTokens = new address[](0);
-        _jarConfig.superfluidConfig = CookieJarLib.SuperfluidConfig({
-            superfluidEnabled: false,
-            autoAcceptStreams: false,
-            acceptedSuperTokens: emptyTokens,
-            minFlowRate: 0,
-            useDistributionPool: false,
-            distributionPool: address(0)
-        });
 
         // Access configuration  
         address[] memory allowlist = new address[](2);

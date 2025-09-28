@@ -15,7 +15,7 @@ import {
 import { Checkbox } from "@/components/ui/checkbox";
 import { Trash2 } from "lucide-react";
 import { ProtocolSelector } from "@/components/nft/ProtocolSelector";
-import { NFTGateInput } from "@/components/nft/NFTGateInput";
+// import { NFTGateInput } from "@/components/nft/NFTGateInput"; // TODO: Component not found
 import { NFTSelector, type SelectedNFT } from "@/components/nft/NFTSelector";
 import { shortenAddress } from "@/lib/app/utils";
 import { isAddress } from "viem";

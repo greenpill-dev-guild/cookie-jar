@@ -3,7 +3,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle2 } from "lucide-react";
-import { ProtocolConfigBase } from "../base/ProtocolConfigBase";
+import { ProtocolConfigBase } from "../ProtocolConfigBase";
 import { HypercertsProvider } from "@/lib/nft/protocols/HypercertsProvider";
 
 interface HypercertDetails {

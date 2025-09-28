@@ -107,17 +107,16 @@ export const useStreamingActions = (jarAddress: `0x${string}`) => {
   }, [processSuccess, toast, queryClient, jarAddress]);
 
   /**
-   * Register a new stream
+   * Create a new Superfluid stream
    */
-  const registerStream = async (
-    sender: string,
-    token: string,
-    ratePerSecond: string
+  const createSuperStream = async (
+    superToken: string,
+    flowRate: string
   ) => {
-    if (!isAddress(sender) || !isAddress(token) || !ratePerSecond) {
+    if (!isAddress(superToken) || !flowRate) {
       toast({
         title: "Invalid Input",
-        description: "Please provide valid addresses and rate.",
+        description: "Please provide valid super token address and flow rate.",
         variant: "destructive",
       });
       return;
@@ -128,70 +127,26 @@ export const useStreamingActions = (jarAddress: `0x${string}`) => {
       await registerStreamWrite({
         address: jarAddress,
         abi: cookieJarAbi,
-        functionName: "registerStream",
-        args: [sender as `0x${string}`, token as `0x${string}`, parseEther(ratePerSecond)],
+        functionName: "createSuperStream",
+        args: [superToken as `0x${string}`, parseEther(flowRate)],
       });
     } catch (error: any) {
       toast({
-        title: "Registration Failed",
-        description: error.message || "Failed to register stream.",
+        title: "Stream Creation Failed",
+        description: error.message || "Failed to create Superfluid stream.",
         variant: "destructive",
       });
       setIsRegistering(false);
     }
   };
 
-  /**
-   * Approve a pending stream
-   */
-  const approveStream = async (streamId: number) => {
-    try {
-      setIsApproving(true);
-      await approveStreamWrite({
-        address: jarAddress,
-        abi: cookieJarAbi,
-        functionName: "approveStream",
-        args: [BigInt(streamId)],
-      });
-    } catch (error: any) {
-      toast({
-        title: "Approval Failed",
-        description: error.message || "Failed to approve stream.",
-        variant: "destructive",
-      });
-      setIsApproving(false);
-    }
-  };
 
-  /**
-   * Process accumulated stream tokens
-   */
-  const processStream = async (streamId: number) => {
-    try {
-      setIsProcessing(true);
-      setProcessingStreamId(streamId);
-      await processStreamWrite({
-        address: jarAddress,
-        abi: cookieJarAbi,
-        functionName: "processStream",
-        args: [BigInt(streamId)],
-      });
-    } catch (error: any) {
-      toast({
-        title: "Processing Failed",
-        description: error.message || "Failed to process stream.",
-        variant: "destructive",
-      });
-      setIsProcessing(false);
-      setProcessingStreamId(null);
-    }
-  };
+
 
   return {
     // Actions
-    registerStream,
-    approveStream,
-    processStream,
+    createSuperStream,
+
 
     // Loading states
     isRegistering: registerPending || registerLoading || isRegistering,

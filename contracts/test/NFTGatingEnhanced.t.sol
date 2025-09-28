@@ -109,18 +109,10 @@ contract NFTGatingEnhancedTest is Test {
                 defaultFee: 3000
             }),
             streamingConfig: CookieJarLib.StreamingConfig({
-                streamingEnabled: false,
-                requireStreamApproval: true,
-                maxStreamRate: CookieJarLib.MAX_RATE_PER_SECOND,
-                minStreamDuration: CookieJarLib.MIN_STREAM_DURATION
-            }),
-            superfluidConfig: CookieJarLib.SuperfluidConfig({
-                superfluidEnabled: false,
+                enabled: false,
                 autoAcceptStreams: false,
-                acceptedSuperTokens: new address[](0),
-                minFlowRate: 0,
-                useDistributionPool: false,
-                distributionPool: address(0)
+                minFlowRate: 1e18,
+                acceptedSuperTokens: new address[](0)
             })
         });
         

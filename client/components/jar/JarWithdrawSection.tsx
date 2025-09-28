@@ -46,8 +46,8 @@ export function JarWithdrawSection() {
     handleWithdrawAllowlistVariable,
     handleWithdrawNFT,
     handleWithdrawNFTVariable,
-    isWithdrawAllowlistPending,
-    isWithdrawNFTPending,
+    isApprovalPending,
+    isWithdrawPending,
   } = transactions;
 
   return (
@@ -79,7 +79,7 @@ export function JarWithdrawSection() {
         <AllowlistWithdrawalSection
           config={{
             ...config,
-            isWithdrawPending: isWithdrawAllowlistPending,
+            isWithdrawPending: isWithdrawPending,
           }}
           withdrawPurpose={withdrawPurpose}
           setWithdrawPurpose={setWithdrawPurpose}
@@ -92,7 +92,7 @@ export function JarWithdrawSection() {
         <NFTGatedWithdrawalSection
           config={{
             ...config,
-            isWithdrawPending: isWithdrawNFTPending,
+            isWithdrawPending: isWithdrawPending,
           }}
           withdrawAmount={withdrawAmount}
           setWithdrawAmount={setWithdrawAmount}

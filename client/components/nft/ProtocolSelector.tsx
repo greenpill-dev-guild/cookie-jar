@@ -6,7 +6,7 @@ import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Smartphone, Monitor, Shield, Users, Coins } from 'lucide-react';
 import { cn } from '@/lib/app/utils';
-import { useResponsive } from './hooks/useResponsive';
+import { useResponsive } from '@/hooks/app/useResponsive';
 
 // Import protocol configs
 import { POAPConfig } from './protocols/POAPConfig';

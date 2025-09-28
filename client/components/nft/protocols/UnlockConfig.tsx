@@ -4,7 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Loader2, CheckCircle2 } from "lucide-react";
-import { ProtocolConfigBase } from "../base/ProtocolConfigBase";
+import { ProtocolConfigBase } from "../ProtocolConfigBase";
 import { UnlockProvider } from "@/lib/nft/protocols/UnlockProvider";
 
 interface LockDetails {

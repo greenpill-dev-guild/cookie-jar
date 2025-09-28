@@ -446,34 +446,25 @@ export function useCookieJarFactory() {
 
       // Get metadata - now works for both V1 and V2!
       let metadatas: string[];
-      if (isV2Contract) {
-        // V2: Use getMetadatas batch function (now available!)
-        metadatas = (await publicClient.readContract({
-          address: factoryAddress,
-          abi: factoryAbi,
-          functionName: "getMetadatas",
-        })) as string[];
-      } else {
-        // V1: Get metadata by index for each jar
-        metadatas = await Promise.all(
-          addresses.map(async (_, index) => {
-            try {
-              return (await publicClient.readContract({
-                address: factoryAddress,
-                abi: factoryAbi,
-                functionName: "metadatas",
-                args: [BigInt(index)],
-              })) as string;
-            } catch (error) {
-              console.warn(
-                `Failed to fetch metadata for index ${index}:`,
-                error,
-              );
-              return "Jar Info";
-            }
-          }),
-        );
-      }
+      // Get metadata - now works for both V1 and V2!
+      metadatas = await Promise.all(
+        addresses.map(async (_, index) => {
+          try {
+            return (await publicClient.readContract({
+              address: factoryAddress,
+              abi: factoryAbi,
+              functionName: "metadatas",
+              args: [BigInt(index)],
+            })) as string;
+          } catch (error) {
+            console.warn(
+              `Failed to fetch metadata for index ${index}:`,
+              error,
+            );
+            return "Jar Info";
+          }
+        }),
+      );
 
       return { addresses, metadatas };
     },
