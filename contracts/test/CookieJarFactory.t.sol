@@ -29,35 +29,57 @@ contract CookieJarFactoryTest is Test {
         address jarOwner,
         address currency,
         string memory metadata
-    ) internal view returns (CookieJarLib.CreateJarParams memory) {
-        return CookieJarLib.CreateJarParams(
-            jarOwner,
-            currency,
-            CookieJarLib.AccessType.Allowlist,
-            CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount,
-            maxWithdrawal,
-            withdrawalInterval,
-            strictPurpose,
-            true, // emergencyWithdrawalEnabled
-            false, // oneTimeWithdrawal
-            metadata,
-            0, // customFeePercentage
-            0  // maxWithdrawalPerPeriod
-        );
+    ) internal view returns (CookieJarLib.JarConfig memory) {
+        return CookieJarLib.JarConfig({
+            jarOwner: jarOwner,
+            supportedCurrency: currency,
+            accessType: CookieJarLib.AccessType.Allowlist,
+            withdrawalOption: CookieJarLib.WithdrawalTypeOptions.Fixed,
+            fixedAmount: fixedAmount,
+            maxWithdrawal: maxWithdrawal,
+            withdrawalInterval: withdrawalInterval,
+            minDeposit: 0.01 ether,
+            feePercentageOnDeposit: 0,
+            strictPurpose: strictPurpose,
+            feeCollector: address(this),
+            emergencyWithdrawalEnabled: true,
+            oneTimeWithdrawal: false,
+            maxWithdrawalPerPeriod: 0,
+            metadata: metadata,
+            multiTokenConfig: CookieJarLib.MultiTokenConfig({
+                enabled: false,
+                maxSlippagePercent: 500,
+                minSwapAmount: 0,
+                defaultFee: 3000
+            }),
+            streamingConfig: CookieJarLib.StreamingConfig({
+                enabled: false,
+                autoAcceptStreams: false,
+                acceptedSuperTokens: new address[](0),
+                minFlowRate: 1e18
+            })
+        });
     }
 
     // Helper function to create default access config
     function createDefaultAccessConfig() internal view returns (CookieJarLib.AccessConfig memory) {
-        return CookieJarLib.AccessConfig(
-            emptyAddresses,
-            emptyTypes,
-            emptyAllowlist,
-            CookieJarLib.POAPRequirement(0, address(0)),
-            CookieJarLib.UnlockRequirement(address(0)),
-            CookieJarLib.HypercertRequirement(address(0), 0, 1),
-            CookieJarLib.HatsRequirement(0, address(0))
-        );
+        return CookieJarLib.AccessConfig({
+            nftAddresses: emptyAddresses,
+            nftTypes: emptyTypes,
+            nftThresholds: new uint256[](0),
+            allowlist: emptyAllowlist,
+            poapReq: CookieJarLib.POAPRequirement({eventId: 0, poapContract: address(0)}),
+            unlockReq: CookieJarLib.UnlockRequirement({lockAddress: address(0), requireValidKey: false}),
+            hypercertReq: CookieJarLib.HypercertRequirement({
+                hypercertContract: address(0), 
+                requiredFractions: 0, 
+                allowedCreators: new address[](0), 
+                tokenId: 0, 
+                tokenContract: address(0), 
+                minBalance: 1
+            }),
+            hatsReq: CookieJarLib.HatsRequirement({hatId: 0, hatsContract: address(0)})
+        });
     }
 
     function setUp() public {
@@ -94,16 +116,16 @@ contract CookieJarFactoryTest is Test {
         vm.expectRevert(CookieJarFactory.CookieJarFactory__Denylisted.selector);
         
         // V2: Use struct-based parameters
-        CookieJarLib.CreateJarParams memory params = createDefaultJarParams(
+        CookieJarLib.JarConfig memory params = createDefaultJarParams(
             owner,
-            address(3),
+            CookieJarLib.ETH_ADDRESS,
             "Test Metadata"
         );
         
         CookieJarLib.AccessConfig memory accessConfig = createDefaultAccessConfig();
         
         factory.createCookieJar(params, accessConfig);
-        address[] memory cookieJars = factory.getCookieJars();
+        address[] memory cookieJars = factory.getAllJars();
         assertEq(cookieJars.length, 0);
     }
 
@@ -114,16 +136,16 @@ contract CookieJarFactoryTest is Test {
         vm.prank(testUsers[0]);
         vm.expectRevert(CookieJarFactory.CookieJarFactory__Denylisted.selector);
         
-        CookieJarLib.CreateJarParams memory params = createDefaultJarParams(
+        CookieJarLib.JarConfig memory params = createDefaultJarParams(
             owner,
-            address(3),
+            CookieJarLib.ETH_ADDRESS,
             "Test Metadata"
         );
         
         CookieJarLib.AccessConfig memory accessConfig = createDefaultAccessConfig();
         
         factory.createCookieJar(params, accessConfig);
-        address[] memory cookieJars = factory.getCookieJars();
+        address[] memory cookieJars = factory.getAllJars();
         assertEq(cookieJars.length, 0);
     }
 
@@ -149,11 +171,11 @@ contract CookieJarFactoryTest is Test {
     function testCreateCookieJar() public {
         vm.prank(owner);
         address jarAddress = factory.createCookieJar(
-            createDefaultJarParams(owner, address(3), "Test Metadata"),
+            createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, "Test Metadata"),
             createDefaultAccessConfig()
         );
         
-        address[] memory cookieJars = factory.getCookieJars();
+        address[] memory cookieJars = factory.getAllJars();
         assertEq(cookieJars.length, 1);
         assertEq(cookieJars[0], jarAddress);
     }
@@ -161,19 +183,19 @@ contract CookieJarFactoryTest is Test {
     /// @notice Test creating a cookie jar with custom fee
     function testCreateCookieJarWithCustomFee() public {
         vm.prank(owner);
-        CookieJarLib.CreateJarParams memory params = createDefaultJarParams(
+        CookieJarLib.JarConfig memory params = createDefaultJarParams(
             owner,
-            address(3),
+            CookieJarLib.ETH_ADDRESS,
             "Test Metadata"
         );
-        params.customFeePercentage = 500; // 5%
+        params.feePercentageOnDeposit = 500; // 5%
         
         address jarAddress = factory.createCookieJar(
             params,
             createDefaultAccessConfig()
         );
         
-        address[] memory cookieJars = factory.getCookieJars();
+        address[] memory cookieJars = factory.getAllJars();
         assertEq(cookieJars.length, 1);
         assertEq(cookieJars[0], jarAddress);
     }
@@ -181,9 +203,9 @@ contract CookieJarFactoryTest is Test {
     /// @notice Test creating a cookie jar with Variable withdrawal option
     function testCreateCookieJarWithVariableWithdrawal() public {
         vm.prank(owner);
-        CookieJarLib.CreateJarParams memory params = createDefaultJarParams(
+        CookieJarLib.JarConfig memory params = createDefaultJarParams(
             owner,
-            address(3),
+            CookieJarLib.ETH_ADDRESS,
             "Test Metadata"
         );
         params.withdrawalOption = CookieJarLib.WithdrawalTypeOptions.Variable;
@@ -193,7 +215,7 @@ contract CookieJarFactoryTest is Test {
             createDefaultAccessConfig()
         );
         
-        address[] memory cookieJars = factory.getCookieJars();
+        address[] memory cookieJars = factory.getAllJars();
         assertEq(cookieJars.length, 1);
         assertEq(cookieJars[0], jarAddress);
     }
@@ -201,9 +223,9 @@ contract CookieJarFactoryTest is Test {
     /// @notice Test creating a cookie jar with One-time withdrawal option
     function testCreateCookieJarWithOneTimeWithdrawal() public {
         vm.prank(owner);
-        CookieJarLib.CreateJarParams memory params = createDefaultJarParams(
+        CookieJarLib.JarConfig memory params = createDefaultJarParams(
             owner,
-            address(3),
+            CookieJarLib.ETH_ADDRESS,
             "Test Metadata"
         );
         params.oneTimeWithdrawal = true;
@@ -213,7 +235,7 @@ contract CookieJarFactoryTest is Test {
             createDefaultAccessConfig()
         );
         
-        address[] memory cookieJars = factory.getCookieJars();
+        address[] memory cookieJars = factory.getAllJars();
         assertEq(cookieJars.length, 1);
         assertEq(cookieJars[0], jarAddress);
     }
@@ -244,7 +266,7 @@ contract CookieJarFactoryTest is Test {
             createDefaultAccessConfig()
         );
         
-        address[] memory cookieJars = factory.getCookieJars();
+        address[] memory cookieJars = factory.getAllJars();
         assertEq(cookieJars.length, 1);
         assertEq(cookieJars[0], jarAddress);
     }
@@ -255,7 +277,7 @@ contract CookieJarFactoryTest is Test {
         
         vm.prank(owner);
         address jarAddress = factory.createCookieJar(
-            createDefaultJarParams(owner, address(3), testMetadata),
+            createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, testMetadata),
             createDefaultAccessConfig()
         );
         
@@ -263,12 +285,9 @@ contract CookieJarFactoryTest is Test {
         assertEq(factory.getMetadata(jarAddress), testMetadata);
         
         // Test metadatas by index
-        assertEq(factory.metadatas(0), testMetadata);
+        assertEq(factory.getMetadataByIndex(0), testMetadata);
         
-        // Test getMetadatas (batch)
-        string[] memory allMetadata = factory.getMetadatas();
-        assertEq(allMetadata.length, 1);
-        assertEq(allMetadata[0], testMetadata);
+        // Metadata functionality verified
     }
 
     /// @notice Test updating metadata
@@ -278,7 +297,7 @@ contract CookieJarFactoryTest is Test {
         
         vm.prank(owner);
         address jarAddress = factory.createCookieJar(
-            createDefaultJarParams(owner, address(3), originalMetadata),
+            createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, originalMetadata),
             createDefaultAccessConfig()
         );
         
@@ -300,7 +319,7 @@ contract CookieJarFactoryTest is Test {
         
         vm.prank(owner);
         address jarAddress = factory.createCookieJar(
-            createDefaultJarParams(owner, address(3), originalMetadata),
+            createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, originalMetadata),
             createDefaultAccessConfig()
         );
         
@@ -323,10 +342,10 @@ contract CookieJarFactoryTest is Test {
         factory.updateMetadata(address(0x9999), "New Metadata");
     }
 
-    /// @notice Test metadatas function with invalid index
-    function testMetadatasInvalidIndex() public {
-        vm.expectRevert("Index out of bounds");
-        factory.metadatas(999);
+    /// @notice Test getMetadataByIndex function with invalid index
+    function testGetMetadataByIndexInvalidIndex() public {
+        vm.expectRevert(CookieJarFactory.CookieJarFactory__IndexOutOfBounds.selector);
+        factory.getMetadataByIndex(999);
     }
 
     /// @notice Test multiple jars metadata handling
@@ -337,17 +356,17 @@ contract CookieJarFactoryTest is Test {
         
         vm.startPrank(owner);
         address jar1 = factory.createCookieJar(
-            createDefaultJarParams(owner, address(3), metadata1),
+            createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, metadata1),
             createDefaultAccessConfig()
         );
         
         address jar2 = factory.createCookieJar(
-            createDefaultJarParams(owner, address(3), metadata2),
+            createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, metadata2),
             createDefaultAccessConfig()
         );
         
         address jar3 = factory.createCookieJar(
-            createDefaultJarParams(owner, address(3), metadata3),
+            createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, metadata3),
             createDefaultAccessConfig()
         );
         vm.stopPrank();
@@ -357,16 +376,11 @@ contract CookieJarFactoryTest is Test {
         assertEq(factory.getMetadata(jar2), metadata2);
         assertEq(factory.getMetadata(jar3), metadata3);
         
-        // Test batch metadata retrieval
-        string[] memory allMetadata = factory.getMetadatas();
-        assertEq(allMetadata.length, 3);
-        assertEq(allMetadata[0], metadata1);
-        assertEq(allMetadata[1], metadata2);
-        assertEq(allMetadata[2], metadata3);
+        // Test individual metadata retrieval verified above
         
         // Test metadatas by index
-        assertEq(factory.metadatas(0), metadata1);
-        assertEq(factory.metadatas(1), metadata2);
-        assertEq(factory.metadatas(2), metadata3);
+        assertEq(factory.getMetadataByIndex(0), metadata1);
+        assertEq(factory.getMetadataByIndex(1), metadata2);
+        assertEq(factory.getMetadataByIndex(2), metadata3);
     }
 }

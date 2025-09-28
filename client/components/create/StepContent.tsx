@@ -475,45 +475,153 @@ const FinalSettingsStep: React.FC<{ formData: any; isV2Contract: boolean }> = ({
     <div className="space-y-6">
       <h3 className="text-lg font-semibold">Final Settings & Review</h3>
 
-      <div className="space-y-4">
-        <div className="flex items-center space-x-2">
-          <Checkbox
-            id="enableCustomFee"
-            checked={formData.enableCustomFee}
-            disabled={!isV2Contract}
-            onCheckedChange={formData.handleCheckboxChange(
-              formData.setEnableCustomFee,
-            )}
-          />
-          <Label
-            htmlFor="enableCustomFee"
-            className={`text-sm ${!isV2Contract ? "text-gray-400" : ""}`}
-          >
-            Set custom deposit fee percentage
-            {!isV2Contract && (
-              <span className="ml-2 text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">
-                v2 only
-              </span>
-            )}
-          </Label>
+      <div className="space-y-6">
+        {/* Custom Fee Settings */}
+        <div className="space-y-4">
+          <h4 className="font-medium text-base">Fee Configuration</h4>
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="enableCustomFee"
+              checked={formData.enableCustomFee}
+              disabled={!isV2Contract}
+              onCheckedChange={formData.handleCheckboxChange(
+                formData.setEnableCustomFee,
+              )}
+            />
+            <Label
+              htmlFor="enableCustomFee"
+              className={`text-sm ${!isV2Contract ? "text-gray-400" : ""}`}
+            >
+              Set custom deposit fee percentage
+              {!isV2Contract && (
+                <span className="ml-2 text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">
+                  v2 only
+                </span>
+              )}
+            </Label>
+          </div>
+
+          {formData.enableCustomFee && (
+            <div>
+              <Label htmlFor="customFee">Custom Fee Percentage</Label>
+              <Input
+                id="customFee"
+                type="number"
+                value={formData.customFee}
+                onChange={(e) => formData.setCustomFee(e.target.value)}
+                placeholder="2.5"
+                step="0.1"
+                min="0"
+                max="100"
+              />
+              <p className="text-sm text-muted-foreground mt-1">
+                Percentage fee charged on deposits (0-100%)
+              </p>
+            </div>
+          )}
         </div>
 
-        {formData.enableCustomFee && (
-          <div>
-            <Label htmlFor="customFee">Custom Fee Percentage</Label>
-            <Input
-              id="customFee"
-              type="number"
-              value={formData.customFee}
-              onChange={(e) => formData.setCustomFee(e.target.value)}
-              placeholder="2.5"
-              step="0.1"
-              min="0"
-              max="100"
-            />
-            <p className="text-sm text-muted-foreground mt-1">
-              Percentage fee charged on deposits (0-100%)
-            </p>
+        {/* Streaming & Multi-Token Settings */}
+        {isV2Contract && (
+          <div className="space-y-4 p-4 border rounded-lg bg-blue-50/50">
+            <h4 className="font-medium text-base flex items-center gap-2">
+              <span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+              Advanced Features
+              <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                v2 Enhanced
+              </span>
+            </h4>
+            
+            <div className="space-y-4">
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="enableStreaming"
+                  checked={formData.streamingEnabled}
+                  onCheckedChange={formData.handleCheckboxChange(
+                    formData.setStreamingEnabled,
+                  )}
+                />
+                <Label htmlFor="enableStreaming" className="text-sm">
+                  Enable token streaming
+                </Label>
+              </div>
+              
+              {formData.streamingEnabled && (
+                <div className="ml-6 space-y-4 p-3 bg-white rounded border border-blue-200">
+                  <div className="flex items-center space-x-2">
+                    <Checkbox
+                      id="requireStreamApproval"
+                      checked={formData.requireStreamApproval}
+                      onCheckedChange={formData.handleCheckboxChange(
+                        formData.setRequireStreamApproval,
+                      )}
+                    />
+                    <Label htmlFor="requireStreamApproval" className="text-sm">
+                      Require manual approval for new streams
+                    </Label>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="maxStreamRate">
+                        Max Stream Rate (tokens/second)
+                      </Label>
+                      <Input
+                        id="maxStreamRate"
+                        type="number"
+                        value={formData.maxStreamRate}
+                        onChange={(e) => formData.setMaxStreamRate(e.target.value)}
+                        placeholder="1.0"
+                        step="0.001"
+                        min="0"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Maximum allowed streaming rate
+                      </p>
+                    </div>
+
+                    <div>
+                      <Label htmlFor="minStreamDuration">
+                        Min Stream Duration (hours)
+                      </Label>
+                      <Input
+                        id="minStreamDuration"
+                        type="number"
+                        value={formData.minStreamDuration}
+                        onChange={(e) => formData.setMinStreamDuration(e.target.value)}
+                        placeholder="1"
+                        min="1"
+                      />
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Minimum time for streams
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              <div className="flex items-center space-x-2">
+                <Checkbox
+                  id="enableAutoSwap"
+                  checked={formData.autoSwapEnabled}
+                  onCheckedChange={formData.handleCheckboxChange(
+                    formData.setAutoSwapEnabled,
+                  )}
+                />
+                <Label htmlFor="enableAutoSwap" className="text-sm">
+                  Enable auto-swap for ETH deposits
+                </Label>
+              </div>
+
+              <div className="text-xs text-blue-700 bg-blue-50 p-2 rounded border">
+                <strong>ℹ️ Advanced Features:</strong>
+                <ul className="mt-1 ml-4 list-disc space-y-1">
+                  <li>Streaming allows continuous funding from external sources</li>
+                  <li>Auto-swap converts ETH deposits to your jar's token automatically</li>
+                  <li>Other ERC-20 tokens sent to the jar can be manually recovered and swapped</li>
+                </ul>
+              </div>
+            </div>
           </div>
         )}
       </div>
@@ -564,6 +672,27 @@ const FinalSettingsStep: React.FC<{ formData: any; isV2Contract: boolean }> = ({
             <div>
               <strong>Custom Fee:</strong> {formData.customFee}%
             </div>
+          )}
+          {isV2Contract && (
+            <>
+              <div>
+                <strong>Streaming:</strong> {formData.streamingEnabled ? "Enabled" : "Disabled"}
+                {formData.streamingEnabled && formData.requireStreamApproval && " (Manual Approval)"}
+              </div>
+              {formData.streamingEnabled && (
+                <>
+                  <div>
+                    <strong>Max Stream Rate:</strong> {formData.maxStreamRate} tokens/sec
+                  </div>
+                  <div>
+                    <strong>Min Stream Duration:</strong> {formData.minStreamDuration} hours
+                  </div>
+                </>
+              )}
+              <div>
+                <strong>Auto-Swap ETH:</strong> {formData.autoSwapEnabled ? "Enabled" : "Disabled"}
+              </div>
+            </>
           )}
         </div>
       </div>

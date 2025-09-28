@@ -2,13 +2,13 @@
 
 import { useMemo } from "react";
 import { useAccount, useChainId } from "wagmi";
-import { keccak256, toUtf8Bytes } from "ethers";
+import { keccak256, toHex } from "viem";
 
 import { useReadCookieJarHasRole } from "@/generated";
 import { isV2Chain } from "@/config/supported-networks";
 
 // Hash the JAR_OWNER role (same across all versions)
-const JAR_OWNER_ROLE = keccak256(toUtf8Bytes("JAR_OWNER")) as `0x${string}`;
+const JAR_OWNER_ROLE = keccak256(toHex("JAR_OWNER")) as `0x${string}`;
 
 /**
  * Permission status for a user interacting with a Cookie Jar

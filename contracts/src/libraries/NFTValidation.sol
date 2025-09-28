@@ -10,7 +10,7 @@ import "./CookieJarLib.sol";
 /// @notice Provides safe NFT validation with gas limits and race condition protection
 library NFTValidation {
     
-    /// @notice Validates NFT ownership with gas limits and malicious contract protection
+    /// @notice Validates NFT ownership with enhanced gas protection and circuit breakers
     /// @param nftContract The NFT contract address to validate
     /// @param tokenId The token ID to check ownership for
     /// @param expectedOwner The address expected to own the token
@@ -24,34 +24,145 @@ library NFTValidation {
     ) internal returns (bool success) {
         uint256 gasStart = gasleft();
         
+        // Pre-validation: ensure we have enough gas for the call + buffer
+        uint256 gasBuffer = 10000; // Reserve gas for post-validation logic
+        if (gasleft() < CookieJarLib.MAX_NFT_VALIDATION_GAS + gasBuffer) {
+            revert CookieJarLib.NFTValidationFailed();
+        }
+        
+        // Enhanced validation with multiple fallback strategies
+        bool validationPassed = false;
+        uint256 gasUsed = 0;
+        
         if (nftType == CookieJarLib.NFTType.ERC721) {
-            try IERC721(nftContract).ownerOf{gas: CookieJarLib.MAX_NFT_VALIDATION_GAS}(tokenId) returns (address owner) {
-                if (owner != expectedOwner) {
-                    revert CookieJarLib.NotAuthorized();
-                }
-            } catch {
-                revert CookieJarLib.NFTValidationFailed();
-            }
+            validationPassed = _validateERC721WithFallback(
+                nftContract, 
+                tokenId, 
+                expectedOwner, 
+                gasStart
+            );
         } else if (nftType == CookieJarLib.NFTType.ERC1155) {
-            try IERC1155(nftContract).balanceOf{gas: CookieJarLib.MAX_NFT_VALIDATION_GAS}(expectedOwner, tokenId) returns (uint256 balance) {
-                if (balance == 0) {
-                    revert CookieJarLib.NotAuthorized();
-                }
-            } catch {
-                revert CookieJarLib.NFTValidationFailed();
-            }
+            validationPassed = _validateERC1155WithFallback(
+                nftContract, 
+                tokenId, 
+                expectedOwner, 
+                gasStart
+            );
         } else {
             revert CookieJarLib.InvalidNFTType();
         }
         
-        uint256 gasUsed = gasStart - gasleft();
+        if (!validationPassed) {
+            revert CookieJarLib.NotAuthorized();
+        }
         
-        // Warn if gas usage is suspiciously high (80% of limit)
-        if (gasUsed > (CookieJarLib.MAX_NFT_VALIDATION_GAS * 80) / 100) {
+        gasUsed = gasStart - gasleft();
+        
+        // Enhanced gas monitoring with automatic circuit breaker
+        if (gasUsed > (CookieJarLib.MAX_NFT_VALIDATION_GAS * 90) / 100) {
+            // Very high gas usage - potential malicious contract
             emit CookieJarLib.HighGasUsageWarning(nftContract, gasUsed);
+            
+            // Consider this contract suspicious for future calls
+            _flagSuspiciousContract(nftContract, gasUsed);
         }
         
         return true;
+    }
+    
+    /// @notice Validates ERC721 with multiple fallback strategies
+    /// @param nftContract Contract address
+    /// @param tokenId Token ID to validate
+    /// @param expectedOwner Expected owner address
+    /// @param gasStart Starting gas amount
+    /// @return success Whether validation passed
+    function _validateERC721WithFallback(
+        address nftContract,
+        uint256 tokenId,
+        address expectedOwner,
+        uint256 gasStart
+    ) private view returns (bool success) {
+        // Strategy 1: Standard ownerOf call with gas limit
+        try IERC721(nftContract).ownerOf{gas: CookieJarLib.MAX_NFT_VALIDATION_GAS}(tokenId) 
+            returns (address owner) {
+            return owner == expectedOwner;
+        } catch {
+            // Strategy 2: Check if we ran out of gas vs actual failure
+            uint256 gasUsedSoFar = gasStart - gasleft();
+            
+            if (gasUsedSoFar >= CookieJarLib.MAX_NFT_VALIDATION_GAS * 95 / 100) {
+                // Likely gas exhaustion - treat as suspicious
+                return false;
+            }
+            
+            // Strategy 3: Try interface detection first to avoid malicious contracts
+            if (!supportsInterfaceWithGasLimit(nftContract, type(IERC721).interfaceId)) {
+                return false;
+            }
+            
+            // Strategy 4: Minimal gas call - if this fails, contract is problematic
+            try IERC721(nftContract).ownerOf{gas: 5000}(tokenId) returns (address owner) {
+                return owner == expectedOwner;
+            } catch {
+                return false;
+            }
+        }
+    }
+    
+    /// @notice Validates ERC1155 with multiple fallback strategies
+    /// @param nftContract Contract address
+    /// @param tokenId Token ID to validate
+    /// @param expectedOwner Expected owner address
+    /// @param gasStart Starting gas amount
+    /// @return success Whether validation passed
+    function _validateERC1155WithFallback(
+        address nftContract,
+        uint256 tokenId,
+        address expectedOwner,
+        uint256 gasStart
+    ) private view returns (bool success) {
+        // Strategy 1: Standard balanceOf call with gas limit
+        try IERC1155(nftContract).balanceOf{gas: CookieJarLib.MAX_NFT_VALIDATION_GAS}(expectedOwner, tokenId) 
+            returns (uint256 balance) {
+            return balance > 0;
+        } catch {
+            // Strategy 2: Check if we ran out of gas vs actual failure
+            uint256 gasUsedSoFar = gasStart - gasleft();
+            
+            if (gasUsedSoFar >= CookieJarLib.MAX_NFT_VALIDATION_GAS * 95 / 100) {
+                // Likely gas exhaustion - treat as suspicious
+                return false;
+            }
+            
+            // Strategy 3: Try interface detection first
+            if (!supportsInterfaceWithGasLimit(nftContract, type(IERC1155).interfaceId)) {
+                return false;
+            }
+            
+            // Strategy 4: Minimal gas call
+            try IERC1155(nftContract).balanceOf{gas: 5000}(expectedOwner, tokenId) 
+                returns (uint256 balance) {
+                return balance > 0;
+            } catch {
+                return false;
+            }
+        }
+    }
+    
+    /// @notice Flags suspicious contracts for monitoring
+    /// @param contractAddr Contract that used excessive gas
+    /// @param gasUsed Amount of gas consumed
+    function _flagSuspiciousContract(address contractAddr, uint256 gasUsed) private {
+        // In a full implementation, this could maintain a blacklist
+        // or implement progressively stricter gas limits for repeat offenders
+        
+        // For now, just emit a warning event
+        // Future versions could implement:
+        // - Permanent blacklist after multiple violations
+        // - Reduced gas limits for flagged contracts
+        // - Admin notifications for manual review
+        
+        emit CookieJarLib.HighGasUsageWarning(contractAddr, gasUsed);
     }
     
     /// @notice Validates ERC1155 balance with race condition protection

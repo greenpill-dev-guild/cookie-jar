@@ -147,7 +147,28 @@ contract CookieJarProtocolsTest is Test {
                 feeCollector: _feeCollectorAddr,
                 emergencyWithdrawalEnabled: _emergencyEnabled,
                 oneTimeWithdrawal: _oneTimeWithdrawal,
-                maxWithdrawalPerPeriod: 0 // unlimited
+                maxWithdrawalPerPeriod: 0, // unlimited
+                metadata: "Test Protocol Jar",
+                multiTokenConfig: CookieJarLib.MultiTokenConfig({
+                    enabled: false,
+                    maxSlippagePercent: 500,
+                    minSwapAmount: 0,
+                    defaultFee: 3000
+                }),
+                streamingConfig: CookieJarLib.StreamingConfig({
+                    streamingEnabled: false,
+                    requireStreamApproval: true,
+                    maxStreamRate: CookieJarLib.MAX_RATE_PER_SECOND,
+                    minStreamDuration: CookieJarLib.MIN_STREAM_DURATION
+                }),
+                superfluidConfig: CookieJarLib.SuperfluidConfig({
+                    superfluidEnabled: false,
+                    autoAcceptStreams: false,
+                    acceptedSuperTokens: new address[](0),
+                    minFlowRate: 0,
+                    useDistributionPool: false,
+                    distributionPool: address(0)
+                })
             });
     }
 
@@ -161,6 +182,7 @@ contract CookieJarProtocolsTest is Test {
         return CookieJarLib.AccessConfig({
             nftAddresses: emptyAddresses,
             nftTypes: emptyTypes,
+            nftThresholds: new uint256[](0),
             allowlist: emptyAllowlist,
             poapReq: _poapReq,
             unlockReq: _unlockReq,
@@ -203,8 +225,15 @@ contract CookieJarProtocolsTest is Test {
             ),
             createAccessConfigWithProtocols(
                 CookieJarLib.POAPRequirement({eventId: testEventId, poapContract: address(mockPOAP)}),
-                CookieJarLib.UnlockRequirement({lockAddress: address(0)}),
-                CookieJarLib.HypercertRequirement({tokenContract: address(0), tokenId: 0, minBalance: 0}),
+                CookieJarLib.UnlockRequirement({lockAddress: address(0), requireValidKey: false}),
+                CookieJarLib.HypercertRequirement({
+                    hypercertContract: address(0), 
+                    requiredFractions: 0, 
+                    allowedCreators: new address[](0), 
+                    tokenId: 0, 
+                    tokenContract: address(0), 
+                    minBalance: 0
+                }),
                 CookieJarLib.HatsRequirement({hatId: 0, hatsContract: address(0)})
             )
         );
@@ -228,8 +257,15 @@ contract CookieJarProtocolsTest is Test {
             ),
             createAccessConfigWithProtocols(
                 CookieJarLib.POAPRequirement({eventId: 0, poapContract: address(0)}),
-                CookieJarLib.UnlockRequirement({lockAddress: address(mockUnlock)}),
-                CookieJarLib.HypercertRequirement({tokenContract: address(0), tokenId: 0, minBalance: 0}),
+                CookieJarLib.UnlockRequirement({lockAddress: address(mockUnlock), requireValidKey: false}),
+                CookieJarLib.HypercertRequirement({
+                    hypercertContract: address(0), 
+                    requiredFractions: 0, 
+                    allowedCreators: new address[](0), 
+                    tokenId: 0, 
+                    tokenContract: address(0), 
+                    minBalance: 0
+                }),
                 CookieJarLib.HatsRequirement({hatId: 0, hatsContract: address(0)})
             )
         );
@@ -253,8 +289,15 @@ contract CookieJarProtocolsTest is Test {
             ),
             createAccessConfigWithProtocols(
                 CookieJarLib.POAPRequirement({eventId: 0, poapContract: address(0)}),
-                CookieJarLib.UnlockRequirement({lockAddress: address(0)}),
-                CookieJarLib.HypercertRequirement({tokenContract: address(mockHypercert), tokenId: testTokenId, minBalance: testMinBalance}),
+                CookieJarLib.UnlockRequirement({lockAddress: address(0), requireValidKey: false}),
+                CookieJarLib.HypercertRequirement({
+                    hypercertContract: address(mockHypercert), 
+                    requiredFractions: 0, 
+                    allowedCreators: new address[](0), 
+                    tokenId: testTokenId, 
+                    tokenContract: address(mockHypercert), 
+                    minBalance: testMinBalance
+                }),
                 CookieJarLib.HatsRequirement({hatId: 0, hatsContract: address(0)})
             )
         );
@@ -278,8 +321,15 @@ contract CookieJarProtocolsTest is Test {
             ),
             createAccessConfigWithProtocols(
                 CookieJarLib.POAPRequirement({eventId: 0, poapContract: address(0)}),
-                CookieJarLib.UnlockRequirement({lockAddress: address(0)}),
-                CookieJarLib.HypercertRequirement({tokenContract: address(0), tokenId: 0, minBalance: 0}),
+                CookieJarLib.UnlockRequirement({lockAddress: address(0), requireValidKey: false}),
+                CookieJarLib.HypercertRequirement({
+                    hypercertContract: address(0), 
+                    requiredFractions: 0, 
+                    allowedCreators: new address[](0), 
+                    tokenId: 0, 
+                    tokenContract: address(0), 
+                    minBalance: 0
+                }),
                 CookieJarLib.HatsRequirement({hatId: testHatId, hatsContract: address(mockHats)})
             )
         );
@@ -360,7 +410,7 @@ contract CookieJarProtocolsTest is Test {
 
     function test_ConstructorUnlockAccess() public {
         assertTrue(jarUnlock.accessType() == CookieJarLib.AccessType.Unlock);
-        (address lockAddress) = jarUnlock.unlockRequirement();
+        (address lockAddress, bool requireValidKey) = jarUnlock.unlockRequirement();
         assertEq(lockAddress, address(mockUnlock));
     }
 
@@ -402,7 +452,7 @@ contract CookieJarProtocolsTest is Test {
 
     function test_ConstructorHypercertAccess() public {
         assertTrue(jarHypercert.accessType() == CookieJarLib.AccessType.Hypercert);
-        (address tokenContract, uint256 tokenId, uint256 minBalance) = jarHypercert.hypercertRequirement();
+        (address hypercertContract, uint256 requiredFractions, uint256 tokenId, address tokenContract, uint256 minBalance) = jarHypercert.hypercertRequirement();
         assertEq(tokenContract, address(mockHypercert));
         assertEq(tokenId, testTokenId);
         assertEq(minBalance, testMinBalance);
@@ -524,8 +574,15 @@ contract CookieJarProtocolsTest is Test {
             ),
             createAccessConfigWithProtocols(
                 CookieJarLib.POAPRequirement({eventId: 0, poapContract: address(0)}),
-                CookieJarLib.UnlockRequirement({lockAddress: address(0)}),
-                CookieJarLib.HypercertRequirement({tokenContract: address(mockHypercert), tokenId: testTokenId, minBalance: testMinBalance}),
+                CookieJarLib.UnlockRequirement({lockAddress: address(0), requireValidKey: false}),
+                CookieJarLib.HypercertRequirement({
+                    hypercertContract: address(mockHypercert), 
+                    requiredFractions: 0, 
+                    allowedCreators: new address[](0), 
+                    tokenId: testTokenId, 
+                    tokenContract: address(mockHypercert), 
+                    minBalance: testMinBalance
+                }),
                 CookieJarLib.HatsRequirement({hatId: 0, hatsContract: address(0)})
             )
         );

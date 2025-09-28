@@ -168,6 +168,13 @@ export const useJarCreation = () => {
   const [customFee, setCustomFee] = useState("");
   const [enableCustomFee, setEnableCustomFee] = useState(false);
 
+  // Streaming configuration state
+  const [streamingEnabled, setStreamingEnabled] = useState(false);
+  const [requireStreamApproval, setRequireStreamApproval] = useState(true);
+  const [maxStreamRate, setMaxStreamRate] = useState("1.0");
+  const [minStreamDuration, setMinStreamDuration] = useState("1");
+  const [autoSwapEnabled, setAutoSwapEnabled] = useState(false);
+
   // Currency selection state
   const [showCustomCurrency, setShowCustomCurrency] = useState(false);
   const [customCurrencyAddress, setCustomCurrencyAddress] = useState("");
@@ -574,6 +581,11 @@ export const useJarCreation = () => {
     setExternalLink("");
     setCustomFee("");
     setEnableCustomFee(false);
+    setStreamingEnabled(false);
+    setRequireStreamApproval(true);
+    setMaxStreamRate("1.0");
+    setMinStreamDuration("1");
+    setAutoSwapEnabled(false);
     setShowCustomCurrency(false);
     setCustomCurrencyAddress("");
     setNftAddresses([]);
@@ -900,6 +912,16 @@ export const useJarCreation = () => {
     setCustomFee,
     enableCustomFee,
     setEnableCustomFee,
+    streamingEnabled,
+    setStreamingEnabled,
+    requireStreamApproval,
+    setRequireStreamApproval,
+    maxStreamRate,
+    setMaxStreamRate,
+    minStreamDuration,
+    setMinStreamDuration,
+    autoSwapEnabled,
+    setAutoSwapEnabled,
     showCustomCurrency,
     setShowCustomCurrency,
     customCurrencyAddress,

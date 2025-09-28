@@ -37,67 +37,49 @@ const ACCESS_METHODS = [
     id: 'Allowlist' as AccessMethod,
     name: 'Allowlist',
     icon: <Users className="h-5 w-5" />,
-    description: 'Curated list of approved addresses',
     color: 'bg-blue-500',
     badge: <Badge className="bg-blue-100 text-blue-800">Simple</Badge>,
-    bestFor: ['Private communities', 'Exclusive access', 'Known members'],
-    pros: ['Full control', 'Gas efficient', 'Privacy'],
-    cons: ['Manual management', 'Not scalable'],
+    learnMoreUrl: 'https://docs.cookiejar.wtf/access-types/allowlist',
   },
   {
     id: 'NFT' as AccessMethod,
     name: 'NFT Collection',
     icon: <Shield className="h-5 w-5" />,
-    description: 'Require ownership of specific NFTs',
     color: 'bg-purple-500',
     badge: <Badge className="bg-purple-100 text-purple-800">Flexible</Badge>,
-    bestFor: ['NFT communities', 'Token holders', 'Art collectors'],
-    pros: ['Tradeable access', 'Market driven', 'Composable'],
-    cons: ['Price volatility', 'Complex setup'],
+    learnMoreUrl: 'https://docs.cookiejar.wtf/access-types/nft-gated',
   },
   {
     id: 'POAP' as AccessMethod,
     name: 'POAP',
     icon: <span className="text-lg">🎖️</span>,
-    description: 'Proof of Attendance Protocol badges',
     color: 'bg-purple-500',
     badge: <Badge className="bg-purple-100 text-purple-800">Event</Badge>,
-    bestFor: ['Event attendees', 'Community participation', 'Achievements'],
-    pros: ['Proves participation', 'Non-transferable', 'Community building'],
-    cons: ['Event specific', 'Limited utility'],
+    learnMoreUrl: 'https://poap.xyz/',
   },
   {
     id: 'Hats' as AccessMethod,
     name: 'Hats Protocol',
     icon: <span className="text-lg">🎩</span>,
-    description: 'Role-based access control',
     color: 'bg-yellow-500',
     badge: <Badge className="bg-yellow-100 text-yellow-800">Roles</Badge>,
-    bestFor: ['DAOs', 'Organizations', 'Role-based access'],
-    pros: ['Hierarchical', 'Revocable', 'Organizational'],
-    cons: ['Complex setup', 'Governance dependent'],
+    learnMoreUrl: 'https://www.hatsprotocol.xyz/',
   },
   {
     id: 'Hypercert' as AccessMethod,
     name: 'Hypercerts',
     icon: <span className="text-lg">🏆</span>,
-    description: 'Impact and contribution certificates',
     color: 'bg-green-500',
     badge: <Badge className="bg-green-100 text-green-800">Impact</Badge>,
-    bestFor: ['Impact work', 'Contributions', 'Public goods'],
-    pros: ['Impact tracking', 'Credential system', 'Public goods'],
-    cons: ['New protocol', 'Limited adoption'],
+    learnMoreUrl: 'https://hypercerts.org/',
   },
   {
     id: 'Unlock' as AccessMethod,
     name: 'Unlock Protocol',
     icon: <span className="text-lg">🔓</span>,
-    description: 'Membership and subscription NFTs',
     color: 'bg-blue-500',
     badge: <Badge className="bg-blue-100 text-blue-800">Subscription</Badge>,
-    bestFor: ['Memberships', 'Subscriptions', 'Recurring access'],
-    pros: ['Time-based', 'Subscription model', 'Recurring revenue'],
-    cons: ['Requires payment', 'Time limited'],
+    learnMoreUrl: 'https://unlock-protocol.com/',
   },
 ];
 
@@ -205,14 +187,22 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
                         )}>
                           {ACCESS_METHODS.find(m => m.id === selectedMethod)?.icon}
                         </div>
-                        <div className="text-left">
+                        <div className="text-left flex-1">
                           <h4 className="font-medium text-[#3c2a14] text-sm">
                             Configure {ACCESS_METHODS.find(m => m.id === selectedMethod)?.name}
                           </h4>
                           <p className="text-xs text-[#8b7355]">
-                            {ACCESS_METHODS.find(m => m.id === selectedMethod)?.description}
+                            Set up access requirements
                           </p>
                         </div>
+                        <a
+                          href={ACCESS_METHODS.find(m => m.id === selectedMethod)?.learnMoreUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-xs text-[#ff5e14] hover:text-[#e5531b] underline"
+                        >
+                          Learn More
+                        </a>
                       </div>
                     </div>
                   </CardHeader>
@@ -290,39 +280,19 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-[#8b7355] mb-3">
-                {method.description}
-              </p>
-
-              <div className="space-y-3">
-                <div>
-                  <p className="text-sm font-medium text-[#3c2a14]">Best for:</p>
-                  <div className="flex flex-wrap gap-1 mt-1">
-                    {method.bestFor.slice(0, 2).map((use, i) => (
-                      <Badge key={i} variant="outline" className="text-xs">
-                        {use}
-                      </Badge>
-                    ))}
-                    {method.bestFor.length > 2 && (
-                      <Badge variant="outline" className="text-xs">
-                        +{method.bestFor.length - 2}
-                      </Badge>
-                    )}
-                  </div>
-                </div>
-                
-                <div className="space-y-1">
-                  <div className="flex items-center gap-1">
-                    <span className="text-xs font-medium text-green-600">✓</span>
-                    <span className="text-xs text-[#8b7355]">{method.pros[0]}</span>
-                  </div>
-                  {method.cons[0] && (
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs font-medium text-orange-600">⚠</span>
-                      <span className="text-xs text-[#8b7355]">{method.cons[0]}</span>
-                    </div>
-                  )}
-                </div>
+              <div className="flex justify-between items-center">
+                <p className="text-sm text-[#8b7355]">
+                  Click to configure
+                </p>
+                <a
+                  href={method.learnMoreUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-[#ff5e14] hover:text-[#e5531b] underline"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  Learn More
+                </a>
               </div>
             </CardContent>
           </Card>

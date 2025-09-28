@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import { formatEther, formatUnits } from "viem";
 
 import { ETH_ADDRESS } from "@/lib/blockchain/token-utils";
 import type { CookieJarInfo } from "@/hooks/jar/useJarFactory";
@@ -20,11 +20,11 @@ export type JarData = CookieJarInfo;
 export function getCurrencyAmount(jar: JarData, tokenDecimals?: Record<string, number>) {
   const amount = jar.currencyHeldByJar || BigInt(0);
   if (jar.currency.toLowerCase() === ETH_ADDRESS.toLowerCase()) {
-    return ethers.formatEther(amount);
+    return formatEther(amount);
   } else {
     // Use actual token decimals if available, otherwise default to 18
     const decimals = tokenDecimals?.[jar.currency.toLowerCase()] ?? 18;
-    return ethers.formatUnits(amount, decimals);
+    return formatUnits(amount, decimals);
   }
 }
 
@@ -66,14 +66,14 @@ export function getWithdrawalAmountDisplay(
   if (jar.withdrawalOption === 0) {
     // Fixed
     const amount = isEth 
-      ? ethers.formatEther(jar.fixedAmount || BigInt(0))
-      : ethers.formatUnits(jar.fixedAmount || BigInt(0), decimals);
+      ? formatEther(jar.fixedAmount || BigInt(0))
+      : formatUnits(jar.fixedAmount || BigInt(0), decimals);
     return `Fixed: ${amount} ${symbol}`;
   } else {
     // Variable
     const amount = isEth 
-      ? ethers.formatEther(jar.maxWithdrawal || BigInt(0))
-      : ethers.formatUnits(jar.maxWithdrawal || BigInt(0), decimals);
+      ? formatEther(jar.maxWithdrawal || BigInt(0))
+      : formatUnits(jar.maxWithdrawal || BigInt(0), decimals);
     return `Max: ${amount} ${symbol}`;
   }
 }

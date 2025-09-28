@@ -1,0 +1,394 @@
+"use client";
+
+import { getCLS, getFID, getFCP, getLCP, getTTFB, Metric } from 'web-vitals';
+
+export interface PerformanceMetrics {
+  // Core Web Vitals
+  CLS?: number; // Cumulative Layout Shift
+  FID?: number; // First Input Delay
+  LCP?: number; // Largest Contentful Paint
+  
+  // Additional metrics
+  FCP?: number; // First Contentful Paint
+  TTFB?: number; // Time to First Byte
+  
+  // Custom metrics
+  pageLoadTime?: number;
+  domContentLoadedTime?: number;
+  userAgent?: string;
+  connectionType?: string;
+  deviceMemory?: number;
+  timestamp: number;
+  url: string;
+  userId?: string;
+}
+
+export interface PerformanceBudget {
+  LCP: number; // < 2.5s (good), < 4s (needs improvement)
+  FID: number; // < 100ms (good), < 300ms (needs improvement)
+  CLS: number; // < 0.1 (good), < 0.25 (needs improvement)
+  FCP: number; // < 1.8s (good), < 3s (needs improvement)
+  TTFB: number; // < 800ms (good), < 1800ms (needs improvement)
+}
+
+const PERFORMANCE_BUDGET: PerformanceBudget = {
+  LCP: 2500, // 2.5 seconds
+  FID: 100,  // 100 milliseconds
+  CLS: 0.1,  // 0.1
+  FCP: 1800, // 1.8 seconds
+  TTFB: 800, // 800 milliseconds
+};
+
+class PerformanceMonitor {
+  private metrics: Partial<PerformanceMetrics> = {
+    timestamp: Date.now(),
+    url: typeof window !== 'undefined' ? window.location.href : '',
+  };
+  
+  private observers: PerformanceObserver[] = [];
+  private reportingEndpoint?: string;
+  private enabled = false;
+
+  constructor(options?: { 
+    reportingEndpoint?: string; 
+    enabled?: boolean;
+    userId?: string;
+  }) {
+    if (typeof window === 'undefined') return;
+    
+    this.reportingEndpoint = options?.reportingEndpoint;
+    this.enabled = options?.enabled ?? process.env.NODE_ENV === 'production';
+    this.metrics.userId = options?.userId;
+    
+    if (this.enabled) {
+      this.initializeMonitoring();
+    }
+  }
+
+  private initializeMonitoring() {
+    // Collect Core Web Vitals
+    getCLS(this.handleMetric.bind(this));
+    getFID(this.handleMetric.bind(this));
+    getFCP(this.handleMetric.bind(this));
+    getLCP(this.handleMetric.bind(this));
+    getTTFB(this.handleMetric.bind(this));
+
+    // Collect custom metrics
+    this.collectCustomMetrics();
+    
+    // Monitor resource loading
+    this.monitorResourceLoading();
+    
+    // Monitor navigation
+    this.monitorNavigation();
+    
+    // Report when user leaves the page
+    this.setupReporting();
+  }
+
+  private handleMetric = (metric: Metric) => {
+    this.metrics[metric.name as keyof PerformanceMetrics] = metric.value;
+    
+    // Log performance issues in development
+    if (process.env.NODE_ENV === 'development') {
+      const budget = PERFORMANCE_BUDGET[metric.name as keyof PerformanceBudget];
+      if (budget && metric.value > budget) {
+        console.warn(
+          `⚠️ Performance Budget Exceeded: ${metric.name}`,
+          {
+            value: metric.value,
+            budget,
+            rating: metric.rating,
+            url: window.location.href
+          }
+        );
+      }
+    }
+    
+    // Send critical metrics immediately
+    if (metric.name === 'LCP' || metric.name === 'FID') {
+      this.reportMetric(metric);
+    }
+  };
+
+  private collectCustomMetrics() {
+    // Page load performance
+    if (performance.timing) {
+      const timing = performance.timing;
+      this.metrics.pageLoadTime = timing.loadEventEnd - timing.navigationStart;
+      this.metrics.domContentLoadedTime = timing.domContentLoadedEventEnd - timing.navigationStart;
+    }
+
+    // Device information
+    if ('connection' in navigator) {
+      const connection = (navigator as any).connection;
+      this.metrics.connectionType = connection?.effectiveType || 'unknown';
+    }
+
+    if ('deviceMemory' in navigator) {
+      this.metrics.deviceMemory = (navigator as any).deviceMemory;
+    }
+
+    this.metrics.userAgent = navigator.userAgent;
+  }
+
+  private monitorResourceLoading() {
+    if (!('PerformanceObserver' in window)) return;
+
+    const resourceObserver = new PerformanceObserver((list) => {
+      const entries = list.getEntries();
+      
+      for (const entry of entries) {
+        // Monitor slow resources
+        if (entry.duration > 1000) { // Resources taking more than 1 second
+          console.warn('Slow resource detected:', {
+            name: entry.name,
+            duration: entry.duration,
+            type: entry.entryType
+          });
+        }
+        
+        // Monitor large resources
+        if ('transferSize' in entry && entry.transferSize > 1024 * 1024) { // > 1MB
+          console.warn('Large resource detected:', {
+            name: entry.name,
+            size: entry.transferSize,
+            type: entry.entryType
+          });
+        }
+      }
+    });
+
+    try {
+      resourceObserver.observe({ entryTypes: ['resource', 'navigation'] });
+      this.observers.push(resourceObserver);
+    } catch (error) {
+      console.warn('Performance monitoring not supported:', error);
+    }
+  }
+
+  private monitorNavigation() {
+    if (!('PerformanceObserver' in window)) return;
+
+    const navigationObserver = new PerformanceObserver((list) => {
+      const entries = list.getEntries() as PerformanceNavigationTiming[];
+      
+      for (const entry of entries) {
+        const metrics = {
+          dns: entry.domainLookupEnd - entry.domainLookupStart,
+          tcp: entry.connectEnd - entry.connectStart,
+          request: entry.responseStart - entry.requestStart,
+          response: entry.responseEnd - entry.responseStart,
+          dom: entry.domContentLoadedEventEnd - entry.responseEnd,
+          load: entry.loadEventEnd - entry.loadEventStart,
+        };
+
+        // Log navigation metrics in development
+        if (process.env.NODE_ENV === 'development') {
+          console.log('Navigation timing:', metrics);
+        }
+      }
+    });
+
+    try {
+      navigationObserver.observe({ entryTypes: ['navigation'] });
+      this.observers.push(navigationObserver);
+    } catch (error) {
+      console.warn('Navigation monitoring not supported:', error);
+    }
+  }
+
+  private setupReporting() {
+    // Report metrics on visibility change (when user switches tabs or closes page)
+    document.addEventListener('visibilitychange', () => {
+      if (document.visibilityState === 'hidden') {
+        this.sendReport();
+      }
+    });
+
+    // Report metrics on page unload
+    window.addEventListener('beforeunload', () => {
+      this.sendReport();
+    });
+
+    // Report metrics periodically (every 30 seconds)
+    setInterval(() => {
+      this.sendReport();
+    }, 30000);
+  }
+
+  private reportMetric(metric: Metric) {
+    if (!this.enabled || !this.reportingEndpoint) return;
+
+    const data = {
+      name: metric.name,
+      value: metric.value,
+      rating: metric.rating,
+      url: window.location.href,
+      timestamp: Date.now(),
+      userId: this.metrics.userId,
+    };
+
+    // Use sendBeacon for reliability, fallback to fetch
+    if ('sendBeacon' in navigator) {
+      navigator.sendBeacon(
+        this.reportingEndpoint,
+        JSON.stringify(data)
+      );
+    } else {
+      fetch(this.reportingEndpoint, {
+        method: 'POST',
+        body: JSON.stringify(data),
+        headers: { 'Content-Type': 'application/json' },
+        keepalive: true,
+      }).catch(() => {
+        // Fail silently to not affect user experience
+      });
+    }
+  }
+
+  private sendReport() {
+    if (!this.enabled || !this.reportingEndpoint) return;
+
+    const report = {
+      ...this.metrics,
+      timestamp: Date.now(),
+      url: window.location.href,
+    };
+
+    // Use sendBeacon for reliability
+    if ('sendBeacon' in navigator) {
+      navigator.sendBeacon(
+        this.reportingEndpoint,
+        JSON.stringify(report)
+      );
+    }
+  }
+
+  // Public methods
+  public getCurrentMetrics(): Partial<PerformanceMetrics> {
+    return { ...this.metrics };
+  }
+
+  public setUserId(userId: string) {
+    this.metrics.userId = userId;
+  }
+
+  public checkBudget(): { passed: boolean; violations: string[] } {
+    const violations: string[] = [];
+    
+    Object.entries(PERFORMANCE_BUDGET).forEach(([metric, budget]) => {
+      const value = this.metrics[metric as keyof PerformanceMetrics];
+      if (value !== undefined && value > budget) {
+        violations.push(`${metric}: ${value} > ${budget}`);
+      }
+    });
+
+    return {
+      passed: violations.length === 0,
+      violations
+    };
+  }
+
+  public destroy() {
+    this.observers.forEach(observer => observer.disconnect());
+    this.observers = [];
+  }
+}
+
+// Global performance monitor instance
+let performanceMonitor: PerformanceMonitor | null = null;
+
+export function initializePerformanceMonitoring(options?: {
+  reportingEndpoint?: string;
+  enabled?: boolean;
+  userId?: string;
+}) {
+  if (typeof window === 'undefined') return null;
+  
+  if (!performanceMonitor) {
+    performanceMonitor = new PerformanceMonitor(options);
+  }
+  
+  return performanceMonitor;
+}
+
+export function getPerformanceMonitor(): PerformanceMonitor | null {
+  return performanceMonitor;
+}
+
+// Performance helper functions
+export function measureAsyncOperation<T>(
+  operation: () => Promise<T>,
+  label: string
+): Promise<T> {
+  return new Promise(async (resolve, reject) => {
+    const start = performance.now();
+    
+    try {
+      const result = await operation();
+      const end = performance.now();
+      const duration = end - start;
+      
+      if (process.env.NODE_ENV === 'development') {
+        console.log(`⏱️ ${label}: ${duration.toFixed(2)}ms`);
+      }
+      
+      // Log slow operations
+      if (duration > 1000) {
+        console.warn(`🐌 Slow operation: ${label} took ${duration.toFixed(2)}ms`);
+      }
+      
+      resolve(result);
+    } catch (error) {
+      const end = performance.now();
+      const duration = end - start;
+      
+      console.error(`❌ ${label} failed after ${duration.toFixed(2)}ms:`, error);
+      reject(error);
+    }
+  });
+}
+
+export function measureRender<T>(Component: React.ComponentType<T>, componentName: string) {
+  return React.memo(function MeasuredComponent(props: T) {
+    React.useEffect(() => {
+      const start = performance.now();
+      
+      return () => {
+        const end = performance.now();
+        const duration = end - start;
+        
+        if (process.env.NODE_ENV === 'development' && duration > 16) {
+          console.warn(`🐌 Slow render: ${componentName} took ${duration.toFixed(2)}ms`);
+        }
+      };
+    }, []);
+    
+    return React.createElement(Component, props);
+  });
+}
+
+// React hook for performance monitoring
+export function usePerformanceMonitor() {
+  const [metrics, setMetrics] = React.useState<Partial<PerformanceMetrics>>({});
+  
+  React.useEffect(() => {
+    const monitor = getPerformanceMonitor();
+    if (!monitor) return;
+    
+    const updateMetrics = () => {
+      setMetrics(monitor.getCurrentMetrics());
+    };
+    
+    updateMetrics();
+    const interval = setInterval(updateMetrics, 5000); // Update every 5 seconds
+    
+    return () => clearInterval(interval);
+  }, []);
+  
+  return {
+    metrics,
+    checkBudget: () => performanceMonitor?.checkBudget() || { passed: true, violations: [] }
+  };
+}

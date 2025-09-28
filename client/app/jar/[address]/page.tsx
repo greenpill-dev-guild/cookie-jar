@@ -10,6 +10,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { ProtocolErrorBoundary } from "@/components/app/ProtocolErrorBoundary";
 
 // Hooks
 import { useCookieJarConfig } from "@/hooks/jar/useJar";
@@ -104,7 +105,8 @@ export default function CookieJarPage() {
   const isERC20 = config.currency && config.currency !== ETH_ADDRESS;
 
   return (
-    <div className="container max-w-full px-4 md:px-8 py-8" ref={pageRef}>
+    <ProtocolErrorBoundary protocolName="Cookie Jar" maxRetries={2}>
+      <div className="container max-w-full px-4 md:px-8 py-8" ref={pageRef}>
       <div className="grid grid-cols-1 lg:grid-cols-20 gap-6">
         {/* Left sidebar with jar details */}
         <div className="lg:col-span-11">
@@ -172,6 +174,7 @@ export default function CookieJarPage() {
         onSave={() => metadata.handleMetadataUpdate(addressString, refetch)}
         isUpdatingMetadata={metadata.isUpdatingMetadata}
       />
-    </div>
+      </div>
+    </ProtocolErrorBoundary>
   );
 }

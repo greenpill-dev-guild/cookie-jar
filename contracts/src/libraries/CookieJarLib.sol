@@ -1,38 +1,32 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.19;
+pragma solidity ^0.8.24;
 
+/// @title CookieJarLib
+/// @notice Shared library for Cookie Jar constants, enums, and structs
 library CookieJarLib {
-    // --- Constants ---
-    /// @dev Address used to represent ETH in the system
-    address public constant ETH_ADDRESS = address(3);
-    /// @dev Base for percentage calculations (10000 = 100%)
-    uint256 public constant PERCENTAGE_BASE = 10000;
-    /// @dev Maximum number of NFT gates allowed per jar (gas optimization)
-    uint256 public constant MAX_NFT_GATES = 24;
-    /// @dev Maximum withdrawal history entries to prevent unbounded array growth
+    /// @notice Role identifiers for access control
+    bytes32 public constant JAR_OWNER = keccak256("JAR_OWNER");
+    bytes32 public constant JAR_ADMIN = keccak256("JAR_ADMIN");
+    bytes32 public constant JAR_ALLOWLISTED = keccak256("JAR_ALLOWLISTED");
+    bytes32 public constant JAR_DENYLISTED = keccak256("JAR_DENYLISTED");
+
+    /// @notice Maximum withdrawal history to prevent unbounded array growth
     uint256 public constant MAX_WITHDRAWAL_HISTORY = 1000;
-    /// @dev Period for withdrawal limits (1 week)
-    uint256 public constant WITHDRAWAL_PERIOD = 7 days;
-    /// @dev Maximum gas allowed for NFT validation calls (increased for safety)
-    uint256 public constant MAX_NFT_VALIDATION_GAS = 150000;
-    /// @dev Maximum blocks a balance proof can be old (increased for better UX)
-    uint256 public constant MAX_BALANCE_PROOF_AGE = 10;
-    /// @dev Maximum batch size for operations to prevent gas issues
-    uint256 public constant MAX_BATCH_SIZE = 50;
+
+    /// @notice Protocol Constants
+    uint256 public constant PERCENTAGE_BASE = 10000; // 100% = 10000, 1% = 100
+    uint256 public constant MAX_FEE_PERCENTAGE = 1000; // 10% maximum fee
+    address public constant ETH_ADDRESS = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
     
-    // --- NFT Gate Bit Flags ---
-    /// @dev Bit flag: Gate is active and can be used
-    uint8 public constant GATE_ACTIVE = 1 << 0;           // Bit 0
-    /// @dev Bit flag: Gate has quantity requirements (ERC1155)
-    uint8 public constant GATE_QUANTITY_BASED = 1 << 1;   // Bit 1
-    /// @dev Bit flag: Gate has trait-based requirements (future)
-    uint8 public constant GATE_TRAIT_BASED = 1 << 2;      // Bit 2
-    /// @dev Bit flag: Gate has analytics tracking enabled
-    // TEMPORARILY REMOVED: Analytics constants
-    // uint8 public constant GATE_ANALYTICS_ENABLED = 1 << 3;
+    /// @notice Protocol Constants
+    uint256 public constant WITHDRAWAL_PERIOD = 86400; // 24 hours
     
-    // --- Enums ---
-    /// @notice The mode for access control.
+    /// @notice Gas limits for external calls
+    uint256 public constant MAX_NFT_VALIDATION_GAS = 50000; // Gas limit for NFT validation
+    uint256 public constant MAX_BALANCE_PROOF_AGE = 100; // Max age for balance proof in blocks
+    uint256 public constant MAX_NFT_GATES = 10; // Maximum number of NFT gates allowed
+
+    /// @notice Access types for jar
     enum AccessType {
         Allowlist,
         NFTGated,
@@ -41,46 +35,78 @@ library CookieJarLib {
         Hypercert,
         Hats
     }
-    /// @notice Specifies the withdrawal type.
+
+    /// @notice Withdrawal type options
     enum WithdrawalTypeOptions {
         Fixed,
         Variable
     }
-    /// @notice Supported NFT types for gating.
+
+    /// @notice NFT types for gating
     enum NFTType {
         None,
         ERC721,
         ERC1155
     }
 
-    // --- Constants ---
-    bytes32 public constant JAR_OWNER = keccak256("JAR_OWNER");
-    bytes32 public constant JAR_ALLOWLISTED = keccak256("JAR_ALLOWLISTED");
-    bytes32 public constant JAR_DENYLISTED = keccak256("JAR_DENYLISTED");
+    /// @notice Events
+    event Deposit(address indexed depositor, uint256 amount, address indexed token);
+    event Withdrawal(address indexed withdrawer, uint256 amount, string purpose);
+    event TokenSwapped(address indexed fromToken, address indexed toToken, uint256 amountIn, uint256 amountOut);
+    event FeeCollected(address indexed feeCollector, uint256 amount, address indexed token);
+    event JarCreated(address indexed jarAddress, address indexed jarOwner, AccessType accessType);
+    event AccessTypeUpdated(AccessType oldType, AccessType newType);
+    event PeriodWithdrawalLimitUpdated(uint256 newLimit);
+    event NFTAccessValidated(address indexed user, address indexed nftContract, uint256 tokenId);
+    
+    // Superfluid events
+    event SuperfluidConfigUpdated(bool enabled);
+    event SuperStreamCreated(address indexed sender, address indexed superToken, int96 flowRate);
+    event SuperStreamUpdated(address indexed sender, address indexed superToken, int96 newFlowRate);
+    event SuperStreamDeleted(address indexed sender, address indexed superToken);
+    event HighGasUsageWarning(address indexed nftContract, uint256 gasUsed);
+    event PausedStateChanged(bool paused);
+    event FeeCollectorUpdated(address indexed oldCollector, address indexed newCollector);
+    event NFTGateRemoved(address indexed nftAddress);
+    event MaxWithdrawalUpdated(uint256 newMaxWithdrawal);
+    event FixedWithdrawalAmountUpdated(uint256 newFixedAmount);
+    event WithdrawalIntervalUpdated(uint256 newInterval);
+    event PendingTokensRecovered(address indexed token, uint256 amount);
+    event StreamRegistered(address indexed sender, address indexed token, uint256 ratePerSecond, uint256 streamIndex);
+    event StreamApproved(uint256 indexed streamIndex);
+    event EmergencyWithdrawal(address indexed user, address indexed token, uint256 amount);
+    event StreamProcessed(uint256 indexed streamIndex, uint256 processableAmount, uint256 feeAmount);
+    event NFTGateAdded(address indexed nftAddress, NFTType nftType);
 
-    // --- Structs ---
-    /// @notice Represents an NFT gate with a contract address and its NFT type.
+    // === STRUCT DEFINITIONS ===
+
+    /// @notice NFT gate configuration
     struct NFTGate {
-        address nftAddress; // Address of the NFT contract.
-        NFTType nftType; // NFT type: ERC721 or ERC1155
+        address nftAddress;
+        NFTType nftType;
+        uint256 threshold;
     }
 
     /// @notice POAP requirement for access control
     struct POAPRequirement {
         uint256 eventId; // POAP event ID required
-        address poapContract; // POAP contract address (0 = use canonical address)
+        address poapContract; // POAP contract address (for custom networks)
     }
 
     /// @notice Unlock Protocol requirement for access control
     struct UnlockRequirement {
-        address lockAddress; // Unlock Protocol lock contract address
+        address lockAddress; // Lock contract address
+        bool requireValidKey; // Whether valid key is required
     }
 
     /// @notice Hypercert requirement for access control
     struct HypercertRequirement {
-        address tokenContract; // Hypercert token contract address
-        uint256 tokenId; // Specific hypercert token ID required
-        uint256 minBalance; // Minimum balance required (default 1)
+        address hypercertContract; // Hypercert contract address
+        uint256 requiredFractions; // Minimum fraction ownership required
+        address[] allowedCreators; // Allowed hypercert creators
+        uint256 tokenId; // Specific token ID required (if 0, any token from contract is valid)
+        address tokenContract; // Alternative token contract address (for backward compatibility)
+        uint256 minBalance; // Minimum balance required (for backward compatibility)
     }
 
     /// @notice Hats Protocol requirement for access control
@@ -95,17 +121,35 @@ library CookieJarLib {
         address recipient; // Address of the user who withdrew
     }
 
-    // --- Enhanced NFT Structs ---
+    /// @notice SIMPLIFIED Multi-token configuration for cookie jar
+    /// @dev Replaced complex v3/v4 config with simple Universal Router approach
+    struct MultiTokenConfig {
+        bool enabled;                   // Enable multi-token support
+        uint256 maxSlippagePercent;     // Max slippage (e.g., 500 = 5%)
+        uint256 minSwapAmount;          // Minimum amount to trigger auto-swap
+        uint24 defaultFee;              // Default pool fee (3000 = 0.3%)
+    }
     
-    // TEMPORARILY REMOVED: PackedNFTGate struct to reduce contract size
-    // struct PackedNFTGate { ... }
+    /// @notice Simplified streaming configuration using Superfluid Protocol
+    /// @dev Renamed from SuperfluidConfig and simplified - only real-time streaming supported
+    struct StreamingConfig {
+        bool enabled;                    // Enable real-time streaming via Superfluid
+        bool autoAcceptStreams;          // Auto-accept incoming super streams
+        address[] acceptedSuperTokens;   // Allowlisted Super Tokens
+        int96 minFlowRate;              // Minimum flow rate (wei/second)
+    }
 
-    // TEMPORARILY REMOVED: Analytics structs to reduce contract size under 24KB limit
-    // These will be re-enabled in a future version with external analytics library
-    // struct NFTGateStats { ... }
-    // struct WithdrawalAnalytics { ... }
+    /// @notice Real-time Super Token stream via Superfluid Protocol
+    struct SuperfluidStream {
+        address superToken;              // Super Token contract address
+        address sender;                  // Stream sender
+        int96 flowRate;                 // Real-time flow rate (wei/second)
+        uint256 startTime;              // Stream start timestamp
+        bool isActive;                  // Stream status
+    }
 
-    /// @notice Configuration struct for CookieJar constructor to avoid stack too deep
+    /// @notice SIMPLIFIED Configuration struct for CookieJar constructor
+    /// @dev Removed complex multi-token config, now uses simple Universal Router
     struct JarConfig {
         address jarOwner;
         address supportedCurrency;
@@ -121,155 +165,67 @@ library CookieJarLib {
         bool emergencyWithdrawalEnabled;
         bool oneTimeWithdrawal;
         uint256 maxWithdrawalPerPeriod; // 0 means unlimited
+        string metadata; // Jar metadata/description
+        MultiTokenConfig multiTokenConfig; // Simplified multi-token support
+        StreamingConfig streamingConfig; // Real-time streaming via Superfluid Protocol
     }
 
     /// @notice NFT and allowlist configuration struct
     struct AccessConfig {
         address[] nftAddresses;
         NFTType[] nftTypes;
+        uint256[] nftThresholds;
         address[] allowlist;
-        // Protocol-specific requirements
         POAPRequirement poapReq;
         UnlockRequirement unlockReq;
         HypercertRequirement hypercertReq;
         HatsRequirement hatsReq;
     }
 
-    /// @notice Optimized parameter grouping for factory functions to avoid stack too deep
-    struct CreateJarParams {
-        address cookieJarOwner;
-        address supportedCurrency;
-        AccessType accessType;
-        WithdrawalTypeOptions withdrawalOption;
-        uint256 fixedAmount;
-        uint256 maxWithdrawal;
-        uint256 withdrawalInterval;
-        bool strictPurpose;
-        bool emergencyWithdrawalEnabled;
-        bool oneTimeWithdrawal;
-        string metadata;
-        uint256 customFeePercentage; // 0 means use default fee
-        uint256 maxWithdrawalPerPeriod; // 0 means unlimited
-    }
-
-    // --- Events ---
-    /// @notice Emitted when a deposit is made.
-    event Deposit(address indexed sender, uint256 amount, address indexed token);
-    /// @notice Emitted when a withdrawal occurs.
-    event Withdrawal(address indexed recipient, uint256 indexed amount, string purpose);
-    /// @notice Emitted when the fee collector address is updated.
-    event FeeCollectorUpdated(address indexed oldFeeCollector, address indexed newFeeCollector);
-    /// @notice Emitted when an NFT gate is added.
-    event NFTGateAdded(address indexed nftAddress, NFTType nftType);
-    /// @notice Emitted when an emergency withdrawal is executed.
-    event EmergencyWithdrawal(address indexed admin, address indexed token, uint256 amount);
-    /// @notice Emitted when an NFT gate is removed.
-    event NFTGateRemoved(address indexed nftAddress);
-    /// @notice Emitted when maximum withdrawal amount is updated.
-    event MaxWithdrawalUpdated(uint256 indexed newMaxWithdrawal);
-    /// @notice Emitted when fixed withdrawal amount is updated.
-    event FixedWithdrawalAmountUpdated(uint256 indexed newFixedAmount);
-    /// @notice Emitted when withdrawal interval is updated.
-    event WithdrawalIntervalUpdated(uint256 indexed newWithdrawalInterval);
-    /// @notice Emitted when a deposit fee is collected.
-    event FeeCollected(address indexed collector, uint256 feeAmount, address indexed token);
-    /// @notice Emitted when NFT access is successfully validated.
-    event NFTAccessValidated(address indexed user, address indexed nftContract, uint256 indexed tokenId);
-    /// @notice Emitted when jar is paused/unpaused.
-    event PausedStateChanged(bool indexed isPaused);
-    /// @notice Emitted when period withdrawal limit is updated.
-    event PeriodWithdrawalLimitUpdated(uint256 indexed newLimit);
+    // === ERROR DEFINITIONS ===
     
-    // --- Enhanced NFT Events ---
-    /// @notice Emitted when balance proof withdrawal is used.
-    event NFTBalanceProofWithdrawal(
-        address indexed user, 
-        address indexed nftContract, 
-        uint256 indexed tokenId, 
-        uint256 expectedBalance, 
-        uint256 actualBalance
-    );
-    /// @notice Emitted when high gas usage is detected in NFT validation.
-    event HighGasUsageWarning(address indexed nftContract, uint256 gasUsed);
-    /// @notice Emitted when NFT gates are added in batch.
-    event NFTGatesBatchAdded(address[] nftAddresses, uint8[] nftTypes);
-    /// @notice Emitted when NFT gates are removed in batch.
-    event NFTGatesBatchRemoved(address[] nftAddresses);
-    /// @notice Emitted when NFT withdrawal analytics are recorded.
-    // TEMPORARILY REMOVED: Analytics events
-    // event NFTWithdrawalAnalytics(...);
-
-    // --- Custom Errors ---
+    error ZeroAmount();
+    error ZeroAddress();
+    error InvalidTokenAddress();
+    error InsufficientBalance();
+    error WithdrawalNotAllowed();
+    error InvalidWithdrawalAmount();
+    error LessThanMinimumDeposit();
+    error TransferFailed();
+    error FeeTransferFailed();
+    error UnauthorizedAccess();
+    error InvalidAccessType();
+    error NFTNotOwned();
+    error StreamNotFound();
+    error StreamNotActive();
+    error StreamAlreadyExists();
+    error InvalidStreamRate();
+    error UnauthorizedStreamAccess();
+    error NotAuthorized();
     error AdminCannotBeZeroAddress();
     error FeeCollectorAddressCannotBeZeroAddress();
-    error NoNFTAddressesProvided();
-    error NFTArrayLengthMismatch();
-    error AllowlistNotAllowedForNFTGated();
-    error SupportedCurrencyCannotBeZeroAddress();
-    error InvalidFixedAmountMustBeGreaterThanZero();
-    error InvalidMaxWithdrawalMustBeGreaterThanZero();
-    error InvalidWithdrawalIntervalMustBeGreaterThanZero();
-    error InvalidMinDepositMustBeGreaterThanZero();
-    error InvalidFeePercentage();
-    error WithdrawalAmountMustBeGreaterThanZero();
-    error FixedAmountExceedsBalance();
-    error VariableAmountExceedsMaxWithdrawal();
-    error VariableAmountExceedsBalance();
-    error CanOnlyWithdrawOnce();
-    error PurposeRequired();
-    error PurposeTooShort();
-    error UnauthorizedUser();
-    error UserNotAllowlisted();
+    error WithdrawalAmountNotAllowed(uint256 requested, uint256 allowed);
+    error PeriodWithdrawalLimitExceeded(uint256 requested, uint256 available);
+    error OneTimeWithdrawalAlreadyUsed();
+    error WithdrawalIntervalNotPassed();
     error UserDenylisted();
     error InvalidNFTGate();
-    error NFTTokenDoesNotExist();
-    error CallerMustOwnToken();
-    error CallerMustHaveBalance();
-    error EmergencyWithdrawalNotEnabled();
-    error TransferFailed();
-    error InvalidDepositAmount();
-    error OnlyETHAccepted();
-    error OnlyERC20Accepted();
-    error ZeroAmountNotAllowed();
-    error NotValidERC721();
-    error NotValidERC1155();
-    error NFTGateAlreadyExists();
-    error NFTGateDoesNotExist();
-    error TooManyNFTGates();
-    error InvalidAccessType();
-    error NotFeeCollector();
-    error NFTGateNotFound();
-    error InvalidWithdrawalType();
-    error ZeroAmount();
-    error EmergencyWithdrawalDisabled();
-    error InsufficientBalance();
-    error InvalidTokenAddress();
-    error LessThanMinimumDeposit();
-    error FeeTransferFailed();
-    error InvalidNFTType();
-    error DuplicateNFTGate();
-    error NotAuthorized();
+    error AllowlistNotAllowedForNFTGated();
+    error NoNFTAddressesProvided();
+    error NFTArrayLengthMismatch();
+    error WithdrawalHistoryLimitReached();
     error InvalidPurpose();
     error WithdrawalAlreadyDone();
-    error WithdrawalTooSoon(uint256 nextAllowedTime);
-    error WithdrawalAmountNotAllowed(uint256 provided, uint256 required);
-    error WithdrawalHistoryLimitReached();
-    error ContractPaused();
-    error PeriodWithdrawalLimitExceeded(uint256 requested, uint256 available);
-    
-    // --- Enhanced NFT Errors ---
-    /// @notice Thrown when balance proof is too old (more than 5 blocks)
-    error StaleBalanceProof();
-    /// @notice Thrown when NFT validation uses excessive gas
-    error ExcessiveGasUsage();
-    /// @notice Thrown when NFT validation fails due to network or contract issues
+    error WithdrawalTooSoon(uint256 nextAllowed);
     error NFTValidationFailed();
-    /// @notice Thrown when user doesn't have sufficient NFT balance for ERC1155
+    error InvalidNFTType();
+    error StaleBalanceProof();
     error InsufficientNFTBalance();
-    /// @notice Thrown when user has excessive NFT quantity (above max limit)
-    error ExcessiveNFTQuantity();
-    /// @notice Thrown when trying to perform quantity validation on ERC721
-    error QuantityValidationNotSupported();
-    /// @notice Thrown when array lengths don't match in batch operations
-    error ArrayLengthMismatch();
+    error NotFeeCollector();
+    error TooManyNFTGates();
+    error NFTGateNotFound();
+    error InvalidWithdrawalType();
+    error EmergencyWithdrawalDisabled();
+    error NothingToClaim();
+    error DuplicateNFTGate();
 }

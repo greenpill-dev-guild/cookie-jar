@@ -100,17 +100,46 @@ contract NFTGatingEnhancedTest is Test {
             feeCollector: feeCollector,
             emergencyWithdrawalEnabled: true,
             oneTimeWithdrawal: false,
-            maxWithdrawalPerPeriod: 0 // Added missing field
+            maxWithdrawalPerPeriod: 0, // Added missing field
+            metadata: "Test NFT Gated Jar",
+            multiTokenConfig: CookieJarLib.MultiTokenConfig({
+                enabled: false,
+                maxSlippagePercent: 500,
+                minSwapAmount: 0,
+                defaultFee: 3000
+            }),
+            streamingConfig: CookieJarLib.StreamingConfig({
+                streamingEnabled: false,
+                requireStreamApproval: true,
+                maxStreamRate: CookieJarLib.MAX_RATE_PER_SECOND,
+                minStreamDuration: CookieJarLib.MIN_STREAM_DURATION
+            }),
+            superfluidConfig: CookieJarLib.SuperfluidConfig({
+                superfluidEnabled: false,
+                autoAcceptStreams: false,
+                acceptedSuperTokens: new address[](0),
+                minFlowRate: 0,
+                useDistributionPool: false,
+                distributionPool: address(0)
+            })
         });
         
         // Create access configuration
         CookieJarLib.AccessConfig memory accessConfig = CookieJarLib.AccessConfig({
             nftAddresses: nftAddresses,
             nftTypes: nftTypes,
+            nftThresholds: new uint256[](0),
             allowlist: emptyAllowlist,
             poapReq: CookieJarLib.POAPRequirement({eventId: 0, poapContract: address(0)}),
-            unlockReq: CookieJarLib.UnlockRequirement({lockAddress: address(0)}),
-            hypercertReq: CookieJarLib.HypercertRequirement({tokenContract: address(0), tokenId: 0, minBalance: 0}),
+            unlockReq: CookieJarLib.UnlockRequirement({lockAddress: address(0), requireValidKey: false}),
+            hypercertReq: CookieJarLib.HypercertRequirement({
+                hypercertContract: address(0), 
+                requiredFractions: 0, 
+                allowedCreators: new address[](0), 
+                tokenId: 0, 
+                tokenContract: address(0), 
+                minBalance: 0
+            }),
             hatsReq: CookieJarLib.HatsRequirement({hatId: 0, hatsContract: address(0)})
         });
         

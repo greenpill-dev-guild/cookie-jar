@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useAccount, useChainId } from "wagmi";
-import { keccak256, toUtf8Bytes } from "ethers";
+import { keccak256, toHex } from "viem";
 
 import { useReadCookieJarHasRole } from "@/generated";
 import { isV2Chain } from "@/config/supported-networks";
@@ -39,7 +39,7 @@ export function useAllowlistStatus(jarAddress: string) {
 
   // Use correct role name based on contract version
   const roleName = isV2Chain(chainId) ? "JAR_ALLOWLISTED" : "JAR_WHITELISTED";
-  const JAR_ROLE = keccak256(toUtf8Bytes(roleName)) as `0x${string}`;
+  const JAR_ROLE = keccak256(toHex(roleName)) as `0x${string}`;
 
   // Use the contract hook to check allowlist status
   const { data, isLoading: isLoadingRole } = useReadCookieJarHasRole({

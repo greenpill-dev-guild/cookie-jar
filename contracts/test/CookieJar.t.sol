@@ -116,7 +116,20 @@ contract CookieJarTest is Test {
                 feeCollector: _feeCollectorAddr,
                 emergencyWithdrawalEnabled: _emergencyEnabled,
                 oneTimeWithdrawal: _oneTimeWithdrawal,
-                maxWithdrawalPerPeriod: 0 // unlimited
+                maxWithdrawalPerPeriod: 0, // unlimited
+                metadata: "Test Jar",
+                multiTokenConfig: CookieJarLib.MultiTokenConfig({
+                    enabled: false,
+                    maxSlippagePercent: 500,
+                    minSwapAmount: 0,
+                    defaultFee: 3000
+                }),
+                streamingConfig: CookieJarLib.StreamingConfig({
+                    enabled: false,
+                    autoAcceptStreams: false,
+                    acceptedSuperTokens: new address[](0),
+                    minFlowRate: 1e18
+                })
             });
     }
 
@@ -129,11 +142,19 @@ contract CookieJarTest is Test {
         return CookieJarLib.AccessConfig({
             nftAddresses: _nftAddresses,
             nftTypes: _nftTypes,
+            nftThresholds: new uint256[](0),
             allowlist: _allowlist,
-            poapReq: CookieJarLib.POAPRequirement(0, address(0)),
-            unlockReq: CookieJarLib.UnlockRequirement(address(0)),
-            hypercertReq: CookieJarLib.HypercertRequirement(address(0), 0, 1),
-            hatsReq: CookieJarLib.HatsRequirement(0, address(0))
+            poapReq: CookieJarLib.POAPRequirement({eventId: 0, poapContract: address(0)}),
+            unlockReq: CookieJarLib.UnlockRequirement({lockAddress: address(0), requireValidKey: false}),
+            hypercertReq: CookieJarLib.HypercertRequirement({
+                hypercertContract: address(0), 
+                requiredFractions: 0, 
+                allowedCreators: new address[](0), 
+                tokenId: 0, 
+                tokenContract: address(0), 
+                minBalance: 1
+            }),
+            hatsReq: CookieJarLib.HatsRequirement({hatId: 0, hatsContract: address(0)})
         });
     }
 

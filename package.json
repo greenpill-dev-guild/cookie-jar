@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "preinstall": "./scripts/install-deps.sh",
-    "postinstall": "git submodule update --init --recursive && (command -v forge > /dev/null && cd contracts && forge install || echo 'Forge not found, skipping forge install')",
+    "postinstall": "(command -v forge > /dev/null && cd contracts && git submodule update --init --recursive && forge install || echo 'Forge not found, skipping forge operations')",
 
     "dev": "pnpm run dev:stop && ./scripts/dev-start.sh",
     "dev:client": "pnpm --filter client run dev",
@@ -20,13 +20,30 @@
     
     "test": "pnpm run test:contracts && pnpm run test:client",
     "test:client": "pnpm --filter client run test",
-    "test:contracts": "cd contracts && forge test",
+    "test:client:coverage": "pnpm --filter client run test:coverage",
+    "test:client:version": "pnpm --filter client run test:version-detection",
+    "test:client:lazy": "pnpm --filter client run test:lazy-loading",
+    "test:client:hooks": "pnpm --filter client run test:hooks",
+    "test:client:components": "pnpm --filter client run test:components",
+    "test:contracts": "cd contracts && forge test -vv",
+    "test:contracts:coverage": "cd contracts && forge coverage --report lcov",
+    "test:contracts:gas": "cd contracts && forge test --gas-report",
+    "test:contracts:security": "cd contracts && forge test --match-test 'testReentrancy|testSecurity|testSuperfluid' -vv",
+    
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
     "test:e2e:headed": "playwright test --headed",
     "test:e2e:report": "playwright show-report",
+    "test:e2e:streaming": "playwright test streaming-features.spec.ts",
+    "test:e2e:mobile": "playwright test mobile-experience.spec.ts",
+    "test:e2e:performance": "playwright test performance-baseline.spec.ts",
+    "test:e2e:compatibility": "playwright test version-compatibility.spec.ts",
+    
     "test:all": "pnpm test && pnpm test:e2e",
+    "test:comprehensive": "pnpm run test:contracts:gas && pnpm run test:client:coverage && pnpm run test:e2e:report",
+    "test:security": "pnpm run test:contracts:security",
+    "test:performance": "pnpm run test:e2e:performance",
     "test:ci": "pnpm test && pnpm test:e2e",
     "test:accessibility": "playwright test --grep 'accessibility'",
 

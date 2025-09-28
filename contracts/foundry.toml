@@ -1,4 +1,5 @@
 [profile.default]
+evm_version = "cancun"  # Required for Uniswap v4 transient storage
 via_ir = true
 optimizer = true
 optimizer_runs = 1    # Aggressively optimize for size to stay under 24KB limit
@@ -11,7 +12,7 @@ libs = ["lib"]
 test = "test"  # Re-enabled tests
 script = "script"
 # Skip certora harness files that have missing dependencies
-skip = ["lib/openzeppelin-contracts/certora/**/*.sol"]
+skip = ["**/certora/**/*.sol", "lib/openzeppelin-contracts/certora/**"]
 remappings = [
     "openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/"
 ]

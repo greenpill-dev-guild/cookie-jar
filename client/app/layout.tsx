@@ -1,6 +1,7 @@
 import type React from "react";
 import { ThemeProvider } from "@/components/app/ThemeProvider";
 import { RainbowKitProviderWrapper } from "@/components/wallet/RainbowKitProviderWrapper";
+import { GlobalErrorBoundary } from "@/components/app/GlobalErrorBoundary";
 import { Toaster } from "@/components/ui/toaster";
 import { PageTransition } from "@/components/app/PageTransition";
 import { Header } from "@/components/app/header";
@@ -36,25 +37,27 @@ export default function RootLayout({
       </head>
       <body className="custom-scrollbar cj-bg-main" suppressHydrationWarning>
         <div className={`${clashDisplay.variable} font-clash`}>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-            suppressHydrationWarning
-          >
-            <RainbowKitProviderWrapper>
-              <Header />
-              <main className="pt-16 pb-4 md:pb-4 cj-bg-main">
-                <div className="px-4 py-4 md:px-6 lg:px-8">
-                  <PageTransition>{children}</PageTransition>
-                </div>
-              </main>
-              <MobileAppBar />
-              <NetworkSwitcher />
-              <Toaster />
-            </RainbowKitProviderWrapper>
-          </ThemeProvider>
+          <GlobalErrorBoundary>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+              suppressHydrationWarning
+            >
+              <RainbowKitProviderWrapper>
+                <Header />
+                <main className="pt-16 pb-4 md:pb-4 cj-bg-main">
+                  <div className="px-4 py-4 md:px-6 lg:px-8">
+                    <PageTransition>{children}</PageTransition>
+                  </div>
+                </main>
+                <MobileAppBar />
+                <NetworkSwitcher />
+                <Toaster />
+              </RainbowKitProviderWrapper>
+            </ThemeProvider>
+          </GlobalErrorBoundary>
         </div>
       </body>
     </html>

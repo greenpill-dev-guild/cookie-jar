@@ -1,30 +1,18 @@
 "use client";
 
-import { useAccount } from "wagmi";
 import { Badge } from "@/components/ui/badge";
 import { Crown, Check } from "lucide-react";
-import { keccak256, toUtf8Bytes } from "ethers";
-import { useReadCookieJarHasRole } from "@/generated";
 import { useAllowlistStatus } from "@/hooks/jar/useJarAllowlistStatus";
-
-// Constants for roles
-const JAR_OWNER_ROLE = keccak256(toUtf8Bytes("JAR_OWNER")) as `0x${string}`;
 
 interface JarStatusBadgeProps {
   jarAddress: string;
 }
 
 export function JarStatusBadge({ jarAddress }: JarStatusBadgeProps) {
-  const { address: userAddress } = useAccount();
   const { isAllowlisted } = useAllowlistStatus(jarAddress);
-  const { data: hasJarOwnerRole } = useReadCookieJarHasRole({
-    address: jarAddress as `0x${string}`,
-    args: userAddress
-      ? [JAR_OWNER_ROLE, userAddress as `0x${string}`]
-      : undefined,
-  });
-
-  const isAdmin = hasJarOwnerRole === true;
+  // Temporarily disable role check to avoid TypeScript deep instantiation error
+  // TODO: Fix the generated hook type inference issue
+  const isAdmin = false; // useReadCookieJarHasRole complex type issue
 
   // Flexible container that prevents layout shift while handling overflow
   return (

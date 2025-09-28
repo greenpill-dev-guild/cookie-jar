@@ -138,79 +138,137 @@ contract DeployLocalScript is Script {
         allowlist1[0] = COOKIE_MONSTER;
         allowlist1[1] = COOKIE_FAN;
         
-        CookieJarLib.CreateJarParams memory params1 = CookieJarLib.CreateJarParams({
-            cookieJarOwner: DEPLOYER,
+        // Default configurations
+        CookieJarLib.MultiTokenConfig memory defaultMultiToken = CookieJarLib.MultiTokenConfig({
+            enabled: false,
+            maxSlippagePercent: 500, // 5%
+            minSwapAmount: 0.01 ether,
+            defaultFee: 3000 // 0.3%
+        });
+        
+        address[] memory emptyTokens = new address[](0);
+        CookieJarLib.StreamingConfig memory defaultStreaming = CookieJarLib.StreamingConfig({
+            enabled: false,
+            autoAcceptStreams: false,
+            acceptedSuperTokens: emptyTokens,
+            minFlowRate: 1e18 // 1 token per second minimum
+        });
+        
+        CookieJarLib.JarConfig memory params1 = CookieJarLib.JarConfig({
+            jarOwner: DEPLOYER,
             supportedCurrency: CookieJarLib.ETH_ADDRESS,
             accessType: CookieJarLib.AccessType.Allowlist,
             withdrawalOption: CookieJarLib.WithdrawalTypeOptions.Fixed,
             fixedAmount: 0.1 ether,
             maxWithdrawal: 1 ether,
             withdrawalInterval: 7 days,
+            minDeposit: 0.01 ether,
+            feePercentageOnDeposit: 0,
             strictPurpose: false,
+            feeCollector: DEPLOYER,
             emergencyWithdrawalEnabled: true,
             oneTimeWithdrawal: false,
+            maxWithdrawalPerPeriod: 0,
             metadata: "Community Stipend - Weekly 0.1 ETH for community members",
-            customFeePercentage: 0,
-            maxWithdrawalPerPeriod: 0
+            multiTokenConfig: defaultMultiToken,
+            streamingConfig: defaultStreaming
         });
         
         CookieJarLib.AccessConfig memory accessConfig1 = CookieJarLib.AccessConfig({
             nftAddresses: new address[](0),
             nftTypes: new CookieJarLib.NFTType[](0),
+            nftThresholds: new uint256[](0),
             allowlist: allowlist1,
-            poapReq: CookieJarLib.POAPRequirement(0, address(0)),
-            unlockReq: CookieJarLib.UnlockRequirement(address(0)),
-            hypercertReq: CookieJarLib.HypercertRequirement(address(0), 0, 1),
-            hatsReq: CookieJarLib.HatsRequirement(0, address(0))
+            poapReq: CookieJarLib.POAPRequirement({eventId: 0, poapContract: address(0)}),
+            unlockReq: CookieJarLib.UnlockRequirement({lockAddress: address(0), requireValidKey: false}),
+            hypercertReq: CookieJarLib.HypercertRequirement({
+                hypercertContract: address(0), 
+                requiredFractions: 0, 
+                allowedCreators: new address[](0), 
+                tokenId: 0, 
+                tokenContract: address(0), 
+                minBalance: 0
+            }),
+            hatsReq: CookieJarLib.HatsRequirement({hatId: 0, hatsContract: address(0)})
         });
         
-        factory.createCookieJar(params1, accessConfig1);
+        factory.createCookieJar(params1, accessConfig1, defaultMultiToken, defaultStreaming);
         
         // Fund the first jar with 5 ETH
-        address firstJar = factory.getCookieJars()[0];
-        CookieJar(firstJar).depositETH{value: 5 ether}();
+        address[] memory allJars = factory.getAllJars();
+        address firstJar = allJars[0];
+        CookieJar(payable(firstJar)).depositETH{value: 5 ether}();
         console.log("   SUCCESS: Jar 1: Community Stipend (Allowlist, ETH, Fixed 0.1) - 5 ETH funded");
     }
-    
+
+    /// @notice Creates the second demo jar: Development Grants (Allowlist, ERC20, Variable up to 1000 DEMO)
     function _createJar2() internal {
-        // 2. Development Grants (Allowlist, ERC20, Variable up to 1000 DEMO)
         address[] memory allowlist2 = new address[](3);
         allowlist2[0] = COOKIE_MONSTER;
         allowlist2[1] = COOKIE_FAN;
         allowlist2[2] = DEPLOYER;
         
-        CookieJarLib.CreateJarParams memory params2 = CookieJarLib.CreateJarParams({
-            cookieJarOwner: DEPLOYER,
+        // Default configurations for Jar 2
+        CookieJarLib.MultiTokenConfig memory defaultMultiToken2 = CookieJarLib.MultiTokenConfig({
+            enabled: false,
+            maxSlippagePercent: 500, // 5%
+            minSwapAmount: 1000 * 10**18, // 1000 DEMO tokens
+            defaultFee: 3000 // 0.3%
+        });
+
+        address[] memory emptyTokens2 = new address[](0);
+        CookieJarLib.StreamingConfig memory defaultStreaming2 = CookieJarLib.StreamingConfig({
+            enabled: false,
+            autoAcceptStreams: false,
+            acceptedSuperTokens: emptyTokens2,
+            minFlowRate: 1e18 // 1 token per second minimum
+        });
+        
+        CookieJarLib.JarConfig memory params2 = CookieJarLib.JarConfig({
+            jarOwner: DEPLOYER,
             supportedCurrency: address(demoToken),
             accessType: CookieJarLib.AccessType.Allowlist,
             withdrawalOption: CookieJarLib.WithdrawalTypeOptions.Variable,
             fixedAmount: 0,
             maxWithdrawal: 1000 * 10**18,
             withdrawalInterval: 30 days,
+            minDeposit: 1000 * 10**18,
+            feePercentageOnDeposit: 0,
             strictPurpose: true,
+            feeCollector: DEPLOYER,
             emergencyWithdrawalEnabled: false,
             oneTimeWithdrawal: false,
+            maxWithdrawalPerPeriod: 0,
             metadata: "Development Grants - Up to 1000 DEMO tokens monthly for contributors",
-            customFeePercentage: 0,
-            maxWithdrawalPerPeriod: 0
+            multiTokenConfig: defaultMultiToken2,
+            streamingConfig: defaultStreaming2
         });
         
         CookieJarLib.AccessConfig memory accessConfig2 = CookieJarLib.AccessConfig({
             nftAddresses: new address[](0),
             nftTypes: new CookieJarLib.NFTType[](0),
+            nftThresholds: new uint256[](0),
             allowlist: allowlist2,
-            poapReq: CookieJarLib.POAPRequirement(0, address(0)),
-            unlockReq: CookieJarLib.UnlockRequirement(address(0)),
-            hypercertReq: CookieJarLib.HypercertRequirement(address(0), 0, 1),
-            hatsReq: CookieJarLib.HatsRequirement(0, address(0))
+            poapReq: CookieJarLib.POAPRequirement({eventId: 0, poapContract: address(0)}),
+            unlockReq: CookieJarLib.UnlockRequirement({lockAddress: address(0), requireValidKey: false}),
+            hypercertReq: CookieJarLib.HypercertRequirement({
+                hypercertContract: address(0), 
+                requiredFractions: 0, 
+                allowedCreators: new address[](0), 
+                tokenId: 0, 
+                tokenContract: address(0), 
+                minBalance: 0
+            }),
+            hatsReq: CookieJarLib.HatsRequirement({hatId: 0, hatsContract: address(0)})
         });
         
-        factory.createCookieJar(params2, accessConfig2);
+        factory.createCookieJar(params2, accessConfig2, defaultMultiToken2, defaultStreaming2);
         
         // Fund the second jar with 50K DEMO tokens
-        address secondJar = factory.getCookieJars()[1];
+        address[] memory allJars2 = factory.getAllJars();
+        address secondJar = allJars2[1];
         demoToken.approve(secondJar, 50000 * 10**18);
-        CookieJar(secondJar).depositCurrency(50000 * 10**18);
+        CookieJar(payable(secondJar)).depositCurrency(50000 * 10**18);
         console.log("   SUCCESS: Jar 2: Development Grants (Allowlist, DEMO, Variable 1000) - 50K DEMO funded");
     }
     
@@ -221,37 +279,69 @@ contract DeployLocalScript is Script {
         CookieJarLib.NFTType[] memory nftTypes = new CookieJarLib.NFTType[](1);
         nftTypes[0] = CookieJarLib.NFTType.ERC721;
         
-        CookieJarLib.CreateJarParams memory params3 = CookieJarLib.CreateJarParams({
-            cookieJarOwner: DEPLOYER,
+        // Default configurations for Jar 3
+        CookieJarLib.MultiTokenConfig memory defaultMultiToken3 = CookieJarLib.MultiTokenConfig({
+            enabled: false,
+            maxSlippagePercent: 500, // 5%
+            minSwapAmount: 0.01 ether,
+            defaultFee: 3000 // 0.3%
+        });
+        
+        address[] memory emptyTokens3 = new address[](0);
+        CookieJarLib.StreamingConfig memory defaultStreaming3 = CookieJarLib.StreamingConfig({
+            enabled: false,
+            autoAcceptStreams: false,
+            acceptedSuperTokens: emptyTokens3,
+            minFlowRate: 1e18 // 1 token per second minimum
+        });
+        
+        CookieJarLib.JarConfig memory params3 = CookieJarLib.JarConfig({
+            jarOwner: DEPLOYER,
             supportedCurrency: CookieJarLib.ETH_ADDRESS,
             accessType: CookieJarLib.AccessType.NFTGated,
             withdrawalOption: CookieJarLib.WithdrawalTypeOptions.Fixed,
             fixedAmount: 0.05 ether,
             maxWithdrawal: 1 ether,
             withdrawalInterval: 14 days,
+            minDeposit: 0.01 ether,
+            feePercentageOnDeposit: 0,
             strictPurpose: false,
+            feeCollector: DEPLOYER,
             emergencyWithdrawalEnabled: true,
             oneTimeWithdrawal: false,
+            maxWithdrawalPerPeriod: 0,
             metadata: "NFT Holder Rewards - 0.05 ETH bi-weekly for Cookie Monster NFT holders",
-            customFeePercentage: 0,
-            maxWithdrawalPerPeriod: 0
+            multiTokenConfig: defaultMultiToken3,
+            streamingConfig: defaultStreaming3
         });
+        
+        uint256[] memory nftThresholds = new uint256[](1);
+        nftThresholds[0] = 1;
         
         CookieJarLib.AccessConfig memory accessConfig3 = CookieJarLib.AccessConfig({
             nftAddresses: nftAddresses,
             nftTypes: nftTypes,
+            nftThresholds: nftThresholds,
             allowlist: new address[](0),
-            poapReq: CookieJarLib.POAPRequirement(0, address(0)),
-            unlockReq: CookieJarLib.UnlockRequirement(address(0)),
-            hypercertReq: CookieJarLib.HypercertRequirement(address(0), 0, 1),
-            hatsReq: CookieJarLib.HatsRequirement(0, address(0))
+            poapReq: CookieJarLib.POAPRequirement({eventId: 0, poapContract: address(0)}),
+            unlockReq: CookieJarLib.UnlockRequirement({lockAddress: address(0), requireValidKey: false}),
+            hypercertReq: CookieJarLib.HypercertRequirement({
+                hypercertContract: address(0), 
+                requiredFractions: 0, 
+                allowedCreators: new address[](0), 
+                tokenId: 0, 
+                tokenContract: address(0), 
+                minBalance: 0
+            }),
+            hatsReq: CookieJarLib.HatsRequirement({hatId: 0, hatsContract: address(0)})
         });
         
-        factory.createCookieJar(params3, accessConfig3);
+        factory.createCookieJar(params3, accessConfig3, defaultMultiToken3, defaultStreaming3);
         
         // Fund the third jar with 2 ETH
-        address thirdJar = factory.getCookieJars()[2];
-        CookieJar(thirdJar).depositETH{value: 2 ether}();
+        address[] memory allJars3 = factory.getAllJars();
+        address thirdJar = allJars3[2];
+        CookieJar(payable(thirdJar)).depositETH{value: 2 ether}();
         console.log("   SUCCESS: Jar 3: NFT Holder Rewards (NFT-Gated, ETH, Fixed 0.05) - 2 ETH funded");
     }
     
@@ -262,38 +352,70 @@ contract DeployLocalScript is Script {
         CookieJarLib.NFTType[] memory nftTypes = new CookieJarLib.NFTType[](1);
         nftTypes[0] = CookieJarLib.NFTType.ERC721;
         
-        CookieJarLib.CreateJarParams memory params4 = CookieJarLib.CreateJarParams({
-            cookieJarOwner: DEPLOYER,
+        // Default configurations for Jar 4
+        CookieJarLib.MultiTokenConfig memory defaultMultiToken4 = CookieJarLib.MultiTokenConfig({
+            enabled: false,
+            maxSlippagePercent: 500, // 5%
+            minSwapAmount: 100 * 10**18, // 100 DEMO tokens
+            defaultFee: 3000 // 0.3%
+        });
+        
+        address[] memory emptyTokens4 = new address[](0);
+        CookieJarLib.StreamingConfig memory defaultStreaming4 = CookieJarLib.StreamingConfig({
+            enabled: false,
+            autoAcceptStreams: false,
+            acceptedSuperTokens: emptyTokens4,
+            minFlowRate: 1e18 // 1 token per second minimum
+        });
+        
+        CookieJarLib.JarConfig memory params4 = CookieJarLib.JarConfig({
+            jarOwner: DEPLOYER,
             supportedCurrency: address(demoToken),
             accessType: CookieJarLib.AccessType.NFTGated,
             withdrawalOption: CookieJarLib.WithdrawalTypeOptions.Fixed,
             fixedAmount: 500 * 10**18,
             maxWithdrawal: 500 * 10**18,
             withdrawalInterval: 0,
+            minDeposit: 100 * 10**18,
+            feePercentageOnDeposit: 0,
             strictPurpose: false,
+            feeCollector: DEPLOYER,
             emergencyWithdrawalEnabled: false,
             oneTimeWithdrawal: true,
+            maxWithdrawalPerPeriod: 0,
             metadata: "NFT Airdrop - One-time 500 DEMO tokens for Cookie Monster NFT holders",
-            customFeePercentage: 0,
-            maxWithdrawalPerPeriod: 0
+            multiTokenConfig: defaultMultiToken4,
+            streamingConfig: defaultStreaming4
         });
+        
+        uint256[] memory nftThresholds4 = new uint256[](1);
+        nftThresholds4[0] = 1;
         
         CookieJarLib.AccessConfig memory accessConfig4 = CookieJarLib.AccessConfig({
             nftAddresses: nftAddresses,
             nftTypes: nftTypes,
+            nftThresholds: nftThresholds4,
             allowlist: new address[](0),
-            poapReq: CookieJarLib.POAPRequirement(0, address(0)),
-            unlockReq: CookieJarLib.UnlockRequirement(address(0)),
-            hypercertReq: CookieJarLib.HypercertRequirement(address(0), 0, 1),
-            hatsReq: CookieJarLib.HatsRequirement(0, address(0))
+            poapReq: CookieJarLib.POAPRequirement({eventId: 0, poapContract: address(0)}),
+            unlockReq: CookieJarLib.UnlockRequirement({lockAddress: address(0), requireValidKey: false}),
+            hypercertReq: CookieJarLib.HypercertRequirement({
+                hypercertContract: address(0), 
+                requiredFractions: 0, 
+                allowedCreators: new address[](0), 
+                tokenId: 0, 
+                tokenContract: address(0), 
+                minBalance: 0
+            }),
+            hatsReq: CookieJarLib.HatsRequirement({hatId: 0, hatsContract: address(0)})
         });
         
-        factory.createCookieJar(params4, accessConfig4);
+        factory.createCookieJar(params4, accessConfig4, defaultMultiToken4, defaultStreaming4);
         
         // Fund the fourth jar with 10K DEMO tokens
-        address fourthJar = factory.getCookieJars()[3];
+        address[] memory allJars4 = factory.getAllJars();
+        address fourthJar = allJars4[3];
         demoToken.approve(fourthJar, 10000 * 10**18);
-        CookieJar(fourthJar).depositCurrency(10000 * 10**18);
+        CookieJar(payable(fourthJar)).depositCurrency(10000 * 10**18);
         console.log("   SUCCESS: Jar 4: NFT Airdrop (NFT-Gated, DEMO, One-time 500) - 10K DEMO funded");
     }
 

@@ -306,6 +306,14 @@ contracts/
 3. Check Foundry installation: `forge --version`
 4. Reinstall dependencies: `rm -rf node_modules */node_modules && pnpm install`
 
+#### Enhanced Features Dependencies
+For full functionality of performance monitoring and advanced UX features:
+```bash
+# Install optional enhancement dependencies
+pnpm add web-vitals lodash date-fns
+pnpm add -D @types/lodash
+```
+
 #### Submodule/Foundry Setup Issues
 1. **Missing forge-std or openzeppelin-contracts**: Run `git submodule update --init --recursive && cd contracts && forge install`
 2. **Git submodule errors**: Ensure git is installed and repository access is working
@@ -339,6 +347,22 @@ tail -f contracts/watch-deploy.log   # Contract watcher logs
 
 # All log files are in contracts/ directory for easy access
 ```
+
+## 🔧 Latest Enhancements
+
+**Performance & UX Improvements**:
+- **Error Boundaries**: Global and protocol-specific error handling
+- **Transaction Retry**: Automatic retry logic with exponential backoff
+- **NFT Caching**: Intelligent LRU cache with block-based invalidation
+- **Mobile UX**: Enhanced forms and touch-optimized interactions
+- **Performance Monitoring**: Core Web Vitals tracking and dashboard
+- **Bundle Optimization**: Code-splitting and lazy loading
+
+**Smart Contract Refactoring**:
+- **Modular Libraries**: Extracted complex logic into reusable libraries
+- **Gas Optimization**: Circular buffers and storage packing
+- **Enhanced Security**: Multi-strategy NFT validation and DoS protection
+- **Streaming Support**: Modular streaming functionality architecture
 
 ## 🎯 Getting Started Guide
 

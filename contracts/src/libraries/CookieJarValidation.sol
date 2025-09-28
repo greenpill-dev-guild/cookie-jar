@@ -50,7 +50,7 @@ library CookieJarValidation {
     }
     
     /// @notice Validates purpose requirement
-    function validatePurpose(bool strictPurpose, string calldata purpose) internal pure {
+    function validatePurpose(bool strictPurpose, string memory purpose) internal pure {
         if (strictPurpose && bytes(purpose).length < 10) {
             revert CookieJarLib.InvalidPurpose();
         }

@@ -70,7 +70,7 @@ client/
 │   │   ├── CountdownTimer.tsx
 │   │   ├── FundingSection.tsx
 │   │   ├── NFTGatedWithdrawalSection.tsx
-│   │   ├── WhitelistWithdrawalSection.tsx
+│   │   ├── AllowlistWithdrawalSection.tsx
 │   │   └── WithdrawlHistorySection.tsx
 │   └── wallet/               # Wallet-related components
 │       ├── custom-connect-button.tsx
@@ -92,7 +92,7 @@ client/
 │   ├── use-cookie-jar.ts     # Jar interaction hook
 │   ├── use-cookie-jar-factory.ts
 │   ├── use-cookie-jar-registry.ts
-│   └── use-whitelist-status.ts
+│   └── use-allowlist-status.ts
 ├── lib/                      # Utility libraries
 │   └── utils/                # Utility functions
 │       ├── format.ts         # Formatting utilities
@@ -155,7 +155,7 @@ The main contract implementing comprehensive jar functionality with multi-protoc
 
 - **Core Features**: Deposits, withdrawals, access control, purpose tracking
 - **Access Types**: Allowlist, NFT-gated, POAP, Unlock Protocol, Hypercerts, Hats Protocol
-- **Withdrawal Methods**: `withdrawAllowlistMode`, `withdrawNFTMode`, `withdrawPOAPMode`, `withdrawUnlockMode`, `withdrawHypercertMode`, `withdrawHatsMode`
+- **Withdrawal Methods**: `withdrawAllowlist`, `withdrawNFTMode`, `withdrawPOAPMode`, `withdrawUnlockMode`, `withdrawHypercertMode`, `withdrawHatsMode`
 - **Protocol Integration**: Built-in support for external protocol verification
 
 ### CookieJarFactory.sol
@@ -170,7 +170,7 @@ Factory contract for creating new CookieJar instances with multi-protocol suppor
 
 Library containing core data structures and constants:
 
-- **Access Types**: `Whitelist`, `NFTGated`, `POAP`, `Unlock`, `Hypercert`, `Hats`
+- **Access Types**: `Allowlist`, `NFTGated`, `POAP`, `Unlock`, `Hypercert`, `Hats`
 - **Protocol Requirements**: Dedicated structs for each protocol's specific needs
 - **Error Handling**: Custom errors for secure transaction processing
 
@@ -201,12 +201,38 @@ npm install
 yarn install
 ```
 
-3. Set up environment variables:
-   Create a `.env.local` file with the following variables:
+3. Set up environment variables (optional - basic development works without):
+   Copy the example environment file and configure:
 
+```bash
+cp ../example.env .env.local
+# Edit .env.local with your actual API keys (optional)
+```
+
+**Required for basic functionality:**
+- None! The app works in development mode without any environment variables.
+
+**Enhanced features (optional):**
 ```plaintext
-NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID=your_wallet_connect_project_id
+# NFT & Metadata Services
 NEXT_PUBLIC_ALCHEMY_API_KEY=your_alchemy_api_key
+NEXT_PUBLIC_OPENSEA_API_KEY=your_opensea_api_key
+NEXT_PUBLIC_MORALIS_API_KEY=your_moralis_api_key
+
+# IPFS Configuration  
+NEXT_PUBLIC_PINATA_JWT=your_pinata_jwt
+
+# Performance Optimization
+NEXT_PUBLIC_NFT_CACHE_DURATION=60
+NEXT_PUBLIC_MAX_NFTS_PER_COLLECTION=1000
+NEXT_PUBLIC_API_RATE_LIMIT=60
+```
+
+**For production deployment:**
+```plaintext
+# Analytics & Monitoring
+NEXT_PUBLIC_SENTRY_DSN=your_sentry_dsn
+NEXT_PUBLIC_ENABLE_NFT_ANALYTICS=true
 ```
 
 4. Run the development server:
@@ -228,7 +254,7 @@ yarn dev
 3. Fill in the jar details:
 
 4. Basic information (name, description, currency)
-5. Access control settings (whitelist or NFT-gated)
+5. Access control settings (allowlist or NFT-gated)
 6. Withdrawal options (fixed or variable, amount, cooldown period)
 7. Additional features (strict purpose, emergency withdrawal)
 
@@ -240,14 +266,14 @@ yarn dev
 As a jar admin, you can:
 
 - Transfer jar ownership
-- Add/remove addresses from whitelist
+- Add/remove addresses from allowlist
 - Add/remove addresses from denylist
 - Add/remove NFT gates
 - Perform emergency withdrawals (if enabled)
 
 ### Using a Cookie Jar
 
-As a whitelisted user or NFT holder, you can:
+As an allowlisted user or NFT holder, you can:
 
 - Deposit funds into the jar
 - Withdraw funds according to the jar's rules

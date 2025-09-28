@@ -12,16 +12,10 @@ import {
   Copy,
   ExternalLink,
   Clock,
-  ArrowUpToLine,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Separator } from "@/components/ui/separator";
 import { formatAddress } from "@/lib/app/utils";
-import { getExplorerAddressUrl } from "@/lib/blockchain/networks";
-import { formatUnits } from "viem";
-import { formatTimeComponents, formatTimeString } from "@/lib/display/time";
 import { formatJarBalance, copyToClipboard } from "@/lib/display/jar-display";
-import { getNativeCurrency } from "@/config/supported-networks";
 import type { JarMetadata } from "@/hooks/jar/useJarMetadata";
 import type { JarPermissions } from "@/hooks/jar/useJarPermissions";
 
@@ -62,7 +56,6 @@ export function JarDetailsCard({
   onEditClick,
   toast,
 }: JarDetailsCardProps) {
-  const nativeCurrency = getNativeCurrency(chainId);
   const { isAdmin, isFeeCollector, showUserFunctions } = permissions;
 
   // Format balance for display
@@ -130,223 +123,69 @@ export function JarDetailsCard({
             </div>
           </div>
 
-          <Separator className="my-2" />
-
-          {/* Jar Details - Key Value Pairs */}
-          <div className="space-y-2">
-            <div className="flex justify-between items-center py-2">
-              <span className="text-[#4a3520] font-medium">
-                Contract Address
-              </span>
-              <div className="flex items-center">
-                <span className="text-[#1a1a1a] font-medium mr-2">
-                  {formatAddress(addressString)}
-                </span>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => copyToClipboard(addressString, toast)}
-                  className="h-7 w-7 text-[#ff5e14] hover:text-[#ff5e14] hover:bg-[#fff0e0]"
-                >
-                  <Copy className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-7 w-7 text-[#ff5e14] hover:text-[#ff5e14] hover:bg-[#fff0e0]"
-                  asChild
-                >
-                  <a
-                    href={getExplorerAddressUrl(addressString, chainId)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    <ExternalLink className="h-4 w-4" />
-                  </a>
-                </Button>
-              </div>
-            </div>
-
-            <Separator />
-
-            <div className="flex justify-between items-center py-2">
-              <span className="text-[#4a3520] font-medium">
-                Access Type
-              </span>
-              <div className="flex items-center">
-                <Users className="h-4 w-4 text-[#ff5e14] mr-2" />
-                <span className="text-[#1a1a1a] font-medium">
-                  {config.accessType}
-                </span>
-              </div>
-            </div>
-
-            <Separator />
-
-            <div className="flex justify-between items-center py-2">
-              <span className="text-[#4a3520] font-medium">
-                Cooldown Period
-              </span>
-              <div className="flex items-center">
-                <Clock className="h-4 w-4 text-[#ff5e14] mr-2" />
-                <span className="text-[#1a1a1a] font-medium">
-                  {config.withdrawalInterval
-                    ? (() => {
-                        const seconds = Number(config.withdrawalInterval);
-                        const {
-                          days,
-                          hours,
-                          minutes,
-                          seconds: secs,
-                        } = formatTimeComponents(seconds);
-                        return formatTimeString(days, hours, minutes, secs);
-                      })()
-                    : "N/A"}
-                </span>
-              </div>
-            </div>
-
-            <Separator />
-
-            <div className="flex justify-between items-center py-2">
-              <span className="text-[#4a3520] font-medium">
-                {config.withdrawalOption === "Fixed"
-                  ? "Fixed Amount"
-                  : "Max Withdrawal"}
-              </span>
-              <div className="flex items-center">
-                <ArrowUpToLine className="h-4 w-4 text-[#ff5e14] mr-2" />
-                <span className="text-[#1a1a1a] font-medium">
-                  {config.withdrawalOption === "Fixed"
-                    ? config.fixedAmount
-                      ? config.currency ===
-                        "0x0000000000000000000000000000000000000003"
-                        ? Number(
-                            formatUnits(config.fixedAmount, 18),
-                          ).toFixed(4) +
-                          " " +
-                          nativeCurrency.symbol
-                        : Number(
-                            formatUnits(
-                              config.fixedAmount,
-                              tokenDecimals,
-                            ),
-                          ).toFixed(4) +
-                          " " +
-                          tokenSymbol
-                      : "N/A"
-                    : config.maxWithdrawal
-                      ? config.currency ===
-                        "0x0000000000000000000000000000000000000003"
-                        ? Number(
-                            formatUnits(config.maxWithdrawal, 18),
-                          ).toFixed(4) +
-                          " " +
-                          nativeCurrency.symbol
-                        : Number(
-                            formatUnits(
-                              config.maxWithdrawal,
-                              tokenDecimals,
-                            ),
-                          ).toFixed(4) +
-                          " " +
-                          tokenSymbol
-                      : "N/A"}
-                </span>
-              </div>
-            </div>
-
-            <Separator />
-
-            <div className="flex justify-between items-center py-2">
-              <span className="text-[#4a3520] font-medium">
-                Current Balance
-              </span>
-              <span className="text-[#ff5e14] font-bold text-xl">
+          {/* SIMPLIFIED: Focus on 5 Essential Details Only */}
+          <div className="bg-gradient-to-r from-[#fff8f0] to-white p-6 rounded-lg mb-4">
+            {/* 1. BALANCE - Most Prominent */}
+            <div className="text-center mb-6">
+              <p className="text-[#4a3520] text-sm mb-1">Available Balance</p>
+              <p className="text-[#ff5e14] font-bold text-3xl">
                 {formattedBalance}
-              </span>
+              </p>
             </div>
 
-            <Separator />
+            {/* 2-5. Key Details Grid */}
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              {/* 2. Access Type */}
+              <div className="flex items-center gap-2">
+                <Users className="h-4 w-4 text-[#ff5e14]" />
+                <div>
+                  <p className="text-[#4a3520] font-medium">Access</p>
+                  <p className="text-[#1a1a1a]">{config.accessType}</p>
+                </div>
+              </div>
 
-            {/* Add Allowlist Status indicator */}
-            <div className="flex justify-between items-center py-2">
-              <span className="text-[#4a3520] font-medium">
-                Your Status
-              </span>
-              <div className="flex items-center">
-                {config.denylist ? (
-                  <span className="font-medium px-3 py-1 rounded-full text-white bg-red-500">
-                    Denylisted
-                  </span>
-                ) : (
-                  <span
-                    className={`font-medium px-3 py-1 rounded-full text-white ${config.allowlist ? "bg-green-500" : "bg-red-500"}`}
-                  >
-                    {config.allowlist
-                      ? "Allowlisted"
-                      : "Not Allowlisted"}
-                  </span>
-                )}
+              {/* 3. Your Status */}
+              <div className="flex items-center gap-2">
+                <ShieldAlert className="h-4 w-4 text-[#ff5e14]" />
+                <div>
+                  <p className="text-[#4a3520] font-medium">Status</p>
+                  <p className={`font-medium ${config.denylist ? "text-red-600" : config.allowlist ? "text-green-600" : "text-red-600"}`}>
+                    {config.denylist ? "Denied" : config.allowlist ? "Authorized" : "Not Authorized"}
+                  </p>
+                </div>
+              </div>
+
+              {/* 4. Withdrawal Rules - Simplified */}
+              <div className="flex items-center gap-2">
+                <Clock className="h-4 w-4 text-[#ff5e14]" />
+                <div>
+                  <p className="text-[#4a3520] font-medium">Rules</p>
+                  <p className="text-[#1a1a1a]">
+                    {config.withdrawalOption === "Fixed" ? "Fixed Amount" : "Variable Amount"}
+                  </p>
+                </div>
+              </div>
+
+              {/* 5. Contract - Minimized */}
+              <div className="flex items-center gap-2">
+                <ExternalLink className="h-4 w-4 text-[#ff5e14]" />
+                <div>
+                  <p className="text-[#4a3520] font-medium">Contract</p>
+                  <div className="flex items-center gap-1">
+                    <p className="text-[#1a1a1a] font-mono text-xs">{formatAddress(addressString)}</p>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => copyToClipboard(addressString, toast)}
+                      className="h-5 w-5 text-[#ff5e14] hover:bg-[#fff0e0] p-0"
+                    >
+                      <Copy className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
-
-            <Separator />
-
-            {/* Feature boxes */}
-            <div className="grid grid-cols-3 gap-2 mt-3">
-              <div className="bg-[#f8f8f8] p-2 rounded-lg text-center">
-                <p className="text-[#4a3520] text-sm mb-1">
-                  Purpose Required
-                </p>
-                <p className="font-semibold text-[#1a1a1a]">
-                  {config.strictPurpose ? "Yes" : "No"}
-                </p>
-              </div>
-
-              <div className="bg-[#f8f8f8] p-2 rounded-lg text-center">
-                <p className="text-[#4a3520] text-sm mb-1">
-                  Fixed Amount
-                </p>
-                <p className="font-semibold text-[#1a1a1a]">
-                  {config.withdrawalOption === "Fixed" ? "Yes" : "No"}
-                  {config.withdrawalOption === "Fixed" &&
-                    config.fixedAmount && (
-                      <span className="block text-xs text-[#ff5e14]">
-                        {config.currency ===
-                        "0x0000000000000000000000000000000000000003"
-                          ? Number(
-                              formatUnits(
-                                config.fixedAmount || BigInt(0),
-                                18,
-                              ),
-                            ).toFixed(4) +
-                            " " +
-                            nativeCurrency.symbol
-                          : Number(
-                              formatUnits(
-                                config.fixedAmount || BigInt(0),
-                                tokenDecimals,
-                              ),
-                            ).toFixed(4) +
-                            " " +
-                            tokenSymbol}
-                      </span>
-                    )}
-                </p>
-              </div>
-
-              <div className="bg-[#f8f8f8] p-2 rounded-lg text-center">
-                <p className="text-[#4a3520] text-sm mb-1">
-                  Emergency Withdrawal
-                </p>
-                <p className="font-semibold text-[#1a1a1a]">
-                  {config.emergencyWithdrawalEnabled
-                    ? "Enabled"
-                    : "Disabled"}
-                </p>
-              </div>
-            </div>
+          </div>
 
             {/* User Status */}
             {(showUserFunctions || isAdmin || isFeeCollector) && (
@@ -395,9 +234,10 @@ export function JarDetailsCard({
                 </div>
               </div>
             )}
-          </div>
         </div>
       </CardContent>
     </Card>
   );
 }
+
+export default JarDetailsCard;
