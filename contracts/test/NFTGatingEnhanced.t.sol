@@ -164,11 +164,12 @@ contract NFTGatingEnhancedTest is Test {
         vm.startPrank(user);
         
         // Should succeed with valid NFT ownership
-        jar.withdrawNFTMode(
+        jar.withdrawWithNFT(
             1 ether,
             "Test basic ERC721 withdrawal",
             address(nft721),
-            tokenId
+            tokenId,
+            CookieJarLib.NFTType.ERC721
         );
         
         vm.stopPrank();
@@ -201,11 +202,12 @@ contract NFTGatingEnhancedTest is Test {
         vm.startPrank(user);
         
         // Should succeed with valid NFT balance
-        jar.withdrawNFTMode(
+        jar.withdrawWithNFT(
             1 ether,
             "Test basic ERC1155 withdrawal",
             address(nft1155),
-            1
+            1,
+            CookieJarLib.NFTType.ERC1155
         );
         
         vm.stopPrank();
@@ -225,11 +227,12 @@ contract NFTGatingEnhancedTest is Test {
         
         // Should fail - user doesn't own the token
         vm.expectRevert(CookieJarLib.NotAuthorized.selector);
-        jar.withdrawNFTMode(
+        jar.withdrawWithNFT(
             1 ether,
             "Test unauthorized withdrawal",
             address(nft721),
-            tokenId
+            tokenId,
+            CookieJarLib.NFTType.ERC721
         );
         
         vm.stopPrank();
@@ -243,23 +246,26 @@ contract NFTGatingEnhancedTest is Test {
         
         // Should fail - user doesn't have the tokens
         vm.expectRevert(CookieJarLib.NotAuthorized.selector);
-        jar.withdrawNFTMode(
+        jar.withdrawWithNFT(
             1 ether,
             "Test unauthorized ERC1155 withdrawal",
             address(nft1155),
-            1
+            1,
+            CookieJarLib.NFTType.ERC1155
         );
         
         vm.stopPrank();
     }
     
+    // NFT gate management tests removed - functionality simplified to direct ownership verification
+    /*
     function test_AddNFTGate() public {
         // Deploy a new NFT contract to add as gate
         MockERC721 newNft = new MockERC721("NewNFT", "NEW");
-        
+
         vm.prank(owner);
         jar.addNFTGate(address(newNft), CookieJarLib.NFTType.ERC721);
-        
+
         // Verify it was added to the gates array
         CookieJarLib.NFTGate[] memory gates = jar.getNFTGatesArray();
         bool found = false;
@@ -272,25 +278,28 @@ contract NFTGatingEnhancedTest is Test {
         }
         assertTrue(found, "New NFT gate should be added to array");
     }
+    */
 
+    // NFT gate management tests removed - functionality simplified
+    /*
     function test_RemoveNFTGate() public {
         // First, add an additional gate
         MockERC721 newNft = new MockERC721("NewNFT", "NEW");
         vm.prank(owner);
         jar.addNFTGate(address(newNft), CookieJarLib.NFTType.ERC721);
-        
+
         // Verify it was added
         CookieJarLib.NFTGate[] memory gatesBefore = jar.getNFTGatesArray();
         uint256 initialCount = gatesBefore.length;
-        
+
         // Remove the original nft721 gate
         vm.prank(owner);
         jar.removeNFTGate(address(nft721));
-        
+
         // Verify it was removed
         CookieJarLib.NFTGate[] memory gatesAfter = jar.getNFTGatesArray();
         assertEq(gatesAfter.length, initialCount - 1, "Gate count should decrease");
-        
+
         // Verify nft721 is no longer in the array
         bool found = false;
         for (uint i = 0; i < gatesAfter.length; i++) {
@@ -301,13 +310,16 @@ contract NFTGatingEnhancedTest is Test {
         }
         assertFalse(found, "Removed NFT gate should not be in array");
     }
+    */
 
+    // NFT gate management tests removed - functionality simplified
+    /*
     function test_RevertWhen_InvalidNFTGate() public {
         // Deploy invalid contract (not an NFT)
         address invalidContract = address(this);
-        
+
         vm.startPrank(user);
-        
+
         // Should fail - invalid NFT gate address
         vm.expectRevert(CookieJarLib.InvalidNFTGate.selector);
         jar.withdrawNFTMode(
@@ -316,9 +328,10 @@ contract NFTGatingEnhancedTest is Test {
             invalidContract,
             1
         );
-        
+
         vm.stopPrank();
     }
+    */
 
     function test_GasConsumptionWithinLimits() public {
         // Fund the jar properly using depositETH (this updates currencyHeldByJar)
@@ -341,11 +354,12 @@ contract NFTGatingEnhancedTest is Test {
         vm.startPrank(user);
         
         uint256 gasStart = gasleft();
-        jar.withdrawNFTMode(
+        jar.withdrawWithNFT(
             1 ether,
             "Test gas consumption",
             address(nft721),
-            tokenId
+            tokenId,
+            CookieJarLib.NFTType.ERC721
         );
         uint256 gasUsed = gasStart - gasleft();
         

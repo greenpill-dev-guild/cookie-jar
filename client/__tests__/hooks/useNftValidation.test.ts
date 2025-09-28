@@ -1,5 +1,6 @@
 // Test for useNFTValidation hook
 import "@testing-library/jest-dom";
+import { useNFTValidation } from "@/hooks/nft/useNFTValidation";
 
 // Declare Jest globals for TypeScript
 declare const describe: any;
@@ -41,8 +42,7 @@ describe("useNFTValidation Hook Logic", () => {
         isValid: false,
         detectedType: null,
         isLoading: false,
-        error:
-          "Failed to validate contract. Not a valid NFT contract or network error.",
+        error: "Failed to validate contract",
       };
     }
 

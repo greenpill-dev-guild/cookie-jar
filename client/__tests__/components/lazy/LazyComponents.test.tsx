@@ -18,16 +18,22 @@ vi.mock('@/components/jar/JarStreamingTab', () => ({
 }))
 
 vi.mock('@/components/jar/StreamingPanel', () => ({
-  default: ({ jarAddress }: { jarAddress: string }) => (
-    <div data-testid="streaming-panel">StreamingPanel: {jarAddress}</div>
+  StreamingPanel: ({ onClose }: { onClose?: () => void }) => (
+    <div data-testid="streaming-panel">
+      <h2>Streaming Panel</h2>
+      <button onClick={onClose}>Close</button>
+    </div>
   )
-}))
+}), { virtual: true })
 
 vi.mock('@/components/jar/TokenRecoveryPanel', () => ({
-  default: ({ jarAddress }: { jarAddress: string }) => (
-    <div data-testid="token-recovery-panel">TokenRecoveryPanel: {jarAddress}</div>
+  TokenRecoveryPanel: ({ onClose }: { onClose?: () => void }) => (
+    <div data-testid="token-recovery-panel">
+      <h2>Token Recovery Panel</h2>
+      <button onClick={onClose}>Close</button>
+    </div>
   )
-}))
+}), { virtual: true })
 
 vi.mock('@/components/nft/ProtocolSelector', () => ({
   ProtocolSelector: ({ onConfigChange }: { onConfigChange: (config: any) => void }) => (
@@ -301,8 +307,8 @@ describe('Real-world Usage Scenarios', () => {
     )
 
     const { rerender } = render(<TestPage showStreaming={false} />)
-    
-    expect(screen.getByText('Loading protocol selector...')).toBeInTheDocument()
+
+    expect(screen.getByTestId('protocol-selector')).toBeInTheDocument()
 
     // Switch to streaming
     rerender(<TestPage showStreaming={true} />)

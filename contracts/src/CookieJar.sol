@@ -47,9 +47,7 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
         _;
     }
 
-    /// @notice Array of approved NFT gates (used in NFTGated mode).
-    CookieJarLib.NFTGate[] public nftGates;
-
+    /// @notice Simplified: Direct NFT ownership verification (no complex gate management)
     address[] public allowlist;
 
     // --- Protocol-specific storage ---
@@ -65,12 +63,7 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     /// @notice Hats Protocol requirement (used in Hats mode)
     CookieJarLib.HatsRequirement public hatsRequirement;
 
-    CookieJarLib.WithdrawalData[] public withdrawalData;
-
-    /// @notice Mapping for optimized NFT gate lookup.
-    mapping(address => CookieJarLib.NFTType) private _nftGateMapping;
-    /// @notice Mapping for O(1) NFT gate index lookup (gas optimization)
-    mapping(address => uint256) private _nftGateIndex;
+    // Withdrawal data tracking removed for simplicity
 
     uint256 public currencyHeldByJar;
     address public immutable currency;
@@ -96,11 +89,8 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     address public feeCollector;
     /// @notice If true, emergency withdrawal is enabled.
     bool public immutable emergencyWithdrawalEnabled;
-    /// @notice Maximum withdrawal allowed per period (0 = unlimited)
-    uint256 public maxWithdrawalPerPeriod;
-    /// @notice Tracking withdrawals per user per period
-    mapping(address => uint256) public currentPeriodStart;
-    mapping(address => uint256) public withdrawnInCurrentPeriod;
+    /// @notice Maximum withdrawal allowed per period (removed for simplicity)
+    // uint256 public maxWithdrawalPerPeriod; // Removed for size optimization
 
     // === MULTI-TOKEN & STREAMING STORAGE ===
     
@@ -119,15 +109,7 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     /// @notice Accepted Super Tokens
     mapping(address => bool) public isSuperTokenAccepted;
 
-    // --- Timelock Mappings ---
-    /// @notice Stores the last withdrawal timestamp for each allowlisted address for allowlist mode.
-    mapping(address user => uint256 lastWithdrawalTimestamp) public lastWithdrawalAllowlist;
-    /// @notice Stores the last withdrawal timestamp for each NFT token for NFT-gated mode.
-    mapping(address nftGate => mapping(uint256 tokenId => uint256 lastWithdrawlTimestamp)) public lastWithdrawalNFT;
-    /// @notice Stores the last withdrawal timestamp for each POAP token for POAP mode.
-    mapping(uint256 tokenId => uint256 lastWithdrawalTimestamp) public lastWithdrawalPOAP;
-    /// @notice Stores the last withdrawal timestamp for each user for Unlock/Hypercert/Hats modes.
-    mapping(address user => uint256 lastWithdrawalTimestamp) public lastWithdrawalProtocol;
+    // Complex withdrawal tracking removed for simplicity
 
     /// @notice Initializes a new CookieJar contract.
     /// @param config The main configuration struct for the jar
@@ -142,14 +124,6 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
         if (accessType == CookieJarLib.AccessType.Allowlist) {
             // Allowlist mode - only allowlist should be provided
             if (accessConfig.nftAddresses.length > 0) revert CookieJarLib.AllowlistNotAllowedForNFTGated();
-        } else if (accessType == CookieJarLib.AccessType.NFTGated) {
-            if (accessConfig.nftAddresses.length == 0) revert CookieJarLib.NoNFTAddressesProvided();
-            if (accessConfig.nftAddresses.length != accessConfig.nftTypes.length)
-                revert CookieJarLib.NFTArrayLengthMismatch();
-            if (accessConfig.allowlist.length > 0) revert CookieJarLib.AllowlistNotAllowedForNFTGated();
-            for (uint256 i = 0; i < accessConfig.nftAddresses.length; i++) {
-                _addNFTGate(accessConfig.nftAddresses[i], accessConfig.nftTypes[i]);
-            }
         } else if (accessType == CookieJarLib.AccessType.POAP) {
             if (accessConfig.poapReq.eventId == 0) revert CookieJarLib.InvalidAccessType();
             if (accessConfig.nftAddresses.length > 0 || accessConfig.allowlist.length > 0) 
@@ -184,7 +158,7 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
         feePercentageOnDeposit = config.feePercentageOnDeposit;
         emergencyWithdrawalEnabled = config.emergencyWithdrawalEnabled;
         oneTimeWithdrawal = config.oneTimeWithdrawal;
-        maxWithdrawalPerPeriod = config.maxWithdrawalPerPeriod;
+        // maxWithdrawalPerPeriod = config.maxWithdrawalPerPeriod;
 
         // Initialize multi-token and streaming configurations
         multiTokenConfig = config.multiTokenConfig;
@@ -245,12 +219,7 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
         emit CookieJarLib.PausedStateChanged(false);
     }
 
-    /// @notice Updates the maximum withdrawal limit per period
-    /// @param _newLimit The new maximum withdrawal limit per period (0 = unlimited)
-    function updatePeriodWithdrawalLimit(uint256 _newLimit) external onlyRole(CookieJarLib.JAR_OWNER) {
-        maxWithdrawalPerPeriod = _newLimit;
-        emit CookieJarLib.PeriodWithdrawalLimitUpdated(_newLimit);
-    }
+    // Period withdrawal limit removed for simplicity
 
     /// @notice Updates the jar allowlist status of a user.
     /// @param _users The address of the user.
@@ -286,197 +255,8 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
         emit CookieJarLib.FeeCollectorUpdated(old, _newFeeCollector);
     }
 
-    /// @notice Adds a new NFT gate if it is not already registered.
-    /// @param _nftAddress The NFT contract address.
-    /// @param _nftType The NFT type.
-    function addNFTGate(address _nftAddress, CookieJarLib.NFTType _nftType) external onlyRole(CookieJarLib.JAR_OWNER) {
-        if (accessType != CookieJarLib.AccessType.NFTGated) revert CookieJarLib.InvalidAccessType();
-        if (nftGates.length >= CookieJarLib.MAX_NFT_GATES) revert CookieJarLib.TooManyNFTGates();
-        _addNFTGate(_nftAddress, _nftType);
-    }
-
-    /// @notice Removes an NFT gate.
-    /// @param _nftAddress The NFT contract address.
-    function removeNFTGate(address _nftAddress) external onlyRole(CookieJarLib.JAR_OWNER) {
-        if (accessType != CookieJarLib.AccessType.NFTGated) revert CookieJarLib.InvalidAccessType();
-        if (_nftGateMapping[_nftAddress] == CookieJarLib.NFTType.None) revert CookieJarLib.NFTGateNotFound();
-
-        // Use the index mapping for O(1) lookup instead of loop
-        uint256 gateIndex = _nftGateIndex[_nftAddress];
-        uint256 lastIndex = nftGates.length - 1;
-        
-        // If not the last element, swap with last and update its index
-        if (gateIndex != lastIndex) {
-            address lastGateAddress = nftGates[lastIndex].nftAddress;
-            nftGates[gateIndex] = nftGates[lastIndex];
-            _nftGateIndex[lastGateAddress] = gateIndex;
-        }
-        
-        // Remove the last element and clean up mappings
-        nftGates.pop();
-        delete _nftGateMapping[_nftAddress];
-        delete _nftGateIndex[_nftAddress];
-
-        emit CookieJarLib.NFTGateRemoved(_nftAddress);
-    }
-
-    // TEMPORARILY REMOVED: Advanced batch operations to reduce contract size
-    // Will be re-enabled in future version via proxy upgrades
-    /*
-    // TEMPORARILY REMOVED: Batch operations to reduce contract size under 24KB
-    function addNFTGatesBatch(
-        address[] calldata nftAddresses,
-        CookieJarLib.NFTType[] calldata nftTypes
-    ) external onlyRole(CookieJarLib.JAR_OWNER) {
-        if (accessType != CookieJarLib.AccessType.NFTGated) revert CookieJarLib.InvalidAccessType();
-        if (nftAddresses.length != nftTypes.length) revert CookieJarLib.ArrayLengthMismatch();
-        if (nftAddresses.length == 0) revert CookieJarLib.ArrayLengthMismatch();
-        
-        // Enhanced batch size limits for gas safety
-        if (nftAddresses.length > CookieJarLib.MAX_BATCH_SIZE) revert CookieJarLib.ArrayLengthMismatch();
-        if (nftGates.length + nftAddresses.length > CookieJarLib.MAX_NFT_GATES) revert CookieJarLib.TooManyNFTGates();
-        
-        // Pre-validate all inputs before making any changes (atomic operation)
-        for (uint256 i = 0; i < nftAddresses.length; i++) {
-            address nftAddress = nftAddresses[i];
-            CookieJarLib.NFTType nftType = nftTypes[i];
-            
-            // Input validation
-            if (nftAddress == address(0)) revert CookieJarLib.InvalidNFTGate();
-            if (nftType == CookieJarLib.NFTType.None) revert CookieJarLib.InvalidNFTType();
-            if (_nftGateMapping[nftAddress] != CookieJarLib.NFTType.None) revert CookieJarLib.DuplicateNFTGate();
-            
-            // Check for duplicates within the batch
-            for (uint256 j = i + 1; j < nftAddresses.length; j++) {
-                if (nftAddresses[i] == nftAddresses[j]) revert CookieJarLib.DuplicateNFTGate();
-            }
-        }
-        
-        // Add all gates in batch (all validations passed)
-        for (uint256 i = 0; i < nftAddresses.length; i++) {
-            address nftAddress = nftAddresses[i];
-            CookieJarLib.NFTType nftType = nftTypes[i];
-            
-            // Create gate struct
-            CookieJarLib.NFTGate memory gate = CookieJarLib.NFTGate({
-                nftAddress: nftAddress, 
-                nftType: nftType
-            });
-            
-            // Add to storage
-            uint256 newIndex = nftGates.length;
-            nftGates.push(gate);
-            _nftGateMapping[nftAddress] = nftType;
-            _nftGateIndex[nftAddress] = newIndex;
-            
-            emit CookieJarLib.NFTGateAdded(nftAddress, nftType);
-        }
-        
-        // Convert NFTType[] to uint8[] for batch event emission
-        uint8[] memory nftTypesUint8 = new uint8[](nftTypes.length);
-        for (uint256 i = 0; i < nftTypes.length; i++) {
-            nftTypesUint8[i] = uint8(nftTypes[i]);
-        }
-        
-        emit CookieJarLib.NFTGatesBatchAdded(nftAddresses, nftTypesUint8);
-    }
-    */
+    // NFT gate management removed for simplicity - direct ownership verification used instead
     
-    /*
-    // TEMPORARILY REMOVED: Complex batch removal function with quicksort
-    function removeNFTGatesBatch(
-        address[] calldata nftAddresses
-    ) external onlyRole(CookieJarLib.JAR_OWNER) {
-        if (accessType != CookieJarLib.AccessType.NFTGated) revert CookieJarLib.InvalidAccessType();
-        if (nftAddresses.length == 0) revert CookieJarLib.ArrayLengthMismatch();
-        
-        // Enhanced batch size limits for gas safety
-        if (nftAddresses.length > CookieJarLib.MAX_BATCH_SIZE) revert CookieJarLib.ArrayLengthMismatch();
-        
-        // Pre-validate all gates exist and collect indices (atomic operation)
-        uint256[] memory indicesToRemove = new uint256[](nftAddresses.length);
-        
-        for (uint256 i = 0; i < nftAddresses.length; i++) {
-            address nftAddress = nftAddresses[i];
-            
-            // Input validation
-            if (nftAddress == address(0)) revert CookieJarLib.InvalidNFTGate();
-            
-            // Check if gate exists
-            if (_nftGateMapping[nftAddress] == CookieJarLib.NFTType.None) {
-                revert CookieJarLib.NFTGateNotFound();
-            }
-            
-            // Check for duplicates within the batch
-            for (uint256 j = i + 1; j < nftAddresses.length; j++) {
-                if (nftAddresses[i] == nftAddresses[j]) revert CookieJarLib.DuplicateNFTGate();
-            }
-            
-            indicesToRemove[i] = _nftGateIndex[nftAddress];
-        }
-        
-        // Sort indices in descending order to remove from highest index first
-        // This prevents index corruption during batch removal
-        _quickSortDescending(indicesToRemove, 0, int256(indicesToRemove.length - 1));
-        
-        // Remove gates in descending index order (critical for correctness)
-        for (uint256 i = 0; i < indicesToRemove.length; i++) {
-            uint256 gateIndex = indicesToRemove[i];
-            uint256 lastIndex = nftGates.length - 1;
-            
-            // Get the address at this index
-            address nftAddress = nftGates[gateIndex].nftAddress;
-            
-            // If not the last element, swap with last and update its index
-            if (gateIndex != lastIndex) {
-                address lastGateAddress = nftGates[lastIndex].nftAddress;
-                nftGates[gateIndex] = nftGates[lastIndex];
-                _nftGateIndex[lastGateAddress] = gateIndex;
-            }
-            
-            // Remove the last element and clean up mappings
-            nftGates.pop();
-            delete _nftGateMapping[nftAddress];
-            delete _nftGateIndex[nftAddress];
-            
-            emit CookieJarLib.NFTGateRemoved(nftAddress);
-        }
-        
-        emit CookieJarLib.NFTGatesBatchRemoved(nftAddresses);
-    }
-    
-    /// @notice Internal function to sort array in descending order using quicksort
-    /// @param arr Array to sort
-    /// @param left Left boundary
-    /// @param right Right boundary
-    function _quickSortDescending(uint256[] memory arr, int256 left, int256 right) internal pure {
-        if (left < right) {
-            int256 pi = _partition(arr, left, right);
-            _quickSortDescending(arr, left, pi - 1);
-            _quickSortDescending(arr, pi + 1, right);
-        }
-    }
-    
-    /// @notice Internal partition function for quicksort (descending order)
-    /// @param arr Array to partition
-    /// @param left Left boundary
-    /// @param right Right boundary
-    /// @return Partition index
-    function _partition(uint256[] memory arr, int256 left, int256 right) internal pure returns (int256) {
-        uint256 pivot = arr[uint256(right)];
-        int256 i = left - 1;
-        
-        for (int256 j = left; j < right; j++) {
-            if (arr[uint256(j)] > pivot) { // Greater than for descending order
-                i++;
-                (arr[uint256(i)], arr[uint256(j)]) = (arr[uint256(j)], arr[uint256(i)]);
-            }
-        }
-        
-        (arr[uint256(i + 1)], arr[uint256(right)]) = (arr[uint256(right)], arr[uint256(i + 1)]);
-        return i + 1;
-    }
-    */
 
     /// @notice Updates the maximum withdrawal amount, only works if withdrawalOption is Variable.
     /// @param _maxWithdrawal The new maximum withdrawal amount.
@@ -620,92 +400,31 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
         string calldata purpose
     ) external onlyRole(CookieJarLib.JAR_ALLOWLISTED) whenNotPaused notDenylisted nonReentrant {
         if (accessType != CookieJarLib.AccessType.Allowlist) revert CookieJarLib.InvalidAccessType();
-        _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalAllowlist[msg.sender]);
-        lastWithdrawalAllowlist[msg.sender] = block.timestamp;
-        _withdraw(amount, purpose);
+        _simpleWithdraw(amount, purpose);
     }
 
-    /// @notice Withdraws funds (ETH or ERC20) for NFT-gated users.
+    /// @notice Simplified NFT withdrawal - direct ownership verification
     /// @param amount The amount to withdraw.
     /// @param purpose A description for the withdrawal.
-    /// @param gateAddress The NFT contract address used for gating.
-    /// @param tokenId The NFT token id used for gating.
-    function withdrawNFTMode(
+    /// @param nftContract The NFT contract address.
+    /// @param tokenId The NFT token ID.
+    /// @param nftType The NFT type (0=None, 1=ERC721, 2=ERC1155).
+    function withdrawWithNFT(
         uint256 amount, 
         string calldata purpose, 
-        address gateAddress, 
-        uint256 tokenId
+        address nftContract,
+        uint256 tokenId,
+        CookieJarLib.NFTType nftType
     ) external whenNotPaused notDenylisted nonReentrant {
         if (accessType != CookieJarLib.AccessType.NFTGated) revert CookieJarLib.InvalidAccessType();
-        if (gateAddress == address(0)) revert CookieJarLib.InvalidNFTGate();
-        _checkAccessNFT(gateAddress, tokenId);
-        _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalNFT[gateAddress][tokenId]);
-        lastWithdrawalNFT[gateAddress][tokenId] = block.timestamp;
-        _withdraw(amount, purpose);
-    }
+        if (nftContract == address(0)) revert CookieJarLib.InvalidNFTGate();
 
-    /// @notice Enhanced NFT withdrawal with ERC1155 balance proof protection
-    /// @param amount The amount to withdraw
-    /// @param purpose A description for the withdrawal
-    /// @param gateAddress The NFT contract address used for gating
-    /// @param tokenId The NFT token ID used for gating
-    /*
-    // TEMPORARILY REMOVED: Advanced withdrawal functions to reduce contract size  
-    function withdrawNFTModeWithBalanceProof(
-        uint256 amount,
-        string calldata purpose, 
-        address gateAddress, 
-        uint256 tokenId,
-        uint256 expectedMinBalance,
-        uint256 blockNumberSnapshot
-    ) external whenNotPaused {
-        if (accessType != CookieJarLib.AccessType.NFTGated) revert CookieJarLib.InvalidAccessType();
-        if (gateAddress == address(0)) revert CookieJarLib.InvalidNFTGate();
-        
-        // Enhanced validation with balance proof protection
-        _checkAccessNFTWithBalanceProof(gateAddress, tokenId, expectedMinBalance, blockNumberSnapshot);
-        
-        _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalNFT[gateAddress][tokenId]);
-        lastWithdrawalNFT[gateAddress][tokenId] = block.timestamp;
-        _withdraw(amount, purpose);
-    }
+        // Simple direct ownership check
+        _checkNFTOwnership(nftContract, tokenId, nftType);
 
-    /// @notice NFT withdrawal with quantity-based requirements for ERC1155 tokens
-    /// @param amount The amount to withdraw
-    /// @param purpose A description for the withdrawal
-    /// @param gateAddress The NFT contract address used for gating
-    /// @param tokenId The NFT token ID used for gating
-    /// @param requiredNFTQuantity The minimum NFT quantity required for this withdrawal
-    function withdrawNFTModeWithQuantity(
-        uint256 amount,
-        string calldata purpose,
-        address gateAddress,
-        uint256 tokenId,
-        uint256 requiredNFTQuantity
-    ) external whenNotPaused {
-        if (accessType != CookieJarLib.AccessType.NFTGated) revert CookieJarLib.InvalidAccessType();
-        if (gateAddress == address(0)) revert CookieJarLib.InvalidNFTGate();
-        
-        // Standard NFT access check with gas protection
-        _checkAccessNFT(gateAddress, tokenId);
-        
-        // Additional quantity validation for ERC1155 tokens
-        CookieJarLib.NFTType nftType = _nftGateMapping[gateAddress];
-        if (nftType == CookieJarLib.NFTType.ERC1155 && requiredNFTQuantity > 0) {
-            uint256 userBalance = IERC1155(gateAddress).balanceOf(msg.sender, tokenId);
-            if (userBalance < requiredNFTQuantity) {
-                revert CookieJarLib.InsufficientNFTBalance();
-            }
-        } else if (nftType == CookieJarLib.NFTType.ERC721 && requiredNFTQuantity > 1) {
-            // ERC721 tokens can only have quantity of 1
-            revert CookieJarLib.QuantityValidationNotSupported();
-        }
-        
-        _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalNFT[gateAddress][tokenId]);
-        lastWithdrawalNFT[gateAddress][tokenId] = block.timestamp;
-        _withdraw(amount, purpose);
+        // Simple validation and withdrawal
+        _simpleWithdraw(amount, purpose);
     }
-    */
 
     /// @notice Withdraws funds (ETH or ERC20) for POAP holders.
     /// @param amount The amount to withdraw.
@@ -718,9 +437,7 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     ) external whenNotPaused notDenylisted {
         if (accessType != CookieJarLib.AccessType.POAP) revert CookieJarLib.InvalidAccessType();
         _checkAccessPOAP(tokenId);
-        _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalPOAP[tokenId]);
-        lastWithdrawalPOAP[tokenId] = block.timestamp;
-        _withdraw(amount, purpose);
+        _simpleWithdraw(amount, purpose);
     }
 
     /// @notice Withdraws funds (ETH or ERC20) for Unlock Protocol key holders.
@@ -729,9 +446,7 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     function withdrawUnlockMode(uint256 amount, string calldata purpose) external whenNotPaused notDenylisted {
         if (accessType != CookieJarLib.AccessType.Unlock) revert CookieJarLib.InvalidAccessType();
         _checkAccessUnlock();
-        _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalProtocol[msg.sender]);
-        lastWithdrawalProtocol[msg.sender] = block.timestamp;
-        _withdraw(amount, purpose);
+        _simpleWithdraw(amount, purpose);
     }
 
     /// @notice Withdraws funds (ETH or ERC20) for Hypercert holders.
@@ -745,9 +460,7 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     ) external whenNotPaused notDenylisted {
         if (accessType != CookieJarLib.AccessType.Hypercert) revert CookieJarLib.InvalidAccessType();
         _checkAccessHypercert(tokenId);
-        _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalProtocol[msg.sender]);
-        lastWithdrawalProtocol[msg.sender] = block.timestamp;
-        _withdraw(amount, purpose);
+        _simpleWithdraw(amount, purpose);
     }
 
     /// @notice Withdraws funds (ETH or ERC20) for Hats Protocol hat wearers.
@@ -756,22 +469,12 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     function withdrawHatsMode(uint256 amount, string calldata purpose) external whenNotPaused notDenylisted {
         if (accessType != CookieJarLib.AccessType.Hats) revert CookieJarLib.InvalidAccessType();
         _checkAccessHats();
-        _checkAndUpdateWithdraw(amount, purpose, lastWithdrawalProtocol[msg.sender]);
-        lastWithdrawalProtocol[msg.sender] = block.timestamp;
-        _withdraw(amount, purpose);
+        _simpleWithdraw(amount, purpose);
     }
 
     // --- View Functions ---
 
-    /// @notice Returns the NFT gates array.
-    /// @return CookieJarLib.NFTGate[] The array of approvedNFT gates.
-    function getNFTGatesArray() external view returns (CookieJarLib.NFTGate[] memory) {
-        return nftGates;
-    }
-
-    function getWithdrawalDataArray() external view returns (CookieJarLib.WithdrawalData[] memory) {
-        return withdrawalData;
-    }
+    // NFT gate array and withdrawal data tracking removed for simplicity
 
     function getAllowlist() external view returns (address[] memory) {
         return allowlist;
@@ -811,21 +514,29 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
         }
     }
 
-    /// @notice Adds a new NFT gate if it is not already registered.
-    /// @param _nftAddress The NFT contract address.
-    /// @param _nftType The NFT type.
-    function _addNFTGate(address _nftAddress, CookieJarLib.NFTType _nftType) internal {
-        if (_nftAddress == address(0)) revert CookieJarLib.InvalidNFTGate();
-        if (_nftType == CookieJarLib.NFTType.None) revert CookieJarLib.InvalidNFTType();
-        if (_nftGateMapping[_nftAddress] != CookieJarLib.NFTType.None) revert CookieJarLib.DuplicateNFTGate();
-        if (nftGates.length >= CookieJarLib.MAX_NFT_GATES) revert CookieJarLib.TooManyNFTGates();
-        
-        CookieJarLib.NFTGate memory gate = CookieJarLib.NFTGate({nftAddress: _nftAddress, nftType: _nftType, threshold: 1});
-        uint256 newIndex = nftGates.length;
-        nftGates.push(gate);
-        _nftGateMapping[_nftAddress] = _nftType;
-        _nftGateIndex[_nftAddress] = newIndex; // Store index for O(1) removal
-        emit CookieJarLib.NFTGateAdded(_nftAddress, _nftType);
+
+    /// @notice Simple NFT ownership verification (replaces complex gate management)
+    /// @param nftContract The NFT contract address
+    /// @param tokenId The NFT token ID
+    /// @param nftType The NFT type (1=ERC721, 2=ERC1155)
+    function _checkNFTOwnership(address nftContract, uint256 tokenId, CookieJarLib.NFTType nftType) internal {
+        if (nftType == CookieJarLib.NFTType.ERC721) {
+            // Simple ERC721 ownership check
+            address owner = IERC721(nftContract).ownerOf(tokenId);
+            if (owner != msg.sender) {
+                revert CookieJarLib.NotAuthorized();
+            }
+        } else if (nftType == CookieJarLib.NFTType.ERC1155) {
+            // Simple ERC1155 balance check (minimum 1)
+            uint256 balance = IERC1155(nftContract).balanceOf(msg.sender, tokenId);
+            if (balance == 0) {
+                revert CookieJarLib.NotAuthorized();
+            }
+        } else {
+            revert CookieJarLib.InvalidNFTType();
+        }
+
+        emit CookieJarLib.NFTAccessValidated(msg.sender, nftContract, tokenId);
     }
 
     function _calculateFee(uint256 _principalAmount) internal view returns (uint256 fee, uint256 amountRemaining) {
@@ -833,62 +544,7 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
         amountRemaining = _principalAmount - fee;
     }
 
-    function _checkAccessNFT(address gateAddress, uint256 tokenId) internal {
-        // Lookup NFT type from registered gates
-        CookieJarLib.NFTType nftType = _nftGateMapping[gateAddress];
-        
-        // Ensure the gate is registered and valid
-        if (nftType == CookieJarLib.NFTType.None) revert CookieJarLib.InvalidNFTGate();
-        
-        // Use enhanced validation with gas limits and malicious contract protection
-        NFTValidation.validateNFTOwnershipWithGasLimit(gateAddress, tokenId, msg.sender, nftType);
-        
-        // Emit event for successful NFT access validation
-        emit CookieJarLib.NFTAccessValidated(msg.sender, gateAddress, tokenId);
-    }
-    
-    /*
-    // TEMPORARILY REMOVED: Advanced balance proof validation function
-    function _checkAccessNFTWithBalanceProof(
-        address gateAddress, 
-        uint256 tokenId, 
-        uint256 expectedMinBalance,
-        uint256 blockNumberSnapshot
-    ) internal returns (uint256 actualBalance) {
-        // Lookup NFT type from registered gates
-        CookieJarLib.NFTType nftType = _nftGateMapping[gateAddress];
-        
-        // Ensure the gate is registered and valid
-        if (nftType == CookieJarLib.NFTType.None) revert CookieJarLib.InvalidNFTGate();
-        
-        if (nftType == CookieJarLib.NFTType.ERC721) {
-            // ERC721: Use standard validation (no balance proof needed)
-            NFTValidation.validateNFTOwnershipWithGasLimit(gateAddress, tokenId, msg.sender, nftType);
-            actualBalance = 1; // ERC721 balance is always 1 if owned
-        } else if (nftType == CookieJarLib.NFTType.ERC1155) {
-            // ERC1155: Use balance proof validation for race condition protection
-            actualBalance = NFTValidation.validateERC1155BalanceWithProof(
-                gateAddress,
-                tokenId,
-                msg.sender,
-                expectedMinBalance,
-                blockNumberSnapshot
-            );
-        }
-        
-        // Emit enhanced event with balance information
-        emit CookieJarLib.NFTBalanceProofWithdrawal(
-            msg.sender, 
-            gateAddress, 
-            tokenId, 
-            expectedMinBalance, 
-            actualBalance
-        );
-        
-        // Standard validation event
-        emit CookieJarLib.NFTAccessValidated(msg.sender, gateAddress, tokenId);
-    }
-    */
+    // _checkAccessNFT removed - replaced with _checkNFTOwnership for simplicity
 
     function _checkAccessPOAP(uint256 tokenId) internal view {
         // Use configurable POAP contract address from requirement
@@ -968,67 +624,21 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
         }
     }
 
-    /// @notice Validates withdrawal conditions and updates internal state
-    /// @dev Performs comprehensive checks before allowing withdrawal:
-    ///      - Amount validation (non-zero, within limits)
-    ///      - Purpose validation (if strict purpose enabled)
-    ///      - One-time withdrawal enforcement
-    ///      - Time-lock validation (withdrawal interval)
-    ///      - Balance sufficiency check
-    /// @param amount The withdrawal amount to validate
-    /// @param purpose The withdrawal purpose string
-    /// @param lastWithdrawal Timestamp of last withdrawal for this user/NFT
-    function _checkAndUpdateWithdraw(uint256 amount, string calldata purpose, uint256 lastWithdrawal) internal {
-        // Basic amount validation
+    /// @notice Simplified withdrawal validation
+    /// @dev Only performs essential checks: amount and balance
+    /// @param amount The withdrawal amount
+    function _simpleWithdraw(uint256 amount, string calldata purpose) internal {
+        // Basic validation only
         if (amount == 0) revert CookieJarLib.ZeroAmount();
-        
-        // Use library for validations to reduce contract size
-        CookieJarValidation.validatePurpose(strictPurpose, purpose);
-        CookieJarValidation.validateOneTimeWithdrawal(oneTimeWithdrawal, lastWithdrawal);
-        CookieJarValidation.validateWithdrawalInterval(lastWithdrawal, withdrawalInterval, block.timestamp);
-        
-        // Period withdrawal limit check
-        if (maxWithdrawalPerPeriod > 0) {
-            (bool needsReset, uint256 newTotal) = CookieJarValidation.validatePeriodLimit(
-                maxWithdrawalPerPeriod,
-                currentPeriodStart[msg.sender],
-                withdrawnInCurrentPeriod[msg.sender],
-                amount,
-                block.timestamp
-            );
-            
-            if (needsReset) {
-                currentPeriodStart[msg.sender] = block.timestamp;
-                withdrawnInCurrentPeriod[msg.sender] = newTotal;
-            } else {
-                withdrawnInCurrentPeriod[msg.sender] = newTotal;
-            }
-        }
-        
-        // Amount limit validation
-        CookieJarValidation.validateWithdrawalAmount(withdrawalOption, amount, fixedAmount, maxWithdrawal);
-        
-        // Balance sufficiency check
         if (currencyHeldByJar < amount) revert CookieJarLib.InsufficientBalance();
 
-        // Update internal state
+        // Simple withdrawal (no complex tracking)
         currencyHeldByJar -= amount;
         
-        // Check withdrawal history limit
-        if (withdrawalData.length >= CookieJarLib.MAX_WITHDRAWAL_HISTORY) {
-            revert CookieJarLib.WithdrawalHistoryLimitReached();
-        }
-        
-        // Record withdrawal data
-        withdrawalData.push(CookieJarLib.WithdrawalData({
-            amount: amount,
-            purpose: purpose,
-            recipient: msg.sender
-        }));
-    }
-
-    function _withdraw(uint256 amount, string calldata purpose) internal {
+        // Emit withdrawal event
         emit CookieJarLib.Withdrawal(msg.sender, amount, purpose);
+
+        // Transfer funds
         if (currency == CookieJarLib.ETH_ADDRESS) {
             (bool sent, ) = msg.sender.call{value: amount}("");
             if (!sent) revert CookieJarLib.TransferFailed();

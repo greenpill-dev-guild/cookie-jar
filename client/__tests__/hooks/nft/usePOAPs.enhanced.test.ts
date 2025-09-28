@@ -5,16 +5,13 @@ import React from 'react';
 import config from '../../../config/wagmi.config';
 import { usePOAPs, POAPEvent, UserPOAP } from '../../../hooks/nft/usePOAPs';
 
-// Mock the POAP provider
-const mockPoapProvider = {
-  getUserPOAPs: vi.fn(),
-  getEvent: vi.fn(),
-  searchEvents: vi.fn(),
-  userHasEvent: vi.fn(),
-};
-
 vi.mock('../../../lib/nft/protocols/POAPProvider', () => ({
-  poapProvider: mockPoapProvider,
+  poapProvider: {
+    getUserPOAPs: vi.fn(),
+    getEvent: vi.fn(),
+    searchEvents: vi.fn(),
+    userHasEvent: vi.fn(),
+  },
   POAPEvent: {},
   POAPToken: {},
 }));

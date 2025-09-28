@@ -3,6 +3,21 @@ import { renderHook, waitFor, act } from "@testing-library/react";
 import { vi } from "vitest";
 import React from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+
+// Mock the deployments.auto module first
+vi.mock('@/config/deployments.auto', () => ({
+  isV2Chain: vi.fn().mockReturnValue(true),
+  DEPLOYMENTS: {
+    31337: {
+      chainId: 31337,
+      factoryAddress: "0xa2Cc1f3479E194B1aa16BeCc975aA25618f8d3AD",
+      isV2: true,
+      blockNumber: 0,
+      timestamp: 1759019328
+    }
+  }
+}));
+
 import { useJarCreation } from "@/hooks/jar/useJarCreation";
 
 // Mock wagmi hooks
@@ -97,10 +112,20 @@ describe("useJarCreation", () => {
     });
 
     it("should detect v2 contracts correctly", () => {
-      // Mock Anvil chain (31337) as v2
-      vi.mocked(vi.fn()).mockReturnValue(31337);
-      vi.mocked(require("@/config/supported-networks").isV2Chain).mockReturnValue(true);
-      
+      // Mock the deployments.auto module to return v2 for chain 31337
+      vi.doMock('@/config/deployments.auto', () => ({
+        isV2Chain: vi.fn().mockReturnValue(true),
+        DEPLOYMENTS: {
+          31337: {
+            chainId: 31337,
+            factoryAddress: "0xa2Cc1f3479E194B1aa16BeCc975aA25618f8d3AD",
+            isV2: true,
+            blockNumber: 0,
+            timestamp: 1759019328
+          }
+        }
+      }));
+
       const { result } = renderHookWithProviders();
       expect(result.current.isV2Contract).toBe(true);
     });

@@ -88,11 +88,11 @@ describe("useUnlock Hook - Real SDK Integration", () => {
       expect(result.current.lockInfo).toEqual({
         address: testLockAddress,
         name: "Test Membership Lock",
-        keyPrice: "0.01",
+        price: "0.01",
         maxNumberOfKeys: 1000,
         totalSupply: 50,
         expirationDuration: 31536000,
-        currencySymbol: "ETH",
+        symbol: "ETH",
       });
     });
 

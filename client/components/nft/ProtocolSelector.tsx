@@ -99,6 +99,10 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
     initialConfig?.method || null
   );
 
+  const handleConfigChange = useCallback((newConfig: ProtocolConfig) => {
+    onConfigChange(newConfig);
+  }, [onConfigChange]);
+
   const { isMobile } = useResponsive();
 
   // Determine actual view mode
@@ -119,6 +123,79 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
       ...config,
     });
   }, [selectedMethod, onConfigChange]);
+
+  // Configuration Panel Component
+  const ConfigurationPanel: React.FC<{
+    method: AccessMethod;
+    config?: Partial<ProtocolConfig>;
+    onConfigChange: (config: ProtocolConfig) => void;
+  }> = ({ method, config, onConfigChange }) => {
+    switch (method) {
+      case 'POAP':
+        return (
+          <div data-testid="poap-config">
+            <p>POAP Configuration</p>
+            <input
+              data-testid="poap-event-id-input"
+              placeholder="POAP Event ID"
+              value={config?.eventId || ''}
+              onChange={(e) => onConfigChange({ method, eventId: e.target.value })}
+            />
+          </div>
+        );
+      case 'Unlock':
+        return (
+          <div data-testid="unlock-config">
+            <p>Unlock Protocol Configuration</p>
+            <input
+              data-testid="unlock-lock-address-input"
+              placeholder="Lock Address"
+              value={config?.lockAddress || ''}
+              onChange={(e) => onConfigChange({ method, lockAddress: e.target.value })}
+            />
+          </div>
+        );
+      case 'Hats':
+        return (
+          <div data-testid="hats-config">
+            <p>Hats Protocol Configuration</p>
+            <input
+              data-testid="hats-id-input"
+              placeholder="Hat ID"
+              value={config?.hatId || ''}
+              onChange={(e) => onConfigChange({ method, hatId: e.target.value })}
+            />
+          </div>
+        );
+      case 'Hypercert':
+        return (
+          <div data-testid="hypercert-config">
+            <p>Hypercert Configuration</p>
+            <input
+              data-testid="hypercert-id-input"
+              placeholder="Hypercert ID"
+              value={config?.tokenId || ''}
+              onChange={(e) => onConfigChange({ method, tokenId: e.target.value })}
+            />
+          </div>
+        );
+      case 'NFT':
+        return (
+          <div data-testid="nft-config">
+            <NFTSelector
+              onSelectionChange={(selection) => onConfigChange({ method, ...selection })}
+            />
+          </div>
+        );
+      case 'Allowlist':
+      default:
+        return (
+          <div data-testid="allowlist-config">
+            <p>Allowlist Configuration</p>
+          </div>
+        );
+    }
+  };
 
   if (actualViewMode === 'mobile') {
     return (
@@ -256,10 +333,11 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
       </div>
 
       {/* Method Selection Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div data-testid="method-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {ACCESS_METHODS.map((method) => (
           <Card
             key={method.id}
+            data-testid={`method-${method.id.toLowerCase()}`}
             className={cn(
               "cursor-pointer transition-all duration-200 hover:shadow-lg",
               selectedMethod === method.id
@@ -300,12 +378,19 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
       </div>
 
       {/* Configuration Panel */}
-      <div>
+      <div data-testid="config-panel">
+        <h3>Configuration for {selectedMethod}</h3>
         <ConfigurationPanel
           method={selectedMethod}
           config={initialConfig}
           onConfigChange={handleConfigChange}
         />
+      </div>
+
+      {/* Configuration Summary */}
+      <div data-testid="config-summary">
+        <h3>Configuration Summary</h3>
+        <p data-testid="selected-method">Method: {selectedMethod}</p>
       </div>
     </div>
   );
