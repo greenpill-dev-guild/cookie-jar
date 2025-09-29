@@ -211,7 +211,8 @@ library UniversalSwapAdapter {
                 if (amountOut > 0) {
                     IWNative(wNative).withdraw(amountOut);
                     if (to != address(this)) {
-                        payable(to).transfer(amountOut);
+                        (bool success, ) = payable(to).call{value: amountOut}("");
+                        if (!success) revert SwapFailed("ETH transfer failed");
                     }
                 }
             } else {

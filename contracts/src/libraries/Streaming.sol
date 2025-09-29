@@ -46,13 +46,13 @@ library Streaming {
         mapping(address => mapping(address => SuperfluidStream)) storage superStreams,
         mapping(address => int96) storage superTokenFlowRates
     ) external {
-        if (flowRate <= 0) revert("InvalidStreamRate");
+        if (flowRate <= 0) revert CookieJarLib.InvalidStreamRate();
 
         ISuperToken token = ISuperToken(superToken);
 
         // Check if stream already exists
         (, int96 existingFlowRate,,) = cfa.getFlow(token, sender, address(this));
-        if (existingFlowRate != 0) revert("StreamAlreadyExists");
+        if (existingFlowRate != 0) revert CookieJarLib.StreamAlreadyExists();
 
         // Create the actual Superfluid stream
         superfluidHost.callAgreement(
@@ -102,7 +102,7 @@ library Streaming {
         mapping(address => int96) storage superTokenFlowRates
     ) external {
         SuperfluidStream storage stream = superStreams[superToken][sender];
-        if (stream.sender == address(0)) revert("StreamNotFound");
+        if (stream.sender == address(0)) revert CookieJarLib.StreamNotFound();
 
         ISuperToken token = ISuperToken(superToken);
         int96 oldFlowRate = stream.flowRate;
@@ -147,7 +147,7 @@ library Streaming {
         mapping(address => int96) storage superTokenFlowRates
     ) external {
         SuperfluidStream storage stream = superStreams[superToken][sender];
-        if (stream.sender == address(0)) revert("StreamNotFound");
+        if (stream.sender == address(0)) revert CookieJarLib.StreamNotFound();
 
         ISuperToken token = ISuperToken(superToken);
         int96 oldFlowRate = stream.flowRate;

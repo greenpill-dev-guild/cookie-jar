@@ -2,6 +2,7 @@
 pragma solidity ^0.8.24;
 
 import {CookieJar, CookieJarLib} from "./CookieJar.sol";
+import {SuperfluidConfig} from "./libraries/SuperfluidConfig.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /// @title CookieJarFactory
@@ -182,8 +183,9 @@ contract CookieJarFactory {
             multiTokenConfig.enabled ? multiTokenConfig : _getDefaultMultiTokenConfig() // multiTokenConfig
         );
         
-        // Create the jar with Superfluid host address
-        address superfluidHost = address(0); // Superfluid host disabled for testing
+        // Create the jar with Superfluid host address from official deployments
+        // Automatically detects and uses the correct Superfluid host for current chain
+        address superfluidHost = SuperfluidConfig.getSuperfluidHost(block.chainid);
         CookieJar newJar = new CookieJar(config, accessConfig, superfluidHost);
         jarAddress = address(newJar);
         

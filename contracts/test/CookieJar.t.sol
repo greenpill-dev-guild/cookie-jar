@@ -588,6 +588,62 @@ contract CookieJarTest is Test {
         );
     }
 
+    function test_RevertWhen_ConstructorNFTGatedWithNonNFTContract() public {
+        // Try to use a regular contract (not ERC721) as NFT gate
+        address[] memory invalidNft = new address[](1);
+        invalidNft[0] = address(this); // This test contract doesn't implement ERC721
+        
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidNFTGate.selector));
+        new CookieJar(
+            createJarConfig(
+                owner,
+                CookieJarLib.ETH_ADDRESS,
+                CookieJarLib.AccessType.ERC721,
+                CookieJarLib.WithdrawalTypeOptions.Fixed,
+                fixedAmount,
+                maxWithdrawal,
+                withdrawalInterval,
+                minEthDeposit,
+                FEE_PERCENTAGE_ON_DEPOSIT,
+                false, // STRICT_PURPOSE
+                feeCollector,
+                true, // EMERGENCY_WITHDRAWAL_ENABLED
+                false // ONE_TIME_WITHDRAWAL
+            ),
+            createAccessConfig(invalidNft, emptyAddresses),
+            address(0) // Superfluid host disabled for testing
+        );
+    }
+
+    function test_ConstructorValidatesERC721Interface() public {
+        // Should succeed with valid ERC721 contract
+        address[] memory validNft = new address[](1);
+        validNft[0] = address(dummyErc721);
+        
+        // This should not revert
+        CookieJar validJar = new CookieJar(
+            createJarConfig(
+                owner,
+                CookieJarLib.ETH_ADDRESS,
+                CookieJarLib.AccessType.ERC721,
+                CookieJarLib.WithdrawalTypeOptions.Fixed,
+                fixedAmount,
+                maxWithdrawal,
+                withdrawalInterval,
+                minEthDeposit,
+                FEE_PERCENTAGE_ON_DEPOSIT,
+                false,
+                feeCollector,
+                true,
+                false
+            ),
+            createAccessConfig(validNft, emptyAddresses),
+            address(0)
+        );
+        
+        assertTrue(address(validJar) != address(0));
+    }
+
     function test_ConstructorNFTGatedWithSameNFTContract() public {
         address[] memory dupAddresses = new address[](2);
         dupAddresses[0] = address(dummyErc721);
@@ -1219,6 +1275,195 @@ contract CookieJarTest is Test {
         assertEq(jarNftEthFixed.CURRENCYHeldByJar(), CURRENCYHeldByJarBefore - fixedAmount);
         assertEq(user.balance, userBalanceBefore + fixedAmount);
         // assertEq(jarNftEthFixed.lastWithdrawalNFT(address(dummyErc721), dummyTokenId), block.timestamp);
+    }
+
+    // === NEW TESTS FOR TOKEN ID 0 (ANY TOKEN) ===
+    
+    function test_WithdrawNFTModeWithTokenId0_UserOwnsToken() public {
+        // Create a new jar with tokenId: 0 (meaning any token from contract)
+        address[] memory nftAddrs = new address[](1);
+        nftAddrs[0] = address(dummyErc721);
+        
+        vm.startPrank(owner);
+        CookieJar testJar = new CookieJar(
+            createJarConfig(
+                owner,
+                CookieJarLib.ETH_ADDRESS,
+                CookieJarLib.AccessType.ERC721,
+                CookieJarLib.WithdrawalTypeOptions.Fixed,
+                fixedAmount,
+                maxWithdrawal,
+                withdrawalInterval,
+                minEthDeposit,
+                FEE_PERCENTAGE_ON_DEPOSIT,
+                STRICT_PURPOSE,
+                feeCollector,
+                true,
+                false
+            ),
+            CookieJarLib.AccessConfig({
+                allowlist: emptyAllowlist,
+                nftRequirement: CookieJarLib.NftRequirement({
+                    nftContract: address(dummyErc721),
+                    tokenId: 0, // Any token from contract
+                    minBalance: 0
+                })
+            }),
+            address(0) // Superfluid host disabled for testing
+        );
+        
+        // Fund the jar
+        testJar.deposit{value: 10 ether}(0);
+        vm.stopPrank();
+        
+        // Mint a token to user (any token ID works)
+        dummyErc721.mint(user);
+        
+        vm.warp(block.timestamp + withdrawalInterval + 1);
+        uint256 userBalanceBefore = user.balance;
+        
+        // Should succeed - user owns a token from the contract
+        vm.prank(user);
+        testJar.withdraw(fixedAmount, purpose);
+        
+        assertEq(user.balance, userBalanceBefore + fixedAmount);
+    }
+    
+    function test_RevertWhen_WithdrawNFTModeWithTokenId0_UserOwnsNoToken() public {
+        // Create a new jar with tokenId: 0
+        vm.startPrank(owner);
+        CookieJar testJar = new CookieJar(
+            createJarConfig(
+                owner,
+                CookieJarLib.ETH_ADDRESS,
+                CookieJarLib.AccessType.ERC721,
+                CookieJarLib.WithdrawalTypeOptions.Fixed,
+                fixedAmount,
+                maxWithdrawal,
+                withdrawalInterval,
+                minEthDeposit,
+                FEE_PERCENTAGE_ON_DEPOSIT,
+                STRICT_PURPOSE,
+                feeCollector,
+                true,
+                false
+            ),
+            CookieJarLib.AccessConfig({
+                allowlist: emptyAllowlist,
+                nftRequirement: CookieJarLib.NftRequirement({
+                    nftContract: address(dummyErc721),
+                    tokenId: 0, // Any token from contract
+                    minBalance: 0
+                })
+            }),
+            address(0) // Superfluid host disabled for testing
+        );
+        
+        testJar.deposit{value: 10 ether}(0);
+        vm.stopPrank();
+        
+        // User owns NO tokens from the contract
+        vm.warp(block.timestamp + withdrawalInterval + 1);
+        
+        // Should fail - user doesn't own any token from the contract
+        vm.prank(user);
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAuthorized.selector));
+        testJar.withdraw(fixedAmount, purpose);
+    }
+    
+    function test_WithdrawNFTModeWithSpecificTokenId_UserOwnsCorrectToken() public {
+        // Mint specific token to user
+        uint256 specificTokenId = dummyErc721.mint(user);
+        
+        // Create jar requiring that specific token
+        vm.startPrank(owner);
+        CookieJar testJar = new CookieJar(
+            createJarConfig(
+                owner,
+                CookieJarLib.ETH_ADDRESS,
+                CookieJarLib.AccessType.ERC721,
+                CookieJarLib.WithdrawalTypeOptions.Fixed,
+                fixedAmount,
+                maxWithdrawal,
+                withdrawalInterval,
+                minEthDeposit,
+                FEE_PERCENTAGE_ON_DEPOSIT,
+                STRICT_PURPOSE,
+                feeCollector,
+                true,
+                false
+            ),
+            CookieJarLib.AccessConfig({
+                allowlist: emptyAllowlist,
+                nftRequirement: CookieJarLib.NftRequirement({
+                    nftContract: address(dummyErc721),
+                    tokenId: specificTokenId, // Specific token required
+                    minBalance: 0
+                })
+            }),
+            address(0) // Superfluid host disabled for testing
+        );
+        
+        testJar.deposit{value: 10 ether}(0);
+        vm.stopPrank();
+        
+        vm.warp(block.timestamp + withdrawalInterval + 1);
+        uint256 userBalanceBefore = user.balance;
+        
+        // Should succeed - user owns the specific token
+        vm.prank(user);
+        testJar.withdraw(fixedAmount, purpose);
+        
+        assertEq(user.balance, userBalanceBefore + fixedAmount);
+    }
+    
+    function test_RevertWhen_WithdrawNFTModeWithSpecificTokenId_UserOwnsDifferentToken() public {
+        // Mint token ID 5 to user
+        dummyErc721.mint(attacker); // Token 0
+        dummyErc721.mint(attacker); // Token 1
+        dummyErc721.mint(attacker); // Token 2
+        dummyErc721.mint(attacker); // Token 3
+        dummyErc721.mint(attacker); // Token 4
+        uint256 userToken = dummyErc721.mint(user); // Token 5
+        
+        // Create jar requiring token ID 3 (which user doesn't own)
+        vm.startPrank(owner);
+        CookieJar testJar = new CookieJar(
+            createJarConfig(
+                owner,
+                CookieJarLib.ETH_ADDRESS,
+                CookieJarLib.AccessType.ERC721,
+                CookieJarLib.WithdrawalTypeOptions.Fixed,
+                fixedAmount,
+                maxWithdrawal,
+                withdrawalInterval,
+                minEthDeposit,
+                FEE_PERCENTAGE_ON_DEPOSIT,
+                STRICT_PURPOSE,
+                feeCollector,
+                true,
+                false
+            ),
+            CookieJarLib.AccessConfig({
+                allowlist: emptyAllowlist,
+                nftRequirement: CookieJarLib.NftRequirement({
+                    nftContract: address(dummyErc721),
+                    tokenId: 3, // Requires token 3
+                    minBalance: 0
+                })
+            }),
+            address(0) // Superfluid host disabled for testing
+        );
+        
+        testJar.deposit{value: 10 ether}(0);
+        vm.stopPrank();
+        
+        vm.warp(block.timestamp + withdrawalInterval + 1);
+        
+        // Should fail - user owns token 5, not token 3
+        vm.prank(user);
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAuthorized.selector));
+        testJar.withdraw(fixedAmount, purpose);
     }
 
     function test_WithdrawNFTModeETHFixedERC1155() public {

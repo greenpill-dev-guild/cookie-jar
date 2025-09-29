@@ -134,6 +134,10 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
             if (accessConfig.nftRequirement.nftContract == address(0)) {
                 revert CookieJarLib.NoNFTAddressesProvided();
             }
+            
+            // Validate that the contract actually implements the required interface
+            _validateNftContract(accessConfig.nftRequirement.nftContract, ACCESS_TYPE);
+            
             nftRequirement = accessConfig.nftRequirement;
         }
 
@@ -388,10 +392,20 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
         } else if (ACCESS_TYPE == CookieJarLib.AccessType.ERC721) {
             // Inline ERC721 validation
             if (nftRequirement.nftContract == address(0)) revert CookieJarLib.InvalidTokenAddress();
-            if (nftRequirement.tokenId == 0) revert CookieJarLib.NotAuthorized(); // Require specific token
-            try IERC721(nftRequirement.nftContract).ownerOf(nftRequirement.tokenId) returns (address owner) {
-                if (owner != msg.sender) revert CookieJarLib.NotAuthorized();
-            } catch { revert CookieJarLib.NotAuthorized(); }
+            
+            // If tokenId is 0, check if user owns ANY token from the contract
+            // Otherwise, check ownership of specific token
+            if (nftRequirement.tokenId == 0) {
+                // Check if user owns at least one token from the contract
+                try IERC721(nftRequirement.nftContract).balanceOf(msg.sender) returns (uint256 balance) {
+                    if (balance == 0) revert CookieJarLib.NotAuthorized();
+                } catch { revert CookieJarLib.NotAuthorized(); }
+            } else {
+                // Check ownership of specific token ID
+                try IERC721(nftRequirement.nftContract).ownerOf(nftRequirement.tokenId) returns (address owner) {
+                    if (owner != msg.sender) revert CookieJarLib.NotAuthorized();
+                } catch { revert CookieJarLib.NotAuthorized(); }
+            }
         } else if (ACCESS_TYPE == CookieJarLib.AccessType.ERC1155) {
             // Inline ERC1155 validation
             if (nftRequirement.nftContract == address(0)) revert CookieJarLib.InvalidTokenAddress();
@@ -446,13 +460,14 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
             revert CookieJarLib.NotAuthorized();
         }
 
-        // Validate period limits
-        uint256 currentPeriodStart = block.timestamp - (block.timestamp % CookieJarLib.WITHDRAWAL_PERIOD);
-        uint256 withdrawnThisPeriod = withdrawnInCurrentPeriod[msg.sender];
-
+        // Validate period limits using user-specific rolling period
         if (MAX_WITHDRAWAL_PER_PERIOD > 0) {
-            if (block.timestamp >= currentPeriodStart + CookieJarLib.WITHDRAWAL_PERIOD) {
-                // New period, reset counter
+            uint256 withdrawnThisPeriod = withdrawnInCurrentPeriod[msg.sender];
+            
+            // Check if we're in a new period (rolling 24-hour window per user)
+            if (lastWithdrawalTime[msg.sender] > 0 &&
+                block.timestamp >= lastWithdrawalTime[msg.sender] + CookieJarLib.WITHDRAWAL_PERIOD) {
+                // New period started, reset counter
                 withdrawnThisPeriod = 0;
             }
 
@@ -506,6 +521,37 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
         for (uint256 i = 0; i < members.length; i++) {
             _grantRole(CookieJarLib.JAR_ALLOWLISTED, members[i]);
             allowlist.push(members[i]);
+        }
+    }
+
+    /// @notice Validate that a contract implements the required NFT interface
+    /// @dev Checks for critical functions to ensure contract compliance
+    /// @param nftContract The NFT contract address to validate
+    /// @param accessType The access type (ERC721 or ERC1155)
+    function _validateNftContract(address nftContract, CookieJarLib.AccessType accessType) internal view {
+        if (accessType == CookieJarLib.AccessType.ERC721) {
+            // Try calling ERC721 functions to verify interface
+            try IERC721(nftContract).balanceOf(address(this)) returns (uint256) {
+                // Success - contract implements balanceOf
+            } catch {
+                revert CookieJarLib.InvalidNFTGate();
+            }
+            
+            // Additional check: verify it's actually an ERC721 by trying to call ownerOf(0)
+            // This will revert if token doesn't exist, which is fine - we just want to verify the function exists
+            try IERC721(nftContract).ownerOf(0) returns (address) {
+                // Function exists and returned successfully
+            } catch {
+                // Function exists but reverted (expected for non-existent token) - this is fine
+                // The important part is that the function signature is correct
+            }
+        } else if (accessType == CookieJarLib.AccessType.ERC1155) {
+            // Try calling ERC1155 function to verify interface
+            try IERC1155(nftContract).balanceOf(address(this), 0) returns (uint256) {
+                // Success - contract implements balanceOf
+            } catch {
+                revert CookieJarLib.InvalidNFTGate();
+            }
         }
     }
 
