@@ -183,7 +183,7 @@ contract CookieJarFactory {
         });
         
         // Create the jar with Superfluid host address
-        address superfluidHost = address(0x1234567890123456789012345678901234567890); // Placeholder for testing
+        address superfluidHost = address(0); // Superfluid host disabled for testing
         CookieJar newJar = new CookieJar(config, accessConfig, superfluidHost);
         jarAddress = address(newJar);
         

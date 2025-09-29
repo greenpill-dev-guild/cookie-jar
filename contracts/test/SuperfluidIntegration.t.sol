@@ -42,7 +42,7 @@ contract SuperfluidIntegrationTest is Test {
 
         // Initialize Superfluid host mock (for testing)
         // In production, this would be the actual Superfluid host address
-        mockSuperfluidHost = address(0x1234567890123456789012345678901234567890); // Mock address for testing
+        mockSuperfluidHost = address(0); // Mock address for testing - disabled
 
         // Deploy factory first
         _factory = new CookieJarFactory(

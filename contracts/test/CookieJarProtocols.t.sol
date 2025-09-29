@@ -203,7 +203,7 @@ contract CookieJarProtocolsTest is Test {
                 false // oneTimeWithdrawal
             ),
             createAccessConfigWithProtocols(),
-            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
+            address(0) // Superfluid host disabled for testing
         );
 
         // Create Unlock jar
@@ -224,7 +224,7 @@ contract CookieJarProtocolsTest is Test {
                 false // oneTimeWithdrawal
             ),
             createAccessConfigWithProtocols(),
-            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
+            address(0) // Superfluid host disabled for testing
         );
 
         // Create Hypercert jar
@@ -245,7 +245,7 @@ contract CookieJarProtocolsTest is Test {
                 false // oneTimeWithdrawal
             ),
             createAccessConfigWithProtocols(),
-            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
+            address(0) // Superfluid host disabled for testing
         );
 
         // Create Hats jar
@@ -266,7 +266,7 @@ contract CookieJarProtocolsTest is Test {
                 false // oneTimeWithdrawal
             ),
             createAccessConfigWithProtocols(),
-            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
+            address(0) // Superfluid host disabled for testing
         );
 
         // Fund the jars
@@ -496,7 +496,7 @@ contract CookieJarProtocolsTest is Test {
                 false // oneTimeWithdrawal
             ),
             createAccessConfigWithProtocols(),
-            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
+            address(0) // Superfluid host disabled for testing
         );
         
         vm.warp(block.timestamp + withdrawalInterval + 1);

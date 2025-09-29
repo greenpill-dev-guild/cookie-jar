@@ -3,7 +3,6 @@ pragma solidity ^0.8.24;
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {CookieJarLib} from "./CookieJarLib.sol";
 
 /// @title AdminLib
@@ -28,11 +27,11 @@ library AdminLib {
         if (withdrawalOption == CookieJarLib.WithdrawalTypeOptions.Fixed) {
             updatedFixed = newAmount;
             updatedMax = currentMaxWithdrawal;
-            emit CookieJarLib.FixedWithdrawalAmountUpdated(newAmount);
+            emit CookieJarLib.ParameterUpdated(CookieJarLib.PARAM_FIXED_AMOUNT, newAmount);
         } else {
             updatedFixed = currentFixedAmount;
             updatedMax = newAmount;
-            emit CookieJarLib.MaxWithdrawalUpdated(newAmount);
+            emit CookieJarLib.ParameterUpdated(CookieJarLib.PARAM_MAX_WITHDRAWAL, newAmount);
         }
     }
     

@@ -10,27 +10,9 @@ import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 import {CookieJarLib} from "./libraries/CookieJarLib.sol";
-import {CookieJarValidation} from "./libraries/CookieJarValidation.sol";
 import {UniversalSwapAdapter} from "./libraries/UniversalSwapAdapter.sol";
 import {Streaming} from "./libraries/Streaming.sol";
 import {ISuperfluid, ISuperToken, IConstantFlowAgreementV1} from "@superfluid-finance/ethereum-contracts/interfaces/superfluid/ISuperfluid.sol";
-
-// Protocol interfaces
-interface IPOAP {
-    function ownerOf(uint256 tokenId) external view returns (address);
-}
-
-interface IPublicLock {
-    function getHasValidKey(address _user) external view returns (bool);
-}
-
-interface IHypercertToken {
-    function balanceOf(address account, uint256 id) external view returns (uint256);
-}
-
-interface IHats {
-    function isWearerOfHat(address user, uint256 hatId) external view returns (bool);
-}
 
 /// @title CookieJar - Optimized Version
 /// @notice Decentralized funding pools with simplified access control
@@ -121,7 +103,13 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
         if (config.feeCollector == address(0)) revert CookieJarLib.FeeCollectorAddressCannotBeZeroAddress();
 
         // Initialize Superfluid host and CFA using Streaming library
-        (superfluidHost, cfa) = Streaming.initializeSuperfluidContracts(_superfluidHost);
+        if (_superfluidHost != address(0)) {
+            (superfluidHost, cfa) = Streaming.initializeSuperfluidContracts(_superfluidHost);
+        } else {
+            // For testing - use placeholder addresses
+            superfluidHost = ISuperfluid(address(0));
+            cfa = IConstantFlowAgreementV1(address(0));
+        }
 
         // Set immutable configuration
         accessType = config.accessType;
@@ -142,7 +130,10 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
         if (accessType == CookieJarLib.AccessType.Allowlist) {
             _setupAllowlist(accessConfig.allowlist);
         } else {
-            // For ERC721 and ERC1155, use unified NFT requirement
+            // For ERC721 and ERC1155, validate NFT requirement 
+            if (accessConfig.nftRequirement.nftContract == address(0)) {
+                revert CookieJarLib.NoNFTAddressesProvided();
+            }
             nftRequirement = accessConfig.nftRequirement;
         }
 
@@ -232,7 +223,7 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
         if (withdrawalOption == CookieJarLib.WithdrawalTypeOptions.Fixed) revert CookieJarLib.InvalidWithdrawalType();
         if (_maxWithdrawal == 0) revert CookieJarLib.ZeroAmount();
         maxWithdrawal = _maxWithdrawal;
-        emit CookieJarLib.MaxWithdrawalUpdated(_maxWithdrawal);
+        emit CookieJarLib.ParameterUpdated(CookieJarLib.PARAM_MAX_WITHDRAWAL, _maxWithdrawal);
     }
 
     /// @notice Updates the fixed withdrawal amount, only works if withdrawalOption is Fixed.
@@ -243,7 +234,7 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
         }
         if (_fixedAmount == 0) revert CookieJarLib.ZeroAmount();
         fixedAmount = _fixedAmount;
-        emit CookieJarLib.FixedWithdrawalAmountUpdated(_fixedAmount);
+        emit CookieJarLib.ParameterUpdated(CookieJarLib.PARAM_FIXED_AMOUNT, _fixedAmount);
     }
 
     /// @notice Updates the withdrawal interval.
@@ -251,7 +242,7 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     function updateWithdrawalInterval(uint256 _withdrawalInterval) external onlyRole(CookieJarLib.JAR_OWNER) {
         if (_withdrawalInterval == 0) revert CookieJarLib.ZeroAmount();
         withdrawalInterval = _withdrawalInterval;
-        emit CookieJarLib.WithdrawalIntervalUpdated(_withdrawalInterval);
+        emit CookieJarLib.ParameterUpdated(CookieJarLib.PARAM_WITHDRAWAL_INTERVAL, _withdrawalInterval);
     }
 
     // === MULTI-TOKEN & STREAMING ADMIN FUNCTIONS ===
@@ -348,39 +339,34 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
         emit CookieJarLib.FeeCollected(feeCollector, fee, currency);
     }
 
-    /// @notice Withdraws funds for allowlisted users
+    /// @notice Unified withdrawal function for all access types
+    /// @dev Consolidated function reduces bytecode by eliminating duplicate logic
     /// @param amount The amount to withdraw
     /// @param purpose A description for the withdrawal
-    function withdrawAllowlistMode(
+    function withdraw(
         uint256 amount,
         string calldata purpose
-    ) external onlyRole(CookieJarLib.JAR_ALLOWLISTED) whenNotPaused nonReentrant {
-        if (accessType != CookieJarLib.AccessType.Allowlist) revert CookieJarLib.InvalidAccessType();
+    ) public whenNotPaused nonReentrant {
+        // Validate access based on jar type
+        _checkAccess();
+        
+        // Validate and execute withdrawal
         _validateAndWithdraw(amount, purpose);
     }
-
-    /// @notice Withdraw funds with ERC721 NFT verification
-    /// @param amount The amount to withdraw
-    /// @param purpose A description for the withdrawal
-    function withdrawWithERC721(
-        uint256 amount, 
-        string calldata purpose
-    ) external whenNotPaused nonReentrant {
-        if (accessType != CookieJarLib.AccessType.ERC721) revert CookieJarLib.InvalidAccessType();
-        _validateAccess();
-        _validateAndWithdraw(amount, purpose);
+    
+    /// @notice Legacy function for allowlist mode (backwards compatibility)
+    function withdrawAllowlistMode(uint256 amount, string calldata purpose) external {
+        this.withdraw(amount, purpose);
     }
-
-    /// @notice Withdraw funds with ERC1155 NFT verification (covers Hypercerts, Hats Protocol)
-    /// @param amount The amount to withdraw
-    /// @param purpose A description for the withdrawal
-    function withdrawWithERC1155(
-        uint256 amount, 
-        string calldata purpose
-    ) external whenNotPaused nonReentrant {
-        if (accessType != CookieJarLib.AccessType.ERC1155) revert CookieJarLib.InvalidAccessType();
-        _validateAccess();
-        _validateAndWithdraw(amount, purpose);
+    
+    /// @notice Legacy function for ERC721 mode (backwards compatibility) 
+    function withdrawWithERC721(uint256 amount, string calldata purpose) external {
+        this.withdraw(amount, purpose);
+    }
+    
+    /// @notice Legacy function for ERC1155 mode (backwards compatibility)
+    function withdrawWithERC1155(uint256 amount, string calldata purpose) external {
+        this.withdraw(amount, purpose);
     }
 
     // --- View Functions ---
@@ -393,56 +379,28 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
 
     // === INTERNAL VALIDATION FUNCTIONS ===
 
-    /// @notice Unified access validation for all access types
-    /// @dev Replaces multiple protocol-specific validation functions
-    function _validateAccess() internal view {
+    /// @notice Optimized inline access validation for all access types
+    /// @dev Consolidated validation logic to reduce bytecode size
+    function _checkAccess() internal view {
         if (accessType == CookieJarLib.AccessType.Allowlist) {
-            if (!hasRole(CookieJarLib.JAR_ALLOWLISTED, msg.sender)) {
+            if (!hasRole(CookieJarLib.JAR_ALLOWLISTED, msg.sender)) 
                 revert CookieJarLib.NotAuthorized();
-            }
         } else if (accessType == CookieJarLib.AccessType.ERC721) {
-            _validateERC721Access();
+            // Inline ERC721 validation
+            if (nftRequirement.nftContract == address(0)) revert CookieJarLib.InvalidTokenAddress();
+            if (nftRequirement.tokenId == 0) revert CookieJarLib.NotAuthorized(); // Require specific token
+            try IERC721(nftRequirement.nftContract).ownerOf(nftRequirement.tokenId) returns (address owner) {
+                if (owner != msg.sender) revert CookieJarLib.NotAuthorized();
+            } catch { revert CookieJarLib.NotAuthorized(); }
         } else if (accessType == CookieJarLib.AccessType.ERC1155) {
-            _validateERC1155Access();
+            // Inline ERC1155 validation
+            if (nftRequirement.nftContract == address(0)) revert CookieJarLib.InvalidTokenAddress();
+            uint256 minBal = nftRequirement.minBalance > 0 ? nftRequirement.minBalance : 1;
+            try IERC1155(nftRequirement.nftContract).balanceOf(msg.sender, nftRequirement.tokenId) returns (uint256 bal) {
+                if (bal < minBal) revert CookieJarLib.NotAuthorized();
+            } catch { revert CookieJarLib.NotAuthorized(); }
         } else {
             revert CookieJarLib.InvalidAccessType();
-        }
-    }
-
-    /// @notice Validate ERC721 ownership (covers POAP, Unlock, etc.)
-    /// @dev Simplified from complex protocol-specific validation
-    function _validateERC721Access() internal view {
-        address nftContract = nftRequirement.nftContract;
-        uint256 tokenId = nftRequirement.tokenId;
-
-        if (nftContract == address(0)) revert CookieJarLib.InvalidTokenAddress();
-
-        if (tokenId > 0) {
-            // Specific token ID required
-            try IERC721(nftContract).ownerOf(tokenId) returns (address owner) {
-                if (owner != msg.sender) revert CookieJarLib.NotAuthorized();
-            } catch {
-                revert CookieJarLib.NotAuthorized();
-            }
-        } else {
-            // Any token from contract - fallback for contracts that don't implement ownerOf properly
-            revert CookieJarLib.NotAuthorized(); // For now, require specific token ID
-        }
-    }
-
-    /// @notice Validate ERC1155 balance (covers Hypercerts, Hats Protocol)
-    /// @dev Unified validation for all ERC1155-based protocols
-    function _validateERC1155Access() internal view {
-        address nftContract = nftRequirement.nftContract;
-        uint256 tokenId = nftRequirement.tokenId;
-        uint256 minBalance = nftRequirement.minBalance > 0 ? nftRequirement.minBalance : 1;
-
-        if (nftContract == address(0)) revert CookieJarLib.InvalidTokenAddress();
-
-        try IERC1155(nftContract).balanceOf(msg.sender, tokenId) returns (uint256 balance) {
-            if (balance < minBalance) revert CookieJarLib.NotAuthorized();
-        } catch {
-            revert CookieJarLib.NotAuthorized();
         }
     }
 

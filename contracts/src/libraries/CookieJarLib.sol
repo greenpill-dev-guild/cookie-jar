@@ -9,21 +9,10 @@ library CookieJarLib {
     bytes32 public constant JAR_OWNER = keccak256("JAR_OWNER");
     bytes32 public constant JAR_ALLOWLISTED = keccak256("JAR_ALLOWLISTED");
 
-    /// @notice Maximum withdrawal history to prevent unbounded array growth
-    uint256 public constant MAX_WITHDRAWAL_HISTORY = 1000;
-
     /// @notice Protocol Constants
     uint256 public constant PERCENTAGE_BASE = 10000; // 100% = 10000, 1% = 100
-    uint256 public constant MAX_FEE_PERCENTAGE = 1000; // 10% maximum fee
     address public constant ETH_ADDRESS = 0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE;
-    
-    /// @notice Protocol Constants
     uint256 public constant WITHDRAWAL_PERIOD = 86400; // 24 hours
-    
-    /// @notice Gas limits for external calls
-    uint256 public constant MAX_NFT_VALIDATION_GAS = 50000; // Gas limit for NFT validation
-    uint256 public constant MAX_BALANCE_PROOF_AGE = 100; // Max age for balance proof in blocks
-    uint256 public constant MAX_NFT_GATES = 10; // Maximum number of NFT gates allowed
 
     /// @notice Access types for jar - simplified to 3 core types
     /// @dev Following ERC standards: Allowlist, ERC721, ERC1155
@@ -47,18 +36,27 @@ library CookieJarLib {
     event FeeCollected(address indexed feeCollector, uint256 amount, address indexed token);
     event JarCreated(address indexed jarAddress, address indexed jarOwner, AccessType accessType);
     event AccessTypeUpdated(AccessType oldType, AccessType newType);
-    event PeriodWithdrawalLimitUpdated(uint256 newLimit);
     event NFTAccessValidated(address indexed user, address indexed nftContract, uint256 tokenId);
-    
-    event HighGasUsageWarning(address indexed nftContract, uint256 gasUsed);
     event PausedStateChanged(bool paused);
     event FeeCollectorUpdated(address indexed oldCollector, address indexed newCollector);
-    event NFTGateRemoved(address indexed nftAddress);
-    event MaxWithdrawalUpdated(uint256 newMaxWithdrawal);
-    event FixedWithdrawalAmountUpdated(uint256 newFixedAmount);
-    event WithdrawalIntervalUpdated(uint256 newInterval);
+    
+    /// @notice Generic parameter update event to consolidate specific update events
+    /// @param paramName Hash of parameter name (e.g., keccak256("maxWithdrawal"))
+    /// @param newValue New parameter value
+    event ParameterUpdated(bytes32 indexed paramName, uint256 newValue);
+    
+    /// @notice Generic address parameter update event
+    /// @param paramName Hash of parameter name
+    /// @param newAddress New address value
+    event AddressParameterUpdated(bytes32 indexed paramName, address indexed newAddress);
     event PendingTokensRecovered(address indexed token, uint256 amount);
     event EmergencyWithdrawal(address indexed user, address indexed token, uint256 amount);
+    
+    /// @notice Parameter name constants for events
+    bytes32 public constant PARAM_MAX_WITHDRAWAL = keccak256("maxWithdrawal");
+    bytes32 public constant PARAM_FIXED_AMOUNT = keccak256("fixedAmount");
+    bytes32 public constant PARAM_WITHDRAWAL_INTERVAL = keccak256("withdrawalInterval");
+    bytes32 public constant PARAM_PERIOD_LIMIT = keccak256("periodWithdrawalLimit");
 
     // === STRUCT DEFINITIONS ===
 
@@ -80,25 +78,33 @@ library CookieJarLib {
     }
     
 
-    /// @notice SIMPLIFIED Configuration struct for CookieJar constructor
-    /// @dev Removed complex multi-token config, now uses simple Universal Router
+    /// @notice OPTIMIZED Configuration struct for CookieJar constructor
+    /// @dev Optimized storage layout to reduce gas and contract size
     struct JarConfig {
-        address jarOwner;
-        address supportedCurrency;
-        AccessType accessType;
-        WithdrawalTypeOptions withdrawalOption;
+        // Slot 1: addresses (40 bytes total)
+        address jarOwner;                    // 20 bytes
+        address supportedCurrency;          // 20 bytes
+        
+        // Slot 2: fee collector + packed fields (32 bytes total)
+        address feeCollector;                // 20 bytes
+        AccessType accessType;               // 1 byte (uint8)
+        WithdrawalTypeOptions withdrawalOption; // 1 byte (uint8)
+        bool strictPurpose;                  // 1 byte
+        bool emergencyWithdrawalEnabled;     // 1 byte
+        bool oneTimeWithdrawal;             // 1 byte
+        // 7 bytes padding
+        
+        // Remaining slots: uint256 fields
         uint256 fixedAmount;
         uint256 maxWithdrawal;
         uint256 withdrawalInterval;
         uint256 minDeposit;
         uint256 feePercentageOnDeposit;
-        bool strictPurpose;
-        address feeCollector;
-        bool emergencyWithdrawalEnabled;
-        bool oneTimeWithdrawal;
-        uint256 maxWithdrawalPerPeriod; // 0 means unlimited
-        string metadata; // Jar metadata/description
-        MultiTokenConfig multiTokenConfig; // Simplified multi-token support
+        uint256 maxWithdrawalPerPeriod;     // 0 means unlimited
+        
+        // Dynamic fields (separate slots)
+        string metadata;                     // Jar metadata/description
+        MultiTokenConfig multiTokenConfig;   // Simplified multi-token support
     }
 
     /// @notice Simplified access configuration struct
@@ -135,7 +141,7 @@ library CookieJarLib {
     error OneTimeWithdrawalAlreadyUsed();
     error WithdrawalIntervalNotPassed();
     error InvalidNFTGate();
-    error NoNFTAddressesProvided();
+    error NoNFTAddressesProvided(); 
     error NFTArrayLengthMismatch();
     error WithdrawalHistoryLimitReached();
     error InvalidPurpose();

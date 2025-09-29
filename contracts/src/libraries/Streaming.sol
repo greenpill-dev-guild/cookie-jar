@@ -9,29 +9,19 @@ import {
 } from "@superfluid-finance/ethereum-contracts/interfaces/superfluid/ISuperfluid.sol";
 import {CookieJarLib} from "./CookieJarLib.sol";
 
-// ERC777 interface (needed for Superfluid compatibility)
-interface IERC777 {
-    function name() external view returns (string memory);
-    function symbol() external view returns (string memory);
-    function decimals() external view returns (uint8);
-    function totalSupply() external view returns (uint256);
-    function balanceOf(address owner) external view returns (uint256);
-    function transfer(address to, uint256 amount) external returns (bool);
-    function transferFrom(address from, address to, uint256 amount) external returns (bool);
-    function approve(address spender, uint256 amount) external returns (bool);
-    function allowance(address owner, address spender) external view returns (uint256);
-}
 
 /// @title Streaming
 /// @notice Library for Superfluid streaming functionality
 library Streaming {
-    /// @notice Real-time Super Token stream via Superfluid Protocol
+    /// @notice Optimized Real-time Super Token stream via Superfluid Protocol
+    /// @dev Packed struct to reduce gas and storage costs
     struct SuperfluidStream {
-        address superToken;              // Super Token contract address
-        address sender;                  // Stream sender
-        int96 flowRate;                 // Real-time flow rate (wei/second)
-        uint256 startTime;              // Stream start timestamp
-        bool isActive;                  // Stream status
+        address superToken;              // Super Token contract address (20 bytes)
+        address sender;                  // Stream sender (20 bytes) - 40 bytes total in slot 1+2
+        int96 flowRate;                 // Real-time flow rate (12 bytes)
+        uint32 startTime;              // Stream start timestamp (4 bytes) - sufficient until 2106
+        bool isActive;                  // Stream status (1 byte) - 17 bytes total in slot 3
+        // 15 bytes padding in slot 3
     }
 
     /// @notice Events
@@ -84,7 +74,7 @@ library Streaming {
             superToken: superToken,
             sender: sender,
             flowRate: flowRate,
-            startTime: block.timestamp,
+            startTime: uint32(block.timestamp),
             isActive: true
         });
 

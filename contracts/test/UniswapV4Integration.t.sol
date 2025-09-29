@@ -57,7 +57,7 @@ contract UniswapV4IntegrationTest is Test {
         });
 
         // Deploy jar
-        _jar = new CookieJar(_jarConfig, _accessConfig, address(0x1234567890123456789012345678901234567890));
+        _jar = new CookieJar(_jarConfig, _accessConfig, address(0)); // Superfluid host disabled for testing
     }
 
     // === UNIVERSAL SWAP ADAPTER TESTS ===
