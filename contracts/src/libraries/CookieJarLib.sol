@@ -50,11 +50,6 @@ library CookieJarLib {
     event PeriodWithdrawalLimitUpdated(uint256 newLimit);
     event NFTAccessValidated(address indexed user, address indexed nftContract, uint256 tokenId);
     
-    // Superfluid events
-    event SuperfluidConfigUpdated(bool enabled);
-    event SuperStreamCreated(address indexed sender, address indexed superToken, int96 flowRate);
-    event SuperStreamUpdated(address indexed sender, address indexed superToken, int96 newFlowRate);
-    event SuperStreamDeleted(address indexed sender, address indexed superToken);
     event HighGasUsageWarning(address indexed nftContract, uint256 gasUsed);
     event PausedStateChanged(bool paused);
     event FeeCollectorUpdated(address indexed oldCollector, address indexed newCollector);
@@ -63,10 +58,7 @@ library CookieJarLib {
     event FixedWithdrawalAmountUpdated(uint256 newFixedAmount);
     event WithdrawalIntervalUpdated(uint256 newInterval);
     event PendingTokensRecovered(address indexed token, uint256 amount);
-    event StreamRegistered(address indexed sender, address indexed token, uint256 ratePerSecond, uint256 streamIndex);
-    event StreamApproved(uint256 indexed streamIndex);
     event EmergencyWithdrawal(address indexed user, address indexed token, uint256 amount);
-    event StreamProcessed(uint256 indexed streamIndex, uint256 processableAmount, uint256 feeAmount);
 
     // === STRUCT DEFINITIONS ===
 
@@ -87,23 +79,6 @@ library CookieJarLib {
         uint24 defaultFee;              // Default pool fee (3000 = 0.3%)
     }
     
-    /// @notice Simplified streaming configuration using Superfluid Protocol
-    /// @dev Renamed from SuperfluidConfig and simplified - only real-time streaming supported
-    struct StreamingConfig {
-        bool enabled;                    // Enable real-time streaming via Superfluid
-        bool autoAcceptStreams;          // Auto-accept incoming super streams
-        address[] acceptedSuperTokens;   // Allowlisted Super Tokens
-        int96 minFlowRate;              // Minimum flow rate (wei/second)
-    }
-
-    /// @notice Real-time Super Token stream via Superfluid Protocol
-    struct SuperfluidStream {
-        address superToken;              // Super Token contract address
-        address sender;                  // Stream sender
-        int96 flowRate;                 // Real-time flow rate (wei/second)
-        uint256 startTime;              // Stream start timestamp
-        bool isActive;                  // Stream status
-    }
 
     /// @notice SIMPLIFIED Configuration struct for CookieJar constructor
     /// @dev Removed complex multi-token config, now uses simple Universal Router
@@ -124,7 +99,6 @@ library CookieJarLib {
         uint256 maxWithdrawalPerPeriod; // 0 means unlimited
         string metadata; // Jar metadata/description
         MultiTokenConfig multiTokenConfig; // Simplified multi-token support
-        StreamingConfig streamingConfig; // Real-time streaming via Superfluid Protocol
     }
 
     /// @notice Simplified access configuration struct

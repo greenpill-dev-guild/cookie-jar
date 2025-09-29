@@ -43,15 +43,6 @@ contract UniswapV4IntegrationTest is Test {
             minSwapAmount: 0.01 ether,
             defaultFee: 3000 // 0.3%
         });
-        
-        // Streaming and Superfluid configs (disabled for this test)
-        _jarConfig.streamingConfig = CookieJarLib.StreamingConfig({
-            enabled: false,
-            autoAcceptStreams: false,
-            acceptedSuperTokens: new address[](0),
-            minFlowRate: 1e18
-        });
-        
 
         // Access configuration  
         address[] memory allowlist = new address[](2);
@@ -66,7 +57,7 @@ contract UniswapV4IntegrationTest is Test {
         });
 
         // Deploy jar
-        _jar = new CookieJar(_jarConfig, _accessConfig);
+        _jar = new CookieJar(_jarConfig, _accessConfig, address(0x1234567890123456789012345678901234567890));
     }
 
     // === UNIVERSAL SWAP ADAPTER TESTS ===

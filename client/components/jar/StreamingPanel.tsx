@@ -48,7 +48,7 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
   // Use real contract hooks
   const {
     streams,
-    streamingConfig: config,
+    // streamingConfig: config,
     isLoadingStreams,
     calculateClaimable,
     formatStreamRate,
@@ -89,9 +89,6 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
         <CardTitle className="flex items-center gap-2">
           <Waves className="h-5 w-5 text-blue-500" />
           Streaming Management
-          <Badge variant={config.streamingEnabled ? "default" : "secondary"}>
-            {config.streamingEnabled ? "Enabled" : "Disabled"}
-          </Badge>
         </CardTitle>
       </CardHeader>
       
@@ -232,66 +229,6 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
               </Card>
             </TabsContent>
           )}
-
-          <TabsContent value="config" className="space-y-4">
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Streaming Configuration</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <Label className="text-sm font-medium">Streaming Status</Label>
-                    <div className="flex items-center gap-2 mt-1">
-                      {config.streamingEnabled ? (
-                        <CheckCircle className="h-4 w-4 text-green-500" />
-                      ) : (
-                        <AlertCircle className="h-4 w-4 text-red-500" />
-                      )}
-                      <span className="text-sm">
-                        {config.streamingEnabled ? "Enabled" : "Disabled"}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label className="text-sm font-medium">Approval Required</Label>
-                    <div className="flex items-center gap-2 mt-1">
-                      {config.requireStreamApproval ? (
-                        <Clock className="h-4 w-4 text-yellow-500" />
-                      ) : (
-                        <CheckCircle className="h-4 w-4 text-green-500" />
-                      )}
-                      <span className="text-sm">
-                        {config.requireStreamApproval ? "Manual Approval" : "Auto-Approve"}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div>
-                    <Label className="text-sm font-medium">Max Stream Rate</Label>
-                    <p className="text-sm text-gray-600 mt-1">
-                      {formatUnits(config.maxStreamRate, 18)} tokens/second
-                    </p>
-                  </div>
-
-                  <div>
-                    <Label className="text-sm font-medium">Min Duration</Label>
-                    <p className="text-sm text-gray-600 mt-1">
-                      {Math.floor(config.minStreamDuration / 3600)} hours
-                    </p>
-                  </div>
-                </div>
-
-                <div className="pt-4 border-t">
-                  <p className="text-sm text-gray-600">
-                    Streaming allows external parties to continuously fund this jar with tokens. 
-                    All streams are subject to the configuration above and must be processed periodically.
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
         </Tabs>
       </CardContent>
     </Card>

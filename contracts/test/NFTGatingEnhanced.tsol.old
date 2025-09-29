@@ -104,12 +104,6 @@ contract NFTGatingEnhancedTest is Test {
                 minSwapAmount: 0,
                 defaultFee: 3000
             }),
-            streamingConfig: CookieJarLib.StreamingConfig({
-                enabled: false,
-                autoAcceptStreams: false,
-                minFlowRate: 1e18,
-                acceptedSuperTokens: new address[](0)
-            })
         });
         
         // Create access configuration

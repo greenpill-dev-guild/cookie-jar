@@ -147,12 +147,6 @@ contract DeployLocalScript is Script {
         });
         
         address[] memory emptyTokens = new address[](0);
-        CookieJarLib.StreamingConfig memory defaultStreaming = CookieJarLib.StreamingConfig({
-            enabled: false,
-            autoAcceptStreams: false,
-            acceptedSuperTokens: emptyTokens,
-            minFlowRate: 1e18 // 1 token per second minimum
-        });
         
         CookieJarLib.JarConfig memory params1 = CookieJarLib.JarConfig({
             jarOwner: DEPLOYER,
@@ -170,8 +164,7 @@ contract DeployLocalScript is Script {
             oneTimeWithdrawal: false,
             maxWithdrawalPerPeriod: 0,
             metadata: "Community Stipend - Weekly 0.1 ETH for community members",
-            multiTokenConfig: defaultMultiToken,
-            streamingConfig: defaultStreaming
+            multiTokenConfig: defaultMultiToken
         });
         
         CookieJarLib.AccessConfig memory accessConfig1 = CookieJarLib.AccessConfig({
@@ -183,7 +176,7 @@ contract DeployLocalScript is Script {
             })
         });
         
-        factory.createCookieJar(params1, accessConfig1, defaultMultiToken, defaultStreaming);
+        factory.createCookieJar(params1, accessConfig1, defaultMultiToken);
         
         // Fund the first jar with 5 ETH
         address[] memory allJars = factory.getAllJars();
@@ -208,13 +201,7 @@ contract DeployLocalScript is Script {
         });
 
         address[] memory emptyTokens2 = new address[](0);
-        CookieJarLib.StreamingConfig memory defaultStreaming2 = CookieJarLib.StreamingConfig({
-            enabled: false,
-            autoAcceptStreams: false,
-            acceptedSuperTokens: emptyTokens2,
-            minFlowRate: 1e18 // 1 token per second minimum
-        });
-        
+
         CookieJarLib.JarConfig memory params2 = CookieJarLib.JarConfig({
             jarOwner: DEPLOYER,
             supportedCurrency: address(demoToken),
@@ -231,8 +218,7 @@ contract DeployLocalScript is Script {
             oneTimeWithdrawal: false,
             maxWithdrawalPerPeriod: 0,
             metadata: "Development Grants - Up to 1000 DEMO tokens monthly for contributors",
-            multiTokenConfig: defaultMultiToken2,
-            streamingConfig: defaultStreaming2
+            multiTokenConfig: defaultMultiToken2
         });
         
         CookieJarLib.AccessConfig memory accessConfig2 = CookieJarLib.AccessConfig({
@@ -244,7 +230,7 @@ contract DeployLocalScript is Script {
             })
         });
         
-        factory.createCookieJar(params2, accessConfig2, defaultMultiToken2, defaultStreaming2);
+        factory.createCookieJar(params2, accessConfig2, defaultMultiToken2);
         
         // Fund the second jar with 50K DEMO tokens
         address[] memory allJars2 = factory.getAllJars();
@@ -268,12 +254,6 @@ contract DeployLocalScript is Script {
         });
         
         address[] memory emptyTokens3 = new address[](0);
-        CookieJarLib.StreamingConfig memory defaultStreaming3 = CookieJarLib.StreamingConfig({
-            enabled: false,
-            autoAcceptStreams: false,
-            acceptedSuperTokens: emptyTokens3,
-            minFlowRate: 1e18 // 1 token per second minimum
-        });
         
         CookieJarLib.JarConfig memory params3 = CookieJarLib.JarConfig({
             jarOwner: DEPLOYER,
@@ -291,8 +271,7 @@ contract DeployLocalScript is Script {
             oneTimeWithdrawal: false,
             maxWithdrawalPerPeriod: 0,
             metadata: "NFT Holder Rewards - 0.05 ETH bi-weekly for Cookie Monster NFT holders",
-            multiTokenConfig: defaultMultiToken3,
-            streamingConfig: defaultStreaming3
+            multiTokenConfig: defaultMultiToken3
         });
         
         
@@ -305,7 +284,7 @@ contract DeployLocalScript is Script {
             })
         });
         
-        factory.createCookieJar(params3, accessConfig3, defaultMultiToken3, defaultStreaming3);
+        factory.createCookieJar(params3, accessConfig3, defaultMultiToken3);
         
         // Fund the third jar with 2 ETH
         address[] memory allJars3 = factory.getAllJars();
@@ -328,12 +307,6 @@ contract DeployLocalScript is Script {
         });
         
         address[] memory emptyTokens4 = new address[](0);
-        CookieJarLib.StreamingConfig memory defaultStreaming4 = CookieJarLib.StreamingConfig({
-            enabled: false,
-            autoAcceptStreams: false,
-            acceptedSuperTokens: emptyTokens4,
-            minFlowRate: 1e18 // 1 token per second minimum
-        });
         
         CookieJarLib.JarConfig memory params4 = CookieJarLib.JarConfig({
             jarOwner: DEPLOYER,
@@ -351,8 +324,7 @@ contract DeployLocalScript is Script {
             oneTimeWithdrawal: true,
             maxWithdrawalPerPeriod: 0,
             metadata: "NFT Airdrop - One-time 500 DEMO tokens for Cookie Monster NFT holders",
-            multiTokenConfig: defaultMultiToken4,
-            streamingConfig: defaultStreaming4
+            multiTokenConfig: defaultMultiToken4
         });
         
         
@@ -365,7 +337,7 @@ contract DeployLocalScript is Script {
             })
         });
         
-        factory.createCookieJar(params4, accessConfig4, defaultMultiToken4, defaultStreaming4);
+        factory.createCookieJar(params4, accessConfig4, defaultMultiToken4);
         
         // Fund the fourth jar with 10K DEMO tokens
         address[] memory allJars4 = factory.getAllJars();

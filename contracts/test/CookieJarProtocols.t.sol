@@ -154,12 +154,6 @@ contract CookieJarProtocolsTest is Test {
                     maxSlippagePercent: 500,
                     minSwapAmount: 0,
                     defaultFee: 3000
-                }),
-                streamingConfig: CookieJarLib.StreamingConfig({
-                    enabled: false,
-                    autoAcceptStreams: false,
-                    minFlowRate: 1e18,
-                    acceptedSuperTokens: new address[](0)
                 })
             });
     }
@@ -208,7 +202,8 @@ contract CookieJarProtocolsTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfigWithProtocols()
+            createAccessConfigWithProtocols(),
+            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
         );
 
         // Create Unlock jar
@@ -228,7 +223,8 @@ contract CookieJarProtocolsTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfigWithProtocols()
+            createAccessConfigWithProtocols(),
+            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
         );
 
         // Create Hypercert jar
@@ -248,7 +244,8 @@ contract CookieJarProtocolsTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfigWithProtocols()
+            createAccessConfigWithProtocols(),
+            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
         );
 
         // Create Hats jar
@@ -268,7 +265,8 @@ contract CookieJarProtocolsTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfigWithProtocols()
+            createAccessConfigWithProtocols(),
+            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
         );
 
         // Fund the jars
@@ -497,7 +495,8 @@ contract CookieJarProtocolsTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfigWithProtocols()
+            createAccessConfigWithProtocols(),
+            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
         );
         
         vm.warp(block.timestamp + withdrawalInterval + 1);

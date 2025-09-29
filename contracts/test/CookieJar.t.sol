@@ -122,12 +122,6 @@ contract CookieJarTest is Test {
                     maxSlippagePercent: 500,
                     minSwapAmount: 0,
                     defaultFee: 3000
-                }),
-                streamingConfig: CookieJarLib.StreamingConfig({
-                    enabled: false,
-                    autoAcceptStreams: false,
-                    acceptedSuperTokens: new address[](0),
-                    minFlowRate: 1e18
                 })
             });
     }
@@ -188,7 +182,8 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawalEnabled
             ),
-            createAccessConfig(emptyAddresses, emptyAllowlist)
+            createAccessConfig(emptyAddresses, emptyAllowlist),
+            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
         );
 
         jarAllowlistERC20Fixed = new CookieJar(
@@ -207,7 +202,8 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawalEnabled
             ),
-            createAccessConfig(emptyAddresses, emptyAllowlist)
+            createAccessConfig(emptyAddresses, emptyAllowlist),
+            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
         );
 
         jarNFTETHFixed = new CookieJar(
@@ -226,7 +222,8 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfig(nftAddresses, emptyAllowlist)
+            createAccessConfig(nftAddresses, emptyAllowlist),
+            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
         );
 
         jarNFTERC20Variable = new CookieJar(
@@ -245,7 +242,8 @@ contract CookieJarTest is Test {
                 false, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfig(nftAddresses, emptyAllowlist)
+            createAccessConfig(nftAddresses, emptyAllowlist),
+            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
         );
 
         jarAllowlistETHVariable = new CookieJar(
@@ -264,7 +262,8 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfig(emptyAddresses, emptyAllowlist)
+            createAccessConfig(emptyAddresses, emptyAllowlist),
+            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
         );
 
         jarAllowlistERC20Variable = new CookieJar(
@@ -283,7 +282,8 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfig(emptyAddresses, emptyAllowlist)
+            createAccessConfig(emptyAddresses, emptyAllowlist),
+            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
         );
 
         jarNFTETHVariable = new CookieJar(
@@ -302,7 +302,8 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfig(nftAddresses, emptyAllowlist)
+            createAccessConfig(nftAddresses, emptyAllowlist),
+            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
         );
 
         jarAllowlistETHOneTimeWithdrawal = new CookieJar(
@@ -321,7 +322,8 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 true // oneTimeWithdrawal
             ),
-            createAccessConfig(emptyAddresses, users)
+            createAccessConfig(emptyAddresses, users),
+            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
         );
 
         jarNFTERC20OneTimeWithdrawal = new CookieJar(
@@ -340,7 +342,8 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 true // oneTimeWithdrawal
             ),
-            createAccessConfig(nftAddresses, emptyAllowlist)
+            createAccessConfig(nftAddresses, emptyAllowlist),
+            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
         );
 
         jarNFTERC20Fixed = new CookieJar(
@@ -359,7 +362,8 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfig(nftAddresses, emptyAllowlist)
+            createAccessConfig(nftAddresses, emptyAllowlist),
+            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
         );
 
         jarAllowlistETHFixed.deposit{value: 1000 ether}(0);
@@ -399,7 +403,8 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfig(emptyAddresses, users)
+            createAccessConfig(emptyAddresses, users),
+            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
         );
 
         assertEq(newJarAllowlistETHFixed.feeCollector(), feeCollector);
@@ -440,7 +445,8 @@ contract CookieJarTest is Test {
                 false, // emergencyWithdrawalEnabled
                 true // oneTimeWithdrawal
             ),
-            createAccessConfig(nftAddresses, emptyAddresses)
+            createAccessConfig(nftAddresses, emptyAddresses),
+            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
         );
 
         assertEq(newJarNFTGatedERC20Variable.feeCollector(), feeCollector);
@@ -479,7 +485,8 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfig(emptyAddresses, users)
+            createAccessConfig(emptyAddresses, users),
+            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
         );
     }
 
@@ -501,7 +508,8 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfig(emptyAddresses, users)
+            createAccessConfig(emptyAddresses, users),
+            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
         );
     }
 
@@ -523,7 +531,8 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfig(emptyAddresses, users) // empty NFT addresses
+            createAccessConfig(emptyAddresses, users), // empty NFT addresses
+            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
         );
     }
 
@@ -545,7 +554,8 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfig(nftAddresses, users) // mismatched arrays
+            createAccessConfig(nftAddresses, users), // mismatched arrays
+            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
         );
     }
 
@@ -570,7 +580,8 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfig(invalidAddresses, emptyAddresses) // invalid NFT addresses
+            createAccessConfig(invalidAddresses, emptyAddresses), // invalid NFT addresses
+            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
         );
     }
 
@@ -597,7 +608,8 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 true // oneTimeWithdrawal
             ),
-            createAccessConfig(dupAddresses, emptyAllowlist) // duplicate NFT addresses
+            createAccessConfig(dupAddresses, emptyAllowlist), // duplicate NFT addresses
+            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
         );
     }
 
@@ -1177,7 +1189,8 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfig(emptyAddresses, emptyAllowlist)
+            createAccessConfig(emptyAddresses, emptyAllowlist),
+            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
         );
         vm.prank(owner);
         newJar.grantJarAllowlistRole(users);
@@ -1403,7 +1416,8 @@ contract CookieJarTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfig(nftAddresses, emptyAllowlist)
+            createAccessConfig(nftAddresses, emptyAllowlist),
+            address(0x1234567890123456789012345678901234567890) // Mock Superfluid host
         );
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);

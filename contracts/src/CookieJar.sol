@@ -12,6 +12,8 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol
 import {CookieJarLib} from "./libraries/CookieJarLib.sol";
 import {CookieJarValidation} from "./libraries/CookieJarValidation.sol";
 import {UniversalSwapAdapter} from "./libraries/UniversalSwapAdapter.sol";
+import {Streaming} from "./libraries/Streaming.sol";
+import {ISuperfluid, ISuperToken, IConstantFlowAgreementV1} from "@superfluid-finance/ethereum-contracts/interfaces/superfluid/ISuperfluid.sol";
 
 // Protocol interfaces
 interface IPOAP {
@@ -83,17 +85,25 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     /// @notice Multi-token configuration
     CookieJarLib.MultiTokenConfig public multiTokenConfig;
     
-    /// @notice Streaming configuration (Superfluid-based real-time streaming)
-    CookieJarLib.StreamingConfig public streamingConfig;
     
     /// @notice Tokens pending manual swap to jar token
     mapping(address => uint256) public pendingTokenBalances;
     
     /// @notice Track Super Token streams by superToken => sender => stream
-    mapping(address => mapping(address => CookieJarLib.SuperfluidStream)) public superStreams;
+    mapping(address => mapping(address => Streaming.SuperfluidStream)) public superStreams;
     
-    /// @notice Accepted Super Tokens
-    mapping(address => bool) public isSuperTokenAccepted;
+
+    // === SUPERFLUID INTEGRATION ===
+
+    /// @notice Superfluid host contract address (immutable)
+    ISuperfluid public immutable superfluidHost;
+
+    /// @notice Constant Flow Agreement contract (immutable)
+    IConstantFlowAgreementV1 public immutable cfa;
+
+    /// @notice Real-time balance tracking for Super Tokens
+    /// @dev Maps superToken => real-time balance (including ongoing streams)
+    mapping(address => int96) public superTokenFlowRates;
 
     // Complex withdrawal tracking removed for simplicity
 
@@ -101,9 +111,17 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     /// @dev Simplified constructor with unified access configuration
     /// @param config The main configuration struct for the jar
     /// @param accessConfig The access control configuration (allowlist or NFT requirement)
-    constructor(CookieJarLib.JarConfig memory config, CookieJarLib.AccessConfig memory accessConfig) {
+    /// @param _superfluidHost Address of the Superfluid host contract
+    constructor(
+        CookieJarLib.JarConfig memory config,
+        CookieJarLib.AccessConfig memory accessConfig,
+        address _superfluidHost
+    ) {
         if (config.jarOwner == address(0)) revert CookieJarLib.AdminCannotBeZeroAddress();
         if (config.feeCollector == address(0)) revert CookieJarLib.FeeCollectorAddressCannotBeZeroAddress();
+
+        // Initialize Superfluid host and CFA using Streaming library
+        (superfluidHost, cfa) = Streaming.initializeSuperfluidContracts(_superfluidHost);
 
         // Set immutable configuration
         accessType = config.accessType;
@@ -128,14 +146,8 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
             nftRequirement = accessConfig.nftRequirement;
         }
 
-        // Set multi-token and streaming configurations
+        // Set multi-token configuration
         multiTokenConfig = config.multiTokenConfig;
-        streamingConfig = config.streamingConfig;
-        
-        // Setup accepted super tokens
-        for (uint256 i = 0; i < streamingConfig.acceptedSuperTokens.length; i++) {
-            isSuperTokenAccepted[streamingConfig.acceptedSuperTokens[i]] = true;
-        }
 
         // Setup roles
         _grantRole(CookieJarLib.JAR_OWNER, config.jarOwner);
@@ -266,23 +278,6 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
         
         emit CookieJarLib.PendingTokensRecovered(token, amount);
     }
-
-    /// @notice Anyone can recover accidentally sent ERC-20 tokens
-    /// @param token Token to recover
-    function recoverAccidentalTokens(address token) external {
-        if (token == currency) revert CookieJarLib.InvalidTokenAddress();
-        if (token == address(0)) revert CookieJarLib.InvalidTokenAddress();
-        
-        uint256 contractBalance = IERC20(token).balanceOf(address(this));
-        uint256 knownPending = pendingTokenBalances[token];
-        uint256 unaccounted = contractBalance > knownPending ? contractBalance - knownPending : 0;
-        
-        if (unaccounted > 0) {
-            pendingTokenBalances[token] += unaccounted;
-            emit CookieJarLib.PendingTokensRecovered(token, unaccounted);
-        }
-    }
-
 
     /// @notice Allows the admin to perform an emergency withdrawal of funds from the jar.
     /// @param token If address(3) then ETH is withdrawn; otherwise, ERC20 token address.
@@ -624,112 +619,86 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     // === STREAMING FUNCTIONS ===
     // Real-time streaming via Superfluid Protocol
 
-    /// @notice Configure streaming settings (admin only)
-    /// @param config Streaming configuration
-    function configureStreaming(
-        CookieJarLib.StreamingConfig memory config
-    ) external onlyRole(CookieJarLib.JAR_OWNER) {
-        streamingConfig = config;
-        
-        // Update accepted super tokens mapping
-        for (uint256 i = 0; i < config.acceptedSuperTokens.length; i++) {
-            isSuperTokenAccepted[config.acceptedSuperTokens[i]] = true;
-        }
-        
-        emit CookieJarLib.SuperfluidConfigUpdated(config.enabled);
-    }
 
-    /// @notice Create a Super Token stream - INTEGRATED
+    /// @notice Create a Super Token stream - INTEGRATED WITH SUPERFLUID PROTOCOL
     /// @param superToken Super Token address
-    /// @param flowRate Flow rate (wei per second)
-    function createSuperStream(address superToken, int96 flowRate) external {
-        if (!streamingConfig.enabled) revert CookieJarLib.InvalidAccessType();
-        if (!isSuperTokenAccepted[superToken]) revert CookieJarLib.InvalidTokenAddress();
-        if (flowRate < streamingConfig.minFlowRate) revert CookieJarLib.InvalidStreamRate();
-        
-        // Record the super stream
-        superStreams[superToken][msg.sender] = CookieJarLib.SuperfluidStream({
-            superToken: superToken,
-            sender: msg.sender,
-            flowRate: flowRate,
-            startTime: block.timestamp,
-            isActive: streamingConfig.autoAcceptStreams
-        });
-        
-        emit CookieJarLib.SuperStreamCreated(msg.sender, superToken, flowRate);
+    /// @param flowRate Flow rate (wad per second)
+    function createSuperStream(address superToken, int96 flowRate) external nonReentrant {
+        Streaming.createStream(
+            superfluidHost,
+            cfa,
+            superToken,
+            msg.sender,
+            flowRate,
+            superStreams,
+            superTokenFlowRates
+        );
     }
 
-    /// @notice Update a Super Token stream - INTEGRATED
+    /// @notice Update a Super Token stream - INTEGRATED WITH SUPERFLUID PROTOCOL
     /// @param superToken Super Token address
     /// @param newFlowRate New flow rate
-    function updateSuperStream(address superToken, int96 newFlowRate) external {
-        if (!streamingConfig.enabled) revert CookieJarLib.InvalidAccessType();
-        CookieJarLib.SuperfluidStream storage stream = superStreams[superToken][msg.sender];
-        if (stream.sender == address(0)) revert CookieJarLib.StreamNotFound();
-        
-        stream.flowRate = newFlowRate;
-        emit CookieJarLib.SuperStreamUpdated(msg.sender, superToken, newFlowRate);
+    function updateSuperStream(address superToken, int96 newFlowRate) external nonReentrant {
+        Streaming.updateStream(
+            superfluidHost,
+            cfa,
+            superToken,
+            msg.sender,
+            newFlowRate,
+            superStreams,
+            superTokenFlowRates
+        );
     }
 
-    /// @notice Delete a Super Token stream - INTEGRATED
+    /// @notice Delete a Super Token stream - INTEGRATED WITH SUPERFLUID PROTOCOL
     /// @param superToken Super Token address
-    function deleteSuperStream(address superToken) external {
-        if (!streamingConfig.enabled) revert CookieJarLib.InvalidAccessType();
-        CookieJarLib.SuperfluidStream storage stream = superStreams[superToken][msg.sender];
-        if (stream.sender == address(0)) revert CookieJarLib.StreamNotFound();
-        
-        stream.isActive = false;
-        emit CookieJarLib.SuperStreamDeleted(msg.sender, superToken);
+    function deleteSuperStream(address superToken) external nonReentrant {
+        Streaming.deleteStream(
+            superfluidHost,
+            cfa,
+            superToken,
+            msg.sender,
+            superStreams,
+            superTokenFlowRates
+        );
     }
 
-    /// @notice Get real-time balance of Super Token - INTEGRATED
-    /// @param superToken Super Token address
-    /// @return balance Real-time balance including ongoing streams
-    function getRealTimeBalance(address superToken) external view returns (uint256 balance) {
-        if (superToken == currency) {
-            return currencyHeldByJar;
-        }
-        // For non-jar currency super tokens, return 0 (would need full Superfluid SDK integration)
-        return 0;
-    }
 
-    /// @notice Check if Super Token is accepted - INTEGRATED
-    /// @param superToken Super Token address
-    /// @return accepted Whether the super token is accepted
-    function isAcceptedSuperToken(address superToken) external view returns (bool accepted) {
-        return isSuperTokenAccepted[superToken];
-    }
-
-    /// @notice Get streaming configuration
-    /// @return config Current streaming configuration
-    function getStreamingConfig() external view returns (CookieJarLib.StreamingConfig memory config) {
-        return streamingConfig;
-    }
-
-    /// @notice Get super stream details - INTEGRATED
+    /// @notice Get detailed flow information for a specific stream
     /// @param superToken Super Token address
     /// @param sender Stream sender
-    /// @return stream Stream details
-    function getSuperStream(
-        address superToken,
-        address sender
-    ) external view returns (CookieJarLib.SuperfluidStream memory stream) {
-        return superStreams[superToken][sender];
+    /// @return lastUpdated Timestamp of last update
+    /// @return flowrate Current flowrate
+    /// @return depositAmount Deposit amount
+    /// @return owedDeposit Owed deposit amount
+    function getSuperStreamInfo(address superToken, address sender) external view returns (
+        uint256 lastUpdated,
+        int96 flowrate,
+        uint256 depositAmount,
+        uint256 owedDeposit
+    ) {
+        return Streaming.getSuperStreamInfo(cfa, superToken, sender, address(this));
     }
 
-    /// @notice Emergency withdrawal of Super Tokens - INTEGRATED
-    /// @param superToken Super Token to withdraw
-    /// @param amount Amount to withdraw
-    function emergencyWithdrawSuperToken(
-        address superToken,
-        uint256 amount
-    ) external onlyRole(CookieJarLib.JAR_OWNER) {
-        if (!emergencyWithdrawalEnabled) revert CookieJarLib.EmergencyWithdrawalDisabled();
-        if (amount == 0) revert CookieJarLib.ZeroAmount();
-        
-        emit CookieJarLib.EmergencyWithdrawal(msg.sender, superToken, amount);
-        
-        // Transfer super token (using SafeERC20 for safety)
-        IERC20(superToken).safeTransfer(msg.sender, amount);
+    /// @notice Get net flow rate for this contract
+    /// @param superToken Super Token address
+    /// @return netFlowRate Net flow rate (positive = inflow, negative = outflow)
+    function getNetFlowRate(address superToken) external view returns (int96 netFlowRate) {
+        return Streaming.getNetFlowRate(cfa, superToken, address(this));
+    }
+
+    /// @notice Get account flow info for this contract
+    /// @param superToken Super Token address
+    /// @return lastUpdated Last update timestamp
+    /// @return flowrate Net flowrate
+    /// @return depositAmount Total deposit
+    /// @return owedDeposit Owed deposit
+    function getAccountFlowInfo(address superToken) external view returns (
+        uint256 lastUpdated,
+        int96 flowrate,
+        uint256 depositAmount,
+        uint256 owedDeposit
+    ) {
+        return Streaming.getAccountFlowInfo(cfa, superToken, address(this));
     }
 }
