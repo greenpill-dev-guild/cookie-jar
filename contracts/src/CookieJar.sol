@@ -12,7 +12,7 @@ import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol
 import {CookieJarLib} from "./libraries/CookieJarLib.sol";
 import {UniversalSwapAdapter} from "./libraries/UniversalSwapAdapter.sol";
 import {Streaming} from "./libraries/Streaming.sol";
-import {ISuperfluid, ISuperToken, IConstantFlowAgreementV1} from "@superfluid-finance/ethereum-contracts/interfaces/superfluid/ISuperfluid.sol";
+import {ISuperfluid, IConstantFlowAgreementV1} from "@superfluid-finance/ethereum-contracts/interfaces/superfluid/ISuperfluid.sol";
 
 /// @title CookieJar - Optimized Version
 /// @notice Decentralized funding pools with simplified access control
@@ -26,41 +26,41 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     address[] public allowlist;
 
     /// @notice Access requirements - unified for all access types
-    CookieJarLib.NFTRequirement public nftRequirement;
+    CookieJarLib.NftRequirement public nftRequirement;
 
     /// @notice Withdrawal tracking state variables
     /// @dev Maintained for complex withdrawal logic requirements
     mapping(address => uint256) public lastWithdrawalTime;
     mapping(address => uint256) public totalWithdrawn;
     mapping(address => uint256) public withdrawnInCurrentPeriod;
-    uint256 public immutable maxWithdrawalPerPeriod;
+    uint256 public immutable MAX_WITHDRAWAL_PER_PERIOD;
 
-    uint256 public currencyHeldByJar;
-    address public immutable currency;
-    uint256 public immutable minDeposit;
+    uint256 public CURRENCYHeldByJar;
+    address public immutable CURRENCY;
+    uint256 public immutable MIN_DEPOSIT;
     /// @notice Fee percentage, 10000 = 100%
-    uint256 public immutable feePercentageOnDeposit;
+    uint256 public immutable FEE_PERCENTAGE_ON_DEPOSIT;
     /// @notice Access control mode: Allowlist or NFTGated.
-    CookieJarLib.AccessType public immutable accessType;
+    CookieJarLib.AccessType public immutable ACCESS_TYPE;
     /// @notice Withdrawal option: Fixed or Variable.
-    CookieJarLib.WithdrawalTypeOptions public immutable withdrawalOption;
+    CookieJarLib.WithdrawalTypeOptions public immutable WITHDRAWAL_OPTION;
 
     /// @notice If true, each recipient can only claim from the jar once.
-    bool public immutable oneTimeWithdrawal;
-    /// @notice Fixed withdrawal amount (used if withdrawalOption is Fixed).
+    bool public immutable ONE_TIME_WITHDRAWAL;
+    /// @notice Fixed withdrawal amount (used if WITHDRAWAL_OPTION is Fixed).
     uint256 public fixedAmount;
-    /// @notice Maximum withdrawal amount (used if withdrawalOption is Variable).
+    /// @notice Maximum withdrawal amount (used if WITHDRAWAL_OPTION is Variable).
     uint256 public maxWithdrawal;
     /// @notice Time (in seconds) required between withdrawals.
     uint256 public withdrawalInterval;
     /// @notice If true, each withdrawal must have a purpose string of at least 20 characters.
-    bool public immutable strictPurpose;
+    bool public immutable STRICT_PURPOSE;
     /// @notice Fee collector address; note that admin is not the fee collector.
     address public feeCollector;
     /// @notice If true, emergency withdrawal is enabled.
-    bool public immutable emergencyWithdrawalEnabled;
+    bool public immutable EMERGENCY_WITHDRAWAL_ENABLED;
     /// @notice Maximum withdrawal allowed per period (removed for simplicity)
-    // uint256 public maxWithdrawalPerPeriod; // Removed for size optimization
+    // uint256 public MAX_WITHDRAWAL_PER_PERIOD; // Removed for size optimization
 
     // === MULTI-TOKEN & STREAMING STORAGE ===
     
@@ -78,10 +78,10 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     // === SUPERFLUID INTEGRATION ===
 
     /// @notice Superfluid host contract address (immutable)
-    ISuperfluid public immutable superfluidHost;
+    ISuperfluid public immutable SUPERFLUID_HOST;
 
     /// @notice Constant Flow Agreement contract (immutable)
-    IConstantFlowAgreementV1 public immutable cfa;
+    IConstantFlowAgreementV1 public immutable CFA;
 
     /// @notice Real-time balance tracking for Super Tokens
     /// @dev Maps superToken => real-time balance (including ongoing streams)
@@ -93,41 +93,41 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     /// @dev Simplified constructor with unified access configuration
     /// @param config The main configuration struct for the jar
     /// @param accessConfig The access control configuration (allowlist or NFT requirement)
-    /// @param _superfluidHost Address of the Superfluid host contract
+    /// @param _SUPERFLUID_HOST Address of the Superfluid host contract
     constructor(
         CookieJarLib.JarConfig memory config,
         CookieJarLib.AccessConfig memory accessConfig,
-        address _superfluidHost
+        address _SUPERFLUID_HOST
     ) {
         if (config.jarOwner == address(0)) revert CookieJarLib.AdminCannotBeZeroAddress();
         if (config.feeCollector == address(0)) revert CookieJarLib.FeeCollectorAddressCannotBeZeroAddress();
 
         // Initialize Superfluid host and CFA using Streaming library
-        if (_superfluidHost != address(0)) {
-            (superfluidHost, cfa) = Streaming.initializeSuperfluidContracts(_superfluidHost);
+        if (_SUPERFLUID_HOST != address(0)) {
+            (SUPERFLUID_HOST, CFA) = Streaming.initializeSuperfluidContracts(_SUPERFLUID_HOST);
         } else {
             // For testing - use placeholder addresses
-            superfluidHost = ISuperfluid(address(0));
-            cfa = IConstantFlowAgreementV1(address(0));
+            SUPERFLUID_HOST = ISuperfluid(address(0));
+            CFA = IConstantFlowAgreementV1(address(0));
         }
 
         // Set immutable configuration
-        accessType = config.accessType;
-        currency = config.supportedCurrency;
-        minDeposit = config.minDeposit;
-        feePercentageOnDeposit = config.feePercentageOnDeposit;
-        withdrawalOption = config.withdrawalOption;
-        oneTimeWithdrawal = config.oneTimeWithdrawal;
+        ACCESS_TYPE = config.ACCESS_TYPE;
+        CURRENCY = config.supportedCurrency;
+        MIN_DEPOSIT = config.MIN_DEPOSIT;
+        FEE_PERCENTAGE_ON_DEPOSIT = config.FEE_PERCENTAGE_ON_DEPOSIT;
+        WITHDRAWAL_OPTION = config.WITHDRAWAL_OPTION;
+        ONE_TIME_WITHDRAWAL = config.ONE_TIME_WITHDRAWAL;
         fixedAmount = config.fixedAmount;
         maxWithdrawal = config.maxWithdrawal;
         withdrawalInterval = config.withdrawalInterval;
-        strictPurpose = config.strictPurpose;
+        STRICT_PURPOSE = config.STRICT_PURPOSE;
         feeCollector = config.feeCollector;
-        emergencyWithdrawalEnabled = config.emergencyWithdrawalEnabled;
-        maxWithdrawalPerPeriod = config.maxWithdrawalPerPeriod;
+        EMERGENCY_WITHDRAWAL_ENABLED = config.EMERGENCY_WITHDRAWAL_ENABLED;
+        MAX_WITHDRAWAL_PER_PERIOD = config.MAX_WITHDRAWAL_PER_PERIOD;
 
         // Set access requirements based on type
-        if (accessType == CookieJarLib.AccessType.Allowlist) {
+        if (ACCESS_TYPE == CookieJarLib.AccessType.Allowlist) {
             _setupAllowlist(accessConfig.allowlist);
         } else {
             // For ERC721 and ERC1155, validate NFT requirement 
@@ -149,17 +149,17 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     
     /// @notice Receive ETH and handle direct deposits or pending storage  
     receive() external payable {
-        _handleETHReceive();
+        _handleEthReceive();
     }
 
     /// @notice Internal function to handle ETH receive logic
-    function _handleETHReceive() internal {
+    function _handleEthReceive() internal {
         if (msg.value == 0) return;
         
-        if (currency == CookieJarLib.ETH_ADDRESS) {
+        if (CURRENCY == CookieJarLib.ETH_ADDRESS) {
             // Direct ETH jar - process with fees
             (uint256 fee, uint256 remainingAmount) = _calculateFee(msg.value);
-            currencyHeldByJar += remainingAmount;
+            CURRENCYHeldByJar += remainingAmount;
             
             if (fee > 0) {
                 (bool success, ) = payable(feeCollector).call{value: fee}("");
@@ -194,12 +194,12 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     /// @notice Updates the jar allowlist status of a user.
     /// @param _users The address of the user.
     function grantJarAllowlistRole(address[] calldata _users) external onlyRole(CookieJarLib.JAR_OWNER) {
-        if (accessType != CookieJarLib.AccessType.Allowlist) revert CookieJarLib.InvalidAccessType();
+        if (ACCESS_TYPE != CookieJarLib.AccessType.Allowlist) revert CookieJarLib.InvalidAccessType();
         _grantRoles(CookieJarLib.JAR_ALLOWLISTED, _users);
     }
 
     function revokeJarAllowlistRole(address[] calldata _users) external onlyRole(CookieJarLib.JAR_OWNER) {
-        if (accessType != CookieJarLib.AccessType.Allowlist) revert CookieJarLib.InvalidAccessType();
+        if (ACCESS_TYPE != CookieJarLib.AccessType.Allowlist) revert CookieJarLib.InvalidAccessType();
         _revokeRoles(CookieJarLib.JAR_ALLOWLISTED, _users);
     }
 
@@ -217,19 +217,19 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     // NFT gate management removed for simplicity - direct ownership verification used instead
     
 
-    /// @notice Updates the maximum withdrawal amount, only works if withdrawalOption is Variable.
+    /// @notice Updates the maximum withdrawal amount, only works if WITHDRAWAL_OPTION is Variable.
     /// @param _maxWithdrawal The new maximum withdrawal amount.
     function updateMaxWithdrawalAmount(uint256 _maxWithdrawal) external onlyRole(CookieJarLib.JAR_OWNER) {
-        if (withdrawalOption == CookieJarLib.WithdrawalTypeOptions.Fixed) revert CookieJarLib.InvalidWithdrawalType();
+        if (WITHDRAWAL_OPTION == CookieJarLib.WithdrawalTypeOptions.Fixed) revert CookieJarLib.InvalidWithdrawalType();
         if (_maxWithdrawal == 0) revert CookieJarLib.ZeroAmount();
         maxWithdrawal = _maxWithdrawal;
         emit CookieJarLib.ParameterUpdated(CookieJarLib.PARAM_MAX_WITHDRAWAL, _maxWithdrawal);
     }
 
-    /// @notice Updates the fixed withdrawal amount, only works if withdrawalOption is Fixed.
+    /// @notice Updates the fixed withdrawal amount, only works if WITHDRAWAL_OPTION is Fixed.
     /// @param _fixedAmount The new fixed withdrawal amount.
     function updateFixedWithdrawalAmount(uint256 _fixedAmount) external onlyRole(CookieJarLib.JAR_OWNER) {
-        if (withdrawalOption == CookieJarLib.WithdrawalTypeOptions.Variable) {
+        if (WITHDRAWAL_OPTION == CookieJarLib.WithdrawalTypeOptions.Variable) {
             revert CookieJarLib.InvalidWithdrawalType();
         }
         if (_fixedAmount == 0) revert CookieJarLib.ZeroAmount();
@@ -274,11 +274,11 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     /// @param token If address(3) then ETH is withdrawn; otherwise, ERC20 token address.
     /// @param amount The amount to withdraw.
     function emergencyWithdraw(address token, uint256 amount) external onlyRole(CookieJarLib.JAR_OWNER) nonReentrant {
-        if (!emergencyWithdrawalEnabled) revert CookieJarLib.EmergencyWithdrawalDisabled();
+        if (!EMERGENCY_WITHDRAWAL_ENABLED) revert CookieJarLib.EmergencyWithdrawalDisabled();
         if (amount == 0) revert CookieJarLib.ZeroAmount();
-        if (token == currency) {
-            if (currencyHeldByJar < amount) revert CookieJarLib.InsufficientBalance();
-            currencyHeldByJar -= amount;
+        if (token == CURRENCY) {
+            if (CURRENCYHeldByJar < amount) revert CookieJarLib.InsufficientBalance();
+            CURRENCYHeldByJar -= amount;
         }
         emit CookieJarLib.EmergencyWithdrawal(msg.sender, token, amount);
         if (token == CookieJarLib.ETH_ADDRESS) {
@@ -298,27 +298,27 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     function deposit(uint256 amount) public payable whenNotPaused nonReentrant {
         uint256 depositAmount;
 
-        if (currency == CookieJarLib.ETH_ADDRESS) {
+        if (CURRENCY == CookieJarLib.ETH_ADDRESS) {
             // ETH deposit - amount parameter should be 0
             if (amount != 0) revert CookieJarLib.InvalidTokenAddress();
         if (msg.value == 0) revert CookieJarLib.ZeroAmount();
-        if (msg.value < minDeposit) revert CookieJarLib.LessThanMinimumDeposit();
+        if (msg.value < MIN_DEPOSIT) revert CookieJarLib.LessThanMinimumDeposit();
             depositAmount = msg.value;
         } else {
             // ERC20 deposit
             if (msg.value != 0) revert CookieJarLib.InvalidTokenAddress();
             if (amount == 0) revert CookieJarLib.ZeroAmount();
-            if (amount < minDeposit) revert CookieJarLib.LessThanMinimumDeposit();
+            if (amount < MIN_DEPOSIT) revert CookieJarLib.LessThanMinimumDeposit();
             depositAmount = amount;
 
             // Transfer ERC20 tokens from user to contract
-            IERC20(currency).safeTransferFrom(msg.sender, address(this), amount);
+            IERC20(CURRENCY).safeTransferFrom(msg.sender, address(this), amount);
         }
 
         // Calculate and deduct fee
         (uint256 fee, uint256 remainingAmount) = _calculateFee(depositAmount);
 
-        if (currency == CookieJarLib.ETH_ADDRESS) {
+        if (CURRENCY == CookieJarLib.ETH_ADDRESS) {
             // Send ETH fee to fee collector
             if (fee > 0) {
         (bool success, ) = payable(feeCollector).call{value: fee}("");
@@ -327,16 +327,16 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
         } else {
             // Send ERC20 fee to fee collector
         if (fee > 0) {
-            IERC20(currency).safeTransfer(feeCollector, fee);
+            IERC20(CURRENCY).safeTransfer(feeCollector, fee);
             }
         }
         
         // Update jar balance
-        currencyHeldByJar += remainingAmount;
+        CURRENCYHeldByJar += remainingAmount;
 
         // Emit events
-        emit CookieJarLib.Deposit(msg.sender, remainingAmount, currency);
-        emit CookieJarLib.FeeCollected(feeCollector, fee, currency);
+        emit CookieJarLib.Deposit(msg.sender, remainingAmount, CURRENCY);
+        emit CookieJarLib.FeeCollected(feeCollector, fee, CURRENCY);
     }
 
     /// @notice Unified withdrawal function for all access types
@@ -359,13 +359,13 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
         this.withdraw(amount, purpose);
     }
     
-    /// @notice Legacy function for ERC721 mode (backwards compatibility) 
-    function withdrawWithERC721(uint256 amount, string calldata purpose) external {
+    /// @notice Legacy function for ERC721 mode (backwards compatibility)
+    function withdrawWithErc721(uint256 amount, string calldata purpose) external {
         this.withdraw(amount, purpose);
     }
-    
+
     /// @notice Legacy function for ERC1155 mode (backwards compatibility)
-    function withdrawWithERC1155(uint256 amount, string calldata purpose) external {
+    function withdrawWithErc1155(uint256 amount, string calldata purpose) external {
         this.withdraw(amount, purpose);
     }
 
@@ -382,17 +382,17 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     /// @notice Optimized inline access validation for all access types
     /// @dev Consolidated validation logic to reduce bytecode size
     function _checkAccess() internal view {
-        if (accessType == CookieJarLib.AccessType.Allowlist) {
+        if (ACCESS_TYPE == CookieJarLib.AccessType.Allowlist) {
             if (!hasRole(CookieJarLib.JAR_ALLOWLISTED, msg.sender)) 
                 revert CookieJarLib.NotAuthorized();
-        } else if (accessType == CookieJarLib.AccessType.ERC721) {
+        } else if (ACCESS_TYPE == CookieJarLib.AccessType.ERC721) {
             // Inline ERC721 validation
             if (nftRequirement.nftContract == address(0)) revert CookieJarLib.InvalidTokenAddress();
             if (nftRequirement.tokenId == 0) revert CookieJarLib.NotAuthorized(); // Require specific token
             try IERC721(nftRequirement.nftContract).ownerOf(nftRequirement.tokenId) returns (address owner) {
                 if (owner != msg.sender) revert CookieJarLib.NotAuthorized();
             } catch { revert CookieJarLib.NotAuthorized(); }
-        } else if (accessType == CookieJarLib.AccessType.ERC1155) {
+        } else if (ACCESS_TYPE == CookieJarLib.AccessType.ERC1155) {
             // Inline ERC1155 validation
             if (nftRequirement.nftContract == address(0)) revert CookieJarLib.InvalidTokenAddress();
             uint256 minBal = nftRequirement.minBalance > 0 ? nftRequirement.minBalance : 1;
@@ -415,15 +415,15 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     /// @dev Consolidated validation logic from multiple functions
     function _validateWithdrawalConstraints(uint256 amount, string calldata purpose) internal view {
         if (amount == 0) revert CookieJarLib.ZeroAmount();
-        if (currencyHeldByJar < amount) revert CookieJarLib.InsufficientBalance();
+        if (CURRENCYHeldByJar < amount) revert CookieJarLib.InsufficientBalance();
 
         // Validate purpose requirement
-        if (strictPurpose && bytes(purpose).length < 10) {
+        if (STRICT_PURPOSE && bytes(purpose).length < 10) {
             revert CookieJarLib.InvalidPurpose();
         }
 
         // Validate withdrawal amount
-        if (withdrawalOption == CookieJarLib.WithdrawalTypeOptions.Fixed) {
+        if (WITHDRAWAL_OPTION == CookieJarLib.WithdrawalTypeOptions.Fixed) {
             if (amount != fixedAmount) {
                 revert CookieJarLib.WithdrawalAmountNotAllowed(amount, fixedAmount);
             }
@@ -442,22 +442,22 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
         }
 
         // Validate one-time constraint
-        if (oneTimeWithdrawal && totalWithdrawn[msg.sender] > 0) {
+        if (ONE_TIME_WITHDRAWAL && totalWithdrawn[msg.sender] > 0) {
             revert CookieJarLib.NotAuthorized();
         }
 
         // Validate period limits
-        uint256 currentPeriodStart = (block.timestamp / CookieJarLib.WITHDRAWAL_PERIOD) * CookieJarLib.WITHDRAWAL_PERIOD;
+        uint256 currentPeriodStart = block.timestamp - (block.timestamp % CookieJarLib.WITHDRAWAL_PERIOD);
         uint256 withdrawnThisPeriod = withdrawnInCurrentPeriod[msg.sender];
 
-        if (maxWithdrawalPerPeriod > 0) {
+        if (MAX_WITHDRAWAL_PER_PERIOD > 0) {
             if (block.timestamp >= currentPeriodStart + CookieJarLib.WITHDRAWAL_PERIOD) {
                 // New period, reset counter
                 withdrawnThisPeriod = 0;
             }
 
-            if (withdrawnThisPeriod + amount > maxWithdrawalPerPeriod) {
-                uint256 available = maxWithdrawalPerPeriod - withdrawnThisPeriod;
+            if (withdrawnThisPeriod + amount > MAX_WITHDRAWAL_PER_PERIOD) {
+                uint256 available = MAX_WITHDRAWAL_PER_PERIOD - withdrawnThisPeriod;
                 revert CookieJarLib.PeriodWithdrawalLimitExceeded(amount, available);
             }
         }
@@ -472,17 +472,17 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
             withdrawnInCurrentPeriod[msg.sender] = 0;
         }
 
-        currencyHeldByJar -= amount;
+        CURRENCYHeldByJar -= amount;
         lastWithdrawalTime[msg.sender] = block.timestamp;
         totalWithdrawn[msg.sender] += amount;
         withdrawnInCurrentPeriod[msg.sender] += amount;
 
         // Transfer funds
-        if (currency == CookieJarLib.ETH_ADDRESS) {
+        if (CURRENCY == CookieJarLib.ETH_ADDRESS) {
             (bool success, ) = msg.sender.call{value: amount}("");
             require(success, "ETH transfer failed");
         } else {
-            IERC20(currency).safeTransfer(msg.sender, amount);
+            IERC20(CURRENCY).safeTransfer(msg.sender, amount);
         }
     }
 
@@ -515,34 +515,34 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     /// @return fee The calculated fee amount
     /// @return remaining The remaining amount after fee deduction
     function _calculateFee(uint256 amount) internal view returns (uint256 fee, uint256 remaining) {
-        fee = (amount * feePercentageOnDeposit) / CookieJarLib.PERCENTAGE_BASE;
+        fee = (amount * FEE_PERCENTAGE_ON_DEPOSIT) / CookieJarLib.PERCENTAGE_BASE;
         remaining = amount - fee;
     }
 
     // === INTERNAL SWAP FUNCTIONS ===
 
-    /// @notice Unified internal function to swap any token to jar currency
+    /// @notice Unified internal function to swap any token to jar CURRENCY
     /// @dev Handles both direct processing and DEX swaps with fee deduction
     /// @param fromToken Source token address (address(0) for ETH)
     /// @param amount Amount to process/swap
     /// @param minOut Minimum output amount expected for swaps
     function _swapToJarToken(address fromToken, uint256 amount, uint256 minOut) internal {
-        if (fromToken == currency) {
+        if (fromToken == CURRENCY) {
             // Already jar token - just process with fees
             (uint256 fee, uint256 remainingAmount) = _calculateFee(amount);
-            currencyHeldByJar += remainingAmount;
+            CURRENCYHeldByJar += remainingAmount;
             
             if (fee > 0) {
                 if (fromToken == CookieJarLib.ETH_ADDRESS) {
                     (bool success, ) = payable(feeCollector).call{value: fee}("");
                     if (!success) revert CookieJarLib.FeeTransferFailed();
                 } else {
-                IERC20(currency).safeTransfer(feeCollector, fee);
+                IERC20(CURRENCY).safeTransfer(feeCollector, fee);
                 }
-                emit CookieJarLib.FeeCollected(feeCollector, fee, currency);
+                emit CookieJarLib.FeeCollected(feeCollector, fee, CURRENCY);
             }
             
-            emit CookieJarLib.Deposit(msg.sender, remainingAmount, currency);
+            emit CookieJarLib.Deposit(msg.sender, remainingAmount, CURRENCY);
         } else {
             // Need to swap via DEX
             uint256 jarTokensReceived;
@@ -550,26 +550,26 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
             if (fromToken == CookieJarLib.ETH_ADDRESS) {
                 // Swap ETH to jar token
                 jarTokensReceived = UniversalSwapAdapter.swapExactETHForTokens(
-                    currency, amount, minOut, address(this)
+                    CURRENCY, amount, minOut, address(this)
                 );
             } else {
                 // Swap ERC20 to jar token
                 jarTokensReceived = UniversalSwapAdapter.swapExactInputSingle(
-                    fromToken, currency, amount, minOut, address(this)
+                    fromToken, CURRENCY, amount, minOut, address(this)
                 );
             }
 
             // Process fees and update balance
             (uint256 fee, uint256 remainingAmount) = _calculateFee(jarTokensReceived);
-            currencyHeldByJar += remainingAmount;
+            CURRENCYHeldByJar += remainingAmount;
             
             if (fee > 0) {
-                IERC20(currency).safeTransfer(feeCollector, fee);
-                emit CookieJarLib.FeeCollected(feeCollector, fee, currency);
+                IERC20(CURRENCY).safeTransfer(feeCollector, fee);
+                emit CookieJarLib.FeeCollected(feeCollector, fee, CURRENCY);
             }
             
-            emit CookieJarLib.TokenSwapped(fromToken, currency, amount, jarTokensReceived);
-            emit CookieJarLib.Deposit(msg.sender, remainingAmount, currency);
+            emit CookieJarLib.TokenSwapped(fromToken, CURRENCY, amount, jarTokensReceived);
+            emit CookieJarLib.Deposit(msg.sender, remainingAmount, CURRENCY);
         }
     }
 
@@ -583,8 +583,8 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     /// @param flowRate Flow rate (wad per second)
     function createSuperStream(address superToken, int96 flowRate) external nonReentrant {
         Streaming.createStream(
-            superfluidHost,
-            cfa,
+            SUPERFLUID_HOST,
+            CFA,
             superToken,
             msg.sender,
             flowRate,
@@ -598,8 +598,8 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     /// @param newFlowRate New flow rate
     function updateSuperStream(address superToken, int96 newFlowRate) external nonReentrant {
         Streaming.updateStream(
-            superfluidHost,
-            cfa,
+            SUPERFLUID_HOST,
+            CFA,
             superToken,
             msg.sender,
             newFlowRate,
@@ -612,8 +612,8 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     /// @param superToken Super Token address
     function deleteSuperStream(address superToken) external nonReentrant {
         Streaming.deleteStream(
-            superfluidHost,
-            cfa,
+            SUPERFLUID_HOST,
+            CFA,
             superToken,
             msg.sender,
             superStreams,
@@ -635,14 +635,14 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
         uint256 depositAmount,
         uint256 owedDeposit
     ) {
-        return Streaming.getSuperStreamInfo(cfa, superToken, sender, address(this));
+        return Streaming.getSuperStreamInfo(CFA, superToken, sender, address(this));
     }
 
     /// @notice Get net flow rate for this contract
     /// @param superToken Super Token address
     /// @return netFlowRate Net flow rate (positive = inflow, negative = outflow)
     function getNetFlowRate(address superToken) external view returns (int96 netFlowRate) {
-        return Streaming.getNetFlowRate(cfa, superToken, address(this));
+        return Streaming.getNetFlowRate(CFA, superToken, address(this));
     }
 
     /// @notice Get account flow info for this contract
@@ -657,6 +657,6 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
         uint256 depositAmount,
         uint256 owedDeposit
     ) {
-        return Streaming.getAccountFlowInfo(cfa, superToken, address(this));
+        return Streaming.getAccountFlowInfo(CFA, superToken, address(this));
     }
 }

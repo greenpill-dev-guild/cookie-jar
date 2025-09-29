@@ -109,7 +109,7 @@ contract NFTGatingEnhancedTest is Test {
         // Create access configuration
         CookieJarLib.AccessConfig memory accessConfig = CookieJarLib.AccessConfig({
             allowlist: emptyAllowlist,
-            nftRequirement: CookieJarLib.NFTRequirement({
+            nftRequirement: CookieJarLib.NftRequirement({
                 nftContract: nftAddresses[0], // Use first NFT contract
                 tokenId: 0, // Any token from contract
                 minBalance: 1

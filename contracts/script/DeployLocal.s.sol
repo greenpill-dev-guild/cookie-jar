@@ -28,7 +28,7 @@ contract DeployLocalScript is Script {
     address constant COOKIE_FAN = 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC;       // User B
 
     CookieJarFactory factory;
-    CookieMonsterNFT cookieMonsterNFT;
+    CookieMonsterNFT cookieMonsterNft;
     DummyERC20 demoToken;
 
     function run() external {
@@ -70,13 +70,13 @@ contract DeployLocalScript is Script {
         
         // Deploy Cookie Monster NFT collection
         console.log("   Deploying Cookie Monster NFT collection...");
-        cookieMonsterNFT = new CookieMonsterNFT();
-        
+        cookieMonsterNft = new CookieMonsterNFT();
+
         // Mint Cookie Monster NFTs to test users
-        cookieMonsterNFT.mint(COOKIE_MONSTER);  // Token #0 to Cookie Monster
-        cookieMonsterNFT.mint(COOKIE_FAN);      // Token #1 to Cookie Fan
+        cookieMonsterNft.mint(COOKIE_MONSTER);  // Token #0 to Cookie Monster
+        cookieMonsterNft.mint(COOKIE_FAN);      // Token #1 to Cookie Fan
         console.log("   SUCCESS: Cookie Monster NFTs minted to special accounts!");
-        console.log("      NFT Contract Address:", address(cookieMonsterNFT));
+        console.log("      NFT Contract Address:", address(cookieMonsterNft));
         console.log("      NOTE: NFT address will change on Anvil restart. Use 'pnpm nft:address' to get current address.");
         
         // Deploy demo ERC20 token
@@ -111,7 +111,7 @@ contract DeployLocalScript is Script {
         console.log("SUMMARY:");
         console.log("   - CookieJarFactory deployed at:", address(factory));
         console.log("   - 4 Cookie Jars created with different configurations");
-        console.log("   - Cookie Monster NFT deployed at:", address(cookieMonsterNFT));
+        console.log("   - Cookie Monster NFT deployed at:", address(cookieMonsterNft));
         console.log("   - DEMO ERC20 token deployed at:", address(demoToken));
         console.log("   - NFTs minted to User A (Cookie Monster) and User B (Cookie Fan)");
         console.log("   - Jars funded with ETH and DEMO tokens");
@@ -148,28 +148,28 @@ contract DeployLocalScript is Script {
         
         address[] memory emptyTokens = new address[](0);
         
-        CookieJarLib.JarConfig memory params1 = CookieJarLib.JarConfig({
-            jarOwner: DEPLOYER,
-            supportedCurrency: CookieJarLib.ETH_ADDRESS,
-            accessType: CookieJarLib.AccessType.Allowlist,
-            withdrawalOption: CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount: 0.1 ether,
-            maxWithdrawal: 1 ether,
-            withdrawalInterval: 7 days,
-            minDeposit: 0.01 ether,
-            feePercentageOnDeposit: 0,
-            strictPurpose: false,
-            feeCollector: DEPLOYER,
-            emergencyWithdrawalEnabled: true,
-            oneTimeWithdrawal: false,
-            maxWithdrawalPerPeriod: 0,
-            metadata: "Community Stipend - Weekly 0.1 ETH for community members",
-            multiTokenConfig: defaultMultiToken
-        });
+        CookieJarLib.JarConfig memory params1 = CookieJarLib.JarConfig(
+            DEPLOYER,                              // jarOwner
+            CookieJarLib.ETH_ADDRESS,             // supportedCurrency
+            DEPLOYER,                             // feeCollector
+            CookieJarLib.AccessType.Allowlist,    // accessType
+            CookieJarLib.WithdrawalTypeOptions.Fixed, // withdrawalOption
+            false,                                // strictPurpose
+            true,                                 // emergencyWithdrawalEnabled
+            false,                                // oneTimeWithdrawal
+            0.1 ether,                           // fixedAmount
+            1 ether,                             // maxWithdrawal
+            7 days,                              // withdrawalInterval
+            0.01 ether,                          // minDeposit
+            0,                                   // feePercentageOnDeposit
+            0,                                   // maxWithdrawalPerPeriod
+            "Community Stipend - Weekly 0.1 ETH for community members", // metadata
+            defaultMultiToken                    // multiTokenConfig
+        );
         
         CookieJarLib.AccessConfig memory accessConfig1 = CookieJarLib.AccessConfig({
             allowlist: allowlist1,
-            nftRequirement: CookieJarLib.NFTRequirement({
+            nftRequirement: CookieJarLib.NftRequirement({
                 nftContract: address(0),
                 tokenId: 0,
                 minBalance: 0
@@ -202,28 +202,28 @@ contract DeployLocalScript is Script {
 
         address[] memory emptyTokens2 = new address[](0);
 
-        CookieJarLib.JarConfig memory params2 = CookieJarLib.JarConfig({
-            jarOwner: DEPLOYER,
-            supportedCurrency: address(demoToken),
-            accessType: CookieJarLib.AccessType.Allowlist,
-            withdrawalOption: CookieJarLib.WithdrawalTypeOptions.Variable,
-            fixedAmount: 0,
-            maxWithdrawal: 1000 * 10**18,
-            withdrawalInterval: 30 days,
-            minDeposit: 1000 * 10**18,
-            feePercentageOnDeposit: 0,
-            strictPurpose: true,
-            feeCollector: DEPLOYER,
-            emergencyWithdrawalEnabled: false,
-            oneTimeWithdrawal: false,
-            maxWithdrawalPerPeriod: 0,
-            metadata: "Development Grants - Up to 1000 DEMO tokens monthly for contributors",
-            multiTokenConfig: defaultMultiToken2
-        });
+        CookieJarLib.JarConfig memory params2 = CookieJarLib.JarConfig(
+            DEPLOYER,                                     // jarOwner
+            address(demoToken),                          // supportedCurrency
+            DEPLOYER,                                    // feeCollector
+            CookieJarLib.AccessType.Allowlist,           // accessType
+            CookieJarLib.WithdrawalTypeOptions.Variable, // withdrawalOption
+            true,                                        // strictPurpose
+            false,                                       // emergencyWithdrawalEnabled
+            false,                                       // oneTimeWithdrawal
+            0,                                          // fixedAmount
+            1000 * 10**18,                              // maxWithdrawal
+            30 days,                                     // withdrawalInterval
+            1000 * 10**18,                              // minDeposit
+            0,                                          // feePercentageOnDeposit
+            0,                                          // maxWithdrawalPerPeriod
+            "Development Grants - Up to 1000 DEMO tokens monthly for contributors", // metadata
+            defaultMultiToken2                          // multiTokenConfig
+        );
         
         CookieJarLib.AccessConfig memory accessConfig2 = CookieJarLib.AccessConfig({
             allowlist: allowlist2,
-            nftRequirement: CookieJarLib.NFTRequirement({
+            nftRequirement: CookieJarLib.NftRequirement({
                 nftContract: address(0),
                 tokenId: 0,
                 minBalance: 0
@@ -243,7 +243,7 @@ contract DeployLocalScript is Script {
     function _createJar3() internal {
         // 3. NFT Holder Rewards (NFT-Gated, ETH, Fixed 0.05 ETH)
         address[] memory nftAddresses = new address[](1);
-        nftAddresses[0] = address(cookieMonsterNFT);
+        nftAddresses[0] = address(cookieMonsterNft);
         
         // Default configurations for Jar 3
         CookieJarLib.MultiTokenConfig memory defaultMultiToken3 = CookieJarLib.MultiTokenConfig({
@@ -255,29 +255,29 @@ contract DeployLocalScript is Script {
         
         address[] memory emptyTokens3 = new address[](0);
         
-        CookieJarLib.JarConfig memory params3 = CookieJarLib.JarConfig({
-            jarOwner: DEPLOYER,
-            supportedCurrency: CookieJarLib.ETH_ADDRESS,
-            accessType: CookieJarLib.AccessType.ERC721,
-            withdrawalOption: CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount: 0.05 ether,
-            maxWithdrawal: 1 ether,
-            withdrawalInterval: 14 days,
-            minDeposit: 0.01 ether,
-            feePercentageOnDeposit: 0,
-            strictPurpose: false,
-            feeCollector: DEPLOYER,
-            emergencyWithdrawalEnabled: true,
-            oneTimeWithdrawal: false,
-            maxWithdrawalPerPeriod: 0,
-            metadata: "NFT Holder Rewards - 0.05 ETH bi-weekly for Cookie Monster NFT holders",
-            multiTokenConfig: defaultMultiToken3
-        });
+        CookieJarLib.JarConfig memory params3 = CookieJarLib.JarConfig(
+            DEPLOYER,                                      // jarOwner
+            CookieJarLib.ETH_ADDRESS,                     // supportedCurrency
+            DEPLOYER,                                     // feeCollector
+            CookieJarLib.AccessType.ERC721,               // accessType
+            CookieJarLib.WithdrawalTypeOptions.Fixed,     // withdrawalOption
+            false,                                        // strictPurpose
+            true,                                         // emergencyWithdrawalEnabled
+            false,                                        // oneTimeWithdrawal
+            0.05 ether,                                  // fixedAmount
+            1 ether,                                     // maxWithdrawal
+            14 days,                                      // withdrawalInterval
+            0.01 ether,                                   // minDeposit
+            0,                                           // feePercentageOnDeposit
+            0,                                           // maxWithdrawalPerPeriod
+            "NFT Holder Rewards - 0.05 ETH bi-weekly for Cookie Monster NFT holders", // metadata
+            defaultMultiToken3                           // multiTokenConfig
+        );
         
         
         CookieJarLib.AccessConfig memory accessConfig3 = CookieJarLib.AccessConfig({
             allowlist: new address[](0),
-            nftRequirement: CookieJarLib.NFTRequirement({
+            nftRequirement: CookieJarLib.NftRequirement({
                 nftContract: nftAddresses[0],
                 tokenId: 0, // Any token from contract
                 minBalance: 1
@@ -296,7 +296,7 @@ contract DeployLocalScript is Script {
     function _createJar4() internal {
         // 4. NFT Airdrop (NFT-Gated, ERC20, One-time 500 DEMO)
         address[] memory nftAddresses = new address[](1);
-        nftAddresses[0] = address(cookieMonsterNFT);
+        nftAddresses[0] = address(cookieMonsterNft);
         
         // Default configurations for Jar 4
         CookieJarLib.MultiTokenConfig memory defaultMultiToken4 = CookieJarLib.MultiTokenConfig({
@@ -308,29 +308,29 @@ contract DeployLocalScript is Script {
         
         address[] memory emptyTokens4 = new address[](0);
         
-        CookieJarLib.JarConfig memory params4 = CookieJarLib.JarConfig({
-            jarOwner: DEPLOYER,
-            supportedCurrency: address(demoToken),
-            accessType: CookieJarLib.AccessType.ERC721,
-            withdrawalOption: CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount: 500 * 10**18,
-            maxWithdrawal: 500 * 10**18,
-            withdrawalInterval: 0,
-            minDeposit: 100 * 10**18,
-            feePercentageOnDeposit: 0,
-            strictPurpose: false,
-            feeCollector: DEPLOYER,
-            emergencyWithdrawalEnabled: false,
-            oneTimeWithdrawal: true,
-            maxWithdrawalPerPeriod: 0,
-            metadata: "NFT Airdrop - One-time 500 DEMO tokens for Cookie Monster NFT holders",
-            multiTokenConfig: defaultMultiToken4
-        });
+        CookieJarLib.JarConfig memory params4 = CookieJarLib.JarConfig(
+            DEPLOYER,                                      // jarOwner
+            address(demoToken),                           // supportedCurrency
+            DEPLOYER,                                     // feeCollector
+            CookieJarLib.AccessType.ERC721,               // accessType
+            CookieJarLib.WithdrawalTypeOptions.Fixed,     // withdrawalOption
+            false,                                        // strictPurpose
+            false,                                        // emergencyWithdrawalEnabled
+            true,                                         // oneTimeWithdrawal
+            500 * 10**18,                                // fixedAmount
+            500 * 10**18,                                // maxWithdrawal
+            0,                                           // withdrawalInterval
+            100 * 10**18,                                // minDeposit
+            0,                                           // feePercentageOnDeposit
+            0,                                           // maxWithdrawalPerPeriod
+            "NFT Airdrop - One-time 500 DEMO tokens for Cookie Monster NFT holders", // metadata
+            defaultMultiToken4                           // multiTokenConfig
+        );
         
         
         CookieJarLib.AccessConfig memory accessConfig4 = CookieJarLib.AccessConfig({
             allowlist: new address[](0),
-            nftRequirement: CookieJarLib.NFTRequirement({
+            nftRequirement: CookieJarLib.NftRequirement({
                 nftContract: nftAddresses[0],
                 tokenId: 0, // Any token from contract
                 minBalance: 1

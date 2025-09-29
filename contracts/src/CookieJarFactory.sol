@@ -9,7 +9,7 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 /// @dev V2 factory with metadata functionality and integrated Superfluid support
 contract CookieJarFactory {
     /// @notice Single admin role for access control
-    address public immutable owner;
+    address public immutable OWNER;
     mapping(address => bool) public admins;
 
     /// @notice Optimized storage: consolidated jar information
@@ -20,10 +20,10 @@ contract CookieJarFactory {
     address[] public cookieJars;
 
     /// @notice Immutable configuration - optimized data types
-    address public immutable defaultFeeCollector;
-    uint256 public immutable defaultFeePercentage;
-    uint128 public immutable minETHDeposit;
-    uint128 public immutable minERC20Deposit;
+    address public immutable DEFAULT_FEE_COLLECTOR;
+    uint256 public immutable DEFAULT_FEE_PERCENTAGE;
+    uint128 public immutable MIN_ETH_DEPOSIT;
+    uint128 public immutable MIN_ERC20_DEPOSIT;
 
     /// @notice Optimized jar information struct - packed for gas efficiency
     /// @dev Replaces 4 separate mappings: isFactoryJar, jarCreator, jarCreationTime
@@ -56,33 +56,33 @@ contract CookieJarFactory {
 
     /// @notice Access control modifiers
     modifier onlyOwner() {
-        if (msg.sender != owner) revert NotAuthorized();
+        if (msg.sender != OWNER) revert NotAuthorized();
         _;
     }
     
     modifier onlyAdmin() {
-        if (msg.sender != owner && !admins[msg.sender]) revert NotAuthorized();
+        if (msg.sender != OWNER && !admins[msg.sender]) revert NotAuthorized();
         _;
     }
 
     constructor(
-        address _defaultFeeCollector,
-        address _owner,
+        address _DEFAULT_FEE_COLLECTOR,
+        address _OWNER,
         uint256 _feePercentage,
-        uint128 _minETHDeposit,
-        uint128 _minERC20Deposit
+        uint128 _minEthDeposit,
+        uint128 _minErc20Deposit
     ) {
-        if (_defaultFeeCollector == address(0)) revert CookieJarLib.ZeroAddress();
-        if (_owner == address(0)) revert CookieJarLib.ZeroAddress();
+        if (_DEFAULT_FEE_COLLECTOR == address(0)) revert CookieJarLib.ZeroAddress();
+        if (_OWNER == address(0)) revert CookieJarLib.ZeroAddress();
         
-        defaultFeeCollector = _defaultFeeCollector;
-        defaultFeePercentage = _feePercentage;
-        minETHDeposit = _minETHDeposit;
-        minERC20Deposit = _minERC20Deposit;
-        owner = _owner;
+        DEFAULT_FEE_COLLECTOR = _DEFAULT_FEE_COLLECTOR;
+        DEFAULT_FEE_PERCENTAGE = _feePercentage;
+        MIN_ETH_DEPOSIT = _minEthDeposit;
+        MIN_ERC20_DEPOSIT = _minErc20Deposit;
+        OWNER = _OWNER;
     }
 
-    /// @notice Grant or revoke admin access (owner only)
+    /// @notice Grant or revoke admin access (OWNER only)
     function setAdmin(address admin, bool granted) external onlyOwner {
         admins[admin] = granted;
         emit AdminUpdated(admin, granted);
@@ -119,7 +119,7 @@ contract CookieJarFactory {
     }
 
 
-    /// @notice Update metadata for a specific jar (jar owner only)
+    /// @notice Update metadata for a specific jar (jar OWNER only)
     /// @dev Uses direct mapping lookup for gas optimization
     /// @param jarAddress Address of the jar to update
     /// @param newMetadata New metadata string
@@ -147,14 +147,14 @@ contract CookieJarFactory {
         
         // Inline config building with validation
         uint256 minDep = params.supportedCurrency == CookieJarLib.ETH_ADDRESS 
-            ? uint256(minETHDeposit) : uint256(minERC20Deposit);
+            ? uint256(MIN_ETH_DEPOSIT) : uint256(MIN_ERC20_DEPOSIT);
             
         // Validate ERC20 if not ETH
         if (params.supportedCurrency != CookieJarLib.ETH_ADDRESS) {
             if (ERC20(params.supportedCurrency).decimals() == 0) revert CookieJarLib.InvalidTokenAddress();
         }
         
-        uint256 feePerc = params.feePercentageOnDeposit == 0 ? defaultFeePercentage : params.feePercentageOnDeposit;
+        uint256 feePerc = params.FEE_PERCENTAGE_ON_DEPOSIT == 0 ? DEFAULT_FEE_PERCENTAGE : params.FEE_PERCENTAGE_ON_DEPOSIT;
         if (feePerc > CookieJarLib.PERCENTAGE_BASE) feePerc = CookieJarLib.PERCENTAGE_BASE;
         
         // Validate multi-token config if enabled
@@ -163,24 +163,24 @@ contract CookieJarFactory {
         }
         
         // Build final config inline
-        CookieJarLib.JarConfig memory config = CookieJarLib.JarConfig({
-            jarOwner: params.jarOwner,
-            supportedCurrency: params.supportedCurrency,
-            accessType: params.accessType,
-            withdrawalOption: params.withdrawalOption,
-            fixedAmount: params.fixedAmount,
-            maxWithdrawal: params.maxWithdrawal,
-            withdrawalInterval: params.withdrawalInterval,
-            minDeposit: minDep,
-            feePercentageOnDeposit: feePerc,
-            strictPurpose: params.strictPurpose,
-            feeCollector: defaultFeeCollector,
-            emergencyWithdrawalEnabled: params.emergencyWithdrawalEnabled,
-            oneTimeWithdrawal: params.oneTimeWithdrawal,
-            maxWithdrawalPerPeriod: params.maxWithdrawalPerPeriod,
-            metadata: params.metadata,
-            multiTokenConfig: multiTokenConfig.enabled ? multiTokenConfig : _getDefaultMultiTokenConfig()
-        });
+        CookieJarLib.JarConfig memory config = CookieJarLib.JarConfig(
+            params.jarOwner,                    // jarOwner
+            params.supportedCurrency,          // supportedCurrency
+            DEFAULT_FEE_COLLECTOR,             // feeCollector
+            params.ACCESS_TYPE,                // accessType
+            params.WITHDRAWAL_OPTION,          // withdrawalOption
+            params.STRICT_PURPOSE,             // strictPurpose
+            params.EMERGENCY_WITHDRAWAL_ENABLED, // emergencyWithdrawalEnabled
+            params.ONE_TIME_WITHDRAWAL,        // oneTimeWithdrawal
+            params.fixedAmount,                // fixedAmount
+            params.maxWithdrawal,              // maxWithdrawal
+            params.withdrawalInterval,         // withdrawalInterval
+            minDep,                            // minDeposit
+            feePerc,                           // feePercentageOnDeposit
+            params.MAX_WITHDRAWAL_PER_PERIOD,  // maxWithdrawalPerPeriod
+            params.metadata,                   // metadata
+            multiTokenConfig.enabled ? multiTokenConfig : _getDefaultMultiTokenConfig() // multiTokenConfig
+        );
         
         // Create the jar with Superfluid host address
         address superfluidHost = address(0); // Superfluid host disabled for testing

@@ -4,7 +4,6 @@ pragma solidity ^0.8.24;
 import {Test} from "forge-std/Test.sol";
 import {CookieJar} from "../src/CookieJar.sol";
 import {CookieJarLib} from "../src/libraries/CookieJarLib.sol";
-import {IAccessControl} from "@openzeppelin/contracts/access/IAccessControl.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 // Mock contracts for protocol testing
@@ -80,7 +79,7 @@ contract DummyERC20 is ERC20 {
 }
 
 contract CookieJarProtocolsTest is Test {
-    CookieJar public jarPOAP;
+    CookieJar public jarPoap;
     CookieJar public jarUnlock;
     CookieJar public jarHypercert;
     CookieJar public jarHats;
@@ -95,7 +94,7 @@ contract CookieJarProtocolsTest is Test {
     bool public strictPurpose = true;
     
     DummyERC20 public dummyToken;
-    MockPOAP public mockPOAP;
+    MockPOAP public mockPoap;
     MockPublicLock public mockUnlock;
     MockHypercertToken public mockHypercert;
     MockHats public mockHats;
@@ -105,8 +104,8 @@ contract CookieJarProtocolsTest is Test {
     string public purpose = "Withdrawal for a legitimate purpose!";
     string public shortPurpose = "Too short";
     
-    uint256 public minETHDeposit = 100 wei;
-    uint256 public minERC20Deposit = 100;
+    uint256 public minEthDeposit = 100 wei;
+    uint256 public minErc20Deposit = 100;
     uint256 public feePercentageOnDeposit = 1000;
     address public feeCollector = address(0xFEE);
     
@@ -120,7 +119,7 @@ contract CookieJarProtocolsTest is Test {
     function createJarConfig(
         address _jarOwner,
         address _supportedCurrency,
-        CookieJarLib.AccessType _accessType,
+        CookieJarLib.AccessType _ACCESS_TYPE,
         CookieJarLib.WithdrawalTypeOptions _withdrawalOption,
         uint256 _fixedAmount,
         uint256 _maxWithdrawal,
@@ -132,48 +131,50 @@ contract CookieJarProtocolsTest is Test {
         bool _emergencyEnabled,
         bool _oneTimeWithdrawal
     ) internal pure returns (CookieJarLib.JarConfig memory) {
-        return
-            CookieJarLib.JarConfig({
-                jarOwner: _jarOwner,
-                supportedCurrency: _supportedCurrency,
-                accessType: _accessType,
-                withdrawalOption: _withdrawalOption,
-                fixedAmount: _fixedAmount,
-                maxWithdrawal: _maxWithdrawal,
-                withdrawalInterval: _withdrawalInterval,
-                minDeposit: _minDeposit,
-                feePercentageOnDeposit: _feePercentage,
-                strictPurpose: _strictPurpose,
-                feeCollector: _feeCollectorAddr,
-                emergencyWithdrawalEnabled: _emergencyEnabled,
-                oneTimeWithdrawal: _oneTimeWithdrawal,
-                maxWithdrawalPerPeriod: 0, // unlimited
-                metadata: "Test Protocol Jar",
-                multiTokenConfig: CookieJarLib.MultiTokenConfig({
-                    enabled: false,
-                    maxSlippagePercent: 500,
-                    minSwapAmount: 0,
-                    defaultFee: 3000
-                })
-            });
+        return CookieJarLib.JarConfig(
+            _jarOwner,                               // jarOwner
+            _supportedCurrency,                     // supportedCurrency
+            _feeCollectorAddr,                      // feeCollector
+            _ACCESS_TYPE,                           // accessType
+            _withdrawalOption,                      // withdrawalOption
+            _strictPurpose,                         // strictPurpose
+            _emergencyEnabled,                      // emergencyWithdrawalEnabled
+            _oneTimeWithdrawal,                     // oneTimeWithdrawal
+            _fixedAmount,                           // fixedAmount
+            _maxWithdrawal,                         // maxWithdrawal
+            _withdrawalInterval,                    // withdrawalInterval
+            _minDeposit,                            // minDeposit
+            _feePercentage,                         // feePercentageOnDeposit
+            0,                                      // maxWithdrawalPerPeriod (unlimited)
+            "Test Protocol Jar",                    // metadata
+            CookieJarLib.MultiTokenConfig({         // multiTokenConfig
+                enabled: false,
+                maxSlippagePercent: 500,
+                minSwapAmount: 0,
+                defaultFee: 3000
+            })
+        );
     }
 
     // Helper function to create AccessConfig struct (simplified for new structure)
     function createAccessConfigWithProtocols() internal view returns (CookieJarLib.AccessConfig memory) {
-        // Since we simplified to just ERC721/ERC1155, we'll use empty config
+        // Since we simplified to just ERC721/ERC1155, we'll use mock NFT contracts
+        address[] memory mockNftAddresses = new address[](1);
+        mockNftAddresses[0] = address(mockPoap); // Use mock POAP for ERC721 tests
+
         return CookieJarLib.AccessConfig({
             allowlist: emptyAllowlist,
-            nftRequirement: CookieJarLib.NFTRequirement({
-                nftContract: address(0),
+            nftRequirement: CookieJarLib.NftRequirement({
+                nftContract: mockNftAddresses[0],
                 tokenId: 0,
-                minBalance: 0
+                minBalance: 1
             })
         });
     }
 
     function setUp() public {
         dummyToken = new DummyERC20();
-        mockPOAP = new MockPOAP();
+        mockPoap = new MockPOAP();
         mockUnlock = new MockPublicLock();
         mockHypercert = new MockHypercertToken();
         mockHats = new MockHats();
@@ -186,7 +187,7 @@ contract CookieJarProtocolsTest is Test {
         vm.startPrank(owner);
 
         // Create POAP jar
-        jarPOAP = new CookieJar(
+        jarPoap = new CookieJar(
             createJarConfig(
                 owner,
                 CookieJarLib.ETH_ADDRESS,
@@ -195,7 +196,7 @@ contract CookieJarProtocolsTest is Test {
                 fixedAmount,
                 maxWithdrawal,
                 withdrawalInterval,
-                minETHDeposit,
+                minEthDeposit,
                 feePercentageOnDeposit,
                 strictPurpose,
                 feeCollector,
@@ -216,7 +217,7 @@ contract CookieJarProtocolsTest is Test {
                 fixedAmount,
                 maxWithdrawal,
                 withdrawalInterval,
-                minERC20Deposit,
+                minErc20Deposit,
                 feePercentageOnDeposit,
                 strictPurpose,
                 feeCollector,
@@ -237,7 +238,7 @@ contract CookieJarProtocolsTest is Test {
                 fixedAmount,
                 maxWithdrawal,
                 withdrawalInterval,
-                minETHDeposit,
+                minEthDeposit,
                 feePercentageOnDeposit,
                 strictPurpose,
                 feeCollector,
@@ -258,7 +259,7 @@ contract CookieJarProtocolsTest is Test {
                 fixedAmount,
                 maxWithdrawal,
                 withdrawalInterval,
-                minERC20Deposit,
+                minErc20Deposit,
                 feePercentageOnDeposit,
                 strictPurpose,
                 feeCollector,
@@ -270,7 +271,7 @@ contract CookieJarProtocolsTest is Test {
         );
 
         // Fund the jars
-        jarPOAP.deposit{value: 1000 ether}(0);
+        jarPoap.deposit{value: 1000 ether}(0);
         dummyToken.approve(address(jarUnlock), 1000 * 1e18);
         jarUnlock.deposit(1000 * 1e18);
         jarHypercert.deposit{value: 1000 ether}(0);
@@ -283,32 +284,32 @@ contract CookieJarProtocolsTest is Test {
     // ==== ERC721 Access Tests ====
 
     function test_ConstructorERC721Access() public {
-        assertTrue(jarPOAP.accessType() == CookieJarLib.AccessType.ERC721);
+        assertTrue(jarPoap.ACCESS_TYPE() == CookieJarLib.AccessType.ERC721);
     }
 
     function test_WithdrawERC721Mode() public {
         // Setup user with POAP - user owns token ID 12345001
         uint256 poapTokenId = 12345001;
-        mockPOAP.setOwner(poapTokenId, user);
+        mockPoap.setOwner(poapTokenId, user);
         
         vm.warp(block.timestamp + withdrawalInterval + 1);
-        uint256 jarBalanceBefore = address(jarPOAP).balance;
-        uint256 currencyHeldByJarBefore = jarPOAP.currencyHeldByJar();
+        uint256 jarBalanceBefore = address(jarPoap).balance;
+        uint256 CURRENCYHeldByJarBefore = jarPoap.CURRENCYHeldByJar();
         uint256 userBalanceBefore = user.balance;
         
         vm.prank(user);
-        jarPOAP.withdrawWithERC721(fixedAmount, purpose);
+        jarPoap.withdrawWithErc721(fixedAmount, purpose);
         
-        assertEq(address(jarPOAP).balance, jarBalanceBefore - fixedAmount);
-        assertEq(jarPOAP.currencyHeldByJar(), currencyHeldByJarBefore - fixedAmount);
+        assertEq(address(jarPoap).balance, jarBalanceBefore - fixedAmount);
+        assertEq(jarPoap.CURRENCYHeldByJar(), CURRENCYHeldByJarBefore - fixedAmount);
         assertEq(user.balance, userBalanceBefore + fixedAmount);
-        // assertEq(jarPOAP.lastWithdrawalPOAP(poapTokenId), block.timestamp);
+        // assertEq(jarPoap.lastWithdrawalPOAP(poapTokenId), block.timestamp);
     }
 
     function test_RevertWhen_WithdrawERC721ModeInvalidAccessType() public {
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidAccessType.selector));
-        jarUnlock.withdrawWithERC721(fixedAmount, purpose);
+        jarUnlock.withdrawWithErc721(fixedAmount, purpose);
     }
 
     function test_RevertWhen_WithdrawERC721ModeNotAuthorized() public {
@@ -319,29 +320,29 @@ contract CookieJarProtocolsTest is Test {
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAuthorized.selector));
-        jarPOAP.withdrawWithERC721(fixedAmount, purpose);
+        jarPoap.withdrawWithErc721(fixedAmount, purpose);
     }
 
     function test_RevertWhen_WithdrawPOAPModeTooSoon() public {
         // Setup user with POAP
         uint256 poapTokenId = 12345001;
-        mockPOAP.setOwner(poapTokenId, user);
+        mockPoap.setOwner(poapTokenId, user);
         
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
-        jarPOAP.withdrawWithERC721(fixedAmount, purpose);
+        jarPoap.withdrawWithErc721(fixedAmount, purpose);
         
-        // uint256 nextAllowed = jarPOAP.lastWithdrawalPOAP(poapTokenId) + withdrawalInterval;
+        // uint256 nextAllowed = jarPoap.lastWithdrawalPOAP(poapTokenId) + withdrawalInterval;
         vm.prank(user);
         skip(100);
         // vm.expectRevert(abi.encodeWithSelector(CookieJarLib.WithdrawalTooSoon.selector, nextAllowed));
-        jarPOAP.withdrawWithERC721(fixedAmount, purpose);
+        jarPoap.withdrawWithErc721(fixedAmount, purpose);
     }
 
     // ==== Unlock Protocol Tests ====
 
     function test_ConstructorUnlockAccess() public {
-        assertTrue(jarUnlock.accessType() == CookieJarLib.AccessType.ERC721);
+        assertTrue(jarUnlock.ACCESS_TYPE() == CookieJarLib.AccessType.ERC721);
     }
 
     function test_WithdrawUnlockMode() public {
@@ -350,14 +351,14 @@ contract CookieJarProtocolsTest is Test {
         
         vm.warp(block.timestamp + withdrawalInterval + 1);
         uint256 jarBalanceBefore = dummyToken.balanceOf(address(jarUnlock));
-        uint256 currencyHeldByJarBefore = jarUnlock.currencyHeldByJar();
+        uint256 CURRENCYHeldByJarBefore = jarUnlock.CURRENCYHeldByJar();
         uint256 userBalanceBefore = dummyToken.balanceOf(user);
         
         vm.prank(user);
-        jarUnlock.withdrawWithERC721(maxWithdrawal, purpose);
+        jarUnlock.withdrawWithErc721(maxWithdrawal, purpose);
         
         assertEq(dummyToken.balanceOf(address(jarUnlock)), jarBalanceBefore - maxWithdrawal);
-        assertEq(jarUnlock.currencyHeldByJar(), currencyHeldByJarBefore - maxWithdrawal);
+        assertEq(jarUnlock.CURRENCYHeldByJar(), CURRENCYHeldByJarBefore - maxWithdrawal);
         assertEq(dummyToken.balanceOf(user), userBalanceBefore + maxWithdrawal);
         // assertEq(jarUnlock.lastWithdrawalProtocol(user), block.timestamp);
     }
@@ -365,7 +366,7 @@ contract CookieJarProtocolsTest is Test {
     function test_RevertWhen_WithdrawPOAPModeInvalidAccessType() public {
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidAccessType.selector));
-        jarPOAP.withdrawWithERC721(fixedAmount, purpose);
+        jarPoap.withdrawWithErc721(fixedAmount, purpose);
     }
 
     function test_RevertWhen_WithdrawUnlockModeNotAuthorized() public {
@@ -375,13 +376,13 @@ contract CookieJarProtocolsTest is Test {
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAuthorized.selector));
-        jarUnlock.withdrawWithERC721(maxWithdrawal, purpose);
+        jarUnlock.withdrawWithErc721(maxWithdrawal, purpose);
     }
 
     // ==== Hypercert Tests ====
 
     function test_ConstructorHypercertAccess() public {
-        assertTrue(jarHypercert.accessType() == CookieJarLib.AccessType.ERC1155);
+        assertTrue(jarHypercert.ACCESS_TYPE() == CookieJarLib.AccessType.ERC1155);
     }
 
     function test_WithdrawERC1155Mode() public {
@@ -390,14 +391,14 @@ contract CookieJarProtocolsTest is Test {
         
         vm.warp(block.timestamp + withdrawalInterval + 1);
         uint256 jarBalanceBefore = address(jarHypercert).balance;
-        uint256 currencyHeldByJarBefore = jarHypercert.currencyHeldByJar();
+        uint256 CURRENCYHeldByJarBefore = jarHypercert.CURRENCYHeldByJar();
         uint256 userBalanceBefore = user.balance;
         
         vm.prank(user);
-        jarHypercert.withdrawWithERC1155(fixedAmount, purpose);
+        jarHypercert.withdrawWithErc1155(fixedAmount, purpose);
         
         assertEq(address(jarHypercert).balance, jarBalanceBefore - fixedAmount);
-        assertEq(jarHypercert.currencyHeldByJar(), currencyHeldByJarBefore - fixedAmount);
+        assertEq(jarHypercert.CURRENCYHeldByJar(), CURRENCYHeldByJarBefore - fixedAmount);
         assertEq(user.balance, userBalanceBefore + fixedAmount);
         // assertEq(jarHypercert.lastWithdrawalProtocol(user), block.timestamp);
     }
@@ -409,7 +410,7 @@ contract CookieJarProtocolsTest is Test {
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAuthorized.selector));
-        jarHypercert.withdrawWithERC1155(fixedAmount, purpose);
+        jarHypercert.withdrawWithErc1155(fixedAmount, purpose);
     }
 
     function test_RevertWhen_WithdrawERC1155ModeWrongTokenId() public {
@@ -419,13 +420,13 @@ contract CookieJarProtocolsTest is Test {
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAuthorized.selector));
-        jarHypercert.withdrawWithERC1155(fixedAmount, purpose);
+        jarHypercert.withdrawWithErc1155(fixedAmount, purpose);
     }
 
     // ==== Hats Protocol Tests ====
 
     function test_ConstructorHatsAccess() public {
-        assertTrue(jarHats.accessType() == CookieJarLib.AccessType.ERC1155);
+        assertTrue(jarHats.ACCESS_TYPE() == CookieJarLib.AccessType.ERC1155);
     }
 
     function test_WithdrawHatsMode() public {
@@ -434,14 +435,14 @@ contract CookieJarProtocolsTest is Test {
         
         vm.warp(block.timestamp + withdrawalInterval + 1);
         uint256 jarBalanceBefore = dummyToken.balanceOf(address(jarHats));
-        uint256 currencyHeldByJarBefore = jarHats.currencyHeldByJar();
+        uint256 CURRENCYHeldByJarBefore = jarHats.CURRENCYHeldByJar();
         uint256 userBalanceBefore = dummyToken.balanceOf(user);
         
         vm.prank(user);
-        jarHats.withdrawWithERC1155(maxWithdrawal, purpose);
+        jarHats.withdrawWithErc1155(maxWithdrawal, purpose);
         
         assertEq(dummyToken.balanceOf(address(jarHats)), jarBalanceBefore - maxWithdrawal);
-        assertEq(jarHats.currencyHeldByJar(), currencyHeldByJarBefore - maxWithdrawal);
+        assertEq(jarHats.CURRENCYHeldByJar(), CURRENCYHeldByJarBefore - maxWithdrawal);
         assertEq(dummyToken.balanceOf(user), userBalanceBefore + maxWithdrawal);
         // assertEq(jarHats.lastWithdrawalProtocol(user), block.timestamp);
     }
@@ -453,17 +454,17 @@ contract CookieJarProtocolsTest is Test {
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAuthorized.selector));
-        jarHats.withdrawWithERC1155(maxWithdrawal, purpose);
+        jarHats.withdrawWithErc1155(maxWithdrawal, purpose);
     }
 
     // ==== Common Validation Tests ====
 
     function test_RevertWhen_ERC721WithdrawZeroAmount() public {
-        mockPOAP.setOwner(12345, user);
+        mockPoap.setOwner(12345, user);
         
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.ZeroAmount.selector));
-        jarPOAP.withdrawWithERC721(0, purpose);
+        jarPoap.withdrawWithErc721(0, purpose);
     }
 
     function test_RevertWhen_ERC721WithdrawShortPurpose() public {
@@ -471,7 +472,7 @@ contract CookieJarProtocolsTest is Test {
         
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidPurpose.selector));
-        jarUnlock.withdrawWithERC721(maxWithdrawal, shortPurpose);
+        jarUnlock.withdrawWithErc721(maxWithdrawal, shortPurpose);
     }
 
     function test_RevertWhen_ERC1155WithdrawInsufficientJarBalance() public {
@@ -488,7 +489,7 @@ contract CookieJarProtocolsTest is Test {
                 fixedAmount,
                 maxWithdrawal,
                 withdrawalInterval,
-                minETHDeposit,
+                minEthDeposit,
                 feePercentageOnDeposit,
                 strictPurpose,
                 feeCollector,
@@ -502,14 +503,14 @@ contract CookieJarProtocolsTest is Test {
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InsufficientBalance.selector));
-        emptyJar.withdrawWithERC1155(fixedAmount, purpose);
+        emptyJar.withdrawWithErc1155(fixedAmount, purpose);
     }
 
     // ==== Integration Tests ====
 
     function test_MultipleAccessTypeWithdrawals() public {
         // Setup users for different protocols
-        mockPOAP.setOwner(12345, user);
+        mockPoap.setOwner(12345, user);
         mockUnlock.setHasValidKey(user2, true);
         
         vm.warp(block.timestamp + withdrawalInterval + 1);
@@ -517,13 +518,13 @@ contract CookieJarProtocolsTest is Test {
         // POAP withdrawal
         uint256 userBalanceBefore = user.balance;
         vm.prank(user);
-        jarPOAP.withdrawWithERC721(fixedAmount, purpose);
+        jarPoap.withdrawWithErc721(fixedAmount, purpose);
         assertEq(user.balance, userBalanceBefore + fixedAmount);
         
         // Unlock withdrawal
         uint256 user2BalanceBefore = dummyToken.balanceOf(user2);
         vm.prank(user2);
-        jarUnlock.withdrawWithERC721(maxWithdrawal, purpose);
+        jarUnlock.withdrawWithErc721(maxWithdrawal, purpose);
         assertEq(dummyToken.balanceOf(user2), user2BalanceBefore + maxWithdrawal);
     }
 
@@ -534,18 +535,18 @@ contract CookieJarProtocolsTest is Test {
         
         // First withdrawal should succeed
         vm.prank(user);
-        jarHats.withdrawWithERC1155(fixedAmount, purpose);
+        jarHats.withdrawWithErc1155(fixedAmount, purpose);
         
         // Second withdrawal should fail (too soon)
         // uint256 nextAllowed = jarHats.lastWithdrawalProtocol(user) + withdrawalInterval;
         skip(100);
         vm.prank(user);
         // vm.expectRevert(abi.encodeWithSelector(CookieJarLib.WithdrawalTooSoon.selector, nextAllowed));
-        jarHats.withdrawWithERC1155(fixedAmount, purpose);
+        jarHats.withdrawWithErc1155(fixedAmount, purpose);
         
         // Third withdrawal should succeed after interval
         // vm.warp(nextAllowed + 1);
         vm.prank(user);
-        jarHats.withdrawWithERC1155(fixedAmount, purpose);
+        jarHats.withdrawWithErc1155(fixedAmount, purpose);
     }
 }

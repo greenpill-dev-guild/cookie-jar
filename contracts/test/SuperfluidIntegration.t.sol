@@ -5,7 +5,6 @@ import {Test} from "forge-std/Test.sol";
 import {CookieJar} from "../src/CookieJar.sol";
 import {CookieJarFactory} from "../src/CookieJarFactory.sol";
 import {CookieJarLib} from "../src/libraries/CookieJarLib.sol";
-import {Streaming} from "../src/libraries/Streaming.sol";
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /// @title Superfluid Integration Test
@@ -70,24 +69,24 @@ contract SuperfluidIntegrationTest is Test {
             defaultFee: 3000
         });
 
-        _jarConfig = CookieJarLib.JarConfig({
-            jarOwner: _owner,
-            supportedCurrency: address(_mockSuperToken), // Use super token as jar currency
-            accessType: CookieJarLib.AccessType.Allowlist,
-            withdrawalOption: CookieJarLib.WithdrawalTypeOptions.Variable,
-            fixedAmount: 0,
-            maxWithdrawal: 1000e18,
-            withdrawalInterval: 3600, // 1 hour
-            minDeposit: 1e18,
-            feePercentageOnDeposit: 500,
-            strictPurpose: false,
-            feeCollector: _feeCollector,
-            emergencyWithdrawalEnabled: true,
-            oneTimeWithdrawal: false,
-            maxWithdrawalPerPeriod: 5000e18,
-            metadata: "Superfluid Integration Test Jar",
-            multiTokenConfig: multiTokenConfig
-        });
+        _jarConfig = CookieJarLib.JarConfig(
+            _owner,                                    // jarOwner
+            address(_mockSuperToken),                 // supportedCurrency
+            _feeCollector,                            // feeCollector
+            CookieJarLib.AccessType.Allowlist,        // accessType
+            CookieJarLib.WithdrawalTypeOptions.Variable, // withdrawalOption
+            false,                                    // strictPurpose
+            true,                                     // emergencyWithdrawalEnabled
+            false,                                    // oneTimeWithdrawal
+            0,                                       // fixedAmount
+            1000e18,                                 // maxWithdrawal
+            3600,                                    // withdrawalInterval (1 hour)
+            1e18,                                    // minDeposit
+            500,                                     // feePercentageOnDeposit
+            5000e18,                                 // maxWithdrawalPerPeriod
+            "Superfluid Integration Test Jar",       // metadata
+            multiTokenConfig                         // multiTokenConfig
+        );
     }
     
     function _setupAccessConfig() internal {
@@ -96,7 +95,7 @@ contract SuperfluidIntegrationTest is Test {
         allowlist[1] = _user;
         
         _accessConfig.allowlist = allowlist;
-        _accessConfig.nftRequirement = CookieJarLib.NFTRequirement({
+        _accessConfig.nftRequirement = CookieJarLib.NftRequirement({
             nftContract: address(0),
             tokenId: 0,
             minBalance: 0
@@ -198,7 +197,8 @@ contract SuperfluidIntegrationTest is Test {
         
         // Add some balance to jar
         vm.prank(_user);
-        _mockSuperToken.transfer(address(_jar), 1000e18);
+        bool success = _mockSuperToken.transfer(address(_jar), 1000e18);
+        require(success, "Transfer failed");
         
         // Mock the jar balance update (in real scenario this would be done via deposits)
         // For testing purposes, we'll directly check the function behavior
@@ -213,7 +213,8 @@ contract SuperfluidIntegrationTest is Test {
     
     function testEmergencyWithdrawSuperToken() public {
         // First give jar some super tokens
-        _mockSuperToken.transfer(address(_jar), 1000e18);
+        bool success2 = _mockSuperToken.transfer(address(_jar), 1000e18);
+        require(success2, "Transfer failed");
         
         uint256 withdrawAmount = 500e18;
         uint256 initialOwnerBalance = _mockSuperToken.balanceOf(_owner);
@@ -283,24 +284,24 @@ contract SuperfluidIntegrationTest is Test {
         });
 
         // Create JarConfig
-        CookieJarLib.JarConfig memory params = CookieJarLib.JarConfig({
-            jarOwner: _owner,
-            supportedCurrency: _superTokenAddress,
-            accessType: CookieJarLib.AccessType.Allowlist,
-            withdrawalOption: CookieJarLib.WithdrawalTypeOptions.Variable,
-            fixedAmount: 0,
-            maxWithdrawal: 1000e18,
-            withdrawalInterval: 3600,
-            minDeposit: 1e18,
-            feePercentageOnDeposit: 0,
-            strictPurpose: false,
-            feeCollector: _feeCollector,
-            emergencyWithdrawalEnabled: true,
-            oneTimeWithdrawal: false,
-            maxWithdrawalPerPeriod: 5000e18,
-            metadata: "Test Superfluid Jar",
-            multiTokenConfig: multiTokenConfig
-        });
+        CookieJarLib.JarConfig memory params = CookieJarLib.JarConfig(
+            _owner,                              // jarOwner
+            _superTokenAddress,                 // supportedCurrency
+            _feeCollector,                       // feeCollector
+            CookieJarLib.AccessType.Allowlist,   // accessType
+            CookieJarLib.WithdrawalTypeOptions.Variable, // withdrawalOption
+            false,                               // strictPurpose
+            true,                                // emergencyWithdrawalEnabled
+            false,                               // oneTimeWithdrawal
+            0,                                  // fixedAmount
+            1000e18,                            // maxWithdrawal
+            3600,                               // withdrawalInterval
+            1e18,                               // minDeposit
+            0,                                  // feePercentageOnDeposit
+            5000e18,                            // maxWithdrawalPerPeriod
+            "Test Superfluid Jar",              // metadata
+            multiTokenConfig                    // multiTokenConfig
+        );
 
         // Deploy via factory
         vm.prank(_owner);

@@ -5,6 +5,10 @@ optimizer = true
 optimizer_runs = 1    # Aggressively optimize for size to stay under 24KB limit
 bytecode_hash = "none"  # Remove metadata hash to save ~53 bytes
 cbor_metadata = false   # Disable CBOR metadata encoding
+# Additional optimizations for faster compilation
+solc_version = "0.8.30"  # Pin to specific version for consistent compilation
+cache = true            # Enable compilation cache for faster subsequent builds
+parallel = 4            # Use 4 parallel threads for compilation
 # Prioritize contract size to keep functionality
 src = "src"
 out = "out"
@@ -27,6 +31,31 @@ fs_permissions = [
     { access = "read", path = "../" }
 ]
 
+# Fast development profile - prioritizes compilation speed
+[profile.dev]
+evm_version = "cancun"
+via_ir = true            # Required for complex contracts
+optimizer = true
+optimizer_runs = 200     # Higher runs = faster compilation (trade-off: larger bytecode)
+cache = true
+parallel = 4
+src = "src"
+out = "out"
+libs = ["lib"]
+test = "test"
+script = "script"
+skip = ["**/certora/**/*.sol", "lib/openzeppelin-contracts/certora/**"]
+remappings = [
+    "openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/"
+]
+env_file = "../.env"
+fs_permissions = [
+    { access = "read-write", path = "./" },
+    { access = "read-write", path = "../client/config/" },
+    { access = "read-write", path = "../client/public/contracts/" },
+    { access = "read", path = "../" }
+]
+
 # Size-optimized profile for deployment
 [profile.size]
 via_ir = true
@@ -34,15 +63,18 @@ optimizer = true
 optimizer_runs = 1
 bytecode_hash = "none"
 cbor_metadata = false
+# Additional optimizations for faster compilation
+solc_version = "0.8.30"  # Pin to specific version for consistent compilation
+cache = true            # Enable compilation cache for faster subsequent builds
+parallel = 4            # Use 4 parallel threads for compilation
 # Disable some features for smaller bytecode
-solc_version = "0.8.25"
 src = "src"
 out = "out"
 libs = ["lib"]
 remappings = [
     "openzeppelin-contracts/=lib/openzeppelin-contracts/contracts/"
 ]
-# Load environment variables from root directory  
+# Load environment variables from root directory
 env_file = "../.env.local"
 dot_env = "../.env.local"
 PRIVATE_KEY = "${PRIVATE_KEY}"

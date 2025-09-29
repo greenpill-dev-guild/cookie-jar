@@ -16,17 +16,17 @@ deploy_contracts() {
     echo "📝 Source code changed - redeploying contracts..."
     # No environment setup needed - using hardcoded Anvil Account #0
     
-    # Build contracts
+    # Build contracts with dev profile for faster recompilation
     cd contracts
-    forge build
+    FOUNDRY_PROFILE=dev forge build
     if [ $? -ne 0 ]; then
         echo "❌ Compilation failed"
         cd ..
         return 1
     fi
     
-    # Deploy to local network with hardcoded settings
-    forge script script/DeployLocal.s.sol:DeployLocalScript \
+    # Deploy to local network with hardcoded settings (dev profile for speed)
+    FOUNDRY_PROFILE=dev forge script script/DeployLocal.s.sol:DeployLocalScript \
       --rpc-url http://127.0.0.1:8545 \
       --broadcast \
       --sender 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 \

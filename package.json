@@ -16,6 +16,7 @@
     "build": "pnpm run build:contracts && pnpm run copy:deployment && pnpm run build:client",
     "build:client": "pnpm --filter client run build",
     "build:contracts": "cd contracts && forge build",
+    "build:contracts:dev": "cd contracts && FOUNDRY_PROFILE=dev forge build",
     "copy:deployment": "./scripts/copy-deployment.sh && pnpm generate",
     
     "test": "pnpm run test:contracts && pnpm run test:client",
@@ -25,10 +26,10 @@
     "test:client:lazy": "pnpm --filter client run test:lazy-loading",
     "test:client:hooks": "pnpm --filter client run test:hooks",
     "test:client:components": "pnpm --filter client run test:components",
-    "test:contracts": "cd contracts && forge test -vv",
-    "test:contracts:coverage": "cd contracts && forge coverage --report lcov",
+    "test:contracts": "cd contracts && FOUNDRY_PROFILE=dev forge test -vv",
+    "test:contracts:coverage": "cd contracts && FOUNDRY_PROFILE=dev forge coverage --report lcov",
     "test:contracts:gas": "cd contracts && forge test --gas-report",
-    "test:contracts:security": "cd contracts && forge test --match-test 'testReentrancy|testSecurity|testSuperfluid' -vv",
+    "test:contracts:security": "cd contracts && FOUNDRY_PROFILE=dev forge test --match-test 'testReentrancy|testSecurity|testSuperfluid' -vv",
     
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
@@ -62,7 +63,7 @@
     "clean:contracts": "cd contracts && forge clean",
     
     "generate": "pnpm --filter client run generate",
-    "deploy:local": "cd contracts && forge script script/DeployLocal.s.sol --rpc-url http://127.0.0.1:8545 --broadcast --sender 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 && cd .. && pnpm copy:deployment",
+    "deploy:local": "cd contracts && FOUNDRY_PROFILE=dev forge script script/DeployLocal.s.sol --rpc-url http://127.0.0.1:8545 --broadcast --sender 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 && cd .. && pnpm copy:deployment",
     "deploy:celo": "./scripts/deploy.sh celo",
     "deploy:base": "./scripts/deploy.sh base",
     "deploy:ethereum": "./scripts/deploy.sh ethereum",

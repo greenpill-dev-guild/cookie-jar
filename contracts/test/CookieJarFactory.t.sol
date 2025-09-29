@@ -3,7 +3,6 @@ pragma solidity ^0.8.24;
 
 import {Test} from "forge-std/Test.sol";
 import {CookieJarFactory} from "../src/CookieJarFactory.sol";
-import {CookieJar} from "../src/CookieJar.sol";
 import {CookieJarLib} from "../src/libraries/CookieJarLib.sol";
 import {HelperConfig} from "../script/HelperConfig.s.sol";
 import {ERC20Mock} from "@openzeppelin/contracts/mocks/token/ERC20Mock.sol";
@@ -30,36 +29,36 @@ contract CookieJarFactoryTest is Test {
         address currency,
         string memory metadata
     ) internal view returns (CookieJarLib.JarConfig memory) {
-        return CookieJarLib.JarConfig({
-            jarOwner: jarOwner,
-            supportedCurrency: currency,
-            accessType: CookieJarLib.AccessType.Allowlist,
-            withdrawalOption: CookieJarLib.WithdrawalTypeOptions.Fixed,
-            fixedAmount: fixedAmount,
-            maxWithdrawal: maxWithdrawal,
-            withdrawalInterval: withdrawalInterval,
-            minDeposit: 0.01 ether,
-            feePercentageOnDeposit: 0,
-            strictPurpose: strictPurpose,
-            feeCollector: address(this),
-            emergencyWithdrawalEnabled: true,
-            oneTimeWithdrawal: false,
-            maxWithdrawalPerPeriod: 0,
-            metadata: metadata,
-            multiTokenConfig: CookieJarLib.MultiTokenConfig({
+        return CookieJarLib.JarConfig(
+            jarOwner,                                    // jarOwner
+            currency,                                   // supportedCurrency
+            address(this),                              // feeCollector
+            CookieJarLib.AccessType.Allowlist,          // accessType
+            CookieJarLib.WithdrawalTypeOptions.Fixed,   // withdrawalOption
+            strictPurpose,                              // strictPurpose
+            true,                                       // emergencyWithdrawalEnabled
+            false,                                      // oneTimeWithdrawal
+            fixedAmount,                               // fixedAmount
+            maxWithdrawal,                             // maxWithdrawal
+            withdrawalInterval,                        // withdrawalInterval
+            0.01 ether,                                // minDeposit
+            0,                                         // feePercentageOnDeposit
+            0,                                         // maxWithdrawalPerPeriod
+            metadata,                                  // metadata
+            CookieJarLib.MultiTokenConfig({            // multiTokenConfig
                 enabled: false,
                 maxSlippagePercent: 500,
                 minSwapAmount: 0,
                 defaultFee: 3000
             })
-        });
+        );
     }
 
     // Helper function to create default access config
     function createDefaultAccessConfig() internal view returns (CookieJarLib.AccessConfig memory) {
         return CookieJarLib.AccessConfig({
             allowlist: emptyAllowlist,
-            nftRequirement: CookieJarLib.NFTRequirement({
+            nftRequirement: CookieJarLib.NftRequirement({
                 nftContract: address(0),
                 tokenId: 0,
                 minBalance: 0
@@ -153,7 +152,7 @@ contract CookieJarFactoryTest is Test {
             CookieJarLib.ETH_ADDRESS,
             "Test Metadata"
         );
-        params.feePercentageOnDeposit = 500; // 5%
+        params.FEE_PERCENTAGE_ON_DEPOSIT = 500; // 5%
         
         address jarAddress = factory.createCookieJar(
             params,
@@ -174,7 +173,7 @@ contract CookieJarFactoryTest is Test {
             CookieJarLib.ETH_ADDRESS,
             "Test Metadata"
         );
-        params.withdrawalOption = CookieJarLib.WithdrawalTypeOptions.Variable;
+        params.WITHDRAWAL_OPTION = CookieJarLib.WithdrawalTypeOptions.Variable;
         
         address jarAddress = factory.createCookieJar(
             params,
@@ -195,7 +194,7 @@ contract CookieJarFactoryTest is Test {
             CookieJarLib.ETH_ADDRESS,
             "Test Metadata"
         );
-        params.oneTimeWithdrawal = true;
+        params.ONE_TIME_WITHDRAWAL = true;
         
         address jarAddress = factory.createCookieJar(
             params,

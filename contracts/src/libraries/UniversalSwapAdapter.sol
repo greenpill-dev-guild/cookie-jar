@@ -9,9 +9,6 @@ import {IWNative} from "../interfaces/IWNative.sol";
 import {IUniversalRouter} from "universal-router/contracts/interfaces/IUniversalRouter.sol";
 import {Commands} from "universal-router/contracts/libraries/Commands.sol";
 
-// Import actual Permit2 contracts
-import {IPermit2} from "permit2/src/interfaces/IPermit2.sol";
-
 /// @title UniversalSwapAdapter
 /// @notice Adapter for Uniswap Universal Router using official contracts and interfaces
 /// @dev Uses actual Universal Router addresses and Permit2 for token approvals
@@ -97,7 +94,7 @@ library UniversalSwapAdapter {
     }
 
     /// @notice Swap ETH for tokens using Universal Router
-    function swapExactETHForTokens(
+    function swapExactEthForTokens(
         address tokenOut,
         uint256 minAmountOut,
         address to
@@ -127,7 +124,7 @@ library UniversalSwapAdapter {
     }
 
     /// @notice Swap tokens for ETH using Universal Router
-    function swapExactTokensForETH(
+    function swapExactTokensForEth(
         address tokenIn,
         uint256 amountIn,
         uint256 minAmountOut,

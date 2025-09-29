@@ -24,17 +24,17 @@ contract UniswapV4IntegrationTest is Test {
         // Set up jar configuration
         _jarConfig.jarOwner = _owner;
         _jarConfig.supportedCurrency = _mockToken; // Use ERC20 token
-        _jarConfig.accessType = CookieJarLib.AccessType.Allowlist;
-        _jarConfig.withdrawalOption = CookieJarLib.WithdrawalTypeOptions.Variable;
+        _jarConfig.ACCESS_TYPE = CookieJarLib.AccessType.Allowlist;
+        _jarConfig.WITHDRAWAL_OPTION = CookieJarLib.WithdrawalTypeOptions.Variable;
         _jarConfig.maxWithdrawal = 1000e18;
         _jarConfig.withdrawalInterval = 86400;
-        _jarConfig.strictPurpose = false;
-        _jarConfig.emergencyWithdrawalEnabled = true;
-        _jarConfig.oneTimeWithdrawal = false;
-        _jarConfig.maxWithdrawalPerPeriod = 5000e18;
-        _jarConfig.minDeposit = 1e18;
+        _jarConfig.STRICT_PURPOSE = false;
+        _jarConfig.EMERGENCY_WITHDRAWAL_ENABLED = true;
+        _jarConfig.ONE_TIME_WITHDRAWAL = false;
+        _jarConfig.MAX_WITHDRAWAL_PER_PERIOD = 5000e18;
+        _jarConfig.MIN_DEPOSIT = 1e18;
         _jarConfig.feeCollector = _owner;
-        _jarConfig.feePercentageOnDeposit = 500; // 5%
+        _jarConfig.FEE_PERCENTAGE_ON_DEPOSIT = 500; // 5%
         
         // Multi-token configuration with Universal Router
         _jarConfig.multiTokenConfig = CookieJarLib.MultiTokenConfig({
@@ -50,7 +50,7 @@ contract UniswapV4IntegrationTest is Test {
         allowlist[1] = _user;
 
         _accessConfig.allowlist = allowlist;
-        _accessConfig.nftRequirement = CookieJarLib.NFTRequirement({
+        _accessConfig.nftRequirement = CookieJarLib.NftRequirement({
             nftContract: address(0),
             tokenId: 0,
             minBalance: 0
@@ -159,12 +159,12 @@ contract UniswapV4IntegrationTest is Test {
     function testUnsupportedChain() public {
         // Mock unsupported chain
         vm.chainId(999999);
-        
+
         vm.expectRevert(
             abi.encodeWithSelector(UniversalSwapAdapter.UnsupportedChain.selector, 999999)
         );
-        
-        // This would fail with UnsupportedChain error
+
+        // This should fail with UnsupportedChain error
         UniversalSwapAdapter.swapExactInputSingle(
             _mockToken,
             address(0x999),

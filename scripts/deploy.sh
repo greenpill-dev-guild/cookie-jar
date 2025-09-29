@@ -145,8 +145,8 @@ fi
 # Change to contracts directory
 cd contracts
 
-# Build contracts first
-echo -e "${BLUE}📦 Building contracts...${NC}"
+# Build contracts first (production profile for optimized bytecode)
+echo -e "${BLUE}📦 Building contracts (production profile)...${NC}"
 forge build
 
 if [ $? -ne 0 ]; then

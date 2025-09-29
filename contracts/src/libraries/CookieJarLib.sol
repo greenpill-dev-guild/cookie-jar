@@ -62,7 +62,7 @@ library CookieJarLib {
 
     /// @notice NFT requirement for access control - unified for ERC721 and ERC1155
     /// @dev Simplified from multiple protocol-specific structs to single NFT requirement
-    struct NFTRequirement {
+    struct NftRequirement {
         address nftContract;    // NFT contract address
         uint256 tokenId;        // Token ID (0 for any token from contract)
         uint256 minBalance;     // Minimum balance required (for ERC1155)
@@ -87,20 +87,20 @@ library CookieJarLib {
         
         // Slot 2: fee collector + packed fields (32 bytes total)
         address feeCollector;                // 20 bytes
-        AccessType accessType;               // 1 byte (uint8)
-        WithdrawalTypeOptions withdrawalOption; // 1 byte (uint8)
-        bool strictPurpose;                  // 1 byte
-        bool emergencyWithdrawalEnabled;     // 1 byte
-        bool oneTimeWithdrawal;             // 1 byte
+        AccessType ACCESS_TYPE;               // 1 byte (uint8)
+        WithdrawalTypeOptions WITHDRAWAL_OPTION; // 1 byte (uint8)
+        bool STRICT_PURPOSE;                  // 1 byte
+        bool EMERGENCY_WITHDRAWAL_ENABLED;     // 1 byte
+        bool ONE_TIME_WITHDRAWAL;             // 1 byte
         // 7 bytes padding
-        
+
         // Remaining slots: uint256 fields
         uint256 fixedAmount;
         uint256 maxWithdrawal;
         uint256 withdrawalInterval;
-        uint256 minDeposit;
-        uint256 feePercentageOnDeposit;
-        uint256 maxWithdrawalPerPeriod;     // 0 means unlimited
+        uint256 MIN_DEPOSIT;
+        uint256 FEE_PERCENTAGE_ON_DEPOSIT;
+        uint256 MAX_WITHDRAWAL_PER_PERIOD;     // 0 means unlimited
         
         // Dynamic fields (separate slots)
         string metadata;                     // Jar metadata/description
@@ -111,7 +111,7 @@ library CookieJarLib {
     /// @dev Reduced from complex protocol-specific configs to unified approach
     struct AccessConfig {
         address[] allowlist;           // For allowlist access
-        NFTRequirement nftRequirement; // For ERC721/ERC1155 access
+        NftRequirement nftRequirement; // For ERC721/ERC1155 access
     }
 
     // === ERROR DEFINITIONS ===

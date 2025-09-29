@@ -10,8 +10,8 @@ contract DummyERC1155 is ERC1155, Ownable {
         mint(msg.sender, 0, 1, "");
     }
 
-    function setURI(string memory newuri) public onlyOwner {
-        _setURI(newuri);
+    function setUri(string memory newUri) public onlyOwner {
+        _setURI(newUri);
     }
 
     function mint(address account, uint256 id, uint256 amount, bytes memory data) public onlyOwner {

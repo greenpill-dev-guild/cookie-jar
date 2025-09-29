@@ -15,8 +15,8 @@ contract Deploy is Script {
         address feeCollector = vm.envAddress("FEE_COLLECTOR");
         address owner = vm.envAddress("FACTORY_OWNER"); 
         uint256 feePercentage = vm.envUint("FEE_PERCENTAGE");
-        uint256 minETHDeposit = vm.envUint("MIN_ETH_DEPOSIT");
-        uint256 minERC20Deposit = vm.envUint("MIN_ERC20_DEPOSIT");
+        uint256 minEthDeposit = vm.envUint("MIN_ETH_DEPOSIT");
+        uint256 minErc20Deposit = vm.envUint("MIN_ERC20_DEPOSIT");
         
         // Log deployment configuration
         console.log("=== Cookie Jar Factory Deployment ===");
@@ -24,8 +24,8 @@ contract Deploy is Script {
         console.log("Fee Collector:", feeCollector);
         console.log("Factory Owner:", owner);
         console.log("Fee Percentage:", feePercentage, "bps");
-        console.log("Min ETH Deposit:", minETHDeposit, "wei");
-        console.log("Min ERC20 Deposit:", minERC20Deposit, "wei");
+        console.log("Min ETH Deposit:", minEthDeposit, "wei");
+        console.log("Min ERC20 Deposit:", minErc20Deposit, "wei");
         console.log("=====================================");
         
         // Deploy the factory
@@ -35,8 +35,8 @@ contract Deploy is Script {
             feeCollector,
             owner,
             feePercentage,
-            uint128(minETHDeposit),
-            uint128(minERC20Deposit)
+            uint128(minEthDeposit),
+            uint128(minErc20Deposit)
         );
         
         vm.stopBroadcast();
