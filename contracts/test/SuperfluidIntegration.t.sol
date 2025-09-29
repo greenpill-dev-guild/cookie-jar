@@ -1,11 +1,11 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "forge-std/Test.sol";
-import "../src/CookieJar.sol";
-import "../src/CookieJarFactory.sol";
-import "../src/libraries/CookieJarLib.sol";
-import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
+import {Test} from "forge-std/Test.sol";
+import {CookieJar} from "../src/CookieJar.sol";
+import {CookieJarFactory} from "../src/CookieJarFactory.sol";
+import {CookieJarLib} from "../src/libraries/CookieJarLib.sol";
+import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 
 /// @title Superfluid Integration Test
 /// @notice Comprehensive test suite for CookieJar's integrated Superfluid functionality
@@ -104,8 +104,11 @@ contract SuperfluidIntegrationTest is Test {
         allowlist[1] = _user;
         
         _accessConfig.allowlist = allowlist;
-        _accessConfig.nftAddresses = new address[](0);
-        _accessConfig.nftTypes = new CookieJarLib.NFTType[](0);
+        _accessConfig.nftRequirement = CookieJarLib.NFTRequirement({
+            nftContract: address(0),
+            tokenId: 0,
+            minBalance: 0
+        });
     }
     
     // ===================================
@@ -542,7 +545,7 @@ contract SuperfluidIntegrationTest is Test {
         // Normal deposit should still work
         vm.deal(_user, 1 ether);
         vm.prank(_user);
-        ethJar.depositETH{value: 0.1 ether}();
+        ethJar.deposit{value: 0.1 ether}(0);
         
         // Verify deposit succeeded
         assertEq(address(ethJar).balance, 0.1 ether);
@@ -706,11 +709,11 @@ contract ReentrancyAttacker {
     receive() external payable {
         if (!attacking && address(target).balance > 0.1 ether) {
             attacking = true;
-            target.depositETH{value: 0.1 ether}();
+            target.deposit{value: 0.1 ether}(0);
         }
     }
-    
+
     function attack() external payable {
-        target.depositETH{value: msg.value}();
+        target.deposit{value: msg.value}(0);
     }
 }

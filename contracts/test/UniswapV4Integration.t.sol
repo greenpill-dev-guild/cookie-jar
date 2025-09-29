@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "forge-std/Test.sol";
-import "../src/CookieJar.sol";
-import "../src/libraries/UniversalSwapAdapter.sol";
-import "../src/libraries/CookieJarLib.sol";
+import {Test} from "forge-std/Test.sol";
+import {CookieJar} from "../src/CookieJar.sol";
+import {UniversalSwapAdapter} from "../src/libraries/UniversalSwapAdapter.sol";
+import {CookieJarLib} from "../src/libraries/CookieJarLib.sol";
 
 contract UniswapV4IntegrationTest is Test {
     CookieJar internal _jar;
@@ -59,8 +59,11 @@ contract UniswapV4IntegrationTest is Test {
         allowlist[1] = _user;
 
         _accessConfig.allowlist = allowlist;
-        _accessConfig.nftAddresses = new address[](0);
-        _accessConfig.nftTypes = new CookieJarLib.NFTType[](0);
+        _accessConfig.nftRequirement = CookieJarLib.NFTRequirement({
+            nftContract: address(0),
+            tokenId: 0,
+            minBalance: 0
+        });
 
         // Deploy jar
         _jar = new CookieJar(_jarConfig, _accessConfig);

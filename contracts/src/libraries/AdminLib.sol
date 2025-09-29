@@ -1,10 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
-import "./CookieJarLib.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {CookieJarLib} from "./CookieJarLib.sol";
 
 /// @title AdminLib
 /// @notice Library for administrative functions to reduce main contract size
@@ -36,70 +36,6 @@ library AdminLib {
         }
     }
     
-    /// @notice Adds NFT gate with comprehensive validation
-    /// @param nftGates Current NFT gates array
-    /// @param nftGateMapping Mapping for gate lookup
-    /// @param nftGateIndex Index mapping for O(1) removal
-    /// @param nftAddress Address of NFT contract
-    /// @param nftType Type of NFT (ERC721/ERC1155)
-    function addNFTGate(
-        CookieJarLib.NFTGate[] storage nftGates,
-        mapping(address => CookieJarLib.NFTType) storage nftGateMapping,
-        mapping(address => uint256) storage nftGateIndex,
-        address nftAddress,
-        CookieJarLib.NFTType nftType
-    ) internal {
-        if (nftAddress == address(0)) revert CookieJarLib.InvalidNFTGate();
-        if (nftType == CookieJarLib.NFTType.None) revert CookieJarLib.InvalidNFTType();
-        if (nftGateMapping[nftAddress] != CookieJarLib.NFTType.None) revert CookieJarLib.DuplicateNFTGate();
-        if (nftGates.length >= CookieJarLib.MAX_NFT_GATES) revert CookieJarLib.TooManyNFTGates();
-        
-        CookieJarLib.NFTGate memory gate = CookieJarLib.NFTGate({
-            nftAddress: nftAddress, 
-            nftType: nftType,
-            threshold: 1
-        });
-        
-        uint256 newIndex = nftGates.length;
-        nftGates.push(gate);
-        nftGateMapping[nftAddress] = nftType;
-        nftGateIndex[nftAddress] = newIndex;
-        
-        emit CookieJarLib.NFTGateAdded(nftAddress, nftType);
-    }
-    
-    /// @notice Removes NFT gate with index optimization
-    /// @param nftGates Current NFT gates array
-    /// @param nftGateMapping Mapping for gate lookup
-    /// @param nftGateIndex Index mapping for O(1) removal
-    /// @param nftAddress Address of NFT contract to remove
-    function removeNFTGate(
-        CookieJarLib.NFTGate[] storage nftGates,
-        mapping(address => CookieJarLib.NFTType) storage nftGateMapping,
-        mapping(address => uint256) storage nftGateIndex,
-        address nftAddress
-    ) internal {
-        if (nftGateMapping[nftAddress] == CookieJarLib.NFTType.None) {
-            revert CookieJarLib.NFTGateNotFound();
-        }
-        
-        uint256 gateIndex = nftGateIndex[nftAddress];
-        uint256 lastIndex = nftGates.length - 1;
-        
-        // If not the last element, swap with last and update its index
-        if (gateIndex != lastIndex) {
-            address lastGateAddress = nftGates[lastIndex].nftAddress;
-            nftGates[gateIndex] = nftGates[lastIndex];
-            nftGateIndex[lastGateAddress] = gateIndex;
-        }
-        
-        // Remove the last element and clean up mappings
-        nftGates.pop();
-        delete nftGateMapping[nftAddress];
-        delete nftGateIndex[nftAddress];
-        
-        emit CookieJarLib.NFTGateRemoved(nftAddress);
-    }
     
     /// @notice Performs emergency withdrawal with comprehensive validation
     /// @param token Token address (address(3) for ETH, ERC20 otherwise)

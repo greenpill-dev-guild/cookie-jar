@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
+/// @title HelperConfig
+/// @notice Configuration helper for deployment scripts
 contract HelperConfig {
     address DEFAULT_FEE_COLLECTOR = address(0xcFF556854A07A8Ff47F8b178abb617901682D4eb);
     uint256 FEE_PERCENT_ON_DEPOSIT = 100;
@@ -11,16 +13,16 @@ contract HelperConfig {
     struct NetworkConfig {
         address defaultFeeCollector;
         uint256 feePercentageOnDeposit;
-        uint256 minETHDeposit;
-        uint256 minERC20Deposit;
+        uint128 minETHDeposit;
+        uint128 minERC20Deposit;
     }
 
     function getBaseSepoliaConfig() public view returns (NetworkConfig memory baseSepoliaConfig) {
         baseSepoliaConfig = NetworkConfig({
             defaultFeeCollector: DEFAULT_FEE_COLLECTOR,
             feePercentageOnDeposit: FEE_PERCENT_ON_DEPOSIT,
-            minETHDeposit: MIN_ETH_DEPOSIT,
-            minERC20Deposit: MIN_ERC20_DEPOST
+            minETHDeposit: uint128(MIN_ETH_DEPOSIT),
+            minERC20Deposit: uint128(MIN_ERC20_DEPOST)
         });
     }
 
@@ -28,8 +30,8 @@ contract HelperConfig {
         anvilConfig = NetworkConfig({
             defaultFeeCollector: DEFAULT_FEE_COLLECTOR,
             feePercentageOnDeposit: FEE_PERCENT_ON_DEPOSIT,
-            minETHDeposit: MIN_ETH_DEPOSIT,
-            minERC20Deposit: MIN_ERC20_DEPOST
+            minETHDeposit: uint128(MIN_ETH_DEPOSIT),
+            minERC20Deposit: uint128(MIN_ERC20_DEPOST)
         });
     }
 }

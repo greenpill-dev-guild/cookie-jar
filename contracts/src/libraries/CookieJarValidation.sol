@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "../libraries/CookieJarLib.sol";
+import {CookieJarLib} from "../libraries/CookieJarLib.sol";
 
 /// @title CookieJarValidation
 /// @notice Library for validation logic to reduce main contract size

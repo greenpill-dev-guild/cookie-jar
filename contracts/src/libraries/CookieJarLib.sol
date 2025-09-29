@@ -5,10 +5,9 @@ pragma solidity ^0.8.24;
 /// @notice Shared library for Cookie Jar constants, enums, and structs
 library CookieJarLib {
     /// @notice Role identifiers for access control
+    /// @dev Following Solidity best practices for role-based access control
     bytes32 public constant JAR_OWNER = keccak256("JAR_OWNER");
-    bytes32 public constant JAR_ADMIN = keccak256("JAR_ADMIN");
     bytes32 public constant JAR_ALLOWLISTED = keccak256("JAR_ALLOWLISTED");
-    bytes32 public constant JAR_DENYLISTED = keccak256("JAR_DENYLISTED");
 
     /// @notice Maximum withdrawal history to prevent unbounded array growth
     uint256 public constant MAX_WITHDRAWAL_HISTORY = 1000;
@@ -26,14 +25,12 @@ library CookieJarLib {
     uint256 public constant MAX_BALANCE_PROOF_AGE = 100; // Max age for balance proof in blocks
     uint256 public constant MAX_NFT_GATES = 10; // Maximum number of NFT gates allowed
 
-    /// @notice Access types for jar
+    /// @notice Access types for jar - simplified to 3 core types
+    /// @dev Following ERC standards: Allowlist, ERC721, ERC1155
     enum AccessType {
-        Allowlist,
-        NFTGated,
-        POAP,
-        Unlock,
-        Hypercert,
-        Hats
+        Allowlist,  // Simple allowlist-based access
+        ERC721,     // ERC-721 NFT-based access (POAP, Unlock Protocol)
+        ERC1155     // ERC-1155 NFT-based access (Hypercerts, Hats Protocol)
     }
 
     /// @notice Withdrawal type options
@@ -42,12 +39,6 @@ library CookieJarLib {
         Variable
     }
 
-    /// @notice NFT types for gating
-    enum NFTType {
-        None,
-        ERC721,
-        ERC1155
-    }
 
     /// @notice Events
     event Deposit(address indexed depositor, uint256 amount, address indexed token);
@@ -76,49 +67,15 @@ library CookieJarLib {
     event StreamApproved(uint256 indexed streamIndex);
     event EmergencyWithdrawal(address indexed user, address indexed token, uint256 amount);
     event StreamProcessed(uint256 indexed streamIndex, uint256 processableAmount, uint256 feeAmount);
-    event NFTGateAdded(address indexed nftAddress, NFTType nftType);
 
     // === STRUCT DEFINITIONS ===
 
-    /// @notice NFT gate configuration
-    struct NFTGate {
-        address nftAddress;
-        NFTType nftType;
-        uint256 threshold;
-    }
-
-    /// @notice POAP requirement for access control
-    struct POAPRequirement {
-        uint256 eventId; // POAP event ID required
-        address poapContract; // POAP contract address (for custom networks)
-    }
-
-    /// @notice Unlock Protocol requirement for access control
-    struct UnlockRequirement {
-        address lockAddress; // Lock contract address
-        bool requireValidKey; // Whether valid key is required
-    }
-
-    /// @notice Hypercert requirement for access control
-    struct HypercertRequirement {
-        address hypercertContract; // Hypercert contract address
-        uint256 requiredFractions; // Minimum fraction ownership required
-        address[] allowedCreators; // Allowed hypercert creators
-        uint256 tokenId; // Specific token ID required (if 0, any token from contract is valid)
-        address tokenContract; // Alternative token contract address (for backward compatibility)
-        uint256 minBalance; // Minimum balance required (for backward compatibility)
-    }
-
-    /// @notice Hats Protocol requirement for access control
-    struct HatsRequirement {
-        uint256 hatId; // Hat ID required for access
-        address hatsContract; // Hats Protocol contract address (network specific)
-    }
-
-    struct WithdrawalData {
-        uint256 amount; // Amount of tokens to be withdrawn.
-        string purpose; // Reason for the withdrawal.
-        address recipient; // Address of the user who withdrew
+    /// @notice NFT requirement for access control - unified for ERC721 and ERC1155
+    /// @dev Simplified from multiple protocol-specific structs to single NFT requirement
+    struct NFTRequirement {
+        address nftContract;    // NFT contract address
+        uint256 tokenId;        // Token ID (0 for any token from contract)
+        uint256 minBalance;     // Minimum balance required (for ERC1155)
     }
 
     /// @notice SIMPLIFIED Multi-token configuration for cookie jar
@@ -170,16 +127,11 @@ library CookieJarLib {
         StreamingConfig streamingConfig; // Real-time streaming via Superfluid Protocol
     }
 
-    /// @notice NFT and allowlist configuration struct
+    /// @notice Simplified access configuration struct
+    /// @dev Reduced from complex protocol-specific configs to unified approach
     struct AccessConfig {
-        address[] nftAddresses;
-        NFTType[] nftTypes;
-        uint256[] nftThresholds;
-        address[] allowlist;
-        POAPRequirement poapReq;
-        UnlockRequirement unlockReq;
-        HypercertRequirement hypercertReq;
-        HatsRequirement hatsReq;
+        address[] allowlist;           // For allowlist access
+        NFTRequirement nftRequirement; // For ERC721/ERC1155 access
     }
 
     // === ERROR DEFINITIONS ===
@@ -208,9 +160,7 @@ library CookieJarLib {
     error PeriodWithdrawalLimitExceeded(uint256 requested, uint256 available);
     error OneTimeWithdrawalAlreadyUsed();
     error WithdrawalIntervalNotPassed();
-    error UserDenylisted();
     error InvalidNFTGate();
-    error AllowlistNotAllowedForNFTGated();
     error NoNFTAddressesProvided();
     error NFTArrayLengthMismatch();
     error WithdrawalHistoryLimitReached();
@@ -218,7 +168,6 @@ library CookieJarLib {
     error WithdrawalAlreadyDone();
     error WithdrawalTooSoon(uint256 nextAllowed);
     error NFTValidationFailed();
-    error InvalidNFTType();
     error StaleBalanceProof();
     error InsufficientNFTBalance();
     error NotFeeCollector();

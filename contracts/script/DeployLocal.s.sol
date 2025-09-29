@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "forge-std/Script.sol";
-import "../src/CookieJarFactory.sol";
-import "../src/CookieJar.sol";
-import "../src/tokens/TestERC20.sol";
-import "../src/libraries/CookieJarLib.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import {Script, console} from "forge-std/Script.sol";
+import {CookieJarFactory} from "../src/CookieJarFactory.sol";
+import {CookieJar} from "../src/CookieJar.sol";
+import {DummyERC20} from "../src/tokens/TestERC20.sol";
+import {CookieJarLib} from "../src/libraries/CookieJarLib.sol";
+import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 contract CookieMonsterNFT is ERC721, Ownable {
     uint256 public tokenIdCounter;
@@ -56,8 +56,8 @@ contract DeployLocalScript is Script {
             deployer,           // _defaultFeeCollector (use deployer for local testing)
             deployer,           // _owner
             100,                // _feePercentage (1% = 100/10000)
-            0.01 ether,         // _minETHDeposit
-            1000 * 10**18       // _minERC20Deposit (1000 tokens assuming 18 decimals)
+            uint128(0.01 ether), // _minETHDeposit
+            uint128(1000 * 10**18) // _minERC20Deposit (1000 tokens assuming 18 decimals)
         );
         
         console.log("SUCCESS: CookieJarFactory deployed to:", address(factory));
@@ -99,10 +99,10 @@ contract DeployLocalScript is Script {
         // 2. Development Grants (Allowlist, ERC20, Variable withdrawals)  
         _createJar2();
         
-        // 3. NFT Holder Rewards (NFT-Gated, ETH, Fixed withdrawals)
+        // 3. NFT Holder Rewards (ERC721, ETH, Fixed withdrawals)
         _createJar3();
         
-        // 4. NFT Airdrop (NFT-Gated, ERC20, One-time withdrawals)
+        // 4. NFT Airdrop (ERC721, ERC20, One-time withdrawals)
         _createJar4();
 
         // === SUMMARY ===
@@ -175,21 +175,12 @@ contract DeployLocalScript is Script {
         });
         
         CookieJarLib.AccessConfig memory accessConfig1 = CookieJarLib.AccessConfig({
-            nftAddresses: new address[](0),
-            nftTypes: new CookieJarLib.NFTType[](0),
-            nftThresholds: new uint256[](0),
             allowlist: allowlist1,
-            poapReq: CookieJarLib.POAPRequirement({eventId: 0, poapContract: address(0)}),
-            unlockReq: CookieJarLib.UnlockRequirement({lockAddress: address(0), requireValidKey: false}),
-            hypercertReq: CookieJarLib.HypercertRequirement({
-                hypercertContract: address(0), 
-                requiredFractions: 0, 
-                allowedCreators: new address[](0), 
-                tokenId: 0, 
-                tokenContract: address(0), 
+            nftRequirement: CookieJarLib.NFTRequirement({
+                nftContract: address(0),
+                tokenId: 0,
                 minBalance: 0
-            }),
-            hatsReq: CookieJarLib.HatsRequirement({hatId: 0, hatsContract: address(0)})
+            })
         });
         
         factory.createCookieJar(params1, accessConfig1, defaultMultiToken, defaultStreaming);
@@ -197,7 +188,7 @@ contract DeployLocalScript is Script {
         // Fund the first jar with 5 ETH
         address[] memory allJars = factory.getAllJars();
         address firstJar = allJars[0];
-        CookieJar(payable(firstJar)).depositETH{value: 5 ether}();
+        CookieJar(payable(firstJar)).deposit{value: 5 ether}(0);
         console.log("   SUCCESS: Jar 1: Community Stipend (Allowlist, ETH, Fixed 0.1) - 5 ETH funded");
     }
 
@@ -245,21 +236,12 @@ contract DeployLocalScript is Script {
         });
         
         CookieJarLib.AccessConfig memory accessConfig2 = CookieJarLib.AccessConfig({
-            nftAddresses: new address[](0),
-            nftTypes: new CookieJarLib.NFTType[](0),
-            nftThresholds: new uint256[](0),
             allowlist: allowlist2,
-            poapReq: CookieJarLib.POAPRequirement({eventId: 0, poapContract: address(0)}),
-            unlockReq: CookieJarLib.UnlockRequirement({lockAddress: address(0), requireValidKey: false}),
-            hypercertReq: CookieJarLib.HypercertRequirement({
-                hypercertContract: address(0), 
-                requiredFractions: 0, 
-                allowedCreators: new address[](0), 
-                tokenId: 0, 
-                tokenContract: address(0), 
+            nftRequirement: CookieJarLib.NFTRequirement({
+                nftContract: address(0),
+                tokenId: 0,
                 minBalance: 0
-            }),
-            hatsReq: CookieJarLib.HatsRequirement({hatId: 0, hatsContract: address(0)})
+            })
         });
         
         factory.createCookieJar(params2, accessConfig2, defaultMultiToken2, defaultStreaming2);
@@ -268,7 +250,7 @@ contract DeployLocalScript is Script {
         address[] memory allJars2 = factory.getAllJars();
         address secondJar = allJars2[1];
         demoToken.approve(secondJar, 50000 * 10**18);
-        CookieJar(payable(secondJar)).depositCurrency(50000 * 10**18);
+        CookieJar(payable(secondJar)).deposit(50000 * 10**18);
         console.log("   SUCCESS: Jar 2: Development Grants (Allowlist, DEMO, Variable 1000) - 50K DEMO funded");
     }
     
@@ -276,8 +258,6 @@ contract DeployLocalScript is Script {
         // 3. NFT Holder Rewards (NFT-Gated, ETH, Fixed 0.05 ETH)
         address[] memory nftAddresses = new address[](1);
         nftAddresses[0] = address(cookieMonsterNFT);
-        CookieJarLib.NFTType[] memory nftTypes = new CookieJarLib.NFTType[](1);
-        nftTypes[0] = CookieJarLib.NFTType.ERC721;
         
         // Default configurations for Jar 3
         CookieJarLib.MultiTokenConfig memory defaultMultiToken3 = CookieJarLib.MultiTokenConfig({
@@ -298,7 +278,7 @@ contract DeployLocalScript is Script {
         CookieJarLib.JarConfig memory params3 = CookieJarLib.JarConfig({
             jarOwner: DEPLOYER,
             supportedCurrency: CookieJarLib.ETH_ADDRESS,
-            accessType: CookieJarLib.AccessType.NFTGated,
+            accessType: CookieJarLib.AccessType.ERC721,
             withdrawalOption: CookieJarLib.WithdrawalTypeOptions.Fixed,
             fixedAmount: 0.05 ether,
             maxWithdrawal: 1 ether,
@@ -315,25 +295,14 @@ contract DeployLocalScript is Script {
             streamingConfig: defaultStreaming3
         });
         
-        uint256[] memory nftThresholds = new uint256[](1);
-        nftThresholds[0] = 1;
         
         CookieJarLib.AccessConfig memory accessConfig3 = CookieJarLib.AccessConfig({
-            nftAddresses: nftAddresses,
-            nftTypes: nftTypes,
-            nftThresholds: nftThresholds,
             allowlist: new address[](0),
-            poapReq: CookieJarLib.POAPRequirement({eventId: 0, poapContract: address(0)}),
-            unlockReq: CookieJarLib.UnlockRequirement({lockAddress: address(0), requireValidKey: false}),
-            hypercertReq: CookieJarLib.HypercertRequirement({
-                hypercertContract: address(0), 
-                requiredFractions: 0, 
-                allowedCreators: new address[](0), 
-                tokenId: 0, 
-                tokenContract: address(0), 
-                minBalance: 0
-            }),
-            hatsReq: CookieJarLib.HatsRequirement({hatId: 0, hatsContract: address(0)})
+            nftRequirement: CookieJarLib.NFTRequirement({
+                nftContract: nftAddresses[0],
+                tokenId: 0, // Any token from contract
+                minBalance: 1
+            })
         });
         
         factory.createCookieJar(params3, accessConfig3, defaultMultiToken3, defaultStreaming3);
@@ -341,16 +310,14 @@ contract DeployLocalScript is Script {
         // Fund the third jar with 2 ETH
         address[] memory allJars3 = factory.getAllJars();
         address thirdJar = allJars3[2];
-        CookieJar(payable(thirdJar)).depositETH{value: 2 ether}();
-        console.log("   SUCCESS: Jar 3: NFT Holder Rewards (NFT-Gated, ETH, Fixed 0.05) - 2 ETH funded");
+        CookieJar(payable(thirdJar)).deposit{value: 2 ether}(0);
+        console.log("   SUCCESS: Jar 3: NFT Holder Rewards (ERC721, ETH, Fixed 0.05) - 2 ETH funded");
     }
     
     function _createJar4() internal {
         // 4. NFT Airdrop (NFT-Gated, ERC20, One-time 500 DEMO)
         address[] memory nftAddresses = new address[](1);
         nftAddresses[0] = address(cookieMonsterNFT);
-        CookieJarLib.NFTType[] memory nftTypes = new CookieJarLib.NFTType[](1);
-        nftTypes[0] = CookieJarLib.NFTType.ERC721;
         
         // Default configurations for Jar 4
         CookieJarLib.MultiTokenConfig memory defaultMultiToken4 = CookieJarLib.MultiTokenConfig({
@@ -371,7 +338,7 @@ contract DeployLocalScript is Script {
         CookieJarLib.JarConfig memory params4 = CookieJarLib.JarConfig({
             jarOwner: DEPLOYER,
             supportedCurrency: address(demoToken),
-            accessType: CookieJarLib.AccessType.NFTGated,
+            accessType: CookieJarLib.AccessType.ERC721,
             withdrawalOption: CookieJarLib.WithdrawalTypeOptions.Fixed,
             fixedAmount: 500 * 10**18,
             maxWithdrawal: 500 * 10**18,
@@ -388,25 +355,14 @@ contract DeployLocalScript is Script {
             streamingConfig: defaultStreaming4
         });
         
-        uint256[] memory nftThresholds4 = new uint256[](1);
-        nftThresholds4[0] = 1;
         
         CookieJarLib.AccessConfig memory accessConfig4 = CookieJarLib.AccessConfig({
-            nftAddresses: nftAddresses,
-            nftTypes: nftTypes,
-            nftThresholds: nftThresholds4,
             allowlist: new address[](0),
-            poapReq: CookieJarLib.POAPRequirement({eventId: 0, poapContract: address(0)}),
-            unlockReq: CookieJarLib.UnlockRequirement({lockAddress: address(0), requireValidKey: false}),
-            hypercertReq: CookieJarLib.HypercertRequirement({
-                hypercertContract: address(0), 
-                requiredFractions: 0, 
-                allowedCreators: new address[](0), 
-                tokenId: 0, 
-                tokenContract: address(0), 
-                minBalance: 0
-            }),
-            hatsReq: CookieJarLib.HatsRequirement({hatId: 0, hatsContract: address(0)})
+            nftRequirement: CookieJarLib.NFTRequirement({
+                nftContract: nftAddresses[0],
+                tokenId: 0, // Any token from contract
+                minBalance: 1
+            })
         });
         
         factory.createCookieJar(params4, accessConfig4, defaultMultiToken4, defaultStreaming4);
@@ -415,8 +371,8 @@ contract DeployLocalScript is Script {
         address[] memory allJars4 = factory.getAllJars();
         address fourthJar = allJars4[3];
         demoToken.approve(fourthJar, 10000 * 10**18);
-        CookieJar(payable(fourthJar)).depositCurrency(10000 * 10**18);
-        console.log("   SUCCESS: Jar 4: NFT Airdrop (NFT-Gated, DEMO, One-time 500) - 10K DEMO funded");
+        CookieJar(payable(fourthJar)).deposit(10000 * 10**18);
+        console.log("   SUCCESS: Jar 4: NFT Airdrop (ERC721, DEMO, One-time 500) - 10K DEMO funded");
     }
 
     /// @notice Updates the client configuration file with new local deployment

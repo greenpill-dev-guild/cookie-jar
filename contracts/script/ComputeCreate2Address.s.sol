@@ -1,8 +1,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import "forge-std/Script.sol";
-import "../src/CookieJarFactory.sol";
+import {Script} from "forge-std/Script.sol";
+import {console} from "forge-std/console.sol";
+import {CookieJarFactory} from "../src/CookieJarFactory.sol";
 
 /**
  * Utility script to compute CREATE2 addresses before deployment

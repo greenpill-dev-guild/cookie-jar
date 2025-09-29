@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "forge-std/Script.sol";
-import "../src/CookieJarFactory.sol";
+import {Script, stdJson, console} from "forge-std/Script.sol";
+import {CookieJarFactory} from "../src/CookieJarFactory.sol";
 
 /// @title Universal Deploy Script with Auto-Config Updates
 /// @notice Deploys contracts and automatically updates client configuration
@@ -33,10 +33,10 @@ contract Deploy is Script {
         
         CookieJarFactory factory = new CookieJarFactory(
             feeCollector,
-            owner, 
+            owner,
             feePercentage,
-            minETHDeposit,
-            minERC20Deposit
+            uint128(minETHDeposit),
+            uint128(minERC20Deposit)
         );
         
         vm.stopBroadcast();

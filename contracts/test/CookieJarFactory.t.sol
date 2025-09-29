@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import "forge-std/Test.sol";
-import "../src/CookieJarFactory.sol";
-import "../src/CookieJar.sol";
-import "../script/HelperConfig.s.sol";
-import "@openzeppelin/contracts/mocks/token/ERC20Mock.sol";
+import {Test} from "forge-std/Test.sol";
+import {CookieJarFactory} from "../src/CookieJarFactory.sol";
+import {CookieJar} from "../src/CookieJar.sol";
+import {CookieJarLib} from "../src/libraries/CookieJarLib.sol";
+import {HelperConfig} from "../script/HelperConfig.s.sol";
+import {ERC20Mock} from "@openzeppelin/contracts/mocks/token/ERC20Mock.sol";
 
 contract CookieJarFactoryTest is Test {
     HelperConfig public helperConfig;
     address[] emptyAddresses = new address[](0);
-    CookieJarLib.NFTType[] emptyTypes = new CookieJarLib.NFTType[](0);
     CookieJarFactory public factory;
     address public owner = address(0xABCD);
     address public user = address(0x1234);
@@ -64,21 +64,12 @@ contract CookieJarFactoryTest is Test {
     // Helper function to create default access config
     function createDefaultAccessConfig() internal view returns (CookieJarLib.AccessConfig memory) {
         return CookieJarLib.AccessConfig({
-            nftAddresses: emptyAddresses,
-            nftTypes: emptyTypes,
-            nftThresholds: new uint256[](0),
             allowlist: emptyAllowlist,
-            poapReq: CookieJarLib.POAPRequirement({eventId: 0, poapContract: address(0)}),
-            unlockReq: CookieJarLib.UnlockRequirement({lockAddress: address(0), requireValidKey: false}),
-            hypercertReq: CookieJarLib.HypercertRequirement({
-                hypercertContract: address(0),
-                requiredFractions: 0,
-                allowedCreators: new address[](0),
+            nftRequirement: CookieJarLib.NFTRequirement({
+                nftContract: address(0),
                 tokenId: 0,
-                tokenContract: address(0),
-                minBalance: 1
-            }),
-            hatsReq: CookieJarLib.HatsRequirement({hatId: 0, hatsContract: address(0)})
+                minBalance: 0
+            })
         });
     }
 
@@ -125,49 +116,20 @@ contract CookieJarFactoryTest is Test {
         vm.stopPrank();
     }
 
-    function testCreateCookieJarByDenylistedPersonReverts() public {
-        address[] memory localUsers = new address[](1); // Use local variable
-        localUsers[0] = user;
-        
+    function testCreateCookieJar() public {
         vm.prank(owner);
-        factory.grantDenylistedJarCreatorsRole(localUsers);
-
-        vm.prank(localUsers[0]);
-        vm.expectRevert(CookieJarFactory.CookieJarFactory__Denylisted.selector);
-        
-        // V2: Use struct-based parameters
-        CookieJarLib.JarConfig memory params = createDefaultJarParams(
-            owner,
-            CookieJarLib.ETH_ADDRESS,
-            "Test Metadata"
+        address jarAddress = factory.createCookieJar(
+            createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, "Test Metadata"),
+            createDefaultAccessConfig(),
+            createDefaultMultiTokenConfig(),
+            createDefaultStreamingConfig()
         );
-        
-        CookieJarLib.AccessConfig memory accessConfig = createDefaultAccessConfig();
-        
-        factory.createCookieJar(params, accessConfig, createDefaultMultiTokenConfig(), createDefaultStreamingConfig());
+
         address[] memory cookieJars = factory.getAllJars();
-        assertEq(cookieJars.length, 0);
+        assertEq(cookieJars.length, 1);
+        assertEq(cookieJars[0], jarAddress);
     }
 
-    /// @notice Test creating a cookie jar by a denylisted person
-    function testCreateCookieJarByDenylistedPerson() public {
-        vm.prank(owner);
-        factory.grantDenylistedJarCreatorsRole(testUsers);
-        vm.prank(testUsers[0]);
-        vm.expectRevert(CookieJarFactory.CookieJarFactory__Denylisted.selector);
-        
-        CookieJarLib.JarConfig memory params = createDefaultJarParams(
-            owner,
-            CookieJarLib.ETH_ADDRESS,
-            "Test Metadata"
-        );
-        
-        CookieJarLib.AccessConfig memory accessConfig = createDefaultAccessConfig();
-        
-        factory.createCookieJar(params, accessConfig, createDefaultMultiTokenConfig(), createDefaultStreamingConfig());
-        address[] memory cookieJars = factory.getAllJars();
-        assertEq(cookieJars.length, 0);
-    }
 
     // V2: grantProtocolAdminRole removed for size optimization
     // function testOnlyOwnerGrantsAndRevokesProtocolAdminRoles() public {
@@ -188,7 +150,7 @@ contract CookieJarFactoryTest is Test {
     // }
 
     /// @notice Test creating a cookie jar
-    function testCreateCookieJar() public {
+    function testCreateCookieJarBasic() public {
         vm.prank(owner);
         address jarAddress = factory.createCookieJar(
             createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, "Test Metadata"),
@@ -268,23 +230,6 @@ contract CookieJarFactoryTest is Test {
         assertEq(cookieJars[0], jarAddress);
     }
 
-    /// @notice Test granting denylisted jar creator role
-    function testGrantDenylistedJarCreator() public {
-        vm.prank(owner);
-        factory.grantDenylistedJarCreatorsRole(testUsers);
-        assertEq(factory.hasRole(keccak256("DENYLISTED_JAR_CREATORS"), testUsers[0]), true);
-        assertEq(factory.hasRole(keccak256("DENYLISTED_JAR_CREATORS"), testUsers[1]), true);
-    }
-
-    /// @notice Test revoking denylisted jar creator role
-    function testRevokeDenylistedJarCreator() public {
-        vm.prank(owner);
-        factory.grantDenylistedJarCreatorsRole(testUsers);
-        vm.prank(owner);
-        factory.revokeDenylistedJarCreatorsRole(testUsers);
-        assertEq(factory.hasRole(keccak256("DENYLISTED_JAR_CREATORS"), testUsers[0]), false);
-        assertEq(factory.hasRole(keccak256("DENYLISTED_JAR_CREATORS"), testUsers[1]), false);
-    }
 
     /// @notice Test creating jar with ERC20 token
     function testCreateCookieJarWithERC20() public {
@@ -315,9 +260,6 @@ contract CookieJarFactoryTest is Test {
         
         // Test getMetadata for specific jar
         assertEq(factory.getMetadata(jarAddress), testMetadata);
-        
-        // Test metadatas by index
-        assertEq(factory.getMetadataByIndex(0), testMetadata);
         
         // Metadata functionality verified
     }
@@ -378,11 +320,6 @@ contract CookieJarFactoryTest is Test {
         factory.updateMetadata(address(0x9999), "New Metadata");
     }
 
-    /// @notice Test getMetadataByIndex function with invalid index
-    function testGetMetadataByIndexInvalidIndex() public {
-        vm.expectRevert(CookieJarFactory.CookieJarFactory__IndexOutOfBounds.selector);
-        factory.getMetadataByIndex(999);
-    }
 
     /// @notice Test multiple jars metadata handling
     function testMultipleJarsMetadata() public {
@@ -419,10 +356,5 @@ contract CookieJarFactoryTest is Test {
         assertEq(factory.getMetadata(jar3), metadata3);
         
         // Test individual metadata retrieval verified above
-        
-        // Test metadatas by index
-        assertEq(factory.getMetadataByIndex(0), metadata1);
-        assertEq(factory.getMetadataByIndex(1), metadata2);
-        assertEq(factory.getMetadataByIndex(2), metadata3);
     }
 }

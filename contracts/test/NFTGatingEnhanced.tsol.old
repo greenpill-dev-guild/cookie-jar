@@ -1,13 +1,12 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.24;
 
-import "forge-std/Test.sol";
-import "../src/CookieJar.sol";
-import "../src/libraries/CookieJarLib.sol";
-import "../src/libraries/NFTValidation.sol";
-import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
-import "@openzeppelin/contracts/access/Ownable.sol";
+import {Test} from "forge-std/Test.sol";
+import {CookieJar} from "../src/CookieJar.sol";
+import {CookieJarLib} from "../src/libraries/CookieJarLib.sol";
+import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {ERC1155} from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 
 // Mock contracts for testing
 contract MockERC721 is ERC721, Ownable {
@@ -77,13 +76,10 @@ contract NFTGatingEnhancedTest is Test {
         
         // Create NFT gate configuration
         address[] memory nftAddresses = new address[](2);
-        CookieJarLib.NFTType[] memory nftTypes = new CookieJarLib.NFTType[](2);
         address[] memory emptyAllowlist = new address[](0);
-        
+
         nftAddresses[0] = address(nft721);
         nftAddresses[1] = address(nft1155);
-        nftTypes[0] = CookieJarLib.NFTType.ERC721;
-        nftTypes[1] = CookieJarLib.NFTType.ERC1155;
         
         // Create jar configuration
         CookieJarLib.JarConfig memory jarConfig = CookieJarLib.JarConfig({
@@ -118,21 +114,12 @@ contract NFTGatingEnhancedTest is Test {
         
         // Create access configuration
         CookieJarLib.AccessConfig memory accessConfig = CookieJarLib.AccessConfig({
-            nftAddresses: nftAddresses,
-            nftTypes: nftTypes,
-            nftThresholds: new uint256[](0),
             allowlist: emptyAllowlist,
-            poapReq: CookieJarLib.POAPRequirement({eventId: 0, poapContract: address(0)}),
-            unlockReq: CookieJarLib.UnlockRequirement({lockAddress: address(0), requireValidKey: false}),
-            hypercertReq: CookieJarLib.HypercertRequirement({
-                hypercertContract: address(0), 
-                requiredFractions: 0, 
-                allowedCreators: new address[](0), 
-                tokenId: 0, 
-                tokenContract: address(0), 
-                minBalance: 0
-            }),
-            hatsReq: CookieJarLib.HatsRequirement({hatId: 0, hatsContract: address(0)})
+            nftRequirement: CookieJarLib.NFTRequirement({
+                nftContract: nftAddresses[0], // Use first NFT contract
+                tokenId: 0, // Any token from contract
+                minBalance: 1
+            })
         });
         
         // Deploy the jar
@@ -164,13 +151,7 @@ contract NFTGatingEnhancedTest is Test {
         vm.startPrank(user);
         
         // Should succeed with valid NFT ownership
-        jar.withdrawWithNFT(
-            1 ether,
-            "Test basic ERC721 withdrawal",
-            address(nft721),
-            tokenId,
-            CookieJarLib.NFTType.ERC721
-        );
+        jar.withdrawWithERC721(1 ether, "Test basic ERC721 withdrawal");
         
         vm.stopPrank();
         
@@ -202,13 +183,7 @@ contract NFTGatingEnhancedTest is Test {
         vm.startPrank(user);
         
         // Should succeed with valid NFT balance
-        jar.withdrawWithNFT(
-            1 ether,
-            "Test basic ERC1155 withdrawal",
-            address(nft1155),
-            1,
-            CookieJarLib.NFTType.ERC1155
-        );
+        jar.withdrawWithERC1155(1 ether, "Test basic ERC1155 withdrawal");
         
         vm.stopPrank();
         
@@ -227,13 +202,7 @@ contract NFTGatingEnhancedTest is Test {
         
         // Should fail - user doesn't own the token
         vm.expectRevert(CookieJarLib.NotAuthorized.selector);
-        jar.withdrawWithNFT(
-            1 ether,
-            "Test unauthorized withdrawal",
-            address(nft721),
-            tokenId,
-            CookieJarLib.NFTType.ERC721
-        );
+        jar.withdrawWithERC721(1 ether, "Test unauthorized withdrawal");
         
         vm.stopPrank();
     }
@@ -246,13 +215,7 @@ contract NFTGatingEnhancedTest is Test {
         
         // Should fail - user doesn't have the tokens
         vm.expectRevert(CookieJarLib.NotAuthorized.selector);
-        jar.withdrawWithNFT(
-            1 ether,
-            "Test unauthorized ERC1155 withdrawal",
-            address(nft1155),
-            1,
-            CookieJarLib.NFTType.ERC1155
-        );
+        jar.withdrawWithERC1155(1 ether, "Test unauthorized ERC1155 withdrawal");
         
         vm.stopPrank();
     }
@@ -354,13 +317,7 @@ contract NFTGatingEnhancedTest is Test {
         vm.startPrank(user);
         
         uint256 gasStart = gasleft();
-        jar.withdrawWithNFT(
-            1 ether,
-            "Test gas consumption",
-            address(nft721),
-            tokenId,
-            CookieJarLib.NFTType.ERC721
-        );
+        jar.withdrawWithERC721(1 ether, "Test gas consumption");
         uint256 gasUsed = gasStart - gasleft();
         
         vm.stopPrank();

@@ -1,16 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
-import "../interfaces/IWNative.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {SafeERC20} from "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
+import {IWNative} from "../interfaces/IWNative.sol";
 
 // Import actual Universal Router contracts
-import "universal-router/contracts/interfaces/IUniversalRouter.sol";
-import "universal-router/contracts/libraries/Commands.sol";
+import {IUniversalRouter} from "universal-router/contracts/interfaces/IUniversalRouter.sol";
+import {Commands} from "universal-router/contracts/libraries/Commands.sol";
 
 // Import actual Permit2 contracts
-import "permit2/src/interfaces/IPermit2.sol";
+import {IPermit2} from "permit2/src/interfaces/IPermit2.sol";
 
 /// @title UniversalSwapAdapter
 /// @notice Adapter for Uniswap Universal Router using official contracts and interfaces
