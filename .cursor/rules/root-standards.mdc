@@ -1,0 +1,63 @@
+---
+description: Cookie Jar monorepo standards, development workflow, and quality gates
+globs: 
+alwaysApply: true
+---
+
+# Cookie Jar - Monorepo Standards
+
+## Greenpill Dev Guild Principles
+- Open source, transparent, regen-positive development
+- Work in public with clear documentation
+- Mobile-first PWA approach
+- Web3-native with ethical considerations
+
+## Monorepo Structure
+- **pnpm workspaces** for package management
+- **Conventional commits**: `feat:`, `fix:`, `chore:`, `docs:`, `test:`
+- **Quality gates**: All PRs require passing build, test, lint, type-check
+- **Coverage requirements**: Never decrease below current levels (90%+ for new code)
+
+## Development Commands
+
+```bash
+# Full stack development
+pnpm dev                # Local with fresh Anvil chain
+pnpm dev:ethereum       # Fork Ethereum mainnet  
+pnpm dev:base           # Fork Base network
+
+# Testing & quality
+pnpm test               # All tests across packages
+pnpm test:coverage      # Coverage report
+pnpm lint               # Lint all packages
+pnpm type-check         # Fast TypeScript validation (preferred)
+pnpm build              # Build all packages
+```
+
+## Tech Stack Standards
+- **Frontend**: Next.js 15 + React 18 + TypeScript + Tailwind CSS
+- **Web3**: viem + wagmi (NEVER ethers.js)  
+- **Contracts**: Foundry + Solidity ^0.8.0 + OpenZeppelin
+- **Testing**: Vitest (unit) + Playwright (e2e) + Foundry (contracts)
+- **Protocols**: Use official SDKs (POAP, Unlock, Hypercerts, Hats)
+
+## Quality Requirements
+- **TypeScript**: Strict mode, no `any` types, exhaustive enums
+- **Test coverage**: 90%+ for new code, unit + integration tests
+- **Accessibility**: WCAG 2.1 AA compliance minimum
+- **Performance**: Core Web Vitals targets met
+- **Security**: Testnet-first, explicit mainnet acknowledgment required
+
+## Environment & Security
+- Use `.env.local` for local development
+- Never commit secrets or private keys
+- Default to testnets (Base Sepolia, Celo Alfajores)
+- Require `// I ACKNOWLEDGE MAINNET` comment for mainnet operations
+- Use Foundry keystore for production deployments
+
+## Code Style
+- **Files**: kebab-case (`cookie-jar-factory.ts`)
+- **Components**: PascalCase (`CookieJarCard.tsx`)  
+- **Functions**: camelCase (`getUserJars()`)
+- **Constants**: UPPER_SNAKE_CASE (`MAX_WITHDRAWAL_AMOUNT`)
+- **Contracts**: PascalCase (`CookieJarFactory.sol`)

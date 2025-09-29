@@ -1,22 +1,38 @@
 {
   "rules": [
     {
-      "include": ".cursor/rules.md",
-      "description": "Cookie Jar root-level rules - monorepo workflow, Guild standards, environment setup"
+      "include": ".cursor/rules/root-standards.mdc",
+      "description": "Cookie Jar monorepo standards - always applied",
+      "alwaysApply": true
     },
     {
-      "include": "client/.cursor/rules.md",
-      "description": "Frontend rules - Next.js, React, Web3, component patterns, testing",
+      "include": ".cursor/rules/web3-patterns.mdc",
+      "description": "Web3 integration patterns with viem/wagmi",
+      "when": "path.match(/\\.(ts|tsx|sol)$/)"
+    },
+    {
+      "include": ".cursor/rules/testing-patterns.mdc",
+      "description": "Testing standards for unit, integration, and E2E tests",
+      "when": "path.match(/\\.(test|spec|t)\\.(ts|tsx|sol)$/)"
+    },
+    {
+      "include": ".cursor/rules/deployment.mdc",
+      "description": "Production deployment patterns and security",
+      "when": "path.match(/script\\/.*\\.s\\.sol$/) || path.includes('deploy')"
+    },
+    {
+      "include": "client/.cursor/rules/frontend-standards.mdc",
+      "description": "Frontend development standards - Next.js, React, TypeScript",
       "when": "path.includes('client/')"
     },
     {
-      "include": "contracts/.cursor/rules.md", 
-      "description": "Smart contract rules - Foundry, Solidity, security, gas optimization",
+      "include": "contracts/.cursor/rules/solidity-standards.mdc", 
+      "description": "Solidity standards - security, gas optimization, testing",
       "when": "path.includes('contracts/')"
     },
     {
-      "include": "e2e/.cursor/rules.md",
-      "description": "E2E testing rules - Playwright, accessibility, performance monitoring",
+      "include": "e2e/.cursor/rules/e2e-standards.mdc",
+      "description": "E2E testing with Playwright - user flows and accessibility",
       "when": "path.includes('e2e/')"
     }
   ],

@@ -1,0 +1,286 @@
+---
+description: Frontend development standards for Next.js, React, and Web3 integration
+globs:
+  - "**/*.tsx"
+  - "**/*.ts"
+alwaysApply: true
+---
+
+# Frontend Standards
+
+## Next.js App Router Patterns
+
+### File Structure
+```
+app/
+├── (routes)/           # Route groups
+│   ├── create/
+│   ├── jar/[address]/
+│   └── jars/
+├── layout.tsx          # Root layout
+└── page.tsx            # Root page
+
+components/
+├── ui/                 # shadcn/ui primitives
+├── create/             # Feature-specific
+├── jar/
+└── nft/
+
+hooks/
+├── app/                # App-level hooks
+├── jar/                # Feature hooks
+└── nft/
+```
+
+### Component Patterns
+```typescript
+// ✅ GOOD - Functional component with explicit types
+interface JarCardProps {
+  address: `0x${string}`
+  name: string
+  balance: bigint
+}
+
+export function JarCard({ address, name, balance }: JarCardProps) {
+  const { data, isLoading, error } = useJarData({ address })
+  
+  if (isLoading) return <Skeleton className="h-32" />
+  if (error) return <ErrorCard error={error} />
+  
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{name}</CardTitle>
+      </CardHeader>
+      <CardContent>{formatEther(balance)} ETH</CardContent>
+    </Card>
+  )
+}
+
+// ❌ BAD - Class component, any types
+export class JarCard extends React.Component<any> {
+  render() {
+    return <div>{this.props.data}</div>
+  }
+}
+```
+
+## State Management
+
+### Use TanStack Query for Async State
+```typescript
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+
+// Read contract data
+const { data } = useQuery({
+  queryKey: ['jar', address, chainId],
+  queryFn: () => fetchJarData(address),
+  staleTime: 12_000, // 1 block
+  refetchOnWindowFocus: true
+})
+
+// Write operations
+const queryClient = useQueryClient()
+const { mutate } = useMutation({
+  mutationFn: depositFunds,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['jar', address] })
+  }
+})
+```
+
+### Local State with React Hooks
+```typescript
+// ✅ GOOD - Proper hooks usage
+const [amount, setAmount] = useState('')
+const parsedAmount = useMemo(() => parseEther(amount || '0'), [amount])
+
+const handleDeposit = useCallback(async () => {
+  await deposit({ amount: parsedAmount })
+}, [parsedAmount, deposit])
+
+// ❌ BAD - Missing dependencies, recreating on every render
+const handleDeposit = () => {
+  const parsed = parseEther(amount)
+  deposit(parsed)
+}
+```
+
+## Styling Standards
+
+### Tailwind CSS Patterns
+```tsx
+// ✅ GOOD - Utility-first with responsive design
+<Button className="w-full md:w-auto px-6 py-3 bg-orange-500 hover:bg-orange-600 transition-colors">
+  Deposit
+</Button>
+
+// Use cn() for conditional classes
+<div className={cn(
+  "rounded-lg border p-4",
+  isActive && "bg-orange-50 border-orange-500",
+  isDisabled && "opacity-50 cursor-not-allowed"
+)}>
+
+// ❌ BAD - Inline styles, no responsiveness
+<button style={{ backgroundColor: 'orange', padding: '12px' }}>
+  Deposit
+</button>
+```
+
+### Mobile-First Design
+```tsx
+// Always design for mobile first, then scale up
+<div className="
+  flex flex-col gap-4        /* Mobile: stacked */
+  md:flex-row md:gap-6       /* Tablet: side-by-side */
+  lg:gap-8                   /* Desktop: more spacing */
+">
+```
+
+## Performance Optimization
+
+### Code Splitting
+```typescript
+// Lazy load heavy components
+import dynamic from 'next/dynamic'
+
+const NFTSelector = dynamic(() => import('@/components/nft/NFTSelector'), {
+  loading: () => <Skeleton className="h-96" />,
+  ssr: false  // Client-only components
+})
+```
+
+### Image Optimization
+```tsx
+import Image from 'next/image'
+
+// ✅ GOOD - Next.js Image component
+<Image
+  src="/logo.png"
+  alt="Cookie Jar Logo"
+  width={200}
+  height={200}
+  priority={isAboveFold}
+/>
+
+// ❌ BAD - Regular img tag
+<img src="/logo.png" alt="Logo" />
+```
+
+## Accessibility Requirements
+
+### Semantic HTML
+```tsx
+// ✅ GOOD - Semantic elements
+<nav>
+  <ul>
+    <li><Link href="/jars">Jars</Link></li>
+  </ul>
+</nav>
+
+<main>
+  <h1>Cookie Jar</h1>
+  <article>...</article>
+</main>
+
+// ❌ BAD - Div soup
+<div className="nav">
+  <div className="link">Jars</div>
+</div>
+```
+
+### ARIA Labels
+```tsx
+// Interactive elements need labels
+<button
+  onClick={handleDeposit}
+  aria-label="Deposit funds into jar"
+  aria-busy={isPending}
+>
+  <IconDeposit />
+</button>
+
+// Form inputs
+<input
+  type="text"
+  id="amount"
+  name="amount"
+  aria-label="Deposit amount in ETH"
+  aria-describedby="amount-help"
+  aria-invalid={!!error}
+/>
+<p id="amount-help">Enter amount to deposit</p>
+```
+
+### Keyboard Navigation
+```tsx
+// Ensure keyboard accessibility
+<Dialog onOpenChange={setOpen}>
+  <DialogTrigger asChild>
+    <Button>Open</Button>
+  </DialogTrigger>
+  <DialogContent>
+    {/* Focus trap automatically handled */}
+    <DialogTitle>Confirm</DialogTitle>
+    <DialogClose />
+  </DialogContent>
+</Dialog>
+```
+
+## Error Handling
+
+### Error Boundaries
+```tsx
+// app/error.tsx - Route error boundary
+'use client'
+
+export default function Error({ error, reset }: {
+  error: Error & { digest?: string }
+  reset: () => void
+}) {
+  return (
+    <div className="flex flex-col items-center gap-4 p-8">
+      <h2>Something went wrong!</h2>
+      <p>{error.message}</p>
+      <Button onClick={reset}>Try again</Button>
+    </div>
+  )
+}
+```
+
+### Graceful Degradation
+```tsx
+// Handle loading and error states
+if (isLoading) return <LoadingSkeleton />
+if (error) return <ErrorState error={error} retry={refetch} />
+if (!data) return <EmptyState />
+
+return <SuccessView data={data} />
+```
+
+## Testing Requirements
+
+### Component Tests
+```typescript
+// Focus on user behavior, not implementation
+it('allows user to deposit funds', async () => {
+  const user = userEvent.setup()
+  render(<DepositForm />)
+  
+  await user.type(screen.getByLabelText(/amount/i), '1.5')
+  await user.click(screen.getByRole('button', { name: /deposit/i }))
+  
+  expect(await screen.findByText(/success/i)).toBeInTheDocument()
+})
+```
+
+## Development Commands
+```bash
+pnpm dev           # Development server
+pnpm build         # Production build
+pnpm type-check    # Type checking (fast)
+pnpm lint          # ESLint
+pnpm test          # Vitest tests
+pnpm test:watch    # Watch mode
+```
