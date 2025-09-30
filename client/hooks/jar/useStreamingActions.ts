@@ -3,108 +3,90 @@
 import { useState, useEffect } from "react";
 import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
 import { useQueryClient } from "@tanstack/react-query";
-import { parseEther, isAddress } from "viem";
+import { isAddress } from "viem";
 import { cookieJarAbi } from "@/generated";
 import { useToast } from "../app/useToast";
+import { useSuperfluidFramework } from "../blockchain/useSuperfluidFramework";
 
 /**
- * Stream data structure matching the contract
- */
-export interface StreamData {
-  id: number;
-  sender: string;
-  token: string;
-  tokenSymbol: string;
-  ratePerSecond: bigint;
-  totalStreamed: bigint;
-  pendingAmount: bigint;
-  lastProcessedTime: number;
-  nextProcessTime: number;
-  isActive: boolean;
-  isApproved: boolean;
-  decimals: number;
-}
-
-/**
- * Hook for managing streaming actions (admin only)
+ * Hook for managing Superfluid streaming actions
  */
 export const useStreamingActions = (jarAddress: `0x${string}`) => {
   const { address } = useAccount();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
+  const { data: sf } = useSuperfluidFramework();
+
   // Transaction states
-  const [isRegistering, setIsRegistering] = useState(false);
-  const [isApproving, setIsApproving] = useState(false);
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [processingStreamId, setProcessingStreamId] = useState<number | null>(null);
+  const [isCreating, setIsCreating] = useState(false);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   // Write contract hooks
   const {
-    writeContract: registerStreamWrite,
-    data: registerHash,
-    isPending: registerPending,
+    writeContract: createStreamWrite,
+    data: createHash,
+    isPending: createPending,
   } = useWriteContract();
 
   const {
-    writeContract: approveStreamWrite,
-    data: approveHash,
-    isPending: approvePending,
+    writeContract: updateStreamWrite,
+    data: updateHash,
+    isPending: updatePending,
   } = useWriteContract();
 
   const {
-    writeContract: processStreamWrite,
-    data: processHash,
-    isPending: processPending,
+    writeContract: deleteStreamWrite,
+    data: deleteHash,
+    isPending: deletePending,
   } = useWriteContract();
 
   // Transaction receipts
-  const { isLoading: registerLoading, isSuccess: registerSuccess } = useWaitForTransactionReceipt({
-    hash: registerHash,
+  const { isLoading: createLoading, isSuccess: createSuccess } = useWaitForTransactionReceipt({
+    hash: createHash,
   });
 
-  const { isLoading: approveLoading, isSuccess: approveSuccess } = useWaitForTransactionReceipt({
-    hash: approveHash,
+  const { isLoading: updateLoading, isSuccess: updateSuccess } = useWaitForTransactionReceipt({
+    hash: updateHash,
   });
 
-  const { isLoading: processLoading, isSuccess: processSuccess } = useWaitForTransactionReceipt({
-    hash: processHash,
+  const { isLoading: deleteLoading, isSuccess: deleteSuccess } = useWaitForTransactionReceipt({
+    hash: deleteHash,
   });
 
-  // Handle success states with useEffect
+  // Handle success states
   useEffect(() => {
-    if (registerSuccess) {
+    if (createSuccess) {
       toast({
-        title: "Stream Registered",
-        description: "Stream has been registered successfully.",
+        title: "Stream Created",
+        description: "Superfluid stream has been created successfully.",
       });
-      setIsRegistering(false);
-      queryClient.invalidateQueries({ queryKey: ["streams", jarAddress] });
+      setIsCreating(false);
+      queryClient.invalidateQueries({ queryKey: ["superfluidStreams", jarAddress] });
     }
-  }, [registerSuccess, toast, queryClient, jarAddress]);
+  }, [createSuccess, toast, queryClient, jarAddress]);
 
   useEffect(() => {
-    if (approveSuccess) {
+    if (updateSuccess) {
       toast({
-        title: "Stream Approved",
-        description: "Stream has been approved and is now active.",
+        title: "Stream Updated",
+        description: "Superfluid stream has been updated successfully.",
       });
-      setIsApproving(false);
-      queryClient.invalidateQueries({ queryKey: ["streams", jarAddress] });
+      setIsUpdating(false);
+      queryClient.invalidateQueries({ queryKey: ["superfluidStreams", jarAddress] });
     }
-  }, [approveSuccess, toast, queryClient, jarAddress]);
+  }, [updateSuccess, toast, queryClient, jarAddress]);
 
   useEffect(() => {
-    if (processSuccess) {
+    if (deleteSuccess) {
       toast({
-        title: "Stream Processed",
-        description: "Stream tokens have been processed into the jar.",
+        title: "Stream Deleted",
+        description: "Superfluid stream has been deleted successfully.",
       });
-      setIsProcessing(false);
-      setProcessingStreamId(null);
-      queryClient.invalidateQueries({ queryKey: ["streams", jarAddress] });
+      setIsDeleting(false);
+      queryClient.invalidateQueries({ queryKey: ["superfluidStreams", jarAddress] });
     }
-  }, [processSuccess, toast, queryClient, jarAddress]);
+  }, [deleteSuccess, toast, queryClient, jarAddress]);
 
   /**
    * Create a new Superfluid stream
@@ -122,13 +104,27 @@ export const useStreamingActions = (jarAddress: `0x${string}`) => {
       return;
     }
 
+    if (!sf) {
+      toast({
+        title: "Superfluid Not Ready",
+        description: "Superfluid framework is not initialized.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     try {
-      setIsRegistering(true);
-      await registerStreamWrite({
+      setIsCreating(true);
+
+      // Convert flow rate string to int96 (wad per second)
+      // Flow rate should be in wei per second, not ETH amount
+      const flowRateInt96 = BigInt(flowRate);
+
+      await createStreamWrite({
         address: jarAddress,
         abi: cookieJarAbi,
         functionName: "createSuperStream",
-        args: [superToken as `0x${string}`, parseEther(flowRate)],
+        args: [superToken as `0x${string}`, flowRateInt96],
       });
     } catch (error: any) {
       toast({
@@ -136,27 +132,115 @@ export const useStreamingActions = (jarAddress: `0x${string}`) => {
         description: error.message || "Failed to create Superfluid stream.",
         variant: "destructive",
       });
-      setIsRegistering(false);
+      setIsCreating(false);
     }
   };
 
+  /**
+   * Update an existing Superfluid stream
+   */
+  const updateSuperStream = async (
+    superToken: string,
+    newFlowRate: string
+  ) => {
+    if (!isAddress(superToken) || !newFlowRate) {
+      toast({
+        title: "Invalid Input",
+        description: "Please provide valid super token address and flow rate.",
+        variant: "destructive",
+      });
+      return;
+    }
 
+    if (!sf) {
+      toast({
+        title: "Superfluid Not Ready",
+        description: "Superfluid framework is not initialized.",
+        variant: "destructive",
+      });
+      return;
+    }
 
+    try {
+      setIsUpdating(true);
+
+      // Convert flow rate string to int96 (wad per second)
+      const flowRateInt96 = BigInt(newFlowRate);
+
+      await updateStreamWrite({
+        address: jarAddress,
+        abi: cookieJarAbi,
+        functionName: "updateSuperStream",
+        args: [superToken as `0x${string}`, flowRateInt96],
+      });
+    } catch (error: any) {
+      toast({
+        title: "Stream Update Failed",
+        description: error.message || "Failed to update Superfluid stream.",
+        variant: "destructive",
+      });
+      setIsUpdating(false);
+    }
+  };
+
+  /**
+   * Delete a Superfluid stream
+   */
+  const deleteSuperStream = async (superToken: string) => {
+    if (!isAddress(superToken)) {
+      toast({
+        title: "Invalid Token",
+        description: "Please provide a valid super token address.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (!sf) {
+      toast({
+        title: "Superfluid Not Ready",
+        description: "Superfluid framework is not initialized.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      setIsDeleting(true);
+
+      await deleteStreamWrite({
+        address: jarAddress,
+        abi: cookieJarAbi,
+        functionName: "deleteSuperStream",
+        args: [superToken as `0x${string}`],
+      });
+    } catch (error: any) {
+      toast({
+        title: "Stream Deletion Failed",
+        description: error.message || "Failed to delete Superfluid stream.",
+        variant: "destructive",
+      });
+      setIsDeleting(false);
+    }
+  };
 
   return {
     // Actions
     createSuperStream,
-
+    updateSuperStream,
+    deleteSuperStream,
 
     // Loading states
-    isRegistering: registerPending || registerLoading || isRegistering,
-    isApproving: approvePending || approveLoading || isApproving,
-    isProcessing: processPending || processLoading || isProcessing,
-    processingStreamId,
+    isCreating: createPending || createLoading || isCreating,
+    isUpdating: updatePending || updateLoading || isUpdating,
+    isDeleting: deletePending || deleteLoading || isDeleting,
 
     // Transaction hashes
-    registerHash,
-    approveHash,
-    processHash,
+    createHash,
+    updateHash,
+    deleteHash,
+
+    // Superfluid framework
+    sf,
   };
 };

@@ -8,17 +8,14 @@
   "scripts": {
     "preinstall": "./scripts/install-deps.sh",
     "postinstall": "(command -v forge > /dev/null && cd contracts && git submodule update --init --recursive && forge install || echo 'Forge not found, skipping forge operations')",
-
     "dev": "pnpm run dev:stop && ./scripts/dev-start.sh",
     "dev:client": "pnpm --filter client run dev",
     "dev:stop": "pkill -f anvil || true && pkill -f 'forge script.*watch' || true && pkill -f 'next dev' || true && pkill -f 'npm run dev' || true",
-
     "build": "pnpm run build:contracts && pnpm run copy:deployment && pnpm run build:client",
     "build:client": "pnpm --filter client run build",
     "build:contracts": "cd contracts && forge build",
     "build:contracts:dev": "cd contracts && FOUNDRY_PROFILE=dev forge build",
     "copy:deployment": "./scripts/copy-deployment.sh && pnpm generate",
-    
     "test": "pnpm run test:contracts && pnpm run test:client",
     "test:client": "pnpm --filter client run test",
     "test:client:coverage": "pnpm --filter client run test:coverage",
@@ -30,7 +27,6 @@
     "test:contracts:coverage": "cd contracts && FOUNDRY_PROFILE=dev forge coverage --report lcov",
     "test:contracts:gas": "cd contracts && forge test --gas-report",
     "test:contracts:security": "cd contracts && FOUNDRY_PROFILE=dev forge test --match-test 'testReentrancy|testSecurity|testSuperfluid' -vv",
-    
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:debug": "playwright test --debug",
@@ -40,28 +36,22 @@
     "test:e2e:mobile": "playwright test mobile-experience.spec.ts",
     "test:e2e:performance": "playwright test performance-baseline.spec.ts",
     "test:e2e:compatibility": "playwright test version-compatibility.spec.ts",
-    
     "test:all": "pnpm test && pnpm test:e2e",
     "test:comprehensive": "pnpm run test:contracts:gas && pnpm run test:client:coverage && pnpm run test:e2e:report",
     "test:security": "pnpm run test:contracts:security",
     "test:performance": "pnpm run test:e2e:performance",
     "test:ci": "pnpm test && pnpm test:e2e",
     "test:accessibility": "playwright test --grep 'accessibility'",
-
     "lint": "pnpm run lint:contracts && pnpm run lint:client",
     "lint:client": "pnpm --filter client run lint",
     "lint:contracts": "cd contracts && solhint 'src/**/*.sol' 'test/**/*.sol' 'script/**/*.sol'",
-
     "format": "pnpm run format:contracts && pnpm run format:client",
     "format:client": "pnpm --filter client run format",
     "format:contracts": "cd contracts && prettier --write 'src/**/*.sol' 'test/**/*.sol' 'script/**/*.sol'",
-    
     "type-check": "pnpm --filter client run type-check",
-    
     "clean": "pnpm run clean:contracts && pnpm run clean:client",
     "clean:client": "rm -rf client/build client/.next client/dist",
     "clean:contracts": "cd contracts && forge clean",
-    
     "generate": "pnpm --filter client run generate",
     "deploy:local": "cd contracts && FOUNDRY_PROFILE=dev forge script script/DeployLocal.s.sol --rpc-url http://127.0.0.1:8545 --broadcast --sender 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 && cd .. && pnpm copy:deployment",
     "deploy:celo": "./scripts/deploy.sh celo",
@@ -87,5 +77,8 @@
     "overrides": {
       "axios": ">=1.12.0"
     }
+  },
+  "dependencies": {
+    "@superfluid-finance/sdk-core": "^0.9.0"
   }
 }

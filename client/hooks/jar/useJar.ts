@@ -66,12 +66,7 @@ export const useCookieJarConfig = (address: `0x${string}`): CookieJarConfigRetur
     : "JAR_BLACKLISTED";
   const JAR_DENYLISTED = keccak256(toHex(denylistRoleName)) as `0x${string}`;
 
-  // Use correct function name based on contract version
-  const lastWithdrawalFunctionName = isV2Chain(chainId)
-    ? "lastWithdrawalAllowlist"
-    : "lastWithdrawalWhitelist";
-
-  // Contract calls with version-aware function names
+  // Contract calls - only using functions that actually exist
   const contracts = [
     { address, abi: cookieJarAbi, functionName: "accessType" },
     {
@@ -91,7 +86,6 @@ export const useCookieJarConfig = (address: `0x${string}`): CookieJarConfigRetur
     { address, abi: cookieJarAbi, functionName: "strictPurpose" },
     { address, abi: cookieJarAbi, functionName: "emergencyWithdrawalEnabled" },
     { address, abi: cookieJarAbi, functionName: "oneTimeWithdrawal" },
-    { address, abi: cookieJarAbi, functionName: "getWithdrawalDataArray" },
     { address, abi: cookieJarAbi, functionName: "feeCollector" },
     {
       address,
@@ -113,10 +107,11 @@ export const useCookieJarConfig = (address: `0x${string}`): CookieJarConfigRetur
           ("0x0000000000000000000000000000000000000000" as `0x${string}`),
       ],
     },
+    // Public mappings that actually exist in the contract
     {
       address,
       abi: cookieJarAbi,
-      functionName: lastWithdrawalFunctionName,
+      functionName: "lastWithdrawalTime",
       args: [
         userAddress ||
           ("0x0000000000000000000000000000000000000000" as `0x${string}`),
@@ -125,11 +120,19 @@ export const useCookieJarConfig = (address: `0x${string}`): CookieJarConfigRetur
     {
       address,
       abi: cookieJarAbi,
-      functionName: "lastWithdrawalNFT",
+      functionName: "totalWithdrawn",
       args: [
         userAddress ||
           ("0x0000000000000000000000000000000000000000" as `0x${string}`),
-        BigInt(0),
+      ],
+    },
+    {
+      address,
+      abi: cookieJarAbi,
+      functionName: "withdrawnInCurrentPeriod",
+      args: [
+        userAddress ||
+          ("0x0000000000000000000000000000000000000000" as `0x${string}`),
       ],
     },
     { address, abi: cookieJarAbi, functionName: "currencyHeldByJar" },
@@ -165,23 +168,23 @@ export const useCookieJarConfig = (address: `0x${string}`): CookieJarConfigRetur
 
   // Extract results to variables to break complex type inference
   const results: any[] = (data as any) || [];
-  const r0 = results[0]?.result;
-  const r1 = results[1]?.result;
-  const r2 = results[2]?.result;
-  const r3 = results[3]?.result;
-  const r4 = results[4]?.result;
-  const r5 = results[5]?.result;
-  const r6 = results[6]?.result;
-  const r7 = results[7]?.result;
-  const r8 = results[8]?.result;
-  const r9 = results[9]?.result;
-  const r10 = results[10]?.result;
-  const r11 = results[11]?.result;
-  const r12 = results[12]?.result;
-  const r13 = results[13]?.result;
-  const r14 = results[14]?.result;
-  const r15 = results[15]?.result;
-  const r16 = results[16]?.result;
+  const r0 = results[0]?.result;  // accessType
+  const r1 = results[1]?.result;  // hasRole (JAR_OWNER)
+  const r2 = results[2]?.result;  // withdrawalOption
+  const r3 = results[3]?.result;  // fixedAmount
+  const r4 = results[4]?.result;  // maxWithdrawal
+  const r5 = results[5]?.result;  // withdrawalInterval
+  const r6 = results[6]?.result;  // strictPurpose
+  const r7 = results[7]?.result;  // emergencyWithdrawalEnabled
+  const r8 = results[8]?.result;  // oneTimeWithdrawal
+  const r9 = results[9]?.result;  // feeCollector
+  const r10 = results[10]?.result; // hasRole (JAR_ALLOWLISTED)
+  const r11 = results[11]?.result; // hasRole (JAR_DENYLISTED)
+  const r12 = results[12]?.result; // lastWithdrawalTime
+  const r13 = results[13]?.result; // totalWithdrawn
+  const r14 = results[14]?.result; // withdrawnInCurrentPeriod
+  const r15 = results[15]?.result; // currencyHeldByJar
+  const r16 = results[16]?.result; // currency
 
   const accessTypeString = r0 !== undefined ? getAccessTypeName(r0) : undefined;
 
@@ -199,14 +202,12 @@ export const useCookieJarConfig = (address: `0x${string}`): CookieJarConfigRetur
     strictPurpose: r6 as boolean | undefined,
     emergencyWithdrawalEnabled: r7 as boolean | undefined,
     oneTimeWithdrawal: r8 as boolean | undefined,
-    pastWithdrawals: r9 as
-      | readonly { amount: bigint; purpose: string; recipient: `0x${string}` }[]
-      | undefined,
-    feeCollector: r10 as `0x${string}` | undefined,
-    allowlist: r11 as boolean | undefined,
-    denylist: r12 as boolean | undefined,
-    lastWithdrawalAllowlist: r13 as bigint | undefined, // Works for both v1 (whitelist) and v2 (allowlist) data
-    lastWithdrawalNft: r14 as bigint | undefined,
+    feeCollector: r9 as `0x${string}` | undefined,
+    allowlist: r10 as boolean | undefined,
+    denylist: r11 as boolean | undefined,
+    lastWithdrawalTime: r12 as bigint | undefined, // Public mapping
+    totalWithdrawn: r13 as bigint | undefined, // Public mapping
+    withdrawnInCurrentPeriod: r14 as bigint | undefined, // Public mapping
     balance: r15 as bigint | undefined,
     currency: r16 as `0x${string}` | undefined,
     metadata: undefined as string | undefined,

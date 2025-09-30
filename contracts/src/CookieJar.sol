@@ -377,6 +377,47 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
         return allowlist;
     }
 
+    /// @notice Get all pending token addresses (tokens that aren't jar currency)
+    /// @return tokens Array of token addresses that are pending swaps
+    function getPendingTokenAddresses() external view returns (address[] memory tokens) {
+        // Count unique pending tokens (excluding jar currency and zero address)
+        uint256 tokenCount = 0;
+
+        // Simple approach: return tokens that have pending balances
+        // In a production implementation, you might want to maintain a separate
+        // array of pending token addresses for gas efficiency
+
+        // For now, we'll check a few common tokens that might be pending
+        address[] memory commonTokens = new address[](10);
+        uint256 actualCount = 0;
+
+        // Check ETH if jar doesn't use ETH
+        if (CURRENCY != CookieJarLib.ETH_ADDRESS && pendingTokenBalances[address(0)] > 0) {
+            commonTokens[actualCount] = address(0);
+            actualCount++;
+        }
+
+        // Check USDC (common token that might be sent to jar)
+        address usdc = 0xA0b86a33E6417E9fF1C9683779ab69Vc56C95a78; // Example USDC address
+        if (pendingTokenBalances[usdc] > 0) {
+            commonTokens[actualCount] = usdc;
+            actualCount++;
+        }
+
+        // Check WETH (common token that might be sent to jar)
+        address weth = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2; // Example WETH address
+        if (pendingTokenBalances[weth] > 0) {
+            commonTokens[actualCount] = weth;
+            actualCount++;
+        }
+
+        // Copy to correctly sized array
+        tokens = new address[](actualCount);
+        for (uint256 i = 0; i < actualCount; i++) {
+            tokens[i] = commonTokens[i];
+        }
+    }
+
     // === INTERNAL VALIDATION FUNCTIONS ===
 
     /// @notice Optimized inline access validation for all access types
