@@ -150,13 +150,13 @@ export const TokenRecoveryPanel: React.FC<TokenRecoveryPanelProps> = ({
 
             <div className="space-y-3">
               {pendingTokens.map((token) => (
-                <Card key={token.tokenAddress} className="border-l-4 border-l-yellow-500">
+                <Card key={token.address} className="border-l-4 border-l-yellow-500">
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div className="space-y-2">
                         <div className="flex items-center gap-2">
-                          <h4 className="font-medium">{token.tokenName}</h4>
-                          <Badge variant="outline">{token.tokenSymbol}</Badge>
+                          <h4 className="font-medium">{token.name}</h4>
+                          <Badge variant="outline">{token.symbol}</Badge>
                           {!token.isSwappable && (
                             <Badge variant="destructive" className="text-xs">
                               Not Swappable
@@ -167,10 +167,10 @@ export const TokenRecoveryPanel: React.FC<TokenRecoveryPanelProps> = ({
                         <div className="text-sm space-y-1">
                           <p>
                             <span className="font-medium">Balance:</span>{" "}
-                            {formatTokenBalance(token.balance, token.decimals)} {token.tokenSymbol}
+                            {formatTokenBalance(token.balance, token.decimals)} {token.symbol}
                           </p>
                           <p className="font-mono text-xs text-gray-500">
-                            {formatAddress(token.tokenAddress)}
+                            {formatAddress(token.address)}
                           </p>
                           {token.estimatedOutput && (
                             <p className="text-green-600">
@@ -195,10 +195,10 @@ export const TokenRecoveryPanel: React.FC<TokenRecoveryPanelProps> = ({
                         ) : (
                           <Button
                             size="sm"
-                            onClick={() => handleSwapToken(token.tokenAddress)}
-                            disabled={!isAdmin || isSwappingToken(token.tokenAddress)}
+                            onClick={() => handleSwapToken(token.address)}
+                            disabled={!isAdmin || isSwappingToken(token.address)}
                           >
-                            {isSwappingToken(token.tokenAddress) ? (
+                            {isSwappingToken(token.address) ? (
                               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-1"></div>
                             ) : (
                               <ArrowRightLeft className="h-4 w-4 mr-1" />
@@ -210,7 +210,7 @@ export const TokenRecoveryPanel: React.FC<TokenRecoveryPanelProps> = ({
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => window.open(`https://etherscan.io/address/${token.tokenAddress}`, '_blank')}
+                          onClick={() => window.open(`https://etherscan.io/address/${token.address}`, '_blank')}
                         >
                           <ExternalLink className="h-4 w-4" />
                         </Button>

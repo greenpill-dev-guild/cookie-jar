@@ -5,7 +5,7 @@ export const cookieJarFactoryV2Abi = [
   // Read functions
   {
     inputs: [],
-    name: "getCookieJars",
+    name: "getAllJars",
     outputs: [{ internalType: "address[]", name: "", type: "address[]" }],
     stateMutability: "view",
     type: "function",

@@ -19,6 +19,12 @@ export type JarData = CookieJarInfo;
  */
 export function getCurrencyAmount(jar: JarData, tokenDecimals?: Record<string, number>) {
   const amount = jar.currencyHeldByJar || BigInt(0);
+  
+  // Handle cases where currency might be undefined
+  if (!jar.currency) {
+    return "0";
+  }
+  
   if (jar.currency.toLowerCase() === ETH_ADDRESS.toLowerCase()) {
     return formatEther(amount);
   } else {
@@ -36,6 +42,11 @@ export function getCurrencySymbol(
   nativeCurrency: NativeCurrency,
   tokenSymbols: Record<string, string>,
 ) {
+  // Handle cases where currency might be undefined
+  if (!jar.currency) {
+    return "TOKEN";
+  }
+  
   if (jar.currency.toLowerCase() === ETH_ADDRESS.toLowerCase()) {
     return nativeCurrency.symbol;
   } else {
@@ -60,6 +71,12 @@ export function getWithdrawalAmountDisplay(
   tokenDecimals?: Record<string, number>,
 ) {
   const symbol = getCurrencySymbol(jar, nativeCurrency, tokenSymbols);
+  
+  // Handle cases where currency might be undefined
+  if (!jar.currency) {
+    return "N/A";
+  }
+  
   const isEth = jar.currency.toLowerCase() === ETH_ADDRESS.toLowerCase();
   const decimals = tokenDecimals?.[jar.currency.toLowerCase()] ?? 18;
 

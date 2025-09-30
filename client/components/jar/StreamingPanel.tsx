@@ -61,7 +61,9 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
     createSuperStream,
     isCreating,
     updateSuperStream,
+    isUpdating,
     deleteSuperStream,
+    isDeleting,
   } = useStreamingActions(jarAddress);
 
   const { data: accountInfo } = useSuperfluidAccountInfo(jarAddress);
@@ -174,6 +176,9 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
                   onDelete={() => deleteSuperStream(stream.token)}
                   isUpdating={isUpdating}
                   isDeleting={isDeleting}
+                  formatStreamRate={formatStreamRate}
+                  calculateClaimable={calculateClaimable}
+                  isAdmin={isAdmin}
                 />
               ))
             )}
@@ -236,6 +241,9 @@ interface StreamCardProps {
   onDelete: () => void;
   isUpdating: boolean;
   isDeleting: boolean;
+  formatStreamRate: (rate: bigint, decimals: number) => string;
+  calculateClaimable: (stream: any) => bigint;
+  isAdmin: boolean;
 }
 
 const StreamCard: React.FC<StreamCardProps> = ({
@@ -243,7 +251,10 @@ const StreamCard: React.FC<StreamCardProps> = ({
   onUpdate,
   onDelete,
   isUpdating,
-  isDeleting
+  isDeleting,
+  formatStreamRate,
+  calculateClaimable,
+  isAdmin
 }) => {
   const { data: tokenInfo } = useSuperfluidTokenInfo(stream.token);
 

@@ -1,7 +1,8 @@
 "use client";
 
 import { useQuery } from "@tanstack/react-query";
-import { useSuperfluidFramework } from "./useSuperfluidFramework";
+import { usePublicClient } from "wagmi";
+import { erc20Abi } from "viem";
 
 /**
  * Superfluid token information
@@ -16,23 +17,39 @@ export interface SuperfluidTokenInfo {
 
 /**
  * Hook for getting Superfluid token information
+ * Uses viem to read token properties directly from the contract
  */
 export const useSuperfluidTokenInfo = (tokenAddress: `0x${string}`) => {
-  const { data: sf } = useSuperfluidFramework();
+  const publicClient = usePublicClient();
 
   return useQuery({
     queryKey: ["superfluidTokenInfo", tokenAddress],
     queryFn: async (): Promise<SuperfluidTokenInfo | null> => {
-      if (!sf) return null;
+      if (!publicClient) return null;
 
       try {
-        const superToken = await sf.loadSuperToken(tokenAddress);
-
+        // Read token properties directly using viem multicall
         const [symbol, name, decimals, totalSupply] = await Promise.all([
-          superToken.symbol(),
-          superToken.name(),
-          superToken.decimals(),
-          superToken.totalSupply(),
+          publicClient.readContract({
+            address: tokenAddress,
+            abi: erc20Abi,
+            functionName: "symbol",
+          }),
+          publicClient.readContract({
+            address: tokenAddress,
+            abi: erc20Abi,
+            functionName: "name",
+          }),
+          publicClient.readContract({
+            address: tokenAddress,
+            abi: erc20Abi,
+            functionName: "decimals",
+          }),
+          publicClient.readContract({
+            address: tokenAddress,
+            abi: erc20Abi,
+            functionName: "totalSupply",
+          }),
         ]);
 
         return {
@@ -43,16 +60,12 @@ export const useSuperfluidTokenInfo = (tokenAddress: `0x${string}`) => {
           totalSupply,
         };
       } catch (error) {
-        console.warn(`Failed to fetch Superfluid token info for ${tokenAddress}:`, error);
+        console.warn(`Failed to fetch token info for ${tokenAddress}:`, error);
         return null;
       }
     },
-    enabled: !!sf && !!tokenAddress,
+    enabled: !!publicClient && !!tokenAddress,
     staleTime: 5 * 60 * 1000, // 5 minutes - token info doesn't change often
-    retry: (failureCount, error) => {
-      // Don't retry if token doesn't exist or isn't a super token
-      if (error.message?.includes("not a super token")) return false;
-      return failureCount < 2;
-    },
+    retry: 2,
   });
 };

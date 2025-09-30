@@ -3,7 +3,7 @@
 import { parseEther, parseUnits } from "viem";
 import { useWriteContract, useChainId } from "wagmi";
 import { useState, useEffect, useCallback } from "react";
-import { cookieJarAbi, useWriteErc20Approve, useWriteCookieJarWithdrawNftMode } from "@/generated";
+import { cookieJarAbi, useWriteErc20Approve, useWriteCookieJarWithdraw } from "@/generated";
 
 import { cookieJarV1Abi } from "@/lib/blockchain/cookie-jar-v1-abi";
 import { isV2Chain } from "@/config/supported-networks";

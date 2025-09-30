@@ -99,10 +99,6 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
     initialConfig?.method || null
   );
 
-  const handleConfigChange = useCallback((newConfig: ProtocolConfig) => {
-    onConfigChange(newConfig);
-  }, [onConfigChange]);
-
   const { isMobile } = useResponsive();
 
   // Determine actual view mode
@@ -117,7 +113,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
     onConfigChange({ method, ...initialConfig });
   }, [onConfigChange, initialConfig]);
 
-  const handleConfigChange = useCallback((config: any) => {
+  const handleConfigUpdate = useCallback((config: any) => {
     onConfigChange({
       method: selectedMethod,
       ...config,
@@ -183,7 +179,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
         return (
           <div data-testid="nft-config">
             <NFTSelector
-              onSelectionChange={(selection) => onConfigChange({ method, ...selection })}
+              onSelect={(nft) => onConfigChange({ method, nftGate: nft })}
             />
           </div>
         );
@@ -291,7 +287,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
                       <ConfigurationPanel
                         method={selectedMethod}
                         config={initialConfig}
-                        onConfigChange={handleConfigChange}
+                        onConfigChange={handleConfigUpdate}
                       />
                     </div>
                   </CardContent>
@@ -383,7 +379,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
         <ConfigurationPanel
           method={selectedMethod}
           config={initialConfig}
-          onConfigChange={handleConfigChange}
+          onConfigChange={handleConfigUpdate}
         />
       </div>
 

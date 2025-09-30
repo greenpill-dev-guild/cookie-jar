@@ -68,7 +68,7 @@ export const useCookieJarConfig = (address: `0x${string}`): CookieJarConfigRetur
 
   // Contract calls - only using functions that actually exist
   const contracts = [
-    { address, abi: cookieJarAbi, functionName: "accessType" },
+    { address, abi: cookieJarAbi, functionName: "ACCESS_TYPE" },
     {
       address,
       abi: cookieJarAbi,
@@ -79,13 +79,13 @@ export const useCookieJarConfig = (address: `0x${string}`): CookieJarConfigRetur
           ("0x0000000000000000000000000000000000000000" as `0x${string}`),
       ],
     },
-    { address, abi: cookieJarAbi, functionName: "withdrawalOption" },
+    { address, abi: cookieJarAbi, functionName: "WITHDRAWAL_OPTION" },
     { address, abi: cookieJarAbi, functionName: "fixedAmount" },
     { address, abi: cookieJarAbi, functionName: "maxWithdrawal" },
     { address, abi: cookieJarAbi, functionName: "withdrawalInterval" },
-    { address, abi: cookieJarAbi, functionName: "strictPurpose" },
-    { address, abi: cookieJarAbi, functionName: "emergencyWithdrawalEnabled" },
-    { address, abi: cookieJarAbi, functionName: "oneTimeWithdrawal" },
+    { address, abi: cookieJarAbi, functionName: "STRICT_PURPOSE" },
+    { address, abi: cookieJarAbi, functionName: "EMERGENCY_WITHDRAWAL_ENABLED" },
+    { address, abi: cookieJarAbi, functionName: "ONE_TIME_WITHDRAWAL" },
     { address, abi: cookieJarAbi, functionName: "feeCollector" },
     {
       address,
@@ -136,7 +136,7 @@ export const useCookieJarConfig = (address: `0x${string}`): CookieJarConfigRetur
       ],
     },
     { address, abi: cookieJarAbi, functionName: "currencyHeldByJar" },
-    { address, abi: cookieJarAbi, functionName: "currency" },
+    { address, abi: cookieJarAbi, functionName: "CURRENCY" },
   ];
 
   const { data, isLoading, isError, error, refetch } = useReadContracts({

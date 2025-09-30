@@ -2,6 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useSuperfluidFramework } from "../blockchain/useSuperfluidFramework";
+import { useStreamsByReceiver } from "../blockchain/useSuperfluidSubgraph";
 import { formatUnits } from "viem";
 
 /**
@@ -35,71 +36,41 @@ export interface StreamInfo {
 export const useStreamingData = (jarAddress: `0x${string}`) => {
   const { data: sf } = useSuperfluidFramework();
 
-  // Query all flows to this jar using Superfluid SDK
-  const { data: streamsQuery, isLoading, error, refetch } = useQuery({
-    queryKey: ["superfluidStreams", jarAddress],
+  // Query all active streams to this jar using The Graph subgraph
+  const { 
+    data: subgraphStreams, 
+    isLoading: isLoadingSubgraph, 
+    error: subgraphError,
+    refetch 
+  } = useStreamsByReceiver(jarAddress);
+
+  // Transform subgraph data into StreamInfo format
+  const { data: streamsQuery, isLoading, error } = useQuery({
+    queryKey: ["superfluidStreams", "transformed", jarAddress, subgraphStreams],
     queryFn: async (): Promise<StreamInfo[]> => {
-      if (!sf) return [];
+      if (!subgraphStreams) return [];
 
-      const cfa = sf.cfa;
+      // Transform subgraph stream data to our StreamInfo format
+      return subgraphStreams.map((stream) => {
+        const currentFlowRate = BigInt(stream.currentFlowRate);
+        const streamedUntil = BigInt(stream.streamedUntilUpdatedAt);
+        const lastUpdated = Number(stream.updatedAtTimestamp) * 1000;
 
-      // Get all flows where this jar is the receiver
-      // Note: This is a simplified approach. In production, you might need to:
-      // 1. Use event listeners to track stream creation
-      // 2. Maintain a local index of active streams
-      // 3. Query specific known super tokens
-
-      // For now, we'll query a few common super tokens that might have streams
-      const commonSuperTokens = [
-        "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH (ETHx)
-        "0xA0b86a33E6417E9fF1C9683779ab69Vc56C95a78", // USDC
-        "0x6B175474E89094C44Da98b954EedeAC495271d0F", // DAI
-      ];
-
-      const streams: StreamInfo[] = [];
-
-      for (const tokenAddress of commonSuperTokens) {
-        try {
-          // Try to get flow info for this token
-          const flowInfo = await cfa.getFlow({
-            superToken: tokenAddress,
-            sender: "0x0000000000000000000000000000000000000000", // Any sender
-            receiver: jarAddress,
-          });
-
-          // If flow rate is non-zero, there's an active stream
-          if (flowInfo.flowRate !== "0") {
-            // Get account flow info for additional details
-            const accountFlowInfo = await cfa.getAccountFlowInfo({
-              superToken: tokenAddress,
-              account: jarAddress,
-            });
-
-            // Load super token for symbol
-            const superToken = await sf.loadSuperToken(tokenAddress);
-
-            streams.push({
-              id: `${tokenAddress}-${flowInfo.sender}`,
-              sender: flowInfo.sender,
-              token: tokenAddress,
-              tokenSymbol: await superToken.symbol(),
-              ratePerSecond: BigInt(flowInfo.flowRate),
-              totalStreamed: BigInt(accountFlowInfo.deposit),
-              isActive: BigInt(flowInfo.flowRate) !== 0n,
-              lastUpdated: Number(flowInfo.timestamp) * 1000,
-              flowRate: BigInt(flowInfo.flowRate),
-            });
-          }
-        } catch (error) {
-          // Token might not be a super token or no streams exist
-          console.warn(`No streams found for token ${tokenAddress}:`, error);
-        }
-      }
-
-      return streams;
+        return {
+          id: stream.id,
+          sender: stream.sender.id,
+          token: stream.token.id,
+          tokenSymbol: stream.token.symbol,
+          ratePerSecond: currentFlowRate,
+          totalStreamed: streamedUntil,
+          isActive: currentFlowRate > 0n,
+          lastUpdated,
+          flowRate: currentFlowRate,
+        };
+      });
     },
-    enabled: !!sf && !!jarAddress,
-    refetchInterval: 30000, // Refetch every 30 seconds
+    enabled: !!subgraphStreams,
+    staleTime: 30_000, // 30 seconds
   });
 
   // Get streaming configuration (mock for now - could be added to contract if needed)
@@ -136,8 +107,8 @@ export const useStreamingData = (jarAddress: `0x${string}`) => {
 
     // Processed data
     streams: streamsQuery || [],
-    isLoadingStreams: isLoading,
-    streamsError: error,
+    isLoadingStreams: isLoading || isLoadingSubgraph,
+    streamsError: error || subgraphError,
 
     // Utilities
     calculateClaimable,

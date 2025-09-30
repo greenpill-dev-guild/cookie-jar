@@ -215,17 +215,17 @@ async function fetchJarDetails(
         publicClient.readContract({
           address: jarAddress,
           abi: cookieJarAbi,
-          functionName: "currency",
+          functionName: "CURRENCY",
         }),
         publicClient.readContract({
           address: jarAddress,
           abi: cookieJarAbi,
-          functionName: "accessType",
+          functionName: "ACCESS_TYPE",
         }),
         publicClient.readContract({
           address: jarAddress,
           abi: cookieJarAbi,
-          functionName: "withdrawalOption",
+          functionName: "WITHDRAWAL_OPTION",
         }),
         publicClient.readContract({
           address: jarAddress,
@@ -245,17 +245,17 @@ async function fetchJarDetails(
         publicClient.readContract({
           address: jarAddress,
           abi: cookieJarAbi,
-          functionName: "strictPurpose",
+          functionName: "STRICT_PURPOSE",
         }),
         publicClient.readContract({
           address: jarAddress,
           abi: cookieJarAbi,
-          functionName: "emergencyWithdrawalEnabled",
+          functionName: "EMERGENCY_WITHDRAWAL_ENABLED",
         }),
         publicClient.readContract({
           address: jarAddress,
           abi: cookieJarAbi,
-          functionName: "oneTimeWithdrawal",
+          functionName: "ONE_TIME_WITHDRAWAL",
         }),
         publicClient.readContract({
           address: jarAddress,
@@ -267,16 +267,16 @@ async function fetchJarDetails(
       // Use multicall for other chains that support it
       const results = await publicClient.multicall({
         contracts: [
-          { address: jarAddress, abi: cookieJarAbi, functionName: "currency" },
+          { address: jarAddress, abi: cookieJarAbi, functionName: "CURRENCY" },
           {
             address: jarAddress,
             abi: cookieJarAbi,
-            functionName: "accessType",
+            functionName: "ACCESS_TYPE",
           },
           {
             address: jarAddress,
             abi: cookieJarAbi,
-            functionName: "withdrawalOption",
+            functionName: "WITHDRAWAL_OPTION",
           },
           {
             address: jarAddress,
@@ -296,17 +296,17 @@ async function fetchJarDetails(
           {
             address: jarAddress,
             abi: cookieJarAbi,
-            functionName: "strictPurpose",
+            functionName: "STRICT_PURPOSE",
           },
           {
             address: jarAddress,
             abi: cookieJarAbi,
-            functionName: "emergencyWithdrawalEnabled",
+            functionName: "EMERGENCY_WITHDRAWAL_ENABLED",
           },
           {
             address: jarAddress,
             abi: cookieJarAbi,
-            functionName: "oneTimeWithdrawal",
+            functionName: "ONE_TIME_WITHDRAWAL",
           },
           {
             address: jarAddress,
@@ -437,11 +437,12 @@ export function useCookieJarFactory() {
         ? cookieJarFactoryAbi
         : cookieJarFactoryV1Abi;
 
-      // Get jar addresses
+      // Get jar addresses - v2 uses getAllJars, v1 uses getCookieJars
+      const functionName = isV2Contract ? "getAllJars" : "getCookieJars";
       const addresses = (await publicClient.readContract({
         address: factoryAddress,
         abi: factoryAbi,
-        functionName: "getCookieJars",
+        functionName,
       })) as Address[];
 
       // Get metadata - now works for both V1 and V2!
@@ -527,7 +528,7 @@ export function useCookieJarFactory() {
   useWatchContractEvent({
     address: factoryAddress,
     abi: cookieJarFactoryAbi,
-    eventName: "CookieJarCreated",
+    eventName: "JarCreated",
     onLogs: (logs) => {
       console.log("🎉 New jar created, triggering refresh:", logs);
       toast({

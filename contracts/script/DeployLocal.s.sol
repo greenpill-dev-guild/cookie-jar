@@ -23,13 +23,13 @@ contract CookieMonsterNFT is ERC721, Ownable {
 
 contract DeployLocalScript is Script {
     // Pre-funded Anvil addresses 
-    address constant DEPLOYER = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
-    address constant COOKIE_MONSTER = 0x70997970C51812dc3A010C7d01b50e0d17dc79C8;  // User A
-    address constant COOKIE_FAN = 0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC;       // User B
+    address payable public constant DEPLOYER = payable (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266);
+    address payable public constant COOKIE_MONSTER = payable(0x70997970C51812dc3A010C7d01b50e0d17dc79C8);  // User A
+    address payable public constant COOKIE_FAN = payable(0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC);       // User B
 
-    CookieJarFactory factory;
-    CookieMonsterNFT cookieMonsterNft;
-    DummyERC20 demoToken;
+    CookieJarFactory public factory;
+    CookieMonsterNFT public cookieMonsterNft;
+    DummyERC20 public demoToken;
 
     function run() external {
         // HARDCODED for local development only - Anvil Account #0
@@ -146,7 +146,7 @@ contract DeployLocalScript is Script {
             defaultFee: 3000 // 0.3%
         });
         
-        address[] memory emptyTokens = new address[](0);
+        // address[] memory emptyTokens = new address[](0);
         
         CookieJarLib.JarConfig memory params1 = CookieJarLib.JarConfig(
             DEPLOYER,                              // jarOwner
@@ -200,7 +200,7 @@ contract DeployLocalScript is Script {
             defaultFee: 3000 // 0.3%
         });
 
-        address[] memory emptyTokens2 = new address[](0);
+        // address[] memory emptyTokens2 = new address[](0);
 
         CookieJarLib.JarConfig memory params2 = CookieJarLib.JarConfig(
             DEPLOYER,                                     // jarOwner
@@ -253,7 +253,7 @@ contract DeployLocalScript is Script {
             defaultFee: 3000 // 0.3%
         });
         
-        address[] memory emptyTokens3 = new address[](0);
+        // address[] memory emptyTokens3 = new address[](0);
         
         CookieJarLib.JarConfig memory params3 = CookieJarLib.JarConfig(
             DEPLOYER,                                      // jarOwner
@@ -306,7 +306,7 @@ contract DeployLocalScript is Script {
             defaultFee: 3000 // 0.3%
         });
         
-        address[] memory emptyTokens4 = new address[](0);
+        // address[] memory emptyTokens4 = new address[](0);
         
         CookieJarLib.JarConfig memory params4 = CookieJarLib.JarConfig(
             DEPLOYER,                                      // jarOwner

@@ -360,17 +360,17 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     
     /// @notice Legacy function for allowlist mode (backwards compatibility)
     function withdrawAllowlistMode(uint256 amount, string calldata purpose) external {
-        this.withdraw(amount, purpose);
+        withdraw(amount, purpose);
     }
     
     /// @notice Legacy function for ERC721 mode (backwards compatibility)
     function withdrawWithErc721(uint256 amount, string calldata purpose) external {
-        this.withdraw(amount, purpose);
+        withdraw(amount, purpose);
     }
 
     /// @notice Legacy function for ERC1155 mode (backwards compatibility)
     function withdrawWithErc1155(uint256 amount, string calldata purpose) external {
-        this.withdraw(amount, purpose);
+        withdraw(amount, purpose);
     }
 
     // --- View Functions ---
@@ -383,42 +383,23 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
 
     /// @notice Get all pending token addresses (tokens that aren't jar currency)
     /// @return tokens Array of token addresses that are pending swaps
+    /// @dev PLACEHOLDER: In production, maintain a dynamic list of pending tokens
+    ///      This simplified version only checks ETH for demonstration purposes
     function getPendingTokenAddresses() external view returns (address[] memory tokens) {
-        // Count unique pending tokens (excluding jar currency and zero address)
-        uint256 tokenCount = 0;
-
-        // Simple approach: return tokens that have pending balances
-        // In a production implementation, you might want to maintain a separate
-        // array of pending token addresses for gas efficiency
-
-        // For now, we'll check a few common tokens that might be pending
-        address[] memory commonTokens = new address[](10);
-        uint256 actualCount = 0;
-
+        // Simple approach: return ETH if it has a pending balance and isn't the jar currency
+        // In a production implementation, you should maintain a separate array of pending 
+        // token addresses for gas efficiency and to track all tokens
+        
+        uint256 count = 0;
+        
         // Check ETH if jar doesn't use ETH
         if (CURRENCY != CookieJarLib.ETH_ADDRESS && pendingTokenBalances[address(0)] > 0) {
-            commonTokens[actualCount] = address(0);
-            actualCount++;
+            count = 1;
         }
 
-        // Check USDC (common token that might be sent to jar)
-        address usdc = 0xA0b86a33E6417E9fF1C9683779ab69Vc56C95a78; // Example USDC address
-        if (pendingTokenBalances[usdc] > 0) {
-            commonTokens[actualCount] = usdc;
-            actualCount++;
-        }
-
-        // Check WETH (common token that might be sent to jar)
-        address weth = 0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2; // Example WETH address
-        if (pendingTokenBalances[weth] > 0) {
-            commonTokens[actualCount] = weth;
-            actualCount++;
-        }
-
-        // Copy to correctly sized array
-        tokens = new address[](actualCount);
-        for (uint256 i = 0; i < actualCount; i++) {
-            tokens[i] = commonTokens[i];
+        tokens = new address[](count);
+        if (count > 0) {
+            tokens[0] = address(0);
         }
     }
 
