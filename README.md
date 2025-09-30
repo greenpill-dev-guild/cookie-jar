@@ -8,6 +8,8 @@ Decentralized funding pools with smart access control. Create shared ETH/ERC20 p
 **Auto-Install**: pnpm, Foundry *(installed automatically)*  
 **System**: 4GB+ RAM, 2GB storage
 
+> ⚠️ **Note on Submodules**: This repository uses git submodules for Foundry dependencies. If you encounter SSH errors during `pnpm install`, see the [Submodule/Foundry Setup Issues](#submodulefoundry-setup-issues) section for quick HTTPS workaround or SSH setup instructions.
+
 ## 🚀 Quick Start
 
 **True zero configuration** - everything installs automatically:
@@ -315,10 +317,53 @@ pnpm add -D @types/lodash
 ```
 
 #### Submodule/Foundry Setup Issues
-1. **Missing forge-std or openzeppelin-contracts**: Run `git submodule update --init --recursive && cd contracts && forge install`
-2. **Git submodule errors**: Ensure git is installed and repository access is working
-3. **Forge command not found**: Install Foundry: `curl -L https://foundry.paradigm.xyz | bash && foundryup`
-4. **Permission errors during setup**: Check git credentials and repository access
+
+**SSH Authentication Errors** (`Permission denied (publickey)` during install):
+
+This happens because Foundry dependencies use SSH URLs but you don't have SSH keys configured with GitHub.
+
+**🚀 Quick Fix (HTTPS Workaround)** - Get running immediately:
+```bash
+# Configure git to use HTTPS instead of SSH globally
+git config --global url."https://github.com/".insteadOf git@github.com:
+git config --global url."https://".insteadOf git://
+
+# Clean and reinstall
+cd cookie-jar
+rm -rf lib contracts/lib
+pnpm install
+```
+
+**✅ Proper Solution (Recommended)** - Better long-term:
+```bash
+# 1. Generate SSH key (if you don't have one)
+ssh-keygen -t ed25519 -C "your-email@example.com"
+
+# 2. Start ssh-agent and add key
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/id_ed25519
+
+# 3. Add public key to GitHub
+cat ~/.ssh/id_ed25519.pub
+# Copy output and add to: GitHub Settings > SSH and GPG keys > New SSH key
+
+# 4. Test connection
+ssh -T git@github.com
+# Should see: "Hi username! You've successfully authenticated..."
+
+# 5. Clean and reinstall
+cd cookie-jar
+rm -rf lib contracts/lib
+pnpm install
+```
+
+📚 **Full SSH Setup Guide**: [GitHub SSH Documentation](https://docs.github.com/en/authentication/connecting-to-github-with-ssh)
+
+**Other Common Issues**:
+- **Missing forge-std or openzeppelin-contracts**: Run `git submodule update --init --recursive && cd contracts && forge install`
+- **Forge command not found**: Install Foundry: `curl -L https://foundry.paradigm.xyz | bash && foundryup`
+- **Submodule conflicts**: If you have old submodules in `contracts/lib/`, remove them with `rm -rf contracts/lib` before running install
+- **Still having issues?**: Ensure git is properly installed: `git --version`
 
 #### Wallet Connection Issues
 1. Add local network to your Web3 wallet (MetaMask, Rabby, or Coinbase Wallet):

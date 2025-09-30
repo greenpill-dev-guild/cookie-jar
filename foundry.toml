@@ -10,22 +10,22 @@ solc_version = "0.8.30"  # Pin to specific version for consistent compilation
 cache = true            # Enable compilation cache for faster subsequent builds
 parallel = 4            # Use 4 parallel threads for compilation
 # Prioritize contract size to keep functionality
-src = "src"
-out = "out"
-libs = ["../lib"]
-test = "test"  # Re-enabled tests
-script = "script"
+src = "contracts/src"
+out = "contracts/out"
+libs = ["lib"]
+test = "contracts/test"
+script = "contracts/script"
 # Skip certora harness files that have missing dependencies
-skip = ["**/certora/**/*.sol", "../lib/openzeppelin-contracts/certora/**"]
+skip = ["**/certora/**/*.sol", "lib/openzeppelin-contracts/certora/**"]
 # Load environment variables from root directory
-env_file = "../.env"
+env_file = ".env"
 
 # File system permissions for auto-generated configuration updates
 fs_permissions = [
-    { access = "read-write", path = "./" },
-    { access = "read-write", path = "../client/config/" },
-    { access = "read-write", path = "../client/public/contracts/" },
-    { access = "read", path = "../" }
+    { access = "read-write", path = "./contracts/" },
+    { access = "read-write", path = "./client/config/" },
+    { access = "read-write", path = "./client/public/contracts/" },
+    { access = "read", path = "./" }
 ]
 
 # Fast development profile - prioritizes compilation speed
@@ -41,7 +41,7 @@ out = "out"
 libs = ["../lib"]
 test = "test"
 script = "script"
-skip = ["**/certora/**/*.sol", "../lib/openzeppelin-contracts/certora/**"]
+skip = ["**/certora/**/*.sol", "lib/openzeppelin-contracts/certora/**"]
 env_file = "../.env"
 fs_permissions = [
     { access = "read-write", path = "./" },
@@ -69,15 +69,15 @@ remappings = [
     "openzeppelin-contracts/=../lib/openzeppelin-contracts/contracts/"
 ]
 # Load environment variables from root directory
-env_file = "../.env.local"
-dot_env = "../.env.local"
+env_file = ".env.local"
+dot_env = ".env.local"
 PRIVATE_KEY = "${PRIVATE_KEY}"
 RPC_URL = "${RPC_URL}"
 # Allow writing deployment files for local development
 fs_permissions = [
-    { access = "read-write", path = "./" },
-    { access = "read-write", path = "." },
-    { access = "read-write", path = "local-deployment.json" }
+    { access = "read-write", path = "./contracts/" },
+    { access = "read-write", path = "./contracts" },
+    { access = "read-write", path = "./contracts/local-deployment.json" }
 ]
 
 [rpc_endpoints]

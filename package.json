@@ -7,7 +7,7 @@
   "license": "MIT",
   "scripts": {
     "preinstall": "./scripts/install-deps.sh",
-    "postinstall": "(command -v forge > /dev/null && cd contracts && git submodule update --init --recursive && forge install || echo 'Forge not found, skipping forge operations')",
+    "postinstall": "(command -v forge > /dev/null && git submodule update --init --recursive && cd contracts && forge install || echo 'Forge not found, skipping forge operations')",
     "dev": "pnpm run dev:stop && ./scripts/dev-start.sh",
     "dev:client": "pnpm --filter client run dev",
     "dev:stop": "pkill -f anvil || true && pkill -f 'forge script.*watch' || true && pkill -f 'next dev' || true && pkill -f 'npm run dev' || true",
