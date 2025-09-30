@@ -1,150 +1,100 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { useReadContract, useAccount } from "wagmi";
+import { useQuery, useQueries } from "@tanstack/react-query";
+import { useReadContract } from "wagmi";
 import { cookieJarAbi } from "@/generated";
-import { formatUnits, erc20Abi, isAddress } from "viem";
 import { usePublicClient } from "wagmi";
+import { erc20Abi, formatUnits, isAddress } from "viem";
 
 /**
  * Pending token data structure
  */
 export interface PendingToken {
-  tokenAddress: string;
-  tokenName: string;
-  tokenSymbol: string;
+  address: string;
+  name: string;
+  symbol: string;
   balance: bigint;
   decimals: number;
+  formattedBalance: string;
   isSwappable: boolean;
   estimatedOutput?: bigint;
 }
 
 /**
- * Hook for reading pending token balances and information
+ * Hook for reading pending token balances and information using contract data
  */
 export const usePendingTokens = (jarAddress: `0x${string}`) => {
   const publicClient = usePublicClient();
 
-  // Mock function to get pending token addresses from events or contract state
-  // In a real implementation, this might come from contract events or a view function
-  const getPendingTokenAddresses = async (): Promise<string[]> => {
-    // This would typically be implemented by:
-    // 1. Reading events for direct token transfers to the jar
-    // 2. Calling a view function that returns pending token addresses
-    // 3. Or maintaining an off-chain index
-    
-    // For now, return mock addresses for demonstration
-    return [
-      "0xA0b86a33E6417E9fF1C9683779ab69Vc56C95a78", // USDC
-      "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", // WETH
-      "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984", // UNI
-    ];
-  };
-
-  // Get token details for a specific token address
-  const getTokenDetails = async (tokenAddress: string): Promise<{
-    name: string;
-    symbol: string;
-    decimals: number;
-    balance: bigint;
-  } | null> => {
-    if (!publicClient || !isAddress(tokenAddress)) return null;
-
-    try {
-      // Get token metadata
-      const [name, symbol, decimals, balance] = await Promise.all([
-        publicClient.readContract({
-          address: tokenAddress as `0x${string}`,
-          abi: erc20Abi,
-          functionName: "name",
-        }),
-        publicClient.readContract({
-          address: tokenAddress as `0x${string}`,
-          abi: erc20Abi,
-          functionName: "symbol",
-        }),
-        publicClient.readContract({
-          address: tokenAddress as `0x${string}`,
-          abi: erc20Abi,
-          functionName: "decimals",
-        }),
-        publicClient.readContract({
-          address: tokenAddress as `0x${string}`,
-          abi: erc20Abi,
-          functionName: "balanceOf",
-          args: [jarAddress],
-        }),
-      ]);
-
-      return {
-        name: name as string,
-        symbol: symbol as string,
-        decimals: decimals as number,
-        balance: balance as bigint,
-      };
-    } catch (error) {
-      console.error(`Error fetching token details for ${tokenAddress}:`, error);
-      return null;
-    }
-  };
-
-  // Main query for pending tokens
-  const pendingTokensQuery = useQuery({
-    queryKey: ["pendingTokens", jarAddress],
-    queryFn: async (): Promise<PendingToken[]> => {
-      const tokenAddresses = await getPendingTokenAddresses();
-      const pendingTokens: PendingToken[] = [];
-
-      for (const tokenAddress of tokenAddresses) {
-        const tokenDetails = await getTokenDetails(tokenAddress);
-        
-        if (tokenDetails && tokenDetails.balance > 0n) {
-          // Determine if token is swappable (mock logic)
-          const isSwappable = !["0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984"].includes(tokenAddress);
-          
-          // Mock estimated output (would come from DEX price oracle)
-          let estimatedOutput: bigint | undefined;
-          if (isSwappable) {
-            if (tokenAddress === "0xA0b86a33E6417E9fF1C9683779ab69Vc56C95a78") {
-              // USDC to DAI (1:1 roughly)
-              estimatedOutput = tokenDetails.balance * BigInt(10**(18-6)); // Convert 6 decimals to 18
-            } else if (tokenAddress === "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2") {
-              // WETH to DAI (assume 1600 DAI per ETH)
-              estimatedOutput = (tokenDetails.balance * BigInt(1600));
-            }
-          }
-
-          pendingTokens.push({
-            tokenAddress,
-            tokenName: tokenDetails.name,
-            tokenSymbol: tokenDetails.symbol,
-            balance: tokenDetails.balance,
-            decimals: tokenDetails.decimals,
-            isSwappable,
-            estimatedOutput,
-          });
-        }
-      }
-
-      return pendingTokens;
-    },
-    refetchInterval: 30000, // Refetch every 30 seconds
-    enabled: !!publicClient && !!jarAddress,
+  // Get pending token addresses from contract
+  const { data: pendingTokenAddresses } = useReadContract({
+    address: jarAddress,
+    abi: cookieJarAbi,
+    functionName: "getPendingTokenAddresses",
   });
 
-  // Helper function to get total estimated value
+  // For each token, get balance and metadata
+  const tokenQueries = useQueries({
+    queries: (pendingTokenAddresses || []).map(token => ({
+      queryKey: ["pendingToken", jarAddress, token],
+      queryFn: async (): Promise<PendingToken | null> => {
+        if (!publicClient || !isAddress(token)) return null;
+
+        try {
+          const [name, symbol, decimals, balance] = await Promise.all([
+            publicClient.readContract({
+              address: token,
+              abi: erc20Abi,
+              functionName: "name",
+            }),
+            publicClient.readContract({
+              address: token,
+              abi: erc20Abi,
+              functionName: "symbol",
+            }),
+            publicClient.readContract({
+              address: token,
+              abi: erc20Abi,
+              functionName: "decimals",
+            }),
+            publicClient.readContract({
+              address: token,
+              abi: erc20Abi,
+              functionName: "balanceOf",
+              args: [jarAddress],
+            }),
+          ]);
+
+          return {
+            address: token,
+            name: name as string,
+            symbol: symbol as string,
+            balance: balance as bigint,
+            decimals: decimals as number,
+            formattedBalance: formatUnits(balance as bigint, decimals as number),
+            isSwappable: true, // For now, assume all tokens are swappable
+          };
+        } catch (error) {
+          console.error(`Error fetching token details for ${token}:`, error);
+          return null;
+        }
+      },
+      enabled: !!pendingTokenAddresses && !!publicClient,
+      staleTime: 30000, // 30 seconds
+    })),
+  });
+
+  const pendingTokens = tokenQueries.map(q => q.data).filter(Boolean) as PendingToken[];
+
+  // Helper function to get total estimated value (mock for now)
   const getTotalEstimatedValue = (): bigint => {
-    if (!pendingTokensQuery.data) return 0n;
-    
-    return pendingTokensQuery.data
-      .filter(token => token.estimatedOutput)
-      .reduce((total, token) => total + (token.estimatedOutput || 0n), 0n);
+    // In production, this would query DEX oracles for price conversion
+    return pendingTokens.reduce((total, token) => total + token.balance, 0n);
   };
 
   // Helper function to get swappable tokens count
   const getSwappableTokensCount = (): number => {
-    if (!pendingTokensQuery.data) return 0;
-    return pendingTokensQuery.data.filter(token => token.isSwappable).length;
+    return pendingTokens.filter(token => token.isSwappable).length;
   };
 
   // Helper function to format token balance
@@ -159,9 +109,9 @@ export const usePendingTokens = (jarAddress: `0x${string}`) => {
 
   return {
     // Data
-    pendingTokens: pendingTokensQuery.data || [],
-    isLoading: pendingTokensQuery.isLoading,
-    error: pendingTokensQuery.error,
+    pendingTokens,
+    isLoading: tokenQueries.some(q => q.isLoading),
+    error: tokenQueries.find(q => q.error)?.error,
 
     // Computed values
     totalEstimatedValue: getTotalEstimatedValue(),
@@ -169,9 +119,9 @@ export const usePendingTokens = (jarAddress: `0x${string}`) => {
 
     // Utilities
     formatTokenBalance,
-    
+
     // Query controls
-    refetch: pendingTokensQuery.refetch,
-    isRefetching: pendingTokensQuery.isRefetching,
+    refetch: () => tokenQueries.forEach(q => q.refetch()),
+    isRefetching: tokenQueries.some(q => q.isRefetching),
   };
 };

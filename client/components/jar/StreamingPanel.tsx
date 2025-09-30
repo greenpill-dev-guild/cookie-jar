@@ -20,10 +20,12 @@ import {
   Settings,
   ExternalLink 
 } from "lucide-react";
-import { formatUnits, parseUnits, isAddress } from "viem";
+import { formatUnits, isAddress } from "viem";
 import { formatAddress } from "@/lib/app/utils";
 import { useStreamingData } from "@/hooks/jar/useStreamingData";
 import { useStreamingActions } from "@/hooks/jar/useStreamingActions";
+import { useSuperfluidAccountInfo } from "@/hooks/jar/useSuperfluidAccountInfo";
+import { useSuperfluidTokenInfo } from "@/hooks/blockchain/useSuperfluidTokenInfo";
 import { StreamProcessingCard } from "./StreamProcessingCard";
 
 
@@ -45,7 +47,7 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
   const [newStreamToken, setNewStreamToken] = useState("");
   const [newStreamRate, setNewStreamRate] = useState("");
 
-  // Use real contract hooks
+  // Use real Superfluid SDK hooks
   const {
     streams,
     // streamingConfig: config,
@@ -57,18 +59,23 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
 
   const {
     createSuperStream,
-    isRegistering,
-    isApproving,
-    isProcessing,
+    isCreating,
+    updateSuperStream,
+    deleteSuperStream,
   } = useStreamingActions(jarAddress);
 
-  const handleCreateSuperStream = async () => {
-    await createSuperStream(newStreamToken, newStreamRate);
+  const { data: accountInfo } = useSuperfluidAccountInfo(jarAddress);
 
-    // Reset form on success
-    setNewStreamSender("");
-    setNewStreamToken("");
-    setNewStreamRate("");
+  const handleCreateSuperStream = async () => {
+    try {
+      await createSuperStream(newStreamToken, newStreamRate);
+
+      // Reset form on success
+      setNewStreamToken("");
+      setNewStreamRate("");
+    } catch (error) {
+      console.error("Failed to create stream:", error);
+    }
   };
 
   if (isLoadingStreams && !streams.length) {
@@ -93,12 +100,64 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
       </CardHeader>
       
       <CardContent>
-        <Tabs defaultValue="active" className="space-y-4">
+        <Tabs defaultValue="overview" className="space-y-4">
           <TabsList className="grid w-full grid-cols-3">
+            <TabsTrigger value="overview">Overview</TabsTrigger>
             <TabsTrigger value="active">Active Streams</TabsTrigger>
             {isAdmin && <TabsTrigger value="manage">Manage</TabsTrigger>}
-            <TabsTrigger value="config">Configuration</TabsTrigger>
           </TabsList>
+
+          <TabsContent value="overview" className="space-y-4">
+            {accountInfo && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Jar Flow Overview</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                      <span className="text-gray-600">Net Flow Rate:</span>
+                      <div className="font-mono text-green-600">
+                        {accountInfo.formattedNetFlowRate} ETH/s
+                      </div>
+                    </div>
+                    <div>
+                      <span className="text-gray-600">Total Deposit:</span>
+                      <div className="font-mono text-blue-600">
+                        {accountInfo.formattedTotalDeposit} ETH
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Stream Statistics</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-3 gap-4 text-center">
+                  <div>
+                    <div className="text-2xl font-bold text-blue-600">{streams.length}</div>
+                    <div className="text-sm text-gray-600">Active Streams</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-green-600">
+                      {streams.reduce((sum, stream) => sum + Number(formatUnits(stream.ratePerSecond, 18)), 0).toFixed(3)}
+                    </div>
+                    <div className="text-sm text-gray-600">Total Rate (ETH/s)</div>
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-purple-600">
+                      {streams.reduce((sum, stream) => sum + Number(formatUnits(stream.totalStreamed, 18)), 0).toFixed(3)}
+                    </div>
+                    <div className="text-sm text-gray-600">Total Streamed (ETH)</div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
           <TabsContent value="active" className="space-y-4">
             {streams.length === 0 ? (
@@ -108,78 +167,14 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
               </div>
             ) : (
               streams.map((stream) => (
-                <Card key={stream.id} className="border-l-4 border-l-blue-500">
-                  <CardContent className="p-4">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Badge variant={stream.isApproved ? "default" : "secondary"}>
-                            {stream.isApproved ? "Active" : "Pending Approval"}
-                          </Badge>
-                          <span className="text-sm font-mono">
-                            Stream #{stream.id}
-                          </span>
-                        </div>
-                        
-                        <div className="text-sm space-y-1">
-                          <p>
-                            <span className="font-medium">From:</span>{" "}
-                            <span className="font-mono">{formatAddress(stream.sender)}</span>
-                          </p>
-                          <p>
-                            <span className="font-medium">Rate:</span>{" "}
-                            {formatStreamRate(stream.ratePerSecond, 18)}
-                          </p>
-                          <p>
-                            <span className="font-medium">Total Streamed:</span>{" "}
-                            {formatUnits(stream.totalStreamed, 18)}
-                          </p>
-                        </div>
-
-                        {stream.isApproved && (
-                          <div className="bg-green-50 p-2 rounded text-sm">
-                            <p className="text-green-700 font-medium">
-                              Claimable: {formatUnits(calculateClaimable(stream), 18)} tokens
-                            </p>
-                          </div>
-                        )}
-                      </div>
-
-                      <div className="flex gap-2">
-                        {/* {!stream.isApproved && isAdmin && (
-                          <Button
-                            size="sm"
-                            onClick={() => handleApproveStream(stream.id)}
-                            disabled={isApproving}
-                          >
-                            {isApproving ? (
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-1"></div>
-                            ) : (
-                              <CheckCircle className="h-4 w-4 mr-1" />
-                            )}
-                            Approve
-                          </Button>
-                        )} */}
-{/*                         
-                        {stream.isApproved && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleProcessStream(stream.id)}
-                            disabled={isProcessing}
-                          >
-                            {isProcessing ? (
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400 mr-1"></div>
-                            ) : (
-                              <Play className="h-4 w-4 mr-1" />
-                            )}
-                            Process
-                          </Button>
-                        )} */}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <StreamCard
+                  key={stream.id}
+                  stream={stream}
+                  onUpdate={(rate) => updateSuperStream(stream.token, rate)}
+                  onDelete={() => deleteSuperStream(stream.token)}
+                  isUpdating={isUpdating}
+                  isDeleting={isDeleting}
+                />
               ))
             )}
           </TabsContent>
@@ -215,10 +210,10 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
                   
                   <Button
                     onClick={handleCreateSuperStream}
-                    disabled={isRegistering}
+                    disabled={isCreating}
                     className="w-full"
                   >
-                    {isRegistering ? (
+                    {isCreating ? (
                       <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
                     ) : (
                       <Settings className="h-4 w-4 mr-2" />
@@ -230,6 +225,101 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
             </TabsContent>
           )}
         </Tabs>
+      </CardContent>
+    </Card>
+  );
+};
+
+interface StreamCardProps {
+  stream: any; // Using any for now, should be properly typed
+  onUpdate: (rate: string) => void;
+  onDelete: () => void;
+  isUpdating: boolean;
+  isDeleting: boolean;
+}
+
+const StreamCard: React.FC<StreamCardProps> = ({
+  stream,
+  onUpdate,
+  onDelete,
+  isUpdating,
+  isDeleting
+}) => {
+  const { data: tokenInfo } = useSuperfluidTokenInfo(stream.token);
+
+  return (
+    <Card className="border-l-4 border-l-blue-500">
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between">
+          <div className="space-y-2 flex-1">
+            <div className="flex items-center gap-2">
+              <Badge variant={stream.isActive ? "default" : "secondary"}>
+                {stream.isActive ? "Active" : "Inactive"}
+              </Badge>
+              <span className="text-sm font-mono text-gray-600">
+                {stream.tokenSymbol || "TOKEN"}
+              </span>
+            </div>
+
+            <div className="text-sm space-y-1">
+              <p>
+                <span className="font-medium">From:</span>{" "}
+                <span className="font-mono">{formatAddress(stream.sender)}</span>
+              </p>
+              <p>
+                <span className="font-medium">Rate:</span>{" "}
+                {formatStreamRate(stream.ratePerSecond, 18)}
+              </p>
+              <p>
+                <span className="font-medium">Total Streamed:</span>{" "}
+                {formatUnits(stream.totalStreamed, 18)}
+              </p>
+            </div>
+
+            {stream.isActive && (
+              <div className="bg-green-50 p-2 rounded text-sm">
+                <p className="text-green-700 font-medium">
+                  Claimable: {formatUnits(calculateClaimable(stream), 18)} tokens
+                </p>
+              </div>
+            )}
+          </div>
+
+          <div className="flex gap-2 ml-4">
+            {isAdmin && (
+              <>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    const newRate = prompt("Enter new flow rate (wei per second):", stream.ratePerSecond.toString());
+                    if (newRate) onUpdate(newRate);
+                  }}
+                  disabled={isUpdating}
+                >
+                  {isUpdating ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-400"></div>
+                  ) : (
+                    <Settings className="h-4 w-4" />
+                  )}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={onDelete}
+                  disabled={isDeleting}
+                  className="text-red-600 hover:text-red-700"
+                >
+                  {isDeleting ? (
+                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-red-400"></div>
+                  ) : (
+                    <Pause className="h-4 w-4" />
+                  )}
+                </Button>
+              </>
+            )}
+          </div>
+        </div>
       </CardContent>
     </Card>
   );
