@@ -360,16 +360,19 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     
     /// @notice Legacy function for allowlist mode (backwards compatibility)
     function withdrawAllowlistMode(uint256 amount, string calldata purpose) external {
+        if (ACCESS_TYPE != CookieJarLib.AccessType.Allowlist) revert CookieJarLib.InvalidAccessType();
         withdraw(amount, purpose);
     }
     
     /// @notice Legacy function for ERC721 mode (backwards compatibility)
     function withdrawWithErc721(uint256 amount, string calldata purpose) external {
+        if (ACCESS_TYPE != CookieJarLib.AccessType.ERC721) revert CookieJarLib.InvalidAccessType();
         withdraw(amount, purpose);
     }
 
     /// @notice Legacy function for ERC1155 mode (backwards compatibility)
     function withdrawWithErc1155(uint256 amount, string calldata purpose) external {
+        if (ACCESS_TYPE != CookieJarLib.AccessType.ERC1155) revert CookieJarLib.InvalidAccessType();
         withdraw(amount, purpose);
     }
 
@@ -479,7 +482,7 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
 
         // Validate one-time constraint
         if (ONE_TIME_WITHDRAWAL && totalWithdrawn[msg.sender] > 0) {
-            revert CookieJarLib.NotAuthorized();
+            revert CookieJarLib.WithdrawalAlreadyDone();
         }
 
         // Validate period limits using user-specific rolling period
@@ -525,13 +528,37 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
 
     function _grantRoles(bytes32 role, address[] memory users) internal {
         for (uint256 i = 0; i < users.length; i++) {
+            // Only add to allowlist if role wasn't previously granted
+            bool hadRole = hasRole(role, users[i]);
             _grantRole(role, users[i]);
+            // Update allowlist array for JAR_ALLOWLISTED role (only if newly granted)
+            if (role == CookieJarLib.JAR_ALLOWLISTED && !hadRole) {
+                allowlist.push(users[i]);
+            }
         }
     }
 
     function _revokeRoles(bytes32 role, address[] memory users) internal {
         for (uint256 i = 0; i < users.length; i++) {
             _revokeRole(role, users[i]);
+            // Update allowlist array for JAR_ALLOWLISTED role
+            if (role == CookieJarLib.JAR_ALLOWLISTED) {
+                _removeFromAllowlist(users[i]);
+            }
+        }
+    }
+    
+    /// @notice Remove address from allowlist array
+    /// @dev Helper function to maintain allowlist array consistency
+    function _removeFromAllowlist(address user) internal {
+        for (uint256 i = 0; i < allowlist.length; i++) {
+            if (allowlist[i] == user) {
+                // Move last element to the position of removed element
+                allowlist[i] = allowlist[allowlist.length - 1];
+                // Remove last element
+                allowlist.pop();
+                break;
+            }
         }
     }
 

@@ -899,6 +899,7 @@ export const cookieJarAbi = [
     inputs: [{ name: 'chainId', internalType: 'uint256', type: 'uint256' }],
     name: 'UnsupportedChain',
   },
+  { type: 'error', inputs: [], name: 'WithdrawalAlreadyDone' },
   {
     type: 'error',
     inputs: [
