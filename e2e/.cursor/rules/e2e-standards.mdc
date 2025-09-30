@@ -1,0 +1,338 @@
+---
+description: E2E testing standards with Playwright for user flows and accessibility
+globs:
+  - "**/*.spec.ts"
+alwaysApply: true
+---
+
+# E2E Testing Standards
+
+## Test Structure Pattern
+
+```typescript
+import { test, expect } from '@playwright/test'
+
+test.describe('Feature Name', () => {
+  test.beforeEach(async ({ page }) => {
+    // Setup for each test
+    await page.goto('/route')
+    // Wait for critical content
+    await page.waitForLoadState('networkidle')
+  })
+  
+  test('user can complete primary action', async ({ page }) => {
+    // Arrange - Set up test state
+    await page.fill('[name="input"]', 'test value')
+    
+    // Act - Perform user action
+    await page.click('button:has-text("Submit")')
+    
+    // Assert - Verify expected outcome
+    await expect(page.locator('text=Success')).toBeVisible({
+      timeout: 30_000 // Blockchain operations need time
+    })
+  })
+})
+```
+
+## User Flow Testing
+
+### Complete Jar Lifecycle
+```typescript
+test('Complete jar creation and usage flow', async ({ page }) => {
+  // 1. Navigate to creation
+  await page.goto('/create')
+  
+  // 2. Fill jar configuration
+  await page.fill('[name="name"]', 'Test Jar')
+  await page.selectOption('[name="accessType"]', 'Allowlist')
+  await page.fill('[name="minWithdrawal"]', '0.1')
+  
+  // 3. Submit and wait for transaction
+  await page.click('button:has-text("Create Jar")')
+  await expect(page.locator('text=Transaction confirmed')).toBeVisible({
+    timeout: 30_000
+  })
+  
+  // 4. Navigate to jar page
+  const jarAddress = await page.locator('[data-jar-address]').textContent()
+  await page.goto(`/jar/${jarAddress}`)
+  
+  // 5. Verify jar details
+  await expect(page.locator('h1:has-text("Test Jar")')).toBeVisible()
+  
+  // 6. Make deposit
+  await page.fill('[name="depositAmount"]', '1')
+  await page.click('button:has-text("Deposit")')
+  await expect(page.locator('text=Deposit successful')).toBeVisible({
+    timeout: 30_000
+  })
+  
+  // 7. Verify balance updated
+  await expect(page.locator('[data-balance]')).toContainText('1')
+})
+```
+
+## Wallet Interaction Patterns
+
+### Simulated Wallet Testing
+```typescript
+// utils/wallet-utils.ts
+export async function connectWallet(page: Page, address: string) {
+  // Inject wallet state
+  await page.evaluate((addr) => {
+    window.localStorage.setItem('wagmi.connected', 'true')
+    window.localStorage.setItem('wagmi.wallet', 'injected')
+    
+    // Trigger wagmi connection event
+    window.dispatchEvent(new CustomEvent('wagmi:accountsChanged', {
+      detail: { accounts: [addr] }
+    }))
+  }, address)
+  
+  // Wait for UI to update
+  await page.waitForSelector(`text=${address.slice(0, 6)}`)
+}
+
+// Usage in tests
+test('user deposits with connected wallet', async ({ page }) => {
+  await connectWallet(page, TEST_WALLETS.USER_A)
+  // Continue test...
+})
+```
+
+## Accessibility Testing
+
+### Keyboard Navigation
+```typescript
+test('Jar creation form is keyboard accessible', async ({ page }) => {
+  await page.goto('/create')
+  
+  // Tab through form elements
+  await page.keyboard.press('Tab')
+  await expect(page.locator('[name="name"]')).toBeFocused()
+  
+  await page.keyboard.press('Tab')
+  await expect(page.locator('[name="description"]')).toBeFocused()
+  
+  // Ensure logical tab order throughout form
+  const focusableElements = page.locator(
+    'input:visible, select:visible, button:visible'
+  )
+  const count = await focusableElements.count()
+  
+  for (let i = 0; i < count; i++) {
+    await page.keyboard.press('Tab')
+  }
+})
+```
+
+### Screen Reader Compatibility
+```typescript
+test('Interactive elements have proper labels', async ({ page }) => {
+  await page.goto('/jar/0x123...')
+  
+  // Check ARIA labels
+  const depositButton = page.locator('button:has-text("Deposit")')
+  await expect(depositButton).toHaveAttribute('aria-label')
+  
+  // Check form labels
+  const amountInput = page.locator('[name="amount"]')
+  const label = page.locator('label[for="amount"]')
+  await expect(label).toBeVisible()
+  
+  // Check error announcements
+  await page.click(depositButton)
+  const errorAlert = page.locator('[role="alert"]')
+  await expect(errorAlert).toBeVisible()
+})
+```
+
+### Color Contrast
+```typescript
+test('UI meets WCAG AA contrast requirements', async ({ page }) => {
+  await page.goto('/')
+  
+  // Use axe-core for automated accessibility testing
+  const accessibilityScanResults = await new AxeBuilder({ page })
+    .withTags(['wcag2aa'])
+    .analyze()
+  
+  expect(accessibilityScanResults.violations).toEqual([])
+})
+```
+
+## Performance Testing
+
+### Core Web Vitals
+```typescript
+test('Homepage meets performance targets', async ({ page }) => {
+  const navigationStart = Date.now()
+  await page.goto('/')
+  
+  // Measure First Contentful Paint (FCP)
+  const fcp = await page.evaluate(() => {
+    return performance.getEntriesByType('paint')
+      .find(entry => entry.name === 'first-contentful-paint')
+      ?.startTime
+  })
+  
+  // FCP should be under 1.8s (good)
+  expect(fcp).toBeLessThan(1800)
+  
+  // Measure Total Load Time
+  await page.waitForLoadState('networkidle')
+  const loadTime = Date.now() - navigationStart
+  
+  // Total load should be under 5s
+  expect(loadTime).toBeLessThan(5000)
+})
+```
+
+### Network Conditions
+```typescript
+test('App works on slow 3G', async ({ page, context }) => {
+  // Simulate slow 3G
+  await context.route('**/*', route => {
+    setTimeout(() => route.continue(), 100)
+  })
+  
+  await page.goto('/jars')
+  
+  // Should still load within reasonable time
+  await expect(page.locator('h1')).toBeVisible({ timeout: 15_000 })
+})
+```
+
+## Error Scenario Testing
+
+### Network Failures
+```typescript
+test('Handles RPC failures gracefully', async ({ page, context }) => {
+  await page.goto('/jars')
+  
+  // Block RPC requests
+  await context.route('**/8545', route => route.abort())
+  
+  // App should show error state
+  await expect(page.locator('text=Unable to connect')).toBeVisible()
+  
+  // Should have retry button
+  await expect(page.locator('button:has-text("Retry")')).toBeVisible()
+})
+```
+
+### Transaction Failures
+```typescript
+test('Shows helpful message on transaction failure', async ({ page }) => {
+  await connectWallet(page, TEST_WALLETS.USER_A)
+  await page.goto('/jar/0x123...')
+  
+  // Try to withdraw without funds
+  await page.fill('[name="amount"]', '10')
+  await page.click('button:has-text("Withdraw")')
+  
+  // Should show specific error
+  await expect(page.locator('text=Insufficient balance')).toBeVisible()
+})
+```
+
+## Selectors Best Practices
+
+```typescript
+// ✅ GOOD - Multiple fallback strategies
+const depositButton = page.locator([
+  'button:has-text("Deposit")',
+  '[data-testid="deposit-button"]',
+  '[aria-label="Deposit funds"]'
+].join(', '))
+
+// ✅ GOOD - Role-based selectors (most resilient)
+const submitButton = page.getByRole('button', { name: /submit/i })
+const nameInput = page.getByLabel(/jar name/i)
+
+// ❌ BAD - Brittle CSS selectors
+const button = page.locator('.bg-orange-500.hover\\:bg-orange-600')
+```
+
+## Test Data Management
+
+```typescript
+// constants.ts
+export const TEST_WALLETS = {
+  DEPLOYER: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  USER_A: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  USER_B: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC'
+} as const
+
+export const TEST_JARS = {
+  ALLOWLIST_ETH: '0x...',
+  NFT_GATED: '0x...'
+} as const
+
+// Use throughout tests
+test('user deposits to jar', async ({ page }) => {
+  await connectWallet(page, TEST_WALLETS.USER_A)
+  await page.goto(`/jar/${TEST_JARS.ALLOWLIST_ETH}`)
+  // ...
+})
+```
+
+## CI/CD Configuration
+
+```typescript
+// playwright.config.ts
+export default defineConfig({
+  testDir: './e2e',
+  timeout: 60_000, // 1 minute per test
+  retries: process.env.CI ? 2 : 0,
+  workers: process.env.CI ? 1 : undefined,
+  
+  use: {
+    baseURL: 'http://localhost:3000',
+    trace: 'on-first-retry',
+    screenshot: 'only-on-failure',
+    video: 'retain-on-failure'
+  },
+  
+  projects: [
+    {
+      name: 'chromium',
+      use: { ...devices['Desktop Chrome'] }
+    },
+    {
+      name: 'mobile',
+      use: { ...devices['iPhone 12'] }
+    }
+  ]
+})
+```
+
+## Running Tests
+
+```bash
+# Run all tests
+pnpm test:e2e
+
+# Run specific test file
+pnpm test:e2e jar-creation.spec.ts
+
+# Debug mode
+pnpm test:e2e:debug
+
+# UI mode (visual test runner)
+pnpm test:e2e:ui
+
+# Generate HTML report
+pnpm test:e2e:report
+
+# Run only accessibility tests
+pnpm test:accessibility
+```
+
+## Pre-Test Checklist
+- [ ] Dev environment running (`pnpm dev`)
+- [ ] Contracts deployed to local Anvil
+- [ ] Frontend accessible at localhost:3000
+- [ ] Demo jars seeded
+- [ ] Test wallets have funds

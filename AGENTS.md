@@ -1,183 +1,298 @@
-# Cookie Jar - AI Agent Integration Guide
+# Cookie Jar - AI Agent Guide
 
-> **Comprehensive guidelines for AI coding agents working on the Cookie Jar protocol**
+> Comprehensive guidelines for AI agents working on Cookie Jar protocol
 
-## 📋 Quick Reference
+## 🎯 Quick Reference
 
-- **Root Rules**: [`.cursor/rules.md`](.cursor/rules.md) - Monorepo workflow & Guild standards
-- **Frontend Rules**: [`client/.cursor/rules.md`](client/.cursor/rules.md) - Next.js + React + Web3 patterns
-- **Contract Rules**: [`contracts/.cursor/rules.md`](contracts/.cursor/rules.md) - Solidity + Foundry standards  
-- **E2E Rules**: [`e2e/.cursor/rules.md`](e2e/.cursor/rules.md) - Playwright testing patterns
+Cookie Jar uses **modular `.mdc` rules** that automatically apply based on file context:
 
-## 🎯 Project Context
+- **Root Standards**: `.cursor/rules/root-standards.mdc` - Always active
+- **Web3 Patterns**: `.cursor/rules/web3-patterns.mdc` - For Web3 code
+- **Testing Patterns**: `.cursor/rules/testing-patterns.mdc` - For test files
+- **Deployment**: `.cursor/rules/deployment.mdc` - For deployment scripts
 
-**Cookie Jar Protocol**: Decentralized funding pools with smart access control supporting allowlist, NFT, POAP, Unlock Protocol, Hypercerts, and Hats Protocol gating plus configurable withdrawal rules.
+**Subdirectory Rules** (auto-attached when working in specific areas):
+- **Frontend**: `client/.cursor/rules/frontend-standards.mdc`
+- **Contracts**: `contracts/.cursor/rules/solidity-standards.mdc`
+- **E2E**: `e2e/.cursor/rules/e2e-standards.mdc`
 
-**Architecture**: Monorepo with client (Next.js), contracts (Foundry), and e2e (Playwright) packages.
+## 📚 Documentation Structure
 
-## 🚀 Development Environment Setup
+All documentation is now centralized in `/docs/`:
+
+```
+docs/
+├── QUICK_START.md                    # 5-minute setup guide
+├── guides/
+│   ├── PROTOCOLS.md                  # 6 access control methods
+│   ├── TESTING.md                    # Testing strategies
+│   └── API.md                        # Contract & frontend APIs
+├── architecture/
+│   └── OVERVIEW.md                   # System architecture
+└── deployment/
+    └── PRODUCTION.md                 # Production deployment
+```
+
+## 🚀 Development Workflow
+
+### 1. Environment Setup
 
 ```bash
-# Zero-configuration setup
+# Zero-configuration start
 git clone https://github.com/greenpill-dev-guild/cookie-jar.git
 cd cookie-jar
-npm install  # Auto-installs pnpm + Foundry + dependencies
-npm run dev  # Starts Anvil + deploys contracts + launches frontend
+npm install  # Auto-installs pnpm + Foundry
+npm run dev  # Starts everything
 ```
 
-**Auto-included**: Local blockchain, pre-seeded demo jars, hot reload, type generation.
+### 2. Code Quality Commands
 
-## 🏗️ Architecture Overview
-
-### Core Components
-1. **CookieJarFactory**: Protocol access control + jar deployments
-2. **CookieJar**: Individual jar logic + withdrawal controls  
-3. **CookieJarRegistry**: Metadata storage + jar lookup
-4. **Frontend**: Next.js PWA with Web3 integrations
-5. **E2E Tests**: Comprehensive Playwright test suite
-
-### Tech Stack
-- **Frontend**: Next.js 15 + React 18 + TypeScript + Tailwind + viem/wagmi
-- **Contracts**: Foundry + Solidity ^0.8.0 + OpenZeppelin  
-- **Testing**: Vitest + React Testing Library + Playwright + Foundry
-- **Protocols**: POAP + Unlock + Hypercerts + Hats + Alchemy NFT API
-
-## 🎨 AI Agent Workflow
-
-### 1. Understanding Context
-Before making changes:
-- Review the specific `.cursor/rules.md` file for the area you're working in
-- Check existing patterns in similar components/contracts
-- Understand the user flow impact of your changes
-
-### 2. Development Approach
 ```bash
-# Always start development environment first  
-pnpm dev  # This is critical - starts blockchain + contracts + frontend
+# Fast TypeScript checking (use this first!)
+pnpm type-check
 
-# Run relevant tests frequently
-pnpm test              # All packages
-pnpm test:coverage     # Ensure 90%+ coverage maintained
-pnpm test:e2e         # Full user flow validation
+# Full testing suite
+pnpm test                # All tests
+pnpm test:client         # Frontend only
+pnpm test:contracts      # Contracts only
+pnpm test:e2e           # End-to-end
+
+# Code quality
+pnpm lint               # ESLint + Solhint
+pnpm format             # Prettier
 ```
 
-### 3. Code Quality Checklist
-- [ ] **TypeScript strict mode** - No `any` types, explicit interfaces
-- [ ] **Tests written** - Unit tests + integration tests as needed  
-- [ ] **Documentation updated** - NatSpec for contracts, JSDoc for complex functions
-- [ ] **Accessibility verified** - WCAG 2.1 AA compliance for UI changes
-- [ ] **Security reviewed** - Especially for smart contract modifications
-- [ ] **Performance considered** - Bundle size impact, gas optimization
+### 3. Rule Application
 
-### 4. Web3-Specific Considerations
-- **Always use viem/wagmi** (never ethers.js)
-- **Default to testnets** unless explicitly confirmed for mainnet
-- **Include gas estimation** and error handling for all transactions
-- **Validate chain IDs** before any blockchain interactions
-- **Use official protocol SDKs** (POAP, Unlock, etc.) not custom implementations
+Rules automatically apply based on context:
 
-## 📚 Domain-Specific Guidance
+| Working On | Active Rules |
+|-----------|--------------|
+| **Any file** | `root-standards.mdc` |
+| **React/TypeScript** | `+ frontend-standards.mdc` + `web3-patterns.mdc` |
+| **Solidity** | `+ solidity-standards.mdc` |
+| **Test files** | `+ testing-patterns.mdc` |
+| **Deploy scripts** | `+ deployment.mdc` |
 
-### Frontend Development (`client/`)
-- Follow [client rules](client/.cursor/rules.md) for Next.js patterns
-- Use shadcn/ui components for complex UI elements  
-- Implement proper loading/error states for all async operations
-- Ensure mobile-first responsive design
+## 🎨 Core Patterns
 
-### Smart Contract Development (`contracts/`)  
-- Follow [contract rules](contracts/.cursor/rules.md) for Solidity patterns
-- Use OpenZeppelin libraries for standard functionality
-- Include comprehensive NatSpec documentation
-- Implement proper access controls and security measures
+### Frontend Development
 
-### Testing (`__tests__/`, `e2e/`)
-- Follow [e2e rules](e2e/.cursor/rules.md) for testing patterns
-- Write user-centric test flows, not component-specific tests
-- Ensure accessibility compliance in e2e tests
-- Maintain high test coverage across all packages
+**Use these hooks**:
+- `useQuery` from TanStack Query for blockchain state
+- `useWriteContract` from wagmi for transactions
+- `useChainId` to validate network
+- Custom hooks in `hooks/` for domain logic
 
-## 🔒 Security & Best Practices
+**Component pattern**:
+```typescript
+export function JarCard({ address }: JarCardProps) {
+  const { data, isLoading, error } = useJarData({ address })
+  
+  if (isLoading) return <Skeleton />
+  if (error) return <ErrorCard error={error} />
+  
+  return <Card>{/* content */}</Card>
+}
+```
 
-### Smart Contract Security
-- **Reentrancy protection**: Use OpenZeppelin's ReentrancyGuard
-- **Access control**: Implement role-based permissions properly
-- **Input validation**: Validate all parameters with custom errors
-- **Gas optimization**: Consider gas costs in all implementations
+### Smart Contract Development
 
-### Frontend Security  
-- **Environment variables**: Never expose private keys or secrets
-- **Input sanitization**: Validate all user inputs
-- **Error handling**: Don't expose internal errors to users
-- **CSP headers**: Implement proper content security policies
+**Contract structure**:
+1. Imports
+2. Type declarations  
+3. State variables
+4. Events
+5. Custom errors
+6. Modifiers
+7. Constructor
+8. External functions
+9. Public functions
+10. Internal functions
+11. Private functions
 
-## 🎯 Common Patterns & Conventions
+**Security checklist**:
+- ✅ ReentrancyGuard on external calls
+- ✅ Access control modifiers
+- ✅ Input validation with custom errors
+- ✅ Checks-Effects-Interactions pattern
+- ✅ NatSpec documentation
 
-### Documentation Standards
-- **Location**: All new documentation (markdown files) must be placed in the `/docs` folder at the root of the repository
-- **Naming**: Use kebab-case for documentation files (`api-reference.md`, `deployment-guide.md`)
-- **Structure**: Organize by topic with clear hierarchies (e.g., `/docs/api/`, `/docs/guides/`)
-- **Cross-references**: Always use relative links to other documentation within the repository
-- **Updates**: When adding features, update existing documentation rather than creating duplicate files
-- **Format**: Follow consistent markdown formatting with proper headers, code blocks, and linking
+### Testing
 
-### Naming Conventions
-- **Files**: kebab-case (`cookie-jar-factory.ts`)
-- **Components**: PascalCase (`CookieJarCard.tsx`)  
-- **Functions**: camelCase (`getUserJars()`)
-- **Constants**: UPPER_SNAKE_CASE (`MAX_WITHDRAWAL_AMOUNT`)
-- **Contracts**: PascalCase (`CookieJarFactory.sol`)
+**Coverage requirements**:
+- New code: 90%+
+- Critical paths: 100%
+- Error scenarios: 80%+
 
-### Git & PR Workflow
-- **Conventional commits**: `feat:`, `fix:`, `chore:`, `docs:`
-- **Small focused PRs**: One feature/fix per PR
-- **Comprehensive descriptions**: Explain what, why, and how
-- **Link issues**: Always reference related GitHub issues
+**Test types**:
+- **Unit**: Component/function logic
+- **Integration**: Multi-component flows
+- **E2E**: Complete user journeys
+- **Contract**: Foundry tests with fuzzing
 
-## 🚨 Critical Reminders
+## 🔐 Security Standards
 
-### Before Any Deployment
-- [ ] All tests passing (`pnpm test`)
-- [ ] No TypeScript errors (`pnpm type-check`) 
-- [ ] Linting passes (`pnpm lint`)
-- [ ] Coverage maintained (`pnpm test:coverage`)
-- [ ] E2E tests validate user flows (`pnpm test:e2e`)
+### Web3 Security
+- **ALWAYS validate chain ID** before transactions
+- **NEVER use ethers.js** - use viem + wagmi only
+- **Default to testnets** - require explicit mainnet acknowledgment
+- **Gas limits** - include to prevent griefing
 
-### Development Best Practices
+### Contract Security
+- **ReentrancyGuard**: All external value transfers
+- **Access control**: OpenZeppelin patterns only
+- **Input validation**: Custom errors, no require strings
+- **Emergency functions**: Pausable for critical contracts
 
-#### TypeScript Error Checking
-- **Use `pnpm type-check`** for fast TypeScript error checking (much faster than full builds)
-- **Root level**: `pnpm type-check` - checks client TypeScript
-- **Client level**: `cd client && pnpm type-check` - direct client check
-- **Avoid full builds** (`pnpm build:client`) just for type checking - it's slower and includes bundling/optimization
-- **Only use full builds** when testing the complete build pipeline or before deployment
+## 📊 Quality Gates
 
-### Web3 Deployment Checklist
-- [ ] Contracts verified on block explorer
-- [ ] Gas estimation reasonable for target users
-- [ ] Access controls properly configured
-- [ ] Emergency pause functionality tested (if applicable)
+All PRs must pass:
+- ✅ `pnpm test` - All tests passing
+- ✅ `pnpm type-check` - No TypeScript errors
+- ✅ `pnpm lint` - Clean linting
+- ✅ `pnpm test:coverage` - Coverage maintained
+- ✅ `pnpm build` - Successful build
 
-### Frontend Deployment Checklist  
-- [ ] Core Web Vitals meet targets
-- [ ] Accessibility compliance verified
-- [ ] Mobile responsiveness tested
-- [ ] Error boundaries handle edge cases
+## 🚨 Critical Patterns
 
-## 📞 Getting Help & Resources
+### DO Use
+- ✅ viem + wagmi for Web3
+- ✅ TanStack Query for async state
+- ✅ OpenZeppelin for contracts
+- ✅ TypeScript strict mode
+- ✅ Functional React components
+- ✅ Mobile-first responsive design
 
-- **Codebase Questions**: Search existing code patterns before creating new ones
-- **Protocol Integration**: Refer to official SDK documentation
-- **Testing Issues**: Check existing test files for similar patterns  
-- **Performance Problems**: Use Next.js bundle analyzer and Foundry gas reports
+### DON'T Use
+- ❌ ethers.js (use viem instead)
+- ❌ Class components (use functional)
+- ❌ `any` types (use explicit types)
+- ❌ Inline styles (use Tailwind)
+- ❌ require() in Solidity (use custom errors)
 
-## 🔄 Continuous Improvement
+## 📝 Commit Standards
 
-As you work on Cookie Jar:
-- **Learn from patterns**: Study existing successful implementations
-- **Share improvements**: Document new patterns that work well
-- **Ask when uncertain**: Better to clarify than assume
-- **Test thoroughly**: User experience is paramount
+Use conventional commits:
+- `feat:` - New features
+- `fix:` - Bug fixes
+- `chore:` - Maintenance
+- `docs:` - Documentation
+- `test:` - Test updates
+- `refactor:` - Code refactoring
+
+## 🧭 Navigation Guide
+
+### Working on Frontend?
+1. Read: `client/.cursor/rules/frontend-standards.mdc`
+2. Reference: [docs/guides/PROTOCOLS.md](docs/guides/PROTOCOLS.md)
+3. Check: Existing components in `client/components/`
+
+### Working on Contracts?
+1. Read: `contracts/.cursor/rules/solidity-standards.mdc`
+2. Reference: [docs/architecture/OVERVIEW.md](docs/architecture/OVERVIEW.md)
+3. Check: Existing contracts in `contracts/src/`
+
+### Writing Tests?
+1. Read: `.cursor/rules/testing-patterns.mdc`
+2. Reference: Existing tests in `__tests__/` or `test/`
+3. Ensure: 90%+ coverage maintained
+
+### Deploying?
+1. Read: `.cursor/rules/deployment.mdc`
+2. Reference: [docs/deployment/PRODUCTION.md](docs/deployment/PRODUCTION.md)
+3. Follow: Security checklist completely
+
+## 🎯 Common Tasks
+
+### Task: Add new protocol integration
+
+1. **Contract**: Create interface in `contracts/src/interfaces/`
+2. **Library**: Add validation in `contracts/src/libraries/AccessControl.sol`
+3. **Frontend**: Create hook in `client/hooks/nft/`
+4. **Component**: Add selector in `client/components/nft/`
+5. **Tests**: Add coverage in `__tests__/hooks/` and `contracts/test/`
+6. **Docs**: Update [docs/guides/PROTOCOLS.md](docs/guides/PROTOCOLS.md)
+
+### Task: Fix a bug
+
+1. **Reproduce**: Write failing test first
+2. **Fix**: Implement fix following patterns
+3. **Test**: Ensure test passes + no regressions
+4. **Document**: Update docs if behavior changed
+
+### Task: Optimize performance
+
+1. **Measure**: Use profiler/gas reporter
+2. **Optimize**: Apply relevant patterns
+3. **Verify**: Confirm improvement with metrics
+4. **Document**: Add notes about optimization
+
+## 🔗 Key Resources
+
+### Documentation
+- [Quick Start](docs/QUICK_START.md) - Get running in 5 minutes
+- [Architecture](docs/architecture/OVERVIEW.md) - System design
+- [Protocols](docs/guides/PROTOCOLS.md) - Access control methods
+- [Deployment](docs/deployment/PRODUCTION.md) - Production guide
+
+### Code References
+- [Example Components](client/components/jar/) - Well-tested components
+- [Example Hooks](client/hooks/jar/) - Reusable hooks
+- [Contract Tests](contracts/test/) - Comprehensive test examples
+- [E2E Tests](e2e/) - User flow examples
+
+### External Docs
+- [viem](https://viem.sh) - Web3 library docs
+- [wagmi](https://wagmi.sh) - React hooks docs
+- [Foundry](https://book.getfoundry.sh/) - Contract framework
+- [Next.js](https://nextjs.org/docs) - Frontend framework
+
+## 💡 Pro Tips
+
+1. **Use `pnpm type-check`** instead of full builds for TypeScript validation - it's 10x faster
+2. **Start with `pnpm dev`** from project root - it handles everything
+3. **Check existing patterns** before creating new ones
+4. **Write tests first** for complex logic
+5. **Reference rule files** when unsure about patterns
+6. **Mobile-first** - design for mobile, then scale up
+7. **Security first** - especially for contract changes
+
+## 🆘 Troubleshooting
+
+### "Can't find module" errors
+```bash
+pnpm install  # Reinstall dependencies
+pnpm generate # Regenerate contract types
+```
+
+### "Port already in use"
+```bash
+pnpm dev:stop  # Stop all services
+pnpm dev       # Restart
+```
+
+### "Contract not found"
+```bash
+pnpm deploy:local  # Redeploy contracts
+pnpm generate      # Regenerate types
+```
+
+### "Tests failing"
+```bash
+pnpm test:coverage  # See what's not covered
+pnpm test:watch     # Debug in watch mode
+```
 
 ---
 
-*This guide evolves with the project. When you discover better patterns or practices, update the relevant rule files to help future development.*
+## 📣 Remember
+
+- **Follow the rules** - They're optimized for consistency
+- **Write tests** - 90%+ coverage is mandatory
+- **Document changes** - Future you will thank present you
+- **Security first** - Especially for Web3 code
+- **Mobile-first** - Design for smallest screen first
+- **Ask questions** - Better to clarify than assume
+
+*These guidelines ensure high-quality, consistent, and secure code across the Cookie Jar protocol.*

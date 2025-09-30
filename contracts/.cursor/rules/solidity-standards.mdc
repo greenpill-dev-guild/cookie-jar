@@ -1,0 +1,285 @@
+---
+description: Solidity development standards, security patterns, and gas optimization
+globs:
+  - "**/*.sol"
+alwaysApply: true
+---
+
+# Solidity Standards
+
+## Contract Structure Pattern
+
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+// 1. Imports (grouped logically)
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import "./libraries/CookieJarLib.sol";
+
+/**
+ * @title ContractName
+ * @author Greenpill Dev Guild
+ * @notice High-level description of contract purpose
+ * @dev Detailed implementation notes
+ */
+contract CookieJar is Ownable, ReentrancyGuard {
+    // 2. Type declarations
+    using CookieJarLib for CookieJarLib.JarData;
+    
+    // 3. State variables (grouped by visibility)
+    uint256 public constant FEE_PERCENTAGE = 100; // 1%
+    uint256 private immutable deploymentTimestamp;
+    
+    mapping(address => uint256) public balances;
+    
+    // 4. Events
+    event Deposit(address indexed user, uint256 amount);
+    event Withdrawal(address indexed user, uint256 amount);
+    
+    // 5. Custom errors
+    error InsufficientBalance(uint256 available, uint256 requested);
+    error Unauthorized(address caller);
+    
+    // 6. Modifiers
+    modifier onlyAllowlisted() {
+        if (!isAllowlisted[msg.sender]) revert Unauthorized(msg.sender);
+        _;
+    }
+    
+    // 7. Constructor
+    constructor(address _owner) Ownable(_owner) {
+        deploymentTimestamp = block.timestamp;
+    }
+    
+    // 8. External functions
+    function deposit() external payable nonReentrant {
+        // Implementation
+    }
+    
+    // 9. Public functions
+    function getBalance(address user) public view returns (uint256) {
+        return balances[user];
+    }
+    
+    // 10. Internal functions
+    function _processDeposit(uint256 amount) internal {
+        // Implementation
+    }
+    
+    // 11. Private functions
+    function _calculateFee(uint256 amount) private pure returns (uint256) {
+        return (amount * FEE_PERCENTAGE) / 10000;
+    }
+}
+```
+
+## Security Patterns
+
+### Reentrancy Protection
+```solidity
+// ✅ GOOD - Use OpenZeppelin's ReentrancyGuard
+function withdraw(uint256 amount) external nonReentrant {
+    // Checks
+    if (balances[msg.sender] < amount) revert InsufficientBalance();
+    
+    // Effects
+    balances[msg.sender] -= amount;
+    
+    // Interactions
+    (bool success, ) = msg.sender.call{value: amount}("");
+    require(success, "Transfer failed");
+}
+
+// ❌ BAD - No reentrancy protection
+function withdraw(uint256 amount) external {
+    (bool success, ) = msg.sender.call{value: amount}("");
+    balances[msg.sender] -= amount; // State change after external call!
+}
+```
+
+### Access Control
+```solidity
+// ✅ GOOD - Use OpenZeppelin's AccessControl or Ownable
+import "@openzeppelin/contracts/access/AccessControl.sol";
+
+contract CookieJar is AccessControl {
+    bytes32 public constant ADMIN_ROLE = keccak256("ADMIN_ROLE");
+    
+    constructor() {
+        _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    }
+    
+    function adminFunction() external onlyRole(ADMIN_ROLE) {
+        // Protected function
+    }
+}
+
+// ❌ BAD - Custom access control with bugs
+mapping(address => bool) public admins;
+modifier onlyAdmin() {
+    require(admins[msg.sender]); // Missing revert message!
+    _;
+}
+```
+
+### Input Validation
+```solidity
+// ✅ GOOD - Validate all inputs with custom errors
+function setWithdrawalLimit(uint256 newLimit) external onlyOwner {
+    if (newLimit == 0) revert InvalidLimit();
+    if (newLimit > MAX_LIMIT) revert LimitTooHigh(newLimit, MAX_LIMIT);
+    
+    withdrawalLimit = newLimit;
+    emit WithdrawalLimitUpdated(newLimit);
+}
+
+// ❌ BAD - No validation
+function setWithdrawalLimit(uint256 newLimit) external onlyOwner {
+    withdrawalLimit = newLimit; // Could be 0, too high, etc.
+}
+```
+
+## Gas Optimization Techniques
+
+### Storage Packing
+```solidity
+// ✅ GOOD - Packed into single slot (256 bits)
+struct UserData {
+    uint128 balance;      // 128 bits
+    uint64 lastWithdraw;  // 64 bits
+    uint64 cooldownEnd;   // 64 bits
+}
+
+// ❌ BAD - Uses 3 slots
+struct UserData {
+    uint256 balance;      // 256 bits - 1 slot
+    uint256 lastWithdraw; // 256 bits - 1 slot
+    uint256 cooldownEnd;  // 256 bits - 1 slot
+}
+```
+
+### Efficient Loops
+```solidity
+// ✅ GOOD - Cache length, use unchecked for counter
+function processUsers(address[] calldata users) external {
+    uint256 length = users.length;
+    for (uint256 i; i < length; ) {
+        _processUser(users[i]);
+        unchecked { ++i; }
+    }
+}
+
+// ❌ BAD - Reads length every iteration, checked arithmetic
+function processUsers(address[] calldata users) external {
+    for (uint256 i = 0; i < users.length; i++) {
+        _processUser(users[i]);
+    }
+}
+```
+
+### Use Events Over Storage
+```solidity
+// ✅ GOOD - Use events for historical data
+event Withdrawal(
+    address indexed user,
+    uint256 amount,
+    string purpose,
+    uint256 timestamp
+);
+
+// ❌ BAD - Store everything on-chain
+struct WithdrawalRecord {
+    address user;
+    uint256 amount;
+    string purpose;
+    uint256 timestamp;
+}
+WithdrawalRecord[] public withdrawals; // Expensive!
+```
+
+## NatSpec Documentation
+
+```solidity
+/**
+ * @notice Allows users to withdraw funds from their jar
+ * @dev Implements cooldown period and withdrawal limits
+ * @param amount The amount to withdraw in wei
+ * @param purpose The reason for withdrawal (optional)
+ * @return success Whether the withdrawal succeeded
+ * @custom:security Requires user to pass access control checks
+ */
+function withdraw(
+    uint256 amount,
+    string calldata purpose
+) external nonReentrant returns (bool success) {
+    // Implementation
+}
+```
+
+## Testing Standards
+
+### Comprehensive Test Coverage
+```solidity
+// test/CookieJar.t.sol
+contract CookieJarTest is Test {
+    CookieJar jar;
+    address user = address(0x1);
+    
+    function setUp() public {
+        jar = new CookieJar(address(this));
+        vm.deal(user, 100 ether);
+    }
+    
+    // Test success cases
+    function test_Deposit_Success() public {
+        vm.prank(user);
+        jar.deposit{value: 1 ether}();
+        assertEq(jar.getBalance(user), 1 ether);
+    }
+    
+    // Test revert conditions
+    function test_RevertWhen_InsufficientBalance() public {
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                CookieJar.InsufficientBalance.selector,
+                0,
+                1 ether
+            )
+        );
+        vm.prank(user);
+        jar.withdraw(1 ether);
+    }
+    
+    // Fuzz testing
+    function testFuzz_Deposit(uint256 amount) public {
+        vm.assume(amount > 0 && amount <= 100 ether);
+        vm.deal(user, amount);
+        
+        vm.prank(user);
+        jar.deposit{value: amount}();
+        
+        assertEq(jar.getBalance(user), amount);
+    }
+}
+```
+
+## Development Commands
+```bash
+forge build              # Compile contracts
+forge test               # Run tests
+forge test -vvv          # Verbose output
+forge test --gas-report  # Gas usage
+forge coverage           # Coverage report
+forge fmt                # Format code
+```
+
+## Deployment Checklist
+- [ ] All tests passing
+- [ ] Gas optimization verified
+- [ ] NatSpec documentation complete
+- [ ] Access controls tested
+- [ ] Emergency functions work
+- [ ] Contract size under 24KB
+- [ ] Testnet deployment successful

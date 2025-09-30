@@ -1,0 +1,237 @@
+---
+description: Testing patterns for unit tests, integration tests, and E2E tests
+globs:
+  - "**/*.test.ts"
+  - "**/*.test.tsx"
+  - "**/*.spec.ts"
+  - "**/*.t.sol"
+alwaysApply: false
+---
+
+# Testing Patterns
+
+## Test Coverage Requirements
+- **New code**: 90%+ coverage required
+- **Critical paths**: 100% coverage (deposits, withdrawals, access control)
+- **Error scenarios**: 80%+ coverage
+- **UI components**: Focus on logic branches, not implementation details
+
+## Unit Testing (Vitest)
+
+### React Hook Testing
+```typescript
+import { renderHook, waitFor } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
+describe('useJarData', () => {
+  const wrapper = ({ children }) => (
+    <QueryClientProvider client={new QueryClient()}>
+      {children}
+    </QueryClientProvider>
+  )
+
+  it('fetches jar data successfully', async () => {
+    const { result } = renderHook(
+      () => useJarData({ address: TEST_ADDRESS }),
+      { wrapper }
+    )
+
+    await waitFor(() => expect(result.current.isSuccess).toBe(true))
+    expect(result.current.data).toBeDefined()
+  })
+})
+```
+
+### Component Testing
+```typescript
+import { render, screen, fireEvent } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
+
+describe('DepositForm', () => {
+  it('validates amount and submits', async () => {
+    const user = userEvent.setup()
+    const onSubmit = vi.fn()
+    
+    render(<DepositForm onSubmit={onSubmit} />)
+    
+    // User interaction
+    await user.type(screen.getByLabelText(/amount/i), '10')
+    await user.click(screen.getByRole('button', { name: /deposit/i }))
+    
+    // Assertion
+    expect(onSubmit).toHaveBeenCalledWith({ amount: '10' })
+  })
+})
+```
+
+## Integration Testing
+
+### Multi-Hook Integration
+```typescript
+describe('Jar Creation Flow', () => {
+  it('creates jar with NFT gating', async () => {
+    const { result: nftValidation } = renderHook(() => 
+      useNftValidation(NFT_ADDRESS)
+    )
+    
+    await waitFor(() => expect(nftValidation.current.isValid).toBe(true))
+    
+    const { result: jarCreation } = renderHook(() => 
+      useJarCreation({
+        nftAddress: NFT_ADDRESS,
+        accessType: 'NFTGated'
+      })
+    )
+    
+    act(() => jarCreation.current.create())
+    
+    await waitFor(() => expect(jarCreation.current.isSuccess).toBe(true))
+  })
+})
+```
+
+## E2E Testing (Playwright)
+
+### User Flow Testing
+```typescript
+test('User creates and funds jar', async ({ page }) => {
+  // Navigate
+  await page.goto('/create')
+  
+  // Fill form
+  await page.fill('[name="jarName"]', 'Test Jar')
+  await page.selectOption('[name="accessType"]', 'Allowlist')
+  await page.fill('[name="minWithdrawal"]', '0.1')
+  
+  // Submit
+  await page.click('button:has-text("Create Jar")')
+  
+  // Wait for transaction
+  await expect(page.locator('text=Jar created successfully')).toBeVisible({ 
+    timeout: 30_000 
+  })
+  
+  // Verify jar appears in list
+  await page.goto('/jars')
+  await expect(page.locator('text=Test Jar')).toBeVisible()
+})
+```
+
+### Accessibility Testing
+```typescript
+test('Jar creation form is accessible', async ({ page }) => {
+  await page.goto('/create')
+  
+  // Keyboard navigation
+  await page.keyboard.press('Tab')
+  await expect(page.locator('[name="jarName"]')).toBeFocused()
+  
+  // Screen reader labels
+  const nameInput = page.locator('[name="jarName"]')
+  await expect(nameInput).toHaveAttribute('aria-label')
+  
+  // Error announcements
+  await page.click('button:has-text("Create Jar")')
+  await expect(page.locator('[role="alert"]')).toBeVisible()
+})
+```
+
+## Contract Testing (Foundry)
+
+### Test Structure
+```solidity
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "forge-std/Test.sol";
+import "../src/CookieJar.sol";
+
+contract CookieJarTest is Test {
+    CookieJar jar;
+    address user = address(0x1);
+    
+    function setUp() public {
+        jar = new CookieJar({
+            owner: address(this),
+            accessType: CookieJarLib.AccessType.Allowlist
+        });
+        vm.deal(user, 100 ether);
+    }
+    
+    function test_Deposit_Success() public {
+        vm.startPrank(user);
+        jar.deposit{value: 1 ether}();
+        vm.stopPrank();
+        
+        assertEq(jar.getBalance(), 1 ether);
+    }
+    
+    function testFuzz_Withdrawal(uint256 amount) public {
+        vm.assume(amount > 0 && amount <= 10 ether);
+        // Fuzz test implementation
+    }
+    
+    function test_RevertWhen_Unauthorized() public {
+        vm.expectRevert(CookieJar.Unauthorized.selector);
+        vm.prank(user);
+        jar.withdraw(1 ether);
+    }
+}
+```
+
+### Invariant Testing
+```solidity
+contract CookieJarInvariantTest is Test {
+    CookieJar jar;
+    
+    function invariant_BalanceNeverNegative() public {
+        assertTrue(jar.getBalance() >= 0);
+    }
+    
+    function invariant_TotalWithdrawnLessThanDeposited() public {
+        assertTrue(jar.getTotalWithdrawn() <= jar.getTotalDeposited());
+    }
+}
+```
+
+## Mock Data Standards
+
+### Use Consistent Test Data
+```typescript
+// constants.ts
+export const TEST_WALLETS = {
+  DEPLOYER: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266',
+  USER_A: '0x70997970C51812dc3A010C7d01b50e0d17dc79C8',
+  USER_B: '0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC'
+} as const
+
+export const TEST_CONTRACTS = {
+  NFT: '0x...',
+  TOKEN: '0x...'
+} as const
+```
+
+## Testing Commands
+```bash
+# Unit tests
+pnpm test                    # All tests
+pnpm test:watch              # Watch mode
+pnpm test:coverage           # Coverage report
+
+# E2E tests
+pnpm test:e2e                # Full E2E suite
+pnpm test:e2e:ui             # Visual test runner
+pnpm test:e2e:debug          # Debug mode
+
+# Contract tests
+cd contracts && forge test   # All contract tests
+forge test -vvv              # Verbose output
+forge coverage               # Coverage report
+```
+
+## CI/CD Requirements
+- All tests must pass before merge
+- Coverage must not decrease
+- E2E tests run on every PR
+- Contract tests run on contract changes
+- Flaky tests get automatic retries (max 2)
