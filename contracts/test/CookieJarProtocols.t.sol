@@ -119,7 +119,7 @@ contract CookieJarProtocolsTest is Test {
     function createJarConfig(
         address _jarOwner,
         address _supportedCurrency,
-        CookieJarLib.AccessType _ACCESS_TYPE,
+        CookieJarLib.AccessType _accessType,
         CookieJarLib.WithdrawalTypeOptions _withdrawalOption,
         uint256 _fixedAmount,
         uint256 _maxWithdrawal,
@@ -135,7 +135,7 @@ contract CookieJarProtocolsTest is Test {
             _jarOwner,                               // jarOwner
             _supportedCurrency,                     // supportedCurrency
             _feeCollectorAddr,                      // feeCollector
-            _ACCESS_TYPE,                           // accessType
+            _accessType,                           // accessType
             _withdrawalOption,                      // withdrawalOption
             _strictPurpose,                         // strictPurpose
             _emergencyEnabled,                      // emergencyWithdrawalEnabled
@@ -294,14 +294,14 @@ contract CookieJarProtocolsTest is Test {
         
         vm.warp(block.timestamp + withdrawalInterval + 1);
         uint256 jarBalanceBefore = address(jarPoap).balance;
-        uint256 CURRENCYHeldByJarBefore = jarPoap.CURRENCYHeldByJar();
+        uint256 currencyHeldByJarBefore = jarPoap.currencyHeldByJar();
         uint256 userBalanceBefore = user.balance;
         
         vm.prank(user);
         jarPoap.withdrawWithErc721(fixedAmount, purpose);
         
         assertEq(address(jarPoap).balance, jarBalanceBefore - fixedAmount);
-        assertEq(jarPoap.CURRENCYHeldByJar(), CURRENCYHeldByJarBefore - fixedAmount);
+        assertEq(jarPoap.currencyHeldByJar(), currencyHeldByJarBefore - fixedAmount);
         assertEq(user.balance, userBalanceBefore + fixedAmount);
         // assertEq(jarPoap.lastWithdrawalPOAP(poapTokenId), block.timestamp);
     }
@@ -351,14 +351,14 @@ contract CookieJarProtocolsTest is Test {
         
         vm.warp(block.timestamp + withdrawalInterval + 1);
         uint256 jarBalanceBefore = dummyToken.balanceOf(address(jarUnlock));
-        uint256 CURRENCYHeldByJarBefore = jarUnlock.CURRENCYHeldByJar();
+        uint256 currencyHeldByJarBefore = jarUnlock.currencyHeldByJar();
         uint256 userBalanceBefore = dummyToken.balanceOf(user);
         
         vm.prank(user);
         jarUnlock.withdrawWithErc721(maxWithdrawal, purpose);
         
         assertEq(dummyToken.balanceOf(address(jarUnlock)), jarBalanceBefore - maxWithdrawal);
-        assertEq(jarUnlock.CURRENCYHeldByJar(), CURRENCYHeldByJarBefore - maxWithdrawal);
+        assertEq(jarUnlock.currencyHeldByJar(), currencyHeldByJarBefore - maxWithdrawal);
         assertEq(dummyToken.balanceOf(user), userBalanceBefore + maxWithdrawal);
         // assertEq(jarUnlock.lastWithdrawalProtocol(user), block.timestamp);
     }
@@ -391,14 +391,14 @@ contract CookieJarProtocolsTest is Test {
         
         vm.warp(block.timestamp + withdrawalInterval + 1);
         uint256 jarBalanceBefore = address(jarHypercert).balance;
-        uint256 CURRENCYHeldByJarBefore = jarHypercert.CURRENCYHeldByJar();
+        uint256 currencyHeldByJarBefore = jarHypercert.currencyHeldByJar();
         uint256 userBalanceBefore = user.balance;
         
         vm.prank(user);
         jarHypercert.withdrawWithErc1155(fixedAmount, purpose);
         
         assertEq(address(jarHypercert).balance, jarBalanceBefore - fixedAmount);
-        assertEq(jarHypercert.CURRENCYHeldByJar(), CURRENCYHeldByJarBefore - fixedAmount);
+        assertEq(jarHypercert.currencyHeldByJar(), currencyHeldByJarBefore - fixedAmount);
         assertEq(user.balance, userBalanceBefore + fixedAmount);
         // assertEq(jarHypercert.lastWithdrawalProtocol(user), block.timestamp);
     }
@@ -435,14 +435,14 @@ contract CookieJarProtocolsTest is Test {
         
         vm.warp(block.timestamp + withdrawalInterval + 1);
         uint256 jarBalanceBefore = dummyToken.balanceOf(address(jarHats));
-        uint256 CURRENCYHeldByJarBefore = jarHats.CURRENCYHeldByJar();
+        uint256 currencyHeldByJarBefore = jarHats.currencyHeldByJar();
         uint256 userBalanceBefore = dummyToken.balanceOf(user);
         
         vm.prank(user);
         jarHats.withdrawWithErc1155(maxWithdrawal, purpose);
         
         assertEq(dummyToken.balanceOf(address(jarHats)), jarBalanceBefore - maxWithdrawal);
-        assertEq(jarHats.CURRENCYHeldByJar(), CURRENCYHeldByJarBefore - maxWithdrawal);
+        assertEq(jarHats.currencyHeldByJar(), currencyHeldByJarBefore - maxWithdrawal);
         assertEq(dummyToken.balanceOf(user), userBalanceBefore + maxWithdrawal);
         // assertEq(jarHats.lastWithdrawalProtocol(user), block.timestamp);
     }

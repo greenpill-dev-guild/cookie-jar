@@ -18,15 +18,15 @@ library SuperfluidConfig {
         if (chainId == 8453) return 0x4C073B3baB6d8826b8C5b229f3cfdC1eC6E47E74;     // Base
         if (chainId == 56) return 0xd1e2cFb6441680002Eb7A44223160aB9B67d7E6E;       // BNB Chain
         if (chainId == 100) return 0x2dFe937cD98Ab92e59cF3139138f18c823a4efE7;      // Gnosis Chain
-        if (chainId == 42220) return 0x18Be99A3Ee4dB1e64Fa208b23e03E72d4E09ECA4;    // Celo
+        if (chainId == 42220) return 0x18bE99A3EE4DB1E64fa208b23e03E72d4E09Eca4;    // Celo
         
         // Testnet deployments
         if (chainId == 11155111) return 0x109412E3C84f0539b43d39dB691B08c90f58dC7c; // Sepolia
         if (chainId == 80002) return 0x22ff293e14F1EC3A09B137e9e06084AFd63adDF9;    // Polygon Amoy
         if (chainId == 84532) return 0x4C073B3baB6d8826b8C5b229f3cfdC1eC6E47E74;    // Base Sepolia
         if (chainId == 11155420) return 0xd399e2Fb5f4cf3722a11F65b88FAB6B2B8621005; // OP Sepolia
-        if (chainId == 421614) return 0xcf8Acb4eF033efF16E8080aed4c7D5B9285D2192;   // Arbitrum Sepolia
-        if (chainId == 44787) return 0xBF8e298D8c2e42C91CD160866fB48DDfcbFD5767;    // Celo Alfajores
+        if (chainId == 421614) return 0xCf8Acb4eF033efF16E8080aed4c7D5B9285D2192;   // Arbitrum Sepolia
+        if (chainId == 44787) return 0xbF8e298D8C2E42C91cD160866FB48DDfcbfd5767;    // Celo Alfajores
         
         return address(0); // Chain not supported
     }

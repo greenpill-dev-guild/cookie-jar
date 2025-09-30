@@ -108,7 +108,7 @@ library UniversalSwapAdapter {
         );
     }
 
-    function swapExactETHForTokens(
+    function swapExactEthForTokens(
         address tokenOut,
         uint256 ethAmount,
         uint256 minAmountOut,

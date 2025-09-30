@@ -93,8 +93,8 @@ contract CookieJarFactoryTest is Test {
             config.defaultFeeCollector,
             owner,
             config.feePercentageOnDeposit, // Correct property name
-            config.minETHDeposit,
-            config.minERC20Deposit
+            config.minEthDeposit,
+            config.minErc20Deposit
         );
         vm.stopPrank();
     }
@@ -152,7 +152,7 @@ contract CookieJarFactoryTest is Test {
             CookieJarLib.ETH_ADDRESS,
             "Test Metadata"
         );
-        params.FEE_PERCENTAGE_ON_DEPOSIT = 500; // 5%
+        params.feePercentageOnDeposit = 500; // 5%
         
         address jarAddress = factory.createCookieJar(
             params,
@@ -173,7 +173,7 @@ contract CookieJarFactoryTest is Test {
             CookieJarLib.ETH_ADDRESS,
             "Test Metadata"
         );
-        params.WITHDRAWAL_OPTION = CookieJarLib.WithdrawalTypeOptions.Variable;
+        params.withdrawalOption = CookieJarLib.WithdrawalTypeOptions.Variable;
         
         address jarAddress = factory.createCookieJar(
             params,
@@ -194,7 +194,7 @@ contract CookieJarFactoryTest is Test {
             CookieJarLib.ETH_ADDRESS,
             "Test Metadata"
         );
-        params.ONE_TIME_WITHDRAWAL = true;
+        params.oneTimeWithdrawal = true;
         
         address jarAddress = factory.createCookieJar(
             params,

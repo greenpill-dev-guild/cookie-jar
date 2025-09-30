@@ -67,20 +67,20 @@ contract CookieJarFactory {
     }
 
     constructor(
-        address _DEFAULT_FEE_COLLECTOR,
-        address _OWNER,
+        address _defaultFeeCollector,
+        address _owner,
         uint256 _feePercentage,
         uint128 _minEthDeposit,
         uint128 _minErc20Deposit
     ) {
-        if (_DEFAULT_FEE_COLLECTOR == address(0)) revert CookieJarLib.ZeroAddress();
-        if (_OWNER == address(0)) revert CookieJarLib.ZeroAddress();
+        if (_defaultFeeCollector == address(0)) revert CookieJarLib.ZeroAddress();
+        if (_owner == address(0)) revert CookieJarLib.ZeroAddress();
         
-        DEFAULT_FEE_COLLECTOR = _DEFAULT_FEE_COLLECTOR;
+        DEFAULT_FEE_COLLECTOR = _defaultFeeCollector;
         DEFAULT_FEE_PERCENTAGE = _feePercentage;
         MIN_ETH_DEPOSIT = _minEthDeposit;
         MIN_ERC20_DEPOSIT = _minErc20Deposit;
-        OWNER = _OWNER;
+        OWNER = _owner;
     }
 
     /// @notice Grant or revoke admin access (OWNER only)
@@ -155,7 +155,7 @@ contract CookieJarFactory {
             if (ERC20(params.supportedCurrency).decimals() == 0) revert CookieJarLib.InvalidTokenAddress();
         }
         
-        uint256 feePerc = params.FEE_PERCENTAGE_ON_DEPOSIT == 0 ? DEFAULT_FEE_PERCENTAGE : params.FEE_PERCENTAGE_ON_DEPOSIT;
+        uint256 feePerc = params.feePercentageOnDeposit == 0 ? DEFAULT_FEE_PERCENTAGE : params.feePercentageOnDeposit;
         if (feePerc > CookieJarLib.PERCENTAGE_BASE) feePerc = CookieJarLib.PERCENTAGE_BASE;
         
         // Validate multi-token config if enabled
@@ -168,17 +168,17 @@ contract CookieJarFactory {
             params.jarOwner,                    // jarOwner
             params.supportedCurrency,          // supportedCurrency
             DEFAULT_FEE_COLLECTOR,             // feeCollector
-            params.ACCESS_TYPE,                // accessType
-            params.WITHDRAWAL_OPTION,          // withdrawalOption
-            params.STRICT_PURPOSE,             // strictPurpose
-            params.EMERGENCY_WITHDRAWAL_ENABLED, // emergencyWithdrawalEnabled
-            params.ONE_TIME_WITHDRAWAL,        // oneTimeWithdrawal
+            params.accessType,                 // accessType
+            params.withdrawalOption,           // withdrawalOption
+            params.strictPurpose,              // strictPurpose
+            params.emergencyWithdrawalEnabled, // emergencyWithdrawalEnabled
+            params.oneTimeWithdrawal,          // oneTimeWithdrawal
             params.fixedAmount,                // fixedAmount
             params.maxWithdrawal,              // maxWithdrawal
             params.withdrawalInterval,         // withdrawalInterval
             minDep,                            // minDeposit
             feePerc,                           // feePercentageOnDeposit
-            params.MAX_WITHDRAWAL_PER_PERIOD,  // maxWithdrawalPerPeriod
+            params.maxWithdrawalPerPeriod,     // maxWithdrawalPerPeriod
             params.metadata,                   // metadata
             multiTokenConfig.enabled ? multiTokenConfig : _getDefaultMultiTokenConfig() // multiTokenConfig
         );
