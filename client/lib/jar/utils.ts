@@ -95,17 +95,11 @@ export function getWithdrawalAmountDisplay(
   }
 }
 
+import { getJarName as getJarNameUtil } from "./metadata-utils";
+
 /**
  * Parse jar name from metadata
  */
 export function getJarName(jar: JarData) {
-  if (jar.metadata) {
-    try {
-      const parsed = JSON.parse(jar.metadata);
-      return parsed.name || "Cookie Jar";
-    } catch (e) {
-      return jar.metadata || "Cookie Jar";
-    }
-  }
-  return "Cookie Jar";
+  return getJarNameUtil(jar.metadata);
 }

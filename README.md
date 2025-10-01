@@ -18,7 +18,7 @@ Decentralized funding pools with smart access control. Create shared ETH/ERC20 p
 git clone https://github.com/greenpill-dev-guild/cookie-jar.git
 cd cookie-jar
 npm install  # Auto-installs pnpm + Foundry + all dependencies
-npm run dev  # Start development environment
+pnpm dev     # Start development (use pnpm after install)
 ```
 
 Open http://localhost:3000 and explore 4 pre-seeded demo jars with Cookie Monster NFTs! 🍪
@@ -28,11 +28,11 @@ Open http://localhost:3000 and explore 4 pre-seeded demo jars with Cookie Monste
 ## 💻 Development
 
 ```bash
-npm run dev                # or pnpm dev - Local development (fastest)
-npm run dev:ethereum       # Fork Ethereum mainnet  
-npm run dev:celo           # Fork Celo network
-npm run dev:base           # Fork Base network
-npm run dev:base-sepolia   # Fork Base Sepolia testnet
+pnpm dev                    # Local development (fastest)
+pnpm dev:ethereum           # Fork Ethereum mainnet  
+pnpm dev:celo               # Fork Celo network
+pnpm dev:base               # Fork Base network
+pnpm dev:base-sepolia       # Fork Base Sepolia testnet
 ```
 
 **Auto-included**: Anvil blockchain, contract deployment, demo seeding, hot reload, type generation.
@@ -75,7 +75,9 @@ cookie-jar/
 └── scripts/            # Development utilities
 ```
 
-**Key docs**: [contracts/README.md](contracts/README.md) • [client/README.md](client/README.md) • [docs/PROTOCOL_GUIDE.md](docs/PROTOCOL_GUIDE.md)
+**Key docs**: [Access Control](docs/ACCESS_CONTROL.md) • [Development](docs/DEVELOPMENT.md) • [Deployment](docs/DEPLOYMENT.md) • [Architecture](docs/ARCHITECTURE.md) • [Testing](docs/TESTING.md)
+
+**Component READMEs**: [contracts](contracts/README.md) • [client](client/README.md) • [e2e](e2e/README.md)
 
 
 ## ✨ Core Features
@@ -120,9 +122,10 @@ pnpm seed:demo          # Refresh demo data
 
 ## 🛠️ Available Commands
 
+**After initial `npm install`, use `pnpm` for all commands:**
+
 ```bash
 # Essential
-pnpm install               # Setup everything (deps, submodules, forge)
 pnpm dev                   # Start local development
 pnpm test                  # Run all tests
 pnpm build                 # Build contracts + client
@@ -144,8 +147,10 @@ pnpm seed:demo             # Refresh demo data
 pnpm generate              # Regenerate types
 
 # Utilities
-pnpm lint / pnpm format    # Code quality
-pnpm clean / pnpm stop     # Cleanup
+pnpm lint                  # Lint all code
+pnpm format                # Format all code
+pnpm clean                 # Clean build artifacts
+pnpm dev:stop              # Stop all services
 ```
 
 ## 🚀 Production Deployment Guide
@@ -448,10 +453,26 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 📚 Additional Resources
 
 ### **📖 Documentation**
-- **[contracts/README.md](contracts/README.md)** - Smart contract architecture, development tools, and deployment details
-- **[client/README.md](client/README.md)** - Frontend architecture, component structure, and testing setup
-- **[docs/PROTOCOL_GUIDE.md](docs/PROTOCOL_GUIDE.md)** - Comprehensive guide to all 6 access control methods
-- **[.example.env](.example.env)** - Environment configuration template with all options
+
+All documentation is in [`docs/`](docs/) directory:
+- **[ACCESS_CONTROL.md](docs/ACCESS_CONTROL.md)** - 6 access control methods (Allowlist, NFT, POAP, Unlock, Hypercerts, Hats)
+- **[DEVELOPMENT.md](docs/DEVELOPMENT.md)** - Development workflow, commands, and best practices
+- **[DEPLOYMENT.md](docs/DEPLOYMENT.md)** - Production deployment guide with Foundry
+- **[TESTING.md](docs/TESTING.md)** - Testing strategies (unit, integration, E2E)
+- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System design and technical architecture
+- **[CONTRACTS.md](docs/CONTRACTS.md)** - Smart contract architecture details
+- **[FRONTEND.md](docs/FRONTEND.md)** - Next.js frontend architecture
+- **[INTEGRATIONS.md](docs/INTEGRATIONS.md)** - Protocol integrations (Superfluid, Uniswap, etc.)
+- **[NFT_INTEGRATION.md](docs/NFT_INTEGRATION.md)** - Comprehensive NFT functionality guide
+- **[AI_AGENTS.md](docs/AI_AGENTS.md)** - AI agent configuration for Cursor
+- **[RELEASES.md](docs/RELEASES.md)** - Release history and changelog
+- **[MIGRATIONS.md](docs/MIGRATIONS.md)** - Migration guides between versions
+
+**Component documentation**:
+- **[contracts/README.md](contracts/README.md)** - Smart contract details
+- **[client/README.md](client/README.md)** - Frontend architecture
+- **[e2e/README.md](e2e/README.md)** - E2E testing setup
+- **[.example.env](.example.env)** - Environment configuration template
 
 ### **🛠️ Developer Tools**
 - **[Foundry Documentation](https://book.getfoundry.sh/)** - Smart contract development framework

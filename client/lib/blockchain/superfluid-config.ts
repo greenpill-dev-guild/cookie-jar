@@ -51,7 +51,7 @@ export const createSuperfluidFramework = async (chainId: number) => {
 
   return await Framework.create({
     chainId,
-    provider: providerUrl,
+    provider: providerUrl as any, // Type cast: Superfluid SDK accepts RPC URL string
   });
 };
 

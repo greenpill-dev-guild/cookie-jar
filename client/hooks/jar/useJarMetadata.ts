@@ -7,6 +7,12 @@ import { cookieJarFactoryAbi } from "@/generated";
 import { contractAddresses } from "@/config/supported-networks";
 
 import { useToast } from "../app/useToast";
+import { 
+  parseJarMetadata as parseMetadataUtil,
+  validateMetadataSize,
+  createMetadataJson,
+  isValidUrl 
+} from "@/lib/jar/metadata-utils";
 
 /**
  * Parsed jar metadata structure
@@ -72,28 +78,15 @@ export const useJarMetadata = (config: JarConfig | undefined) => {
   const [editLink, setEditLink] = useState("");
   const [editDescription, setEditDescription] = useState("");
 
-  // Parse metadata from config
+  // Parse metadata from config using consolidated utility
   const parseMetadata = useCallback((metadataString: string | undefined): JarMetadata => {
-    if (!metadataString)
-      return { name: "Cookie Jar", description: "", image: "", link: "" };
-
-    try {
-      const parsed = JSON.parse(metadataString);
-      return {
-        name: parsed.name || "Cookie Jar",
-        description: parsed.description || metadataString, // fallback to raw string
-        image: parsed.image || "",
-        link: parsed.link || "",
-      };
-    } catch {
-      // If not JSON, treat as legacy description-only metadata
-      return {
-        name: metadataString || "Cookie Jar",
-        description: "",
-        image: "",
-        link: "",
-      };
-    }
+    const parsed = parseMetadataUtil(metadataString);
+    return {
+      name: parsed.name,
+      description: parsed.description,
+      image: parsed.image,
+      link: parsed.link,
+    };
   }, []);
 
   const metadata = parseMetadata(config?.metadata);
@@ -107,15 +100,7 @@ export const useJarMetadata = (config: JarConfig | undefined) => {
     setIsEditingMetadata(true);
   }, [metadata]);
 
-  // URL validation helper
-  const isValidUrl = (string: string): boolean => {
-    try {
-      new URL(string);
-      return true;
-    } catch {
-      return false;
-    }
-  };
+  // URL validation now imported from metadata-utils
 
   // Validate metadata edit form
   const validateMetadataEdit = useCallback(() => {
@@ -188,14 +173,14 @@ export const useJarMetadata = (config: JarConfig | undefined) => {
       image: editImage,
       link: editLink,
     };
-    const metadataJson = JSON.stringify(updatedMetadata);
+    const metadataJson = createMetadataJson(updatedMetadata);
 
-    // Validate metadata size (8KB limit)
-    const metadataSize = new TextEncoder().encode(metadataJson).length;
-    if (metadataSize > 8192) {
+    // Validate metadata size using consolidated utility
+    const sizeValidation = validateMetadataSize(metadataJson);
+    if (!sizeValidation.valid) {
       toast({
         title: "Metadata Too Large",
-        description: `Metadata is too large (${metadataSize} bytes). Maximum allowed size is 8KB (8,192 bytes). Please reduce the length of your jar name, description, or URLs.`,
+        description: sizeValidation.error || "Metadata exceeds size limit.",
         variant: "destructive",
       });
       return;

@@ -163,7 +163,7 @@ contract DeployLocalScript is Script {
             0.01 ether,                          // minDeposit
             0,                                   // feePercentageOnDeposit
             0,                                   // maxWithdrawalPerPeriod
-            "Community Stipend - Weekly 0.1 ETH for community members", // metadata
+            "{\"name\":\"Community Stipend\",\"description\":\"Weekly 0.1 ETH stipend for approved community members and contributors. Purpose required for accountability.\",\"image\":\"https://raw.githubusercontent.com/greenpill-dev-guild/cookie-jar/main/client/public/images/cookie-jar.png\",\"link\":\"https://docs.cookiejar.wtf/stipends\"}", // metadata
             defaultMultiToken                    // multiTokenConfig
         );
         
@@ -217,7 +217,7 @@ contract DeployLocalScript is Script {
             1000 * 10**18,                              // minDeposit
             0,                                          // feePercentageOnDeposit
             0,                                          // maxWithdrawalPerPeriod
-            "Development Grants - Up to 1000 DEMO tokens monthly for contributors", // metadata
+            "{\"name\":\"Development Grants Pool\",\"description\":\"Monthly funding pool for open source contributors. Request up to 1000 DEMO tokens per month for development work.\",\"image\":\"https://raw.githubusercontent.com/greenpill-dev-guild/cookie-jar/main/client/public/logo.png\",\"link\":\"https://greenpill.network\"}", // metadata
             defaultMultiToken2                          // multiTokenConfig
         );
         
@@ -270,7 +270,7 @@ contract DeployLocalScript is Script {
             0.01 ether,                                   // minDeposit
             0,                                           // feePercentageOnDeposit
             0,                                           // maxWithdrawalPerPeriod
-            "NFT Holder Rewards - 0.05 ETH bi-weekly for Cookie Monster NFT holders", // metadata
+            "{\"name\":\"Cookie Monster Rewards\",\"description\":\"Exclusive bi-weekly rewards for Cookie Monster NFT holders. Get 0.05 ETH every 14 days just for being a holder!\",\"image\":\"https://raw.githubusercontent.com/greenpill-dev-guild/cookie-jar/main/client/public/cookie-monster.jpg\",\"link\":\"https://opensea.io/collection/cookie-monsters\"}", // metadata
             defaultMultiToken3                           // multiTokenConfig
         );
         
@@ -323,7 +323,7 @@ contract DeployLocalScript is Script {
             100 * 10**18,                                // minDeposit
             0,                                           // feePercentageOnDeposit
             0,                                           // maxWithdrawalPerPeriod
-            "NFT Airdrop - One-time 500 DEMO tokens for Cookie Monster NFT holders", // metadata
+            "{\"name\":\"Cookie Monster Airdrop\",\"description\":\"One-time airdrop of 500 DEMO tokens for all Cookie Monster NFT holders. Claim once per wallet!\",\"image\":\"https://raw.githubusercontent.com/greenpill-dev-guild/cookie-jar/main/client/public/airdrop.jpg\",\"link\":\"https://cookiejar.wtf/airdrop\"}", // metadata
             defaultMultiToken4                           // multiTokenConfig
         );
         

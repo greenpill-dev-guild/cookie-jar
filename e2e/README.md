@@ -168,3 +168,9 @@ test('Hook returns correct state', async () => {
 ```
 
 This setup integrates seamlessly with your existing development environment and requires minimal changes to your components!
+
+## Additional Resources
+
+- **[Testing Guide](../docs/TESTING.md)** - Comprehensive testing strategy
+- **[Development Guide](../docs/DEVELOPMENT.md)** - Development workflow
+- **Main Project README**: [../README.md](../README.md) - Setup and overview

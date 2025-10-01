@@ -185,9 +185,12 @@ The contracts work seamlessly with the Next.js client application. Key integrati
 
 ## 📖 Additional Resources
 
+- **[Contract Architecture](../docs/CONTRACTS.md)** - Detailed contract design
+- **[Deployment Guide](../docs/DEPLOYMENT.md)** - Production deployment
+- **[Foundry Setup](../docs/FOUNDRY_SETUP.md)** - Foundry configuration
 - **Foundry Documentation**: [Foundry Book](https://book.getfoundry.sh/)
 - **OpenZeppelin Docs**: [OpenZeppelin Contracts](https://docs.openzeppelin.com/)
-- **Main Project README**: [../README.md](../README.md) - Setup, development workflow, and troubleshooting
+- **Main Project README**: [../README.md](../README.md) - Setup and overview
 
 ---
 

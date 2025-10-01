@@ -18,19 +18,24 @@ Cookie Jar uses **modular `.mdc` rules** that automatically apply based on file 
 
 ## 📚 Documentation Structure
 
-All documentation is now centralized in `/docs/`:
+All documentation is in flat structure in `/docs/`:
 
 ```
 docs/
-├── QUICK_START.md                    # 5-minute setup guide
-├── guides/
-│   ├── PROTOCOLS.md                  # 6 access control methods
-│   ├── TESTING.md                    # Testing strategies
-│   └── API.md                        # Contract & frontend APIs
-├── architecture/
-│   └── OVERVIEW.md                   # System architecture
-└── deployment/
-    └── PRODUCTION.md                 # Production deployment
+├── ACCESS_CONTROL.md           # 6 access control methods
+├── DEVELOPMENT.md              # Dev workflow & commands
+├── DEPLOYMENT.md               # Production deployment
+├── TESTING.md                  # Testing strategies
+├── ARCHITECTURE.md             # High-level system architecture
+├── CONTRACTS.md                # Smart contract design
+├── FRONTEND.md                 # Frontend architecture
+├── INTEGRATIONS.md             # Protocol integrations (Superfluid, Uniswap, etc.)
+├── NFT_INTEGRATION.md          # Comprehensive NFT functionality
+├── FOUNDRY_SETUP.md            # Foundry configuration
+├── AI_AGENTS.md                # AI agent configuration (this doc's details)
+├── RELEASES.md                 # Release history
+├── MIGRATIONS.md               # Migration guides
+└── SUBMODULE_MIGRATION.md      # Submodule migration (historical)
 ```
 
 ## 🚀 Development Workflow
@@ -185,22 +190,22 @@ Use conventional commits:
 
 ### Working on Frontend?
 1. Read: `client/.cursor/rules/frontend-standards.mdc`
-2. Reference: [docs/guides/PROTOCOLS.md](docs/guides/PROTOCOLS.md)
+2. Reference: [docs/ACCESS_CONTROL.md](docs/ACCESS_CONTROL.md) and [docs/FRONTEND.md](docs/FRONTEND.md)
 3. Check: Existing components in `client/components/`
 
 ### Working on Contracts?
 1. Read: `contracts/.cursor/rules/solidity-standards.mdc`
-2. Reference: [docs/architecture/OVERVIEW.md](docs/architecture/OVERVIEW.md)
+2. Reference: [docs/CONTRACTS.md](docs/CONTRACTS.md)
 3. Check: Existing contracts in `contracts/src/`
 
 ### Writing Tests?
 1. Read: `.cursor/rules/testing-patterns.mdc`
-2. Reference: Existing tests in `__tests__/` or `test/`
+2. Reference: [docs/TESTING.md](docs/TESTING.md)
 3. Ensure: 90%+ coverage maintained
 
 ### Deploying?
 1. Read: `.cursor/rules/deployment.mdc`
-2. Reference: [docs/deployment/PRODUCTION.md](docs/deployment/PRODUCTION.md)
+2. Reference: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
 3. Follow: Security checklist completely
 
 ## 🎯 Common Tasks
@@ -231,10 +236,11 @@ Use conventional commits:
 ## 🔗 Key Resources
 
 ### Documentation
-- [Quick Start](docs/QUICK_START.md) - Get running in 5 minutes
-- [Architecture](docs/architecture/OVERVIEW.md) - System design
-- [Protocols](docs/guides/PROTOCOLS.md) - Access control methods
-- [Deployment](docs/deployment/PRODUCTION.md) - Production guide
+- [Main README](README.md) - Get running in 5 minutes
+- [Development Guide](docs/DEVELOPMENT.md) - Development workflow
+- [Architecture Overview](docs/ARCHITECTURE.md) - System design
+- [Access Control](docs/ACCESS_CONTROL.md) - 6 access control methods
+- [Deployment Guide](docs/DEPLOYMENT.md) - Production deployment
 
 ### Code References
 - [Example Components](client/components/jar/) - Well-tested components

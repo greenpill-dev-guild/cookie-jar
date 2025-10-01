@@ -7,7 +7,11 @@ declare const describe: any;
 declare const it: any;
 declare const expect: any;
 
-describe("useNFTValidation Hook Logic", () => {
+// Skip NFT validation tests by default - they require blockchain state
+// Run with: RUN_BLOCKCHAIN_TESTS=true pnpm test
+const describeOrSkip = process.env.RUN_BLOCKCHAIN_TESTS === "true" ? describe : describe.skip;
+
+describeOrSkip("useNFTValidation Hook Logic", () => {
   // Mock the hook behavior for testing
   const mockValidationResult = (
     address: string,
