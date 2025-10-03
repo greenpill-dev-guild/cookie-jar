@@ -12,18 +12,30 @@ Decentralized funding pools with smart access control. Create shared ETH/ERC20 p
 
 ## 🚀 Quick Start
 
-**True zero configuration** - everything installs automatically:
+Choose your installation method:
 
+### Option 1: Auto-install (npm)
 ```bash
 git clone https://github.com/greenpill-dev-guild/cookie-jar.git
 cd cookie-jar
-npm install  # Auto-installs pnpm + Foundry + all dependencies
-pnpm dev     # Start development (use pnpm after install)
+npm install  # Auto-installs pnpm + Foundry (via preinstall hook)
+pnpm install # Install project dependencies
+pnpm dev     # Start development
+```
+
+### Option 2: Direct install (pnpm)
+```bash
+git clone https://github.com/greenpill-dev-guild/cookie-jar.git
+cd cookie-jar
+pnpm install # Auto-installs Foundry + all dependencies
+pnpm dev     # Start development
 ```
 
 Open http://localhost:3000 and explore 4 pre-seeded demo jars with Cookie Monster NFTs! 🍪
 
-> **✨ Auto-setup**: Shell script checks system, installs pnpm + Foundry if missing, then sets up complete dev environment.
+> **✨ Auto-setup**: Shell script checks system, installs missing tools (pnpm/Foundry), then sets up complete dev environment.
+> 
+> **💡 Note**: If you don't have pnpm installed, Option 1 installs it for you. If you already have pnpm, use Option 2.
 
 ## 💻 Development
 
@@ -122,7 +134,7 @@ pnpm seed:demo          # Refresh demo data
 
 ## 🛠️ Available Commands
 
-**After initial `npm install`, use `pnpm` for all commands:**
+**All commands use `pnpm`:**
 
 ```bash
 # Essential
@@ -417,11 +429,19 @@ tail -f contracts/watch-deploy.log   # Contract watcher logs
 ## 🎯 Getting Started Guide
 
 ### For Local Development (Fastest Path)
-1. **Install Prerequisites**: Node.js (18+), pnpm (8+), and Foundry
+1. **Install Prerequisites**: Node.js (18+), Git
 2. **Clone & Setup**: 
    ```bash
    git clone https://github.com/greenpill-dev-guild/cookie-jar.git
-   cd cookie-jar && pnpm install
+   cd cookie-jar
+   
+   # If you don't have pnpm:
+   npm install && pnpm install
+   
+   # If you have pnpm:
+   pnpm install
+   
+   # Start development:
    pnpm dev
    ```
 3. **Open Client**: Navigate to http://localhost:3000  
@@ -434,9 +454,14 @@ tail -f contracts/watch-deploy.log   # Contract watcher logs
 2. **Secure Wallet**: Set up Foundry keystore with `cast wallet import deployer --interactive` 
 3. **Deploy**: Use the deployment commands in the [Production Deployment Guide](#-production-deployment-guide)
 
-### 🎉 Zero Configuration for Development
+### 🎉 Minimal Configuration for Development
 
-No complex setup needed for local development! The monorepo approach makes it seamless - just clone, install, and develop with automatic contract deployment and client configuration.
+Almost no setup needed for local development! The monorepo approach makes it seamless:
+- **Auto-installs**: pnpm and Foundry are installed automatically if missing
+- **Auto-deploys**: Contracts deploy automatically on first run
+- **Auto-configures**: Client configuration updates automatically
+
+Just clone, install, and develop!
 
 ## 🤝 Contributing
 
