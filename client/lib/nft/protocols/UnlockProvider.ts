@@ -2,6 +2,7 @@
 // import { Web3Service, SubGraph } from '@unlock-protocol/unlock-js';
 import { createPublicClient, http, Chain } from 'viem';
 import { mainnet, polygon, arbitrum, optimism, gnosis, base } from 'viem/chains';
+import { log } from '@/lib/app/logger';
 
 export interface UnlockLock {
   id: string;
@@ -122,7 +123,7 @@ export class UnlockProvider {
         maxKeysPerAddress: lock.maxKeysPerAddress,
       };
     } catch (error) {
-      console.error('Error fetching lock details:', error);
+      log.error('Error fetching lock details', { error });
       return null;
     }
   }
@@ -173,7 +174,7 @@ export class UnlockProvider {
       const result = await response.json();
       return result.data;
     } catch (error) {
-      console.error('Unlock GraphQL query error:', error);
+      log.error('Unlock GraphQL query error', { error, query, variables });
       return null;
     }
   }
@@ -255,7 +256,7 @@ export class UnlockProvider {
             // Try to get lock metadata from Unlock's metadata service
             metadata = await this.getLockMetadata(lock.address);
           } catch (error) {
-            console.error('Error fetching lock metadata:', error);
+            log.error('Error fetching lock metadata', { error });
           }
 
           return {
@@ -286,7 +287,7 @@ export class UnlockProvider {
         nextPageParam: filteredLocks.length === limit ? String(skip + limit) : undefined,
       };
     } catch (error) {
-      console.error('Error searching Unlock locks:', error);
+      log.error('Error searching Unlock locks', { error, query, options });
       return {
         locks: [],
         keys: [],
@@ -374,7 +375,7 @@ export class UnlockProvider {
           try {
             lockMetadata = await this.getLockMetadata(key.lock.address);
           } catch (error) {
-            console.error('Error fetching lock metadata:', error);
+            log.error('Error fetching lock metadata', { error });
           }
 
           const lock: UnlockLock = {
@@ -423,7 +424,7 @@ export class UnlockProvider {
         nextPageParam: formattedKeys.length === limit ? String(skip + limit) : undefined,
       };
     } catch (error) {
-      console.error('Error getting user keys:', error);
+      log.error('Error getting user keys', { error, address, chainId: this.chainId });
       return {
         locks: [],
         keys: [],
@@ -445,7 +446,7 @@ export class UnlockProvider {
         parseInt(key.expiration) > Math.floor(Date.now() / 1000)
       );
     } catch (error) {
-      console.error('Error checking if user has valid key:', error);
+      log.error('Error checking if user has valid key', { error, address, lockAddress, chainId: this.chainId });
       return false;
     }
   }
@@ -490,7 +491,7 @@ export class UnlockProvider {
       try {
         metadata = await this.getLockMetadata(lockAddress);
       } catch (error) {
-        console.error('Error fetching lock metadata:', error);
+        log.error('Error fetching lock metadata', { error });
       }
 
       return {
@@ -511,7 +512,7 @@ export class UnlockProvider {
         metadata,
       };
     } catch (error) {
-      console.error('Error getting lock:', error);
+      log.error('Error getting lock', { error, lockAddress, chainId: this.chainId });
       return null;
     }
   }
@@ -529,7 +530,7 @@ export class UnlockProvider {
         return await metadataResponse.json();
       }
     } catch (error) {
-      console.error('Error fetching lock metadata from locksmith:', error);
+      log.error('Error fetching lock metadata from locksmith', { error, lockAddress, chainId: this.chainId });
     }
 
     return null;
@@ -549,7 +550,7 @@ export class UnlockProvider {
 
       return result.locks;
     } catch (error) {
-      console.error('Error getting trending locks:', error);
+      log.error('Error getting trending locks', { error, chainId: this.chainId, limit });
       return [];
     }
   }
@@ -590,7 +591,7 @@ export class UnlockProvider {
         nextPageParam: filteredLocks.length === limit ? String(skip + limit) : undefined,
       };
     } catch (error) {
-      console.error('Error getting locks by price range:', error);
+      log.error('Error getting locks by price range', { error, minPrice, maxPrice, chainId: this.chainId });
       return {
         locks: [],
         keys: [],
@@ -609,7 +610,7 @@ export class UnlockProvider {
     keyPrice: string,
     recipient?: string
   ): Promise<string | null> {
-    console.warn('Key purchase requires full web3 integration');
+    log.warn('Key purchase requires full web3 integration', { lockAddress, recipient });
     return null;
   }
 
@@ -636,7 +637,7 @@ export class UnlockProvider {
       }
       return null;
     } catch (error) {
-      console.error('Error getting key expiration:', error);
+      log.error('Error getting key expiration', { error, lockAddress, tokenId, chainId: this.chainId });
       return null;
     }
   }

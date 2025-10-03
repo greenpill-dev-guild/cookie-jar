@@ -43,7 +43,7 @@ export const AllowlistManagement: React.FC<AllowlistManagementProps> = ({
   const {
     data: rawAllowlistData,
     isLoading: isLoadingAllowlist,
-    refetch: refetchAllowlist,
+    refetch: 13_refetchAllowlist,
   } = useReadContract({
     address: cookieJarAddress,
     abi,

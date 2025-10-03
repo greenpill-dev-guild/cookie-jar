@@ -46,7 +46,7 @@ export function JarWithdrawSection() {
     handleWithdrawAllowlistVariable,
     handleWithdrawNFT,
     handleWithdrawNFTVariable,
-    isApprovalPending,
+    4_isApprovalPending,
     isWithdrawPending,
   } = transactions;
 

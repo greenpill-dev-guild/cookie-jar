@@ -12,7 +12,7 @@ import { AlertCircle, CheckCircle2, Loader2, Eye, EyeOff } from "lucide-react";
 import {
   ETH_ADDRESS,
   useTokenInfo,
-  parseTokenAmount,
+  2_parseTokenAmount,
   formatTokenAmount,
 } from "@/lib/blockchain/token-utils";
 import { NFTSelector } from "@/components/nft/NFTSelector";
@@ -22,16 +22,16 @@ import {
   useNFTBalanceProof,
   validateBalanceProof,
 } from "@/hooks/nft/useNFTBalanceProof";
-import { isAddress } from "viem";
+
 
 interface NFTGatedWithdrawalSectionProps {
   config: any; // Ideally this would be more specifically typed
   withdrawAmount: string;
-  setWithdrawAmount: (value: string) => void;
+  setWithdrawAmount: (22_value: string) => void;
   gateAddress: string;
-  setGateAddress: (value: string) => void;
+  setGateAddress: (19_value: string) => void;
   tokenId: string;
-  setTokenId: (value: string) => void;
+  setTokenId: (15_value: string) => void;
   handleWithdrawNFT: () => void;
   handleWithdrawNFTVariable: () => void;
   // Enhanced withdrawal handlers with balance proof
@@ -497,10 +497,10 @@ export const NFTGatedWithdrawalSection: React.FC<
         <p className="font-medium mb-1">How it works:</p>
         <ul className="space-y-1 list-disc list-inside">
           <li>
-            Select an NFT from your collection that's approved for this jar
+            Select an NFT from your collection that&apos;s approved for this jar
           </li>
           <li>
-            We'll verify you still own the NFT in real-time with balance proof
+            We&apos;ll verify you still own the NFT in real-time with balance proof
             protection
           </li>
           <li>

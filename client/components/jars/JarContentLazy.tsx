@@ -18,7 +18,7 @@ interface JarContentProps {
   userAddress?: string;
 }
 
-export function JarContentLazy({ userAddress }: JarContentProps) {
+export function JarContentLazy({ _userAddress }: JarContentProps) {
   const router = useRouter();
   const chainId = useChainId();
   const { isConnected } = useAccount();

@@ -10,10 +10,10 @@ interface JarGridProps {
   jars: (JarData & { accessType?: number })[];
   nativeCurrency: NativeCurrency;
   tokenSymbols: Record<string, string>;
-  onJarClick: (jarAddress: string) => void;
+  onJarClick: (15_jarAddress: string) => void;
   currentPage: number;
   totalPages: number;
-  onPageChange: (page: number) => void;
+  onPageChange: (17_page: number) => void;
 }
 
 export function JarGrid({

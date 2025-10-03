@@ -156,7 +156,7 @@ export function MobileOptimizedForm({
               <Alert className="mb-4">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>
-                  You'll need to connect your wallet to create the jar.
+                  You&apos;ll need to connect your wallet to create the jar.
                 </AlertDescription>
               </Alert>
             )}

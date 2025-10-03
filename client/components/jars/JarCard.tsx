@@ -3,7 +3,7 @@
 import {
   Card,
   CardContent,
-  CardDescription,
+  2_CardDescription,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
@@ -26,6 +26,7 @@ import {
   ACCESS_TYPES 
 } from "@/lib/jar/access-types";
 import { JarImage } from "./JarImage";
+import Image from "next/image";
 import { JarStatusBadge } from "./JarStatusBadge";
 import {
   JarData,
@@ -74,7 +75,7 @@ interface JarCardProps {
   jar: EnhancedJarData;
   nativeCurrency: NativeCurrency;
   tokenSymbols: Record<string, string>;
-  onClick: (jarAddress: string) => void;
+  onClick: (12_jarAddress: string) => void;
   className?: string;
 }
 
@@ -177,7 +178,9 @@ export function JarCard({
                     {jar.nftGates.slice(0, 3).map((gate, i) => (
                       <div key={i} className="flex items-center gap-2 text-xs">
                         {gate.image && (
-                          <img src={gate.image} alt="" className="w-4 h-4 rounded" />
+                          <div className="relative w-4 h-4">
+                            <Image src={gate.image} alt="" fill sizes="16px" className="rounded object-cover" />
+                          </div>
                         )}
                         <span>{gate.name || `${gate.address.slice(0, 6)}...`}</span>
                         {gate.verified && <Shield className="h-3 w-3 text-green-500" />}
@@ -328,7 +331,7 @@ export function JarCard({
                   className="w-6 h-6 rounded-full bg-gray-100 border border-white flex-shrink-0 overflow-hidden"
                 >
                   {gate.image ? (
-                    <img src={gate.image} alt="" className="w-full h-full object-cover" />
+                    <Image src={gate.image} alt="" fill sizes="24px" className="object-cover" />
                   ) : (
                     <ImageIcon className="w-full h-full p-1 text-gray-400" />
                   )}

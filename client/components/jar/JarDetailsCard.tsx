@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import {
   Card,
   CardContent,
@@ -75,14 +76,18 @@ export function JarDetailsCard({
             <div className="flex items-start justify-between">
               <div className="flex-1">
                 {metadata.image && (
-                  <img
-                    src={metadata.image}
-                    alt={metadata.name}
-                    className="w-16 h-16 rounded-lg object-cover mb-3"
-                    onError={(e) => {
-                      (e.target as HTMLImageElement).style.display = "none";
-                    }}
-                  />
+                  <div className="relative w-16 h-16 mb-3">
+                    <Image
+                      src={metadata.image}
+                      alt={metadata.name}
+                      fill
+                      sizes="64px"
+                      className="rounded-lg object-cover"
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).style.display = "none";
+                      }}
+                    />
+                  </div>
                 )}
                 <div className="flex items-center gap-2">
                   <h1 className="text-3xl font-bold text-[#1a1a1a]">

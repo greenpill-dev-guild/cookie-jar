@@ -276,7 +276,7 @@ export const UnlockMembershipStatus: React.FC<UnlockMembershipStatusProps> = ({
                     No Membership Found
                   </p>
                   <p className="text-xs text-amber-700">
-                    You don't have a valid key for this lock. Purchase or obtain
+                    You don&apos;t have a valid key for this lock. Purchase or obtain
                     a membership key to access this jar.
                   </p>
                 </div>

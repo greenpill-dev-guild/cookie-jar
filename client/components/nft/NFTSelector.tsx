@@ -1,10 +1,10 @@
 import React, { useState, useMemo, useCallback, memo } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { 9_motion} from 'framer-motion';
 import {
   Search,
   Grid,
   List,
-  Filter,
+  2_Filter,
   X,
   Loader2,
   AlertCircle,
@@ -15,12 +15,13 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
+
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/app/utils';
 import { useNFTSearch } from '@/hooks/nft/useNFTSearch';
 import { useResponsive } from '@/hooks/app/useResponsive';
+import Image from "next/image";
 
 // Unified NFT interface that handles all NFT types
 export interface SelectedNFT {
@@ -37,7 +38,7 @@ export interface SelectedNFT {
 
 export interface NFTSelectorProps {
   /** Callback when an NFT is selected */
-  onSelect: (nft: SelectedNFT) => void;
+  onSelect: (13_nft: SelectedNFT) => void;
   /** Currently selected NFT */
   selectedNFT?: SelectedNFT | null;
   /** Initial search query */
@@ -93,7 +94,7 @@ const getVerifiedStatus = (nft: any): boolean | undefined => {
 const NFTCard = memo<{
   nft: any;
   isSelected: boolean;
-  onSelect: (nft: SelectedNFT) => void;
+  onSelect: (13_nft: SelectedNFT) => void;
   viewMode: 'grid' | 'list';
   cardSize: 'sm' | 'md' | 'lg';
 }>(({ nft, isSelected, onSelect, viewMode, cardSize }) => {
@@ -146,14 +147,10 @@ const NFTCard = memo<{
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
               {getNFTImage(nft) && !imageError ? (
-                <img
-                  src={getNFTImage(nft)}
-                  alt={getNFTName(nft)}
-                  className={cn(
+                <Image src={getNFTImage(nft)} alt={getNFTName(nft)} fill sizes="100vw" className={cn(
                     "w-full h-full object-cover transition-opacity duration-200",
                     imageLoaded ? "opacity-100" : "opacity-0"
-                  )}
-                  onLoad={() => setImageLoaded(true)}
+                  )} /> setImageLoaded(true)}
                   onError={() => setImageError(true)}
                 />
               ) : (
@@ -208,14 +205,10 @@ const NFTCard = memo<{
         )}
         
         {getNFTImage(nft) && !imageError ? (
-          <img
-            src={getNFTImage(nft)}
-            alt={getNFTName(nft)}
-            className={cn(
+          <Image src={getNFTImage(nft)} alt={getNFTName(nft)} fill sizes="100vw" className={cn(
               "w-full h-full object-cover rounded transition-opacity duration-200",
               imageLoaded ? "opacity-100" : "opacity-0"
-            )}
-            onLoad={() => setImageLoaded(true)}
+            )} /> setImageLoaded(true)}
             onError={() => setImageError(true)}
           />
         ) : (

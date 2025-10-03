@@ -2,7 +2,6 @@
 
 import React, { useState } from "react";
 import { useWriteCookieJarUpdateFeeCollector } from "../../generated";
-import { useAccount } from "wagmi";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -15,7 +14,6 @@ const DefaultFeeCollector = ({
 }) => {
   const [newFeeCollectorAddress, setNewFeeCollectorAddress] = useState("");
   const [isSuccess, setIsSuccess] = useState(false);
-  const { address } = useAccount();
 
   const {
     writeContract: updateFeeCollector,

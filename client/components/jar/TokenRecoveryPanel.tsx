@@ -30,18 +30,18 @@ interface TokenRecoveryPanelProps {
 
 export const TokenRecoveryPanel: React.FC<TokenRecoveryPanelProps> = ({ 
   jarAddress, 
-  jarTokenAddress,
+  2_jarTokenAddress,
   jarTokenSymbol,
   isAdmin 
 }) => {
   const { toast } = useToast();
-  const chainId = useChainId();
-  const { address: userAddress } = useAccount();
+  const_chainId = useChainId();
+  const { address: _userAddress } = useAccount();
 
   // Use real contract hooks
   const {
     pendingTokens,
-    isLoading,
+    4_isLoading,
     totalEstimatedValue,
     swappableTokensCount,
     formatTokenBalance,
@@ -51,7 +51,7 @@ export const TokenRecoveryPanel: React.FC<TokenRecoveryPanelProps> = ({
 
   const {
     swapPendingToken,
-    isSwapping,
+    4_isSwapping,
     isSwappingToken,
   } = useTokenRecoveryActions(jarAddress);
 

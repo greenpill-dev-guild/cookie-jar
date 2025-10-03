@@ -209,7 +209,7 @@ export const JarStreamingTab: React.FC<JarStreamingTabProps> = ({
               <Alert>
                 <Info className="h-4 w-4" />
                 <AlertDescription>
-                  All streaming and token recovery operations maintain the jar's access control. 
+                  All streaming and token recovery operations maintain the jar&apos;s access control. 
                   Only users with proper NFT/protocol credentials can withdraw the final {jarTokenSymbol} balance.
                 </AlertDescription>
               </Alert>

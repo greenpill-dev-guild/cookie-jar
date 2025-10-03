@@ -7,6 +7,7 @@ import { ArrowLeft } from "lucide-react";
 import { cn } from "@/lib/app/utils";
 import { Button } from "@/components/ui/button";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
+import Image from "next/image";
 
 interface BackButtonProps {
   className?: string;
@@ -16,7 +17,6 @@ interface BackButtonProps {
 
 export function BackButton({
   className = "",
-  showWalletInfo = false,
   children,
 }: BackButtonProps) {
   const router = useRouter();
@@ -50,7 +50,6 @@ export function BackButton({
             chain,
             openAccountModal,
             openChainModal,
-            openConnectModal,
             authenticationStatus,
             mounted,
           }) => {
@@ -88,12 +87,14 @@ export function BackButton({
                   className="flex items-center gap-1"
                 >
                   {chain.hasIcon && (
-                    <div className="w-4 h-4">
+                    <div className="w-4 h-4 relative">
                       {chain.iconUrl && (
-                        <img
+                        <Image
                           alt={chain.name ?? "Chain icon"}
                           src={chain.iconUrl || "/placeholder.svg"}
-                          className="w-4 h-4"
+                          fill
+                          sizes="16px"
+                          className="object-contain"
                         />
                       )}
                     </div>

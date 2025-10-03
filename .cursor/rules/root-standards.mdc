@@ -47,6 +47,7 @@ pnpm build              # Build all packages
 - **Accessibility**: WCAG 2.1 AA compliance minimum
 - **Performance**: Core Web Vitals targets met
 - **Security**: Testnet-first, explicit mainnet acknowledgment required
+- **Logging**: Use `log` from `@/lib/app/logger`, never `console.log/error/warn`
 
 ## Environment & Security
 - Use `.env.local` for local development
@@ -61,3 +62,37 @@ pnpm build              # Build all packages
 - **Functions**: camelCase (`getUserJars()`)
 - **Constants**: UPPER_SNAKE_CASE (`MAX_WITHDRAWAL_AMOUNT`)
 - **Contracts**: PascalCase (`CookieJarFactory.sol`)
+
+## Linting & Code Quality (Pre-Build Enforcement)
+
+### Critical Rules (Build-Blocking Errors)
+- **no-unused-vars**: Remove unused variables or prefix with `_`
+- **no-console**: Use `log` from `@/lib/app/logger` instead
+- **react/no-unescaped-entities**: Escape quotes (`don't` → `don&apos;t`)
+- **@next/next/no-img-element**: Use `<Image />` from `next/image`
+- **react-hooks/exhaustive-deps**: Include all hook dependencies
+
+### Pre-Commit Requirements
+```bash
+pnpm type-check  # Must pass (no TypeScript errors)
+pnpm lint        # Must pass (no ESLint errors)
+pnpm build       # Must complete successfully
+```
+
+### Common Patterns
+```typescript
+// Unused variables: prefix with _
+const { data, _unused } = props;
+
+// Logging: use structured logger
+import { log } from '@/lib/app/logger';
+log.info('Action completed', { userId, result });
+
+// Images: use Next.js Image component
+import Image from 'next/image';
+<Image src={url} alt="..." width={100} height={100} />
+
+// JSX quotes: escape with HTML entities
+<p>Don&apos;t forget to escape apostrophes</p>
+<li>Use &quot;quotes&quot; for nested text</li>
+```

@@ -4,7 +4,7 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { AlertTriangle, RefreshCw, ArrowLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { log } from "@/lib/app/logger";
 
 interface ProtocolErrorBoundaryState {
   hasError: boolean;
@@ -75,14 +75,14 @@ export class ProtocolErrorBoundary extends React.Component<
   private logError = (error: Error, errorInfo: React.ErrorInfo) => {
     const { protocolName } = this.props;
 
-    // Log to console in development
+    // Log in development
     if (process.env.NODE_ENV === "development") {
-      console.group("🚨 Protocol Error Boundary");
-      console.error("Protocol:", protocolName || "Unknown");
-      console.error("Error:", error);
-      console.error("Stack:", error.stack);
-      console.error("Component Stack:", errorInfo.componentStack);
-      console.groupEnd();
+      log.error("Protocol Error Boundary", {
+        protocol: protocolName || "Unknown",
+        error: error.message,
+        stack: error.stack,
+        componentStack: errorInfo.componentStack,
+      });
     }
 
     // Send to monitoring service in production
@@ -99,10 +99,7 @@ export class ProtocolErrorBoundary extends React.Component<
         //   componentStack: errorInfo.componentStack
         // })
       } catch (monitoringError) {
-        console.warn(
-          "Failed to log error to monitoring service:",
-          monitoringError,
-        );
+        log.warn("Failed to log error to monitoring service", { error: monitoringError });
       }
     }
   };

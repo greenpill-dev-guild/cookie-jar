@@ -617,7 +617,7 @@ const FinalSettingsStep: React.FC<{ formData: any; isV2Contract: boolean }> = ({
                 <strong>ℹ️ Advanced Features:</strong>
                 <ul className="mt-1 ml-4 list-disc space-y-1">
                   <li>Streaming allows continuous funding from external sources</li>
-                  <li>Auto-swap converts ETH deposits to your jar's token automatically</li>
+                  <li>Auto-swap converts ETH deposits to your jar&apos;s token automatically</li>
                   <li>Other ERC-20 tokens sent to the jar can be manually recovered and swapped</li>
                 </ul>
               </div>

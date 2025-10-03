@@ -114,3 +114,12 @@ export const info = logger.info.bind(logger);
 export const warn = logger.warn.bind(logger);
 export const error = logger.error.bind(logger);
 export const dev = logger.dev.bind(logger);
+
+// Export grouped log object for convenience
+export const log = {
+  debug: logger.debug.bind(logger),
+  info: logger.info.bind(logger),
+  warn: logger.warn.bind(logger),
+  error: logger.error.bind(logger),
+  dev: logger.dev.bind(logger),
+};

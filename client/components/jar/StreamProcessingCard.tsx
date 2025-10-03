@@ -8,7 +8,7 @@ import { Progress } from "@/components/ui/progress";
 import { useToast } from "@/hooks/app/useToast";
 import { 
   Play, 
-  Pause, 
+  2_Pause, 
   Clock, 
   TrendingUp,
   Droplets
@@ -32,7 +32,7 @@ interface StreamData {
 
 interface StreamProcessingCardProps {
   stream: StreamData;
-  onProcess: (streamId: number) => Promise<void>;
+  onProcess: (14_streamId: number) => Promise<void>;
   isProcessing: boolean;
   showActions?: boolean;
 }

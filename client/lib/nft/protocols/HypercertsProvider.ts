@@ -1,6 +1,7 @@
 // Note: Using simplified Hypercerts integration until proper SDK types are available
 // import { HypercertClient } from '@hypercerts-org/sdk';
 import { WalletClient } from 'viem';
+import { log } from '@/lib/app/logger';
 
 export interface HypercertClaim {
   id: string;
@@ -107,7 +108,7 @@ export class HypercertsProvider {
           }
         }
       } catch (error) {
-        console.warn('Could not fetch hypercert metadata:', error);
+        log.warn('Could not fetch hypercert metadata', { error, uri: claim.uri });
       }
 
       return {
@@ -130,7 +131,7 @@ export class HypercertsProvider {
         metadata,
       };
     } catch (error) {
-      console.error('Error fetching hypercert by ID:', error);
+      log.error('Error fetching hypercert by ID', { error, hypercertId });
       return null;
     }
   }
@@ -165,7 +166,7 @@ export class HypercertsProvider {
       const result = await response.json();
       return result.data;
     } catch (error) {
-      console.error('Hypercerts GraphQL query error:', error);
+      log.error('Hypercerts GraphQL query error', { error, query, variables });
       return null;
     }
   }
@@ -250,7 +251,7 @@ export class HypercertsProvider {
               }
             }
           } catch (error) {
-            console.error('Error fetching hypercert metadata:', error);
+            log.error('Error fetching hypercert metadata', { error });
           }
 
           return {
@@ -296,7 +297,7 @@ export class HypercertsProvider {
         nextPageParam: filteredClaims.length === limit ? String(offset + limit) : undefined,
       };
     } catch (error) {
-      console.error('Error searching hypercerts:', error);
+      log.error('Error searching hypercerts', { error, query, options });
       return {
         claims: [],
         totalResults: 0,
@@ -366,7 +367,7 @@ export class HypercertsProvider {
               }
             }
           } catch (error) {
-            console.error('Error fetching hypercert metadata:', error);
+            log.error('Error fetching hypercert metadata', { error });
           }
 
           return {
@@ -388,7 +389,7 @@ export class HypercertsProvider {
         nextPageParam: claims.length === limit ? String(offset + limit) : undefined,
       };
     } catch (error) {
-      console.error('Error getting user hypercerts:', error);
+      log.error('Error getting user hypercerts', { error, address });
       return {
         claims: [],
         totalResults: 0,
@@ -407,7 +408,7 @@ export class HypercertsProvider {
         claim.id === hypercertId || claim.claim.hypercert_id === hypercertId
       );
     } catch (error) {
-      console.error('Error checking if user owns hypercert:', error);
+      log.error('Error checking if user owns hypercert', { error, address, hypercertId });
       return false;
     }
   }
@@ -459,7 +460,7 @@ export class HypercertsProvider {
           }
         }
       } catch (error) {
-        console.error('Error fetching hypercert metadata:', error);
+        log.error('Error fetching hypercert metadata', { error });
       }
 
       return {
@@ -472,7 +473,7 @@ export class HypercertsProvider {
         metadata,
       };
     } catch (error) {
-      console.error('Error getting hypercert:', error);
+      log.error('Error getting hypercert', { error, hypercertId });
       return null;
     }
   }
@@ -490,7 +491,7 @@ export class HypercertsProvider {
 
       return result.claims;
     } catch (error) {
-      console.error('Error getting trending hypercerts:', error);
+      log.error('Error getting trending hypercerts', { error, limit });
       return [];
     }
   }
@@ -547,7 +548,7 @@ export class HypercertsProvider {
     totalUnits: bigint,
     transferRestriction: number = 0 // 0 = AllowAll, 1 = DisallowAll, 2 = FromCreatorOnly
   ): Promise<string | null> {
-    console.warn('Hypercert creation requires full SDK integration with wallet support');
+    log.warn('Hypercert creation requires full SDK integration with wallet support', { metadata, totalUnits, transferRestriction });
     return null;
   }
 }

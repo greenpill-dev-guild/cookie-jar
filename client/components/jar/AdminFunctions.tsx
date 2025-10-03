@@ -5,16 +5,13 @@ import { useState, useEffect } from "react";
 import { useNavigateToTop } from "@/hooks/app/useNavigateToTop";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { parseEther, keccak256, toHex } from "viem";
+import { keccak256, toHex } from "viem";
 import { ETH_ADDRESS, parseTokenAmount, useTokenInfo } from "@/lib/blockchain/token-utils";
+import { log } from "@/lib/app/logger";
 import {
   useReadCookieJarHasRole,
   useWriteCookieJarEmergencyWithdraw,
-  cookieJarAbi,
 } from "../../generated";
-import { useWriteContract } from "wagmi";
-import { cookieJarV1Abi } from "@/lib/blockchain/cookie-jar-v1-abi";
-import { isV2Chain } from "@/config/supported-networks";
 import {
   Card,
   CardContent,
@@ -62,7 +59,7 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
   const { address: currentUserAddress } = useAccount();
 
   // Check if current user has the JAR_OWNER role
-  const { data: hasJarOwnerRole } = useReadCookieJarHasRole({
+  const { data: _hasJarOwnerRole } = useReadCookieJarHasRole({
     address,
     args: [
       JAR_OWNER_ROLE,
@@ -74,7 +71,6 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
   // Emergency withdraw hook
   const {
     writeContract: emergencyWithdraw,
-    error: emergencyWithdrawError,
     isSuccess: isEmergencyWithdrawSuccess,
   } = useWriteCookieJarEmergencyWithdraw();
 
@@ -91,7 +87,7 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
   // Emergency withdraw function
   const handleEmergencyWithdraw = () => {
     if (!withdrawalAmount) return;
-    console.log("Emergency withdrawal amount:", withdrawalAmount);
+    log.info("Emergency withdrawal amount", { withdrawalAmount });
 
     try {
       const parsedAmount = parseTokenAmount(withdrawalAmount, decimals);
@@ -106,7 +102,7 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
         description: `Attempting to withdraw ${withdrawalAmount} ${symbol || (tokenToWithdraw === ETH_ADDRESS ? "ETH" : "tokens")}.`,
       });
     } catch (error) {
-      console.error("Emergency withdrawal error:", error);
+      log.error("Emergency withdrawal error", { error });
       toast({
         title: "Emergency Withdraw Failed",
         description: `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
@@ -114,9 +110,6 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
       });
     }
   };
-
-  // Check if current user has the JAR_OWNER role
-  const isCurrentUserOwner = hasJarOwnerRole === true;
 
   return (
     <div className="space-y-6 bg-[#2b1d0e] p-4 rounded-lg">

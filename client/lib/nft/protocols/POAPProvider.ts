@@ -1,5 +1,6 @@
 // Note: Using simplified POAP integration until proper SDK types are available
 // import { PoapSDK, EventDTO, TokenDTO, PaginatedRequest } from '@poap-xyz/poap-sdk';
+import { log } from '@/lib/app/logger';
 
 export interface POAPEvent {
   id: number;
@@ -108,7 +109,7 @@ export class POAPProvider {
         nextPageParam: formattedEvents.length === limit ? String(offset + limit) : undefined,
       };
     } catch (error) {
-      console.error('Error searching POAP events:', error);
+      log.error('Error searching POAP events', { error });
       return {
         events: [],
         tokens: [],
@@ -146,7 +147,7 @@ export class POAPProvider {
         created_date: event.created_date || event.start_date,
       };
     } catch (error) {
-      console.error('Error fetching POAP event:', error);
+      log.error('Error fetching POAP event', { error, eventId });
       return null;
     }
   }
@@ -160,7 +161,7 @@ export class POAPProvider {
       const searchResult = await provider.searchEvents(query);
       return searchResult.events;
     } catch (error) {
-      console.error('Error searching POAP events:', error);
+      log.error('Error searching POAP events', { error });
       return [];
     }
   }
@@ -235,7 +236,7 @@ export class POAPProvider {
         nextPageParam: formattedTokens.length === limit ? String(offset + limit) : undefined,
       };
     } catch (error) {
-      console.error('Error getting user POAPs:', error);
+      log.error('Error getting user POAPs', { error, address });
       return {
         events: [],
         tokens: [],
@@ -283,7 +284,7 @@ export class POAPProvider {
         private_event: event.private_event,
       };
     } catch (error) {
-      console.error('Error getting POAP event:', error);
+      log.error('Error getting POAP event', { error, eventId });
       return null;
     }
   }
@@ -296,7 +297,7 @@ export class POAPProvider {
       const userPOAPs = await this.getUserPOAPs(address, { limit: 100 });
       return userPOAPs.events.some(event => event.id === eventId);
     } catch (error) {
-      console.error('Error checking if user has POAP:', error);
+      log.error('Error checking if user has POAP', { error, address, eventId });
       return false;
     }
   }
@@ -346,7 +347,7 @@ export class POAPProvider {
 
       return formattedEvents;
     } catch (error) {
-      console.error('Error getting trending POAP events:', error);
+      log.error('Error getting trending POAP events', { error, limit });
       return [];
     }
   }

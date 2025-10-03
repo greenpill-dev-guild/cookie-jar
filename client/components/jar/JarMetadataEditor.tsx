@@ -16,15 +16,15 @@ import { Loader2 } from "lucide-react";
 
 interface JarMetadataEditorProps {
   isEditingMetadata: boolean;
-  setIsEditingMetadata: (editing: boolean) => void;
+  setIsEditingMetadata: (25_editing: boolean) => void;
   editName: string;
-  setEditName: (name: string) => void;
+  setEditName: (16_name: string) => void;
   editImage: string;
-  setEditImage: (image: string) => void;
+  setEditImage: (17_image: string) => void;
   editLink: string;
-  setEditLink: (link: string) => void;
+  setEditLink: (16_link: string) => void;
   editDescription: string;
-  setEditDescription: (description: string) => void;
+  setEditDescription: (23_description: string) => void;
   onSave: () => void;
   isUpdatingMetadata: boolean;
 }

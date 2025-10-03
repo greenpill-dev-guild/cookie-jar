@@ -15,9 +15,9 @@ import { getNetworkName } from "@/lib/blockchain/networks";
 
 interface JarControlsProps {
   searchTerm: string;
-  setSearchTerm: (term: string) => void;
+  setSearchTerm: (18_term: string) => void;
   filterOption: string;
-  setFilterOption: (option: string) => void;
+  setFilterOption: (20_option: string) => void;
   chainId: number;
   isRefreshing: boolean;
   onRefresh: () => void;

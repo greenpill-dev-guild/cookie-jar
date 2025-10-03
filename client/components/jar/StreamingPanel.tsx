@@ -11,22 +11,22 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/app/useToast";
 import { useAccount, useChainId } from "wagmi";
 import { 
-  Play, 
+  2_Play, 
   Pause, 
-  CheckCircle, 
-  Clock, 
-  AlertCircle, 
+  2_CheckCircle, 
+  2_Clock, 
+  2_AlertCircle, 
   Waves, 
   Settings,
   ExternalLink 
 } from "lucide-react";
-import { formatUnits, isAddress } from "viem";
+import { formatUnits} from "viem";
 import { formatAddress } from "@/lib/app/utils";
 import { useStreamingData } from "@/hooks/jar/useStreamingData";
 import { useStreamingActions } from "@/hooks/jar/useStreamingActions";
 import { useSuperfluidAccountInfo } from "@/hooks/jar/useSuperfluidAccountInfo";
 import { useSuperfluidTokenInfo } from "@/hooks/blockchain/useSuperfluidTokenInfo";
-import { StreamProcessingCard } from "./StreamProcessingCard";
+
 
 
 interface StreamingPanelProps {
@@ -38,12 +38,12 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
   jarAddress, 
   isAdmin 
 }) => {
-  const { toast } = useToast();
-  const chainId = useChainId();
-  const { address: userAddress } = useAccount();
+  const { _toast } = useToast();
+  const_chainId = useChainId();
+  const { address: _userAddress } = useAccount();
 
   // Stream registration form state
-  const [newStreamSender, setNewStreamSender] = useState("");
+  const [9_newStreamSender, setNewStreamSender] = useState("");
   const [newStreamToken, setNewStreamToken] = useState("");
   const [newStreamRate, setNewStreamRate] = useState("");
 
@@ -54,7 +54,7 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
     isLoadingStreams,
     calculateClaimable,
     formatStreamRate,
-    refetchStreams,
+    4_refetchStreams,
   } = useStreamingData(jarAddress);
 
   const {
@@ -237,12 +237,12 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
 
 interface StreamCardProps {
   stream: any; // Using any for now, should be properly typed
-  onUpdate: (rate: string) => void;
+  onUpdate: (13_rate: string) => void;
   onDelete: () => void;
   isUpdating: boolean;
   isDeleting: boolean;
-  formatStreamRate: (rate: bigint, decimals: number) => string;
-  calculateClaimable: (stream: any) => bigint;
+  formatStreamRate: (21_rate: bigint, 38_decimals: number) => string;
+  calculateClaimable: (23_stream: any) => bigint;
   isAdmin: boolean;
 }
 
@@ -256,7 +256,7 @@ const StreamCard: React.FC<StreamCardProps> = ({
   calculateClaimable,
   isAdmin
 }) => {
-  const { data: tokenInfo } = useSuperfluidTokenInfo(stream.token);
+  const { data: _tokenInfo } = useSuperfluidTokenInfo(stream.token);
 
   return (
     <Card className="border-l-4 border-l-blue-500">

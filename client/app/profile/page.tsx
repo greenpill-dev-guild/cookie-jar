@@ -51,7 +51,7 @@ function DesktopProfile() {
   const chainId = useChainId();
   const router = useRouter();
   const { scrollToTop } = useNavigateToTop();
-  const { cookieJarsData, isLoading, error } = useCookieJarFactory();
+  const { cookieJarsData, isLoading } = useCookieJarFactory();
   const [mounted, setMounted] = useState(false);
   const nativeCurrency = getNativeCurrency(chainId);
 
@@ -274,7 +274,7 @@ function DesktopProfile() {
                   No Jars Created Yet
                 </h3>
                 <p className="text-[hsl(var(--cj-medium-brown))] max-w-md mb-6">
-                  You haven't created any Cookie Jars yet. Create your first jar
+                  You haven&apos;t created any Cookie Jars yet. Create your first jar
                   to start managing shared funds.
                 </p>
                 <Button

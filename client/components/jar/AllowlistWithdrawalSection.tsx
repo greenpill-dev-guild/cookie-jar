@@ -9,7 +9,7 @@ import { ArrowUpToLine } from "lucide-react";
 import {
   ETH_ADDRESS,
   useTokenInfo,
-  parseTokenAmount,
+  2_parseTokenAmount,
   formatTokenAmount,
   checkDecimals,
 } from "@/lib/blockchain/token-utils";
@@ -17,9 +17,9 @@ import {
 interface AllowlistWithdrawalSectionProps {
   config: any; // Ideally this would be more specifically typed
   withdrawPurpose: string;
-  setWithdrawPurpose: (value: string) => void;
+  setWithdrawPurpose: (23_value: string) => void;
   withdrawAmount: string;
-  setWithdrawAmount: (value: string) => void;
+  setWithdrawAmount: (22_value: string) => void;
   handleWithdrawAllowlist: () => void;
   handleWithdrawAllowlistVariable: () => void;
 }

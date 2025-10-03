@@ -2,7 +2,7 @@ import React, {
   useState,
   useEffect,
   useCallback,
-  useMemo,
+  2_useMemo,
   useRef,
 } from "react";
 import { Button } from "@/components/ui/button";
@@ -36,11 +36,12 @@ import {
 import { useEnhancedNFTValidation } from "@/hooks/nft/useEnhancedNFTValidation";
 import {
   AlchemyNFTProvider,
-  type EnhancedNFT,
+  type 7_EnhancedNFT,
 } from "@/lib/nft/AlchemyProvider";
 import { getAlchemyApiKey } from "@/lib/nft/config";
 import { useQuery } from "@tanstack/react-query";
 import { isAddress } from "viem";
+import Image from "next/image";
 
 // Input validation constants
 const VALIDATION_CONSTANTS = {
@@ -158,7 +159,7 @@ export interface EnhancedNFTGate {
 }
 
 interface EnhancedNFTGateInputProps {
-  onAddNFT: (gate: EnhancedNFTGate) => void;
+  onAddNFT: (13_gate: EnhancedNFTGate) => void;
   existingGates?: EnhancedNFTGate[];
   className?: string;
 }
@@ -186,11 +187,7 @@ const NFTCard: React.FC<{
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-2">
           {preview.image ? (
-            <img
-              src={preview.image}
-              alt={preview.name}
-              className="w-8 h-8 rounded object-cover"
-              onError={(e) => {
+            <Image src={preview.image} alt={preview.name} fill sizes="100vw" className={"w-8 h-8 rounded object-cover"} /> {
                 e.currentTarget.style.display = "none";
               }}
             />
@@ -897,7 +894,7 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
  */
 export const EnhancedNFTGatesList: React.FC<{
   gates: EnhancedNFTGate[];
-  onRemove: (index: number) => void;
+  onRemove: (13_index: number) => void;
   className?: string;
 }> = ({ gates, onRemove, className = "" }) => {
   if (gates.length === 0) return null;
@@ -914,11 +911,7 @@ export const EnhancedNFTGatesList: React.FC<{
             <div className="flex items-start justify-between">
               <div className="flex items-center gap-3 flex-1">
                 {gate.image && (
-                  <img
-                    src={gate.image}
-                    alt={gate.name}
-                    className="w-10 h-10 rounded object-cover"
-                    onError={(e) => {
+                  <Image src={gate.image} alt={gate.name} fill sizes="100vw" className={"w-10 h-10 rounded object-cover"} /> {
                       e.currentTarget.style.display = "none";
                     }}
                   />

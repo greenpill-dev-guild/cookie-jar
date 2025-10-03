@@ -84,7 +84,7 @@ export function JarDepositSection() {
       {config.currency !== "0x0000000000000000000000000000000000000003" && (
         <div className="pt-2">
           <p className="text-sm text-[#8b7355]">
-            Note: For ERC20 tokens, you'll need to approve the token transfer
+            Note: For ERC20 tokens, you&apos;ll need to approve the token transfer
             before depositing.
           </p>
         </div>

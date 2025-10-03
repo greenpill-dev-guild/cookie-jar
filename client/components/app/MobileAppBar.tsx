@@ -2,7 +2,6 @@
 
 import { usePathname } from "next/navigation";
 import { motion } from "framer-motion";
-import Link from "next/link";
 import { Cookie, ChefHat, User } from "lucide-react";
 import { cn } from "@/lib/app/utils";
 import { useIsMobile } from "@/components/ui/use-mobile";

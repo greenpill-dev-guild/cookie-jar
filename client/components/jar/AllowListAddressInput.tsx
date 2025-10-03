@@ -10,7 +10,7 @@ import { Loader2 } from "lucide-react";
 interface AllowlistAddressInputProps {
   mode: "add" | "remove";
   currentAllowlist: readonly `0x${string}`[];
-  onSubmit: (addresses: `0x${string}`[]) => Promise<void>;
+  onSubmit: (_addresses: `0x${string}`[]) => Promise<void>;
   buttonLabel?: string;
   placeholder?: string;
 }

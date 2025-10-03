@@ -8,8 +8,8 @@ import { MemoizedCustomConnectButton } from "@/components/wallet/CustomConnectBu
 
 interface CreateJarModalsProps {
   showWalletModal: boolean;
-  setShowWalletModal: (show: boolean) => void;
-  setPendingSubmission: (pending: boolean) => void;
+  setShowWalletModal: (_show: boolean) => void;
+  setPendingSubmission: (_pending: boolean) => void;
   isCreating: boolean;
   isWaitingForTx: boolean;
 }
@@ -32,7 +32,7 @@ export const CreateJarModals: React.FC<CreateJarModalsProps> = ({
                 Connect Your Wallet
               </CardTitle>
               <p className="text-[hsl(var(--cj-medium-brown))]">
-                You're all set! Now connect your wallet to create this Cookie
+                You&apos;re all set! Now connect your wallet to create this Cookie
                 Jar on the blockchain.
               </p>
             </CardHeader>

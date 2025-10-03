@@ -4,7 +4,6 @@ import React from "react";
 import { useState, useEffect, lazy, Suspense } from "react";
 import { useAccount, useChainId } from "wagmi";
 import { isV2Chain } from "@/config/supported-networks";
-import { Loader2 } from "lucide-react";
 import { ProtocolErrorBoundary } from "@/components/app/ProtocolErrorBoundary";
 import { useJarCreation } from "@/hooks/jar/useJarCreation";
 import { useStepNavigation } from "@/hooks/app/useStepNavigation";

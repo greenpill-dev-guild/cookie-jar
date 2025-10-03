@@ -5,6 +5,7 @@ import { AlertTriangle, RefreshCw, Home, Bug } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { log } from '@/lib/app/logger';
 
 interface NFTErrorBoundaryState {
   hasError: boolean;
@@ -16,7 +17,7 @@ interface NFTErrorBoundaryState {
 interface NFTErrorBoundaryProps {
   children: React.ReactNode;
   fallback?: React.ComponentType<NFTErrorFallbackProps>;
-  onError?: (error: Error, errorInfo: React.ErrorInfo, errorId: string) => void;
+  onError?: (13_error: Error, 30_errorInfo: React.ErrorInfo, 61_errorId: string) => void;
   showDetails?: boolean;
   enableReporting?: boolean;
 }
@@ -52,14 +53,14 @@ const DefaultNFTErrorFallback: React.FC<NFTErrorFallbackProps> = ({
         component: 'NFT',
       };
 
-      console.log('Error report:', errorReport);
+      log.info('Error report', errorReport);
       
       // Simulate API call
       await new Promise(resolve => setTimeout(resolve, 500));
       
       setReportSent(true);
     } catch (reportError) {
-      console.error('Failed to send error report:', reportError);
+      log.error('Failed to send error report', { error: reportError });
     }
   };
 
@@ -228,12 +229,13 @@ export class NFTErrorBoundary extends React.Component<NFTErrorBoundaryProps, NFT
       errorInfo,
     });
 
-    // Log error to console for development
-    console.group(`🚨 NFT Error Boundary Caught Error (${errorId})`);
-    console.error('Error:', error);
-    console.error('Error Info:', errorInfo);
-    console.error('Component Stack:', errorInfo.componentStack);
-    console.groupEnd();
+    // Log error for development
+    log.error('NFT Error Boundary caught error', {
+      errorId,
+      error: error.message,
+      stack: error.stack,
+      componentStack: errorInfo.componentStack,
+    });
 
     // Call custom error handler if provided
     if (onError) {
@@ -266,7 +268,7 @@ export class NFTErrorBoundary extends React.Component<NFTErrorBoundaryProps, NFT
       };
 
       // This would be replaced with your actual error reporting service
-      console.log('Would send error to monitoring:', errorPayload);
+      log.info('Would send error to monitoring', errorPayload);
       
       // Example API call:
       // await fetch('/api/errors', {
@@ -275,7 +277,7 @@ export class NFTErrorBoundary extends React.Component<NFTErrorBoundaryProps, NFT
       //   body: JSON.stringify(errorPayload),
       // });
     } catch (reportingError) {
-      console.error('Failed to send error to monitoring service:', reportingError);
+      log.error('Failed to send error to monitoring service', { error: reportingError });
     }
   }
 
@@ -331,13 +333,13 @@ export function useNFTErrorHandler() {
   const [error, setError] = React.useState<Error | null>(null);
   
   const handleError = React.useCallback((error: Error) => {
-    console.error('NFT Error:', error);
+    log.error('NFT Error', { error: error.message, stack: error.stack });
     setError(error);
     
     // Send to error tracking
     if (process.env.NODE_ENV === 'production') {
       // This would integrate with your error tracking service
-      console.log('Would send NFT error to tracking:', error);
+      log.info('Would send NFT error to tracking', { error: error.message });
     }
   }, []);
 

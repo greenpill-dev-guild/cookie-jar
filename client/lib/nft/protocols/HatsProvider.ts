@@ -2,6 +2,7 @@
 // import { HatsSubgraphClient, Hat, Tree, Wearer } from '@hatsprotocol/sdk-v1-subgraph';
 import { createPublicClient, http, Chain } from 'viem';
 import { mainnet, polygon, arbitrum, optimism, gnosis } from 'viem/chains';
+import { log } from '@/lib/app/logger';
 
 export interface HatDetails {
   id: string;
@@ -124,7 +125,7 @@ export class HatsProvider {
         subHats: [], // Not needed for single hat lookup
       };
     } catch (error) {
-      console.error('Error fetching hat by ID:', error);
+      log.error('Error fetching hat by ID', { error, hatId });
       return null;
     }
   }
@@ -162,7 +163,7 @@ export class HatsProvider {
       const result = await response.json();
       return result.data;
     } catch (error) {
-      console.error('GraphQL query error:', error);
+      log.error('GraphQL query error', { error, query });
       return null;
     }
   }
@@ -266,7 +267,7 @@ export class HatsProvider {
         nextPageParam: filteredHats.length === limit ? String(skip + limit) : undefined,
       };
     } catch (error) {
-      console.error('Error searching hats:', error);
+      log.error('Error searching hats', { error, query });
       return {
         hats: [],
         trees: [],
@@ -379,7 +380,7 @@ export class HatsProvider {
         nextPageParam: undefined,
       };
     } catch (error) {
-      console.error('Error getting user hats:', error);
+      log.error('Error getting user hats', { error, address });
       return {
         hats: [],
         trees: [],
@@ -398,7 +399,7 @@ export class HatsProvider {
       const userHats = await this.getUserHats(address, chainId);
       return userHats.hats.some(hat => hat.id === hatId);
     } catch (error) {
-      console.error('Error checking if user wears hat:', error);
+      log.error('Error checking if user wears hat', { error, address, hatId });
       return false;
     }
   }
@@ -464,7 +465,7 @@ export class HatsProvider {
         subHats: [],
       };
     } catch (error) {
-      console.error('Error getting hat:', error);
+      log.error('Error getting hat', { error, hatId });
       return null;
     }
   }
@@ -534,7 +535,7 @@ export class HatsProvider {
           subHats: [],
         }));
     } catch (error) {
-      console.error('Error getting trending hats:', error);
+      log.error('Error getting trending hats', { error, limit });
       return [];
     }
   }
