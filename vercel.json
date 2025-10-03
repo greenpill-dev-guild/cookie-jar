@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "pnpm run build",
+  "installCommand": "pnpm install --filter client --ignore-scripts --no-frozen-lockfile",
+  "outputDirectory": ".next",
+  "framework": "nextjs",
+  "ignoreCommand": "git diff HEAD^ HEAD --quiet",
+  "env": {
+    "SKIP_CONTRACTS": "true",
+    "NODE_ENV": "production"
+  }
+}
