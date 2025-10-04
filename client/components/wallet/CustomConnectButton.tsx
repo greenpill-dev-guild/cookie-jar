@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import { ConnectButton } from '@rainbow-me/rainbowkit';
-import { Loader2 } from 'lucide-react';
-import Image from 'next/image';
-import { memo, useEffect, useState } from 'react';
-import { useAccount, useChainId, useDisconnect, useSignMessage } from 'wagmi';
-import { Button } from '@/components/ui/button';
+import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { Loader2 } from "lucide-react";
+import Image from "next/image";
+import { memo, useEffect, useState } from "react";
+import { useAccount, useChainId, useDisconnect, useSignMessage } from "wagmi";
+import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from '@/components/ui/dialog';
-import { useToast } from '@/hooks/app/useToast';
-import { CustomConnectModal } from './CustomConnectModal';
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogFooter,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
+import { useToast } from "@/hooks/app/useToast";
+import { CustomConnectModal } from "./CustomConnectModal";
 
 // Terms and conditions message that users will sign
 const TERMS_MESSAGE = `Welcome to Cookie Jar V3!
@@ -30,224 +30,224 @@ By signing this message, you agree to our Terms of Service and Privacy Policy:
 5. You understand that transactions on the blockchain are irreversible
 6. You are responsible for securing your wallet and private keys
 
-Date: ${new Date().toISOString().split('T')[0]}
+Date: ${new Date().toISOString().split("T")[0]}
 `;
 
 export function CustomConnectButton({ className }: { className?: string }) {
-  const { address, isConnected } = useAccount();
-  const chainId = useChainId();
-  const { signMessageAsync } = useSignMessage();
-  const { disconnect } = useDisconnect();
-  const [showConnectModal, setShowConnectModal] = useState(false);
-  const [showTerms, setShowTerms] = useState(false);
-  const [isSigningTerms, setIsSigningTerms] = useState(false);
-  const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false);
-  const { toast: _toast } = useToast();
+	const { address, isConnected } = useAccount();
+	const chainId = useChainId();
+	const { signMessageAsync } = useSignMessage();
+	const { disconnect } = useDisconnect();
+	const [showConnectModal, setShowConnectModal] = useState(false);
+	const [showTerms, setShowTerms] = useState(false);
+	const [isSigningTerms, setIsSigningTerms] = useState(false);
+	const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false);
+	const { toast: _toast } = useToast();
 
-  // Check if user has already accepted terms (could be stored in localStorage)
-  const checkTermsAccepted = () => {
-    const accepted = localStorage.getItem(`terms-accepted-${address}`);
-    return !!accepted;
-  };
+	// Check if user has already accepted terms (could be stored in localStorage)
+	const checkTermsAccepted = () => {
+		const accepted = localStorage.getItem(`terms-accepted-${address}`);
+		return !!accepted;
+	};
 
-  // Store that user has accepted terms
-  const storeTermsAccepted = () => {
-    if (address) {
-      localStorage.setItem(`terms-accepted-${address}`, 'true');
-    }
-  };
+	// Store that user has accepted terms
+	const storeTermsAccepted = () => {
+		if (address) {
+			localStorage.setItem(`terms-accepted-${address}`, "true");
+		}
+	};
 
-  // Check terms when user connects
-  useEffect(() => {
-    if (isConnected && address && !hasAcceptedTerms && !checkTermsAccepted()) {
-      setTimeout(() => setShowTerms(true), 500);
-    }
-  }, [isConnected, address, hasAcceptedTerms, checkTermsAccepted]);
+	// Check terms when user connects
+	useEffect(() => {
+		if (isConnected && address && !hasAcceptedTerms && !checkTermsAccepted()) {
+			setTimeout(() => setShowTerms(true), 500);
+		}
+	}, [isConnected, address, hasAcceptedTerms, checkTermsAccepted]);
 
-  // Handle terms acceptance
-  const handleAcceptTerms = async () => {
-    if (!address || !chainId) return;
+	// Handle terms acceptance
+	const handleAcceptTerms = async () => {
+		if (!address || !chainId) return;
 
-    try {
-      setIsSigningTerms(true);
+		try {
+			setIsSigningTerms(true);
 
-      // Create the message with nonce, address and chain ID
-      const nonce = Date.now().toString();
-      const message = `${TERMS_MESSAGE}
+			// Create the message with nonce, address and chain ID
+			const nonce = Date.now().toString();
+			const message = `${TERMS_MESSAGE}
 
 Wallet: ${address}
 Chain ID: ${chainId}
 Nonce: ${nonce}`;
 
-      // Request signature from the user
-      const signature = await signMessageAsync({ message });
+			// Request signature from the user
+			const signature = await signMessageAsync({ message });
 
-      // Store that user has accepted terms
-      storeTermsAccepted();
-      setHasAcceptedTerms(true);
-      setShowTerms(false);
+			// Store that user has accepted terms
+			storeTermsAccepted();
+			setHasAcceptedTerms(true);
+			setShowTerms(false);
 
-      console.log('User signed terms and conditions', { message, signature });
-    } catch (error) {
-      console.error('Error during terms signing', error);
-      // If user rejected the signature, disconnect the wallet
-      disconnect();
-    } finally {
-      setIsSigningTerms(false);
-    }
-  };
+			console.log("User signed terms and conditions", { message, signature });
+		} catch (error) {
+			console.error("Error during terms signing", error);
+			// If user rejected the signature, disconnect the wallet
+			disconnect();
+		} finally {
+			setIsSigningTerms(false);
+		}
+	};
 
-  // Handle terms rejection
-  const handleRejectTerms = () => {
-    setShowTerms(false);
-    disconnect();
-  };
+	// Handle terms rejection
+	const handleRejectTerms = () => {
+		setShowTerms(false);
+		disconnect();
+	};
 
-  return (
-    <>
-      {/* Only use RainbowKit for account/chain management when connected */}
-      <ConnectButton.Custom>
-        {({
-          account,
-          chain,
-          openAccountModal,
-          openChainModal,
-          authenticationStatus,
-          mounted,
-        }) => {
-          const ready = mounted && authenticationStatus !== 'loading';
-          const connected =
-            ready &&
-            account &&
-            chain &&
-            (!authenticationStatus || authenticationStatus === 'authenticated');
+	return (
+		<>
+			{/* Only use RainbowKit for account/chain management when connected */}
+			<ConnectButton.Custom>
+				{({
+					account,
+					chain,
+					openAccountModal,
+					openChainModal,
+					authenticationStatus,
+					mounted,
+				}) => {
+					const ready = mounted && authenticationStatus !== "loading";
+					const connected =
+						ready &&
+						account &&
+						chain &&
+						(!authenticationStatus || authenticationStatus === "authenticated");
 
-          return (
-            <div
-              {...(!ready && {
-                'aria-hidden': true,
-                style: {
-                  opacity: 0,
-                  pointerEvents: 'none',
-                  userSelect: 'none',
-                },
-              })}
-              className={className}
-            >
-              {(() => {
-                if (!connected) {
-                  return (
-                    <Button
-                      onClick={() => setShowConnectModal(true)}
-                      className="w-full cj-btn-primary"
-                      data-testid="connect-wallet-button"
-                      aria-label="Connect your Web3 wallet"
-                    >
-                      Connect Wallet
-                    </Button>
-                  );
-                }
+					return (
+						<div
+							{...(!ready && {
+								"aria-hidden": true,
+								style: {
+									opacity: 0,
+									pointerEvents: "none",
+									userSelect: "none",
+								},
+							})}
+							className={className}
+						>
+							{(() => {
+								if (!connected) {
+									return (
+										<Button
+											onClick={() => setShowConnectModal(true)}
+											className="w-full cj-btn-primary"
+											data-testid="connect-wallet-button"
+											aria-label="Connect your Web3 wallet"
+										>
+											Connect Wallet
+										</Button>
+									);
+								}
 
-                if (chain.unsupported) {
-                  return (
-                    <Button
-                      onClick={openChainModal}
-                      variant="destructive"
-                      data-testid="wrong-network-button"
-                      aria-label="Switch to correct network"
-                    >
-                      Wrong network
-                    </Button>
-                  );
-                }
+								if (chain.unsupported) {
+									return (
+										<Button
+											onClick={openChainModal}
+											variant="destructive"
+											data-testid="wrong-network-button"
+											aria-label="Switch to correct network"
+										>
+											Wrong network
+										</Button>
+									);
+								}
 
-                return (
-                  <div className="flex items-center gap-2">
-                    <Button
-                      onClick={openAccountModal}
-                      variant="outline"
-                      size="sm"
-                      className="flex items-center gap-1"
-                      data-testid="account-modal-button"
-                      aria-label={`Connected to ${chain.name} - View account details`}
-                    >
-                      {chain.hasIcon && (
-                        <div className="w-4 h-4">
-                          {chain.iconUrl && (
-                            <Image
-                              alt={chain.name ?? 'Chain icon'}
-                              src={chain.iconUrl || '/placeholder.svg'}
-                              width={16}
-                              height={16}
-                              className="w-4 h-4"
-                            />
-                          )}
-                        </div>
-                      )}
-                      {chain.name}
-                    </Button>
+								return (
+									<div className="flex items-center gap-2">
+										<Button
+											onClick={openAccountModal}
+											variant="outline"
+											size="sm"
+											className="flex items-center gap-1"
+											data-testid="account-modal-button"
+											aria-label={`Connected to ${chain.name} - View account details`}
+										>
+											{chain.hasIcon && (
+												<div className="w-4 h-4">
+													{chain.iconUrl && (
+														<Image
+															alt={chain.name ?? "Chain icon"}
+															src={chain.iconUrl || "/placeholder.svg"}
+															width={16}
+															height={16}
+															className="w-4 h-4"
+														/>
+													)}
+												</div>
+											)}
+											{chain.name}
+										</Button>
 
-                    <Button
-                      onClick={openChainModal}
-                      variant="outline"
-                      size="sm"
-                      className="flex items-center gap-1"
-                      data-testid="change-network-button"
-                      aria-label="Switch to different blockchain network"
-                    >
-                      Change Networks
-                    </Button>
-                  </div>
-                );
-              })()}
-            </div>
-          );
-        }}
-      </ConnectButton.Custom>
+										<Button
+											onClick={openChainModal}
+											variant="outline"
+											size="sm"
+											className="flex items-center gap-1"
+											data-testid="change-network-button"
+											aria-label="Switch to different blockchain network"
+										>
+											Change Networks
+										</Button>
+									</div>
+								);
+							})()}
+						</div>
+					);
+				}}
+			</ConnectButton.Custom>
 
-      {/* Custom Connect Modal */}
-      <CustomConnectModal
-        isOpen={showConnectModal}
-        onClose={() => setShowConnectModal(false)}
-      />
+			{/* Custom Connect Modal */}
+			<CustomConnectModal
+				isOpen={showConnectModal}
+				onClose={() => setShowConnectModal(false)}
+			/>
 
-      {/* Terms and Conditions Dialog */}
-      <Dialog open={showTerms} onOpenChange={setShowTerms}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle>Terms and Conditions</DialogTitle>
-            <DialogDescription>
-              Please read and accept our terms and conditions to continue.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="max-h-[60vh] overflow-auto p-4 border rounded-md my-4">
-            <pre className="whitespace-pre-wrap font-sans text-sm">
-              {TERMS_MESSAGE}
-            </pre>
-          </div>
-          <DialogFooter className="flex flex-col sm:flex-row sm:justify-between gap-2">
-            <Button variant="outline" onClick={handleRejectTerms}>
-              Decline
-            </Button>
-            <Button
-              variant="cookie"
-              onClick={handleAcceptTerms}
-              disabled={isSigningTerms}
-            >
-              {isSigningTerms ? (
-                <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Signing...
-                </>
-              ) : (
-                'Accept & Sign'
-              )}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
-  );
+			{/* Terms and Conditions Dialog */}
+			<Dialog open={showTerms} onOpenChange={setShowTerms}>
+				<DialogContent className="sm:max-w-md">
+					<DialogHeader>
+						<DialogTitle>Terms and Conditions</DialogTitle>
+						<DialogDescription>
+							Please read and accept our terms and conditions to continue.
+						</DialogDescription>
+					</DialogHeader>
+					<div className="max-h-[60vh] overflow-auto p-4 border rounded-md my-4">
+						<pre className="whitespace-pre-wrap font-sans text-sm">
+							{TERMS_MESSAGE}
+						</pre>
+					</div>
+					<DialogFooter className="flex flex-col sm:flex-row sm:justify-between gap-2">
+						<Button variant="outline" onClick={handleRejectTerms}>
+							Decline
+						</Button>
+						<Button
+							variant="cookie"
+							onClick={handleAcceptTerms}
+							disabled={isSigningTerms}
+						>
+							{isSigningTerms ? (
+								<>
+									<Loader2 className="mr-2 h-4 w-4 animate-spin" />
+									Signing...
+								</>
+							) : (
+								"Accept & Sign"
+							)}
+						</Button>
+					</DialogFooter>
+				</DialogContent>
+			</Dialog>
+		</>
+	);
 }
 
 export const MemoizedCustomConnectButton = memo(CustomConnectButton);

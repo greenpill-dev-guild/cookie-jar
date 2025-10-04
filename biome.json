@@ -7,7 +7,17 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": ["client/**/*", "e2e/**/*.ts", "client/**/*.css"]
+    "includes": ["client/**/*", "e2e/**/*.ts", "client/**/*.css"],
+    "ignores": [
+      "client/.next/**",
+      "client/node_modules/**",
+      "client/dist/**",
+      "client/build/**",
+      "client/coverage/**",
+      "client/.nyc_output/**",
+      "**/*.min.js",
+      "**/*.min.css"
+    ]
   },
   "css": {
     "formatter": {
@@ -78,6 +88,49 @@
             "noExplicitAny": "off"
           }
         }
+      }
+    },
+    // Auto-generated files - relaxed rules since they're not manually maintained
+    {
+      "includes": [
+        "**/generated.ts",
+        "**/deployments.auto.ts",
+        "**/*.auto.ts"
+      ],
+      "formatter": {
+        "enabled": false
+      },
+      "linter": {
+        "enabled": false,
+        "rules": {
+          "correctness": {
+            "noUnusedVariables": "off",
+            "useExhaustiveDependencies": "off",
+            "useHookAtTopLevel": "off"
+          },
+          "style": {
+            "useConst": "off"
+          },
+          "suspicious": {
+            "noExplicitAny": "off",
+            "noArrayIndexKey": "off"
+          }
+        }
+      }
+    },
+    // Additional auto-generated file patterns
+    {
+      "includes": [
+        "**/generated/**/*",
+        "**/*.generated.ts",
+        "**/*.generated.tsx",
+        "e2e/playwright-report/**"
+      ],
+      "formatter": {
+        "enabled": false
+      },
+      "linter": {
+        "enabled": false
       }
     }
   ]

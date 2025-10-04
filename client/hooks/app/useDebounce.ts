@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
 /**
  * Custom hook to debounce a value
@@ -8,19 +8,19 @@ import { useEffect, useState } from 'react';
  * @returns The debounced value
  */
 export function useDebounce<T>(value: T, delay: number): T {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
+	const [debouncedValue, setDebouncedValue] = useState<T>(value);
 
-  useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-    }, delay);
+	useEffect(() => {
+		const handler = setTimeout(() => {
+			setDebouncedValue(value);
+		}, delay);
 
-    return () => {
-      clearTimeout(handler);
-    };
-  }, [value, delay]);
+		return () => {
+			clearTimeout(handler);
+		};
+	}, [value, delay]);
 
-  return debouncedValue;
+	return debouncedValue;
 }
 
 /**
@@ -31,28 +31,28 @@ export function useDebounce<T>(value: T, delay: number): T {
  * @returns Object with debounced value and loading state
  */
 export function useDebounceWithLoading<T>(
-  value: T,
-  delay: number
+	value: T,
+	delay: number,
 ): {
-  debouncedValue: T;
-  isDebouncing: boolean;
+	debouncedValue: T;
+	isDebouncing: boolean;
 } {
-  const [debouncedValue, setDebouncedValue] = useState<T>(value);
-  const [isDebouncing, setIsDebouncing] = useState(false);
+	const [debouncedValue, setDebouncedValue] = useState<T>(value);
+	const [isDebouncing, setIsDebouncing] = useState(false);
 
-  useEffect(() => {
-    setIsDebouncing(true);
+	useEffect(() => {
+		setIsDebouncing(true);
 
-    const handler = setTimeout(() => {
-      setDebouncedValue(value);
-      setIsDebouncing(false);
-    }, delay);
+		const handler = setTimeout(() => {
+			setDebouncedValue(value);
+			setIsDebouncing(false);
+		}, delay);
 
-    return () => {
-      clearTimeout(handler);
-      setIsDebouncing(false);
-    };
-  }, [value, delay]);
+		return () => {
+			clearTimeout(handler);
+			setIsDebouncing(false);
+		};
+	}, [value, delay]);
 
-  return { debouncedValue, isDebouncing };
+	return { debouncedValue, isDebouncing };
 }

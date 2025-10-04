@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
+import { useRouter } from "next/navigation";
 
 /**
  * Return type for useNavigateToTop hook
  */
 interface NavigateToTopReturn {
-  /** Navigate to a path and scroll to top */
-  navigateToTop: (path: string) => Promise<void>;
-  /** Scroll to top of current page without navigation */
-  scrollToTop: () => void;
+	/** Navigate to a path and scroll to top */
+	navigateToTop: (path: string) => Promise<void>;
+	/** Scroll to top of current page without navigation */
+	scrollToTop: () => void;
 }
 
 /**
@@ -33,56 +33,56 @@ interface NavigateToTopReturn {
  * ```
  */
 export const useNavigateToTop = (): NavigateToTopReturn => {
-  const router = useRouter();
+	const router = useRouter();
 
-  const navigateToTop = async (path: string) => {
-    // First, scroll to top immediately
-    const el = document.getElementById('app-scroll');
-    if (el) {
-      el.scrollTop = 0;
-    } else {
-      // Try scrolling to header first
-      const header =
-        document.querySelector('header') ||
-        document.querySelector('[role="banner"]');
-      if (header) {
-        header.scrollIntoView({
-          behavior: 'auto',
-          block: 'start',
-          inline: 'nearest',
-        });
-      } else {
-        window.scrollTo({ top: 0, behavior: 'auto' });
-      }
-    }
+	const navigateToTop = async (path: string) => {
+		// First, scroll to top immediately
+		const el = document.getElementById("app-scroll");
+		if (el) {
+			el.scrollTop = 0;
+		} else {
+			// Try scrolling to header first
+			const header =
+				document.querySelector("header") ||
+				document.querySelector('[role="banner"]');
+			if (header) {
+				header.scrollIntoView({
+					behavior: "auto",
+					block: "start",
+					inline: "nearest",
+				});
+			} else {
+				window.scrollTo({ top: 0, behavior: "auto" });
+			}
+		}
 
-    // Small delay to ensure scroll completes before navigation
-    await new Promise((resolve) => setTimeout(resolve, 10));
+		// Small delay to ensure scroll completes before navigation
+		await new Promise((resolve) => setTimeout(resolve, 10));
 
-    // Then navigate
-    router.push(path);
-  };
+		// Then navigate
+		router.push(path);
+	};
 
-  const scrollToTop = () => {
-    const el = document.getElementById('app-scroll');
-    if (el) {
-      el.scrollTop = 0;
-    } else {
-      // Try scrolling to header first
-      const header =
-        document.querySelector('header') ||
-        document.querySelector('[role="banner"]');
-      if (header) {
-        header.scrollIntoView({
-          behavior: 'auto',
-          block: 'start',
-          inline: 'nearest',
-        });
-      } else {
-        window.scrollTo({ top: 0, behavior: 'auto' });
-      }
-    }
-  };
+	const scrollToTop = () => {
+		const el = document.getElementById("app-scroll");
+		if (el) {
+			el.scrollTop = 0;
+		} else {
+			// Try scrolling to header first
+			const header =
+				document.querySelector("header") ||
+				document.querySelector('[role="banner"]');
+			if (header) {
+				header.scrollIntoView({
+					behavior: "auto",
+					block: "start",
+					inline: "nearest",
+				});
+			} else {
+				window.scrollTo({ top: 0, behavior: "auto" });
+			}
+		}
+	};
 
-  return { navigateToTop, scrollToTop };
+	return { navigateToTop, scrollToTop };
 };

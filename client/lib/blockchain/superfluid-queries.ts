@@ -4,7 +4,7 @@
  * Queries for fetching stream data from The Graph
  */
 
-import { gql } from 'graphql-request';
+import { gql } from "graphql-request";
 
 /**
  * Query to fetch all active streams flowing to a specific receiver (jar address)
@@ -179,99 +179,99 @@ export const GET_SUPER_TOKEN_INFO = gql`
  */
 
 export interface StreamData {
-  id: string;
-  createdAtTimestamp: string;
-  updatedAtTimestamp: string;
-  currentFlowRate: string;
-  streamedUntilUpdatedAt: string;
-  token: {
-    id: string;
-    symbol: string;
-    name: string;
-    decimals: number;
-  };
-  sender: {
-    id: string;
-  };
-  receiver: {
-    id: string;
-  };
+	id: string;
+	createdAtTimestamp: string;
+	updatedAtTimestamp: string;
+	currentFlowRate: string;
+	streamedUntilUpdatedAt: string;
+	token: {
+		id: string;
+		symbol: string;
+		name: string;
+		decimals: number;
+	};
+	sender: {
+		id: string;
+	};
+	receiver: {
+		id: string;
+	};
 }
 
 export interface AccountTokenSnapshot {
-  token: {
-    id: string;
-    symbol: string;
-    name: string;
-    decimals: number;
-  };
-  totalNetFlowRate: string;
-  totalInflowRate: string;
-  totalOutflowRate: string;
-  totalAmountStreamedUntilUpdatedAt: string;
-  totalDeposit: string;
-  totalCFADeposit: string;
-  balanceUntilUpdatedAt: string;
-  updatedAtTimestamp: string;
+	token: {
+		id: string;
+		symbol: string;
+		name: string;
+		decimals: number;
+	};
+	totalNetFlowRate: string;
+	totalInflowRate: string;
+	totalOutflowRate: string;
+	totalAmountStreamedUntilUpdatedAt: string;
+	totalDeposit: string;
+	totalCFADeposit: string;
+	balanceUntilUpdatedAt: string;
+	updatedAtTimestamp: string;
 }
 
 export interface AccountData {
-  id: string;
-  isSuperApp: boolean;
-  createdAtTimestamp: string;
-  updatedAtTimestamp: string;
-  accountTokenSnapshots: AccountTokenSnapshot[];
+	id: string;
+	isSuperApp: boolean;
+	createdAtTimestamp: string;
+	updatedAtTimestamp: string;
+	accountTokenSnapshots: AccountTokenSnapshot[];
 }
 
 export interface FlowUpdatedEvent {
-  id: string;
-  timestamp: string;
-  flowRate: string;
-  totalAmountStreamedUntilTimestamp: string;
-  token: string;
-  sender: string;
-  receiver: string;
-  stream?: {
-    id: string;
-    currentFlowRate: string;
-    createdAtTimestamp: string;
-  };
-  transaction: {
-    id: string;
-    timestamp: string;
-    blockNumber: string;
-  };
+	id: string;
+	timestamp: string;
+	flowRate: string;
+	totalAmountStreamedUntilTimestamp: string;
+	token: string;
+	sender: string;
+	receiver: string;
+	stream?: {
+		id: string;
+		currentFlowRate: string;
+		createdAtTimestamp: string;
+	};
+	transaction: {
+		id: string;
+		timestamp: string;
+		blockNumber: string;
+	};
 }
 
 export interface SuperTokenInfo {
-  id: string;
-  symbol: string;
-  name: string;
-  decimals: number;
-  underlyingAddress: string | null;
-  isSuperToken: boolean;
-  isNativeAssetSuperToken: boolean;
-  isListed: boolean;
-  createdAtTimestamp: string;
-  updatedAtTimestamp: string;
+	id: string;
+	symbol: string;
+	name: string;
+	decimals: number;
+	underlyingAddress: string | null;
+	isSuperToken: boolean;
+	isNativeAssetSuperToken: boolean;
+	isListed: boolean;
+	createdAtTimestamp: string;
+	updatedAtTimestamp: string;
 }
 
 export interface GetStreamsByReceiverResponse {
-  streams: StreamData[];
+	streams: StreamData[];
 }
 
 export interface GetAccountStreamInfoResponse {
-  account: AccountData | null;
+	account: AccountData | null;
 }
 
 export interface GetStreamByPartiesResponse {
-  streams: StreamData[];
+	streams: StreamData[];
 }
 
 export interface GetStreamHistoryResponse {
-  flowUpdatedEvents: FlowUpdatedEvent[];
+	flowUpdatedEvents: FlowUpdatedEvent[];
 }
 
 export interface GetSuperTokenInfoResponse {
-  token: SuperTokenInfo | null;
+	token: SuperTokenInfo | null;
 }

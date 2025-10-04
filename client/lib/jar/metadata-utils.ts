@@ -6,16 +6,16 @@
  */
 
 export interface ParsedJarMetadata {
-  /** Display name of the jar */
-  name: string;
-  /** Description of the jar's purpose */
-  description: string;
-  /** URL to jar image/logo */
-  image: string;
-  /** External link for more information */
-  link: string;
-  /** Whether this is v2 JSON metadata format */
-  isV2Format: boolean;
+	/** Display name of the jar */
+	name: string;
+	/** Description of the jar's purpose */
+	description: string;
+	/** URL to jar image/logo */
+	image: string;
+	/** External link for more information */
+	link: string;
+	/** Whether this is v2 JSON metadata format */
+	isV2Format: boolean;
 }
 
 /**
@@ -40,61 +40,61 @@ export interface ParsedJarMetadata {
  * ```
  */
 export function parseJarMetadata(
-  rawMetadata: string | undefined
+	rawMetadata: string | undefined,
 ): ParsedJarMetadata {
-  const defaultMetadata: ParsedJarMetadata = {
-    name: 'Cookie Jar',
-    description: '',
-    image: '',
-    link: '',
-    isV2Format: false,
-  };
+	const defaultMetadata: ParsedJarMetadata = {
+		name: "Cookie Jar",
+		description: "",
+		image: "",
+		link: "",
+		isV2Format: false,
+	};
 
-  if (!rawMetadata || rawMetadata.trim() === '') {
-    return defaultMetadata;
-  }
+	if (!rawMetadata || rawMetadata.trim() === "") {
+		return defaultMetadata;
+	}
 
-  try {
-    const parsed = JSON.parse(rawMetadata);
+	try {
+		const parsed = JSON.parse(rawMetadata);
 
-    // Validate it's an object (not array, null, etc.)
-    if (
-      typeof parsed !== 'object' ||
-      parsed === null ||
-      Array.isArray(parsed)
-    ) {
-      throw new Error('Invalid metadata format');
-    }
+		// Validate it's an object (not array, null, etc.)
+		if (
+			typeof parsed !== "object" ||
+			parsed === null ||
+			Array.isArray(parsed)
+		) {
+			throw new Error("Invalid metadata format");
+		}
 
-    return {
-      name: parsed.name || defaultMetadata.name,
-      description: parsed.description || '',
-      image: parsed.image || '',
-      link: parsed.link || parsed.external_link || '', // Support both variants
-      isV2Format: true,
-    };
-  } catch {
-    // If JSON parsing fails, treat as legacy string metadata
-    // Legacy behavior: use string as name if short, description if long
-    const cleanMetadata = rawMetadata.trim();
+		return {
+			name: parsed.name || defaultMetadata.name,
+			description: parsed.description || "",
+			image: parsed.image || "",
+			link: parsed.link || parsed.external_link || "", // Support both variants
+			isV2Format: true,
+		};
+	} catch {
+		// If JSON parsing fails, treat as legacy string metadata
+		// Legacy behavior: use string as name if short, description if long
+		const cleanMetadata = rawMetadata.trim();
 
-    if (cleanMetadata.length <= 50) {
-      // Short string = likely a name
-      return {
-        ...defaultMetadata,
-        name: cleanMetadata,
-        isV2Format: false,
-      };
-    } else {
-      // Long string = likely a description
-      return {
-        ...defaultMetadata,
-        name: 'Cookie Jar',
-        description: cleanMetadata,
-        isV2Format: false,
-      };
-    }
-  }
+		if (cleanMetadata.length <= 50) {
+			// Short string = likely a name
+			return {
+				...defaultMetadata,
+				name: cleanMetadata,
+				isV2Format: false,
+			};
+		} else {
+			// Long string = likely a description
+			return {
+				...defaultMetadata,
+				name: "Cookie Jar",
+				description: cleanMetadata,
+				isV2Format: false,
+			};
+		}
+	}
 }
 
 /**
@@ -105,7 +105,7 @@ export function parseJarMetadata(
  * @returns Jar name
  */
 export function getJarName(rawMetadata: string | undefined): string {
-  return parseJarMetadata(rawMetadata).name;
+	return parseJarMetadata(rawMetadata).name;
 }
 
 /**
@@ -115,7 +115,7 @@ export function getJarName(rawMetadata: string | undefined): string {
  * @returns Jar description
  */
 export function getJarDescription(rawMetadata: string | undefined): string {
-  return parseJarMetadata(rawMetadata).description;
+	return parseJarMetadata(rawMetadata).description;
 }
 
 /**
@@ -125,14 +125,14 @@ export function getJarDescription(rawMetadata: string | undefined): string {
  * @returns JSON string ready for contract storage
  */
 export function createMetadataJson(
-  metadata: Omit<ParsedJarMetadata, 'isV2Format'>
+	metadata: Omit<ParsedJarMetadata, "isV2Format">,
 ): string {
-  return JSON.stringify({
-    name: metadata.name,
-    description: metadata.description,
-    image: metadata.image,
-    link: metadata.link,
-  });
+	return JSON.stringify({
+		name: metadata.name,
+		description: metadata.description,
+		image: metadata.image,
+		link: metadata.link,
+	});
 }
 
 /**
@@ -143,28 +143,28 @@ export function createMetadataJson(
  * @returns Object with validation result and size
  */
 export function validateMetadataSize(metadataJson: string): {
-  valid: boolean;
-  size: number;
-  maxSize: number;
-  error?: string;
+	valid: boolean;
+	size: number;
+	maxSize: number;
+	error?: string;
 } {
-  const maxSize = 8192; // 8KB
-  const size = new TextEncoder().encode(metadataJson).length;
+	const maxSize = 8192; // 8KB
+	const size = new TextEncoder().encode(metadataJson).length;
 
-  if (size > maxSize) {
-    return {
-      valid: false,
-      size,
-      maxSize,
-      error: `Metadata is too large (${size} bytes). Maximum allowed size is ${maxSize} bytes (8KB).`,
-    };
-  }
+	if (size > maxSize) {
+		return {
+			valid: false,
+			size,
+			maxSize,
+			error: `Metadata is too large (${size} bytes). Maximum allowed size is ${maxSize} bytes (8KB).`,
+		};
+	}
 
-  return {
-    valid: true,
-    size,
-    maxSize,
-  };
+	return {
+		valid: true,
+		size,
+		maxSize,
+	};
 }
 
 /**
@@ -174,12 +174,12 @@ export function validateMetadataSize(metadataJson: string): {
  * @returns True if valid URL format
  */
 export function isValidUrl(url: string): boolean {
-  if (!url) return false;
+	if (!url) return false;
 
-  try {
-    new URL(url);
-    return true;
-  } catch {
-    return false;
-  }
+	try {
+		new URL(url);
+		return true;
+	} catch {
+		return false;
+	}
 }

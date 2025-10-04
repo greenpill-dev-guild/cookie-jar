@@ -5,44 +5,44 @@
  * and improving Time to Interactive (TTI) for the main jar viewing experience.
  */
 
-import { lazy, Suspense, useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 
 // Loading spinner component
 const ComponentLoader = ({ name }: { name: string }) => (
-  <div className="flex items-center justify-center py-8">
-    <div className="text-center">
-      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#ff5e14] mx-auto mb-2"></div>
-      <p className="text-sm text-[#8b7355]">Loading {name}...</p>
-    </div>
-  </div>
+	<div className="flex items-center justify-center py-8">
+		<div className="text-center">
+			<div className="animate-spin rounded-full h-6 w-6 border-b-2 border-[#ff5e14] mx-auto mb-2"></div>
+			<p className="text-sm text-[#8b7355]">Loading {name}...</p>
+		</div>
+	</div>
 );
 
 // ===== STREAMING COMPONENTS =====
 
 export const LazyJarStreamingTab = lazy(() =>
-  import('../jar/JarStreamingTab').then((module) => ({
-    default: module.JarStreamingTab,
-  }))
+	import("../jar/JarStreamingTab").then((module) => ({
+		default: module.JarStreamingTab,
+	})),
 );
 
 export const LazyStreamingPanel = lazy(() =>
-  import('../jar/StreamingPanel').then((module) => ({
-    default: module.StreamingPanel,
-  }))
+	import("../jar/StreamingPanel").then((module) => ({
+		default: module.StreamingPanel,
+	})),
 );
 
 export const LazyTokenRecoveryPanel = lazy(() =>
-  import('../jar/TokenRecoveryPanel').then((module) => ({
-    default: module.TokenRecoveryPanel,
-  }))
+	import("../jar/TokenRecoveryPanel").then((module) => ({
+		default: module.TokenRecoveryPanel,
+	})),
 );
 
 // ===== NFT & PROTOCOL COMPONENTS =====
 
 export const LazyProtocolSelector = lazy(() =>
-  import('../nft/ProtocolSelector').then((module) => ({
-    default: module.ProtocolSelector,
-  }))
+	import("../nft/ProtocolSelector").then((module) => ({
+		default: module.ProtocolSelector,
+	})),
 );
 
 // TODO: Add these components when they are created
@@ -69,35 +69,35 @@ export const LazyProtocolSelector = lazy(() =>
 // ===== ADMIN COMPONENTS =====
 
 export const LazyAdminFunctions = lazy(() =>
-  import('../jar/AdminFunctions').then((module) => ({
-    default: module.AdminFunctions,
-  }))
+	import("../jar/AdminFunctions").then((module) => ({
+		default: module.AdminFunctions,
+	})),
 );
 
 // ===== WRAPPED COMPONENTS WITH LOADING STATES =====
 
 export const JarStreamingTab = (props: any) => (
-  <Suspense fallback={<ComponentLoader name="streaming features" />}>
-    <LazyJarStreamingTab {...props} />
-  </Suspense>
+	<Suspense fallback={<ComponentLoader name="streaming features" />}>
+		<LazyJarStreamingTab {...props} />
+	</Suspense>
 );
 
 export const StreamingPanel = (props: any) => (
-  <Suspense fallback={<ComponentLoader name="streaming panel" />}>
-    <LazyStreamingPanel {...props} />
-  </Suspense>
+	<Suspense fallback={<ComponentLoader name="streaming panel" />}>
+		<LazyStreamingPanel {...props} />
+	</Suspense>
 );
 
 export const TokenRecoveryPanel = (props: any) => (
-  <Suspense fallback={<ComponentLoader name="token recovery" />}>
-    <LazyTokenRecoveryPanel {...props} />
-  </Suspense>
+	<Suspense fallback={<ComponentLoader name="token recovery" />}>
+		<LazyTokenRecoveryPanel {...props} />
+	</Suspense>
 );
 
 export const ProtocolSelector = (props: any) => (
-  <Suspense fallback={<ComponentLoader name="protocol selector" />}>
-    <LazyProtocolSelector {...props} />
-  </Suspense>
+	<Suspense fallback={<ComponentLoader name="protocol selector" />}>
+		<LazyProtocolSelector {...props} />
+	</Suspense>
 );
 
 // TODO: Add these wrapper components when the lazy components are created
@@ -132,9 +132,9 @@ export const ProtocolSelector = (props: any) => (
 // );
 
 export const AdminFunctions = (props: any) => (
-  <Suspense fallback={<ComponentLoader name="admin tools" />}>
-    <LazyAdminFunctions {...props} />
-  </Suspense>
+	<Suspense fallback={<ComponentLoader name="admin tools" />}>
+		<LazyAdminFunctions {...props} />
+	</Suspense>
 );
 
 // ===== PERFORMANCE OPTIMIZATION UTILITIES =====
@@ -144,40 +144,40 @@ export const AdminFunctions = (props: any) => (
  * Useful for components that might be below the fold
  */
 export const useIntersectionObserver = (
-  ref: React.RefObject<HTMLElement>,
-  options?: IntersectionObserverInit
+	ref: React.RefObject<HTMLElement>,
+	options?: IntersectionObserverInit,
 ) => {
-  const [isIntersecting, setIsIntersecting] = useState(false);
+	const [isIntersecting, setIsIntersecting] = useState(false);
 
-  useEffect(() => {
-    if (!ref.current) return;
+	useEffect(() => {
+		if (!ref.current) return;
 
-    const observer = new IntersectionObserver(
-      ([entry]) => setIsIntersecting(entry.isIntersecting),
-      options
-    );
+		const observer = new IntersectionObserver(
+			([entry]) => setIsIntersecting(entry.isIntersecting),
+			options,
+		);
 
-    observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, [ref, options]);
+		observer.observe(ref.current);
+		return () => observer.disconnect();
+	}, [ref, options]);
 
-  return isIntersecting;
+	return isIntersecting;
 };
 
 /**
  * Wrapper for lazy loading components only when they come into view
  */
 export const LazyOnScroll = ({
-  children,
-  fallback,
-  rootMargin = '100px',
+	children,
+	fallback,
+	rootMargin = "100px",
 }: {
-  children: React.ReactNode;
-  fallback: React.ReactNode;
-  rootMargin?: string;
+	children: React.ReactNode;
+	fallback: React.ReactNode;
+	rootMargin?: string;
 }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useIntersectionObserver(ref, { rootMargin });
+	const ref = useRef<HTMLDivElement>(null);
+	const isInView = useIntersectionObserver(ref, { rootMargin });
 
-  return <div ref={ref}>{isInView ? children : fallback}</div>;
+	return <div ref={ref}>{isInView ? children : fallback}</div>;
 };

@@ -1,21 +1,21 @@
-'use client';
+"use client";
 
-import { useCallback, useState } from 'react';
+import { useCallback, useState } from "react";
 
 /**
  * Return type for useStepNavigation hook
  */
 interface StepNavigationReturn {
-  /** Current step number (1-based) */
-  currentStep: number;
-  /** Total number of steps in the flow */
-  totalSteps: number;
-  /** Move to the next step */
-  nextStep: () => void;
-  /** Move to the previous step */
-  prevStep: () => void;
-  /** Set a specific step number */
-  setCurrentStep: (step: number) => void;
+	/** Current step number (1-based) */
+	currentStep: number;
+	/** Total number of steps in the flow */
+	totalSteps: number;
+	/** Move to the next step */
+	nextStep: () => void;
+	/** Move to the previous step */
+	prevStep: () => void;
+	/** Set a specific step number */
+	setCurrentStep: (step: number) => void;
 }
 
 /**
@@ -42,42 +42,42 @@ interface StepNavigationReturn {
  * ```
  */
 export const useStepNavigation = (
-  isV2Contract: boolean
+	isV2Contract: boolean,
 ): StepNavigationReturn => {
-  const [currentStep, setCurrentStep] = useState(1);
-  const totalSteps = isV2Contract ? 4 : 3; // Skip access control for v1
+	const [currentStep, setCurrentStep] = useState(1);
+	const totalSteps = isV2Contract ? 4 : 3; // Skip access control for v1
 
-  const nextStep = useCallback(() => {
-    if (currentStep < totalSteps) {
-      let nextStepNumber = currentStep + 1;
+	const nextStep = useCallback(() => {
+		if (currentStep < totalSteps) {
+			let nextStepNumber = currentStep + 1;
 
-      // For v1 chains, skip step 3 (access control) - jump from step 2 to step 4
-      if (!isV2Contract && currentStep === 2) {
-        nextStepNumber = 4; // Skip access control step
-      }
+			// For v1 chains, skip step 3 (access control) - jump from step 2 to step 4
+			if (!isV2Contract && currentStep === 2) {
+				nextStepNumber = 4; // Skip access control step
+			}
 
-      setCurrentStep(nextStepNumber);
-    }
-  }, [currentStep, totalSteps, isV2Contract]);
+			setCurrentStep(nextStepNumber);
+		}
+	}, [currentStep, totalSteps, isV2Contract]);
 
-  const prevStep = useCallback(() => {
-    if (currentStep > 1) {
-      let prevStepNumber = currentStep - 1;
+	const prevStep = useCallback(() => {
+		if (currentStep > 1) {
+			let prevStepNumber = currentStep - 1;
 
-      // For v1 chains, skip step 3 (access control) - jump from step 4 to step 2
-      if (!isV2Contract && currentStep === 4) {
-        prevStepNumber = 2; // Skip access control step
-      }
+			// For v1 chains, skip step 3 (access control) - jump from step 4 to step 2
+			if (!isV2Contract && currentStep === 4) {
+				prevStepNumber = 2; // Skip access control step
+			}
 
-      setCurrentStep(prevStepNumber);
-    }
-  }, [currentStep, isV2Contract]);
+			setCurrentStep(prevStepNumber);
+		}
+	}, [currentStep, isV2Contract]);
 
-  return {
-    currentStep,
-    totalSteps,
-    nextStep,
-    prevStep,
-    setCurrentStep,
-  };
+	return {
+		currentStep,
+		totalSteps,
+		nextStep,
+		prevStep,
+		setCurrentStep,
+	};
 };

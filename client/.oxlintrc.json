@@ -1,8 +1,8 @@
 {
-  "rules": {
-    "typescript/no-unused-vars": "error",
-    "react/react-hooks-exhaustive-deps": "error",
-    "react/rules-of-hooks": "error",
-    "react/jsx-no-unescaped-entities": "error"
-  }
+	"rules": {
+		"typescript/no-unused-vars": "error",
+		"react/react-hooks-exhaustive-deps": "error",
+		"react/rules-of-hooks": "error",
+		"react/jsx-no-unescaped-entities": "error"
+	}
 }

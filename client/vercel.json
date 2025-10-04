@@ -1,10 +1,10 @@
 {
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "cd .. && pnpm check && cd client && pnpm build:skip-lint",
-  "installCommand": "cd .. && pnpm install --ignore-scripts",
-  "outputDirectory": ".next",
-  "framework": "nextjs",
-  "env": {
-    "NODE_ENV": "production"
-  }
+	"$schema": "https://openapi.vercel.sh/vercel.json",
+	"buildCommand": "cd .. && pnpm check && cd client && pnpm build:skip-lint",
+	"installCommand": "cd .. && pnpm install --ignore-scripts",
+	"outputDirectory": ".next",
+	"framework": "nextjs",
+	"env": {
+		"NODE_ENV": "production"
+	}
 }

@@ -1,11 +1,11 @@
-import { type ClassValue, clsx } from 'clsx';
-import { twMerge } from 'tailwind-merge';
+import { type ClassValue, clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 /**
  * Utility function for combining CSS classes with Tailwind merge
  */
 export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+	return twMerge(clsx(inputs));
 }
 
 /**
@@ -14,8 +14,8 @@ export function cn(...inputs: ClassValue[]) {
  * @param chars - Number of characters to show on each side (default: 4)
  */
 export function shortenAddress(address: string, chars = 4): string {
-  if (!address) return '';
-  return `${address.substring(0, chars + 2)}...${address.substring(address.length - chars)}`;
+	if (!address) return "";
+	return `${address.substring(0, chars + 2)}...${address.substring(address.length - chars)}`;
 }
 
 /**
@@ -23,8 +23,8 @@ export function shortenAddress(address: string, chars = 4): string {
  * @param address - The address to format
  */
 export const formatAddress = (address: string) => {
-  if (!address) return 'N/A';
-  return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
+	if (!address) return "N/A";
+	return `${address.substring(0, 6)}...${address.substring(address.length - 4)}`;
 };
 
 /**
@@ -32,8 +32,8 @@ export const formatAddress = (address: string) => {
  * @param value - The value to format
  */
 export const formatValue = (value: any) => {
-  if (value === undefined || value === null) return 'N/A';
-  if (typeof value === 'boolean') return value ? 'Yes' : 'No';
-  if (typeof value === 'object' && value.toString) return value.toString();
-  return value;
+	if (value === undefined || value === null) return "N/A";
+	if (typeof value === "boolean") return value ? "Yes" : "No";
+	if (typeof value === "object" && value.toString) return value.toString();
+	return value;
 };

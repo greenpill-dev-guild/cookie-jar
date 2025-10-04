@@ -1,108 +1,108 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useAccount, useChainId } from 'wagmi';
+import { useCallback, useEffect, useState } from "react";
+import { useAccount, useChainId } from "wagmi";
 
 /**
  * Alchemy network identifier mapping by chain ID
  */
 const ALCHEMY_NETWORKS: Record<number, string> = {
-  1: 'eth-mainnet', // Ethereum Mainnet
-  11155111: 'eth-sepolia', // Sepolia Testnet
-  8453: 'base-mainnet', // Base
-  84532: 'base-sepolia', // Base Sepolia
-  10: 'opt-mainnet', // Optimism
-  11155420: 'opt-sepolia', // Optimism Sepolia
-  42161: 'arb-mainnet', // Arbitrum One
+	1: "eth-mainnet", // Ethereum Mainnet
+	11155111: "eth-sepolia", // Sepolia Testnet
+	8453: "base-mainnet", // Base
+	84532: "base-sepolia", // Base Sepolia
+	10: "opt-mainnet", // Optimism
+	11155420: "opt-sepolia", // Optimism Sepolia
+	42161: "arb-mainnet", // Arbitrum One
 };
 
 /**
  * NFT metadata structure from Alchemy API
  */
 export interface NFTMetadata {
-  /** Display name of the NFT */
-  name?: string;
-  /** Description of the NFT */
-  description?: string;
-  /** Image URL */
-  image?: string;
-  /** External website URL */
-  external_url?: string;
+	/** Display name of the NFT */
+	name?: string;
+	/** Description of the NFT */
+	description?: string;
+	/** Image URL */
+	image?: string;
+	/** External website URL */
+	external_url?: string;
 }
 
 /**
  * Individual NFT data structure
  */
 export interface UserNFT {
-  /** Contract information */
-  contract: {
-    /** Contract address */
-    address: string;
-    /** Collection name */
-    name?: string;
-    /** Collection symbol */
-    symbol?: string;
-    /** Token standard (ERC721 or ERC1155) */
-    tokenType: 'ERC721' | 'ERC1155' | 'UNKNOWN';
-  };
-  /** Token ID within the contract */
-  tokenId: string;
-  /** Token balance (for ERC1155 tokens) */
-  balance?: string;
-  /** Parsed metadata object */
-  metadata?: NFTMetadata;
-  /** Raw token URI */
-  tokenUri?: string;
-  /** Last update timestamp */
-  timeLastUpdated?: string;
+	/** Contract information */
+	contract: {
+		/** Contract address */
+		address: string;
+		/** Collection name */
+		name?: string;
+		/** Collection symbol */
+		symbol?: string;
+		/** Token standard (ERC721 or ERC1155) */
+		tokenType: "ERC721" | "ERC1155" | "UNKNOWN";
+	};
+	/** Token ID within the contract */
+	tokenId: string;
+	/** Token balance (for ERC1155 tokens) */
+	balance?: string;
+	/** Parsed metadata object */
+	metadata?: NFTMetadata;
+	/** Raw token URI */
+	tokenUri?: string;
+	/** Last update timestamp */
+	timeLastUpdated?: string;
 }
 
 /**
  * Collection data with grouped NFTs
  */
 export interface NFTCollection {
-  /** Contract address of the collection */
-  contractAddress: string;
-  /** Collection name */
-  name?: string;
-  /** Collection symbol */
-  symbol?: string;
-  /** Token standard used by collection */
-  tokenType: 'ERC721' | 'ERC1155' | 'UNKNOWN';
-  /** All NFTs in this collection */
-  nfts: UserNFT[];
+	/** Contract address of the collection */
+	contractAddress: string;
+	/** Collection name */
+	name?: string;
+	/** Collection symbol */
+	symbol?: string;
+	/** Token standard used by collection */
+	tokenType: "ERC721" | "ERC1155" | "UNKNOWN";
+	/** All NFTs in this collection */
+	nfts: UserNFT[];
 }
 
 /**
  * Return type for useUserNFTs hook
  */
 export interface useUserNFTsResult {
-  /** Flat array of all user NFTs */
-  nfts: UserNFT[];
-  /** NFTs grouped by collection */
-  collections: NFTCollection[];
-  /** Whether data is loading */
-  isLoading: boolean;
-  /** Error message if fetch failed */
-  error: string | null;
-  /** Function to refresh NFT data */
-  refetch: () => void;
-  /** Whether more pages are available */
-  hasMore: boolean;
-  /** Function to load next page */
-  loadMore: () => void;
+	/** Flat array of all user NFTs */
+	nfts: UserNFT[];
+	/** NFTs grouped by collection */
+	collections: NFTCollection[];
+	/** Whether data is loading */
+	isLoading: boolean;
+	/** Error message if fetch failed */
+	error: string | null;
+	/** Function to refresh NFT data */
+	refetch: () => void;
+	/** Whether more pages are available */
+	hasMore: boolean;
+	/** Function to load next page */
+	loadMore: () => void;
 }
 
 /**
  * Options for configuring NFT fetching
  */
 export interface useUserNFTsOptions {
-  /** Filter by specific contract addresses */
-  contractAddresses?: string[];
-  /** Whether to include metadata (slower) */
-  withMetadata?: boolean;
-  /** Maximum NFTs per page request */
-  pageSize?: number;
-  /** Whether to auto-fetch on mount */
-  enabled?: boolean;
+	/** Filter by specific contract addresses */
+	contractAddresses?: string[];
+	/** Whether to include metadata (slower) */
+	withMetadata?: boolean;
+	/** Maximum NFTs per page request */
+	pageSize?: number;
+	/** Whether to auto-fetch on mount */
+	enabled?: boolean;
 }
 
 /**
@@ -157,186 +157,186 @@ export interface useUserNFTsOptions {
  * ```
  */
 export function useUserNFTs(
-  options: useUserNFTsOptions = {}
+	options: useUserNFTsOptions = {},
 ): useUserNFTsResult {
-  const {
-    contractAddresses,
-    withMetadata = true,
-    pageSize = 100,
-    enabled = true,
-  } = options;
+	const {
+		contractAddresses,
+		withMetadata = true,
+		pageSize = 100,
+		enabled = true,
+	} = options;
 
-  const { address } = useAccount();
-  const chainId = useChainId();
+	const { address } = useAccount();
+	const chainId = useChainId();
 
-  const [nfts, setNfts] = useState<UserNFT[]>([]);
-  const [collections, setCollections] = useState<NFTCollection[]>([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [pageKey, setPageKey] = useState<string | undefined>();
-  const [hasMore, setHasMore] = useState(true);
+	const [nfts, setNfts] = useState<UserNFT[]>([]);
+	const [collections, setCollections] = useState<NFTCollection[]>([]);
+	const [isLoading, setIsLoading] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+	const [pageKey, setPageKey] = useState<string | undefined>();
+	const [hasMore, setHasMore] = useState(true);
 
-  const alchemyId = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;
-  const alchemyNetwork = ALCHEMY_NETWORKS[chainId];
+	const alchemyId = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;
+	const alchemyNetwork = ALCHEMY_NETWORKS[chainId];
 
-  const fetchNFTs = useCallback(
-    async (isLoadMore = false) => {
-      if (!address || !alchemyId || !alchemyNetwork) {
-        setError(
-          !address
-            ? 'Wallet not connected'
-            : !alchemyId
-              ? 'Alchemy API key not configured'
-              : 'Network not supported by Alchemy'
-        );
-        return;
-      }
+	const fetchNFTs = useCallback(
+		async (isLoadMore = false) => {
+			if (!address || !alchemyId || !alchemyNetwork) {
+				setError(
+					!address
+						? "Wallet not connected"
+						: !alchemyId
+							? "Alchemy API key not configured"
+							: "Network not supported by Alchemy",
+				);
+				return;
+			}
 
-      setIsLoading(true);
-      setError(null);
+			setIsLoading(true);
+			setError(null);
 
-      try {
-        const baseUrl = `https://${alchemyNetwork}.g.alchemy.com/nft/v3/${alchemyId}`;
+			try {
+				const baseUrl = `https://${alchemyNetwork}.g.alchemy.com/nft/v3/${alchemyId}`;
 
-        // Build query parameters
-        const params = new URLSearchParams({
-          owner: address,
-          withMetadata: withMetadata.toString(),
-          pageSize: pageSize.toString(),
-        });
+				// Build query parameters
+				const params = new URLSearchParams({
+					owner: address,
+					withMetadata: withMetadata.toString(),
+					pageSize: pageSize.toString(),
+				});
 
-        // Add contract addresses filter if specified
-        if (contractAddresses && contractAddresses.length > 0) {
-          params.append('contractAddresses', contractAddresses.join(','));
-        }
+				// Add contract addresses filter if specified
+				if (contractAddresses && contractAddresses.length > 0) {
+					params.append("contractAddresses", contractAddresses.join(","));
+				}
 
-        // Add pagination if loading more
-        if (isLoadMore && pageKey) {
-          params.append('pageKey', pageKey);
-        }
+				// Add pagination if loading more
+				if (isLoadMore && pageKey) {
+					params.append("pageKey", pageKey);
+				}
 
-        const url = `${baseUrl}/getNFTsForOwner?${params.toString()}`;
+				const url = `${baseUrl}/getNFTsForOwner?${params.toString()}`;
 
-        const response = await fetch(url);
+				const response = await fetch(url);
 
-        if (!response.ok) {
-          throw new Error(
-            `Alchemy API error: ${response.status} ${response.statusText}`
-          );
-        }
+				if (!response.ok) {
+					throw new Error(
+						`Alchemy API error: ${response.status} ${response.statusText}`,
+					);
+				}
 
-        const data = await response.json();
+				const data = await response.json();
 
-        // Map Alchemy response to our NFT format
-        const fetchedNFTs: UserNFT[] =
-          data.ownedNfts?.map((nft: any) => ({
-            contract: {
-              address: nft.contract.address,
-              name: nft.contract.name,
-              symbol: nft.contract.symbol,
-              tokenType: mapTokenType(nft.contract.tokenType),
-            },
-            tokenId: nft.tokenId,
-            balance: nft.balance, // For ERC1155
-            metadata: nft.metadata
-              ? {
-                  name: nft.metadata.name,
-                  description: nft.metadata.description,
-                  image: nft.metadata.image,
-                  external_url: nft.metadata.external_url,
-                }
-              : undefined,
-            tokenUri: nft.tokenUri?.raw,
-            timeLastUpdated: nft.timeLastUpdated,
-          })) || [];
+				// Map Alchemy response to our NFT format
+				const fetchedNFTs: UserNFT[] =
+					data.ownedNfts?.map((nft: any) => ({
+						contract: {
+							address: nft.contract.address,
+							name: nft.contract.name,
+							symbol: nft.contract.symbol,
+							tokenType: mapTokenType(nft.contract.tokenType),
+						},
+						tokenId: nft.tokenId,
+						balance: nft.balance, // For ERC1155
+						metadata: nft.metadata
+							? {
+									name: nft.metadata.name,
+									description: nft.metadata.description,
+									image: nft.metadata.image,
+									external_url: nft.metadata.external_url,
+								}
+							: undefined,
+						tokenUri: nft.tokenUri?.raw,
+						timeLastUpdated: nft.timeLastUpdated,
+					})) || [];
 
-        if (isLoadMore) {
-          setNfts((prev) => [...prev, ...fetchedNFTs]);
-        } else {
-          setNfts(fetchedNFTs);
-        }
+				if (isLoadMore) {
+					setNfts((prev) => [...prev, ...fetchedNFTs]);
+				} else {
+					setNfts(fetchedNFTs);
+				}
 
-        // Update pagination
-        setPageKey(data.pageKey);
-        setHasMore(!!data.pageKey);
+				// Update pagination
+				setPageKey(data.pageKey);
+				setHasMore(!!data.pageKey);
 
-        // Group NFTs by collection
-        const collectionsMap = new Map<string, NFTCollection>();
+				// Group NFTs by collection
+				const collectionsMap = new Map<string, NFTCollection>();
 
-        const allNFTs = isLoadMore ? [...nfts, ...fetchedNFTs] : fetchedNFTs;
+				const allNFTs = isLoadMore ? [...nfts, ...fetchedNFTs] : fetchedNFTs;
 
-        allNFTs.forEach((nft) => {
-          const key = nft.contract.address.toLowerCase();
-          if (!collectionsMap.has(key)) {
-            collectionsMap.set(key, {
-              contractAddress: nft.contract.address,
-              name: nft.contract.name,
-              symbol: nft.contract.symbol,
-              tokenType: nft.contract.tokenType,
-              nfts: [],
-            });
-          }
-          collectionsMap.get(key)?.nfts.push(nft);
-        });
+				allNFTs.forEach((nft) => {
+					const key = nft.contract.address.toLowerCase();
+					if (!collectionsMap.has(key)) {
+						collectionsMap.set(key, {
+							contractAddress: nft.contract.address,
+							name: nft.contract.name,
+							symbol: nft.contract.symbol,
+							tokenType: nft.contract.tokenType,
+							nfts: [],
+						});
+					}
+					collectionsMap.get(key)?.nfts.push(nft);
+				});
 
-        setCollections(Array.from(collectionsMap.values()));
-      } catch (err) {
-        console.error('Error fetching NFTs:', err);
-        setError(err instanceof Error ? err.message : 'Failed to fetch NFTs');
-      } finally {
-        setIsLoading(false);
-      }
-    },
-    [
-      address,
-      alchemyId,
-      alchemyNetwork,
-      contractAddresses,
-      withMetadata,
-      pageSize,
-      pageKey,
-      nfts,
-    ]
-  );
+				setCollections(Array.from(collectionsMap.values()));
+			} catch (err) {
+				console.error("Error fetching NFTs:", err);
+				setError(err instanceof Error ? err.message : "Failed to fetch NFTs");
+			} finally {
+				setIsLoading(false);
+			}
+		},
+		[
+			address,
+			alchemyId,
+			alchemyNetwork,
+			contractAddresses,
+			withMetadata,
+			pageSize,
+			pageKey,
+			nfts,
+		],
+	);
 
-  const loadMore = useCallback(() => {
-    if (hasMore && !isLoading) {
-      fetchNFTs(true);
-    }
-  }, [hasMore, isLoading, fetchNFTs]);
+	const loadMore = useCallback(() => {
+		if (hasMore && !isLoading) {
+			fetchNFTs(true);
+		}
+	}, [hasMore, isLoading, fetchNFTs]);
 
-  const refetch = useCallback(() => {
-    setPageKey(undefined);
-    setHasMore(true);
-    fetchNFTs(false);
-  }, [fetchNFTs]);
+	const refetch = useCallback(() => {
+		setPageKey(undefined);
+		setHasMore(true);
+		fetchNFTs(false);
+	}, [fetchNFTs]);
 
-  // Fetch NFTs on mount or when dependencies change
-  useEffect(() => {
-    if (enabled && address) {
-      refetch();
-    }
-  }, [enabled, address, refetch]);
+	// Fetch NFTs on mount or when dependencies change
+	useEffect(() => {
+		if (enabled && address) {
+			refetch();
+		}
+	}, [enabled, address, refetch]);
 
-  return {
-    nfts,
-    collections,
-    isLoading,
-    error,
-    refetch,
-    hasMore,
-    loadMore,
-  };
+	return {
+		nfts,
+		collections,
+		isLoading,
+		error,
+		refetch,
+		hasMore,
+		loadMore,
+	};
 }
 
 // Helper function to map Alchemy token types to our format
-function mapTokenType(alchemyType: string): 'ERC721' | 'ERC1155' | 'UNKNOWN' {
-  switch (alchemyType?.toUpperCase()) {
-    case 'ERC721':
-      return 'ERC721';
-    case 'ERC1155':
-      return 'ERC1155';
-    default:
-      return 'UNKNOWN';
-  }
+function mapTokenType(alchemyType: string): "ERC721" | "ERC1155" | "UNKNOWN" {
+	switch (alchemyType?.toUpperCase()) {
+		case "ERC721":
+			return "ERC721";
+		case "ERC1155":
+			return "ERC1155";
+		default:
+			return "UNKNOWN";
+	}
 }
