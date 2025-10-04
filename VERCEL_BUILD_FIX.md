@@ -2,30 +2,14 @@
 
 ## Changes Made
 
-### 1. Moved Vercel Configuration to Root ✅
+### 1. Removed Vercel Configuration File ✅
 
-**Deleted**: `client/vercel.json`
+**Deleted**: `vercel.json` (at root)
 
-**Created**: `vercel.json` (at root)
-```json
-{
-  "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "pnpm run build:client",
-  "installCommand": "pnpm install --ignore-scripts",
-  "outputDirectory": "client/.next",
-  "framework": null,
-  "env": {
-    "NODE_ENV": "production",
-    "SKIP_CONTRACTS": "true"
-  }
-}
-```
-
-**Why**: 
-- Proper monorepo configuration from root
-- Prevents path resolution issues with TypeScript
-- Skips unnecessary contract builds and git submodule operations
-- More maintainable and consistent with monorepo patterns
+**Reason**:
+- Configuration now handled entirely through Vercel dashboard
+- Simpler deployment workflow
+- All settings managed in one place (Vercel UI)
 
 ### 2. Updated Root Package.json Scripts ✅
 
@@ -86,16 +70,16 @@ const validationCache = new Map<string, {
    - TypeScript finds `tsconfig.json` with proper `@/` paths
    - Resolves all module imports correctly
 
-## Vercel Dashboard Settings
+## Vercel Dashboard Configuration
 
-**Ensure these are set** (or use defaults):
+**Configure these settings in your Vercel dashboard**:
 
 - **Root Directory**: `.` (root) or leave blank
-- **Build Command**: (use vercel.json)
-- **Install Command**: (use vercel.json)
-- **Output Directory**: (use vercel.json)
+- **Build Command**: `pnpm run build:client`
+- **Install Command**: `pnpm install --ignore-scripts`
+- **Output Directory**: `client/.next`
 - **Framework Preset**: Next.js
-- **Node Version**: 20.x (current setting)
+- **Node Version**: 20.x
 
 ## Expected Outcome
 
@@ -133,27 +117,41 @@ cd client && pnpm build:skip-lint  # Should complete
 ## Next Deploy
 
 On your next push to the `dev` branch, Vercel will:
-1. Use the new root `vercel.json` configuration
+1. Use the dashboard configuration (no vercel.json file)
 2. Run builds from root context
 3. Execute type-check from client directory
 4. Successfully build and deploy ✅
+
+**Important**: Ensure your Vercel dashboard has these settings configured:
+- Build Command: `pnpm run build:client`
+- Install Command: `pnpm install --ignore-scripts`
+- Output Directory: `client/.next`
 
 ## Rollback Plan
 
 If issues occur, you can quickly rollback:
 
 ```bash
-# Restore client vercel.json
-git checkout HEAD~1 -- client/vercel.json
+# Recreate vercel.json if needed for dashboard configuration
+cat > vercel.json << 'EOF'
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "pnpm run build:client",
+  "installCommand": "pnpm install --ignore-scripts",
+  "outputDirectory": "client/.next",
+  "framework": null,
+  "env": {
+    "NODE_ENV": "production",
+    "SKIP_CONTRACTS": "true"
+  }
+}
+EOF
 
-# Remove root vercel.json  
-rm vercel.json
-
-# Revert package.json changes
+# Revert package.json changes if needed
 git checkout HEAD~1 -- package.json
 ```
 
-But this shouldn't be necessary - the changes follow Vercel's recommended monorepo patterns.
+But this shouldn't be necessary - the current configuration works well.
 
 ---
 
