@@ -16,12 +16,12 @@ export type AccessTypeValue = (typeof ACCESS_TYPES)[keyof typeof ACCESS_TYPES];
 
 // Array mapping for contract results (index = enum value)
 export const ACCESS_TYPE_NAMES = [
-  "Allowlist", // 0
-  "NFT-Gated", // 1
-  "POAP", // 2
-  "Unlock", // 3
-  "Hypercert", // 4
-  "Hats", // 5
+  'Allowlist', // 0
+  'NFT-Gated', // 1
+  'POAP', // 2
+  'Unlock', // 3
+  'Hypercert', // 4
+  'Hats', // 5
 ] as const;
 
 /**
@@ -30,7 +30,7 @@ export const ACCESS_TYPE_NAMES = [
  * @returns Human-readable access type name
  */
 export function getAccessTypeName(accessType: number): string {
-  return ACCESS_TYPE_NAMES[accessType] || "Unknown";
+  return ACCESS_TYPE_NAMES[accessType] || 'Unknown';
 }
 
 /**
@@ -39,8 +39,8 @@ export function getAccessTypeName(accessType: number): string {
  * @returns True if the access type is allowlist
  */
 export function isAllowlistAccess(accessType: number | string): boolean {
-  if (typeof accessType === "string") {
-    return accessType === "Allowlist";
+  if (typeof accessType === 'string') {
+    return accessType === 'Allowlist';
   }
   return accessType === ACCESS_TYPES.ALLOWLIST;
 }
@@ -51,8 +51,8 @@ export function isAllowlistAccess(accessType: number | string): boolean {
  * @returns True if the access type requires NFTs
  */
 export function isNFTAccess(accessType: number | string): boolean {
-  if (typeof accessType === "string") {
-    return accessType === "NFT-Gated";
+  if (typeof accessType === 'string') {
+    return accessType === 'NFT-Gated';
   }
   return accessType === ACCESS_TYPES.NFT_GATED;
 }
@@ -63,8 +63,8 @@ export function isNFTAccess(accessType: number | string): boolean {
  * @returns True if the access type uses external protocols
  */
 export function isProtocolAccess(accessType: number | string): boolean {
-  if (typeof accessType === "string") {
-    return ["POAP", "Unlock", "Hypercert", "Hats"].includes(accessType);
+  if (typeof accessType === 'string') {
+    return ['POAP', 'Unlock', 'Hypercert', 'Hats'].includes(accessType);
   }
   return accessType >= ACCESS_TYPES.POAP && accessType <= ACCESS_TYPES.HATS;
 }

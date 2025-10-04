@@ -1,6 +1,6 @@
 /**
  * Lazy-loaded components for performance optimization
- * 
+ *
  * These components are only loaded when needed, reducing initial bundle size
  * and improving Time to Interactive (TTI) for the main jar viewing experience.
  */
@@ -19,58 +19,58 @@ const ComponentLoader = ({ name }: { name: string }) => (
 
 // ===== STREAMING COMPONENTS =====
 
-export const LazyJarStreamingTab = lazy(() => 
-  import('../jar/JarStreamingTab').then(module => ({ 
-    default: module.JarStreamingTab 
+export const LazyJarStreamingTab = lazy(() =>
+  import('../jar/JarStreamingTab').then((module) => ({
+    default: module.JarStreamingTab,
   }))
 );
 
-export const LazyStreamingPanel = lazy(() => 
-  import('../jar/StreamingPanel').then(module => ({
-    default: module.StreamingPanel
+export const LazyStreamingPanel = lazy(() =>
+  import('../jar/StreamingPanel').then((module) => ({
+    default: module.StreamingPanel,
   }))
 );
 
-export const LazyTokenRecoveryPanel = lazy(() => 
-  import('../jar/TokenRecoveryPanel').then(module => ({
-    default: module.TokenRecoveryPanel
+export const LazyTokenRecoveryPanel = lazy(() =>
+  import('../jar/TokenRecoveryPanel').then((module) => ({
+    default: module.TokenRecoveryPanel,
   }))
 );
 
 // ===== NFT & PROTOCOL COMPONENTS =====
 
-export const LazyProtocolSelector = lazy(() => 
-  import('../nft/ProtocolSelector').then(module => ({ 
-    default: module.ProtocolSelector 
+export const LazyProtocolSelector = lazy(() =>
+  import('../nft/ProtocolSelector').then((module) => ({
+    default: module.ProtocolSelector,
   }))
 );
 
 // TODO: Add these components when they are created
-// export const LazyNFTAddressList = lazy(() => 
+// export const LazyNFTAddressList = lazy(() =>
 //   import('../nft/NFTAddressList')
 // );
 
-// export const LazyPoapEventSelector = lazy(() => 
+// export const LazyPoapEventSelector = lazy(() =>
 //   import('../nft/PoapEventSelector')
 // );
 
-// export const LazyHatsSelector = lazy(() => 
+// export const LazyHatsSelector = lazy(() =>
 //   import('../nft/HatsSelector')
 // );
 
-// export const LazyHypercertSelector = lazy(() => 
+// export const LazyHypercertSelector = lazy(() =>
 //   import('../nft/HypercertSelector')
 // );
 
-// export const LazyUnlockSelector = lazy(() => 
+// export const LazyUnlockSelector = lazy(() =>
 //   import('../nft/UnlockSelector')
 // );
 
 // ===== ADMIN COMPONENTS =====
 
-export const LazyAdminFunctions = lazy(() => 
-  import('../jar/AdminFunctions').then(module => ({ 
-    default: module.AdminFunctions 
+export const LazyAdminFunctions = lazy(() =>
+  import('../jar/AdminFunctions').then((module) => ({
+    default: module.AdminFunctions,
   }))
 );
 
@@ -167,10 +167,10 @@ export const useIntersectionObserver = (
 /**
  * Wrapper for lazy loading components only when they come into view
  */
-export const LazyOnScroll = ({ 
-  children, 
-  fallback, 
-  rootMargin = '100px' 
+export const LazyOnScroll = ({
+  children,
+  fallback,
+  rootMargin = '100px',
 }: {
   children: React.ReactNode;
   fallback: React.ReactNode;
@@ -179,9 +179,5 @@ export const LazyOnScroll = ({
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useIntersectionObserver(ref, { rootMargin });
 
-  return (
-    <div ref={ref}>
-      {isInView ? children : fallback}
-    </div>
-  );
+  return <div ref={ref}>{isInView ? children : fallback}</div>;
 };

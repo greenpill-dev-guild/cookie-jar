@@ -6,7 +6,6 @@ import {CookieJarLib} from "../libraries/CookieJarLib.sol";
 /// @title CookieJarValidation
 /// @notice Library for validation logic to reduce main contract size
 library CookieJarValidation {
-    
     /// @notice Validates withdrawal amount based on withdrawal type
     function validateWithdrawalAmount(
         CookieJarLib.WithdrawalTypeOptions withdrawalOption,
@@ -24,7 +23,7 @@ library CookieJarValidation {
             }
         }
     }
-    
+
     /// @notice Validates period withdrawal limits
     function validatePeriodLimit(
         uint256 maxWithdrawalPerPeriod,
@@ -36,33 +35,33 @@ library CookieJarValidation {
         if (maxWithdrawalPerPeriod == 0) {
             return (false, 0); // No limit
         }
-        
+
         // Check if we're in a new period
         needsReset = currentTimestamp >= currentPeriodStart + CookieJarLib.WITHDRAWAL_PERIOD;
-        
+
         uint256 currentWithdrawn = needsReset ? 0 : withdrawnInCurrentPeriod;
         newTotal = currentWithdrawn + amount;
-        
+
         if (newTotal > maxWithdrawalPerPeriod) {
             uint256 available = maxWithdrawalPerPeriod - currentWithdrawn;
             revert CookieJarLib.PeriodWithdrawalLimitExceeded(amount, available);
         }
     }
-    
+
     /// @notice Validates purpose requirement
     function validatePurpose(bool strictPurpose, string memory purpose) internal pure {
         if (strictPurpose && bytes(purpose).length < 10) {
             revert CookieJarLib.InvalidPurpose();
         }
     }
-    
+
     /// @notice Validates one-time withdrawal constraint
     function validateOneTimeWithdrawal(bool oneTimeWithdrawal, uint256 lastWithdrawal) internal pure {
         if (oneTimeWithdrawal && lastWithdrawal != 0) {
             revert CookieJarLib.WithdrawalAlreadyDone();
         }
     }
-    
+
     /// @notice Validates withdrawal interval
     function validateWithdrawalInterval(
         uint256 lastWithdrawal,

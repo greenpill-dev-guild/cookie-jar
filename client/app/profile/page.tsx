@@ -1,12 +1,20 @@
-"use client";
+'use client';
 
-import { useEffect, useState } from "react";
-import { useAccount, useChainId } from "wagmi";
-import { useRouter } from "next/navigation";
-import { useIsMobile } from "@/hooks/app/useMobile";
-import { useNavigateToTop } from "@/hooks/app/useNavigateToTop";
-import { MobileProfile } from "@/components/profile/MobileProfile";
-import { CookieJarInfo, useCookieJarFactory } from "@/hooks/jar/useJarFactory";
+import {
+  ArrowUpRight,
+  Clock,
+  Cookie,
+  Copy,
+  ExternalLink,
+  User,
+} from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { useAccount, useChainId } from 'wagmi';
+import { BackButton } from '@/components/app/BackButton';
+import { MobileProfile } from '@/components/profile/MobileProfile';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
@@ -14,25 +22,23 @@ import {
   CardFooter,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Badge } from "@/components/ui/badge";
-import {
-  ArrowUpRight,
-  Copy,
-  ExternalLink,
-  User,
-  Clock,
-  Cookie,
-} from "lucide-react";
-import { shortenAddress } from "@/lib/app/utils";
-import { getExplorerAddressUrl, getNetworkName } from "@/lib/blockchain/networks";
-import { BackButton } from "@/components/app/BackButton";
-import { getAccessTypeName } from "@/lib/jar/access-types";
+} from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 // import { contractAddresses } from "@/config/supported-networks";
-import { getNativeCurrency } from "@/config/supported-networks";
+import { getNativeCurrency } from '@/config/supported-networks';
+import { useIsMobile } from '@/hooks/app/useMobile';
+import { useNavigateToTop } from '@/hooks/app/useNavigateToTop';
+import {
+  type CookieJarInfo,
+  useCookieJarFactory,
+} from '@/hooks/jar/useJarFactory';
+import { shortenAddress } from '@/lib/app/utils';
+import {
+  getExplorerAddressUrl,
+  getNetworkName,
+} from '@/lib/blockchain/networks';
+import { getAccessTypeName } from '@/lib/jar/access-types';
 
 export default function ProfilePage() {
   const isMobile = useIsMobile();
@@ -63,7 +69,7 @@ function DesktopProfile() {
   // Redirect to home if not connected (desktop only)
   useEffect(() => {
     if (mounted && !isConnected) {
-      router.push("/");
+      router.push('/');
     }
   }, [mounted, isConnected, router]);
 
@@ -72,7 +78,7 @@ function DesktopProfile() {
     (jar: CookieJarInfo) =>
       jar.jarCreator &&
       address &&
-      jar.jarCreator.toLowerCase() === address.toLowerCase(),
+      jar.jarCreator.toLowerCase() === address.toLowerCase()
   );
 
   const copyToClipboard = (text: string) => {
@@ -99,7 +105,7 @@ function DesktopProfile() {
               Profile Dashboard
             </CardTitle>
             <Badge className="bg-card text-[hsl(var(--cj-brand-orange))] hover:bg-card">
-              {address ? shortenAddress(address, 6) : "Not Connected"}
+              {address ? shortenAddress(address, 6) : 'Not Connected'}
             </Badge>
           </div>
           <CardDescription className="text-white/90">
@@ -114,7 +120,7 @@ function DesktopProfile() {
               </span>
               <div className="flex items-center">
                 <span className="font-medium text-[hsl(var(--cj-dark-brown))] mr-2">
-                  {address ? shortenAddress(address, 10) : "N/A"}
+                  {address ? shortenAddress(address, 10) : 'N/A'}
                 </span>
                 <Button
                   variant="ghost"
@@ -132,7 +138,7 @@ function DesktopProfile() {
                 >
                   <a
                     href={
-                      address ? getExplorerAddressUrl(address, chainId) : "#"
+                      address ? getExplorerAddressUrl(address, chainId) : '#'
                     }
                     target="_blank"
                     rel="noopener noreferrer"
@@ -248,9 +254,9 @@ function DesktopProfile() {
                         </span>
                         <span className="text-[hsl(var(--cj-dark-brown))]">
                           {jar.currency ===
-                          "0x0000000000000000000000000000000000000003"
+                          '0x0000000000000000000000000000000000000003'
                             ? `${nativeCurrency.symbol} (Native)`
-                            : "ERC20"}
+                            : 'ERC20'}
                         </span>
                       </div>
                     </div>
@@ -274,11 +280,11 @@ function DesktopProfile() {
                   No Jars Created Yet
                 </h3>
                 <p className="text-[hsl(var(--cj-medium-brown))] max-w-md mb-6">
-                  You haven&apos;t created any Cookie Jars yet. Create your first jar
-                  to start managing shared funds.
+                  You haven&apos;t created any Cookie Jars yet. Create your
+                  first jar to start managing shared funds.
                 </p>
                 <Button
-                  onClick={() => router.push("/create")}
+                  onClick={() => router.push('/create')}
                   className="cj-btn-primary"
                 >
                   Create Your First Jar

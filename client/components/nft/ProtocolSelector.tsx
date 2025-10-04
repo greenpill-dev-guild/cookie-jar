@@ -1,21 +1,32 @@
-import React, { useState, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
+import { Monitor, Shield, Smartphone, Users } from 'lucide-react';
+import type React from 'react';
+import { useCallback, useState } from 'react';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Smartphone, Monitor, Shield, Users, Coins } from 'lucide-react';
-import { cn } from '@/lib/app/utils';
 import { useResponsive } from '@/hooks/app/useResponsive';
-
-// Import protocol configs
-import { POAPConfig } from './protocols/POAPConfig';
+import { cn } from '@/lib/app/utils';
+import { NFTSelector } from './NFTSelector';
 import { HatsConfig } from './protocols/HatsConfig';
 import { HypercertConfig } from './protocols/HypercertConfig';
+// Import protocol configs
+import { POAPConfig } from './protocols/POAPConfig';
 import { UnlockConfig } from './protocols/UnlockConfig';
-import { NFTSelector } from './NFTSelector';
 
-export type AccessMethod = 'Allowlist' | 'NFT' | 'POAP' | 'Hats' | 'Hypercert' | 'Unlock';
+export type AccessMethod =
+  | 'Allowlist'
+  | 'NFT'
+  | 'POAP'
+  | 'Hats'
+  | 'Hypercert'
+  | 'Unlock';
 
 export interface ProtocolConfig {
   method: AccessMethod;
@@ -94,7 +105,9 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
   const [selectedMethod, setSelectedMethod] = useState<AccessMethod>(
     initialConfig?.method || 'Allowlist'
   );
-  const [viewMode, setViewMode] = useState<'auto' | 'mobile' | 'desktop'>('auto');
+  const [viewMode, setViewMode] = useState<'auto' | 'mobile' | 'desktop'>(
+    'auto'
+  );
   const [expandedConfig, setExpandedConfig] = useState<string | null>(
     initialConfig?.method || null
   );
@@ -102,23 +115,29 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
   const { isMobile } = useResponsive();
 
   // Determine actual view mode
-  const actualViewMode = 
+  const actualViewMode =
     forceMobile || (viewMode === 'auto' && isMobile) || viewMode === 'mobile'
-      ? 'mobile' 
+      ? 'mobile'
       : 'desktop';
 
-  const handleMethodSelect = useCallback((method: AccessMethod) => {
-    setSelectedMethod(method);
-    setExpandedConfig(method);
-    onConfigChange({ method, ...initialConfig });
-  }, [onConfigChange, initialConfig]);
+  const handleMethodSelect = useCallback(
+    (method: AccessMethod) => {
+      setSelectedMethod(method);
+      setExpandedConfig(method);
+      onConfigChange({ method, ...initialConfig });
+    },
+    [onConfigChange, initialConfig]
+  );
 
-  const handleConfigUpdate = useCallback((config: any) => {
-    onConfigChange({
-      method: selectedMethod,
-      ...config,
-    });
-  }, [selectedMethod, onConfigChange]);
+  const handleConfigUpdate = useCallback(
+    (config: any) => {
+      onConfigChange({
+        method: selectedMethod,
+        ...config,
+      });
+    },
+    [selectedMethod, onConfigChange]
+  );
 
   // Configuration Panel Component
   const ConfigurationPanel: React.FC<{
@@ -135,7 +154,9 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
               data-testid="poap-event-id-input"
               placeholder="POAP Event ID"
               value={config?.eventId || ''}
-              onChange={(e) => onConfigChange({ method, eventId: e.target.value })}
+              onChange={(e) =>
+                onConfigChange({ method, eventId: e.target.value })
+              }
             />
           </div>
         );
@@ -147,7 +168,9 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
               data-testid="unlock-lock-address-input"
               placeholder="Lock Address"
               value={config?.lockAddress || ''}
-              onChange={(e) => onConfigChange({ method, lockAddress: e.target.value })}
+              onChange={(e) =>
+                onConfigChange({ method, lockAddress: e.target.value })
+              }
             />
           </div>
         );
@@ -159,7 +182,9 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
               data-testid="hats-id-input"
               placeholder="Hat ID"
               value={config?.hatId || ''}
-              onChange={(e) => onConfigChange({ method, hatId: e.target.value })}
+              onChange={(e) =>
+                onConfigChange({ method, hatId: e.target.value })
+              }
             />
           </div>
         );
@@ -171,7 +196,9 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
               data-testid="hypercert-id-input"
               placeholder="Hypercert ID"
               value={config?.tokenId || ''}
-              onChange={(e) => onConfigChange({ method, tokenId: e.target.value })}
+              onChange={(e) =>
+                onConfigChange({ method, tokenId: e.target.value })
+              }
             />
           </div>
         );
@@ -183,7 +210,6 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
             />
           </div>
         );
-      case 'Allowlist':
       default:
         return (
           <div data-testid="allowlist-config">
@@ -195,16 +221,20 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 
   if (actualViewMode === 'mobile') {
     return (
-      <div className={cn("space-y-4", className)}>
+      <div className={cn('space-y-4', className)}>
         {showViewToggle && !forceMobile && (
           <div className="flex justify-end">
-            <Tabs 
-              value={viewMode} 
-              onValueChange={(value) => setViewMode(value as 'auto' | 'mobile' | 'desktop')}
+            <Tabs
+              value={viewMode}
+              onValueChange={(value) =>
+                setViewMode(value as 'auto' | 'mobile' | 'desktop')
+              }
               className="w-fit"
             >
               <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="auto" className="text-xs">Auto</TabsTrigger>
+                <TabsTrigger value="auto" className="text-xs">
+                  Auto
+                </TabsTrigger>
                 <TabsTrigger value="mobile" className="text-xs">
                   <Smartphone className="h-3 w-3" />
                 </TabsTrigger>
@@ -223,11 +253,12 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
             {ACCESS_METHODS.map((method) => (
               <Button
                 key={method.id}
-                variant={selectedMethod === method.id ? "default" : "outline"}
+                variant={selectedMethod === method.id ? 'default' : 'outline'}
                 onClick={() => handleMethodSelect(method.id)}
                 className={cn(
-                  "flex flex-col items-center gap-1 h-16 p-2 text-xs transition-all",
-                  selectedMethod === method.id && "bg-[#ff5e14] border-[#ff5e14] text-white hover:bg-[#e5531b]"
+                  'flex flex-col items-center gap-1 h-16 p-2 text-xs transition-all',
+                  selectedMethod === method.id &&
+                    'bg-[#ff5e14] border-[#ff5e14] text-white hover:bg-[#e5531b]'
                 )}
               >
                 <span className="text-base">{method.icon}</span>
@@ -248,28 +279,49 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
             onValueChange={setExpandedConfig}
           >
             <AccordionItem value={selectedMethod}>
-              <Card className="border-l-4" style={{ 
-                borderLeftColor: ACCESS_METHODS.find(m => m.id === selectedMethod)?.color.replace('bg-', '#') || '#666'
-              }}>
+              <Card
+                className="border-l-4"
+                style={{
+                  borderLeftColor:
+                    ACCESS_METHODS.find(
+                      (m) => m.id === selectedMethod
+                    )?.color.replace('bg-', '#') || '#666',
+                }}
+              >
                 <AccordionTrigger asChild>
                   <CardHeader className="pb-3 cursor-pointer hover:bg-gray-50 transition-colors">
                     <div className="flex items-center justify-between w-full">
                       <div className="flex items-center gap-3">
-                        <div className={cn("w-6 h-6 rounded flex items-center justify-center text-white text-sm", 
-                          ACCESS_METHODS.find(m => m.id === selectedMethod)?.color
-                        )}>
-                          {ACCESS_METHODS.find(m => m.id === selectedMethod)?.icon}
+                        <div
+                          className={cn(
+                            'w-6 h-6 rounded flex items-center justify-center text-white text-sm',
+                            ACCESS_METHODS.find((m) => m.id === selectedMethod)
+                              ?.color
+                          )}
+                        >
+                          {
+                            ACCESS_METHODS.find((m) => m.id === selectedMethod)
+                              ?.icon
+                          }
                         </div>
                         <div className="text-left flex-1">
                           <h4 className="font-medium text-[#3c2a14] text-sm">
-                            Configure {ACCESS_METHODS.find(m => m.id === selectedMethod)?.name}
+                            Configure{' '}
+                            {
+                              ACCESS_METHODS.find(
+                                (m) => m.id === selectedMethod
+                              )?.name
+                            }
                           </h4>
                           <p className="text-xs text-[#8b7355]">
                             Set up access requirements
                           </p>
                         </div>
                         <a
-                          href={ACCESS_METHODS.find(m => m.id === selectedMethod)?.learnMoreUrl}
+                          href={
+                            ACCESS_METHODS.find((m) => m.id === selectedMethod)
+                              ?.learnMoreUrl
+                          }
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-xs text-[#ff5e14] hover:text-[#e5531b] underline"
@@ -280,7 +332,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
                     </div>
                   </CardHeader>
                 </AccordionTrigger>
-                
+
                 <AccordionContent>
                   <CardContent className="pt-0 border-t">
                     <div className="pt-4">
@@ -302,21 +354,29 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 
   // Desktop view
   return (
-    <div className={cn("space-y-6", className)}>
+    <div className={cn('space-y-6', className)}>
       {/* Header with optional view toggle */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h2 className="text-xl font-semibold text-[#3c2a14]">Access Control Method</h2>
-          <p className="text-sm text-[#8b7355] mt-1">Choose how users will prove eligibility to access this jar</p>
+          <h2 className="text-xl font-semibold text-[#3c2a14]">
+            Access Control Method
+          </h2>
+          <p className="text-sm text-[#8b7355] mt-1">
+            Choose how users will prove eligibility to access this jar
+          </p>
         </div>
         {showViewToggle && !forceDesktop && (
-          <Tabs 
-            value={viewMode} 
-            onValueChange={(value) => setViewMode(value as 'auto' | 'mobile' | 'desktop')}
+          <Tabs
+            value={viewMode}
+            onValueChange={(value) =>
+              setViewMode(value as 'auto' | 'mobile' | 'desktop')
+            }
             className="w-fit"
           >
             <TabsList className="grid w-full grid-cols-3">
-              <TabsTrigger value="auto" className="text-xs">Auto</TabsTrigger>
+              <TabsTrigger value="auto" className="text-xs">
+                Auto
+              </TabsTrigger>
               <TabsTrigger value="mobile" className="text-xs">
                 <Smartphone className="h-3 w-3" />
               </TabsTrigger>
@@ -329,22 +389,25 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
       </div>
 
       {/* Method Selection Grid */}
-      <div data-testid="method-grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div
+        data-testid="method-grid"
+        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
+      >
         {ACCESS_METHODS.map((method) => (
           <Card
             key={method.id}
             data-testid={`method-${method.id.toLowerCase()}`}
             className={cn(
-              "cursor-pointer transition-all duration-200 hover:shadow-lg",
+              'cursor-pointer transition-all duration-200 hover:shadow-lg',
               selectedMethod === method.id
-                ? "ring-2 ring-[#ff5e14] bg-orange-50"
-                : "hover:shadow-md"
+                ? 'ring-2 ring-[#ff5e14] bg-orange-50'
+                : 'hover:shadow-md'
             )}
             onClick={() => handleMethodSelect(method.id)}
           >
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
-                <div className={cn("p-2 rounded-lg text-white", method.color)}>
+                <div className={cn('p-2 rounded-lg text-white', method.color)}>
                   {method.icon}
                 </div>
                 {method.badge}
@@ -355,9 +418,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
             </CardHeader>
             <CardContent>
               <div className="flex justify-between items-center">
-                <p className="text-sm text-[#8b7355]">
-                  Click to configure
-                </p>
+                <p className="text-sm text-[#8b7355]">Click to configure</p>
                 <a
                   href={method.learnMoreUrl}
                   target="_blank"
@@ -393,7 +454,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 };
 
 // Configuration Panel Component
-const ConfigurationPanel: React.FC<{
+const _ConfigurationPanel: React.FC<{
   method: AccessMethod;
   config?: any;
   onConfigChange: (config: any) => void;
@@ -409,7 +470,8 @@ const ConfigurationPanel: React.FC<{
           </CardHeader>
           <CardContent>
             <p className="text-sm text-[#8b7355]">
-              No additional configuration needed for Allowlist. Access is determined by a separate allowlist management system.
+              No additional configuration needed for Allowlist. Access is
+              determined by a separate allowlist management system.
             </p>
           </CardContent>
         </Card>
@@ -437,18 +499,12 @@ const ConfigurationPanel: React.FC<{
 
     case 'POAP':
       return (
-        <POAPConfig
-          onConfigChange={onConfigChange}
-          initialConfig={config}
-        />
+        <POAPConfig onConfigChange={onConfigChange} initialConfig={config} />
       );
 
     case 'Hats':
       return (
-        <HatsConfig
-          onConfigChange={onConfigChange}
-          initialConfig={config}
-        />
+        <HatsConfig onConfigChange={onConfigChange} initialConfig={config} />
       );
 
     case 'Hypercert':
@@ -461,10 +517,7 @@ const ConfigurationPanel: React.FC<{
 
     case 'Unlock':
       return (
-        <UnlockConfig
-          onConfigChange={onConfigChange}
-          initialConfig={config}
-        />
+        <UnlockConfig onConfigChange={onConfigChange} initialConfig={config} />
       );
 
     default:

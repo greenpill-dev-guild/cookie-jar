@@ -19,7 +19,15 @@ export interface FloorPriceData {
   listedCount?: number;
   averagePrice?: number;
   lastUpdated: number;
-  source: 'opensea' | 'looksrare' | 'x2y2' | 'blur' | 'reservoir' | 'moralis' | 'alchemy' | 'aggregated';
+  source:
+    | 'opensea'
+    | 'looksrare'
+    | 'x2y2'
+    | 'blur'
+    | 'reservoir'
+    | 'moralis'
+    | 'alchemy'
+    | 'aggregated';
 }
 
 export interface PriceHistoryPoint {
@@ -98,8 +106,14 @@ export interface PriceAlert {
 }
 
 export class FloorPriceProvider {
-  private cache = new Map<string, { data: FloorPriceData; timestamp: number }>();
-  private statsCache = new Map<string, { data: CollectionStats; timestamp: number }>();
+  private cache = new Map<
+    string,
+    { data: FloorPriceData; timestamp: number }
+  >();
+  private statsCache = new Map<
+    string,
+    { data: CollectionStats; timestamp: number }
+  >();
   private readonly CACHE_DURATION = 5 * 60 * 1000; // 5 minutes for price data
   private readonly STATS_CACHE_DURATION = 30 * 60 * 1000; // 30 minutes for stats
   private apiKeys: {
@@ -122,9 +136,12 @@ export class FloorPriceProvider {
   /**
    * Get floor price data with fallback to multiple sources
    */
-  async getFloorPrice(contractAddress: string, chainId: number = 1): Promise<FloorPriceData | null> {
+  async getFloorPrice(
+    contractAddress: string,
+    chainId: number = 1
+  ): Promise<FloorPriceData | null> {
     const cacheKey = `${contractAddress}-${chainId}`;
-    
+
     // Check cache first
     const cached = this.cache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < this.CACHE_DURATION) {
@@ -149,7 +166,6 @@ export class FloorPriceProvider {
           }
         } catch (error) {
           console.warn('Price source failed, trying next:', error);
-          continue;
         }
       }
 
@@ -163,9 +179,12 @@ export class FloorPriceProvider {
   /**
    * Get detailed collection statistics
    */
-  async getCollectionStats(contractAddress: string, chainId: number = 1): Promise<CollectionStats | null> {
+  async getCollectionStats(
+    contractAddress: string,
+    chainId: number = 1
+  ): Promise<CollectionStats | null> {
     const cacheKey = `stats-${contractAddress}-${chainId}`;
-    
+
     // Check cache first
     const cached = this.statsCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < this.STATS_CACHE_DURATION) {
@@ -173,7 +192,10 @@ export class FloorPriceProvider {
     }
 
     try {
-      const stats = await this.fetchComprehensiveStats(contractAddress, chainId);
+      const stats = await this.fetchComprehensiveStats(
+        contractAddress,
+        chainId
+      );
       if (stats) {
         this.statsCache.set(cacheKey, { data: stats, timestamp: Date.now() });
         return stats;
@@ -188,11 +210,14 @@ export class FloorPriceProvider {
   /**
    * OpenSea API integration
    */
-  private async getOpenSeaFloorPrice(contractAddress: string, chainId: number): Promise<FloorPriceData | null> {
+  private async getOpenSeaFloorPrice(
+    contractAddress: string,
+    chainId: number
+  ): Promise<FloorPriceData | null> {
     if (!this.apiKeys.opensea) return null;
 
     try {
-      const network = this.getOpenSeaNetwork(chainId);
+      const _network = this.getOpenSeaNetwork(chainId);
       const response = await fetch(
         `https://api.opensea.io/api/v2/collections/${contractAddress}/stats`,
         {
@@ -220,9 +245,9 @@ export class FloorPriceProvider {
         volume24hUSD: parseFloat(stats.one_day_volume || '0') * ethPrice,
         change24h: parseFloat(stats.one_day_change || '0') * 100,
         change7d: parseFloat(stats.seven_day_change || '0') * 100,
-        sales24h: parseInt(stats.one_day_sales || '0'),
-        owners: parseInt(stats.num_owners || '0'),
-        totalSupply: parseInt(stats.total_supply || '0'),
+        sales24h: parseInt(stats.one_day_sales || '0', 10),
+        owners: parseInt(stats.num_owners || '0', 10),
+        totalSupply: parseInt(stats.total_supply || '0', 10),
         averagePrice: parseFloat(stats.average_price || '0'),
         lastUpdated: Date.now(),
         source: 'opensea',
@@ -236,7 +261,10 @@ export class FloorPriceProvider {
   /**
    * Reservoir API integration (aggregated data)
    */
-  private async getReservoirFloorPrice(contractAddress: string, chainId: number): Promise<FloorPriceData | null> {
+  private async getReservoirFloorPrice(
+    contractAddress: string,
+    chainId: number
+  ): Promise<FloorPriceData | null> {
     try {
       const baseUrl = this.getReservoirBaseUrl(chainId);
       const response = await fetch(
@@ -259,17 +287,21 @@ export class FloorPriceProvider {
       return {
         contractAddress,
         collectionName: collection.name || 'Unknown Collection',
-        floorPrice: parseFloat(collection.floorAsk?.price?.amount?.native || '0'),
-        floorPriceUSD: parseFloat(collection.floorAsk?.price?.amount?.usd || '0'),
+        floorPrice: parseFloat(
+          collection.floorAsk?.price?.amount?.native || '0'
+        ),
+        floorPriceUSD: parseFloat(
+          collection.floorAsk?.price?.amount?.usd || '0'
+        ),
         currency: 'ETH',
         volume24h: parseFloat(collection.volume?.['1day'] || '0'),
         volume24hUSD: parseFloat(collection.volume?.['1day'] || '0') * ethPrice,
         change24h: parseFloat(collection.volumeChange?.['1day'] || '0') * 100,
         change7d: parseFloat(collection.volumeChange?.['7day'] || '0') * 100,
-        sales24h: parseInt(collection.salesCount?.['1day'] || '0'),
-        owners: parseInt(collection.ownerCount || '0'),
-        totalSupply: parseInt(collection.tokenCount || '0'),
-        listedCount: parseInt(collection.onSaleCount || '0'),
+        sales24h: parseInt(collection.salesCount?.['1day'] || '0', 10),
+        owners: parseInt(collection.ownerCount || '0', 10),
+        totalSupply: parseInt(collection.tokenCount || '0', 10),
+        listedCount: parseInt(collection.onSaleCount || '0', 10),
         lastUpdated: Date.now(),
         source: 'reservoir',
       };
@@ -282,7 +314,10 @@ export class FloorPriceProvider {
   /**
    * Alchemy NFT API integration
    */
-  private async getAlchemyFloorPrice(contractAddress: string, chainId: number): Promise<FloorPriceData | null> {
+  private async getAlchemyFloorPrice(
+    contractAddress: string,
+    chainId: number
+  ): Promise<FloorPriceData | null> {
     if (!this.apiKeys.alchemy) return null;
 
     try {
@@ -292,7 +327,7 @@ export class FloorPriceProvider {
         {
           method: 'GET',
           headers: {
-            'accept': 'application/json',
+            accept: 'application/json',
           },
         }
       );
@@ -320,7 +355,10 @@ export class FloorPriceProvider {
   /**
    * Moralis NFT API integration
    */
-  private async getMoralisFloorPrice(contractAddress: string, chainId: number): Promise<FloorPriceData | null> {
+  private async getMoralisFloorPrice(
+    contractAddress: string,
+    chainId: number
+  ): Promise<FloorPriceData | null> {
     if (!this.apiKeys.moralis) return null;
 
     try {
@@ -337,7 +375,7 @@ export class FloorPriceProvider {
       if (!response.ok) return null;
 
       const data = await response.json();
-      const ethPrice = await this.getETHPrice();
+      const _ethPrice = await this.getETHPrice();
 
       return {
         contractAddress,
@@ -347,7 +385,7 @@ export class FloorPriceProvider {
         currency: 'ETH',
         volume24h: parseFloat(data.volume_24h_eth || '0'),
         volume24hUSD: parseFloat(data.volume_24h_usd || '0'),
-        totalSupply: parseInt(data.total_tokens || '0'),
+        totalSupply: parseInt(data.total_tokens || '0', 10),
         lastUpdated: Date.now(),
         source: 'moralis',
       };
@@ -360,10 +398,13 @@ export class FloorPriceProvider {
   /**
    * Fetch comprehensive collection statistics
    */
-  private async fetchComprehensiveStats(contractAddress: string, chainId: number): Promise<CollectionStats | null> {
+  private async fetchComprehensiveStats(
+    contractAddress: string,
+    chainId: number
+  ): Promise<CollectionStats | null> {
     // This would combine data from multiple sources to create comprehensive stats
     // For now, we'll use the floor price data as a base and extend it
-    
+
     const floorData = await this.getFloorPrice(contractAddress, chainId);
     if (!floorData) return null;
 
@@ -408,14 +449,17 @@ export class FloorPriceProvider {
   /**
    * Get multiple floor prices in batch
    */
-  async getBatchFloorPrices(contractAddresses: string[], chainId: number = 1): Promise<Map<string, FloorPriceData>> {
+  async getBatchFloorPrices(
+    contractAddresses: string[],
+    chainId: number = 1
+  ): Promise<Map<string, FloorPriceData>> {
     const results = new Map<string, FloorPriceData>();
-    
+
     // Process in parallel batches to avoid rate limiting
     const batchSize = 5;
     for (let i = 0; i < contractAddresses.length; i += batchSize) {
       const batch = contractAddresses.slice(i, i + batchSize);
-      
+
       const promises = batch.map(async (address) => {
         const data = await this.getFloorPrice(address, chainId);
         if (data) {
@@ -424,10 +468,10 @@ export class FloorPriceProvider {
       });
 
       await Promise.all(promises);
-      
+
       // Rate limiting delay
       if (i + batchSize < contractAddresses.length) {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
       }
     }
 
@@ -439,7 +483,9 @@ export class FloorPriceProvider {
    */
   private async getETHPrice(): Promise<number> {
     try {
-      const response = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+      const response = await fetch(
+        'https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd'
+      );
       const data = await response.json();
       return data.ethereum?.usd || 2000; // Fallback price
     } catch (error) {

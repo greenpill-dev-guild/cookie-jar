@@ -1,14 +1,12 @@
-"use client";
+'use client';
 
-import { useMemo } from "react";
-import { useAccount, useChainId } from "wagmi";
-import { keccak256, toHex } from "viem";
-
-import { useReadCookieJarHasRole } from "@/generated";
-import { isV2Chain } from "@/config/supported-networks";
+import { useMemo } from 'react';
+import { keccak256, toHex } from 'viem';
+import { useAccount, useChainId } from 'wagmi';
+import { useReadCookieJarHasRole } from '@/generated';
 
 // Hash the JAR_OWNER role (same across all versions)
-const JAR_OWNER_ROLE = keccak256(toHex("JAR_OWNER")) as `0x${string}`;
+const JAR_OWNER_ROLE = keccak256(toHex('JAR_OWNER')) as `0x${string}`;
 
 /**
  * Permission status for a user interacting with a Cookie Jar
@@ -40,23 +38,23 @@ export interface JarConfig {
 
 /**
  * Custom hook to handle Cookie Jar permission checking and role validation
- * 
+ *
  * Provides comprehensive permission checking for Cookie Jar interactions,
  * including admin privileges, fee collector status, and access type validation.
  * Automatically handles version differences between v1 and v2 contracts.
- * 
+ *
  * @param jarAddress - The Cookie Jar contract address to check permissions for
  * @param config - The jar configuration containing access control data
  * @returns Object containing all permission states and flags
- * 
+ *
  * @example
  * ```tsx
  * const permissions = useJarPermissions(jarAddress, config);
- * 
+ *
  * if (permissions.isAdmin) {
  *   // Show admin controls
  * }
- * 
+ *
  * if (permissions.showUserFunctions) {
  *   // Show allowlist withdrawal options
  * }
@@ -67,7 +65,7 @@ export const useJarPermissions = (
   config: JarConfig | undefined
 ): JarPermissions => {
   const { address: userAddress } = useAccount();
-  const chainId = useChainId();
+  const _chainId = useChainId();
 
   // Check if current user has the JAR_OWNER role
   const { data: hasJarOwnerRole } = useReadCookieJarHasRole({
@@ -80,12 +78,12 @@ export const useJarPermissions = (
   // Calculate permission states with v2 compatibility
   const permissions = useMemo(() => {
     const isAdmin = hasJarOwnerRole === true;
-    
+
     const showUserFunctions =
-      config?.allowlist === true && config?.accessType === "Allowlist";
-    
-    const showNFTGatedFunctions = config?.accessType === "NFT-Gated";
-    
+      config?.allowlist === true && config?.accessType === 'Allowlist';
+
+    const showNFTGatedFunctions = config?.accessType === 'NFT-Gated';
+
     const isFeeCollector =
       userAddress &&
       config?.feeCollector &&

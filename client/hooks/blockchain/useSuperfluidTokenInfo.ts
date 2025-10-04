@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useQuery } from "@tanstack/react-query";
-import { usePublicClient } from "wagmi";
-import { erc20Abi } from "viem";
+import { useQuery } from '@tanstack/react-query';
+import { erc20Abi } from 'viem';
+import { usePublicClient } from 'wagmi';
 
 /**
  * Superfluid token information
@@ -23,7 +23,7 @@ export const useSuperfluidTokenInfo = (tokenAddress: `0x${string}`) => {
   const publicClient = usePublicClient();
 
   return useQuery({
-    queryKey: ["superfluidTokenInfo", tokenAddress],
+    queryKey: ['superfluidTokenInfo', tokenAddress],
     queryFn: async (): Promise<SuperfluidTokenInfo | null> => {
       if (!publicClient) return null;
 
@@ -33,22 +33,22 @@ export const useSuperfluidTokenInfo = (tokenAddress: `0x${string}`) => {
           publicClient.readContract({
             address: tokenAddress,
             abi: erc20Abi,
-            functionName: "symbol",
+            functionName: 'symbol',
           }),
           publicClient.readContract({
             address: tokenAddress,
             abi: erc20Abi,
-            functionName: "name",
+            functionName: 'name',
           }),
           publicClient.readContract({
             address: tokenAddress,
             abi: erc20Abi,
-            functionName: "decimals",
+            functionName: 'decimals',
           }),
           publicClient.readContract({
             address: tokenAddress,
             abi: erc20Abi,
-            functionName: "totalSupply",
+            functionName: 'totalSupply',
           }),
         ]);
 

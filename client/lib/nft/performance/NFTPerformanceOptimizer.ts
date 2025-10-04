@@ -34,11 +34,13 @@ export class NFTPerformanceOptimizer {
    * Optimize image loading with lazy loading and caching
    */
   async optimizeImageLoading(
-    imageUrl: string, 
+    imageUrl: string,
     strategy: NFTImageLoadingStrategy = {
       lazy: true,
-      placeholder: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNmMGYwZjAiLz48L3N2Zz4=',
-      errorFallback: 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNlNWU1ZTUiLz48dGV4dCB4PSIxMDAiIHk9IjEwMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iIGZpbGw9IiM5OTk5OTkiPkVycm9yPC90ZXh0Pjwvc3ZnPg==',
+      placeholder:
+        'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNmMGYwZjAiLz48L3N2Zz4=',
+      errorFallback:
+        'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNlNWU1ZTUiLz48dGV4dCB4PSIxMDAiIHk9IjEwMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iIGZpbGw9IiM5OTk5OTkiPkVycm9yPC90ZXh0Pjwvc3ZnPg==',
       preloadStrategy: 'viewport',
       cacheStrategy: 'memory',
     }
@@ -62,9 +64,12 @@ export class NFTPerformanceOptimizer {
       if (!response.ok) throw new Error('Image fetch failed');
 
       const blob = await response.blob();
-      
+
       // Cache the blob
-      if (strategy.cacheStrategy === 'memory' || strategy.cacheStrategy === 'both') {
+      if (
+        strategy.cacheStrategy === 'memory' ||
+        strategy.cacheStrategy === 'both'
+      ) {
         this.imageCache.set(imageUrl, { blob, timestamp: Date.now() });
       }
 
@@ -76,7 +81,7 @@ export class NFTPerformanceOptimizer {
   }
 
   private async lazyLoadImage(
-    imageUrl: string, 
+    imageUrl: string,
     strategy: NFTImageLoadingStrategy
   ): Promise<string> {
     return new Promise((resolve) => {
@@ -89,36 +94,45 @@ export class NFTPerformanceOptimizer {
         try {
           const response = await fetch(imageUrl);
           const blob = await response.blob();
-          
-          if (strategy.cacheStrategy === 'memory' || strategy.cacheStrategy === 'both') {
+
+          if (
+            strategy.cacheStrategy === 'memory' ||
+            strategy.cacheStrategy === 'both'
+          ) {
             this.imageCache.set(imageUrl, { blob, timestamp: Date.now() });
           }
-          
+
           // This would trigger a re-render in the actual component
           // The component would need to listen for this event
-          window.dispatchEvent(new CustomEvent('nft-image-loaded', { 
-            detail: { 
-              originalUrl: imageUrl, 
-              loadedUrl: URL.createObjectURL(blob) 
-            } 
-          }));
-        } catch (error) {
-          window.dispatchEvent(new CustomEvent('nft-image-error', { 
-            detail: { 
-              originalUrl: imageUrl, 
-              fallbackUrl: strategy.errorFallback 
-            } 
-          }));
+          window.dispatchEvent(
+            new CustomEvent('nft-image-loaded', {
+              detail: {
+                originalUrl: imageUrl,
+                loadedUrl: URL.createObjectURL(blob),
+              },
+            })
+          );
+        } catch {
+          window.dispatchEvent(
+            new CustomEvent('nft-image-error', {
+              detail: {
+                originalUrl: imageUrl,
+                fallbackUrl: strategy.errorFallback,
+              },
+            })
+          );
         }
       };
 
       img.onerror = () => {
-        window.dispatchEvent(new CustomEvent('nft-image-error', { 
-          detail: { 
-            originalUrl: imageUrl, 
-            fallbackUrl: strategy.errorFallback 
-          } 
-        }));
+        window.dispatchEvent(
+          new CustomEvent('nft-image-error', {
+            detail: {
+              originalUrl: imageUrl,
+              fallbackUrl: strategy.errorFallback,
+            },
+          })
+        );
       };
 
       img.src = imageUrl;
@@ -134,7 +148,7 @@ export class NFTPerformanceOptimizer {
     provider: any
   ): Promise<any> {
     const cacheKey = `${contractAddress}-${tokenId}`;
-    
+
     // Check cache
     const cached = this.metadataCache.get(cacheKey);
     if (cached && Date.now() - cached.timestamp < this.METADATA_CACHE_TTL) {
@@ -144,7 +158,7 @@ export class NFTPerformanceOptimizer {
     try {
       // Fetch metadata
       const metadata = await provider.getNFTMetadata(contractAddress, tokenId);
-      
+
       // Cache the result
       this.metadataCache.set(cacheKey, {
         data: metadata,
@@ -153,7 +167,12 @@ export class NFTPerformanceOptimizer {
 
       return metadata;
     } catch (error) {
-      console.warn('Failed to fetch NFT metadata:', contractAddress, tokenId, error);
+      console.warn(
+        'Failed to fetch NFT metadata:',
+        contractAddress,
+        tokenId,
+        error
+      );
       return null;
     }
   }
@@ -178,12 +197,12 @@ export class NFTPerformanceOptimizer {
 
     for (let i = 0; i < requests.length; i += batchSize) {
       const batch = requests.slice(i, i + batchSize);
-      
+
       // Limit concurrent requests
       const limitedBatch = batch.slice(0, maxConcurrent);
-      
+
       const batchResults = await Promise.allSettled(
-        limitedBatch.map(request => request())
+        limitedBatch.map((request) => request())
       );
 
       // Process results
@@ -197,7 +216,7 @@ export class NFTPerformanceOptimizer {
 
       // Add delay between batches to avoid rate limiting
       if (i + batchSize < requests.length) {
-        await new Promise(resolve => setTimeout(resolve, delayMs));
+        await new Promise((resolve) => setTimeout(resolve, delayMs));
       }
     }
 
@@ -242,7 +261,7 @@ export class NFTPerformanceOptimizer {
       return new Promise((resolve) => {
         debounceTimer = setTimeout(async () => {
           const now = Date.now();
-          
+
           // Throttle check
           if (now - lastSearchTime < throttleMs) {
             resolve(null);
@@ -266,19 +285,18 @@ export class NFTPerformanceOptimizer {
   /**
    * Memory management for large NFT collections
    */
-  optimizeMemoryUsage(options: {
-    maxCacheSize: number;
-    cleanupInterval: number;
-  } = {
-    maxCacheSize: 100,
-    cleanupInterval: 5 * 60 * 1000, // 5 minutes
-  }) {
+  optimizeMemoryUsage(
+    options: { maxCacheSize: number; cleanupInterval: number } = {
+      maxCacheSize: 100,
+      cleanupInterval: 5 * 60 * 1000, // 5 minutes
+    }
+  ) {
     const { maxCacheSize, cleanupInterval } = options;
 
     // Cleanup old cache entries
     const cleanup = () => {
       const now = Date.now();
-      
+
       // Clean image cache
       for (const [key, value] of this.imageCache.entries()) {
         if (now - value.timestamp > this.IMAGE_CACHE_TTL) {
@@ -298,7 +316,7 @@ export class NFTPerformanceOptimizer {
       if (this.imageCache.size > maxCacheSize) {
         const entries = Array.from(this.imageCache.entries());
         entries.sort((a, b) => a[1].timestamp - b[1].timestamp); // Oldest first
-        
+
         const entriesToRemove = entries.slice(0, entries.length - maxCacheSize);
         entriesToRemove.forEach(([key, value]) => {
           URL.revokeObjectURL(URL.createObjectURL(value.blob));
@@ -324,7 +342,7 @@ export class NFTPerformanceOptimizer {
     nfts: Array<{ contractAddress: string; tokenId: string; imageUrl: string }>,
     provider: any
   ): Promise<void> {
-    const imagePreloads = nfts.map(nft => 
+    const imagePreloads = nfts.map((nft) =>
       this.optimizeImageLoading(nft.imageUrl, {
         lazy: false,
         placeholder: '',
@@ -334,13 +352,16 @@ export class NFTPerformanceOptimizer {
       })
     );
 
-    const metadataPreloads = nfts.map(nft =>
+    const metadataPreloads = nfts.map((nft) =>
       this.optimizeMetadataFetching(nft.contractAddress, nft.tokenId, provider)
     );
 
     // Batch the preloads
     await this.batchNFTRequests(
-      [...imagePreloads.map(p => () => p), ...metadataPreloads.map(p => () => p)],
+      [
+        ...imagePreloads.map((p) => () => p),
+        ...metadataPreloads.map((p) => () => p),
+      ],
       { batchSize: 3, delayMs: 50, maxConcurrent: 2 }
     );
   }
@@ -354,9 +375,11 @@ export class NFTPerformanceOptimizer {
       metadataCacheSize: this.metadataCache.size,
       memoryUsage: {
         imageCache: Array.from(this.imageCache.values()).reduce(
-          (total, item) => total + item.blob.size, 0
+          (total, item) => total + item.blob.size,
+          0
         ),
-        metadataCache: JSON.stringify(Array.from(this.metadataCache.values())).length,
+        metadataCache: JSON.stringify(Array.from(this.metadataCache.values()))
+          .length,
       },
     };
   }
@@ -369,7 +392,7 @@ export class NFTPerformanceOptimizer {
     for (const [, value] of this.imageCache) {
       URL.revokeObjectURL(URL.createObjectURL(value.blob));
     }
-    
+
     this.imageCache.clear();
     this.metadataCache.clear();
   }
@@ -403,12 +426,10 @@ export class NFTPerformanceOptimizer {
     if (options.memoize) {
       return React.memo(Component, (prevProps, nextProps) => {
         // Custom comparison for NFT components
-        return (
-          JSON.stringify(prevProps) === JSON.stringify(nextProps)
-        );
+        return JSON.stringify(prevProps) === JSON.stringify(nextProps);
       });
     }
-    
+
     return Component;
   }
 }
@@ -419,7 +440,7 @@ export const nftPerformanceOptimizer = new NFTPerformanceOptimizer();
 // React hook for performance optimization
 export function useNFTPerformanceOptimization() {
   const [optimizer] = React.useState(() => new NFTPerformanceOptimizer());
-  
+
   React.useEffect(() => {
     const cleanup = optimizer.optimizeMemoryUsage();
     return cleanup;

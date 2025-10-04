@@ -1,13 +1,13 @@
-"use client";
+'use client';
 
-import { useMemo } from "react";
-import { useParams } from "next/navigation";
-import { useCookieJarConfig } from "@/hooks/jar/useJar";
-import { useJarPermissions } from "@/hooks/jar/useJarPermissions";
-import { useJarTransactions } from "@/hooks/jar/useJarTransactions";
-import { AllowlistWithdrawalSection } from "@/components/jar/AllowlistWithdrawalSection";
-import { NFTGatedWithdrawalSection } from "@/components/jar/NFTGatedWithdrawalSection";
-import { CountdownTimer } from "@/components/jar/CountdownTimer";
+import { useParams } from 'next/navigation';
+import { useMemo } from 'react';
+import { AllowlistWithdrawalSection } from '@/components/jar/AllowlistWithdrawalSection';
+import { CountdownTimer } from '@/components/jar/CountdownTimer';
+import { NFTGatedWithdrawalSection } from '@/components/jar/NFTGatedWithdrawalSection';
+import { useCookieJarConfig } from '@/hooks/jar/useJar';
+import { useJarPermissions } from '@/hooks/jar/useJarPermissions';
+import { useJarTransactions } from '@/hooks/jar/useJarTransactions';
 
 export function JarWithdrawSection() {
   const params = useParams();
@@ -46,7 +46,7 @@ export function JarWithdrawSection() {
     handleWithdrawAllowlistVariable,
     handleWithdrawNFT,
     handleWithdrawNFTVariable,
-    4_isApprovalPending,
+    isApprovalPending: _isApprovalPending,
     isWithdrawPending,
   } = transactions;
 

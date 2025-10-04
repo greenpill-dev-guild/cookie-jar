@@ -1,25 +1,24 @@
-"use client";
+'use client';
 
-import type React from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { useToast } from "@/hooks/app/useToast";
-import { useAccount, useChainId } from "wagmi";
-import { 
-  RefreshCw, 
-  AlertTriangle, 
-  ArrowRightLeft, 
+import {
+  AlertTriangle,
+  ArrowRightLeft,
   Coins,
   ExternalLink,
-  Info
-} from "lucide-react";
-import { formatUnits } from "viem";
-import { formatAddress } from "@/lib/app/utils";
-import { usePendingTokens } from "@/hooks/jar/usePendingTokens";
-import { useTokenRecoveryActions } from "@/hooks/jar/useTokenRecoveryActions";
-
+  Info,
+  RefreshCw,
+} from 'lucide-react';
+import type React from 'react';
+import { formatUnits } from 'viem';
+import { useAccount, useChainId } from 'wagmi';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useToast } from '@/hooks/app/useToast';
+import { usePendingTokens } from '@/hooks/jar/usePendingTokens';
+import { useTokenRecoveryActions } from '@/hooks/jar/useTokenRecoveryActions';
+import { formatAddress } from '@/lib/app/utils';
 
 interface TokenRecoveryPanelProps {
   jarAddress: `0x${string}`;
@@ -28,20 +27,20 @@ interface TokenRecoveryPanelProps {
   isAdmin: boolean;
 }
 
-export const TokenRecoveryPanel: React.FC<TokenRecoveryPanelProps> = ({ 
-  jarAddress, 
-  2_jarTokenAddress,
+export const TokenRecoveryPanel: React.FC<TokenRecoveryPanelProps> = ({
+  jarAddress,
+  jarTokenAddress: _jarTokenAddress,
   jarTokenSymbol,
-  isAdmin 
+  isAdmin,
 }) => {
   const { toast } = useToast();
-  const_chainId = useChainId();
+  const _chainId = useChainId();
   const { address: _userAddress } = useAccount();
 
   // Use real contract hooks
   const {
     pendingTokens,
-    4_isLoading,
+    isLoading: _isLoading,
     totalEstimatedValue,
     swappableTokensCount,
     formatTokenBalance,
@@ -51,16 +50,16 @@ export const TokenRecoveryPanel: React.FC<TokenRecoveryPanelProps> = ({
 
   const {
     swapPendingToken,
-    4_isSwapping,
+    isSwapping: _isSwapping,
     isSwappingToken,
   } = useTokenRecoveryActions(jarAddress);
 
   const handleSwapToken = async (tokenAddress: string) => {
     if (!isAdmin) {
       toast({
-        title: "Access Denied",
-        description: "Only jar admin can perform token swaps.",
-        variant: "destructive",
+        title: 'Access Denied',
+        description: 'Only jar admin can perform token swaps.',
+        variant: 'destructive',
       });
       return;
     }
@@ -72,7 +71,6 @@ export const TokenRecoveryPanel: React.FC<TokenRecoveryPanelProps> = ({
     await refetch();
   };
 
-
   return (
     <Card>
       <CardHeader>
@@ -81,24 +79,24 @@ export const TokenRecoveryPanel: React.FC<TokenRecoveryPanelProps> = ({
             <Coins className="h-5 w-5 text-yellow-500" />
             Token Recovery
             {pendingTokens.length > 0 && (
-              <Badge variant="secondary">
-                {pendingTokens.length} pending
-              </Badge>
+              <Badge variant="secondary">{pendingTokens.length} pending</Badge>
             )}
           </CardTitle>
-          
+
           <Button
             variant="outline"
             size="sm"
             onClick={handleRefreshBalances}
             disabled={isRefetching}
           >
-            <RefreshCw className={`h-4 w-4 mr-2 ${isRefetching ? 'animate-spin' : ''}`} />
+            <RefreshCw
+              className={`h-4 w-4 mr-2 ${isRefetching ? 'animate-spin' : ''}`}
+            />
             Refresh
           </Button>
         </div>
       </CardHeader>
-      
+
       <CardContent className="space-y-4">
         {!isAdmin && (
           <Alert>
@@ -114,7 +112,8 @@ export const TokenRecoveryPanel: React.FC<TokenRecoveryPanelProps> = ({
             <Coins className="h-12 w-12 mx-auto mb-4 opacity-50" />
             <p className="text-lg font-medium mb-2">No Pending Tokens</p>
             <p className="text-sm">
-              Tokens sent to this jar will appear here for recovery and swapping.
+              Tokens sent to this jar will appear here for recovery and
+              swapping.
             </p>
           </div>
         ) : (
@@ -128,7 +127,7 @@ export const TokenRecoveryPanel: React.FC<TokenRecoveryPanelProps> = ({
                   <div className="text-sm text-gray-600">Pending Tokens</div>
                 </CardContent>
               </Card>
-              
+
               <Card className="border-dashed">
                 <CardContent className="p-4 text-center">
                   <div className="text-2xl font-bold text-green-600">
@@ -137,20 +136,25 @@ export const TokenRecoveryPanel: React.FC<TokenRecoveryPanelProps> = ({
                   <div className="text-sm text-gray-600">Swappable</div>
                 </CardContent>
               </Card>
-              
+
               <Card className="border-dashed">
                 <CardContent className="p-4 text-center">
                   <div className="text-2xl font-bold text-blue-600">
                     {formatUnits(totalEstimatedValue, 18).slice(0, 8)}
                   </div>
-                  <div className="text-sm text-gray-600">Est. {jarTokenSymbol}</div>
+                  <div className="text-sm text-gray-600">
+                    Est. {jarTokenSymbol}
+                  </div>
                 </CardContent>
               </Card>
             </div>
 
             <div className="space-y-3">
               {pendingTokens.map((token) => (
-                <Card key={token.address} className="border-l-4 border-l-yellow-500">
+                <Card
+                  key={token.address}
+                  className="border-l-4 border-l-yellow-500"
+                >
                   <CardContent className="p-4">
                     <div className="flex items-center justify-between">
                       <div className="space-y-2">
@@ -163,19 +167,27 @@ export const TokenRecoveryPanel: React.FC<TokenRecoveryPanelProps> = ({
                             </Badge>
                           )}
                         </div>
-                        
+
                         <div className="text-sm space-y-1">
                           <p>
-                            <span className="font-medium">Balance:</span>{" "}
-                            {formatTokenBalance(token.balance, token.decimals)} {token.symbol}
+                            <span className="font-medium">Balance:</span>{' '}
+                            {formatTokenBalance(token.balance, token.decimals)}{' '}
+                            {token.symbol}
                           </p>
                           <p className="font-mono text-xs text-gray-500">
                             {formatAddress(token.address)}
                           </p>
                           {token.estimatedOutput && (
                             <p className="text-green-600">
-                              <span className="font-medium">Estimated Output:</span>{" "}
-                              ~{formatUnits(token.estimatedOutput, 18).slice(0, 8)} {jarTokenSymbol}
+                              <span className="font-medium">
+                                Estimated Output:
+                              </span>{' '}
+                              ~
+                              {formatUnits(token.estimatedOutput, 18).slice(
+                                0,
+                                8
+                              )}{' '}
+                              {jarTokenSymbol}
                             </p>
                           )}
                         </div>
@@ -196,7 +208,9 @@ export const TokenRecoveryPanel: React.FC<TokenRecoveryPanelProps> = ({
                           <Button
                             size="sm"
                             onClick={() => handleSwapToken(token.address)}
-                            disabled={!isAdmin || isSwappingToken(token.address)}
+                            disabled={
+                              !isAdmin || isSwappingToken(token.address)
+                            }
                           >
                             {isSwappingToken(token.address) ? (
                               <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-1"></div>
@@ -206,11 +220,16 @@ export const TokenRecoveryPanel: React.FC<TokenRecoveryPanelProps> = ({
                             Swap to {jarTokenSymbol}
                           </Button>
                         )}
-                        
+
                         <Button
                           variant="ghost"
                           size="sm"
-                          onClick={() => window.open(`https://etherscan.io/address/${token.address}`, '_blank')}
+                          onClick={() =>
+                            window.open(
+                              `https://etherscan.io/address/${token.address}`,
+                              '_blank'
+                            )
+                          }
                         >
                           <ExternalLink className="h-4 w-4" />
                         </Button>
@@ -225,8 +244,9 @@ export const TokenRecoveryPanel: React.FC<TokenRecoveryPanelProps> = ({
               <Alert>
                 <Info className="h-4 w-4" />
                 <AlertDescription>
-                  These tokens were sent directly to the jar and need to be manually swapped to {jarTokenSymbol}. 
-                  ETH sent to the jar is automatically swapped.
+                  These tokens were sent directly to the jar and need to be
+                  manually swapped to {jarTokenSymbol}. ETH sent to the jar is
+                  automatically swapped.
                 </AlertDescription>
               </Alert>
             )}

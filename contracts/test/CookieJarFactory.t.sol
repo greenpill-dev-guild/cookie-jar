@@ -29,51 +29,45 @@ contract CookieJarFactoryTest is Test {
         address currency,
         string memory metadata
     ) internal view returns (CookieJarLib.JarConfig memory) {
-        return CookieJarLib.JarConfig(
-            jarOwner,                                    // jarOwner
-            currency,                                   // supportedCurrency
-            address(this),                              // feeCollector
-            CookieJarLib.AccessType.Allowlist,          // accessType
-            CookieJarLib.WithdrawalTypeOptions.Fixed,   // withdrawalOption
-            strictPurpose,                              // strictPurpose
-            true,                                       // emergencyWithdrawalEnabled
-            false,                                      // oneTimeWithdrawal
-            fixedAmount,                               // fixedAmount
-            maxWithdrawal,                             // maxWithdrawal
-            withdrawalInterval,                        // withdrawalInterval
-            0.01 ether,                                // minDeposit
-            0,                                         // feePercentageOnDeposit
-            0,                                         // maxWithdrawalPerPeriod
-            metadata,                                  // metadata
-            CookieJarLib.MultiTokenConfig({            // multiTokenConfig
-                enabled: false,
-                maxSlippagePercent: 500,
-                minSwapAmount: 0,
-                defaultFee: 3000
-            })
-        );
+        return
+            CookieJarLib.JarConfig(
+                jarOwner, // jarOwner
+                currency, // supportedCurrency
+                address(this), // feeCollector
+                CookieJarLib.AccessType.Allowlist, // accessType
+                CookieJarLib.WithdrawalTypeOptions.Fixed, // withdrawalOption
+                strictPurpose, // strictPurpose
+                true, // emergencyWithdrawalEnabled
+                false, // oneTimeWithdrawal
+                fixedAmount, // fixedAmount
+                maxWithdrawal, // maxWithdrawal
+                withdrawalInterval, // withdrawalInterval
+                0.01 ether, // minDeposit
+                0, // feePercentageOnDeposit
+                0, // maxWithdrawalPerPeriod
+                metadata, // metadata
+                CookieJarLib.MultiTokenConfig({ // multiTokenConfig
+                        enabled: false,
+                        maxSlippagePercent: 500,
+                        minSwapAmount: 0,
+                        defaultFee: 3000
+                    })
+            );
     }
 
     // Helper function to create default access config
     function createDefaultAccessConfig() internal view returns (CookieJarLib.AccessConfig memory) {
-        return CookieJarLib.AccessConfig({
-            allowlist: emptyAllowlist,
-            nftRequirement: CookieJarLib.NftRequirement({
-                nftContract: address(0),
-                tokenId: 0,
-                minBalance: 0
-            })
-        });
+        return
+            CookieJarLib.AccessConfig({
+                allowlist: emptyAllowlist,
+                nftRequirement: CookieJarLib.NftRequirement({nftContract: address(0), tokenId: 0, minBalance: 0})
+            });
     }
 
     // Helper function to create default multi-token config
     function createDefaultMultiTokenConfig() internal view returns (CookieJarLib.MultiTokenConfig memory) {
-        return CookieJarLib.MultiTokenConfig({
-            enabled: false,
-            maxSlippagePercent: 500,
-            minSwapAmount: 0,
-            defaultFee: 0
-        });
+        return
+            CookieJarLib.MultiTokenConfig({enabled: false, maxSlippagePercent: 500, minSwapAmount: 0, defaultFee: 0});
     }
 
     function setUp() public {
@@ -112,7 +106,6 @@ contract CookieJarFactoryTest is Test {
         assertEq(cookieJars[0], jarAddress);
     }
 
-
     // V2: grantProtocolAdminRole removed for size optimization
     // function testOnlyOwnerGrantsAndRevokesProtocolAdminRoles() public {
     //     vm.startPrank(owner);
@@ -123,7 +116,7 @@ contract CookieJarFactoryTest is Test {
     //     factory.grantProtocolAdminRole(user2);
     // }
 
-    // V2: transferOwnership removed for size optimization  
+    // V2: transferOwnership removed for size optimization
     // function testTransferOwnership() public {
     //     vm.prank(owner);
     //     factory.transferOwnership(user);
@@ -137,8 +130,9 @@ contract CookieJarFactoryTest is Test {
         address jarAddress = factory.createCookieJar(
             createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, "Test Metadata"),
             createDefaultAccessConfig(),
-            createDefaultMultiTokenConfig()        );
-        
+            createDefaultMultiTokenConfig()
+        );
+
         address[] memory cookieJars = factory.getAllJars();
         assertEq(cookieJars.length, 1);
         assertEq(cookieJars[0], jarAddress);
@@ -147,19 +141,15 @@ contract CookieJarFactoryTest is Test {
     /// @notice Test creating a cookie jar with custom fee
     function testCreateCookieJarWithCustomFee() public {
         vm.prank(owner);
-        CookieJarLib.JarConfig memory params = createDefaultJarParams(
-            owner,
-            CookieJarLib.ETH_ADDRESS,
-            "Test Metadata"
-        );
+        CookieJarLib.JarConfig memory params = createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, "Test Metadata");
         params.feePercentageOnDeposit = 500; // 5%
-        
+
         address jarAddress = factory.createCookieJar(
             params,
             createDefaultAccessConfig(),
-            createDefaultMultiTokenConfig()        
+            createDefaultMultiTokenConfig()
         );
-        
+
         address[] memory cookieJars = factory.getAllJars();
         assertEq(cookieJars.length, 1);
         assertEq(cookieJars[0], jarAddress);
@@ -168,19 +158,15 @@ contract CookieJarFactoryTest is Test {
     /// @notice Test creating a cookie jar with Variable withdrawal option
     function testCreateCookieJarWithVariableWithdrawal() public {
         vm.prank(owner);
-        CookieJarLib.JarConfig memory params = createDefaultJarParams(
-            owner,
-            CookieJarLib.ETH_ADDRESS,
-            "Test Metadata"
-        );
+        CookieJarLib.JarConfig memory params = createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, "Test Metadata");
         params.withdrawalOption = CookieJarLib.WithdrawalTypeOptions.Variable;
-        
+
         address jarAddress = factory.createCookieJar(
             params,
             createDefaultAccessConfig(),
             createDefaultMultiTokenConfig()
         );
-        
+
         address[] memory cookieJars = factory.getAllJars();
         assertEq(cookieJars.length, 1);
         assertEq(cookieJars[0], jarAddress);
@@ -189,24 +175,19 @@ contract CookieJarFactoryTest is Test {
     /// @notice Test creating a cookie jar with One-time withdrawal option
     function testCreateCookieJarWithOneTimeWithdrawal() public {
         vm.prank(owner);
-        CookieJarLib.JarConfig memory params = createDefaultJarParams(
-            owner,
-            CookieJarLib.ETH_ADDRESS,
-            "Test Metadata"
-        );
+        CookieJarLib.JarConfig memory params = createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, "Test Metadata");
         params.oneTimeWithdrawal = true;
-        
+
         address jarAddress = factory.createCookieJar(
             params,
             createDefaultAccessConfig(),
             createDefaultMultiTokenConfig()
         );
-        
+
         address[] memory cookieJars = factory.getAllJars();
         assertEq(cookieJars.length, 1);
         assertEq(cookieJars[0], jarAddress);
     }
-
 
     /// @notice Test creating jar with ERC20 token
     function testCreateCookieJarWithERC20() public {
@@ -214,9 +195,9 @@ contract CookieJarFactoryTest is Test {
         address jarAddress = factory.createCookieJar(
             createDefaultJarParams(owner, address(testToken), "ERC20 Test Jar"),
             createDefaultAccessConfig(),
-            createDefaultMultiTokenConfig()        
+            createDefaultMultiTokenConfig()
         );
-        
+
         address[] memory cookieJars = factory.getAllJars();
         assertEq(cookieJars.length, 1);
         assertEq(cookieJars[0], jarAddress);
@@ -225,17 +206,17 @@ contract CookieJarFactoryTest is Test {
     /// @notice Test metadata functionality
     function testMetadataFunctionality() public {
         string memory testMetadata = "Test Jar Metadata";
-        
+
         vm.prank(owner);
         address jarAddress = factory.createCookieJar(
             createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, testMetadata),
             createDefaultAccessConfig(),
             createDefaultMultiTokenConfig()
         );
-        
+
         // Test getMetadata for specific jar
         assertEq(factory.getMetadata(jarAddress), testMetadata);
-        
+
         // Metadata functionality verified
     }
 
@@ -243,21 +224,21 @@ contract CookieJarFactoryTest is Test {
     function testUpdateMetadata() public {
         string memory originalMetadata = "Original Metadata";
         string memory newMetadata = "Updated Metadata";
-        
+
         vm.prank(owner);
         address jarAddress = factory.createCookieJar(
             createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, originalMetadata),
             createDefaultAccessConfig(),
             createDefaultMultiTokenConfig()
         );
-        
+
         // Verify original metadata
         assertEq(factory.getMetadata(jarAddress), originalMetadata);
-        
+
         // Update metadata (as jar owner)
         vm.prank(owner);
         factory.updateMetadata(jarAddress, newMetadata);
-        
+
         // Verify updated metadata
         assertEq(factory.getMetadata(jarAddress), newMetadata);
     }
@@ -266,14 +247,14 @@ contract CookieJarFactoryTest is Test {
     function testUpdateMetadataByNonOwnerFails() public {
         string memory originalMetadata = "Original Metadata";
         string memory newMetadata = "Updated Metadata";
-        
+
         vm.prank(owner);
         address jarAddress = factory.createCookieJar(
             createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, originalMetadata),
             createDefaultAccessConfig(),
             createDefaultMultiTokenConfig()
         );
-        
+
         // Try to update metadata as non-owner (should fail)
         vm.prank(user);
         vm.expectRevert(CookieJarFactory.NotAuthorized.selector);
@@ -293,13 +274,12 @@ contract CookieJarFactoryTest is Test {
         factory.updateMetadata(address(0x9999), "New Metadata");
     }
 
-
     /// @notice Test multiple jars metadata handling
     function testMultipleJarsMetadata() public {
         string memory metadata1 = "Jar 1 Metadata";
         string memory metadata2 = "Jar 2 Metadata";
         string memory metadata3 = "Jar 3 Metadata";
-        
+
         vm.startPrank(owner);
         address jar1 = factory.createCookieJar(
             createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, metadata1),
@@ -319,12 +299,12 @@ contract CookieJarFactoryTest is Test {
             createDefaultMultiTokenConfig()
         );
         vm.stopPrank();
-        
+
         // Test individual metadata retrieval
         assertEq(factory.getMetadata(jar1), metadata1);
         assertEq(factory.getMetadata(jar2), metadata2);
         assertEq(factory.getMetadata(jar3), metadata3);
-        
+
         // Test individual metadata retrieval verified above
     }
 }

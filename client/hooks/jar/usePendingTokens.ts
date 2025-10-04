@@ -1,10 +1,9 @@
-"use client";
+'use client';
 
-import { useQuery, useQueries } from "@tanstack/react-query";
-import { useReadContract } from "wagmi";
-import { cookieJarAbi } from "@/generated";
-import { usePublicClient } from "wagmi";
-import { erc20Abi, formatUnits, isAddress } from "viem";
+import { useQueries } from '@tanstack/react-query';
+import { erc20Abi, formatUnits, isAddress } from 'viem';
+import { usePublicClient, useReadContract } from 'wagmi';
+import { cookieJarAbi } from '@/generated';
 
 /**
  * Pending token data structure
@@ -30,13 +29,13 @@ export const usePendingTokens = (jarAddress: `0x${string}`) => {
   const { data: pendingTokenAddresses } = useReadContract({
     address: jarAddress,
     abi: cookieJarAbi,
-    functionName: "getPendingTokenAddresses",
+    functionName: 'getPendingTokenAddresses',
   });
 
   // For each token, get balance and metadata
   const tokenQueries = useQueries({
-    queries: (pendingTokenAddresses || []).map(token => ({
-      queryKey: ["pendingToken", jarAddress, token],
+    queries: (pendingTokenAddresses || []).map((token) => ({
+      queryKey: ['pendingToken', jarAddress, token],
       queryFn: async (): Promise<PendingToken | null> => {
         if (!publicClient || !isAddress(token)) return null;
 
@@ -45,22 +44,22 @@ export const usePendingTokens = (jarAddress: `0x${string}`) => {
             publicClient.readContract({
               address: token,
               abi: erc20Abi,
-              functionName: "name",
+              functionName: 'name',
             }),
             publicClient.readContract({
               address: token,
               abi: erc20Abi,
-              functionName: "symbol",
+              functionName: 'symbol',
             }),
             publicClient.readContract({
               address: token,
               abi: erc20Abi,
-              functionName: "decimals",
+              functionName: 'decimals',
             }),
             publicClient.readContract({
               address: token,
               abi: erc20Abi,
-              functionName: "balanceOf",
+              functionName: 'balanceOf',
               args: [jarAddress],
             }),
           ]);
@@ -71,7 +70,10 @@ export const usePendingTokens = (jarAddress: `0x${string}`) => {
             symbol: symbol as string,
             balance: balance as bigint,
             decimals: decimals as number,
-            formattedBalance: formatUnits(balance as bigint, decimals as number),
+            formattedBalance: formatUnits(
+              balance as bigint,
+              decimals as number
+            ),
             isSwappable: true, // For now, assume all tokens are swappable
           };
         } catch (error) {
@@ -84,7 +86,9 @@ export const usePendingTokens = (jarAddress: `0x${string}`) => {
     })),
   });
 
-  const pendingTokens = tokenQueries.map(q => q.data).filter(Boolean) as PendingToken[];
+  const pendingTokens = tokenQueries
+    .map((q) => q.data)
+    .filter(Boolean) as PendingToken[];
 
   // Helper function to get total estimated value (mock for now)
   const getTotalEstimatedValue = (): bigint => {
@@ -94,11 +98,15 @@ export const usePendingTokens = (jarAddress: `0x${string}`) => {
 
   // Helper function to get swappable tokens count
   const getSwappableTokensCount = (): number => {
-    return pendingTokens.filter(token => token.isSwappable).length;
+    return pendingTokens.filter((token) => token.isSwappable).length;
   };
 
   // Helper function to format token balance
-  const formatTokenBalance = (balance: bigint, decimals: number, maxDecimals: number = 6): string => {
+  const formatTokenBalance = (
+    balance: bigint,
+    decimals: number,
+    maxDecimals: number = 6
+  ): string => {
     const formatted = formatUnits(balance, decimals);
     const parts = formatted.split('.');
     if (parts.length > 1 && parts[1].length > maxDecimals) {
@@ -110,8 +118,8 @@ export const usePendingTokens = (jarAddress: `0x${string}`) => {
   return {
     // Data
     pendingTokens,
-    isLoading: tokenQueries.some(q => q.isLoading),
-    error: tokenQueries.find(q => q.error)?.error,
+    isLoading: tokenQueries.some((q) => q.isLoading),
+    error: tokenQueries.find((q) => q.error)?.error,
 
     // Computed values
     totalEstimatedValue: getTotalEstimatedValue(),
@@ -121,7 +129,7 @@ export const usePendingTokens = (jarAddress: `0x${string}`) => {
     formatTokenBalance,
 
     // Query controls
-    refetch: () => tokenQueries.forEach(q => q.refetch()),
-    isRefetching: tokenQueries.some(q => q.isRefetching),
+    refetch: () => tokenQueries.forEach((q) => q.refetch()),
+    isRefetching: tokenQueries.some((q) => q.isRefetching),
   };
 };

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export interface UseResponsiveOptions {
   /** Custom breakpoint in pixels (default: 768) */
@@ -22,11 +22,11 @@ export interface UseResponsiveReturn {
 
 /**
  * Hook for responsive design detection
- * 
+ *
  * @example
  * ```tsx
  * const { isMobile, isTablet, isDesktop } = useResponsive();
- * 
+ *
  * return (
  *   <div>
  *     {isMobile && <MobileComponent />}
@@ -35,7 +35,9 @@ export interface UseResponsiveReturn {
  * );
  * ```
  */
-export function useResponsive(options: UseResponsiveOptions = {}): UseResponsiveReturn {
+export function useResponsive(
+  options: UseResponsiveOptions = {}
+): UseResponsiveReturn {
   const {
     breakpoint = 768, // md breakpoint
     useMatchMedia = true,
@@ -53,11 +55,11 @@ export function useResponsive(options: UseResponsiveOptions = {}): UseResponsive
     const updateScreenSize = () => {
       const width = window.innerWidth;
       setScreenWidth(width);
-      
+
       const mobile = width < breakpoint;
       const tablet = width >= breakpoint && width < tabletBreakpoint;
       const desktop = width >= tabletBreakpoint;
-      
+
       setIsMobile(mobile);
       setIsTablet(tablet);
       setIsDesktop(desktop);
@@ -69,8 +71,12 @@ export function useResponsive(options: UseResponsiveOptions = {}): UseResponsive
     if (useMatchMedia && window.matchMedia) {
       // Use matchMedia for better performance
       const mobileQuery = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
-      const tabletQuery = window.matchMedia(`(min-width: ${breakpoint}px) and (max-width: ${tabletBreakpoint - 1}px)`);
-      const desktopQuery = window.matchMedia(`(min-width: ${tabletBreakpoint}px)`);
+      const tabletQuery = window.matchMedia(
+        `(min-width: ${breakpoint}px) and (max-width: ${tabletBreakpoint - 1}px)`
+      );
+      const desktopQuery = window.matchMedia(
+        `(min-width: ${tabletBreakpoint}px)`
+      );
 
       const handleMobileChange = (e: MediaQueryListEvent) => {
         setIsMobile(e.matches);
@@ -112,10 +118,13 @@ export function useResponsive(options: UseResponsiveOptions = {}): UseResponsive
       window.addEventListener('resize', updateScreenSize);
       return () => window.removeEventListener('resize', updateScreenSize);
     }
-  }, [breakpoint, tabletBreakpoint, useMatchMedia]);
+  }, [breakpoint, useMatchMedia]);
 
-  const currentBreakpoint: 'mobile' | 'tablet' | 'desktop' = 
-    isMobile ? 'mobile' : isTablet ? 'tablet' : 'desktop';
+  const currentBreakpoint: 'mobile' | 'tablet' | 'desktop' = isMobile
+    ? 'mobile'
+    : isTablet
+      ? 'tablet'
+      : 'desktop';
 
   return {
     isMobile,
@@ -168,12 +177,12 @@ export function useTailwindBreakpoints() {
     lg: lg.screenWidth >= breakpoints.lg,
     xl: xl.screenWidth >= breakpoints.xl,
     '2xl': xl.screenWidth >= breakpoints['2xl'],
-    
+
     // Convenience aliases
     mobile: sm.screenWidth < breakpoints.md,
     tablet: sm.screenWidth >= breakpoints.md && sm.screenWidth < breakpoints.lg,
     desktop: sm.screenWidth >= breakpoints.lg,
-    
+
     current: sm.breakpoint,
     width: sm.screenWidth,
   };

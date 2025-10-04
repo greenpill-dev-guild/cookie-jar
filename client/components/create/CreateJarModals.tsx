@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import React from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { LoadingOverlay } from "@/components/app/LoadingOverlay";
-import { MemoizedCustomConnectButton } from "@/components/wallet/CustomConnectButton";
+import type React from 'react';
+import { LoadingOverlay } from '@/components/app/LoadingOverlay';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { MemoizedCustomConnectButton } from '@/components/wallet/CustomConnectButton';
 
 interface CreateJarModalsProps {
   showWalletModal: boolean;
@@ -32,8 +32,8 @@ export const CreateJarModals: React.FC<CreateJarModalsProps> = ({
                 Connect Your Wallet
               </CardTitle>
               <p className="text-[hsl(var(--cj-medium-brown))]">
-                You&apos;re all set! Now connect your wallet to create this Cookie
-                Jar on the blockchain.
+                You&apos;re all set! Now connect your wallet to create this
+                Cookie Jar on the blockchain.
               </p>
             </CardHeader>
             <CardContent className="text-center space-y-4">
@@ -59,8 +59,8 @@ export const CreateJarModals: React.FC<CreateJarModalsProps> = ({
           isOpen={isCreating || isWaitingForTx}
           message={
             isWaitingForTx
-              ? "Waiting for transaction confirmation..."
-              : "Creating your cookie jar..."
+              ? 'Waiting for transaction confirmation...'
+              : 'Creating your cookie jar...'
           }
         />
       )}

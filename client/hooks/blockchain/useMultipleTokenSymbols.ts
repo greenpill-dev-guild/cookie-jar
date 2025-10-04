@@ -1,32 +1,34 @@
-"use client";
+'use client';
 
-import { erc20Abi } from "viem";
-import { useReadContracts } from "wagmi";
+import { erc20Abi } from 'viem';
+import { useReadContracts } from 'wagmi';
 
 /**
  * Custom hook to fetch multiple ERC-20 token symbols efficiently
- * 
+ *
  * Batches multiple token symbol requests into a single multicall for optimal
  * performance. Caches results to minimize redundant network requests.
- * 
+ *
  * @param currencies - Array of ERC-20 token contract addresses
  * @returns Object mapping each currency address to its symbol
- * 
+ *
  * @example
  * ```tsx
  * const tokens = ['0x...', '0x...'];
  * const symbolsMap = useMultipleTokenSymbols(tokens);
- * 
+ *
  * // symbolsMap['0x...'] = 'USDC'
  * console.log(symbolsMap[tokens[0]]); // 'USDC'
  * ```
  */
-export function useMultipleTokenSymbols(currencies: string[]): Record<string, string> {
+export function useMultipleTokenSymbols(
+  currencies: string[]
+): Record<string, string> {
   const { data: symbolsData } = useReadContracts({
     contracts: currencies.map((currency) => ({
       address: currency as `0x${string}`,
       abi: erc20Abi,
-      functionName: "symbol",
+      functionName: 'symbol',
     })),
     query: {
       enabled: currencies.length > 0,
@@ -40,7 +42,7 @@ export function useMultipleTokenSymbols(currencies: string[]): Record<string, st
   currencies.forEach((currency, index) => {
     const result = symbolsData?.[index];
     symbolsMap[currency.toLowerCase()] =
-      result?.status === "success" ? (result.result as string) : "TOKEN";
+      result?.status === 'success' ? (result.result as string) : 'TOKEN';
   });
 
   return symbolsMap;

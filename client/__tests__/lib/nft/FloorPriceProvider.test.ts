@@ -1,9 +1,7 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { 
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
   FloorPriceProvider,
   floorPriceProvider,
-  FloorPriceData,
-  CollectionStats
 } from '../../../lib/nft/advanced/FloorPriceProvider';
 
 // Mock fetch globally
@@ -12,7 +10,7 @@ global.fetch = mockFetch;
 
 describe('FloorPriceProvider', () => {
   let provider: FloorPriceProvider;
-  
+
   const mockOpenSeaResponse = {
     collection: { name: 'Test Collection' },
     stats: {
@@ -24,13 +22,13 @@ describe('FloorPriceProvider', () => {
       num_owners: '2500',
       total_supply: '10000',
       average_price: '1.2',
-    }
+    },
   };
 
   beforeEach(() => {
     provider = new FloorPriceProvider();
     vi.clearAllMocks();
-    
+
     // Mock environment variables
     process.env.NEXT_PUBLIC_OPENSEA_API_KEY = 'test-opensea-key';
     process.env.NEXT_PUBLIC_ALCHEMY_API_KEY = 'test-alchemy-key';
@@ -56,18 +54,18 @@ describe('FloorPriceProvider', () => {
 
   describe('OpenSea integration', () => {
     const mockETHPriceResponse = {
-      ethereum: { usd: 2000 }
+      ethereum: { usd: 2000 },
     };
 
     it('should fetch floor price from OpenSea successfully', async () => {
       mockFetch
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve(mockOpenSeaResponse)
+          json: () => Promise.resolve(mockOpenSeaResponse),
         })
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve(mockETHPriceResponse)
+          json: () => Promise.resolve(mockETHPriceResponse),
         });
 
       const result = await provider.getFloorPrice('0x123', 1);
@@ -93,7 +91,7 @@ describe('FloorPriceProvider', () => {
       expect(mockFetch).toHaveBeenCalledWith(
         'https://api.opensea.io/api/v2/collections/0x123/stats',
         expect.objectContaining({
-          headers: { 'X-API-KEY': 'test-opensea-key' }
+          headers: { 'X-API-KEY': 'test-opensea-key' },
         })
       );
     });
@@ -122,18 +120,20 @@ describe('FloorPriceProvider', () => {
 
   describe('Reservoir integration', () => {
     const mockReservoirResponse = {
-      collections: [{
-        name: 'Test Collection',
-        floorAsk: {
-          price: { amount: { native: '1.2', usd: '2400' } }
+      collections: [
+        {
+          name: 'Test Collection',
+          floorAsk: {
+            price: { amount: { native: '1.2', usd: '2400' } },
+          },
+          volume: { '1day': '50.0' },
+          volumeChange: { '1day': '0.1', '7day': '0.05' },
+          salesCount: { '1day': '15' },
+          ownerCount: '1500',
+          tokenCount: '5000',
+          onSaleCount: '200',
         },
-        volume: { '1day': '50.0' },
-        volumeChange: { '1day': '0.1', '7day': '0.05' },
-        salesCount: { '1day': '15' },
-        ownerCount: '1500',
-        tokenCount: '5000',
-        onSaleCount: '200',
-      }]
+      ],
     };
 
     it('should fetch floor price from Reservoir successfully', async () => {
@@ -142,11 +142,11 @@ describe('FloorPriceProvider', () => {
         .mockResolvedValueOnce({ ok: false })
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve(mockReservoirResponse)
+          json: () => Promise.resolve(mockReservoirResponse),
         })
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve({ ethereum: { usd: 2000 } })
+          json: () => Promise.resolve({ ethereum: { usd: 2000 } }),
         });
 
       const result = await provider.getFloorPrice('0x123', 1);
@@ -175,11 +175,11 @@ describe('FloorPriceProvider', () => {
         .mockResolvedValueOnce({ ok: false })
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve(mockReservoirResponse)
+          json: () => Promise.resolve(mockReservoirResponse),
         })
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve({ ethereum: { usd: 2000 } })
+          json: () => Promise.resolve({ ethereum: { usd: 2000 } }),
         });
 
       await provider.getFloorPrice('0x123', 137); // Polygon
@@ -194,7 +194,7 @@ describe('FloorPriceProvider', () => {
   describe('Alchemy integration', () => {
     const mockAlchemyResponse = {
       name: 'Test Collection',
-      openSea: { floorPrice: '0.8' }
+      openSea: { floorPrice: '0.8' },
     };
 
     it('should fetch floor price from Alchemy as fallback', async () => {
@@ -204,11 +204,11 @@ describe('FloorPriceProvider', () => {
         .mockResolvedValueOnce({ ok: false })
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve(mockAlchemyResponse)
+          json: () => Promise.resolve(mockAlchemyResponse),
         })
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve({ ethereum: { usd: 2000 } })
+          json: () => Promise.resolve({ ethereum: { usd: 2000 } }),
         });
 
       const result = await provider.getFloorPrice('0x123', 1);
@@ -227,7 +227,7 @@ describe('FloorPriceProvider', () => {
         'https://eth-mainnet.g.alchemy.com/nft/v3/test-alchemy-key/getFloorPrice?contractAddress=0x123',
         expect.objectContaining({
           method: 'GET',
-          headers: { 'accept': 'application/json' }
+          headers: { accept: 'application/json' },
         })
       );
     });
@@ -251,7 +251,7 @@ describe('FloorPriceProvider', () => {
         .mockResolvedValueOnce({ ok: false })
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve(mockMoralisResponse)
+          json: () => Promise.resolve(mockMoralisResponse),
         });
 
       const result = await provider.getFloorPrice('0x123', 1);
@@ -272,7 +272,7 @@ describe('FloorPriceProvider', () => {
       expect(mockFetch).toHaveBeenCalledWith(
         'https://deep-index.moralis.io/api/v2.2/nft/0x123/stats?chain=eth',
         expect.objectContaining({
-          headers: { 'X-API-Key': 'test-moralis-key' }
+          headers: { 'X-API-Key': 'test-moralis-key' },
         })
       );
     });
@@ -283,11 +283,11 @@ describe('FloorPriceProvider', () => {
       mockFetch
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve(mockOpenSeaResponse)
+          json: () => Promise.resolve(mockOpenSeaResponse),
         })
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve({ ethereum: { usd: 2000 } })
+          json: () => Promise.resolve({ ethereum: { usd: 2000 } }),
         });
 
       // First call
@@ -305,29 +305,30 @@ describe('FloorPriceProvider', () => {
     it('should expire cache after duration', async () => {
       // Create provider with short cache for testing
       const testProvider = new FloorPriceProvider();
-      
+
       // Override cache duration for testing
       (testProvider as any).CACHE_DURATION = 100; // 100ms
 
       mockFetch
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve(mockOpenSeaResponse)
+          json: () => Promise.resolve(mockOpenSeaResponse),
         })
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve({ ethereum: { usd: 2000 } })
+          json: () => Promise.resolve({ ethereum: { usd: 2000 } }),
         })
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve({
-            ...mockOpenSeaResponse,
-            stats: { ...mockOpenSeaResponse.stats, floor_price: '2.0' }
-          })
+          json: () =>
+            Promise.resolve({
+              ...mockOpenSeaResponse,
+              stats: { ...mockOpenSeaResponse.stats, floor_price: '2.0' },
+            }),
         })
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve({ ethereum: { usd: 2000 } })
+          json: () => Promise.resolve({ ethereum: { usd: 2000 } }),
         });
 
       // First call
@@ -335,7 +336,7 @@ describe('FloorPriceProvider', () => {
       expect(result1?.floorPrice).toBe(1.5);
 
       // Wait for cache to expire
-      await new Promise(resolve => setTimeout(resolve, 150));
+      await new Promise((resolve) => setTimeout(resolve, 150));
 
       // Second call should fetch fresh data
       const result2 = await testProvider.getFloorPrice('0x123', 1);
@@ -349,24 +350,24 @@ describe('FloorPriceProvider', () => {
     // Skipped: Requires complex async mocking setup
     it('should fetch multiple floor prices in batch', async () => {
       const addresses = ['0x123', '0x456', '0x789'];
-      
+
       // Mock responses for all addresses
       addresses.forEach(() => {
         mockFetch
           .mockResolvedValueOnce({
             ok: true,
-            json: () => Promise.resolve(mockOpenSeaResponse)
+            json: () => Promise.resolve(mockOpenSeaResponse),
           })
           .mockResolvedValueOnce({
             ok: true,
-            json: () => Promise.resolve({ ethereum: { usd: 2000 } })
+            json: () => Promise.resolve({ ethereum: { usd: 2000 } }),
           });
       });
 
       const results = await provider.getBatchFloorPrices(addresses, 1);
 
       expect(results.size).toBe(3);
-      addresses.forEach(address => {
+      addresses.forEach((address) => {
         expect(results.has(address)).toBe(true);
         expect(results.get(address)?.contractAddress).toBe(address);
       });
@@ -374,16 +375,16 @@ describe('FloorPriceProvider', () => {
 
     it('should handle batch with some failures', async () => {
       const addresses = ['0x123', '0x456'];
-      
+
       // First address succeeds, second fails
       mockFetch
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve(mockOpenSeaResponse)
+          json: () => Promise.resolve(mockOpenSeaResponse),
         })
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve({ ethereum: { usd: 2000 } })
+          json: () => Promise.resolve({ ethereum: { usd: 2000 } }),
         })
         .mockResolvedValueOnce({ ok: false });
 
@@ -396,17 +397,17 @@ describe('FloorPriceProvider', () => {
 
     it('should respect rate limiting in batch operations', async () => {
       const addresses = Array.from({ length: 7 }, (_, i) => `0x${i}`);
-      
+
       // Mock all to succeed
       addresses.forEach(() => {
         mockFetch
           .mockResolvedValueOnce({
             ok: true,
-            json: () => Promise.resolve(mockOpenSeaResponse)
+            json: () => Promise.resolve(mockOpenSeaResponse),
           })
           .mockResolvedValueOnce({
             ok: true,
-            json: () => Promise.resolve({ ethereum: { usd: 2000 } })
+            json: () => Promise.resolve({ ethereum: { usd: 2000 } }),
           });
       });
 
@@ -424,11 +425,11 @@ describe('FloorPriceProvider', () => {
       mockFetch
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve(mockOpenSeaResponse)
+          json: () => Promise.resolve(mockOpenSeaResponse),
         })
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve({ ethereum: { usd: 2000 } })
+          json: () => Promise.resolve({ ethereum: { usd: 2000 } }),
         });
 
       const stats = await provider.getCollectionStats('0x123', 1);
@@ -472,11 +473,11 @@ describe('FloorPriceProvider', () => {
       mockFetch
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve(mockOpenSeaResponse)
+          json: () => Promise.resolve(mockOpenSeaResponse),
         })
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve({ ethereum: { usd: 2000 } })
+          json: () => Promise.resolve({ ethereum: { usd: 2000 } }),
         });
 
       // First call
@@ -505,7 +506,7 @@ describe('FloorPriceProvider', () => {
     it('should handle JSON parsing errors', async () => {
       mockFetch.mockResolvedValueOnce({
         ok: true,
-        json: () => Promise.reject(new Error('Invalid JSON'))
+        json: () => Promise.reject(new Error('Invalid JSON')),
       });
 
       const result = await provider.getFloorPrice('0x123', 1);
@@ -520,15 +521,15 @@ describe('FloorPriceProvider', () => {
       delete process.env.NEXT_PUBLIC_ALCHEMY_API_KEY;
       delete process.env.NEXT_PUBLIC_MORALIS_API_KEY;
       delete process.env.NEXT_PUBLIC_RESERVOIR_API_KEY;
-      
+
       const testProvider = new FloorPriceProvider();
-      
+
       mockFetch.mockResolvedValue({ ok: false, status: 401 });
 
       const result = await testProvider.getFloorPrice('0x123', 1);
 
       expect(result).toBeNull();
-      
+
       // Restore environment
       Object.assign(process.env, oldEnv);
     });
@@ -546,13 +547,13 @@ describe('FloorPriceProvider', () => {
 
       for (const testCase of testCases) {
         mockFetch.mockResolvedValueOnce({ ok: false }); // OpenSea fails
-        
+
         await provider.getFloorPrice('0x123', testCase.chainId);
-        
+
         // Check that correct network was used (this would be in the URL)
         // We can't easily test the exact URL without more complex mocking
         expect(mockFetch).toHaveBeenCalled();
-        
+
         vi.clearAllMocks();
       }
     });
@@ -562,7 +563,7 @@ describe('FloorPriceProvider', () => {
     // Skipped: Cache timing tests are flaky in CI
     it('should clear all caches', () => {
       provider.clearCache();
-      
+
       const cacheStatus = provider.getCacheStatus();
       expect(cacheStatus.priceCache).toBe(0);
       expect(cacheStatus.statsCache).toBe(0);
@@ -572,11 +573,11 @@ describe('FloorPriceProvider', () => {
       mockFetch
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve(mockOpenSeaResponse)
+          json: () => Promise.resolve(mockOpenSeaResponse),
         })
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve({ ethereum: { usd: 2000 } })
+          json: () => Promise.resolve({ ethereum: { usd: 2000 } }),
         });
 
       await provider.getFloorPrice('0x123', 1);
@@ -593,7 +594,7 @@ describe('FloorPriceProvider', () => {
       mockFetch
         .mockResolvedValueOnce({
           ok: true,
-          json: () => Promise.resolve(mockOpenSeaResponse)
+          json: () => Promise.resolve(mockOpenSeaResponse),
         })
         .mockResolvedValueOnce({ ok: false }); // ETH price fails
 

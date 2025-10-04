@@ -1,5 +1,7 @@
-"use client";
+'use client';
 
+import { Loader2 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -7,24 +9,22 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Loader2 } from "lucide-react";
+} from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
 interface JarMetadataEditorProps {
   isEditingMetadata: boolean;
-  setIsEditingMetadata: (25_editing: boolean) => void;
+  setIsEditingMetadata: (editing: boolean) => void;
   editName: string;
-  setEditName: (16_name: string) => void;
+  setEditName: (name: string) => void;
   editImage: string;
-  setEditImage: (17_image: string) => void;
+  setEditImage: (image: string) => void;
   editLink: string;
-  setEditLink: (16_link: string) => void;
+  setEditLink: (link: string) => void;
   editDescription: string;
-  setEditDescription: (23_description: string) => void;
+  setEditDescription: (description: string) => void;
   onSave: () => void;
   isUpdatingMetadata: boolean;
 }
@@ -94,10 +94,7 @@ export function JarMetadataEditor({
           </div>
         </div>
         <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => setIsEditingMetadata(false)}
-          >
+          <Button variant="outline" onClick={() => setIsEditingMetadata(false)}>
             Cancel
           </Button>
           <Button
@@ -108,7 +105,7 @@ export function JarMetadataEditor({
             {isUpdatingMetadata && (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
             )}
-            {isUpdatingMetadata ? "Saving..." : "Save Changes"}
+            {isUpdatingMetadata ? 'Saving...' : 'Save Changes'}
           </Button>
         </DialogFooter>
       </DialogContent>

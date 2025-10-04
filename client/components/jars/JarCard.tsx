@@ -1,41 +1,39 @@
-"use client";
+'use client';
 
 import {
-  Card,
-  CardContent,
-  2_CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { 
-  Shield, 
-  Users, 
-  CheckCircle2, 
-  ImageIcon, 
-  Crown,
   Award,
+  CheckCircle2,
+  Crown,
+  ImageIcon,
   Key,
-  ExternalLink
-} from "lucide-react";
-import { 
-  isNFTAccess, 
-  isProtocolAccess, 
-  getAccessTypeName,
-  ACCESS_TYPES 
-} from "@/lib/jar/access-types";
-import { JarImage } from "./JarImage";
-import Image from "next/image";
-import { JarStatusBadge } from "./JarStatusBadge";
+  Shield,
+  Users,
+} from 'lucide-react';
+import Image from 'next/image';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  JarData,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
+import type { NativeCurrency } from '@/config/supported-networks';
+import {
+  ACCESS_TYPES,
+  getAccessTypeName,
+  isNFTAccess,
+  isProtocolAccess,
+} from '@/lib/jar/access-types';
+import {
   getCurrencyAmount,
   getCurrencySymbol,
-  getWithdrawalAmountDisplay,
   getJarName,
-} from "@/lib/jar/utils";
-import type { NativeCurrency } from "@/config/supported-networks";
+  getWithdrawalAmountDisplay,
+  type JarData,
+} from '@/lib/jar/utils';
+import { JarImage } from './JarImage';
+import { JarStatusBadge } from './JarStatusBadge';
 
 // Enhanced NFT gate interface
 interface NFTGate {
@@ -75,7 +73,7 @@ interface JarCardProps {
   jar: EnhancedJarData;
   nativeCurrency: NativeCurrency;
   tokenSymbols: Record<string, string>;
-  onClick: (12_jarAddress: string) => void;
+  onClick: (jarAddress: string) => void;
   className?: string;
 }
 
@@ -100,13 +98,17 @@ const getProtocolIcon = (accessType: number) => {
 // Get user access status
 const getUserAccessStatus = (jar: EnhancedJarData) => {
   const accessType = jar.accessType;
-  
+
   switch (accessType) {
     case ACCESS_TYPES.NFT_GATED:
       return {
         hasAccess: jar.userOwnsRequiredNFT ?? false,
-        statusText: jar.userOwnsRequiredNFT ? 'You have access' : 'Requires NFT',
-        statusColor: jar.userOwnsRequiredNFT ? 'text-green-600' : 'text-amber-600',
+        statusText: jar.userOwnsRequiredNFT
+          ? 'You have access'
+          : 'Requires NFT',
+        statusColor: jar.userOwnsRequiredNFT
+          ? 'text-green-600'
+          : 'text-amber-600',
       };
     case ACCESS_TYPES.POAP:
       return {
@@ -123,13 +125,17 @@ const getUserAccessStatus = (jar: EnhancedJarData) => {
     case ACCESS_TYPES.UNLOCK:
       return {
         hasAccess: jar.userHasValidKey ?? false,
-        statusText: jar.userHasValidKey ? 'Valid membership' : 'Requires membership',
+        statusText: jar.userHasValidKey
+          ? 'Valid membership'
+          : 'Requires membership',
         statusColor: jar.userHasValidKey ? 'text-green-600' : 'text-amber-600',
       };
     case ACCESS_TYPES.HYPERCERT:
       return {
         hasAccess: jar.userHasHypercert ?? false,
-        statusText: jar.userHasHypercert ? 'You have certificate' : 'Requires certificate',
+        statusText: jar.userHasHypercert
+          ? 'You have certificate'
+          : 'Requires certificate',
         statusColor: jar.userHasHypercert ? 'text-green-600' : 'text-amber-600',
       };
     default:
@@ -179,11 +185,21 @@ export function JarCard({
                       <div key={i} className="flex items-center gap-2 text-xs">
                         {gate.image && (
                           <div className="relative w-4 h-4">
-                            <Image src={gate.image} alt="" fill sizes="16px" className="rounded object-cover" />
+                            <Image
+                              src={gate.image}
+                              alt=""
+                              fill
+                              sizes="16px"
+                              className="rounded object-cover"
+                            />
                           </div>
                         )}
-                        <span>{gate.name || `${gate.address.slice(0, 6)}...`}</span>
-                        {gate.verified && <Shield className="h-3 w-3 text-green-500" />}
+                        <span>
+                          {gate.name || `${gate.address.slice(0, 6)}...`}
+                        </span>
+                        {gate.verified && (
+                          <Shield className="h-3 w-3 text-green-500" />
+                        )}
                         <Badge variant="outline" className="text-xs px-1">
                           {gate.tokenType}
                         </Badge>
@@ -196,7 +212,7 @@ export function JarCard({
                     )}
                   </div>
                 )}
-                <Badge 
+                <Badge
                   className={`text-xs ${userAccess.hasAccess ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}`}
                 >
                   {userAccess.statusText}
@@ -224,7 +240,7 @@ export function JarCard({
             <TooltipContent>
               <div className="space-y-2 max-w-xs">
                 <p className="font-medium">{accessTypeName} Access Required</p>
-                
+
                 {/* Protocol-specific details */}
                 {accessType === ACCESS_TYPES.POAP && jar.poapEventName && (
                   <p className="text-xs">Event: {jar.poapEventName}</p>
@@ -238,8 +254,8 @@ export function JarCard({
                 {accessType === ACCESS_TYPES.HYPERCERT && jar.hypercertName && (
                   <p className="text-xs">Certificate: {jar.hypercertName}</p>
                 )}
-                
-                <Badge 
+
+                <Badge
                   className={`text-xs ${userAccess.hasAccess ? 'bg-green-100 text-green-800' : 'bg-amber-100 text-amber-800'}`}
                 >
                   {userAccess.statusText}
@@ -270,7 +286,7 @@ export function JarCard({
         <CardTitle className="content-title text-[hsl(var(--cj-dark-brown))] group-hover:text-[hsl(var(--cj-brand-orange))] transition-colors">
           {jarName}
         </CardTitle>
-        
+
         <div className="flex items-center justify-between mt-1">
           <div className="address-text-mobile text-[hsl(var(--cj-medium-brown))] truncate flex-1 min-w-0">
             {jar.jarAddress.slice(0, 6)}...{jar.jarAddress.slice(-4)}
@@ -278,8 +294,8 @@ export function JarCard({
           <div className="flex items-center gap-2">
             {/* Access status indicator */}
             {userAccess.hasAccess !== null && (
-              <Badge 
-                variant="outline" 
+              <Badge
+                variant="outline"
                 className={`text-xs px-1.5 py-0.5 ${userAccess.statusColor}`}
               >
                 {userAccess.hasAccess ? '✓' : '○'}
@@ -297,7 +313,8 @@ export function JarCard({
             Balance:
           </span>
           <span className="font-semibold text-[hsl(var(--cj-dark-brown))] text-responsive-sm truncate text-right">
-            {getCurrencyAmount(jar)} {getCurrencySymbol(jar, nativeCurrency, tokenSymbols)}
+            {getCurrencyAmount(jar)}{' '}
+            {getCurrencySymbol(jar, nativeCurrency, tokenSymbols)}
           </span>
         </div>
 
@@ -331,7 +348,13 @@ export function JarCard({
                   className="w-6 h-6 rounded-full bg-gray-100 border border-white flex-shrink-0 overflow-hidden"
                 >
                   {gate.image ? (
-                    <Image src={gate.image} alt="" fill sizes="24px" className="object-cover" />
+                    <Image
+                      src={gate.image}
+                      alt=""
+                      fill
+                      sizes="24px"
+                      className="object-cover"
+                    />
                   ) : (
                     <ImageIcon className="w-full h-full p-1 text-gray-400" />
                   )}
@@ -339,7 +362,8 @@ export function JarCard({
               ))}
             </div>
             <span className="text-xs text-muted-foreground">
-              {jar.nftGates.length} collection{jar.nftGates.length !== 1 ? 's' : ''}
+              {jar.nftGates.length} collection
+              {jar.nftGates.length !== 1 ? 's' : ''}
             </span>
             {jar.userOwnsRequiredNFT && (
               <Badge className="bg-green-100 text-green-800 text-xs px-2">

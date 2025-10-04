@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Loader2, CheckCircle2 } from "lucide-react";
-import { ProtocolConfigBase } from "../ProtocolConfigBase";
-import { HatsProvider } from "@/lib/nft/protocols/HatsProvider";
+import { CheckCircle2, Loader2 } from 'lucide-react';
+import Image from 'next/image';
+import type React from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { HatsProvider } from '@/lib/nft/protocols/HatsProvider';
+import { ProtocolConfigBase } from '../ProtocolConfigBase';
 
 interface HatDetails {
   id: string;
@@ -39,49 +41,57 @@ export const HatsConfig: React.FC<HatsConfigProps> = ({
   initialConfig,
   className,
 }) => {
-  const [hatId, setHatId] = useState(initialConfig?.hatId || "");
-  const [hatsContract, setHatsContract] = useState(initialConfig?.hatsContract || "");
+  const [hatId, setHatId] = useState(initialConfig?.hatId || '');
+  const [hatsContract, setHatsContract] = useState(
+    initialConfig?.hatsContract || ''
+  );
   const [selectedHat, setSelectedHat] = useState<HatDetails | null>(null);
   const [isValidating, setIsValidating] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+
+  const validateHat = useCallback(
+    async (hatIdToValidate: string, contractAddress?: string) => {
+      if (!hatIdToValidate) {
+        setValidationError('Please enter a Hat ID.');
+        return;
+      }
+
+      setIsValidating(true);
+      setValidationError(null);
+
+      try {
+        const hatDetails = await HatsProvider.getHatById(
+          hatIdToValidate,
+          contractAddress
+        );
+
+        if (hatDetails) {
+          setSelectedHat(hatDetails);
+          onConfigChange({
+            hatId: hatIdToValidate,
+            hatsContract: contractAddress,
+          });
+        } else {
+          setValidationError('Hat not found. Please check the Hat ID.');
+          setSelectedHat(null);
+        }
+      } catch (err) {
+        console.error('Error validating Hat:', err);
+        setValidationError('Error validating Hat. Please try again.');
+        setSelectedHat(null);
+      } finally {
+        setIsValidating(false);
+      }
+    },
+    [onConfigChange]
+  );
 
   // Load initial hat if provided
   useEffect(() => {
     if (initialConfig?.hatId && !selectedHat) {
       validateHat(initialConfig.hatId, initialConfig.hatsContract);
     }
-  }, [initialConfig, selectedHat]);
-
-  const validateHat = async (hatIdToValidate: string, contractAddress?: string) => {
-    if (!hatIdToValidate) {
-      setValidationError("Please enter a Hat ID.");
-      return;
-    }
-
-    setIsValidating(true);
-    setValidationError(null);
-
-    try {
-      const hatDetails = await HatsProvider.getHatById(hatIdToValidate, contractAddress);
-      
-      if (hatDetails) {
-        setSelectedHat(hatDetails);
-        onConfigChange({ 
-          hatId: hatIdToValidate, 
-          hatsContract: contractAddress 
-        });
-      } else {
-        setValidationError("Hat not found. Please check the Hat ID.");
-        setSelectedHat(null);
-      }
-    } catch (err) {
-      console.error("Error validating Hat:", err);
-      setValidationError("Error validating Hat. Please try again.");
-      setSelectedHat(null);
-    } finally {
-      setIsValidating(false);
-    }
-  };
+  }, [initialConfig, selectedHat, validateHat]);
 
   const handleHatIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newHatId = e.target.value;
@@ -130,7 +140,9 @@ export const HatsConfig: React.FC<HatsConfigProps> = ({
 
         {/* Optional Hats Contract Address */}
         <div>
-          <Label htmlFor="hats-contract">Hats Contract Address (Optional)</Label>
+          <Label htmlFor="hats-contract">
+            Hats Contract Address (Optional)
+          </Label>
           <Input
             id="hats-contract"
             placeholder="0x... (leave empty for default contract)"
@@ -156,7 +168,7 @@ export const HatsConfig: React.FC<HatsConfigProps> = ({
                 Validating Hat...
               </>
             ) : (
-              "Validate Hat"
+              'Validate Hat'
             )}
           </Button>
         </div>
@@ -171,26 +183,46 @@ export const HatsConfig: React.FC<HatsConfigProps> = ({
                   Hat Validated Successfully
                 </p>
                 <div className="mt-2 space-y-1 text-sm">
-                  <p><span className="font-medium">ID:</span> {selectedHat.prettyId}</p>
+                  <p>
+                    <span className="font-medium">ID:</span>{' '}
+                    {selectedHat.prettyId}
+                  </p>
                   {selectedHat.details && (
-                    <p><span className="font-medium">Details:</span> {selectedHat.details}</p>
+                    <p>
+                      <span className="font-medium">Details:</span>{' '}
+                      {selectedHat.details}
+                    </p>
                   )}
-                  <p><span className="font-medium">Status:</span> {selectedHat.status ? "Active" : "Inactive"}</p>
+                  <p>
+                    <span className="font-medium">Status:</span>{' '}
+                    {selectedHat.status ? 'Active' : 'Inactive'}
+                  </p>
                   {selectedHat.currentSupply && (
-                    <p><span className="font-medium">Current Supply:</span> {selectedHat.currentSupply}</p>
+                    <p>
+                      <span className="font-medium">Current Supply:</span>{' '}
+                      {selectedHat.currentSupply}
+                    </p>
                   )}
                   {selectedHat.maxSupply && (
-                    <p><span className="font-medium">Max Supply:</span> {selectedHat.maxSupply}</p>
+                    <p>
+                      <span className="font-medium">Max Supply:</span>{' '}
+                      {selectedHat.maxSupply}
+                    </p>
                   )}
                   {selectedHat.wearers && (
-                    <p><span className="font-medium">Current Wearers:</span> {selectedHat.wearers.length}</p>
+                    <p>
+                      <span className="font-medium">Current Wearers:</span>{' '}
+                      {selectedHat.wearers.length}
+                    </p>
                   )}
                 </div>
               </div>
               {selectedHat.imageUri && (
-                <img
+                <Image
                   src={selectedHat.imageUri}
                   alt="Hat"
+                  width={48}
+                  height={48}
                   className="w-12 h-12 rounded object-cover"
                 />
               )}
@@ -201,10 +233,10 @@ export const HatsConfig: React.FC<HatsConfigProps> = ({
         {/* Help Text */}
         <div className="text-xs text-gray-500 space-y-1">
           <p>
-            Learn more about Hat IDs at{" "}
-            <a 
-              href="https://docs.hatsprotocol.xyz/" 
-              target="_blank" 
+            Learn more about Hat IDs at{' '}
+            <a
+              href="https://docs.hatsprotocol.xyz/"
+              target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 hover:underline"
             >

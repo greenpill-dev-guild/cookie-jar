@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useQuery } from "@tanstack/react-query";
-import { useSuperfluidFramework } from "../blockchain/useSuperfluidFramework";
-import { useStreamsByReceiver } from "../blockchain/useSuperfluidSubgraph";
-import { formatUnits } from "viem";
+import { useQuery } from '@tanstack/react-query';
+import { formatUnits } from 'viem';
+import { useSuperfluidFramework } from '../blockchain/useSuperfluidFramework';
+import { useStreamsByReceiver } from '../blockchain/useSuperfluidSubgraph';
 
 /**
  * Stream configuration structure
@@ -34,19 +34,24 @@ export interface StreamInfo {
  * Hook for reading streaming data using Superfluid SDK
  */
 export const useStreamingData = (jarAddress: `0x${string}`) => {
-  const { data: sf } = useSuperfluidFramework();
+  // Superfluid framework data (not currently used)
+  useSuperfluidFramework();
 
   // Query all active streams to this jar using The Graph subgraph
-  const { 
-    data: subgraphStreams, 
-    isLoading: isLoadingSubgraph, 
+  const {
+    data: subgraphStreams,
+    isLoading: isLoadingSubgraph,
     error: subgraphError,
-    refetch 
+    refetch,
   } = useStreamsByReceiver(jarAddress);
 
   // Transform subgraph data into StreamInfo format
-  const { data: streamsQuery, isLoading, error } = useQuery({
-    queryKey: ["superfluidStreams", "transformed", jarAddress, subgraphStreams],
+  const {
+    data: streamsQuery,
+    isLoading,
+    error,
+  } = useQuery({
+    queryKey: ['superfluidStreams', 'transformed', jarAddress, subgraphStreams],
     queryFn: async (): Promise<StreamInfo[]> => {
       if (!subgraphStreams) return [];
 
@@ -77,7 +82,7 @@ export const useStreamingData = (jarAddress: `0x${string}`) => {
   const streamingConfig: StreamingConfig = {
     streamingEnabled: true,
     requireStreamApproval: true,
-    maxStreamRate: BigInt("1000000000000000000"), // 1 token per second
+    maxStreamRate: BigInt('1000000000000000000'), // 1 token per second
     minStreamDuration: 3600, // 1 hour
   };
 
@@ -90,7 +95,10 @@ export const useStreamingData = (jarAddress: `0x${string}`) => {
   };
 
   // Helper function to format stream rate
-  const formatStreamRate = (ratePerSecond: bigint, decimals: number = 18): string => {
+  const formatStreamRate = (
+    ratePerSecond: bigint,
+    decimals: number = 18
+  ): string => {
     const ratePerHour = ratePerSecond * BigInt(3600);
     const ratePerDay = ratePerSecond * BigInt(86400);
 

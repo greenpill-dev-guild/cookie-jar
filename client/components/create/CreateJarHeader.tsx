@@ -12,11 +12,11 @@ export function CreateJarHeader({ isV2Contract }: CreateJarHeaderProps) {
         <div
           className={`px-3 py-1 rounded-full text-sm font-medium ${
             isV2Contract
-              ? "bg-blue-100 text-blue-800"
-              : "bg-orange-100 text-orange-800"
+              ? 'bg-blue-100 text-blue-800'
+              : 'bg-orange-100 text-orange-800'
           }`}
         >
-          {isV2Contract ? "🚀 v2 Contract" : "📦 v1 Contract"}
+          {isV2Contract ? '🚀 v2 Contract' : '📦 v1 Contract'}
         </div>
       </div>
       <p className="text-[hsl(var(--cj-medium-brown))]">

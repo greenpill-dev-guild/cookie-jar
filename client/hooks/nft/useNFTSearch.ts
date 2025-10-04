@@ -1,8 +1,7 @@
-import { useQuery } from '@tanstack/react-query';
-import { useAccount, useChainId } from 'wagmi';
 import { useMemo } from 'react';
+import { useAccount, useChainId } from 'wagmi';
 import { useDebounce } from '@/hooks/app/useDebounce';
-import { useUserNFTs, type UserNFT } from './useUserNFTs';
+import { type UserNFT, useUserNFTs } from './useUserNFTs';
 
 export interface NFTSearchFilters {
   verified?: boolean;
@@ -51,13 +50,13 @@ export function useNFTSearch(
     filters?: Partial<NFTSearchFilters>;
   } = {}
 ): NFTSearchResult {
-  const { address } = useAccount();
-  const chainId = useChainId();
-  const { 
-    enabled = true, 
-    userCollectionOnly = false, 
+  const { address: _address } = useAccount();
+  const _chainId = useChainId();
+  const {
+    enabled: _enabled = true,
+    userCollectionOnly: _userCollectionOnly = false,
     contractAddresses,
-    filters = {}
+    filters = {},
   } = options;
 
   const mergedFilters: NFTSearchFilters = { ...defaultFilters, ...filters };
@@ -69,9 +68,9 @@ export function useNFTSearch(
     collections: userCollections,
     isLoading: isLoadingUserNFTs,
     error: userNFTsError,
-    refetch,
+    refetch: _refetch,
     hasMore,
-    loadMore
+    loadMore,
   } = useUserNFTs({ contractAddresses });
 
   // Process and filter NFTs
@@ -79,7 +78,7 @@ export function useNFTSearch(
     if (!userNfts) return [];
 
     // Add search metadata to NFTs
-    let searchableNfts: SearchableNFT[] = userNfts.map(nft => ({
+    let searchableNfts: SearchableNFT[] = userNfts.map((nft) => ({
       ...nft,
       isUserOwned: true,
       matchScore: debouncedQuery ? calculateMatchScore(nft, debouncedQuery) : 1,
@@ -88,21 +87,23 @@ export function useNFTSearch(
 
     // Apply search filter
     if (debouncedQuery) {
-      searchableNfts = searchableNfts.filter(nft => 
-        nft.matchScore && nft.matchScore > 0
+      searchableNfts = searchableNfts.filter(
+        (nft) => nft.matchScore && nft.matchScore > 0
       );
     }
 
     // Apply filters
     if (mergedFilters.tokenTypes && mergedFilters.tokenTypes.length > 0) {
-      searchableNfts = searchableNfts.filter(nft => 
-        mergedFilters.tokenTypes!.includes(nft.contract.tokenType as 'ERC721' | 'ERC1155')
+      searchableNfts = searchableNfts.filter((nft) =>
+        mergedFilters.tokenTypes?.includes(
+          nft.contract.tokenType as 'ERC721' | 'ERC1155'
+        )
       );
     }
 
     // Filter by contract addresses if specified
     if (contractAddresses && contractAddresses.length > 0) {
-      searchableNfts = searchableNfts.filter(nft => 
+      searchableNfts = searchableNfts.filter((nft) =>
         contractAddresses.includes(nft.contract.address)
       );
     }
@@ -118,8 +119,8 @@ export function useNFTSearch(
   // Process collections
   const processedCollections = useMemo(() => {
     if (!userCollections) return [];
-    
-    return userCollections.map(collection => ({
+
+    return userCollections.map((collection) => ({
       address: collection.contractAddress,
       name: collection.name || 'Unnamed Collection',
       verified: false,

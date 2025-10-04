@@ -1,23 +1,23 @@
-"use client";
+'use client';
 
-import { RefreshCw, Search } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { RefreshCw, Search } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { ChainDisplay } from "./ChainDisplay";
-import { getNetworkName } from "@/lib/blockchain/networks";
+} from '@/components/ui/select';
+import { getNetworkName } from '@/lib/blockchain/networks';
+import { ChainDisplay } from './ChainDisplay';
 
 interface JarControlsProps {
   searchTerm: string;
-  setSearchTerm: (18_term: string) => void;
+  setSearchTerm: (term: string) => void;
   filterOption: string;
-  setFilterOption: (20_option: string) => void;
+  setFilterOption: (option: string) => void;
   chainId: number;
   isRefreshing: boolean;
   onRefresh: () => void;
@@ -76,7 +76,7 @@ export function JarControls({
           className="w-full lg:w-auto whitespace-nowrap"
         >
           <RefreshCw
-            className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`}
+            className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`}
           />
           Refresh
         </Button>
@@ -86,20 +86,20 @@ export function JarControls({
       <div className="flex-between-safe text-responsive-sm text-[hsl(var(--cj-medium-brown))] pt-2 border-t border-border">
         <div className="flex items-center gap-2 sm:gap-4 flex-wrap min-w-0">
           <span className="flex-shrink-0">
-            Network:{" "}
+            Network:{' '}
             <strong className="text-[hsl(var(--cj-dark-brown))]">
               {getNetworkName(chainId)}
             </strong>
           </span>
           <span className="flex-shrink-0">
-            Total:{" "}
+            Total:{' '}
             <strong className="text-[hsl(var(--cj-dark-brown))]">
               {totalJars}
             </strong>
           </span>
           {searchTerm && (
             <span className="flex-shrink-0">
-              Filtered:{" "}
+              Filtered:{' '}
               <strong className="text-[hsl(var(--cj-dark-brown))]">
                 {filteredCount}
               </strong>
@@ -107,7 +107,7 @@ export function JarControls({
           )}
         </div>
         <div className="content-caption flex-shrink-0">
-          {isConnected ? "Connected" : "Browse Mode"}
+          {isConnected ? 'Connected' : 'Browse Mode'}
         </div>
       </div>
     </div>

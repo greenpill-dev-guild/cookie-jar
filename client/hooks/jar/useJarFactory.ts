@@ -1,15 +1,13 @@
-"use client";
+'use client';
 
-import type { Address } from "viem";
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useChainId, usePublicClient, useWatchContractEvent } from "wagmi";
-
-import { cookieJarAbi, cookieJarFactoryAbi } from "@/generated";
-import { cookieJarFactoryV1Abi } from "@/lib/blockchain/cookie-jar-v1-abi";
-import { isV2Chain } from "@/config/supported-networks";
-
-import { useContractAddresses } from "../blockchain/useContractAddresses";
-import { useToast } from "../app/useToast";
+import { useQuery, useQueryClient } from '@tanstack/react-query';
+import type { Address } from 'viem';
+import { useChainId, usePublicClient, useWatchContractEvent } from 'wagmi';
+import { isV2Chain } from '@/config/supported-networks';
+import { cookieJarAbi, cookieJarFactoryAbi } from '@/generated';
+import { cookieJarFactoryV1Abi } from '@/lib/blockchain/cookie-jar-v1-abi';
+import { useToast } from '../app/useToast';
+import { useContractAddresses } from '../blockchain/useContractAddresses';
 
 /**
  * Simple metadata type for backwards compatibility
@@ -31,12 +29,12 @@ export type JarFetchError = {
   jarAddress: Address;
   /** Type of error that occurred */
   errorType:
-    | "NETWORK_ERROR"
-    | "CONTRACT_NOT_FOUND"
-    | "ABI_MISMATCH"
-    | "INVALID_DATA"
-    | "TIMEOUT"
-    | "UNKNOWN";
+    | 'NETWORK_ERROR'
+    | 'CONTRACT_NOT_FOUND'
+    | 'ABI_MISMATCH'
+    | 'INVALID_DATA'
+    | 'TIMEOUT'
+    | 'UNKNOWN';
   /** Human-readable error message */
   errorMessage: string;
   /** Whether this error can be retried */
@@ -97,16 +95,16 @@ export type CookieJarInfo = {
 
 // Simple metadata parser
 function parseJarMetadata(rawMetadata: string): ParsedMetadata {
-  if (!rawMetadata || rawMetadata.trim() === "") {
-    return { title: "Untitled Jar", isV2: false };
+  if (!rawMetadata || rawMetadata.trim() === '') {
+    return { title: 'Untitled Jar', isV2: false };
   }
 
   // Try parsing as JSON (v2)
   try {
     const parsed = JSON.parse(rawMetadata);
-    if (parsed.version === "2.0" || parsed.title) {
+    if (parsed.version === '2.0' || parsed.title) {
       return {
-        title: parsed.title || "Untitled Jar",
+        title: parsed.title || 'Untitled Jar',
         description: parsed.description,
         isV2: true,
       };
@@ -123,56 +121,56 @@ function parseJarMetadata(rawMetadata: string): ParsedMetadata {
 }
 
 // Enhanced error categorization
-function categorizeError(error: any, jarAddress: Address): JarFetchError {
+function _categorizeError(error: any, jarAddress: Address): JarFetchError {
   const errorMessage = error?.message || String(error);
 
-  if (errorMessage.includes("timeout") || errorMessage.includes("network")) {
+  if (errorMessage.includes('timeout') || errorMessage.includes('network')) {
     return {
       jarAddress,
-      errorType: "NETWORK_ERROR",
-      errorMessage: "Network timeout or connectivity issue",
+      errorType: 'NETWORK_ERROR',
+      errorMessage: 'Network timeout or connectivity issue',
       canRetry: true,
     };
   }
 
   if (
-    errorMessage.includes("contract function") ||
-    errorMessage.includes("does not exist")
+    errorMessage.includes('contract function') ||
+    errorMessage.includes('does not exist')
   ) {
     return {
       jarAddress,
-      errorType: "CONTRACT_NOT_FOUND",
-      errorMessage: "Contract not found at this address",
+      errorType: 'CONTRACT_NOT_FOUND',
+      errorMessage: 'Contract not found at this address',
       canRetry: false,
     };
   }
 
   if (
-    errorMessage.includes("ABI") ||
-    errorMessage.includes("function signature")
+    errorMessage.includes('ABI') ||
+    errorMessage.includes('function signature')
   ) {
     return {
       jarAddress,
-      errorType: "ABI_MISMATCH",
-      errorMessage: "Contract ABI mismatch (possibly old/new contract version)",
+      errorType: 'ABI_MISMATCH',
+      errorMessage: 'Contract ABI mismatch (possibly old/new contract version)',
       canRetry: false,
     };
   }
 
-  if (errorMessage.includes("invalid") || errorMessage.includes("decode")) {
+  if (errorMessage.includes('invalid') || errorMessage.includes('decode')) {
     return {
       jarAddress,
-      errorType: "INVALID_DATA",
-      errorMessage: "Invalid data returned from contract",
+      errorType: 'INVALID_DATA',
+      errorMessage: 'Invalid data returned from contract',
       canRetry: true,
     };
   }
 
   return {
     jarAddress,
-    errorType: "UNKNOWN",
+    errorType: 'UNKNOWN',
     errorMessage:
-      errorMessage.slice(0, 100) + (errorMessage.length > 100 ? "..." : ""),
+      errorMessage.slice(0, 100) + (errorMessage.length > 100 ? '...' : ''),
     canRetry: true,
   };
 }
@@ -180,7 +178,7 @@ function categorizeError(error: any, jarAddress: Address): JarFetchError {
 // Helper function to fetch jar details
 async function fetchJarDetails(
   publicClient: any,
-  jarAddress: Address,
+  jarAddress: Address
 ): Promise<CookieJarInfo | null> {
   try {
     // Check if we're on local chain (31337) and use individual calls instead of multicall
@@ -215,103 +213,103 @@ async function fetchJarDetails(
         publicClient.readContract({
           address: jarAddress,
           abi: cookieJarAbi,
-          functionName: "CURRENCY",
+          functionName: 'CURRENCY',
         }),
         publicClient.readContract({
           address: jarAddress,
           abi: cookieJarAbi,
-          functionName: "ACCESS_TYPE",
+          functionName: 'ACCESS_TYPE',
         }),
         publicClient.readContract({
           address: jarAddress,
           abi: cookieJarAbi,
-          functionName: "WITHDRAWAL_OPTION",
+          functionName: 'WITHDRAWAL_OPTION',
         }),
         publicClient.readContract({
           address: jarAddress,
           abi: cookieJarAbi,
-          functionName: "fixedAmount",
+          functionName: 'fixedAmount',
         }),
         publicClient.readContract({
           address: jarAddress,
           abi: cookieJarAbi,
-          functionName: "maxWithdrawal",
+          functionName: 'maxWithdrawal',
         }),
         publicClient.readContract({
           address: jarAddress,
           abi: cookieJarAbi,
-          functionName: "withdrawalInterval",
+          functionName: 'withdrawalInterval',
         }),
         publicClient.readContract({
           address: jarAddress,
           abi: cookieJarAbi,
-          functionName: "STRICT_PURPOSE",
+          functionName: 'STRICT_PURPOSE',
         }),
         publicClient.readContract({
           address: jarAddress,
           abi: cookieJarAbi,
-          functionName: "EMERGENCY_WITHDRAWAL_ENABLED",
+          functionName: 'EMERGENCY_WITHDRAWAL_ENABLED',
         }),
         publicClient.readContract({
           address: jarAddress,
           abi: cookieJarAbi,
-          functionName: "ONE_TIME_WITHDRAWAL",
+          functionName: 'ONE_TIME_WITHDRAWAL',
         }),
         publicClient.readContract({
           address: jarAddress,
           abi: cookieJarAbi,
-          functionName: "currencyHeldByJar",
+          functionName: 'currencyHeldByJar',
         }),
       ]);
     } else {
       // Use multicall for other chains that support it
       const results = await publicClient.multicall({
         contracts: [
-          { address: jarAddress, abi: cookieJarAbi, functionName: "CURRENCY" },
+          { address: jarAddress, abi: cookieJarAbi, functionName: 'CURRENCY' },
           {
             address: jarAddress,
             abi: cookieJarAbi,
-            functionName: "ACCESS_TYPE",
+            functionName: 'ACCESS_TYPE',
           },
           {
             address: jarAddress,
             abi: cookieJarAbi,
-            functionName: "WITHDRAWAL_OPTION",
+            functionName: 'WITHDRAWAL_OPTION',
           },
           {
             address: jarAddress,
             abi: cookieJarAbi,
-            functionName: "fixedAmount",
+            functionName: 'fixedAmount',
           },
           {
             address: jarAddress,
             abi: cookieJarAbi,
-            functionName: "maxWithdrawal",
+            functionName: 'maxWithdrawal',
           },
           {
             address: jarAddress,
             abi: cookieJarAbi,
-            functionName: "withdrawalInterval",
+            functionName: 'withdrawalInterval',
           },
           {
             address: jarAddress,
             abi: cookieJarAbi,
-            functionName: "STRICT_PURPOSE",
+            functionName: 'STRICT_PURPOSE',
           },
           {
             address: jarAddress,
             abi: cookieJarAbi,
-            functionName: "EMERGENCY_WITHDRAWAL_ENABLED",
+            functionName: 'EMERGENCY_WITHDRAWAL_ENABLED',
           },
           {
             address: jarAddress,
             abi: cookieJarAbi,
-            functionName: "ONE_TIME_WITHDRAWAL",
+            functionName: 'ONE_TIME_WITHDRAWAL',
           },
           {
             address: jarAddress,
             abi: cookieJarAbi,
-            functionName: "currencyHeldByJar",
+            functionName: 'currencyHeldByJar',
           },
         ],
       });
@@ -375,33 +373,33 @@ async function fetchJarDetails(
 
 /**
  * Custom hook to get all Cookie Jar information from factory and individual contracts
- * 
+ *
  * Fetches comprehensive jar data including factory addresses, metadata, and detailed
  * jar configurations. Uses React Query for optimal caching, error handling, and
  * race condition prevention. Supports both v1 and v2 factory contracts.
- * 
+ *
  * Features:
  * - Batch loading with progress tracking
  * - Automatic cache invalidation on new jar creation
  * - Error categorization and retry logic
  * - Real-time updates via contract events
  * - Network-specific optimizations
- * 
+ *
  * @returns Object with jar data, loading states, and control functions
- * 
+ *
  * @example
  * ```tsx
- * const { 
- *   jars, 
- *   isLoading, 
- *   error, 
+ * const {
+ *   jars,
+ *   isLoading,
+ *   error,
  *   refresh,
- *   retryFailedJars 
+ *   retryFailedJars
  * } = useCookieJarFactory();
- * 
+ *
  * if (isLoading) return <div>Loading jars...</div>;
  * if (error) return <div>Error: {error.message}</div>;
- * 
+ *
  * return (
  *   <div>
  *     {jars.map(jar => (
@@ -426,10 +424,10 @@ export function useCookieJarFactory() {
     error: factoryError,
     isLoading: isLoadingFactory,
   } = useQuery({
-    queryKey: ["cookie-jar-factory", chainId, factoryAddress],
+    queryKey: ['cookie-jar-factory', chainId, factoryAddress],
     queryFn: async () => {
       if (!publicClient || !factoryAddress) {
-        throw new Error("Missing dependencies");
+        throw new Error('Missing dependencies');
       }
 
       const isV2Contract = isV2Chain(chainId);
@@ -438,7 +436,7 @@ export function useCookieJarFactory() {
         : cookieJarFactoryV1Abi;
 
       // Get jar addresses - v2 uses getAllJars, v1 uses getCookieJars
-      const functionName = isV2Contract ? "getAllJars" : "getCookieJars";
+      const functionName = isV2Contract ? 'getAllJars' : 'getCookieJars';
       const addresses = (await publicClient.readContract({
         address: factoryAddress,
         abi: factoryAbi,
@@ -454,17 +452,14 @@ export function useCookieJarFactory() {
             return (await publicClient.readContract({
               address: factoryAddress,
               abi: factoryAbi,
-              functionName: "metadatas",
+              functionName: 'metadatas',
               args: [BigInt(index)],
             })) as string;
           } catch (error) {
-            console.warn(
-              `Failed to fetch metadata for index ${index}:`,
-              error,
-            );
-            return "Jar Info";
+            console.warn(`Failed to fetch metadata for index ${index}:`, error);
+            return 'Jar Info';
           }
-        }),
+        })
       );
 
       return { addresses, metadatas };
@@ -483,7 +478,7 @@ export function useCookieJarFactory() {
     isLoading: isLoadingJars,
     refetch: refetchJars,
   } = useQuery({
-    queryKey: ["cookie-jar-details", chainId, factoryData?.addresses],
+    queryKey: ['cookie-jar-details', chainId, factoryData?.addresses],
     queryFn: async (): Promise<CookieJarInfo[]> => {
       if (!publicClient || !factoryData?.addresses) {
         return [];
@@ -498,13 +493,13 @@ export function useCookieJarFactory() {
       for (let i = 0; i < addresses.length; i += batchSize) {
         const batch = addresses.slice(i, i + batchSize);
         const batchResults = await Promise.allSettled(
-          batch.map((address) => fetchJarDetails(publicClient, address)),
+          batch.map((address) => fetchJarDetails(publicClient, address))
         );
 
         batchResults.forEach((result, batchIndex) => {
-          if (result.status === "fulfilled" && result.value) {
+          if (result.status === 'fulfilled' && result.value) {
             const originalIndex = i + batchIndex;
-            const metadata = metadatas[originalIndex] || "Jar Info";
+            const metadata = metadatas[originalIndex] || 'Jar Info';
 
             validJars.push({
               ...result.value,
@@ -528,16 +523,16 @@ export function useCookieJarFactory() {
   useWatchContractEvent({
     address: factoryAddress,
     abi: cookieJarFactoryAbi,
-    eventName: "JarCreated",
+    eventName: 'JarCreated',
     onLogs: (logs) => {
-      console.log("🎉 New jar created, triggering refresh:", logs);
+      console.log('🎉 New jar created, triggering refresh:', logs);
       toast({
-        title: "🎉 New jar detected",
-        description: "Refreshing jar list...",
-        variant: "default",
+        title: '🎉 New jar detected',
+        description: 'Refreshing jar list...',
+        variant: 'default',
       });
       queryClient.invalidateQueries({
-        queryKey: ["cookie-jar-factory", chainId, factoryAddress],
+        queryKey: ['cookie-jar-factory', chainId, factoryAddress],
       });
     },
     enabled: !!factoryAddress,
@@ -549,13 +544,13 @@ export function useCookieJarFactory() {
 
   // Determine loading state and error messages
   if (error) {
-    console.error("❌ Error in cookie jar factory:", error);
+    console.error('❌ Error in cookie jar factory:', error);
   }
 
   // For compatibility with the jars page interface
   const cookieJarsData = jars.map((jar) => ({
     ...jar,
-    jarCreator: "0x0000000000000000000000000000000000000000" as Address, // placeholder address
+    jarCreator: '0x0000000000000000000000000000000000000000' as Address, // placeholder address
   }));
 
   return {
@@ -573,9 +568,9 @@ export function useCookieJarFactory() {
     retryFailedJars: () => refetchJars(), // Simple retry function
     // Add manual refresh functions
     refresh: () => {
-      console.log("🔄 Manual refresh triggered");
+      console.log('🔄 Manual refresh triggered');
       queryClient.invalidateQueries({
-        queryKey: ["cookie-jar-factory", chainId, factoryAddress],
+        queryKey: ['cookie-jar-factory', chainId, factoryAddress],
       });
     },
   };
@@ -596,7 +591,7 @@ export function useCookieJarByAddress(jarAddress?: Address) {
     isLoading,
     error,
   } = useQuery({
-    queryKey: ["cookie-jar-by-address", chainId, jarAddress],
+    queryKey: ['cookie-jar-by-address', chainId, jarAddress],
     queryFn: async (): Promise<CookieJarInfo | null> => {
       if (!jarAddress || !publicClient) {
         return null;
@@ -622,7 +617,7 @@ export function useCookieJarByAddress(jarAddress?: Address) {
  * Simple helper hook to get parsed metadata for any jar
  */
 export function useJarMetadata(rawMetadata: string): ParsedMetadata {
-  return parseJarMetadata(rawMetadata || "");
+  return parseJarMetadata(rawMetadata || '');
 }
 
 /**
@@ -633,7 +628,7 @@ export function useJarsWithMetadata() {
 
   const jarsWithMetadata = jars.map((jar) => ({
     ...jar,
-    parsedMetadata: jar.parsedMetadata || parseJarMetadata(jar.metadata || ""),
+    parsedMetadata: jar.parsedMetadata || parseJarMetadata(jar.metadata || ''),
   }));
 
   return {

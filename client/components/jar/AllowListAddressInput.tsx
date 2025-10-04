@@ -1,14 +1,15 @@
-"use client";
+'use client';
 
-import React, { useState, useCallback } from "react";
-import { isAddress } from "viem";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Loader2 } from "lucide-react";
+import { Loader2 } from 'lucide-react';
+import type React from 'react';
+import { useCallback, useState } from 'react';
+import { isAddress } from 'viem';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 
 interface AllowlistAddressInputProps {
-  mode: "add" | "remove";
+  mode: 'add' | 'remove';
   currentAllowlist: readonly `0x${string}`[];
   onSubmit: (_addresses: `0x${string}`[]) => Promise<void>;
   buttonLabel?: string;
@@ -20,9 +21,9 @@ export const AllowlistAddressInput: React.FC<AllowlistAddressInputProps> = ({
   currentAllowlist,
   onSubmit,
   buttonLabel,
-  placeholder = "Enter addresses, one per line, space, or comma",
+  placeholder = 'Enter addresses, one per line, space, or comma',
 }) => {
-  const [inputValue, setInputValue] = useState<string>("");
+  const [inputValue, setInputValue] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -52,20 +53,20 @@ export const AllowlistAddressInput: React.FC<AllowlistAddressInputProps> = ({
   const filterByMode = useCallback(
     (addrs: `0x${string}`[]) => {
       const normalizedAllowlist = currentAllowlist.map((addr) =>
-        addr.toLowerCase(),
+        addr.toLowerCase()
       );
 
-      if (mode === "add") {
+      if (mode === 'add') {
         return addrs.filter(
-          (a) => !normalizedAllowlist.includes(a.toLowerCase()),
+          (a) => !normalizedAllowlist.includes(a.toLowerCase())
         );
       } else {
         return addrs.filter((a) =>
-          normalizedAllowlist.includes(a.toLowerCase()),
+          normalizedAllowlist.includes(a.toLowerCase())
         );
       }
     },
-    [currentAllowlist, mode],
+    [currentAllowlist, mode]
   );
 
   const handleSubmit = async () => {
@@ -76,23 +77,23 @@ export const AllowlistAddressInput: React.FC<AllowlistAddressInputProps> = ({
       const { valid, invalid } = validateAddresses(inputValue);
 
       if (invalid.length > 0) {
-        setError(`Invalid addresses: ${invalid.join(", ")}`);
+        setError(`Invalid addresses: ${invalid.join(', ')}`);
         return;
       }
 
       const toSubmit = filterByMode(valid);
       if (toSubmit.length === 0) {
         setError(
-          mode === "add"
-            ? "All addresses are already allowlisted"
-            : "None of the addresses are currently allowlisted",
+          mode === 'add'
+            ? 'All addresses are already allowlisted'
+            : 'None of the addresses are currently allowlisted'
         );
         return;
       }
 
       setIsSubmitting(true);
       await onSubmit(toSubmit);
-      setInputValue("");
+      setInputValue('');
     } catch (err: any) {
       setError(`Transaction failed: ${err.message || err}`);
     } finally {
@@ -122,7 +123,7 @@ export const AllowlistAddressInput: React.FC<AllowlistAddressInputProps> = ({
         className="w-full"
       >
         {isSubmitting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-        {buttonLabel || (mode === "add" ? "Add Addresses" : "Remove Addresses")}
+        {buttonLabel || (mode === 'add' ? 'Add Addresses' : 'Remove Addresses')}
       </Button>
     </div>
   );

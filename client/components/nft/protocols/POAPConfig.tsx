@@ -1,11 +1,13 @@
-import React, { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Search, Loader2, CheckCircle2 } from "lucide-react";
-import { ProtocolConfigBase } from "../ProtocolConfigBase";
-import { POAPProvider } from "@/lib/nft/protocols/POAPProvider";
-import { useDebounce } from "@/hooks/app/useDebounce";
+import { CheckCircle2, Loader2, Search } from 'lucide-react';
+import Image from 'next/image';
+import type React from 'react';
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useDebounce } from '@/hooks/app/useDebounce';
+import { POAPProvider } from '@/lib/nft/protocols/POAPProvider';
+import { ProtocolConfigBase } from '../ProtocolConfigBase';
 
 interface POAPEvent {
   id: string | number;
@@ -28,14 +30,14 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
   initialConfig,
   className,
 }) => {
-  const [eventId, setEventId] = useState(initialConfig?.eventId || "");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [eventId, setEventId] = useState(initialConfig?.eventId || '');
+  const [searchTerm, setSearchTerm] = useState('');
   const [searchResults, setSearchResults] = useState<POAPEvent[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<POAPEvent | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
-  
+
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
 
   // Load initial event if provided
@@ -48,11 +50,11 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
             setSelectedEvent(event);
             setValidationError(null);
           } else {
-            setValidationError("Initial POAP event not found.");
+            setValidationError('Initial POAP event not found.');
           }
         })
         .catch(() => {
-          setValidationError("Failed to load initial POAP event.");
+          setValidationError('Failed to load initial POAP event.');
         })
         .finally(() => {
           setIsValidating(false);
@@ -65,13 +67,13 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
     if (debouncedSearchTerm.length >= 3) {
       setIsSearching(true);
       setSearchResults([]);
-      
+
       POAPProvider.searchEvents(debouncedSearchTerm)
         .then((events) => {
           setSearchResults(events.slice(0, 10)); // Limit to 10 results
         })
         .catch((err) => {
-          console.error("Error searching POAP events:", err);
+          console.error('Error searching POAP events:', err);
           setSearchResults([]);
         })
         .finally(() => {
@@ -86,7 +88,7 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
     setSelectedEvent(event);
     const eventIdStr = String(event.id);
     setEventId(eventIdStr);
-    setSearchTerm(""); // Clear search
+    setSearchTerm(''); // Clear search
     setSearchResults([]);
     setValidationError(null);
     onConfigChange({ eventId: eventIdStr, eventName: event.name });
@@ -97,7 +99,7 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
     setEventId(newEventId);
     setSelectedEvent(null);
     setValidationError(null);
-    
+
     if (newEventId) {
       onConfigChange({ eventId: newEventId });
     }
@@ -105,24 +107,24 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
 
   const handleValidateEventId = async () => {
     if (!eventId) {
-      setValidationError("Please enter a POAP Event ID.");
+      setValidationError('Please enter a POAP Event ID.');
       return;
     }
-    
+
     setIsValidating(true);
     setValidationError(null);
-    
+
     try {
       const event = await POAPProvider.getEventById(eventId);
-          if (event) {
-            setSelectedEvent(event);
-            onConfigChange({ eventId: String(event.id), eventName: event.name });
-          } else {
-        setValidationError("POAP Event ID not found.");
+      if (event) {
+        setSelectedEvent(event);
+        onConfigChange({ eventId: String(event.id), eventName: event.name });
+      } else {
+        setValidationError('POAP Event ID not found.');
         setSelectedEvent(null);
       }
-    } catch (err) {
-      setValidationError("Error validating POAP Event ID.");
+    } catch {
+      setValidationError('Error validating POAP Event ID.');
       setSelectedEvent(null);
     } finally {
       setIsValidating(false);
@@ -156,7 +158,7 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
               />
             </div>
           </div>
-          
+
           {/* Search Results */}
           {searchResults.length > 0 && (
             <div className="mt-2 border rounded-md max-h-48 overflow-y-auto">
@@ -167,9 +169,11 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
                   onClick={() => handleEventSelect(event)}
                 >
                   {event.image_url && (
-                    <img
+                    <Image
                       src={event.image_url}
                       alt={event.name}
+                      width={40}
+                      height={40}
                       className="w-10 h-10 rounded-full mr-3 object-cover"
                     />
                   )}
@@ -177,14 +181,16 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
                     <p className="font-medium text-sm truncate">{event.name}</p>
                     <p className="text-xs text-gray-500">ID: {event.id}</p>
                     {event.supply && (
-                      <p className="text-xs text-gray-400">Supply: {event.supply}</p>
+                      <p className="text-xs text-gray-400">
+                        Supply: {event.supply}
+                      </p>
                     )}
                   </div>
                 </div>
               ))}
             </div>
           )}
-          
+
           {isSearching && (
             <div className="flex items-center justify-center py-4">
               <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -218,15 +224,15 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
               {isValidating ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
-                "Validate"
+                'Validate'
               )}
             </Button>
           </div>
           <p className="text-xs text-gray-500 mt-1">
-            Find event IDs at{" "}
-            <a 
-              href="https://poap.gallery/" 
-              target="_blank" 
+            Find event IDs at{' '}
+            <a
+              href="https://poap.gallery/"
+              target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 hover:underline"
             >
@@ -244,7 +250,9 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
                 <p className="font-medium text-green-800">
                   Selected: {selectedEvent.name}
                 </p>
-                <p className="text-sm text-green-700">Event ID: {selectedEvent.id}</p>
+                <p className="text-sm text-green-700">
+                  Event ID: {selectedEvent.id}
+                </p>
                 {selectedEvent.description && (
                   <p className="text-xs text-green-600 mt-1 line-clamp-2">
                     {selectedEvent.description}
@@ -252,9 +260,11 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
                 )}
               </div>
               {selectedEvent.image_url && (
-                <img
+                <Image
                   src={selectedEvent.image_url}
                   alt={selectedEvent.name}
+                  width={48}
+                  height={48}
                   className="w-12 h-12 rounded-full object-cover"
                 />
               )}

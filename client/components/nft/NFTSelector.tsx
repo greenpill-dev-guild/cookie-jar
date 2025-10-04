@@ -1,27 +1,25 @@
-import React, { useState, useMemo, useCallback, memo } from 'react';
-import { 9_motion} from 'framer-motion';
 import {
-  Search,
-  Grid,
-  List,
-  2_Filter,
-  X,
-  Loader2,
   AlertCircle,
+  CheckCircle2,
+  Grid,
   ImageIcon,
-  CheckCircle2
+  List,
+  Loader2,
+  Search,
+  X,
 } from 'lucide-react';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
+import Image from 'next/image';
+import type React from 'react';
+import { memo, useCallback, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-
+import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Skeleton } from '@/components/ui/skeleton';
-import { cn } from '@/lib/app/utils';
-import { useNFTSearch } from '@/hooks/nft/useNFTSearch';
 import { useResponsive } from '@/hooks/app/useResponsive';
-import Image from "next/image";
+import { useNFTSearch } from '@/hooks/nft/useNFTSearch';
+import { cn } from '@/lib/app/utils';
 
 // Unified NFT interface that handles all NFT types
 export interface SelectedNFT {
@@ -29,7 +27,7 @@ export interface SelectedNFT {
   tokenId: string;
   name?: string;
   image?: string;
-  tokenType: "ERC721" | "ERC1155";
+  tokenType: 'ERC721' | 'ERC1155';
   collection?: string;
   verified?: boolean;
   rarity?: number;
@@ -38,7 +36,7 @@ export interface SelectedNFT {
 
 export interface NFTSelectorProps {
   /** Callback when an NFT is selected */
-  onSelect: (13_nft: SelectedNFT) => void;
+  onSelect: (nft: SelectedNFT) => void;
   /** Currently selected NFT */
   selectedNFT?: SelectedNFT | null;
   /** Initial search query */
@@ -75,15 +73,21 @@ const getCollectionName = (nft: any): string | undefined => {
   return undefined;
 };
 
-const getTokenType = (nft: any): "ERC721" | "ERC1155" => {
+const getTokenType = (nft: any): 'ERC721' | 'ERC1155' => {
   const tokenType = nft.contract?.tokenType || nft.tokenType;
-  return tokenType === "UNKNOWN" ? "ERC721" : tokenType as "ERC721" | "ERC1155";
+  return tokenType === 'UNKNOWN'
+    ? 'ERC721'
+    : (tokenType as 'ERC721' | 'ERC1155');
 };
 
 const getVerifiedStatus = (nft: any): boolean | undefined => {
   if ('contract' in nft) {
     return (nft as any).verified;
-  } else if (nft.collection && typeof nft.collection === 'object' && 'verified' in nft.collection) {
+  } else if (
+    nft.collection &&
+    typeof nft.collection === 'object' &&
+    'verified' in nft.collection
+  ) {
     return nft.collection.verified;
   } else {
     return nft.verified;
@@ -94,7 +98,7 @@ const getVerifiedStatus = (nft: any): boolean | undefined => {
 const NFTCard = memo<{
   nft: any;
   isSelected: boolean;
-  onSelect: (13_nft: SelectedNFT) => void;
+  onSelect: (nft: SelectedNFT) => void;
   viewMode: 'grid' | 'list';
   cardSize: 'sm' | 'md' | 'lg';
 }>(({ nft, isSelected, onSelect, viewMode, cardSize }) => {
@@ -136,10 +140,10 @@ const NFTCard = memo<{
     return (
       <Card
         className={cn(
-          "cursor-pointer transition-all duration-200 hover:shadow-md",
+          'cursor-pointer transition-all duration-200 hover:shadow-md',
           isSelected
-            ? "ring-2 ring-[#ff5e14] bg-orange-50"
-            : "hover:border-[#ff5e14]"
+            ? 'ring-2 ring-[#ff5e14] bg-orange-50'
+            : 'hover:border-[#ff5e14]'
         )}
         onClick={handleSelect}
       >
@@ -147,10 +151,16 @@ const NFTCard = memo<{
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-lg overflow-hidden bg-gray-100 flex-shrink-0">
               {getNFTImage(nft) && !imageError ? (
-                <Image src={getNFTImage(nft)} alt={getNFTName(nft)} fill sizes="100vw" className={cn(
-                    "w-full h-full object-cover transition-opacity duration-200",
-                    imageLoaded ? "opacity-100" : "opacity-0"
-                  )} /> setImageLoaded(true)}
+                <Image
+                  src={getNFTImage(nft) || ''}
+                  alt={getNFTName(nft)}
+                  fill
+                  sizes="64px"
+                  className={cn(
+                    'w-full h-full object-cover transition-opacity duration-200',
+                    imageLoaded ? 'opacity-100' : 'opacity-0'
+                  )}
+                  onLoad={() => setImageLoaded(true)}
                   onError={() => setImageError(true)}
                 />
               ) : (
@@ -161,18 +171,21 @@ const NFTCard = memo<{
             </div>
 
             <div className="flex-1 min-w-0">
-              <h3 className="font-medium truncate">
-                {getNFTName(nft)}
-              </h3>
+              <h3 className="font-medium truncate">{getNFTName(nft)}</h3>
               {getCollectionName(nft) && (
-                <p className="text-sm text-gray-500 truncate">{getCollectionName(nft)}</p>
+                <p className="text-sm text-gray-500 truncate">
+                  {getCollectionName(nft)}
+                </p>
               )}
               <div className="flex items-center gap-2 mt-1">
                 <Badge variant="outline" className="text-xs">
                   {getTokenType(nft)}
                 </Badge>
                 {getVerifiedStatus(nft) && (
-                  <Badge variant="secondary" className="text-xs bg-blue-100 text-blue-700">
+                  <Badge
+                    variant="secondary"
+                    className="text-xs bg-blue-100 text-blue-700"
+                  >
                     Verified
                   </Badge>
                 )}
@@ -191,24 +204,28 @@ const NFTCard = memo<{
   return (
     <Card
       className={cn(
-        "relative cursor-pointer transition-all duration-200 hover:shadow-md group",
+        'relative cursor-pointer transition-all duration-200 hover:shadow-md group',
         isSelected
-          ? "ring-2 ring-[#ff5e14] bg-orange-50"
-          : "hover:border-[#ff5e14]"
+          ? 'ring-2 ring-[#ff5e14] bg-orange-50'
+          : 'hover:border-[#ff5e14]'
       )}
       style={{ width, height }}
       onClick={handleSelect}
     >
       <CardContent className="relative p-0 w-full h-full flex flex-col">
-        {!imageLoaded && !imageError && (
-          <Skeleton className="w-full h-full" />
-        )}
-        
+        {!imageLoaded && !imageError && <Skeleton className="w-full h-full" />}
+
         {getNFTImage(nft) && !imageError ? (
-          <Image src={getNFTImage(nft)} alt={getNFTName(nft)} fill sizes="100vw" className={cn(
-              "w-full h-full object-cover rounded transition-opacity duration-200",
-              imageLoaded ? "opacity-100" : "opacity-0"
-            )} /> setImageLoaded(true)}
+          <Image
+            src={getNFTImage(nft) || ''}
+            alt={getNFTName(nft)}
+            fill
+            sizes="100vw"
+            className={cn(
+              'w-full h-full object-cover rounded transition-opacity duration-200',
+              imageLoaded ? 'opacity-100' : 'opacity-0'
+            )}
+            onLoad={() => setImageLoaded(true)}
             onError={() => setImageError(true)}
           />
         ) : (
@@ -225,20 +242,26 @@ const NFTCard = memo<{
 
         {/* Hover Details */}
         <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-2 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-200 rounded-b">
-          <h3 className="font-medium text-sm truncate">
-            {getNFTName(nft)}
-          </h3>
-          
+          <h3 className="font-medium text-sm truncate">{getNFTName(nft)}</h3>
+
           {getCollectionName(nft) && (
-            <p className="text-xs text-gray-300 truncate">{getCollectionName(nft)}</p>
+            <p className="text-xs text-gray-300 truncate">
+              {getCollectionName(nft)}
+            </p>
           )}
-          
+
           <div className="flex flex-wrap gap-1 mt-1">
-            <Badge variant="outline" className="text-xs bg-white/20 text-white border-white/30">
+            <Badge
+              variant="outline"
+              className="text-xs bg-white/20 text-white border-white/30"
+            >
               {getTokenType(nft)}
             </Badge>
             {getVerifiedStatus(nft) && (
-              <Badge variant="secondary" className="text-xs bg-blue-100/20 text-blue-200 border-blue-300/30">
+              <Badge
+                variant="secondary"
+                className="text-xs bg-blue-100/20 text-blue-200 border-blue-300/30"
+              >
                 Verified
               </Badge>
             )}
@@ -267,7 +290,7 @@ export const NFTSelector: React.FC<NFTSelectorProps> = ({
 
   const {
     nfts,
-    collections,
+    collections: _collections,
     totalResults,
     isLoading,
     error,
@@ -276,15 +299,15 @@ export const NFTSelector: React.FC<NFTSelectorProps> = ({
     isFetchingNextPage,
   } = useNFTSearch(searchQuery, {
     userCollectionOnly,
-      contractAddresses,
+    contractAddresses,
   });
 
   const filteredNfts = useMemo(() => {
     if (!contractAddresses || contractAddresses.length === 0) {
       return nfts;
     }
-    
-    return nfts.filter(nft => 
+
+    return nfts.filter((nft) =>
       contractAddresses.includes(getContractAddress(nft))
     );
   }, [nfts, contractAddresses]);
@@ -304,13 +327,15 @@ export const NFTSelector: React.FC<NFTSelectorProps> = ({
 
   if (error) {
     return (
-      <Card className={cn("p-6", className)}>
+      <Card className={cn('p-6', className)}>
         <div className="flex items-center gap-3 text-red-600">
           <AlertCircle className="h-5 w-5" />
           <div>
             <p className="font-medium">Error loading NFTs</p>
             <p className="text-sm text-gray-600">
-              {typeof error === 'string' ? error : error.message || 'Unknown error occurred'}
+              {typeof error === 'string'
+                ? error
+                : error.message || 'Unknown error occurred'}
             </p>
           </div>
         </div>
@@ -319,12 +344,12 @@ export const NFTSelector: React.FC<NFTSelectorProps> = ({
   }
 
   return (
-    <div className={cn("space-y-4", className)}>
+    <div className={cn('space-y-4', className)}>
       {/* Search and Controls */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-        <Input
+          <Input
             type="text"
             placeholder="Search NFTs..."
             value={searchQuery}
@@ -341,7 +366,7 @@ export const NFTSelector: React.FC<NFTSelectorProps> = ({
               <X className="h-4 w-4" />
             </Button>
           )}
-      </div>
+        </div>
 
         {!isMobile && (
           <div className="flex gap-2">
@@ -367,7 +392,7 @@ export const NFTSelector: React.FC<NFTSelectorProps> = ({
       {totalResults > 0 && (
         <div className="text-sm text-gray-600">
           Found {totalResults} NFTs
-          {userCollectionOnly && " in your collection"}
+          {userCollectionOnly && ' in your collection'}
         </div>
       )}
 
@@ -382,28 +407,35 @@ export const NFTSelector: React.FC<NFTSelectorProps> = ({
         ) : filteredNfts.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 px-4">
             <ImageIcon className="h-12 w-12 text-gray-400 mb-4" />
-            <p className="text-lg font-medium text-gray-600 mb-2">No NFTs found</p>
+            <p className="text-lg font-medium text-gray-600 mb-2">
+              No NFTs found
+            </p>
             <p className="text-sm text-gray-500 text-center max-w-sm">
-              {searchQuery 
+              {searchQuery
                 ? `No NFTs match "${searchQuery}". Try adjusting your search terms.`
                 : userCollectionOnly
-                ? "You don't have any NFTs in your collection yet."
-                : "No NFTs available to display."
-              }
+                  ? "You don't have any NFTs in your collection yet."
+                  : 'No NFTs available to display.'}
             </p>
             {searchQuery && (
-              <Button variant="outline" onClick={handleClearSearch} className="mt-4">
+              <Button
+                variant="outline"
+                onClick={handleClearSearch}
+                className="mt-4"
+              >
                 Clear search
               </Button>
             )}
           </div>
         ) : (
           <div className="p-4">
-            <div className={cn(
-              activeViewMode === 'grid' 
-                ? "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-                : "space-y-3"
-            )}>
+            <div
+              className={cn(
+                activeViewMode === 'grid'
+                  ? 'grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4'
+                  : 'space-y-3'
+              )}
+            >
               {filteredNfts.map((nft) => {
                 const nftContractAddress = getContractAddress(nft);
                 const isSelected = selectedNFT
@@ -422,13 +454,13 @@ export const NFTSelector: React.FC<NFTSelectorProps> = ({
                   />
                 );
               })}
-                    </div>
+            </div>
 
-      {/* Load More Button */}
+            {/* Load More Button */}
             {hasNextPage && (
               <div className="flex justify-center mt-6">
-          <Button
-            variant="outline"
+                <Button
+                  variant="outline"
                   onClick={handleLoadMore}
                   disabled={isFetchingNextPage}
                 >
@@ -440,11 +472,11 @@ export const NFTSelector: React.FC<NFTSelectorProps> = ({
                   ) : (
                     'Load More'
                   )}
-          </Button>
-        </div>
-      )}
-        </div>
-      )}
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
       </ScrollArea>
     </div>
   );

@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import DefaultFeeCollector from '@/components/create/DefaultFeeCollector';
+import { AdminFunctions } from '@/components/jar/AdminFunctions';
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { AdminFunctions } from "@/components/jar/AdminFunctions";
-import DefaultFeeCollector from "@/components/create/DefaultFeeCollector";
-import { JarDepositSection } from "./JarDepositSection";
-import { JarWithdrawSection } from "./JarWithdrawSection";
-import type { JarPermissions } from "@/hooks/jar/useJarPermissions";
+} from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import type { JarPermissions } from '@/hooks/jar/useJarPermissions';
+import { JarDepositSection } from './JarDepositSection';
+import { JarWithdrawSection } from './JarWithdrawSection';
 
 interface JarActionsTabsProps {
   jarAddress: `0x${string}`;
@@ -31,7 +31,7 @@ export function JarActionsTabs({
 
   return (
     <Tabs
-      defaultValue={isAdmin ? "admin" : "withdraw"}
+      defaultValue={isAdmin ? 'admin' : 'withdraw'}
       className="w-full"
       onValueChange={onTabChange}
     >
@@ -88,9 +88,7 @@ export function JarActionsTabs({
       <TabsContent value="withdraw" className="mt-0">
         <Card className="border-none shadow-md">
           <CardHeader className="bg-[#fff8f0] rounded-t-lg">
-            <CardTitle className="text-xl text-[#3c2a14]">
-              Get Cookie
-            </CardTitle>
+            <CardTitle className="text-xl text-[#3c2a14]">Get Cookie</CardTitle>
             <CardDescription className="text-[#8b7355]">
               Receive cookies from this jar
             </CardDescription>

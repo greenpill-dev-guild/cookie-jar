@@ -1,37 +1,35 @@
-"use client";
+'use client';
 
+import { AlertCircle, CheckCircle2, Eye, EyeOff, Loader2 } from 'lucide-react';
 // NFTGatedWithdrawalSection.tsx
-import type React from "react";
-import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertCircle, CheckCircle2, Loader2, Eye, EyeOff } from "lucide-react";
-import {
-  ETH_ADDRESS,
-  useTokenInfo,
-  2_parseTokenAmount,
-  formatTokenAmount,
-} from "@/lib/blockchain/token-utils";
-import { NFTSelector } from "@/components/nft/NFTSelector";
-import type { SelectedNFT } from "@/components/nft/NFTSelector";
-import { useReadContract, useAccount, useBlockNumber } from "wagmi";
+import type React from 'react';
+import { useEffect, useState } from 'react';
+import { useAccount, useBlockNumber, useReadContract } from 'wagmi';
+import type { SelectedNFT } from '@/components/nft/NFTSelector';
+import { NFTSelector } from '@/components/nft/NFTSelector';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   useNFTBalanceProof,
   validateBalanceProof,
-} from "@/hooks/nft/useNFTBalanceProof";
-
+} from '@/hooks/nft/useNFTBalanceProof';
+import {
+  ETH_ADDRESS,
+  formatTokenAmount,
+  useTokenInfo,
+} from '@/lib/blockchain/token-utils';
 
 interface NFTGatedWithdrawalSectionProps {
   config: any; // Ideally this would be more specifically typed
   withdrawAmount: string;
-  setWithdrawAmount: (22_value: string) => void;
+  setWithdrawAmount: (value: string) => void;
   gateAddress: string;
-  setGateAddress: (19_value: string) => void;
+  setGateAddress: (value: string) => void;
   tokenId: string;
-  setTokenId: (15_value: string) => void;
+  setTokenId: (value: string) => void;
   handleWithdrawNFT: () => void;
   handleWithdrawNFTVariable: () => void;
   // Enhanced withdrawal handlers with balance proof
@@ -48,24 +46,24 @@ interface NFTGatedWithdrawalSectionProps {
 // ERC721/ERC1155 ABI for balance checking
 const ERC721_ABI = [
   {
-    inputs: [{ internalType: "uint256", name: "tokenId", type: "uint256" }],
-    name: "ownerOf",
-    outputs: [{ internalType: "address", name: "", type: "address" }],
-    stateMutability: "view",
-    type: "function",
+    inputs: [{ internalType: 'uint256', name: 'tokenId', type: 'uint256' }],
+    name: 'ownerOf',
+    outputs: [{ internalType: 'address', name: '', type: 'address' }],
+    stateMutability: 'view',
+    type: 'function',
   },
 ] as const;
 
 const ERC1155_ABI = [
   {
     inputs: [
-      { internalType: "address", name: "account", type: "address" },
-      { internalType: "uint256", name: "id", type: "uint256" },
+      { internalType: 'address', name: 'account', type: 'address' },
+      { internalType: 'uint256', name: 'id', type: 'uint256' },
     ],
-    name: "balanceOf",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
+    name: 'balanceOf',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
   },
 ] as const;
 
@@ -100,16 +98,16 @@ export const NFTGatedWithdrawalSection: React.FC<
     isLoading: proofLoading,
     error: proofError,
   } = useNFTBalanceProof({
-    contractAddress: selectedNFT?.contractAddress || "",
-    tokenId: selectedNFT?.tokenId || "",
-    tokenType: selectedNFT?.tokenType || "ERC721",
+    contractAddress: selectedNFT?.contractAddress || '',
+    tokenId: selectedNFT?.tokenId || '',
+    tokenType: selectedNFT?.tokenType || 'ERC721',
     userAddress,
     enabled: !!selectedNFT && !!userAddress,
   });
 
   // Get token information using the token utils
   const { symbol: tokenSymbol, decimals: tokenDecimals } = useTokenInfo(
-    config?.currency !== ETH_ADDRESS ? config?.currency : undefined,
+    config?.currency !== ETH_ADDRESS ? config?.currency : undefined
   );
 
   // Extract NFT gate addresses from config for filtering
@@ -124,13 +122,13 @@ export const NFTGatedWithdrawalSection: React.FC<
   } = useReadContract({
     address: (selectedNFT?.contractAddress as `0x${string}`) || undefined,
     abi: ERC721_ABI,
-    functionName: "ownerOf",
+    functionName: 'ownerOf',
     args: selectedNFT?.tokenId ? [BigInt(selectedNFT.tokenId)] : undefined,
     query: {
       enabled: !!(
         selectedNFT?.contractAddress &&
         selectedNFT?.tokenId &&
-        selectedNFT?.tokenType === "ERC721"
+        selectedNFT?.tokenType === 'ERC721'
       ),
     },
   });
@@ -143,7 +141,7 @@ export const NFTGatedWithdrawalSection: React.FC<
   } = useReadContract({
     address: (selectedNFT?.contractAddress as `0x${string}`) || undefined,
     abi: ERC1155_ABI,
-    functionName: "balanceOf",
+    functionName: 'balanceOf',
     args:
       userAddress && selectedNFT?.tokenId
         ? [userAddress, BigInt(selectedNFT.tokenId)]
@@ -152,7 +150,7 @@ export const NFTGatedWithdrawalSection: React.FC<
       enabled: !!(
         selectedNFT?.contractAddress &&
         selectedNFT?.tokenId &&
-        selectedNFT?.tokenType === "ERC1155" &&
+        selectedNFT?.tokenType === 'ERC1155' &&
         userAddress
       ),
     },
@@ -178,7 +176,7 @@ export const NFTGatedWithdrawalSection: React.FC<
     const error = erc721Error || erc1155Error || proofError;
 
     if (error) {
-      setBalanceError(proofError || "Failed to verify NFT ownership");
+      setBalanceError(proofError || 'Failed to verify NFT ownership');
       setOwnershipVerified(false);
       return;
     }
@@ -195,30 +193,30 @@ export const NFTGatedWithdrawalSection: React.FC<
       const validation = validateBalanceProof(
         balanceProof,
         Number(currentBlock || 0),
-        1n,
+        1n
       );
       setOwnershipVerified(validation.isValid);
 
       if (!validation.isValid) {
-        setBalanceError(validation.reason || "NFT ownership validation failed");
+        setBalanceError(validation.reason || 'NFT ownership validation failed');
       } else if (isProofStale) {
-        setBalanceError("Balance proof is stale - please refresh");
+        setBalanceError('Balance proof is stale - please refresh');
         setOwnershipVerified(false);
       } else {
         setBalanceError(null);
       }
     } else {
       // Fallback to legacy verification while proof is loading
-      if (selectedNFT.tokenType === "ERC721") {
+      if (selectedNFT.tokenType === 'ERC721') {
         const isOwner =
           erc721Owner?.toLowerCase() === userAddress.toLowerCase();
         setOwnershipVerified(isOwner);
-        setBalanceError(isOwner ? null : "You no longer own this NFT");
-      } else if (selectedNFT.tokenType === "ERC1155") {
+        setBalanceError(isOwner ? null : 'You no longer own this NFT');
+      } else if (selectedNFT.tokenType === 'ERC1155') {
         const hasBalance = erc1155Balance && erc1155Balance > BigInt(0);
         setOwnershipVerified(!!hasBalance);
         setBalanceError(
-          hasBalance ? null : "You no longer have balance of this NFT",
+          hasBalance ? null : 'You no longer have balance of this NFT'
         );
       }
     }
@@ -246,7 +244,7 @@ export const NFTGatedWithdrawalSection: React.FC<
   // Enhanced withdrawal handlers that use balance proof for ERC1155
   const handleEnhancedWithdraw = () => {
     if (
-      selectedNFT?.tokenType === "ERC1155" &&
+      selectedNFT?.tokenType === 'ERC1155' &&
       balanceProof &&
       handleWithdrawNFTWithProof
     ) {
@@ -263,7 +261,7 @@ export const NFTGatedWithdrawalSection: React.FC<
 
   const handleEnhancedWithdrawVariable = () => {
     if (
-      selectedNFT?.tokenType === "ERC1155" &&
+      selectedNFT?.tokenType === 'ERC1155' &&
       balanceProof &&
       handleWithdrawNFTVariableWithProof
     ) {
@@ -289,8 +287,8 @@ export const NFTGatedWithdrawalSection: React.FC<
     <div className="space-y-6">
       {/* NFT Selection Method Toggle */}
       <Tabs
-        value={showManualInput ? "manual" : "selector"}
-        onValueChange={(value) => setShowManualInput(value === "manual")}
+        value={showManualInput ? 'manual' : 'selector'}
+        onValueChange={(value) => setShowManualInput(value === 'manual')}
       >
         <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="selector" className="flex items-center gap-2">
@@ -358,7 +356,7 @@ export const NFTGatedWithdrawalSection: React.FC<
               <div className="text-right">
                 <Badge
                   variant={
-                    selectedNFT.tokenType === "ERC721" ? "default" : "secondary"
+                    selectedNFT.tokenType === 'ERC721' ? 'default' : 'secondary'
                   }
                 >
                   {selectedNFT.tokenType}
@@ -375,7 +373,7 @@ export const NFTGatedWithdrawalSection: React.FC<
                       <span className="text-xs">
                         Verified
                         {balanceProof &&
-                          selectedNFT?.tokenType === "ERC1155" && (
+                          selectedNFT?.tokenType === 'ERC1155' && (
                             <span className="ml-1">
                               ({balanceProof.balance.toString()})
                             </span>
@@ -414,7 +412,7 @@ export const NFTGatedWithdrawalSection: React.FC<
       )}
 
       {/* Variable Amount Input (if variable withdrawal) */}
-      {config.withdrawalOption === "VARIABLE" && (
+      {config.withdrawalOption === 'VARIABLE' && (
         <div>
           <label className="text-sm font-medium text-[#3c2a14]">
             Withdrawal Amount
@@ -432,18 +430,18 @@ export const NFTGatedWithdrawalSection: React.FC<
                 ? formatTokenAmount(
                     BigInt(config.maxWithdrawal),
                     tokenDecimals,
-                    "",
+                    ''
                   )
                 : undefined
             }
           />
           {config.maxWithdrawal && (
             <p className="text-xs text-[#8b7355] mt-1">
-              Maximum:{" "}
+              Maximum:{' '}
               {formatTokenAmount(
                 BigInt(config.maxWithdrawal),
                 tokenDecimals,
-                tokenSymbol,
+                tokenSymbol
               )}
             </p>
           )}
@@ -453,7 +451,7 @@ export const NFTGatedWithdrawalSection: React.FC<
       {/* Withdrawal Button */}
       <Button
         onClick={
-          config.withdrawalOption === "VARIABLE"
+          config.withdrawalOption === 'VARIABLE'
             ? handleEnhancedWithdrawVariable
             : handleEnhancedWithdraw
         }
@@ -461,7 +459,7 @@ export const NFTGatedWithdrawalSection: React.FC<
         disabled={
           !isWithdrawalReady ||
           config.isWithdrawPending ||
-          (config.withdrawalOption === "VARIABLE" &&
+          (config.withdrawalOption === 'VARIABLE' &&
             (!withdrawAmount || Number(withdrawAmount) <= 0))
         }
       >
@@ -478,13 +476,13 @@ export const NFTGatedWithdrawalSection: React.FC<
         ) : (
           <>
             Get Cookie with NFT (
-            {config.withdrawalOption === "VARIABLE"
-              ? `${withdrawAmount || "0"} ${tokenSymbol}`
+            {config.withdrawalOption === 'VARIABLE'
+              ? `${withdrawAmount || '0'} ${tokenSymbol}`
               : config.fixedAmount
                 ? formatTokenAmount(
                     BigInt(config.fixedAmount),
                     tokenDecimals,
-                    tokenSymbol,
+                    tokenSymbol
                   )
                 : `0 ${tokenSymbol}`}
             )
@@ -500,8 +498,8 @@ export const NFTGatedWithdrawalSection: React.FC<
             Select an NFT from your collection that&apos;s approved for this jar
           </li>
           <li>
-            We&apos;ll verify you still own the NFT in real-time with balance proof
-            protection
+            We&apos;ll verify you still own the NFT in real-time with balance
+            proof protection
           </li>
           <li>
             For ERC1155 tokens, we prevent race conditions by validating balance
@@ -509,7 +507,7 @@ export const NFTGatedWithdrawalSection: React.FC<
           </li>
           <li>Click withdraw to claim your cookie using the selected NFT</li>
           <li>
-            If the proof becomes stale ({">"}5 blocks old), use the refresh
+            If the proof becomes stale ({'>'}5 blocks old), use the refresh
             button to update it
           </li>
         </ul>

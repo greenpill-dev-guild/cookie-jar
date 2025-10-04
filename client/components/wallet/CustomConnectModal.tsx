@@ -1,17 +1,17 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
+import { AlertCircle, ExternalLink, Loader2, Wallet } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { type Connector, useAccount, useConnect } from 'wagmi';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { useToast } from "@/hooks/app/useToast";
-import { Loader2, Wallet, ExternalLink, AlertCircle } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useConnect, useAccount, Connector } from "wagmi";
+} from '@/components/ui/dialog';
+import { useToast } from '@/hooks/app/useToast';
 
 interface ConnectModalProps {
   isOpen: boolean;
@@ -23,7 +23,7 @@ export function CustomConnectModal({ isOpen, onClose }: ConnectModalProps) {
   const { isConnected } = useAccount();
   const { toast } = useToast();
   const [connectingConnector, setConnectingConnector] = useState<string | null>(
-    null,
+    null
   );
 
   // Close modal when connected
@@ -38,9 +38,9 @@ export function CustomConnectModal({ isOpen, onClose }: ConnectModalProps) {
   useEffect(() => {
     if (error) {
       toast({
-        title: "Connection failed",
+        title: 'Connection failed',
         description: error.message,
-        variant: "destructive",
+        variant: 'destructive',
       });
       setConnectingConnector(null);
     }
@@ -51,7 +51,7 @@ export function CustomConnectModal({ isOpen, onClose }: ConnectModalProps) {
       setConnectingConnector(connector.id);
       await connect({ connector });
     } catch (err) {
-      console.error("Connection error:", err);
+      console.error('Connection error:', err);
       setConnectingConnector(null);
     }
   };
@@ -73,7 +73,7 @@ export function CustomConnectModal({ isOpen, onClose }: ConnectModalProps) {
           <div className="space-y-3 py-4">
             {connectors.filter(
               (connector) =>
-                !(connector.id === "injected" && connector.name === "Injected"),
+                !(connector.id === 'injected' && connector.name === 'Injected')
             ).length === 0 && (
               <div className="text-center py-8">
                 <AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -88,8 +88,8 @@ export function CustomConnectModal({ isOpen, onClose }: ConnectModalProps) {
               .filter(
                 (connector) =>
                   !(
-                    connector.id === "injected" && connector.name === "Injected"
-                  ),
+                    connector.id === 'injected' && connector.name === 'Injected'
+                  )
               )
               .map((connector) => {
                 const isConnecting = connectingConnector === connector.id;
@@ -118,7 +118,7 @@ export function CustomConnectModal({ isOpen, onClose }: ConnectModalProps) {
                         </div>
                         <div className="text-sm text-[#8b7355] truncate">
                           {isConnecting
-                            ? "Connecting..."
+                            ? 'Connecting...'
                             : `Connect using ${connector.name}`}
                         </div>
                       </div>

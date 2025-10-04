@@ -1,12 +1,12 @@
-"use client";
+'use client';
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { useJarTransactions } from "@/hooks/jar/useJarTransactions";
-import { useCookieJarConfig } from "@/hooks/jar/useJar";
-import { useParams } from "next/navigation";
-import { useChainId } from "wagmi";
-import { getNativeCurrency } from "@/config/supported-networks";
+import { useParams } from 'next/navigation';
+import { useChainId } from 'wagmi';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { getNativeCurrency } from '@/config/supported-networks';
+import { useCookieJarConfig } from '@/hooks/jar/useJar';
+import { useJarTransactions } from '@/hooks/jar/useJarTransactions';
 
 export function JarDepositSection() {
   const params = useParams();
@@ -61,9 +61,9 @@ export function JarDepositSection() {
             id="fundAmount"
             type="text"
             placeholder={
-              config.currency === "0x0000000000000000000000000000000000000003"
+              config.currency === '0x0000000000000000000000000000000000000003'
                 ? `0.1 ${nativeCurrency.symbol}`
-                : `1${"." + "0".repeat(tokenDecimals > 0 ? 0 : tokenDecimals)} ${tokenSymbol || "Tokens"}`
+                : `1${`.${'0'.repeat(tokenDecimals > 0 ? 0 : tokenDecimals)}`} ${tokenSymbol || 'Tokens'}`
             }
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
@@ -81,11 +81,11 @@ export function JarDepositSection() {
         </div>
       </div>
 
-      {config.currency !== "0x0000000000000000000000000000000000000003" && (
+      {config.currency !== '0x0000000000000000000000000000000000000003' && (
         <div className="pt-2">
           <p className="text-sm text-[#8b7355]">
-            Note: For ERC20 tokens, you&apos;ll need to approve the token transfer
-            before depositing.
+            Note: For ERC20 tokens, you&apos;ll need to approve the token
+            transfer before depositing.
           </p>
         </div>
       )}

@@ -1,11 +1,15 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { useQueryClient } from "@tanstack/react-query";
-import { isAddress } from "viem";
-import { cookieJarAbi } from "@/generated";
-import { useToast } from "../app/useToast";
+import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { isAddress } from 'viem';
+import {
+  useAccount,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+} from 'wagmi';
+import { cookieJarAbi } from '@/generated';
+import { useToast } from '../app/useToast';
 
 /**
  * Pending token data structure
@@ -24,13 +28,15 @@ export interface PendingToken {
  * Hook for managing token recovery actions (admin only)
  */
 export const useTokenRecoveryActions = (jarAddress: `0x${string}`) => {
-  const { address } = useAccount();
+  const { address: _address } = useAccount();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  
+
   // Transaction states
   const [isSwapping, setIsSwapping] = useState(false);
-  const [swappingTokenAddress, setSwappingTokenAddress] = useState<string | null>(null);
+  const [swappingTokenAddress, setSwappingTokenAddress] = useState<
+    string | null
+  >(null);
 
   // Write contract hooks
   const {
@@ -40,7 +46,11 @@ export const useTokenRecoveryActions = (jarAddress: `0x${string}`) => {
   } = useWriteContract();
 
   // Transaction receipt
-  const { isLoading: swapLoading, isSuccess: swapSuccess, error: swapError } = useWaitForTransactionReceipt({
+  const {
+    isLoading: swapLoading,
+    isSuccess: swapSuccess,
+    error: swapError,
+  } = useWaitForTransactionReceipt({
     hash: swapHash,
   });
 
@@ -48,24 +58,26 @@ export const useTokenRecoveryActions = (jarAddress: `0x${string}`) => {
   useEffect(() => {
     if (swapSuccess) {
       toast({
-        title: "Swap Successful",
+        title: 'Swap Successful',
         description: `Token has been swapped successfully.`,
       });
       setIsSwapping(false);
       setSwappingTokenAddress(null);
-      
+
       // Invalidate relevant queries
-      queryClient.invalidateQueries({ queryKey: ["pendingTokens", jarAddress] });
-      queryClient.invalidateQueries({ queryKey: ["jarBalance", jarAddress] });
+      queryClient.invalidateQueries({
+        queryKey: ['pendingTokens', jarAddress],
+      });
+      queryClient.invalidateQueries({ queryKey: ['jarBalance', jarAddress] });
     }
   }, [swapSuccess, toast, queryClient, jarAddress]);
 
   useEffect(() => {
     if (swapError) {
       toast({
-        title: "Swap Failed",
-        description: swapError.message || "Failed to swap token.",
-        variant: "destructive",
+        title: 'Swap Failed',
+        description: swapError.message || 'Failed to swap token.',
+        variant: 'destructive',
       });
       setIsSwapping(false);
       setSwappingTokenAddress(null);
@@ -78,9 +90,9 @@ export const useTokenRecoveryActions = (jarAddress: `0x${string}`) => {
   const swapPendingToken = async (tokenAddress: string) => {
     if (!isAddress(tokenAddress)) {
       toast({
-        title: "Invalid Token",
-        description: "Invalid token address provided.",
-        variant: "destructive",
+        title: 'Invalid Token',
+        description: 'Invalid token address provided.',
+        variant: 'destructive',
       });
       return;
     }
@@ -88,11 +100,11 @@ export const useTokenRecoveryActions = (jarAddress: `0x${string}`) => {
     try {
       setIsSwapping(true);
       setSwappingTokenAddress(tokenAddress);
-      
+
       await swapTokensWrite({
         address: jarAddress,
         abi: cookieJarAbi,
-        functionName: "swapPendingTokens",
+        functionName: 'swapPendingTokens',
         args: [
           tokenAddress as `0x${string}`,
           BigInt(0), // amount - 0 means swap all pending balance
@@ -101,9 +113,9 @@ export const useTokenRecoveryActions = (jarAddress: `0x${string}`) => {
       });
     } catch (error: any) {
       toast({
-        title: "Swap Failed",
-        description: error.message || "Failed to initiate token swap.",
-        variant: "destructive",
+        title: 'Swap Failed',
+        description: error.message || 'Failed to initiate token swap.',
+        variant: 'destructive',
       });
       setIsSwapping(false);
       setSwappingTokenAddress(null);
@@ -114,8 +126,10 @@ export const useTokenRecoveryActions = (jarAddress: `0x${string}`) => {
    * Check if currently swapping a specific token
    */
   const isSwappingToken = (tokenAddress: string): boolean => {
-    return swappingTokenAddress === tokenAddress && 
-           (swapPending || swapLoading || isSwapping);
+    return (
+      swappingTokenAddress === tokenAddress &&
+      (swapPending || swapLoading || isSwapping)
+    );
   };
 
   return {

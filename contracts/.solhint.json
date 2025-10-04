@@ -2,7 +2,7 @@
   "extends": "solhint:recommended",
   "rules": {
     "compiler-version": ["error", "^0.8.0"],
-    "func-visibility": ["warn", {"ignoreConstructors": true}],
+    "func-visibility": ["error", {"ignoreConstructors": true}],
     "max-line-length": ["warn", 148],
     "not-rely-on-time": "off",
     "avoid-suicide": "error",
@@ -18,17 +18,17 @@
     "modifier-name-mixedcase": "error",
     "private-vars-leading-underscore": "warn",
     "reason-string": ["warn", {"maxLength": 64}],
-    "state-visibility": "warn",
+    "state-visibility": "error",
     "var-name-mixedcase": "warn",
     "imports-on-top": "warn",
     "no-console": "off",
     "no-empty-blocks": "error",
-    "no-unused-vars": "warn",
+    "no-unused-vars": "error",
     "quotes": ["warn", "double"],
     "no-global-import": "off",
     "one-contract-per-file": "off",
     "max-states-count": "off",
     "immutable-vars-naming": "off",
-    "reentrancy": "warn"
+    "reentrancy": "error"
   }
 }

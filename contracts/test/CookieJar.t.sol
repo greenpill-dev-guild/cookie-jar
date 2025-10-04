@@ -57,7 +57,7 @@ contract CookieJarTest is Test {
     CookieJar public jarAllowlistErc20Variable;
     CookieJar public jarNftEthVariable;
     CookieJar public jarNftErc20Fixed;
-    
+
     // ERC1155 specific jars
     CookieJar public jarNft1155EthFixed;
     CookieJar public jarNft1155EthVariable;
@@ -106,29 +106,30 @@ contract CookieJarTest is Test {
         bool _emergencyEnabled,
         bool _oneTimeWithdrawal
     ) internal pure returns (CookieJarLib.JarConfig memory) {
-        return CookieJarLib.JarConfig(
-            _jarOwner,                               // jarOwner
-            _supportedCurrency,                     // supportedCurrency
-            _feeCollectorAddr,                      // feeCollector
-            _accessType,                            // accessType
-            _withdrawalOption,                      // withdrawalOption
-            _strictPurpose,                         // strictPurpose
-            _emergencyEnabled,                      // emergencyWithdrawalEnabled
-            _oneTimeWithdrawal,                     // oneTimeWithdrawal
-            _fixedAmount,                           // fixedAmount
-            _maxWithdrawal,                         // maxWithdrawal
-            _withdrawalInterval,                    // withdrawalInterval
-            _minDeposit,                            // minDeposit
-            _feePercentage,                         // feePercentageOnDeposit
-            0,                                      // maxWithdrawalPerPeriod (unlimited)
-            "Test Jar",                             // metadata
-            CookieJarLib.MultiTokenConfig({         // multiTokenConfig
-                enabled: false,
-                maxSlippagePercent: 500,
-                minSwapAmount: 0,
-                defaultFee: 3000
-            })
-        );
+        return
+            CookieJarLib.JarConfig(
+                _jarOwner, // jarOwner
+                _supportedCurrency, // supportedCurrency
+                _feeCollectorAddr, // feeCollector
+                _accessType, // accessType
+                _withdrawalOption, // withdrawalOption
+                _strictPurpose, // strictPurpose
+                _emergencyEnabled, // emergencyWithdrawalEnabled
+                _oneTimeWithdrawal, // oneTimeWithdrawal
+                _fixedAmount, // fixedAmount
+                _maxWithdrawal, // maxWithdrawal
+                _withdrawalInterval, // withdrawalInterval
+                _minDeposit, // minDeposit
+                _feePercentage, // feePercentageOnDeposit
+                0, // maxWithdrawalPerPeriod (unlimited)
+                "Test Jar", // metadata
+                CookieJarLib.MultiTokenConfig({ // multiTokenConfig
+                        enabled: false,
+                        maxSlippagePercent: 500,
+                        minSwapAmount: 0,
+                        defaultFee: 3000
+                    })
+            );
     }
 
     // Helper function to create AccessConfig struct
@@ -145,25 +146,23 @@ contract CookieJarTest is Test {
             });
         }
 
-        return CookieJarLib.AccessConfig({
-            allowlist: _allowlist,
-            nftRequirement: nftReq
-        });
+        return CookieJarLib.AccessConfig({allowlist: _allowlist, nftRequirement: nftReq});
     }
-    
+
     // Helper function to create ERC1155 AccessConfig struct
     function createERC1155AccessConfig(
         address _nftContract,
         uint256 _tokenId
     ) internal pure returns (CookieJarLib.AccessConfig memory) {
-        return CookieJarLib.AccessConfig({
-            allowlist: new address[](0),
-            nftRequirement: CookieJarLib.NftRequirement({
-                nftContract: _nftContract,
-                tokenId: _tokenId,
-                minBalance: 1
-            })
-        });
+        return
+            CookieJarLib.AccessConfig({
+                allowlist: new address[](0),
+                nftRequirement: CookieJarLib.NftRequirement({
+                    nftContract: _nftContract,
+                    tokenId: _tokenId,
+                    minBalance: 1
+                })
+            });
     }
 
     function setUp() public {
@@ -482,7 +481,7 @@ contract CookieJarTest is Test {
         jarNftEthVariable.deposit{value: 1000 ether}(0);
         dummyToken.approve(address(jarNftErc20Fixed), 1000 * 1e18);
         jarNftErc20Fixed.deposit(1000 * 1e18);
-        
+
         // Fund ERC1155 jars
         jarNft1155EthFixed.deposit{value: 1000 ether}(0);
         jarNft1155EthVariable.deposit{value: 1000 ether}(0);
@@ -490,7 +489,7 @@ contract CookieJarTest is Test {
         jarNft1155Erc20Fixed.deposit(1000 * 1e18);
         dummyToken.approve(address(jarNft1155Erc20Variable), 1000 * 1e18);
         jarNft1155Erc20Variable.deposit(1000 * 1e18);
-        
+
         vm.stopPrank();
     }
 
@@ -703,7 +702,7 @@ contract CookieJarTest is Test {
         // Try to use a regular contract (not ERC721) as NFT gate
         address[] memory invalidNft = new address[](1);
         invalidNft[0] = address(this); // This test contract doesn't implement ERC721
-        
+
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidNFTGate.selector));
         new CookieJar(
             createJarConfig(
@@ -730,7 +729,7 @@ contract CookieJarTest is Test {
         // Should succeed with valid ERC721 contract
         address[] memory validNft = new address[](1);
         validNft[0] = address(dummyErc721);
-        
+
         // This should not revert
         CookieJar validJar = new CookieJar(
             createJarConfig(
@@ -751,7 +750,7 @@ contract CookieJarTest is Test {
             createAccessConfig(validNft, emptyAddresses),
             address(0)
         );
-        
+
         assertTrue(address(validJar) != address(0));
     }
 
@@ -1136,7 +1135,8 @@ contract CookieJarTest is Test {
         uint256 userBalanceBefore = user.balance;
         vm.prank(user);
         jarAllowlistEthFixed.deposit{value: minEthDeposit}(0);
-        uint256 fee = ((jarAllowlistEthFixed.FEE_PERCENTAGE_ON_DEPOSIT() * minEthDeposit) / CookieJarLib.PERCENTAGE_BASE);
+        uint256 fee = ((jarAllowlistEthFixed.FEE_PERCENTAGE_ON_DEPOSIT() * minEthDeposit) /
+            CookieJarLib.PERCENTAGE_BASE);
         uint256 amountMinusFee = minEthDeposit - fee;
         assertEq(address(jarAllowlistEthFixed).balance, jarwhitebalanceBefore + amountMinusFee);
         assertEq(feeCollector.balance, feeBalanceBefore + fee);
@@ -1175,7 +1175,8 @@ contract CookieJarTest is Test {
         dummyToken.approve(address(jarAllowlistErc20Fixed), fixedAmount);
         jarAllowlistErc20Fixed.deposit(fixedAmount);
         vm.stopPrank();
-        uint256 fee = ((jarAllowlistErc20Fixed.FEE_PERCENTAGE_ON_DEPOSIT() * fixedAmount) / CookieJarLib.PERCENTAGE_BASE);
+        uint256 fee = ((jarAllowlistErc20Fixed.FEE_PERCENTAGE_ON_DEPOSIT() * fixedAmount) /
+            CookieJarLib.PERCENTAGE_BASE);
         uint256 amountMinusFee = fixedAmount - fee;
         assertEq(dummyToken.balanceOf(feeCollector), feeBalanceBefore + fee);
         assertEq(dummyToken.balanceOf(address(jarAllowlistErc20Fixed)), jarBalanceBefore + amountMinusFee);
@@ -1209,7 +1210,7 @@ contract CookieJarTest is Test {
         // Grant allowlist role to users first
         vm.prank(owner);
         jarAllowlistEthFixed.grantJarAllowlistRole(users);
-        
+
         // Check if jar is paused and unpause if needed
         if (jarAllowlistEthFixed.paused()) {
             vm.prank(owner);
@@ -1397,12 +1398,12 @@ contract CookieJarTest is Test {
     }
 
     // === NEW TESTS FOR TOKEN ID 0 (ANY TOKEN) ===
-    
+
     function test_WithdrawNFTModeWithTokenId0_UserOwnsToken() public {
         // Create a new jar with tokenId: 0 (meaning any token from contract)
         address[] memory nftAddrs = new address[](1);
         nftAddrs[0] = address(dummyErc721);
-        
+
         vm.startPrank(owner);
         CookieJar testJar = new CookieJar(
             createJarConfig(
@@ -1430,24 +1431,24 @@ contract CookieJarTest is Test {
             }),
             address(0) // Superfluid host disabled for testing
         );
-        
+
         // Fund the jar
         testJar.deposit{value: 10 ether}(0);
         vm.stopPrank();
-        
+
         // Mint a token to user (any token ID works)
         dummyErc721.mint(user);
-        
+
         vm.warp(block.timestamp + withdrawalInterval + 1);
         uint256 userBalanceBefore = user.balance;
-        
+
         // Should succeed - user owns a token from the contract
         vm.prank(user);
         testJar.withdraw(fixedAmount, purpose);
-        
+
         assertEq(user.balance, userBalanceBefore + fixedAmount);
     }
-    
+
     function test_RevertWhen_WithdrawNFTModeWithTokenId0_UserOwnsNoToken() public {
         // Create a new jar with tokenId: 0
         vm.startPrank(owner);
@@ -1477,23 +1478,23 @@ contract CookieJarTest is Test {
             }),
             address(0) // Superfluid host disabled for testing
         );
-        
+
         testJar.deposit{value: 10 ether}(0);
         vm.stopPrank();
-        
+
         // User owns NO tokens from the contract
         vm.warp(block.timestamp + withdrawalInterval + 1);
-        
+
         // Should fail - user doesn't own any token from the contract
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAuthorized.selector));
         testJar.withdraw(fixedAmount, purpose);
     }
-    
+
     function test_WithdrawNFTModeWithSpecificTokenId_UserOwnsCorrectToken() public {
         // Mint specific token to user
         uint256 specificTokenId = dummyErc721.mint(user);
-        
+
         // Create jar requiring that specific token
         vm.startPrank(owner);
         CookieJar testJar = new CookieJar(
@@ -1522,20 +1523,20 @@ contract CookieJarTest is Test {
             }),
             address(0) // Superfluid host disabled for testing
         );
-        
+
         testJar.deposit{value: 10 ether}(0);
         vm.stopPrank();
-        
+
         vm.warp(block.timestamp + withdrawalInterval + 1);
         uint256 userBalanceBefore = user.balance;
-        
+
         // Should succeed - user owns the specific token
         vm.prank(user);
         testJar.withdraw(fixedAmount, purpose);
-        
+
         assertEq(user.balance, userBalanceBefore + fixedAmount);
     }
-    
+
     function test_RevertWhen_WithdrawNFTModeWithSpecificTokenId_UserOwnsDifferentToken() public {
         // Mint token ID 5 to user
         dummyErc721.mint(attacker); // Token 0
@@ -1544,7 +1545,7 @@ contract CookieJarTest is Test {
         dummyErc721.mint(attacker); // Token 3
         dummyErc721.mint(attacker); // Token 4
         uint256 userToken = dummyErc721.mint(user); // Token 5
-        
+
         // Create jar requiring token ID 3 (which user doesn't own)
         vm.startPrank(owner);
         CookieJar testJar = new CookieJar(
@@ -1573,12 +1574,12 @@ contract CookieJarTest is Test {
             }),
             address(0) // Superfluid host disabled for testing
         );
-        
+
         testJar.deposit{value: 10 ether}(0);
         vm.stopPrank();
-        
+
         vm.warp(block.timestamp + withdrawalInterval + 1);
-        
+
         // Should fail - user owns token 5, not token 3
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAuthorized.selector));

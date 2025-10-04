@@ -1,16 +1,16 @@
-"use client";
+'use client';
 
-import { usePathname } from "next/navigation";
-import { motion } from "framer-motion";
-import { Cookie, ChefHat, User } from "lucide-react";
-import { cn } from "@/lib/app/utils";
-import { useIsMobile } from "@/components/ui/use-mobile";
-import { useNavigateToTop } from "@/hooks/app/useNavigateToTop";
+import { motion } from 'framer-motion';
+import { ChefHat, Cookie, User } from 'lucide-react';
+import { usePathname } from 'next/navigation';
+import { useIsMobile } from '@/components/ui/use-mobile';
+import { useNavigateToTop } from '@/hooks/app/useNavigateToTop';
+import { cn } from '@/lib/app/utils';
 
 const mobileNavItems = [
-  { name: "Jars", href: "/jars", icon: Cookie },
-  { name: "Bake", href: "/create", icon: ChefHat },
-  { name: "Profile", href: "/profile", icon: User },
+  { name: 'Jars', href: '/jars', icon: Cookie },
+  { name: 'Bake', href: '/create', icon: ChefHat },
+  { name: 'Profile', href: '/profile', icon: User },
 ];
 
 const slideUpBounce = {
@@ -22,7 +22,7 @@ const slideUpBounce = {
     y: 0,
     opacity: 1,
     transition: {
-      type: "spring",
+      type: 'spring',
       damping: 15,
       stiffness: 300,
       duration: 0.6,
@@ -51,18 +51,19 @@ function MobileTabButton({
 
   return (
     <button
+      type="button"
       onClick={handleClick}
       className={cn(
-        "flex flex-col items-center justify-center py-3 transition-all duration-200 flex-1 min-h-[50px]",
+        'flex flex-col items-center justify-center py-3 transition-all duration-200 flex-1 min-h-[50px]',
         isActive
-          ? "text-[hsl(var(--cj-brand-orange))]"
-          : "text-[hsl(var(--cj-medium-brown))] hover:text-[hsl(var(--cj-brand-orange))]",
+          ? 'text-[hsl(var(--cj-brand-orange))]'
+          : 'text-[hsl(var(--cj-medium-brown))] hover:text-[hsl(var(--cj-brand-orange))]'
       )}
     >
       <Icon
         className={cn(
-          "h-5 w-5 mb-1",
-          isActive ? "text-[hsl(var(--cj-brand-orange))]" : "",
+          'h-5 w-5 mb-1',
+          isActive ? 'text-[hsl(var(--cj-brand-orange))]' : ''
         )}
       />
       <span className="text-xs font-medium">{name}</span>
@@ -83,8 +84,8 @@ export function MobileAppBar() {
       variants={slideUpBounce}
       className="mobile-app-bar fixed bottom-0 left-0 right-0 z-50 bg-[hsl(var(--cj-nav-bg))] border-t border-border shadow-lg"
       style={{
-        paddingBottom: "env(safe-area-inset-bottom)",
-        position: "fixed",
+        paddingBottom: 'env(safe-area-inset-bottom)',
+        position: 'fixed',
       }}
     >
       <div className="flex justify-around">
@@ -96,7 +97,7 @@ export function MobileAppBar() {
             icon={item.icon}
             isActive={
               pathname === item.href ||
-              (item.href !== "/" && pathname.startsWith(item.href))
+              (item.href !== '/' && pathname.startsWith(item.href))
             }
           />
         ))}

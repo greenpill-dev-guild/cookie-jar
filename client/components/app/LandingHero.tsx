@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
 
 export function LandingHero() {
   const router = useRouter();
@@ -15,7 +15,7 @@ export function LandingHero() {
   }, []);
 
   const handleExploreClick = () => {
-    router.push("/jars");
+    router.push('/jars');
   };
 
   if (!mounted) return null;

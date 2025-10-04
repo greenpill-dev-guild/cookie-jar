@@ -1,6 +1,3 @@
-// Note: Using simplified Hypercerts integration until proper SDK types are available
-// import { HypercertClient } from '@hypercerts-org/sdk';
-import { WalletClient } from 'viem';
 import { log } from '@/lib/app/logger';
 
 export interface HypercertClaim {
@@ -63,7 +60,8 @@ export class HypercertsProvider {
   private chainId: number;
   private baseUrl: string;
 
-  constructor(chainId: number = 11155111) { // Default to Sepolia testnet
+  constructor(chainId: number = 11155111) {
+    // Default to Sepolia testnet
     this.chainId = chainId;
     this.baseUrl = this.getGraphQLEndpoint(chainId);
   }
@@ -71,10 +69,12 @@ export class HypercertsProvider {
   /**
    * Get a single hypercert by ID (static method for protocol configs)
    */
-  static async getHypercertById(hypercertId: string): Promise<HypercertClaim | null> {
+  static async getHypercertById(
+    hypercertId: string
+  ): Promise<HypercertClaim | null> {
     try {
       const provider = new HypercertsProvider();
-      
+
       const query = `
         query GetHypercertById($hypercertId: String!) {
           claims(where: { hypercert_id: $hypercertId }) {
@@ -91,13 +91,13 @@ export class HypercertsProvider {
       `;
 
       const data = await provider.executeGraphQLQuery(query, { hypercertId });
-      
+
       if (!data?.claims || data.claims.length === 0) {
         return null;
       }
 
       const claim = data.claims[0];
-      
+
       // Try to fetch metadata from URI
       let metadata;
       try {
@@ -108,7 +108,10 @@ export class HypercertsProvider {
           }
         }
       } catch (error) {
-        log.warn('Could not fetch hypercert metadata', { error, uri: claim.uri });
+        log.warn('Could not fetch hypercert metadata', {
+          error,
+          uri: claim.uri,
+        });
       }
 
       return {
@@ -139,14 +142,18 @@ export class HypercertsProvider {
   private getGraphQLEndpoint(chainId: number): string {
     const endpoints: { [key: number]: string } = {
       1: 'https://api.thegraph.com/subgraphs/name/hypercerts/hypercerts-mainnet',
-      11155111: 'https://api.thegraph.com/subgraphs/name/hypercerts/hypercerts-sepolia',
+      11155111:
+        'https://api.thegraph.com/subgraphs/name/hypercerts/hypercerts-sepolia',
       10: 'https://api.thegraph.com/subgraphs/name/hypercerts/hypercerts-optimism',
     };
-    
+
     return endpoints[chainId] || endpoints[11155111];
   }
 
-  private async executeGraphQLQuery(query: string, variables: any = {}): Promise<any> {
+  private async executeGraphQLQuery(
+    query: string,
+    variables: any = {}
+  ): Promise<any> {
     try {
       const response = await fetch(this.baseUrl, {
         method: 'POST',
@@ -179,7 +186,10 @@ export class HypercertsProvider {
     options: {
       limit?: number;
       offset?: number;
-      orderBy?: 'creation_block_timestamp' | 'totalUnits' | 'last_update_block_timestamp';
+      orderBy?:
+        | 'creation_block_timestamp'
+        | 'totalUnits'
+        | 'last_update_block_timestamp';
       orderDirection?: 'asc' | 'desc';
       workScope?: string[];
       impactScope?: string[];
@@ -190,8 +200,8 @@ export class HypercertsProvider {
       const {
         limit = 20,
         offset = 0,
-        orderBy = 'creation_block_timestamp',
-        orderDirection = 'desc',
+        orderBy: _orderBy = 'creation_block_timestamp',
+        orderDirection: _orderDirection = 'desc',
       } = options;
 
       // Build GraphQL query for searching claims
@@ -240,7 +250,7 @@ export class HypercertsProvider {
         result.claims.map(async (claim: any) => {
           // Get the first claim token for this claim
           const claimToken = claim.claimTokens?.[0];
-          
+
           // Fetch metadata from URI
           let metadata: HypercertMetadata | undefined;
           try {
@@ -278,7 +288,7 @@ export class HypercertsProvider {
 
       // Filter by query text if metadata is available
       const filteredClaims = query
-        ? claims.filter(claim => {
+        ? claims.filter((claim) => {
             const searchText = `
               ${claim.metadata?.name || ''}
               ${claim.metadata?.description || ''}
@@ -294,7 +304,8 @@ export class HypercertsProvider {
         claims: filteredClaims,
         totalResults: filteredClaims.length,
         hasNextPage: filteredClaims.length === limit,
-        nextPageParam: filteredClaims.length === limit ? String(offset + limit) : undefined,
+        nextPageParam:
+          filteredClaims.length === limit ? String(offset + limit) : undefined,
       };
     } catch (error) {
       log.error('Error searching hypercerts', { error, query, options });
@@ -386,7 +397,8 @@ export class HypercertsProvider {
         claims,
         totalResults: claims.length,
         hasNextPage: claims.length === limit,
-        nextPageParam: claims.length === limit ? String(offset + limit) : undefined,
+        nextPageParam:
+          claims.length === limit ? String(offset + limit) : undefined,
       };
     } catch (error) {
       log.error('Error getting user hypercerts', { error, address });
@@ -401,14 +413,22 @@ export class HypercertsProvider {
   /**
    * Check if user owns a specific hypercert
    */
-  async userOwnsHypercert(address: string, hypercertId: string): Promise<boolean> {
+  async userOwnsHypercert(
+    address: string,
+    hypercertId: string
+  ): Promise<boolean> {
     try {
       const userHypercerts = await this.getUserHypercerts(address);
-      return userHypercerts.claims.some(claim => 
-        claim.id === hypercertId || claim.claim.hypercert_id === hypercertId
+      return userHypercerts.claims.some(
+        (claim) =>
+          claim.id === hypercertId || claim.claim.hypercert_id === hypercertId
       );
     } catch (error) {
-      log.error('Error checking if user owns hypercert', { error, address, hypercertId });
+      log.error('Error checking if user owns hypercert', {
+        error,
+        address,
+        hypercertId,
+      });
       return false;
     }
   }
@@ -535,7 +555,7 @@ export class HypercertsProvider {
       11155111: '0x16bA53B74c234C8371899E7d7C4D31e4c676320e', // Sepolia testnet (example)
       10: '0x822F17A9A5EeCFd66dBAFf7946a8071C265D1d07', // Optimism (example)
     };
-    
+
     return contracts[this.chainId] || contracts[11155111];
   }
 
@@ -548,7 +568,10 @@ export class HypercertsProvider {
     totalUnits: bigint,
     transferRestriction: number = 0 // 0 = AllowAll, 1 = DisallowAll, 2 = FromCreatorOnly
   ): Promise<string | null> {
-    log.warn('Hypercert creation requires full SDK integration with wallet support', { metadata, totalUnits, transferRestriction });
+    log.warn(
+      'Hypercert creation requires full SDK integration with wallet support',
+      { metadata, totalUnits, transferRestriction }
+    );
     return null;
   }
 }
@@ -557,5 +580,5 @@ export class HypercertsProvider {
 export const hypercertsProvider = new HypercertsProvider(11155111);
 
 // Export function to create provider for specific chain
-export const createHypercertsProvider = (chainId: number) => 
+export const createHypercertsProvider = (chainId: number) =>
   new HypercertsProvider(chainId);

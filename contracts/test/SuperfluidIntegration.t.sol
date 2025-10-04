@@ -13,11 +13,11 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 contract SuperfluidIntegrationTest is Test {
     CookieJar internal _jar;
     CookieJarFactory internal _factory;
-    
+
     address internal _owner = address(0x123);
     address internal _user = address(0x456);
     address internal _feeCollector = address(0x789);
-    
+
     // Mock Super Token for testing
     MockSuperToken internal _mockSuperToken;
     address internal _superTokenAddress;
@@ -26,15 +26,15 @@ contract SuperfluidIntegrationTest is Test {
     // Test configuration structs
     CookieJarLib.JarConfig internal _jarConfig;
     CookieJarLib.AccessConfig internal _accessConfig;
-    
+
     event SuperStreamCreated(address indexed sender, address indexed superToken, int96 flowRate);
     event SuperStreamUpdated(address indexed sender, address indexed superToken, int96 newFlowRate);
     event SuperStreamDeleted(address indexed sender, address indexed superToken);
-    
+
     function setUp() public {
         vm.deal(_owner, 100 ether);
         vm.deal(_user, 100 ether);
-        
+
         // Deploy mock Super Token
         _mockSuperToken = new MockSuperToken("Super DAI", "sDAI");
         _superTokenAddress = address(_mockSuperToken);
@@ -46,20 +46,20 @@ contract SuperfluidIntegrationTest is Test {
         // Deploy factory first
         _factory = new CookieJarFactory(
             _feeCollector,
-            _owner, 
+            _owner,
             500, // 5% fee
             0.01 ether, // Min ETH deposit
             100e18 // Min ERC20 deposit
         );
-        
+
         // Setup jar configuration with Superfluid enabled
         _setupSuperfluidJarConfig();
         _setupAccessConfig();
-        
+
         // Deploy jar with integrated Superfluid support
         _jar = new CookieJar(_jarConfig, _accessConfig, mockSuperfluidHost);
     }
-    
+
     function _setupSuperfluidJarConfig() internal {
         // Standard jar configuration
         CookieJarLib.MultiTokenConfig memory multiTokenConfig = CookieJarLib.MultiTokenConfig({
@@ -70,30 +70,30 @@ contract SuperfluidIntegrationTest is Test {
         });
 
         _jarConfig = CookieJarLib.JarConfig(
-            _owner,                                    // jarOwner
-            address(_mockSuperToken),                 // supportedCurrency
-            _feeCollector,                            // feeCollector
-            CookieJarLib.AccessType.Allowlist,        // accessType
+            _owner, // jarOwner
+            address(_mockSuperToken), // supportedCurrency
+            _feeCollector, // feeCollector
+            CookieJarLib.AccessType.Allowlist, // accessType
             CookieJarLib.WithdrawalTypeOptions.Variable, // withdrawalOption
-            false,                                    // strictPurpose
-            true,                                     // emergencyWithdrawalEnabled
-            false,                                    // oneTimeWithdrawal
-            0,                                       // fixedAmount
-            1000e18,                                 // maxWithdrawal
-            3600,                                    // withdrawalInterval (1 hour)
-            1e18,                                    // minDeposit
-            500,                                     // feePercentageOnDeposit
-            5000e18,                                 // maxWithdrawalPerPeriod
-            "Superfluid Integration Test Jar",       // metadata
-            multiTokenConfig                         // multiTokenConfig
+            false, // strictPurpose
+            true, // emergencyWithdrawalEnabled
+            false, // oneTimeWithdrawal
+            0, // fixedAmount
+            1000e18, // maxWithdrawal
+            3600, // withdrawalInterval (1 hour)
+            1e18, // minDeposit
+            500, // feePercentageOnDeposit
+            5000e18, // maxWithdrawalPerPeriod
+            "Superfluid Integration Test Jar", // metadata
+            multiTokenConfig // multiTokenConfig
         );
     }
-    
+
     function _setupAccessConfig() internal {
         address[] memory allowlist = new address[](2);
         allowlist[0] = _owner;
         allowlist[1] = _user;
-        
+
         _accessConfig.allowlist = allowlist;
         _accessConfig.nftRequirement = CookieJarLib.NftRequirement({
             nftContract: address(0),
@@ -101,11 +101,11 @@ contract SuperfluidIntegrationTest is Test {
             minBalance: 0
         });
     }
-    
+
     // ===================================
     // SUPER STREAM CREATION TESTS
     // ===================================
-    
+
     function testCreateSuperStream() public {
         // Test successful super stream creation
         vm.prank(_user);
@@ -120,7 +120,7 @@ contract SuperfluidIntegrationTest is Test {
 
         // Verify stream was created
     }
-    
+
     function testCreateSuperStreamFailures() public {
         // Test: Invalid super token (zero address)
         vm.prank(_user);
@@ -132,146 +132,142 @@ contract SuperfluidIntegrationTest is Test {
         vm.expectRevert(CookieJarLib.InvalidStreamRate.selector);
         _jar.createSuperStream(_superTokenAddress, 0); // Zero flow rate
     }
-    
+
     // ===================================
     // SUPER STREAM UPDATE TESTS
     // ===================================
-    
+
     function testUpdateSuperStream() public {
         // First create a stream
         vm.prank(_user);
         _jar.createSuperStream(_superTokenAddress, 2e18);
-        
+
         // Update the stream
         vm.prank(_user);
         int96 newFlowRate = 5e18;
-        
+
         vm.expectEmit(true, true, true, true);
         emit SuperStreamUpdated(_user, _superTokenAddress, newFlowRate);
-        
+
         _jar.updateSuperStream(_superTokenAddress, newFlowRate);
     }
-    
+
     function testUpdateNonExistentStream() public {
         // Try to update stream that doesn't exist
         vm.prank(_user);
         vm.expectRevert(CookieJarLib.StreamNotFound.selector);
         _jar.updateSuperStream(_superTokenAddress, 5e18);
     }
-    
+
     // ===================================
-    // SUPER STREAM DELETION TESTS  
+    // SUPER STREAM DELETION TESTS
     // ===================================
-    
+
     function testDeleteSuperStream() public {
         // First create a stream
         vm.prank(_user);
         _jar.createSuperStream(_superTokenAddress, 2e18);
-        
+
         // Verify stream exists and is no
-        
+
         // Delete the stream
         vm.prank(_user);
-        
+
         vm.expectEmit(true, true, true, true);
         emit SuperStreamDeleted(_user, _superTokenAddress);
-        
+
         _jar.deleteSuperStream(_superTokenAddress);
-        
-  
     }
-    
+
     function testDeleteNonExistentStream() public {
-        // Try to delete stream that doesn't exist  
+        // Try to delete stream that doesn't exist
         vm.prank(_user);
         vm.expectRevert(CookieJarLib.StreamNotFound.selector);
         _jar.deleteSuperStream(_superTokenAddress);
     }
-    
+
     // ===================================
     // REAL-TIME BALANCE TESTS
     // ===================================
-    
+
     function testGetRealTimeBalance() public {
         // Test real-time balance for jar currency
-        
+
         // Add some balance to jar
         vm.prank(_user);
         bool success = _mockSuperToken.transfer(address(_jar), 1000e18);
         require(success, "Transfer failed");
-        
+
         // Mock the jar balance update (in real scenario this would be done via deposits)
         // For testing purposes, we'll directly check the function behavior
-        
+
         // Test balance for non-jar currency super token
         address otherSuperToken = address(0x999);
     }
-    
+
     // ===================================
     // EMERGENCY WITHDRAWAL TESTS
     // ===================================
-    
+
     function testEmergencyWithdrawSuperToken() public {
         // First give jar some super tokens
         bool success2 = _mockSuperToken.transfer(address(_jar), 1000e18);
         require(success2, "Transfer failed");
-        
+
         uint256 withdrawAmount = 500e18;
         uint256 initialOwnerBalance = _mockSuperToken.balanceOf(_owner);
-        
+
         // Test successful emergency withdrawal
         vm.prank(_owner);
-        
+
         // Verify tokens were transferred
         // assertEq(_mockSuperToken.balanceOf(_owner), initialOwnerBalance + withdrawAmount);
         // assertEq(_mockSuperToken.balanceOf(address(_jar)), 500e18);
     }
-    
-//     function testEmergencyWithdrawSuperTokenFailures() public {
-//         // Test: Only owner can call
-//         vm.prank(_user);
-//         vm.expectRevert();
-        
-//         // Test: Zero amount
-//         vm.prank(_owner);
-//         vm.expectRevert(CookieJarLib.ZeroAmount.selector);
-        
-//         // Test: Emergency withdrawal disabled
-//         // Deploy jar with emergency withdrawal disabled
-// ]        CookieJar jarNoEmergency = new CookieJar(_jarConfig, _accessConfig, mockSuperfluidHost);
-        
-//         vm.prank(_owner);
-//         vm.expectRevert(CookieJarLib.EmergencyWithdrawalDisabled.selector);
-// ]    }
-    
+
+    //     function testEmergencyWithdrawSuperTokenFailures() public {
+    //         // Test: Only owner can call
+    //         vm.prank(_user);
+    //         vm.expectRevert();
+
+    //         // Test: Zero amount
+    //         vm.prank(_owner);
+    //         vm.expectRevert(CookieJarLib.ZeroAmount.selector);
+
+    //         // Test: Emergency withdrawal disabled
+    //         // Deploy jar with emergency withdrawal disabled
+    // ]        CookieJar jarNoEmergency = new CookieJar(_jarConfig, _accessConfig, mockSuperfluidHost);
+
+    //         vm.prank(_owner);
+    //         vm.expectRevert(CookieJarLib.EmergencyWithdrawalDisabled.selector);
+    // ]    }
+
     // ===================================
     // VIEW FUNCTION TESTS
     // ===================================
-    
+
     function testGetSuperStream() public {
         // Test getting non-existent stream
-        
+
         // Create a stream
         vm.prank(_user);
         int96 flowRate = 3e18;
         _jar.createSuperStream(_superTokenAddress, flowRate);
-    
     }
-    
+
     // ===================================
     // INTEGRATION TESTS
     // ===================================
-    
+
     function testSuperfluidWithTraditionalStreaming() public {
         // Verify that Superfluid functionality doesn't interfere with traditional streaming
         // Traditional streaming should still work independently
-                
+
         // Both systems should coexist independently
         vm.prank(_user);
         _jar.createSuperStream(_superTokenAddress, 2e18); // Should work
-        
     }
-    
+
     function testFactoryIntegrationWithSuperfluid() public {
         // Test that factory can create jars with Superfluid support
 
@@ -285,31 +281,27 @@ contract SuperfluidIntegrationTest is Test {
 
         // Create JarConfig
         CookieJarLib.JarConfig memory params = CookieJarLib.JarConfig(
-            _owner,                              // jarOwner
-            _superTokenAddress,                 // supportedCurrency
-            _feeCollector,                       // feeCollector
-            CookieJarLib.AccessType.Allowlist,   // accessType
+            _owner, // jarOwner
+            _superTokenAddress, // supportedCurrency
+            _feeCollector, // feeCollector
+            CookieJarLib.AccessType.Allowlist, // accessType
             CookieJarLib.WithdrawalTypeOptions.Variable, // withdrawalOption
-            false,                               // strictPurpose
-            true,                                // emergencyWithdrawalEnabled
-            false,                               // oneTimeWithdrawal
-            0,                                  // fixedAmount
-            1000e18,                            // maxWithdrawal
-            3600,                               // withdrawalInterval
-            1e18,                               // minDeposit
-            0,                                  // feePercentageOnDeposit
-            5000e18,                            // maxWithdrawalPerPeriod
-            "Test Superfluid Jar",              // metadata
-            multiTokenConfig                    // multiTokenConfig
+            false, // strictPurpose
+            true, // emergencyWithdrawalEnabled
+            false, // oneTimeWithdrawal
+            0, // fixedAmount
+            1000e18, // maxWithdrawal
+            3600, // withdrawalInterval
+            1e18, // minDeposit
+            0, // feePercentageOnDeposit
+            5000e18, // maxWithdrawalPerPeriod
+            "Test Superfluid Jar", // metadata
+            multiTokenConfig // multiTokenConfig
         );
 
         // Deploy via factory
         vm.prank(_owner);
-        address newJarAddress = _factory.createCookieJar(
-            params,
-            _accessConfig,
-            multiTokenConfig
-        );
+        address newJarAddress = _factory.createCookieJar(params, _accessConfig, multiTokenConfig);
 
         // Verify Superfluid functionality works in factory-created jar
         CookieJar factoryJar = CookieJar(payable(newJarAddress));
@@ -318,34 +310,34 @@ contract SuperfluidIntegrationTest is Test {
         vm.prank(_user);
         factoryJar.createSuperStream(_superTokenAddress, 2e18);
     }
-    
+
     // ===================================
     // SECURITY & EDGE CASE TESTS
     // ===================================
-    
+
     function testReentrancyProtection() public {
         // Test that critical functions have reentrancy protection
         // Create an ETH jar for reentrancy testing
         _jarConfig.supportedCurrency = CookieJarLib.ETH_ADDRESS;
         CookieJar ethJar = new CookieJar(_jarConfig, _accessConfig, mockSuperfluidHost);
-        
+
         // Deploy malicious contract
         ReentrancyAttacker attacker = new ReentrancyAttacker(address(ethJar));
         vm.deal(address(attacker), 1 ether);
-        
+
         // Attacker should fail due to ReentrancyGuard
         vm.expectRevert("ReentrancyGuard: reentrant call");
         attacker.attack{value: 0.2 ether}();
-        
+
         // Normal deposit should still work
         vm.deal(_user, 1 ether);
         vm.prank(_user);
         ethJar.deposit{value: 0.1 ether}(0);
-        
+
         // Verify deposit succeeded
         assertEq(address(ethJar).balance, 0.1 ether);
     }
-    
+
     function testSuperfluidRealTimeBalanceWithMultipleStreams() public {
         // Test real-time balance calculation with multiple concurrent streams
 
@@ -359,7 +351,7 @@ contract SuperfluidIntegrationTest is Test {
 
         // Test real-time balance (should aggregate all streams)
     }
-    
+
     function testEmergencyPauseDuringStreaming() public {
         // Test that emergency pause works during active streaming
 
@@ -382,7 +374,7 @@ contract SuperfluidIntegrationTest is Test {
         vm.prank(_user);
         _jar.updateSuperStream(_superTokenAddress, 4e18); // Should work
     }
-    
+
     function testSuperfluidDistributionPoolIntegration() public {
         // Test that streaming works with different super tokens
 
@@ -392,7 +384,7 @@ contract SuperfluidIntegrationTest is Test {
         vm.prank(_user);
         _jar.createSuperStream(_superTokenAddress, 2e18);
     }
-    
+
     function testSuperfluidMultipleTokenSupport() public {
         // Test that multiple different super tokens can be streamed
 
@@ -408,7 +400,6 @@ contract SuperfluidIntegrationTest is Test {
 
         vm.prank(_user);
         _jar.createSuperStream(thirdSuperToken, 4e18);
-
     }
 }
 
@@ -417,7 +408,7 @@ contract MockSuperToken is ERC20 {
     constructor(string memory name, string memory symbol) ERC20(name, symbol) {
         _mint(msg.sender, 1000000e18); // Mint 1M tokens
     }
-    
+
     function mint(address to, uint256 amount) external {
         _mint(to, amount);
     }
@@ -427,11 +418,11 @@ contract MockSuperToken is ERC20 {
 contract ReentrancyAttacker {
     CookieJar private target;
     bool private attacking;
-    
+
     constructor(address _target) {
         target = CookieJar(payable(_target));
     }
-    
+
     // Try to reenter during deposit
     receive() external payable {
         if (!attacking && address(target).balance > 0.1 ether) {

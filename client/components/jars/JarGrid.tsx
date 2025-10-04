@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import { ChevronLeft, ChevronRight } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { JarCard } from "./JarCard";
-import type { JarData } from "@/lib/jar/utils";
-import type { NativeCurrency } from "@/config/supported-networks";
+import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import type { NativeCurrency } from '@/config/supported-networks';
+import type { JarData } from '@/lib/jar/utils';
+import { JarCard } from './JarCard';
 
 interface JarGridProps {
   jars: (JarData & { accessType?: number })[];
   nativeCurrency: NativeCurrency;
   tokenSymbols: Record<string, string>;
-  onJarClick: (15_jarAddress: string) => void;
+  onJarClick: (jarAddress: string) => void;
   currentPage: number;
   totalPages: number;
-  onPageChange: (17_page: number) => void;
+  onPageChange: (page: number) => void;
 }
 
 export function JarGrid({

@@ -1,10 +1,16 @@
-"use client";
+'use client';
 
+import { AlertTriangle, Bug, Home, RefreshCw } from 'lucide-react';
 import React from 'react';
-import { AlertTriangle, RefreshCw, Home, Bug } from 'lucide-react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { log } from '@/lib/app/logger';
 
 interface NFTErrorBoundaryState {
@@ -17,7 +23,7 @@ interface NFTErrorBoundaryState {
 interface NFTErrorBoundaryProps {
   children: React.ReactNode;
   fallback?: React.ComponentType<NFTErrorFallbackProps>;
-  onError?: (13_error: Error, 30_errorInfo: React.ErrorInfo, 61_errorId: string) => void;
+  onError?: (error: Error, errorInfo: React.ErrorInfo, errorId: string) => void;
   showDetails?: boolean;
   enableReporting?: boolean;
 }
@@ -54,10 +60,10 @@ const DefaultNFTErrorFallback: React.FC<NFTErrorFallbackProps> = ({
       };
 
       log.info('Error report', errorReport);
-      
+
       // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 500));
-      
+      await new Promise((resolve) => setTimeout(resolve, 500));
+
       setReportSent(true);
     } catch (reportError) {
       log.error('Failed to send error report', { error: reportError });
@@ -114,35 +120,29 @@ const DefaultNFTErrorFallback: React.FC<NFTErrorFallbackProps> = ({
             </div>
           </div>
         </CardHeader>
-        
+
         <CardContent className="space-y-4">
           <Alert>
             <AlertTriangle className="h-4 w-4" />
             <AlertTitle>What happened?</AlertTitle>
-            <AlertDescription>
-              {getErrorSuggestion(error)}
-            </AlertDescription>
+            <AlertDescription>{getErrorSuggestion(error)}</AlertDescription>
           </Alert>
 
           <div className="flex flex-col gap-2">
-            <Button 
-              onClick={resetError} 
-              className="w-full"
-              variant="default"
-            >
+            <Button onClick={resetError} className="w-full" variant="default">
               <RefreshCw className="h-4 w-4 mr-2" />
               Try Again
             </Button>
-            
-            <Button 
-              onClick={() => window.location.href = '/'}
+
+            <Button
+              onClick={() => (window.location.href = '/')}
               variant="outline"
               className="w-full"
             >
               <Home className="h-4 w-4 mr-2" />
               Go to Home
             </Button>
-            
+
             {showDetails && (
               <Button
                 onClick={() => setDetailsVisible(!detailsVisible)}
@@ -173,7 +173,7 @@ const DefaultNFTErrorFallback: React.FC<NFTErrorFallbackProps> = ({
                   </div>
                 )}
               </div>
-              
+
               <div className="mt-3">
                 {!reportSent ? (
                   <Button
@@ -198,10 +198,13 @@ const DefaultNFTErrorFallback: React.FC<NFTErrorFallbackProps> = ({
   );
 };
 
-export class NFTErrorBoundary extends React.Component<NFTErrorBoundaryProps, NFTErrorBoundaryState> {
+export class NFTErrorBoundary extends React.Component<
+  NFTErrorBoundaryProps,
+  NFTErrorBoundaryState
+> {
   constructor(props: NFTErrorBoundaryProps) {
     super(props);
-    
+
     this.state = {
       hasError: false,
       error: null,
@@ -210,9 +213,11 @@ export class NFTErrorBoundary extends React.Component<NFTErrorBoundaryProps, NFT
     };
   }
 
-  static getDerivedStateFromError(error: Error): Partial<NFTErrorBoundaryState> {
+  static getDerivedStateFromError(
+    error: Error
+  ): Partial<NFTErrorBoundaryState> {
     const errorId = `nft-error-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-    
+
     return {
       hasError: true,
       error,
@@ -249,8 +254,8 @@ export class NFTErrorBoundary extends React.Component<NFTErrorBoundaryProps, NFT
   }
 
   private async sendErrorToMonitoring(
-    error: Error, 
-    errorInfo: React.ErrorInfo, 
+    error: Error,
+    errorInfo: React.ErrorInfo,
     errorId: string
   ) {
     try {
@@ -269,7 +274,7 @@ export class NFTErrorBoundary extends React.Component<NFTErrorBoundaryProps, NFT
 
       // This would be replaced with your actual error reporting service
       log.info('Would send error to monitoring', errorPayload);
-      
+
       // Example API call:
       // await fetch('/api/errors', {
       //   method: 'POST',
@@ -277,7 +282,9 @@ export class NFTErrorBoundary extends React.Component<NFTErrorBoundaryProps, NFT
       //   body: JSON.stringify(errorPayload),
       // });
     } catch (reportingError) {
-      log.error('Failed to send error to monitoring service', { error: reportingError });
+      log.error('Failed to send error to monitoring service', {
+        error: reportingError,
+      });
     }
   }
 
@@ -292,11 +299,15 @@ export class NFTErrorBoundary extends React.Component<NFTErrorBoundaryProps, NFT
 
   render() {
     const { hasError, error, errorInfo, errorId } = this.state;
-    const { children, fallback: CustomFallback, showDetails = false } = this.props;
+    const {
+      children,
+      fallback: CustomFallback,
+      showDetails = false,
+    } = this.props;
 
     if (hasError && error) {
       const FallbackComponent = CustomFallback || DefaultNFTErrorFallback;
-      
+
       return (
         <FallbackComponent
           error={error}
@@ -331,11 +342,11 @@ export function withNFTErrorBoundary<P extends object>(
 // Hook for handling NFT-specific errors
 export function useNFTErrorHandler() {
   const [error, setError] = React.useState<Error | null>(null);
-  
+
   const handleError = React.useCallback((error: Error) => {
     log.error('NFT Error', { error: error.message, stack: error.stack });
     setError(error);
-    
+
     // Send to error tracking
     if (process.env.NODE_ENV === 'production') {
       // This would integrate with your error tracking service
@@ -347,18 +358,21 @@ export function useNFTErrorHandler() {
     setError(null);
   }, []);
 
-  const retryWithErrorHandling = React.useCallback(async <T,>(
-    asyncFn: () => Promise<T>,
-    fallback?: T
-  ): Promise<T | undefined> => {
-    try {
-      clearError();
-      return await asyncFn();
-    } catch (error) {
-      handleError(error as Error);
-      return fallback;
-    }
-  }, [handleError, clearError]);
+  const retryWithErrorHandling = React.useCallback(
+    async <T,>(
+      asyncFn: () => Promise<T>,
+      fallback?: T
+    ): Promise<T | undefined> => {
+      try {
+        clearError();
+        return await asyncFn();
+      } catch (error) {
+        handleError(error as Error);
+        return fallback;
+      }
+    },
+    [handleError, clearError]
+  );
 
   return {
     error,
@@ -370,7 +384,10 @@ export function useNFTErrorHandler() {
 
 // Custom error classes for different NFT error types
 export class NFTNetworkError extends Error {
-  constructor(message: string, public originalError?: Error) {
+  constructor(
+    message: string,
+    public originalError?: Error
+  ) {
     super(message);
     this.name = 'NFTNetworkError';
   }
@@ -378,7 +395,7 @@ export class NFTNetworkError extends Error {
 
 export class NFTAPIError extends Error {
   constructor(
-    message: string, 
+    message: string,
     public statusCode?: number,
     public originalError?: Error
   ) {
@@ -388,14 +405,20 @@ export class NFTAPIError extends Error {
 }
 
 export class NFTParsingError extends Error {
-  constructor(message: string, public data?: any) {
+  constructor(
+    message: string,
+    public data?: any
+  ) {
     super(message);
     this.name = 'NFTParsingError';
   }
 }
 
 export class NFTValidationError extends Error {
-  constructor(message: string, public field?: string) {
+  constructor(
+    message: string,
+    public field?: string
+  ) {
     super(message);
     this.name = 'NFTValidationError';
   }

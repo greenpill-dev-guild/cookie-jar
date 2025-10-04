@@ -1,19 +1,19 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import Image from "next/image";
-import { usePathname } from "next/navigation";
-import { Home, Cookie, ChefHat } from "lucide-react";
-import { cn } from "@/lib/app/utils";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { ChefHat, Cookie, Home } from 'lucide-react';
+import Image from 'next/image';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
+import { cn } from '@/lib/app/utils';
 
 export function Header() {
   const pathname = usePathname();
 
   const navItems = [
-    { name: "Home", href: "/", icon: <Home className="h-5 w-5" /> },
-    { name: "Jars", href: "/jars", icon: <Cookie className="h-5 w-5" /> },
-    { name: "Bake", href: "/create", icon: <ChefHat className="h-5 w-5" /> },
+    { name: 'Home', href: '/', icon: <Home className="h-5 w-5" /> },
+    { name: 'Jars', href: '/jars', icon: <Cookie className="h-5 w-5" /> },
+    { name: 'Bake', href: '/create', icon: <ChefHat className="h-5 w-5" /> },
   ];
 
   return (
@@ -44,16 +44,16 @@ export function Header() {
               {navItems.map((item) => {
                 const isActive =
                   pathname === item.href ||
-                  (item.href !== "/" && pathname.startsWith(item.href));
+                  (item.href !== '/' && pathname.startsWith(item.href));
                 return (
                   <Link
                     key={item.name}
                     href={item.href}
                     className={cn(
-                      "flex flex-col items-center justify-center gap-1 w-16 sm:w-20 h-12 sm:h-14 px-1 sm:px-2 py-2 rounded-lg transition-all duration-200",
+                      'flex flex-col items-center justify-center gap-1 w-16 sm:w-20 h-12 sm:h-14 px-1 sm:px-2 py-2 rounded-lg transition-all duration-200',
                       isActive
-                        ? "bg-[hsl(var(--cj-brand-orange))] text-[hsl(var(--cj-warm-white))] shadow-lg transform scale-105"
-                        : "text-[hsl(var(--cj-medium-brown))] hover:bg-[hsl(var(--cj-warm-white))]/10 hover:text-[hsl(var(--cj-dark-brown))] hover:transform hover:scale-105",
+                        ? 'bg-[hsl(var(--cj-brand-orange))] text-[hsl(var(--cj-warm-white))] shadow-lg transform scale-105'
+                        : 'text-[hsl(var(--cj-medium-brown))] hover:bg-[hsl(var(--cj-warm-white))]/10 hover:text-[hsl(var(--cj-dark-brown))] hover:transform hover:scale-105'
                     )}
                   >
                     {item.icon}

@@ -1,18 +1,22 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useAccount, useWriteContract, useWaitForTransactionReceipt } from "wagmi";
-import { useQueryClient } from "@tanstack/react-query";
-import { isAddress } from "viem";
-import { cookieJarAbi } from "@/generated";
-import { useToast } from "../app/useToast";
-import { useSuperfluidFramework } from "../blockchain/useSuperfluidFramework";
+import { useQueryClient } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { isAddress } from 'viem';
+import {
+  useAccount,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+} from 'wagmi';
+import { cookieJarAbi } from '@/generated';
+import { useToast } from '../app/useToast';
+import { useSuperfluidFramework } from '../blockchain/useSuperfluidFramework';
 
 /**
  * Hook for managing Superfluid streaming actions
  */
 export const useStreamingActions = (jarAddress: `0x${string}`) => {
-  const { address } = useAccount();
+  const { address: _address } = useAccount();
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const { data: sf } = useSuperfluidFramework();
@@ -42,73 +46,79 @@ export const useStreamingActions = (jarAddress: `0x${string}`) => {
   } = useWriteContract();
 
   // Transaction receipts
-  const { isLoading: createLoading, isSuccess: createSuccess } = useWaitForTransactionReceipt({
-    hash: createHash,
-  });
+  const { isLoading: createLoading, isSuccess: createSuccess } =
+    useWaitForTransactionReceipt({
+      hash: createHash,
+    });
 
-  const { isLoading: updateLoading, isSuccess: updateSuccess } = useWaitForTransactionReceipt({
-    hash: updateHash,
-  });
+  const { isLoading: updateLoading, isSuccess: updateSuccess } =
+    useWaitForTransactionReceipt({
+      hash: updateHash,
+    });
 
-  const { isLoading: deleteLoading, isSuccess: deleteSuccess } = useWaitForTransactionReceipt({
-    hash: deleteHash,
-  });
+  const { isLoading: deleteLoading, isSuccess: deleteSuccess } =
+    useWaitForTransactionReceipt({
+      hash: deleteHash,
+    });
 
   // Handle success states
   useEffect(() => {
     if (createSuccess) {
       toast({
-        title: "Stream Created",
-        description: "Superfluid stream has been created successfully.",
+        title: 'Stream Created',
+        description: 'Superfluid stream has been created successfully.',
       });
       setIsCreating(false);
-      queryClient.invalidateQueries({ queryKey: ["superfluidStreams", jarAddress] });
+      queryClient.invalidateQueries({
+        queryKey: ['superfluidStreams', jarAddress],
+      });
     }
   }, [createSuccess, toast, queryClient, jarAddress]);
 
   useEffect(() => {
     if (updateSuccess) {
       toast({
-        title: "Stream Updated",
-        description: "Superfluid stream has been updated successfully.",
+        title: 'Stream Updated',
+        description: 'Superfluid stream has been updated successfully.',
       });
       setIsUpdating(false);
-      queryClient.invalidateQueries({ queryKey: ["superfluidStreams", jarAddress] });
+      queryClient.invalidateQueries({
+        queryKey: ['superfluidStreams', jarAddress],
+      });
     }
   }, [updateSuccess, toast, queryClient, jarAddress]);
 
   useEffect(() => {
     if (deleteSuccess) {
       toast({
-        title: "Stream Deleted",
-        description: "Superfluid stream has been deleted successfully.",
+        title: 'Stream Deleted',
+        description: 'Superfluid stream has been deleted successfully.',
       });
       setIsDeleting(false);
-      queryClient.invalidateQueries({ queryKey: ["superfluidStreams", jarAddress] });
+      queryClient.invalidateQueries({
+        queryKey: ['superfluidStreams', jarAddress],
+      });
     }
   }, [deleteSuccess, toast, queryClient, jarAddress]);
 
   /**
    * Create a new Superfluid stream
    */
-  const createSuperStream = async (
-    superToken: string,
-    flowRate: string
-  ) => {
+  const createSuperStream = async (superToken: string, flowRate: string) => {
     if (!isAddress(superToken) || !flowRate) {
       toast({
-        title: "Invalid Input",
-        description: "Please provide valid super token address and flow rate.",
-        variant: "destructive",
+        title: 'Invalid Input',
+        description: 'Please provide valid super token address and flow rate.',
+        variant: 'destructive',
       });
       return;
     }
 
     if (!sf) {
       toast({
-        title: "Superfluid Not Ready",
-        description: "Superfluid framework is not initialized.",
-        variant: "destructive",
+        title: 'Superfluid Not Ready',
+        description: 'Superfluid framework is not initialized.',
+        variant: 'destructive',
       });
       return;
     }
@@ -123,14 +133,14 @@ export const useStreamingActions = (jarAddress: `0x${string}`) => {
       await createStreamWrite({
         address: jarAddress,
         abi: cookieJarAbi,
-        functionName: "createSuperStream",
+        functionName: 'createSuperStream',
         args: [superToken as `0x${string}`, flowRateInt96],
       });
     } catch (error: any) {
       toast({
-        title: "Stream Creation Failed",
-        description: error.message || "Failed to create Superfluid stream.",
-        variant: "destructive",
+        title: 'Stream Creation Failed',
+        description: error.message || 'Failed to create Superfluid stream.',
+        variant: 'destructive',
       });
       setIsCreating(false);
     }
@@ -139,24 +149,21 @@ export const useStreamingActions = (jarAddress: `0x${string}`) => {
   /**
    * Update an existing Superfluid stream
    */
-  const updateSuperStream = async (
-    superToken: string,
-    newFlowRate: string
-  ) => {
+  const updateSuperStream = async (superToken: string, newFlowRate: string) => {
     if (!isAddress(superToken) || !newFlowRate) {
       toast({
-        title: "Invalid Input",
-        description: "Please provide valid super token address and flow rate.",
-        variant: "destructive",
+        title: 'Invalid Input',
+        description: 'Please provide valid super token address and flow rate.',
+        variant: 'destructive',
       });
       return;
     }
 
     if (!sf) {
       toast({
-        title: "Superfluid Not Ready",
-        description: "Superfluid framework is not initialized.",
-        variant: "destructive",
+        title: 'Superfluid Not Ready',
+        description: 'Superfluid framework is not initialized.',
+        variant: 'destructive',
       });
       return;
     }
@@ -170,14 +177,14 @@ export const useStreamingActions = (jarAddress: `0x${string}`) => {
       await updateStreamWrite({
         address: jarAddress,
         abi: cookieJarAbi,
-        functionName: "updateSuperStream",
+        functionName: 'updateSuperStream',
         args: [superToken as `0x${string}`, flowRateInt96],
       });
     } catch (error: any) {
       toast({
-        title: "Stream Update Failed",
-        description: error.message || "Failed to update Superfluid stream.",
-        variant: "destructive",
+        title: 'Stream Update Failed',
+        description: error.message || 'Failed to update Superfluid stream.',
+        variant: 'destructive',
       });
       setIsUpdating(false);
     }
@@ -189,18 +196,18 @@ export const useStreamingActions = (jarAddress: `0x${string}`) => {
   const deleteSuperStream = async (superToken: string) => {
     if (!isAddress(superToken)) {
       toast({
-        title: "Invalid Token",
-        description: "Please provide a valid super token address.",
-        variant: "destructive",
+        title: 'Invalid Token',
+        description: 'Please provide a valid super token address.',
+        variant: 'destructive',
       });
       return;
     }
 
     if (!sf) {
       toast({
-        title: "Superfluid Not Ready",
-        description: "Superfluid framework is not initialized.",
-        variant: "destructive",
+        title: 'Superfluid Not Ready',
+        description: 'Superfluid framework is not initialized.',
+        variant: 'destructive',
       });
       return;
     }
@@ -211,14 +218,14 @@ export const useStreamingActions = (jarAddress: `0x${string}`) => {
       await deleteStreamWrite({
         address: jarAddress,
         abi: cookieJarAbi,
-        functionName: "deleteSuperStream",
+        functionName: 'deleteSuperStream',
         args: [superToken as `0x${string}`],
       });
     } catch (error: any) {
       toast({
-        title: "Stream Deletion Failed",
-        description: error.message || "Failed to delete Superfluid stream.",
-        variant: "destructive",
+        title: 'Stream Deletion Failed',
+        description: error.message || 'Failed to delete Superfluid stream.',
+        variant: 'destructive',
       });
       setIsDeleting(false);
     }

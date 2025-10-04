@@ -1,7 +1,14 @@
 // Note: Using simplified Unlock integration until proper SDK types are available
 // import { Web3Service, SubGraph } from '@unlock-protocol/unlock-js';
-import { createPublicClient, http, Chain } from 'viem';
-import { mainnet, polygon, arbitrum, optimism, gnosis, base } from 'viem/chains';
+import type { Chain } from 'viem';
+import {
+  arbitrum,
+  base,
+  gnosis,
+  mainnet,
+  optimism,
+  polygon,
+} from 'viem/chains';
 import { log } from '@/lib/app/logger';
 
 export interface UnlockLock {
@@ -52,7 +59,7 @@ export interface UnlockSearchResult {
 }
 
 // Supported networks for Unlock Protocol
-const SUPPORTED_CHAINS: { [key: number]: Chain } = {
+const _SUPPORTED_CHAINS: { [key: number]: Chain } = {
   1: mainnet,
   10: optimism,
   100: gnosis,
@@ -76,7 +83,7 @@ export class UnlockProvider {
   static async getLockDetails(lockAddress: string): Promise<UnlockLock | null> {
     try {
       const provider = new UnlockProvider();
-      
+
       const query = `
         query GetLockDetails($lockAddress: String!) {
           locks(where: { address: $lockAddress }) {
@@ -98,14 +105,16 @@ export class UnlockProvider {
         }
       `;
 
-      const data = await provider.executeGraphQLQuery(query, { lockAddress: lockAddress.toLowerCase() });
-      
+      const data = await provider.executeGraphQLQuery(query, {
+        lockAddress: lockAddress.toLowerCase(),
+      });
+
       if (!data?.locks || data.locks.length === 0) {
         return null;
       }
 
       const lock = data.locks[0];
-      
+
       return {
         id: lock.id,
         address: lock.address,
@@ -128,19 +137,6 @@ export class UnlockProvider {
     }
   }
 
-  private getUnlockAddress(chainId: number): string {
-    const addresses: { [key: number]: string } = {
-      1: '0x3d5409CcE1d45233dE1D4eBDEe74b8E004abDD44', // Mainnet
-      10: '0x99b1348a9129ac49c6de7F11245773dE2f51fB0c', // Optimism
-      100: '0x14bb3586Ce2946E71B95Fe00Fc73dd30ed830863', // Gnosis Chain
-      137: '0xE8E5cd156f89F7bdB267EabD5C43Af3d5AF2A78f', // Polygon
-      8453: '0xd0b14797b9D08493BD8e5244c9dad5851D775A9f', // Base
-      42161: '0x54f4cce37c6d49c089e21163febe10a2aa3006a4', // Arbitrum One
-    };
-    
-    return addresses[chainId] || addresses[1];
-  }
-
   private getSubgraphEndpoint(chainId: number): string {
     const endpoints: { [key: number]: string } = {
       1: 'https://api.thegraph.com/subgraphs/name/unlock-protocol/unlock',
@@ -148,13 +144,17 @@ export class UnlockProvider {
       100: 'https://api.thegraph.com/subgraphs/name/unlock-protocol/unlock-xdai',
       137: 'https://api.thegraph.com/subgraphs/name/unlock-protocol/unlock-polygon',
       8453: 'https://api.thegraph.com/subgraphs/name/unlock-protocol/unlock-base',
-      42161: 'https://api.thegraph.com/subgraphs/name/unlock-protocol/unlock-arbitrum',
+      42161:
+        'https://api.thegraph.com/subgraphs/name/unlock-protocol/unlock-arbitrum',
     };
-    
+
     return endpoints[chainId] || endpoints[1];
   }
 
-  private async executeGraphQLQuery(query: string, variables: any = {}): Promise<any> {
+  private async executeGraphQLQuery(
+    query: string,
+    variables: any = {}
+  ): Promise<any> {
     try {
       const response = await fetch(this.subgraphUrl, {
         method: 'POST',
@@ -198,7 +198,7 @@ export class UnlockProvider {
         skip = 0,
         orderBy = 'createdAtBlock',
         orderDirection = 'desc',
-        activeOnly = true
+        activeOnly = true,
       } = options;
 
       const graphqlQuery = `
@@ -244,7 +244,8 @@ export class UnlockProvider {
       // Filter by query text
       const filteredLocks = data.locks.filter((lock: any) => {
         if (!query) return true;
-        const searchText = `${lock.name || ''} ${lock.symbol || ''}`.toLowerCase();
+        const searchText =
+          `${lock.name || ''} ${lock.symbol || ''}`.toLowerCase();
         return searchText.includes(query.toLowerCase());
       });
 
@@ -284,7 +285,8 @@ export class UnlockProvider {
         keys: [],
         totalResults: filteredLocks.length,
         hasNextPage: filteredLocks.length === limit,
-        nextPageParam: filteredLocks.length === limit ? String(skip + limit) : undefined,
+        nextPageParam:
+          filteredLocks.length === limit ? String(skip + limit) : undefined,
       };
     } catch (error) {
       log.error('Error searching Unlock locks', { error, query, options });
@@ -412,7 +414,7 @@ export class UnlockProvider {
 
       // Extract unique locks
       const locksMap = new Map<string, UnlockLock>();
-      formattedKeys.forEach(key => {
+      formattedKeys.forEach((key) => {
         locksMap.set(key.lock.id, key.lock);
       });
 
@@ -421,10 +423,15 @@ export class UnlockProvider {
         keys: formattedKeys,
         totalResults: formattedKeys.length,
         hasNextPage: formattedKeys.length === limit,
-        nextPageParam: formattedKeys.length === limit ? String(skip + limit) : undefined,
+        nextPageParam:
+          formattedKeys.length === limit ? String(skip + limit) : undefined,
       };
     } catch (error) {
-      log.error('Error getting user keys', { error, address, chainId: this.chainId });
+      log.error('Error getting user keys', {
+        error,
+        address,
+        chainId: this.chainId,
+      });
       return {
         locks: [],
         keys: [],
@@ -437,16 +444,25 @@ export class UnlockProvider {
   /**
    * Check if user has a valid key for a specific lock
    */
-  async userHasValidKey(address: string, lockAddress: string): Promise<boolean> {
+  async userHasValidKey(
+    address: string,
+    lockAddress: string
+  ): Promise<boolean> {
     try {
       const userKeys = await this.getUserKeys(address, { limit: 100 });
-      return userKeys.keys.some(key => 
-        key.lock.address.toLowerCase() === lockAddress.toLowerCase() && 
-        !key.cancelled &&
-        parseInt(key.expiration) > Math.floor(Date.now() / 1000)
+      return userKeys.keys.some(
+        (key) =>
+          key.lock.address.toLowerCase() === lockAddress.toLowerCase() &&
+          !key.cancelled &&
+          parseInt(key.expiration, 10) > Math.floor(Date.now() / 1000)
       );
     } catch (error) {
-      log.error('Error checking if user has valid key', { error, address, lockAddress, chainId: this.chainId });
+      log.error('Error checking if user has valid key', {
+        error,
+        address,
+        lockAddress,
+        chainId: this.chainId,
+      });
       return false;
     }
   }
@@ -499,7 +515,8 @@ export class UnlockProvider {
         address: lock.address,
         name: lock.name || 'Unknown Lock',
         symbol: lock.symbol,
-        tokenAddress: lock.tokenAddress || '0x0000000000000000000000000000000000000000',
+        tokenAddress:
+          lock.tokenAddress || '0x0000000000000000000000000000000000000000',
         price: lock.keyPrice || '0',
         expirationDuration: lock.expirationDuration || '0',
         maxNumberOfKeys: lock.maxNumberOfKeys || '0',
@@ -512,7 +529,11 @@ export class UnlockProvider {
         metadata,
       };
     } catch (error) {
-      log.error('Error getting lock', { error, lockAddress, chainId: this.chainId });
+      log.error('Error getting lock', {
+        error,
+        lockAddress,
+        chainId: this.chainId,
+      });
       return null;
     }
   }
@@ -525,12 +546,16 @@ export class UnlockProvider {
       const metadataResponse = await fetch(
         `https://locksmith.unlock-protocol.com/api/key/${lockAddress}/1`
       );
-      
+
       if (metadataResponse.ok) {
         return await metadataResponse.json();
       }
     } catch (error) {
-      log.error('Error fetching lock metadata from locksmith', { error, lockAddress, chainId: this.chainId });
+      log.error('Error fetching lock metadata from locksmith', {
+        error,
+        lockAddress,
+        chainId: this.chainId,
+      });
     }
 
     return null;
@@ -550,7 +575,11 @@ export class UnlockProvider {
 
       return result.locks;
     } catch (error) {
-      log.error('Error getting trending locks', { error, chainId: this.chainId, limit });
+      log.error('Error getting trending locks', {
+        error,
+        chainId: this.chainId,
+        limit,
+      });
       return [];
     }
   }
@@ -576,22 +605,30 @@ export class UnlockProvider {
         skip,
       });
 
-      const filteredLocks = result.locks.filter(lock => {
-        const price = parseFloat(lock.price);
-        const min = parseFloat(minPrice);
-        const max = parseFloat(maxPrice);
-        return price >= min && price <= max;
-      }).slice(0, limit);
+      const filteredLocks = result.locks
+        .filter((lock) => {
+          const price = parseFloat(lock.price);
+          const min = parseFloat(minPrice);
+          const max = parseFloat(maxPrice);
+          return price >= min && price <= max;
+        })
+        .slice(0, limit);
 
       return {
         locks: filteredLocks,
         keys: [],
         totalResults: filteredLocks.length,
         hasNextPage: filteredLocks.length === limit,
-        nextPageParam: filteredLocks.length === limit ? String(skip + limit) : undefined,
+        nextPageParam:
+          filteredLocks.length === limit ? String(skip + limit) : undefined,
       };
     } catch (error) {
-      log.error('Error getting locks by price range', { error, minPrice, maxPrice, chainId: this.chainId });
+      log.error('Error getting locks by price range', {
+        error,
+        minPrice,
+        maxPrice,
+        chainId: this.chainId,
+      });
       return {
         locks: [],
         keys: [],
@@ -607,17 +644,23 @@ export class UnlockProvider {
    */
   async purchaseKey(
     lockAddress: string,
-    keyPrice: string,
+    _keyPrice: string,
     recipient?: string
   ): Promise<string | null> {
-    log.warn('Key purchase requires full web3 integration', { lockAddress, recipient });
+    log.warn('Key purchase requires full web3 integration', {
+      lockAddress,
+      recipient,
+    });
     return null;
   }
 
   /**
    * Get key expiration time
    */
-  async getKeyExpiration(lockAddress: string, tokenId: string): Promise<Date | null> {
+  async getKeyExpiration(
+    lockAddress: string,
+    tokenId: string
+  ): Promise<Date | null> {
     try {
       const graphqlQuery = `
         query GetKeyExpiration($lockAddress: String!, $tokenId: String!) {
@@ -633,11 +676,16 @@ export class UnlockProvider {
       });
 
       if (data?.key?.expiration) {
-        return new Date(parseInt(data.key.expiration) * 1000);
+        return new Date(parseInt(data.key.expiration, 10) * 1000);
       }
       return null;
     } catch (error) {
-      log.error('Error getting key expiration', { error, lockAddress, tokenId, chainId: this.chainId });
+      log.error('Error getting key expiration', {
+        error,
+        lockAddress,
+        tokenId,
+        chainId: this.chainId,
+      });
       return null;
     }
   }
@@ -652,4 +700,5 @@ export const unlockBaseProvider = new UnlockProvider(8453); // Base
 export const unlockGnosisProvider = new UnlockProvider(100); // Gnosis
 
 // Export function to create provider for specific chain
-export const createUnlockProvider = (chainId: number) => new UnlockProvider(chainId);
+export const createUnlockProvider = (chainId: number) =>
+  new UnlockProvider(chainId);

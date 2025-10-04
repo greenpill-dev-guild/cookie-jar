@@ -1,21 +1,21 @@
-"use client";
+'use client';
 
-import { DialogFooter } from "@/components/ui/dialog";
-
-import { Button } from "@/components/ui/button";
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { Loader2 } from 'lucide-react';
+import Image from 'next/image';
+import { memo, useEffect, useState } from 'react';
+import { useAccount, useChainId, useDisconnect, useSignMessage } from 'wagmi';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog";
-import { useToast } from "@/hooks/app/useToast";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
-import { Loader2 } from "lucide-react";
-import { memo, useState, useEffect } from "react";
-import { useAccount, useChainId, useDisconnect, useSignMessage } from "wagmi";
-import { CustomConnectModal } from "./CustomConnectModal";
+} from '@/components/ui/dialog';
+import { useToast } from '@/hooks/app/useToast';
+import { CustomConnectModal } from './CustomConnectModal';
 
 // Terms and conditions message that users will sign
 const TERMS_MESSAGE = `Welcome to Cookie Jar V3!
@@ -30,7 +30,7 @@ By signing this message, you agree to our Terms of Service and Privacy Policy:
 5. You understand that transactions on the blockchain are irreversible
 6. You are responsible for securing your wallet and private keys
 
-Date: ${new Date().toISOString().split("T")[0]}
+Date: ${new Date().toISOString().split('T')[0]}
 `;
 
 export function CustomConnectButton({ className }: { className?: string }) {
@@ -42,7 +42,7 @@ export function CustomConnectButton({ className }: { className?: string }) {
   const [showTerms, setShowTerms] = useState(false);
   const [isSigningTerms, setIsSigningTerms] = useState(false);
   const [hasAcceptedTerms, setHasAcceptedTerms] = useState(false);
-  const { toast } = useToast();
+  const { toast: _toast } = useToast();
 
   // Check if user has already accepted terms (could be stored in localStorage)
   const checkTermsAccepted = () => {
@@ -53,7 +53,7 @@ export function CustomConnectButton({ className }: { className?: string }) {
   // Store that user has accepted terms
   const storeTermsAccepted = () => {
     if (address) {
-      localStorage.setItem(`terms-accepted-${address}`, "true");
+      localStorage.setItem(`terms-accepted-${address}`, 'true');
     }
   };
 
@@ -62,7 +62,7 @@ export function CustomConnectButton({ className }: { className?: string }) {
     if (isConnected && address && !hasAcceptedTerms && !checkTermsAccepted()) {
       setTimeout(() => setShowTerms(true), 500);
     }
-  }, [isConnected, address, hasAcceptedTerms]);
+  }, [isConnected, address, hasAcceptedTerms, checkTermsAccepted]);
 
   // Handle terms acceptance
   const handleAcceptTerms = async () => {
@@ -87,9 +87,9 @@ Nonce: ${nonce}`;
       setHasAcceptedTerms(true);
       setShowTerms(false);
 
-      console.log("User signed terms and conditions", { message, signature });
+      console.log('User signed terms and conditions', { message, signature });
     } catch (error) {
-      console.error("Error during terms signing", error);
+      console.error('Error during terms signing', error);
       // If user rejected the signature, disconnect the wallet
       disconnect();
     } finally {
@@ -115,21 +115,21 @@ Nonce: ${nonce}`;
           authenticationStatus,
           mounted,
         }) => {
-          const ready = mounted && authenticationStatus !== "loading";
+          const ready = mounted && authenticationStatus !== 'loading';
           const connected =
             ready &&
             account &&
             chain &&
-            (!authenticationStatus || authenticationStatus === "authenticated");
+            (!authenticationStatus || authenticationStatus === 'authenticated');
 
           return (
             <div
               {...(!ready && {
-                "aria-hidden": true,
+                'aria-hidden': true,
                 style: {
                   opacity: 0,
-                  pointerEvents: "none",
-                  userSelect: "none",
+                  pointerEvents: 'none',
+                  userSelect: 'none',
                 },
               })}
               className={className}
@@ -174,9 +174,11 @@ Nonce: ${nonce}`;
                       {chain.hasIcon && (
                         <div className="w-4 h-4">
                           {chain.iconUrl && (
-                            <img
-                              alt={chain.name ?? "Chain icon"}
-                              src={chain.iconUrl || "/placeholder.svg"}
+                            <Image
+                              alt={chain.name ?? 'Chain icon'}
+                              src={chain.iconUrl || '/placeholder.svg'}
+                              width={16}
+                              height={16}
                               className="w-4 h-4"
                             />
                           )}
@@ -238,7 +240,7 @@ Nonce: ${nonce}`;
                   Signing...
                 </>
               ) : (
-                "Accept & Sign"
+                'Accept & Sign'
               )}
             </Button>
           </DialogFooter>

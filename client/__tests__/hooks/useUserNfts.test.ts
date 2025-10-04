@@ -1,51 +1,51 @@
 // Test for useUserNFTs hook
-import "@testing-library/jest-dom";
-import type { NFTMetadata, UserNFT, NFTCollection } from "@/hooks/nft/useUserNFTs";
+import '@testing-library/jest-dom';
+import type { NFTCollection, UserNFT } from '@/hooks/nft/useUserNFTs';
 
 // Declare Jest globals for TypeScript
 declare const describe: any;
 declare const it: any;
 declare const expect: any;
 
-describe("useUserNFTs Hook Logic", () => {
+describe('useUserNFTs Hook Logic', () => {
   // Mock Alchemy response
   const mockAlchemyResponse = {
     ownedNfts: [
       {
         contract: {
-          address: "0x1234567890123456789012345678901234567890",
-          name: "Test Collection",
-          symbol: "TEST",
-          tokenType: "ERC721",
+          address: '0x1234567890123456789012345678901234567890',
+          name: 'Test Collection',
+          symbol: 'TEST',
+          tokenType: 'ERC721',
         },
-        tokenId: "1",
+        tokenId: '1',
         metadata: {
-          name: "Test NFT #1",
-          description: "A test NFT",
-          image: "https://example.com/1.png",
-          external_url: "https://example.com",
+          name: 'Test NFT #1',
+          description: 'A test NFT',
+          image: 'https://example.com/1.png',
+          external_url: 'https://example.com',
         },
-        tokenUri: { raw: "https://example.com/metadata/1" },
-        timeLastUpdated: "2024-01-01T00:00:00Z",
+        tokenUri: { raw: 'https://example.com/metadata/1' },
+        timeLastUpdated: '2024-01-01T00:00:00Z',
       },
       {
         contract: {
-          address: "0x1234567890123456789012345678901234567890",
-          name: "Test Collection",
-          symbol: "TEST",
-          tokenType: "ERC721",
+          address: '0x1234567890123456789012345678901234567890',
+          name: 'Test Collection',
+          symbol: 'TEST',
+          tokenType: 'ERC721',
         },
-        tokenId: "2",
+        tokenId: '2',
         metadata: {
-          name: "Test NFT #2",
-          description: "Another test NFT",
-          image: "https://example.com/2.png",
+          name: 'Test NFT #2',
+          description: 'Another test NFT',
+          image: 'https://example.com/2.png',
         },
-        tokenUri: { raw: "https://example.com/metadata/2" },
-        timeLastUpdated: "2024-01-01T00:00:00Z",
+        tokenUri: { raw: 'https://example.com/metadata/2' },
+        timeLastUpdated: '2024-01-01T00:00:00Z',
       },
     ],
-    pageKey: "next-page-key",
+    pageKey: 'next-page-key',
   };
 
   // Helper to map Alchemy response to our format
@@ -57,11 +57,11 @@ describe("useUserNFTs Hook Logic", () => {
           name: nft.contract.name,
           symbol: nft.contract.symbol,
           tokenType:
-            nft.contract.tokenType === "ERC721"
-              ? "ERC721"
-              : nft.contract.tokenType === "ERC1155"
-                ? "ERC1155"
-                : "UNKNOWN",
+            nft.contract.tokenType === 'ERC721'
+              ? 'ERC721'
+              : nft.contract.tokenType === 'ERC1155'
+                ? 'ERC1155'
+                : 'UNKNOWN',
         },
         tokenId: nft.tokenId,
         balance: nft.balance,
@@ -79,43 +79,43 @@ describe("useUserNFTs Hook Logic", () => {
     );
   };
 
-  describe("NFT Data Mapping", () => {
-    it("maps Alchemy response to UserNFT format correctly", () => {
+  describe('NFT Data Mapping', () => {
+    it('maps Alchemy response to UserNFT format correctly', () => {
       const mappedNfts = mapAlchemyToUserNfts(mockAlchemyResponse);
 
       expect(mappedNfts).toHaveLength(2);
       expect(mappedNfts[0]).toEqual({
         contract: {
-          address: "0x1234567890123456789012345678901234567890",
-          name: "Test Collection",
-          symbol: "TEST",
-          tokenType: "ERC721",
+          address: '0x1234567890123456789012345678901234567890',
+          name: 'Test Collection',
+          symbol: 'TEST',
+          tokenType: 'ERC721',
         },
-        tokenId: "1",
+        tokenId: '1',
         balance: undefined,
         metadata: {
-          name: "Test NFT #1",
-          description: "A test NFT",
-          image: "https://example.com/1.png",
-          external_url: "https://example.com",
+          name: 'Test NFT #1',
+          description: 'A test NFT',
+          image: 'https://example.com/1.png',
+          external_url: 'https://example.com',
         },
-        tokenUri: "https://example.com/metadata/1",
-        timeLastUpdated: "2024-01-01T00:00:00Z",
+        tokenUri: 'https://example.com/metadata/1',
+        timeLastUpdated: '2024-01-01T00:00:00Z',
       });
     });
 
-    it("handles missing metadata gracefully", () => {
+    it('handles missing metadata gracefully', () => {
       const responseWithoutMetadata = {
         ownedNfts: [
           {
             contract: {
-              address: "0x1234567890123456789012345678901234567890",
-              name: "Test Collection",
-              symbol: "TEST",
-              tokenType: "ERC721",
+              address: '0x1234567890123456789012345678901234567890',
+              name: 'Test Collection',
+              symbol: 'TEST',
+              tokenType: 'ERC721',
             },
-            tokenId: "1",
-            tokenUri: { raw: "https://example.com/metadata/1" },
+            tokenId: '1',
+            tokenUri: { raw: 'https://example.com/metadata/1' },
           },
         ],
       };
@@ -124,30 +124,30 @@ describe("useUserNFTs Hook Logic", () => {
       expect(mappedNfts[0].metadata).toBeUndefined();
     });
 
-    it("maps token types correctly", () => {
+    it('maps token types correctly', () => {
       const erc1155Response = {
         ownedNfts: [
           {
             contract: {
-              address: "0x1234567890123456789012345678901234567890",
-              name: "Test Collection",
-              symbol: "TEST",
-              tokenType: "ERC1155",
+              address: '0x1234567890123456789012345678901234567890',
+              name: 'Test Collection',
+              symbol: 'TEST',
+              tokenType: 'ERC1155',
             },
-            tokenId: "1",
-            balance: "5",
+            tokenId: '1',
+            balance: '5',
           },
         ],
       };
 
       const mappedNfts = mapAlchemyToUserNfts(erc1155Response);
-      expect(mappedNfts[0].contract.tokenType).toBe("ERC1155");
-      expect(mappedNfts[0].balance).toBe("5");
+      expect(mappedNfts[0].contract.tokenType).toBe('ERC1155');
+      expect(mappedNfts[0].balance).toBe('5');
     });
   });
 
-  describe("Collection Grouping", () => {
-    it("groups NFTs by collection correctly", () => {
+  describe('Collection Grouping', () => {
+    it('groups NFTs by collection correctly', () => {
       const nfts = mapAlchemyToUserNfts(mockAlchemyResponse);
 
       // Create collections map
@@ -164,40 +164,40 @@ describe("useUserNFTs Hook Logic", () => {
             nfts: [],
           });
         }
-        collectionsMap.get(key)!.nfts.push(nft);
+        collectionsMap.get(key)?.nfts.push(nft);
       });
 
       const collections = Array.from(collectionsMap.values());
 
       expect(collections).toHaveLength(1);
       expect(collections[0].nfts).toHaveLength(2);
-      expect(collections[0].name).toBe("Test Collection");
+      expect(collections[0].name).toBe('Test Collection');
       expect(collections[0].contractAddress).toBe(
-        "0x1234567890123456789012345678901234567890",
+        '0x1234567890123456789012345678901234567890'
       );
     });
 
-    it("handles multiple collections", () => {
+    it('handles multiple collections', () => {
       const multiCollectionResponse = {
         ownedNfts: [
           {
             contract: {
-              address: "0x1111111111111111111111111111111111111111",
-              name: "Collection A",
-              symbol: "A",
-              tokenType: "ERC721",
+              address: '0x1111111111111111111111111111111111111111',
+              name: 'Collection A',
+              symbol: 'A',
+              tokenType: 'ERC721',
             },
-            tokenId: "1",
+            tokenId: '1',
           },
           {
             contract: {
-              address: "0x2222222222222222222222222222222222222222",
-              name: "Collection B",
-              symbol: "B",
-              tokenType: "ERC1155",
+              address: '0x2222222222222222222222222222222222222222',
+              name: 'Collection B',
+              symbol: 'B',
+              tokenType: 'ERC1155',
             },
-            tokenId: "1",
-            balance: "3",
+            tokenId: '1',
+            balance: '3',
           },
         ],
       };
@@ -216,7 +216,7 @@ describe("useUserNFTs Hook Logic", () => {
             nfts: [],
           });
         }
-        collectionsMap.get(key)!.nfts.push(nft);
+        collectionsMap.get(key)?.nfts.push(nft);
       });
 
       const collections = Array.from(collectionsMap.values());
@@ -224,10 +224,10 @@ describe("useUserNFTs Hook Logic", () => {
     });
   });
 
-  describe("Search and Filtering", () => {
-    it("filters NFTs by search term correctly", () => {
+  describe('Search and Filtering', () => {
+    it('filters NFTs by search term correctly', () => {
       const nfts = mapAlchemyToUserNfts(mockAlchemyResponse);
-      const searchTerm = "Test NFT #1";
+      const searchTerm = 'Test NFT #1';
 
       const filtered = nfts.filter((nft) => {
         const searchLower = searchTerm.toLowerCase();
@@ -241,113 +241,113 @@ describe("useUserNFTs Hook Logic", () => {
       });
 
       expect(filtered).toHaveLength(1);
-      expect(filtered[0].metadata?.name).toBe("Test NFT #1");
+      expect(filtered[0].metadata?.name).toBe('Test NFT #1');
     });
 
-    it("filters by contract address", () => {
+    it('filters by contract address', () => {
       const nfts = mapAlchemyToUserNfts(mockAlchemyResponse);
-      const contractFilter = "0x1234567890123456789012345678901234567890";
+      const contractFilter = '0x1234567890123456789012345678901234567890';
 
       const filtered = nfts.filter(
         (nft) =>
-          nft.contract.address.toLowerCase() === contractFilter.toLowerCase(),
+          nft.contract.address.toLowerCase() === contractFilter.toLowerCase()
       );
 
       expect(filtered).toHaveLength(2);
     });
 
-    it("filters by token ID", () => {
+    it('filters by token ID', () => {
       const nfts = mapAlchemyToUserNfts(mockAlchemyResponse);
-      const tokenIdFilter = "1";
+      const tokenIdFilter = '1';
 
       const filtered = nfts.filter((nft) => nft.tokenId === tokenIdFilter);
       expect(filtered).toHaveLength(1);
-      expect(filtered[0].tokenId).toBe("1");
+      expect(filtered[0].tokenId).toBe('1');
     });
   });
 
-  describe("Pagination Logic", () => {
-    it("handles pagination key correctly", () => {
+  describe('Pagination Logic', () => {
+    it('handles pagination key correctly', () => {
       const response = mockAlchemyResponse;
       const hasMore = !!response.pageKey;
       expect(hasMore).toBe(true);
     });
 
-    it("handles end of pagination", () => {
+    it('handles end of pagination', () => {
       const endResponse = { ...mockAlchemyResponse, pageKey: undefined };
       const hasMore = !!endResponse.pageKey;
       expect(hasMore).toBe(false);
     });
 
-    it("builds URL parameters correctly", () => {
+    it('builds URL parameters correctly', () => {
       const options = {
-        contractAddresses: ["0x1234567890123456789012345678901234567890"],
+        contractAddresses: ['0x1234567890123456789012345678901234567890'],
         withMetadata: true,
         pageSize: 50,
       };
 
       const params = new URLSearchParams({
-        owner: "0xUserAddress000000000000000000000000000000",
+        owner: '0xUserAddress000000000000000000000000000000',
         withMetadata: options.withMetadata.toString(),
         pageSize: options.pageSize.toString(),
       });
 
       if (options.contractAddresses && options.contractAddresses.length > 0) {
-        params.append("contractAddresses", options.contractAddresses.join(","));
+        params.append('contractAddresses', options.contractAddresses.join(','));
       }
 
-      expect(params.get("withMetadata")).toBe("true");
-      expect(params.get("pageSize")).toBe("50");
-      expect(params.get("contractAddresses")).toBe(
-        "0x1234567890123456789012345678901234567890",
+      expect(params.get('withMetadata')).toBe('true');
+      expect(params.get('pageSize')).toBe('50');
+      expect(params.get('contractAddresses')).toBe(
+        '0x1234567890123456789012345678901234567890'
       );
     });
   });
 
-  describe("Error Handling", () => {
-    it("handles missing wallet connection", () => {
-      const error = "Wallet not connected";
-      expect(error).toBe("Wallet not connected");
+  describe('Error Handling', () => {
+    it('handles missing wallet connection', () => {
+      const error = 'Wallet not connected';
+      expect(error).toBe('Wallet not connected');
     });
 
-    it("handles missing Alchemy API key", () => {
-      const error = "Alchemy API key not configured";
-      expect(error).toBe("Alchemy API key not configured");
+    it('handles missing Alchemy API key', () => {
+      const error = 'Alchemy API key not configured';
+      expect(error).toBe('Alchemy API key not configured');
     });
 
-    it("handles unsupported networks", () => {
-      const error = "Network not supported by Alchemy";
-      expect(error).toBe("Network not supported by Alchemy");
+    it('handles unsupported networks', () => {
+      const error = 'Network not supported by Alchemy';
+      expect(error).toBe('Network not supported by Alchemy');
     });
 
-    it("handles API errors gracefully", () => {
-      const apiError = "Alchemy API error: 429 Too Many Requests";
-      expect(apiError).toContain("Alchemy API error");
+    it('handles API errors gracefully', () => {
+      const apiError = 'Alchemy API error: 429 Too Many Requests';
+      expect(apiError).toContain('Alchemy API error');
     });
   });
 
-  describe("Token Type Mapping", () => {
-    it("maps token types correctly", () => {
+  describe('Token Type Mapping', () => {
+    it('maps token types correctly', () => {
       const mapTokenType = (
-        alchemyType: string,
-      ): "ERC721" | "ERC1155" | "UNKNOWN" => {
+        alchemyType: string
+      ): 'ERC721' | 'ERC1155' | 'UNKNOWN' => {
         switch (alchemyType?.toUpperCase()) {
-          case "ERC721":
-            return "ERC721";
-          case "ERC1155":
-            return "ERC1155";
+          case 'ERC721':
+            return 'ERC721';
+          case 'ERC1155':
+            return 'ERC1155';
           default:
-            return "UNKNOWN";
+            return 'UNKNOWN';
         }
       };
 
-      expect(mapTokenType("ERC721")).toBe("ERC721");
-      expect(mapTokenType("erc721")).toBe("ERC721");
-      expect(mapTokenType("ERC1155")).toBe("ERC1155");
-      expect(mapTokenType("erc1155")).toBe("ERC1155");
-      expect(mapTokenType("UNKNOWN")).toBe("UNKNOWN");
-      expect(mapTokenType("")).toBe("UNKNOWN");
-      expect(mapTokenType(undefined as any)).toBe("UNKNOWN");
+      expect(mapTokenType('ERC721')).toBe('ERC721');
+      expect(mapTokenType('erc721')).toBe('ERC721');
+      expect(mapTokenType('ERC1155')).toBe('ERC1155');
+      expect(mapTokenType('erc1155')).toBe('ERC1155');
+      expect(mapTokenType('UNKNOWN')).toBe('UNKNOWN');
+      expect(mapTokenType('')).toBe('UNKNOWN');
+      expect(mapTokenType(undefined as any)).toBe('UNKNOWN');
     });
   });
 });

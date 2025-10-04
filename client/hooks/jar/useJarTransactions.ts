@@ -1,15 +1,14 @@
-"use client";
+'use client';
 
-import { parseEther, parseUnits } from "viem";
-import { useWriteContract, useChainId } from "wagmi";
-import { useState, useEffect, useCallback } from "react";
-import { cookieJarAbi, useWriteErc20Approve, useWriteCookieJarWithdraw } from "@/generated";
-
-import { cookieJarV1Abi } from "@/lib/blockchain/cookie-jar-v1-abi";
-import { isV2Chain } from "@/config/supported-networks";
-import { ETH_ADDRESS, parseTokenAmount, useTokenInfo } from "@/lib/blockchain/token-utils";
-import { useTransactionWithRetry } from "@/hooks/app/useTransactionWithRetry";
-import { useToast } from "../app/useToast";
+import { useCallback, useEffect, useState } from 'react';
+import { parseEther, parseUnits } from 'viem';
+import { useChainId } from 'wagmi';
+import { isV2Chain } from '@/config/supported-networks';
+import { cookieJarAbi } from '@/generated';
+import { useTransactionWithRetry } from '@/hooks/app/useTransactionWithRetry';
+import { cookieJarV1Abi } from '@/lib/blockchain/cookie-jar-v1-abi';
+import { ETH_ADDRESS, useTokenInfo } from '@/lib/blockchain/token-utils';
+import { useToast } from '../app/useToast';
 
 /**
  * Configuration for jar transactions
@@ -75,30 +74,34 @@ export const useJarTransactions = (
   const { enableRetry = false, maxRetries = 3, retryDelay = 2000 } = options;
 
   // Transaction state
-  const [amount, setAmount] = useState("");
-  const [withdrawAmount, setWithdrawAmount] = useState<string>("");
-  const [withdrawPurpose, setWithdrawPurpose] = useState<string>("");
-  const [gateAddress, setGateAddress] = useState<string>("");
-  const [tokenId, setTokenId] = useState<string>("");
-  const [pendingDepositAmount, setPendingDepositAmount] = useState<bigint>(BigInt(0));
+  const [amount, setAmount] = useState('');
+  const [withdrawAmount, setWithdrawAmount] = useState<string>('');
+  const [withdrawPurpose, setWithdrawPurpose] = useState<string>('');
+  const [gateAddress, setGateAddress] = useState<string>('');
+  const [tokenId, setTokenId] = useState<string>('');
+  const [pendingDepositAmount, setPendingDepositAmount] = useState<bigint>(
+    BigInt(0)
+  );
   const [approvalCompleted, setApprovalCompleted] = useState(false);
 
   // Multi-step transaction tracking
   const [transactionStep, setTransactionStep] = useState<
-    "idle" | "approving" | "depositing" | "withdrawing"
-  >("idle");
+    'idle' | 'approving' | 'depositing' | 'withdrawing'
+  >('idle');
 
   // Version-aware ABI and function selection
   const isV2 = isV2Chain(chainId);
   const abi = isV2 ? cookieJarAbi : cookieJarV1Abi;
   const withdrawAllowlistFunction = isV2
-    ? "withdrawAllowlistMode"
-    : "withdrawWhitelistMode";
+    ? 'withdrawAllowlistMode'
+    : 'withdrawWhitelistMode';
 
   // Get token information
   const isERC20 = !!config?.currency && config.currency !== ETH_ADDRESS;
   const { symbol: tokenSymbol, decimals: tokenDecimals } = useTokenInfo(
-    (isERC20 && config?.currency ? config.currency : ETH_ADDRESS) as `0x${string}`,
+    (isERC20 && config?.currency
+      ? config.currency
+      : ETH_ADDRESS) as `0x${string}`
   );
 
   const tokenDecimalValue = tokenDecimals || 18;
@@ -131,19 +134,23 @@ export const useJarTransactions = (
 
   // Handle approval completion for ERC20 deposits
   useEffect(() => {
-    if (approve.isSuccess && approvalCompleted && transactionStep === "approving") {
-      setTransactionStep("depositing");
+    if (
+      approve.isSuccess &&
+      approvalCompleted &&
+      transactionStep === 'approving'
+    ) {
+      setTransactionStep('depositing');
 
       const executeDeposit = async () => {
         try {
           await depositCurrency.writeContract({
             address: addressString,
             abi,
-            functionName: "depositCurrency",
+            functionName: 'depositCurrency',
             args: [pendingDepositAmount],
           });
-        } catch (error) {
-          setTransactionStep("idle");
+        } catch {
+          setTransactionStep('idle');
           setApprovalCompleted(false);
           setPendingDepositAmount(BigInt(0));
         }
@@ -162,81 +169,84 @@ export const useJarTransactions = (
   ]);
 
   // Deposit submission handler
-  const onSubmit = useCallback(async (value: string) => {
-    if (!config?.currency) return;
+  const onSubmit = useCallback(
+    async (value: string) => {
+      if (!config?.currency) return;
 
-    const amountBigInt = parseUnits(value || "0", tokenDecimalValue);
+      const amountBigInt = parseUnits(value || '0', tokenDecimalValue);
 
-    if (amountBigInt <= 0) {
-      toast({
-        title: "Invalid Amount",
-        description: "Please enter a valid amount greater than 0",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    try {
-      if (config.currency === ETH_ADDRESS) {
-        setTransactionStep("depositing");
-        await depositETH.writeContract({
-          address: addressString,
-          abi,
-          functionName: "depositETH",
-          value: amountBigInt,
+      if (amountBigInt <= 0) {
+        toast({
+          title: 'Invalid Amount',
+          description: 'Please enter a valid amount greater than 0',
+          variant: 'destructive',
         });
-      } else {
-        setTransactionStep("approving");
-        setApprovalCompleted(true);
-        setPendingDepositAmount(amountBigInt);
-
-        await approve.writeContract({
-          address: config.currency as `0x${string}`,
-          abi: [
-            {
-              name: "approve",
-              type: "function",
-              stateMutability: "nonpayable",
-              inputs: [
-                { name: "spender", type: "address" },
-                { name: "amount", type: "uint256" },
-              ],
-              outputs: [{ name: "", type: "bool" }],
-            },
-          ],
-          functionName: "approve",
-          args: [addressString, amountBigInt],
-        });
+        return;
       }
-    } catch (error) {
-      setTransactionStep("idle");
-      setApprovalCompleted(false);
-      setPendingDepositAmount(BigInt(0));
-    }
-  }, [
-    config?.currency,
-    tokenDecimalValue,
-    addressString,
-    abi,
-    depositETH,
-    approve,
-    toast,
-  ]);
+
+      try {
+        if (config.currency === ETH_ADDRESS) {
+          setTransactionStep('depositing');
+          await depositETH.writeContract({
+            address: addressString,
+            abi,
+            functionName: 'depositETH',
+            value: amountBigInt,
+          });
+        } else {
+          setTransactionStep('approving');
+          setApprovalCompleted(true);
+          setPendingDepositAmount(amountBigInt);
+
+          await approve.writeContract({
+            address: config.currency as `0x${string}`,
+            abi: [
+              {
+                name: 'approve',
+                type: 'function',
+                stateMutability: 'nonpayable',
+                inputs: [
+                  { name: 'spender', type: 'address' },
+                  { name: 'amount', type: 'uint256' },
+                ],
+                outputs: [{ name: '', type: 'bool' }],
+              },
+            ],
+            functionName: 'approve',
+            args: [addressString, amountBigInt],
+          });
+        }
+      } catch {
+        setTransactionStep('idle');
+        setApprovalCompleted(false);
+        setPendingDepositAmount(BigInt(0));
+      }
+    },
+    [
+      config?.currency,
+      tokenDecimalValue,
+      addressString,
+      abi,
+      depositETH,
+      approve,
+      toast,
+    ]
+  );
 
   // Allowlist withdrawal handlers
   const handleWithdrawAllowlist = useCallback(async () => {
     if (!config?.contractAddress || !config?.fixedAmount) return;
 
     try {
-      setTransactionStep("withdrawing");
+      setTransactionStep('withdrawing');
       await withdrawAllowlist.writeContract({
         address: config.contractAddress,
         abi,
         functionName: withdrawAllowlistFunction,
         args: [config.fixedAmount, withdrawPurpose],
       });
-    } catch (error) {
-      setTransactionStep("idle");
+    } catch {
+      setTransactionStep('idle');
     }
   }, [
     config?.contractAddress,
@@ -247,126 +257,157 @@ export const useJarTransactions = (
     withdrawPurpose,
   ]);
 
-  const handleWithdrawAllowlistVariable = useCallback(async (variableAmount?: bigint) => {
-    if (!config?.contractAddress) return;
+  const handleWithdrawAllowlistVariable = useCallback(
+    async (variableAmount?: bigint) => {
+      if (!config?.contractAddress) return;
 
-    const amountToWithdraw = variableAmount || (
-      config.currency === ETH_ADDRESS
-        ? parseEther(withdrawAmount || "0")
-        : parseUnits(withdrawAmount || "0", tokenDecimalValue)
-    );
+      const amountToWithdraw =
+        variableAmount ||
+        (config.currency === ETH_ADDRESS
+          ? parseEther(withdrawAmount || '0')
+          : parseUnits(withdrawAmount || '0', tokenDecimalValue));
 
-    try {
-      setTransactionStep("withdrawing");
-      await withdrawAllowlist.writeContract({
-        address: config.contractAddress,
-        abi,
-        functionName: withdrawAllowlistFunction,
-        args: [amountToWithdraw, withdrawPurpose],
-      });
-    } catch (error) {
-      setTransactionStep("idle");
-    }
-  }, [
-    config?.contractAddress,
-    config?.currency,
-    withdrawAmount,
-    tokenDecimalValue,
-    withdrawAllowlist,
-    abi,
-    withdrawAllowlistFunction,
-    withdrawPurpose,
-  ]);
+      try {
+        setTransactionStep('withdrawing');
+        await withdrawAllowlist.writeContract({
+          address: config.contractAddress,
+          abi,
+          functionName: withdrawAllowlistFunction,
+          args: [amountToWithdraw, withdrawPurpose],
+        });
+      } catch {
+        setTransactionStep('idle');
+      }
+    },
+    [
+      config?.contractAddress,
+      config?.currency,
+      withdrawAmount,
+      tokenDecimalValue,
+      withdrawAllowlist,
+      abi,
+      withdrawAllowlistFunction,
+      withdrawPurpose,
+    ]
+  );
 
   // NFT withdrawal handlers
-  const handleWithdrawNFT = useCallback(async (withdrawalAmount?: bigint) => {
-    if (!config?.contractAddress || !gateAddress) return;
+  const handleWithdrawNFT = useCallback(
+    async (withdrawalAmount?: bigint) => {
+      if (!config?.contractAddress || !gateAddress) return;
 
-    const amountToWithdraw = withdrawalAmount || config?.fixedAmount || BigInt(0);
+      const amountToWithdraw =
+        withdrawalAmount || config?.fixedAmount || BigInt(0);
 
-    try {
-      setTransactionStep("withdrawing");
-      await withdrawNFT.writeContract({
-        address: config.contractAddress,
-        abi,
-        functionName: "withdrawNFTMode",
-        args: [amountToWithdraw, withdrawPurpose, gateAddress as `0x${string}`, BigInt(tokenId || "0")],
-      });
-    } catch (error) {
-      setTransactionStep("idle");
-    }
-  }, [
-    config?.contractAddress,
-    config?.fixedAmount,
-    gateAddress,
-    tokenId,
-    withdrawPurpose,
-    withdrawNFT,
-    abi,
-  ]);
+      try {
+        setTransactionStep('withdrawing');
+        await withdrawNFT.writeContract({
+          address: config.contractAddress,
+          abi,
+          functionName: 'withdrawNFTMode',
+          args: [
+            amountToWithdraw,
+            withdrawPurpose,
+            gateAddress as `0x${string}`,
+            BigInt(tokenId || '0'),
+          ],
+        });
+      } catch {
+        setTransactionStep('idle');
+      }
+    },
+    [
+      config?.contractAddress,
+      config?.fixedAmount,
+      gateAddress,
+      tokenId,
+      withdrawPurpose,
+      withdrawNFT,
+      abi,
+    ]
+  );
 
-  const handleWithdrawNFTVariable = useCallback(async (variableAmount?: bigint) => {
-    if (!config?.contractAddress || !gateAddress) return;
+  const handleWithdrawNFTVariable = useCallback(
+    async (variableAmount?: bigint) => {
+      if (!config?.contractAddress || !gateAddress) return;
 
-    const amountToWithdraw = variableAmount || (
-      config?.currency === ETH_ADDRESS
-        ? parseEther(withdrawAmount || "0")
-        : parseUnits(withdrawAmount || "0", tokenDecimalValue)
-    );
+      const amountToWithdraw =
+        variableAmount ||
+        (config?.currency === ETH_ADDRESS
+          ? parseEther(withdrawAmount || '0')
+          : parseUnits(withdrawAmount || '0', tokenDecimalValue));
 
-    try {
-      setTransactionStep("withdrawing");
-      await withdrawNFT.writeContract({
-        address: config.contractAddress,
-        abi,
-        functionName: "withdrawNFTMode",
-        args: [amountToWithdraw, withdrawPurpose, gateAddress as `0x${string}`, BigInt(tokenId || "0")],
-      });
-    } catch (error) {
-      setTransactionStep("idle");
-    }
-  }, [
-    config?.contractAddress,
-    config?.currency,
-    withdrawAmount,
-    tokenDecimalValue,
-    gateAddress,
-    tokenId,
-    withdrawPurpose,
-    withdrawNFT,
-    abi,
-  ]);
+      try {
+        setTransactionStep('withdrawing');
+        await withdrawNFT.writeContract({
+          address: config.contractAddress,
+          abi,
+          functionName: 'withdrawNFTMode',
+          args: [
+            amountToWithdraw,
+            withdrawPurpose,
+            gateAddress as `0x${string}`,
+            BigInt(tokenId || '0'),
+          ],
+        });
+      } catch {
+        setTransactionStep('idle');
+      }
+    },
+    [
+      config?.contractAddress,
+      config?.currency,
+      withdrawAmount,
+      tokenDecimalValue,
+      gateAddress,
+      tokenId,
+      withdrawPurpose,
+      withdrawNFT,
+      abi,
+    ]
+  );
 
   // Handle deposit completion
   useEffect(() => {
     if (depositETH.isSuccess || depositCurrency.isSuccess) {
       toast({
-        title: "Deposit Successful",
+        title: 'Deposit Successful',
         description: `Successfully deposited ${amount} ${tokenSymbol}`,
       });
 
-      setAmount("");
-      setTransactionStep("idle");
+      setAmount('');
+      setTransactionStep('idle');
       setApprovalCompleted(false);
       setPendingDepositAmount(BigInt(0));
     }
-  }, [depositETH.isSuccess, depositCurrency.isSuccess, amount, tokenSymbol, toast]);
+  }, [
+    depositETH.isSuccess,
+    depositCurrency.isSuccess,
+    amount,
+    tokenSymbol,
+    toast,
+  ]);
 
   // Handle withdrawal completion
   useEffect(() => {
     if (withdrawAllowlist.isSuccess || withdrawNFT.isSuccess) {
       toast({
-        title: "Withdrawal Successful",
+        title: 'Withdrawal Successful',
         description: withdrawPurpose
           ? `Successfully withdrew for: ${withdrawPurpose}`
-          : "Successfully withdrew funds",
+          : 'Successfully withdrew funds',
       });
 
-      setWithdrawAmount("");
-      setWithdrawPurpose("");
-      setTransactionStep("idle");
+      setWithdrawAmount('');
+      setWithdrawPurpose('');
+      setTransactionStep('idle');
     }
-  }, [withdrawAllowlist.isSuccess, withdrawNFT.isSuccess, withdrawPurpose, toast]);
+  }, [
+    withdrawAllowlist.isSuccess,
+    withdrawNFT.isSuccess,
+    withdrawPurpose,
+    toast,
+  ]);
 
   // Reset all transactions
   const resetTransactions = useCallback(() => {
@@ -375,18 +416,24 @@ export const useJarTransactions = (
     approve.reset();
     withdrawAllowlist.reset();
     withdrawNFT.reset();
-    setTransactionStep("idle");
+    setTransactionStep('idle');
     setApprovalCompleted(false);
     setPendingDepositAmount(BigInt(0));
   }, [depositETH, depositCurrency, approve, withdrawAllowlist, withdrawNFT]);
 
   // Combined loading states
   const isApprovalPending = approve.isPending || approve.isLoading;
-  const isDepositPending = depositETH.isPending || depositCurrency.isPending ||
-                         depositETH.isLoading || depositCurrency.isLoading ||
-                         transactionStep === "approving";
-  const isWithdrawPending = withdrawAllowlist.isPending || withdrawNFT.isPending ||
-                           withdrawAllowlist.isLoading || withdrawNFT.isLoading;
+  const isDepositPending =
+    depositETH.isPending ||
+    depositCurrency.isPending ||
+    depositETH.isLoading ||
+    depositCurrency.isLoading ||
+    transactionStep === 'approving';
+  const isWithdrawPending =
+    withdrawAllowlist.isPending ||
+    withdrawNFT.isPending ||
+    withdrawAllowlist.isLoading ||
+    withdrawNFT.isLoading;
 
   return {
     // State
@@ -427,8 +474,10 @@ export const useJarTransactions = (
     withdrawNFT,
 
     // Retry capabilities
-    canRetryDeposit: depositETH.retryState.canRetry || depositCurrency.retryState.canRetry,
-    canRetryWithdrawal: withdrawAllowlist.retryState.canRetry || withdrawNFT.retryState.canRetry,
+    canRetryDeposit:
+      depositETH.retryState.canRetry || depositCurrency.retryState.canRetry,
+    canRetryWithdrawal:
+      withdrawAllowlist.retryState.canRetry || withdrawNFT.retryState.canRetry,
     retryDeposit: () => {
       if (depositETH.retryState.canRetry) depositETH.retry();
       if (depositCurrency.retryState.canRetry) depositCurrency.retry();

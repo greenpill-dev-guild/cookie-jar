@@ -1,6 +1,6 @@
-import { isAddress } from "viem";
-import { useState, useEffect } from "react";
-import { useAccount, useReadContract } from "wagmi";
+import { useEffect, useState } from 'react';
+import { isAddress } from 'viem';
+import { useAccount, useReadContract } from 'wagmi';
 
 /**
  * Hypercert claim data structure
@@ -92,13 +92,13 @@ interface UseHypercertsResult {
   /** Function to validate a specific hypercert */
   validateHypercert: (
     contract: string,
-    tokenId: string,
+    tokenId: string
   ) => Promise<HypercertClaim | null>;
   /** Function to check if user has minimum balance */
   checkUserBalance: (
     contract: string,
     tokenId: string,
-    minBalance: string,
+    minBalance: string
   ) => boolean;
   /** Function to refetch all data */
   refetch: () => void;
@@ -108,37 +108,37 @@ interface UseHypercertsResult {
 const ERC1155_ABI = [
   {
     inputs: [
-      { name: "account", type: "address" },
-      { name: "id", type: "uint256" },
+      { name: 'account', type: 'address' },
+      { name: 'id', type: 'uint256' },
     ],
-    name: "balanceOf",
-    outputs: [{ name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
+    name: 'balanceOf',
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
   },
   {
-    inputs: [{ name: "id", type: "uint256" }],
-    name: "totalSupply",
-    outputs: [{ name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
+    inputs: [{ name: 'id', type: 'uint256' }],
+    name: 'totalSupply',
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
   },
   {
-    inputs: [{ name: "id", type: "uint256" }],
-    name: "uri",
-    outputs: [{ name: "", type: "string" }],
-    stateMutability: "view",
-    type: "function",
+    inputs: [{ name: 'id', type: 'uint256' }],
+    name: 'uri',
+    outputs: [{ name: '', type: 'string' }],
+    stateMutability: 'view',
+    type: 'function',
   },
 ] as const;
 
 /**
  * Custom hook for Hypercerts protocol integration
- * 
+ *
  * Provides comprehensive Hypercerts functionality including impact certificate
  * validation, ownership verification, and metadata fetching. Uses ERC-1155
  * standard for balance checking with Hypercerts-specific data structures.
- * 
+ *
  * Features:
  * - Impact certificate validation
  * - Fractional ownership tracking
@@ -146,10 +146,10 @@ const ERC1155_ABI = [
  * - Balance verification for access control
  * - Search functionality for discovering certificates
  * - ERC-1155 compatible balance checking
- * 
+ *
  * @param options - Configuration options for Hypercerts functionality
  * @returns Object with hypercert data, balances, and utility functions
- * 
+ *
  * @example
  * ```tsx
  * const {
@@ -164,9 +164,9 @@ const ERC1155_ABI = [
  *   fetchUserHypercerts: true,
  *   withMetadata: true
  * });
- * 
+ *
  * if (isLoading) return <div>Loading certificates...</div>;
- * 
+ *
  * return (
  *   <div>
  *     {hypercertInfo && (
@@ -184,12 +184,12 @@ const ERC1155_ABI = [
  * ```
  */
 export function useHypercerts(
-  options: UseHypercertsOptions = {},
+  options: UseHypercertsOptions = {}
 ): UseHypercertsResult {
   const { address: userAddress } = useAccount();
   const [userHypercerts, setUserHypercerts] = useState<HypercertClaim[]>([]);
   const [hypercertInfo, setHypercertInfo] = useState<HypercertClaim | null>(
-    null,
+    null
   );
   const [isLoadingHypercerts, setIsLoadingHypercerts] = useState(false);
   const [isLoadingBalance, setIsLoadingBalance] = useState(false);
@@ -211,7 +211,7 @@ export function useHypercerts(
         ? (options.tokenContract as `0x${string}`)
         : undefined,
     abi: ERC1155_ABI,
-    functionName: "balanceOf",
+    functionName: 'balanceOf',
     args:
       userAddress && options.tokenId
         ? [userAddress, BigInt(options.tokenId)]
@@ -228,21 +228,21 @@ export function useHypercerts(
         ? (options.tokenContract as `0x${string}`)
         : undefined,
     abi: ERC1155_ABI,
-    functionName: "totalSupply",
+    functionName: 'totalSupply',
     args: options.tokenId ? [BigInt(options.tokenId)] : undefined,
     query: {
       enabled: !!(options.tokenContract && options.tokenId),
     },
   });
 
-  // Get metadata URI
-  const { data: tokenURI } = useReadContract({
+  // Get metadata URI (not currently used)
+  useReadContract({
     address:
       options.tokenContract && isAddress(options.tokenContract)
         ? (options.tokenContract as `0x${string}`)
         : undefined,
     abi: ERC1155_ABI,
-    functionName: "uri",
+    functionName: 'uri',
     args: options.tokenId ? [BigInt(options.tokenId)] : undefined,
     query: {
       enabled: !!(options.tokenContract && options.tokenId),
@@ -264,51 +264,51 @@ export function useHypercerts(
       // Mock data for demonstration
       const mockHypercerts: HypercertClaim[] = [
         {
-          contract: "0x1234567890123456789012345678901234567890",
-          tokenId: "1",
+          contract: '0x1234567890123456789012345678901234567890',
+          tokenId: '1',
           claim: {
-            claimId: "1",
-            name: "Ocean Cleanup Initiative",
-            description: "Removed 100kg of plastic from ocean",
-            image: "https://example.com/hypercert1.png",
+            claimId: '1',
+            name: 'Ocean Cleanup Initiative',
+            description: 'Removed 100kg of plastic from ocean',
+            image: 'https://example.com/hypercert1.png',
             creator: address,
-            totalSupply: "1000000",
+            totalSupply: '1000000',
             metadata: {
-              work_scope: ["Ocean cleanup", "Environmental restoration"],
-              impact_scope: ["Environmental impact", "Ocean health"],
+              work_scope: ['Ocean cleanup', 'Environmental restoration'],
+              impact_scope: ['Environmental impact', 'Ocean health'],
               work_timeframe: { from: 1640995200, to: 1672531200 }, // 2022
               impact_timeframe: { from: 1640995200, to: 1735689600 }, // 2022-2025
             },
           },
-          balance: "250000",
-          percentage: "25",
+          balance: '250000',
+          percentage: '25',
         },
         {
-          contract: "0x1234567890123456789012345678901234567890",
-          tokenId: "2",
+          contract: '0x1234567890123456789012345678901234567890',
+          tokenId: '2',
           claim: {
-            claimId: "2",
-            name: "Carbon Offset Project",
-            description: "Sequestered 50 tons of CO2 through reforestation",
-            image: "https://example.com/hypercert2.png",
+            claimId: '2',
+            name: 'Carbon Offset Project',
+            description: 'Sequestered 50 tons of CO2 through reforestation',
+            image: 'https://example.com/hypercert2.png',
             creator: address,
-            totalSupply: "500000",
+            totalSupply: '500000',
             metadata: {
-              work_scope: ["Reforestation", "Carbon sequestration"],
-              impact_scope: ["Climate impact", "Carbon reduction"],
+              work_scope: ['Reforestation', 'Carbon sequestration'],
+              impact_scope: ['Climate impact', 'Carbon reduction'],
               work_timeframe: { from: 1640995200, to: 1672531200 },
               impact_timeframe: { from: 1640995200, to: 2020281600 }, // Long-term impact
             },
           },
-          balance: "100000",
-          percentage: "20",
+          balance: '100000',
+          percentage: '20',
         },
       ];
 
       setUserHypercerts(mockHypercerts);
     } catch (error) {
-      console.error("Error fetching user hypercerts:", error);
-      setHypercertsError("Failed to fetch your hypercert collection");
+      console.error('Error fetching user hypercerts:', error);
+      setHypercertsError('Failed to fetch your hypercert collection');
     } finally {
       setIsLoadingHypercerts(false);
     }
@@ -317,10 +317,10 @@ export function useHypercerts(
   // Validate specific hypercert
   const validateHypercert = async (
     contract: string,
-    tokenId: string,
+    tokenId: string
   ): Promise<HypercertClaim | null> => {
-    if (!isAddress(contract) || isNaN(Number(tokenId))) {
-      throw new Error("Invalid contract address or token ID");
+    if (!isAddress(contract) || Number.isNaN(Number(tokenId))) {
+      throw new Error('Invalid contract address or token ID');
     }
 
     setIsLoadingBalance(true);
@@ -336,23 +336,23 @@ export function useHypercerts(
         claim: {
           claimId: tokenId,
           name: `Environmental Impact Certificate #${tokenId}`,
-          description: "Verified environmental impact contribution",
-          image: "https://example.com/hypercert.png",
-          creator: "0x1234567890123456789012345678901234567890",
-          totalSupply: totalSupply?.toString() || "1000000",
+          description: 'Verified environmental impact contribution',
+          image: 'https://example.com/hypercert.png',
+          creator: '0x1234567890123456789012345678901234567890',
+          totalSupply: totalSupply?.toString() || '1000000',
         },
-        balance: userBalance?.toString() || "0",
+        balance: userBalance?.toString() || '0',
         percentage:
           userBalance && totalSupply
             ? ((Number(userBalance) / Number(totalSupply)) * 100).toFixed(2)
-            : "0",
+            : '0',
       };
 
       setHypercertInfo(mockClaim);
       return mockClaim;
     } catch (error) {
-      console.error("Error validating hypercert:", error);
-      setBalanceError("Invalid hypercert or contract not found");
+      console.error('Error validating hypercert:', error);
+      setBalanceError('Invalid hypercert or contract not found');
       setHypercertInfo(null);
       return null;
     } finally {
@@ -368,32 +368,32 @@ export function useHypercerts(
 
       const mockResults: HypercertClaim[] = [
         {
-          contract: "0x1234567890123456789012345678901234567890",
-          tokenId: "1",
+          contract: '0x1234567890123456789012345678901234567890',
+          tokenId: '1',
           claim: {
-            claimId: "1",
+            claimId: '1',
             name: `${query} Impact Certificate`,
-            description: "Verified impact contribution",
-            creator: "0x1234567890123456789012345678901234567890",
-            totalSupply: "1000000",
+            description: 'Verified impact contribution',
+            creator: '0x1234567890123456789012345678901234567890',
+            totalSupply: '1000000',
           },
-          balance: "0",
-          percentage: "0",
+          balance: '0',
+          percentage: '0',
         },
       ];
 
       return mockResults;
     } catch (error) {
-      console.error("Error searching hypercerts:", error);
+      console.error('Error searching hypercerts:', error);
       return [];
     }
   };
 
   // Check if user has sufficient balance
   const checkUserBalance = (
-    contract: string,
-    tokenId: string,
-    minBalance: string,
+    _contract: string,
+    _tokenId: string,
+    minBalance: string
   ): boolean => {
     if (!userBalance || !minBalance) return false;
     return userBalance >= BigInt(minBalance);
@@ -415,19 +415,19 @@ export function useHypercerts(
     if (userAddress && options.fetchUserHypercerts) {
       fetchUserHypercerts(userAddress);
     }
-  }, [userAddress, options.fetchUserHypercerts]);
+  }, [userAddress, options.fetchUserHypercerts, fetchUserHypercerts]);
 
   // Auto-validate specific hypercert when provided
   useEffect(() => {
     if (options.tokenContract && options.tokenId) {
       validateHypercert(options.tokenContract, options.tokenId);
     }
-  }, [options.tokenContract, options.tokenId, userBalance, totalSupply]);
+  }, [options.tokenContract, options.tokenId, validateHypercert]);
 
   // Handle on-chain balance errors
   useEffect(() => {
     if (onChainBalanceError) {
-      setBalanceError("Failed to check hypercert balance");
+      setBalanceError('Failed to check hypercert balance');
     }
   }, [onChainBalanceError]);
 

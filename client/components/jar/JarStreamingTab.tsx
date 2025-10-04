@@ -1,15 +1,15 @@
-"use client";
+'use client';
 
-import type React from "react";
-import { useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Info, Waves, Coins, Settings, AlertTriangle } from "lucide-react";
-import { StreamingPanel } from "./StreamingPanel";
-import { TokenRecoveryPanel } from "./TokenRecoveryPanel";
-import { useJarFeatures } from "@/hooks/jar/useJarVersion";
+import { AlertTriangle, Coins, Info, Settings, Waves } from 'lucide-react';
+import type React from 'react';
+import { useState } from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useJarFeatures } from '@/hooks/jar/useJarVersion';
+import { StreamingPanel } from './StreamingPanel';
+import { TokenRecoveryPanel } from './TokenRecoveryPanel';
 
 interface JarStreamingTabProps {
   jarAddress: `0x${string}`;
@@ -24,12 +24,13 @@ export const JarStreamingTab: React.FC<JarStreamingTabProps> = ({
   jarTokenAddress,
   jarTokenSymbol,
   isAdmin,
-  streamingEnabled
+  streamingEnabled,
 }) => {
-  const [activeTab, setActiveTab] = useState<string>("overview");
-  
+  const [activeTab, setActiveTab] = useState<string>('overview');
+
   // 🆕 VERSION DETECTION: Check if this jar supports v2 features
-  const { streaming, superfluid, multiToken, isLoading } = useJarFeatures(jarAddress);
+  const { streaming, superfluid, multiToken, isLoading } =
+    useJarFeatures(jarAddress);
 
   // Show loading state while detecting version
   if (isLoading) {
@@ -50,11 +51,12 @@ export const JarStreamingTab: React.FC<JarStreamingTabProps> = ({
         <Alert>
           <AlertTriangle className="h-4 w-4" />
           <AlertDescription>
-            This is a v1 Cookie Jar. Streaming and token recovery features are available in v2 jars only.
+            This is a v1 Cookie Jar. Streaming and token recovery features are
+            available in v2 jars only.
             <br />
-            <a 
-              href="https://docs.cookiejar.wtf/migration/v1-to-v2" 
-              target="_blank" 
+            <a
+              href="https://docs.cookiejar.wtf/migration/v1-to-v2"
+              target="_blank"
               rel="noopener noreferrer"
               className="text-[#ff5e14] hover:text-[#e5531b] underline ml-1"
             >
@@ -62,7 +64,7 @@ export const JarStreamingTab: React.FC<JarStreamingTabProps> = ({
             </a>
           </AlertDescription>
         </Alert>
-        
+
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -76,21 +78,27 @@ export const JarStreamingTab: React.FC<JarStreamingTabProps> = ({
                 <Waves className="h-5 w-5 text-blue-500" />
                 <div>
                   <h4 className="font-medium">Real-time Streaming</h4>
-                  <p className="text-sm text-gray-600">Superfluid integration for continuous token streams</p>
+                  <p className="text-sm text-gray-600">
+                    Superfluid integration for continuous token streams
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 border rounded-lg opacity-50">
                 <Coins className="h-5 w-5 text-yellow-500" />
                 <div>
                   <h4 className="font-medium">Multi-token Support</h4>
-                  <p className="text-sm text-gray-600">Automatic token swapping and recovery</p>
+                  <p className="text-sm text-gray-600">
+                    Automatic token swapping and recovery
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-3 p-3 border rounded-lg opacity-50">
                 <Settings className="h-5 w-5 text-gray-500" />
                 <div>
                   <h4 className="font-medium">Advanced Controls</h4>
-                  <p className="text-sm text-gray-600">Enhanced admin tools and stream management</p>
+                  <p className="text-sm text-gray-600">
+                    Enhanced admin tools and stream management
+                  </p>
                 </div>
               </div>
             </div>
@@ -107,7 +115,8 @@ export const JarStreamingTab: React.FC<JarStreamingTabProps> = ({
         <Alert>
           <Info className="h-4 w-4" />
           <AlertDescription>
-            Streaming is currently disabled for this jar. Enable streaming in the jar configuration to accept token streams.
+            Streaming is currently disabled for this jar. Enable streaming in
+            the jar configuration to accept token streams.
           </AlertDescription>
         </Alert>
       )}
@@ -132,15 +141,19 @@ export const JarStreamingTab: React.FC<JarStreamingTabProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">Streaming Status</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Streaming Status
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-2">
-                  <Badge variant={streamingEnabled ? "default" : "secondary"}>
-                    {streamingEnabled ? "Enabled" : "Disabled"}
+                  <Badge variant={streamingEnabled ? 'default' : 'secondary'}>
+                    {streamingEnabled ? 'Enabled' : 'Disabled'}
                   </Badge>
                   <span className="text-sm text-gray-600">
-                    {streamingEnabled ? "Accepting streams" : "Not accepting streams"}
+                    {streamingEnabled
+                      ? 'Accepting streams'
+                      : 'Not accepting streams'}
                   </span>
                 </div>
               </CardContent>
@@ -162,15 +175,17 @@ export const JarStreamingTab: React.FC<JarStreamingTabProps> = ({
 
             <Card>
               <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">Admin Access</CardTitle>
+                <CardTitle className="text-sm font-medium">
+                  Admin Access
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex items-center gap-2">
-                  <Badge variant={isAdmin ? "default" : "secondary"}>
-                    {isAdmin ? "Admin" : "Viewer"}
+                  <Badge variant={isAdmin ? 'default' : 'secondary'}>
+                    {isAdmin ? 'Admin' : 'Viewer'}
                   </Badge>
                   <span className="text-sm text-gray-600">
-                    {isAdmin ? "Full access" : "Read-only"}
+                    {isAdmin ? 'Full access' : 'Read-only'}
                   </span>
                 </div>
               </CardContent>
@@ -189,19 +204,21 @@ export const JarStreamingTab: React.FC<JarStreamingTabProps> = ({
                     Token Streams
                   </h4>
                   <p className="text-sm text-gray-600">
-                    External parties can register continuous token streams to fund this jar. 
-                    Streams flow at a defined rate and must be processed periodically by the admin.
+                    External parties can register continuous token streams to
+                    fund this jar. Streams flow at a defined rate and must be
+                    processed periodically by the admin.
                   </p>
                 </div>
-                
+
                 <div>
                   <h4 className="font-medium mb-2 flex items-center gap-2">
                     <Coins className="h-4 w-4 text-yellow-500" />
                     Token Recovery
                   </h4>
                   <p className="text-sm text-gray-600">
-                    Tokens sent directly to the jar address are held in pending balances. 
-                    ETH is automatically swapped, while other ERC-20 tokens require manual swapping by the admin.
+                    Tokens sent directly to the jar address are held in pending
+                    balances. ETH is automatically swapped, while other ERC-20
+                    tokens require manual swapping by the admin.
                   </p>
                 </div>
               </div>
@@ -209,8 +226,9 @@ export const JarStreamingTab: React.FC<JarStreamingTabProps> = ({
               <Alert>
                 <Info className="h-4 w-4" />
                 <AlertDescription>
-                  All streaming and token recovery operations maintain the jar&apos;s access control. 
-                  Only users with proper NFT/protocol credentials can withdraw the final {jarTokenSymbol} balance.
+                  All streaming and token recovery operations maintain the
+                  jar&apos;s access control. Only users with proper NFT/protocol
+                  credentials can withdraw the final {jarTokenSymbol} balance.
                 </AlertDescription>
               </Alert>
             </CardContent>
@@ -218,10 +236,7 @@ export const JarStreamingTab: React.FC<JarStreamingTabProps> = ({
         </TabsContent>
 
         <TabsContent value="streaming">
-          <StreamingPanel 
-            jarAddress={jarAddress}
-            isAdmin={isAdmin}
-          />
+          <StreamingPanel jarAddress={jarAddress} isAdmin={isAdmin} />
         </TabsContent>
 
         <TabsContent value="recovery">

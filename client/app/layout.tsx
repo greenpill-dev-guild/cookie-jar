@@ -1,27 +1,27 @@
-import type React from "react";
-import { ThemeProvider } from "@/components/app/ThemeProvider";
-import { RainbowKitProviderWrapper } from "@/components/wallet/RainbowKitProviderWrapper";
-import { Toaster } from "@/components/ui/toaster";
-import { PageTransition } from "@/components/app/PageTransition";
-import { Header } from "@/components/app/header";
-import { MobileAppBar } from "@/components/app/MobileAppBar";
-import { NetworkSwitcher } from "@/components/app/NetworkSwitcher";
-import localFont from "next/font/local";
+import localFont from 'next/font/local';
+import type React from 'react';
+import { Header } from '@/components/app/header';
+import { MobileAppBar } from '@/components/app/MobileAppBar';
+import { NetworkSwitcher } from '@/components/app/NetworkSwitcher';
+import { PageTransition } from '@/components/app/PageTransition';
+import { ThemeProvider } from '@/components/app/ThemeProvider';
+import { Toaster } from '@/components/ui/toaster';
+import { RainbowKitProviderWrapper } from '@/components/wallet/RainbowKitProviderWrapper';
 
-import "./loading-animation.css";
-import "./globals.css";
+import './loading-animation.css';
+import './globals.css';
 
 const clashDisplay = localFont({
-  src: "../public/ClashDisplay.ttf",
-  variable: "--font-clash-display",
-  display: "swap", // ⚡ Add font-display: swap for faster rendering
+  src: '../public/ClashDisplay.ttf',
+  variable: '--font-clash-display',
+  display: 'swap', // ⚡ Add font-display: swap for faster rendering
   preload: true, // ⚡ Preload font for better performance
 });
 
 export const metadata = {
-  title: "Cookie Jar V3 | Shared Token Pools",
+  title: 'Cookie Jar V3 | Shared Token Pools',
   description:
-    "A platform for creating and managing shared token pools with customizable access rules",
+    'A platform for creating and managing shared token pools with customizable access rules',
 };
 
 export default function RootLayout({

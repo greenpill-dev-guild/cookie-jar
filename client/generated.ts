@@ -1,9 +1,9 @@
 import {
   createUseReadContract,
-  createUseWriteContract,
   createUseSimulateContract,
   createUseWatchContractEvent,
-} from 'wagmi/codegen'
+  createUseWriteContract,
+} from 'wagmi/codegen';
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CookieJar
@@ -916,7 +916,7 @@ export const cookieJarAbi = [
   { type: 'error', inputs: [], name: 'ZeroAddress' },
   { type: 'error', inputs: [], name: 'ZeroAmount' },
   { type: 'error', inputs: [], name: 'ZeroAmount' },
-] as const
+] as const;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // CookieJarFactory
@@ -1216,7 +1216,7 @@ export const cookieJarFactoryAbi = [
   { type: 'error', inputs: [], name: 'JarNotFound' },
   { type: 'error', inputs: [], name: 'NotAuthorized' },
   { type: 'error', inputs: [], name: 'ZeroAddress' },
-] as const
+] as const;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // erc20
@@ -1317,7 +1317,7 @@ export const erc20Abi = [
     outputs: [{ type: 'bool' }],
     stateMutability: 'nonpayable',
   },
-] as const
+] as const;
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // React
@@ -1328,7 +1328,7 @@ export const erc20Abi = [
  */
 export const useReadCookieJar = /*#__PURE__*/ createUseReadContract({
   abi: cookieJarAbi,
-})
+});
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"ACCESS_TYPE"`
@@ -1336,7 +1336,7 @@ export const useReadCookieJar = /*#__PURE__*/ createUseReadContract({
 export const useReadCookieJarAccessType = /*#__PURE__*/ createUseReadContract({
   abi: cookieJarAbi,
   functionName: 'ACCESS_TYPE',
-})
+});
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"CFA"`
@@ -1344,7 +1344,7 @@ export const useReadCookieJarAccessType = /*#__PURE__*/ createUseReadContract({
 export const useReadCookieJarCfa = /*#__PURE__*/ createUseReadContract({
   abi: cookieJarAbi,
   functionName: 'CFA',
-})
+});
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"CURRENCY"`
@@ -1352,7 +1352,7 @@ export const useReadCookieJarCfa = /*#__PURE__*/ createUseReadContract({
 export const useReadCookieJarCurrency = /*#__PURE__*/ createUseReadContract({
   abi: cookieJarAbi,
   functionName: 'CURRENCY',
-})
+});
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"DEFAULT_ADMIN_ROLE"`
@@ -1361,7 +1361,7 @@ export const useReadCookieJarDefaultAdminRole =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
     functionName: 'DEFAULT_ADMIN_ROLE',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"EMERGENCY_WITHDRAWAL_ENABLED"`
@@ -1370,7 +1370,7 @@ export const useReadCookieJarEmergencyWithdrawalEnabled =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
     functionName: 'EMERGENCY_WITHDRAWAL_ENABLED',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"FEE_PERCENTAGE_ON_DEPOSIT"`
@@ -1379,7 +1379,7 @@ export const useReadCookieJarFeePercentageOnDeposit =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
     functionName: 'FEE_PERCENTAGE_ON_DEPOSIT',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"MAX_WITHDRAWAL_PER_PERIOD"`
@@ -1388,7 +1388,7 @@ export const useReadCookieJarMaxWithdrawalPerPeriod =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
     functionName: 'MAX_WITHDRAWAL_PER_PERIOD',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"MIN_DEPOSIT"`
@@ -1396,7 +1396,7 @@ export const useReadCookieJarMaxWithdrawalPerPeriod =
 export const useReadCookieJarMinDeposit = /*#__PURE__*/ createUseReadContract({
   abi: cookieJarAbi,
   functionName: 'MIN_DEPOSIT',
-})
+});
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"ONE_TIME_WITHDRAWAL"`
@@ -1405,7 +1405,7 @@ export const useReadCookieJarOneTimeWithdrawal =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
     functionName: 'ONE_TIME_WITHDRAWAL',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"STRICT_PURPOSE"`
@@ -1414,7 +1414,7 @@ export const useReadCookieJarStrictPurpose =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
     functionName: 'STRICT_PURPOSE',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"SUPERFLUID_HOST"`
@@ -1423,7 +1423,7 @@ export const useReadCookieJarSuperfluidHost =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
     functionName: 'SUPERFLUID_HOST',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"WITHDRAWAL_OPTION"`
@@ -1432,7 +1432,7 @@ export const useReadCookieJarWithdrawalOption =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
     functionName: 'WITHDRAWAL_OPTION',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"allowlist"`
@@ -1440,7 +1440,7 @@ export const useReadCookieJarWithdrawalOption =
 export const useReadCookieJarAllowlist = /*#__PURE__*/ createUseReadContract({
   abi: cookieJarAbi,
   functionName: 'allowlist',
-})
+});
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"currencyHeldByJar"`
@@ -1449,14 +1449,14 @@ export const useReadCookieJarCurrencyHeldByJar =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
     functionName: 'currencyHeldByJar',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"feeCollector"`
  */
 export const useReadCookieJarFeeCollector = /*#__PURE__*/ createUseReadContract(
-  { abi: cookieJarAbi, functionName: 'feeCollector' },
-)
+  { abi: cookieJarAbi, functionName: 'feeCollector' }
+);
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"fixedAmount"`
@@ -1464,7 +1464,7 @@ export const useReadCookieJarFeeCollector = /*#__PURE__*/ createUseReadContract(
 export const useReadCookieJarFixedAmount = /*#__PURE__*/ createUseReadContract({
   abi: cookieJarAbi,
   functionName: 'fixedAmount',
-})
+});
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"getAccountFlowInfo"`
@@ -1473,14 +1473,14 @@ export const useReadCookieJarGetAccountFlowInfo =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
     functionName: 'getAccountFlowInfo',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"getAllowlist"`
  */
 export const useReadCookieJarGetAllowlist = /*#__PURE__*/ createUseReadContract(
-  { abi: cookieJarAbi, functionName: 'getAllowlist' },
-)
+  { abi: cookieJarAbi, functionName: 'getAllowlist' }
+);
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"getNetFlowRate"`
@@ -1489,7 +1489,7 @@ export const useReadCookieJarGetNetFlowRate =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
     functionName: 'getNetFlowRate',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"getPendingTokenAddresses"`
@@ -1498,14 +1498,14 @@ export const useReadCookieJarGetPendingTokenAddresses =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
     functionName: 'getPendingTokenAddresses',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"getRoleAdmin"`
  */
 export const useReadCookieJarGetRoleAdmin = /*#__PURE__*/ createUseReadContract(
-  { abi: cookieJarAbi, functionName: 'getRoleAdmin' },
-)
+  { abi: cookieJarAbi, functionName: 'getRoleAdmin' }
+);
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"getSuperStreamInfo"`
@@ -1514,7 +1514,7 @@ export const useReadCookieJarGetSuperStreamInfo =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
     functionName: 'getSuperStreamInfo',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"hasRole"`
@@ -1522,7 +1522,7 @@ export const useReadCookieJarGetSuperStreamInfo =
 export const useReadCookieJarHasRole = /*#__PURE__*/ createUseReadContract({
   abi: cookieJarAbi,
   functionName: 'hasRole',
-})
+});
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"lastWithdrawalTime"`
@@ -1531,7 +1531,7 @@ export const useReadCookieJarLastWithdrawalTime =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
     functionName: 'lastWithdrawalTime',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"maxWithdrawal"`
@@ -1540,7 +1540,7 @@ export const useReadCookieJarMaxWithdrawal =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
     functionName: 'maxWithdrawal',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"multiTokenConfig"`
@@ -1549,7 +1549,7 @@ export const useReadCookieJarMultiTokenConfig =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
     functionName: 'multiTokenConfig',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"nftRequirement"`
@@ -1558,7 +1558,7 @@ export const useReadCookieJarNftRequirement =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
     functionName: 'nftRequirement',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"paused"`
@@ -1566,7 +1566,7 @@ export const useReadCookieJarNftRequirement =
 export const useReadCookieJarPaused = /*#__PURE__*/ createUseReadContract({
   abi: cookieJarAbi,
   functionName: 'paused',
-})
+});
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"pendingTokenBalances"`
@@ -1575,14 +1575,14 @@ export const useReadCookieJarPendingTokenBalances =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
     functionName: 'pendingTokenBalances',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"superStreams"`
  */
 export const useReadCookieJarSuperStreams = /*#__PURE__*/ createUseReadContract(
-  { abi: cookieJarAbi, functionName: 'superStreams' },
-)
+  { abi: cookieJarAbi, functionName: 'superStreams' }
+);
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"superTokenFlowRates"`
@@ -1591,7 +1591,7 @@ export const useReadCookieJarSuperTokenFlowRates =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
     functionName: 'superTokenFlowRates',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"supportsInterface"`
@@ -1600,7 +1600,7 @@ export const useReadCookieJarSupportsInterface =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
     functionName: 'supportsInterface',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"totalWithdrawn"`
@@ -1609,7 +1609,7 @@ export const useReadCookieJarTotalWithdrawn =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
     functionName: 'totalWithdrawn',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawalInterval"`
@@ -1618,7 +1618,7 @@ export const useReadCookieJarWithdrawalInterval =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
     functionName: 'withdrawalInterval',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawnInCurrentPeriod"`
@@ -1627,14 +1627,14 @@ export const useReadCookieJarWithdrawnInCurrentPeriod =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
     functionName: 'withdrawnInCurrentPeriod',
-  })
+  });
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__
  */
 export const useWriteCookieJar = /*#__PURE__*/ createUseWriteContract({
   abi: cookieJarAbi,
-})
+});
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"createSuperStream"`
@@ -1643,7 +1643,7 @@ export const useWriteCookieJarCreateSuperStream =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarAbi,
     functionName: 'createSuperStream',
-  })
+  });
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"deleteSuperStream"`
@@ -1652,7 +1652,7 @@ export const useWriteCookieJarDeleteSuperStream =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarAbi,
     functionName: 'deleteSuperStream',
-  })
+  });
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"deposit"`
@@ -1660,7 +1660,7 @@ export const useWriteCookieJarDeleteSuperStream =
 export const useWriteCookieJarDeposit = /*#__PURE__*/ createUseWriteContract({
   abi: cookieJarAbi,
   functionName: 'deposit',
-})
+});
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"emergencyWithdraw"`
@@ -1669,7 +1669,7 @@ export const useWriteCookieJarEmergencyWithdraw =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarAbi,
     functionName: 'emergencyWithdraw',
-  })
+  });
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"grantJarAllowlistRole"`
@@ -1678,7 +1678,7 @@ export const useWriteCookieJarGrantJarAllowlistRole =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarAbi,
     functionName: 'grantJarAllowlistRole',
-  })
+  });
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"grantRole"`
@@ -1686,7 +1686,7 @@ export const useWriteCookieJarGrantJarAllowlistRole =
 export const useWriteCookieJarGrantRole = /*#__PURE__*/ createUseWriteContract({
   abi: cookieJarAbi,
   functionName: 'grantRole',
-})
+});
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"pause"`
@@ -1694,7 +1694,7 @@ export const useWriteCookieJarGrantRole = /*#__PURE__*/ createUseWriteContract({
 export const useWriteCookieJarPause = /*#__PURE__*/ createUseWriteContract({
   abi: cookieJarAbi,
   functionName: 'pause',
-})
+});
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"renounceRole"`
@@ -1703,7 +1703,7 @@ export const useWriteCookieJarRenounceRole =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarAbi,
     functionName: 'renounceRole',
-  })
+  });
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"revokeJarAllowlistRole"`
@@ -1712,14 +1712,14 @@ export const useWriteCookieJarRevokeJarAllowlistRole =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarAbi,
     functionName: 'revokeJarAllowlistRole',
-  })
+  });
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"revokeRole"`
  */
 export const useWriteCookieJarRevokeRole = /*#__PURE__*/ createUseWriteContract(
-  { abi: cookieJarAbi, functionName: 'revokeRole' },
-)
+  { abi: cookieJarAbi, functionName: 'revokeRole' }
+);
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"swapPendingTokens"`
@@ -1728,7 +1728,7 @@ export const useWriteCookieJarSwapPendingTokens =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarAbi,
     functionName: 'swapPendingTokens',
-  })
+  });
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"unpause"`
@@ -1736,7 +1736,7 @@ export const useWriteCookieJarSwapPendingTokens =
 export const useWriteCookieJarUnpause = /*#__PURE__*/ createUseWriteContract({
   abi: cookieJarAbi,
   functionName: 'unpause',
-})
+});
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"updateFeeCollector"`
@@ -1745,7 +1745,7 @@ export const useWriteCookieJarUpdateFeeCollector =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarAbi,
     functionName: 'updateFeeCollector',
-  })
+  });
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"updateFixedWithdrawalAmount"`
@@ -1754,7 +1754,7 @@ export const useWriteCookieJarUpdateFixedWithdrawalAmount =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarAbi,
     functionName: 'updateFixedWithdrawalAmount',
-  })
+  });
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"updateMaxWithdrawalAmount"`
@@ -1763,7 +1763,7 @@ export const useWriteCookieJarUpdateMaxWithdrawalAmount =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarAbi,
     functionName: 'updateMaxWithdrawalAmount',
-  })
+  });
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"updateSuperStream"`
@@ -1772,7 +1772,7 @@ export const useWriteCookieJarUpdateSuperStream =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarAbi,
     functionName: 'updateSuperStream',
-  })
+  });
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"updateWithdrawalInterval"`
@@ -1781,7 +1781,7 @@ export const useWriteCookieJarUpdateWithdrawalInterval =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarAbi,
     functionName: 'updateWithdrawalInterval',
-  })
+  });
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdraw"`
@@ -1789,7 +1789,7 @@ export const useWriteCookieJarUpdateWithdrawalInterval =
 export const useWriteCookieJarWithdraw = /*#__PURE__*/ createUseWriteContract({
   abi: cookieJarAbi,
   functionName: 'withdraw',
-})
+});
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawAllowlistMode"`
@@ -1798,7 +1798,7 @@ export const useWriteCookieJarWithdrawAllowlistMode =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarAbi,
     functionName: 'withdrawAllowlistMode',
-  })
+  });
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawWithErc1155"`
@@ -1807,7 +1807,7 @@ export const useWriteCookieJarWithdrawWithErc1155 =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarAbi,
     functionName: 'withdrawWithErc1155',
-  })
+  });
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawWithErc721"`
@@ -1816,14 +1816,14 @@ export const useWriteCookieJarWithdrawWithErc721 =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarAbi,
     functionName: 'withdrawWithErc721',
-  })
+  });
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__
  */
 export const useSimulateCookieJar = /*#__PURE__*/ createUseSimulateContract({
   abi: cookieJarAbi,
-})
+});
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"createSuperStream"`
@@ -1832,7 +1832,7 @@ export const useSimulateCookieJarCreateSuperStream =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
     functionName: 'createSuperStream',
-  })
+  });
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"deleteSuperStream"`
@@ -1841,7 +1841,7 @@ export const useSimulateCookieJarDeleteSuperStream =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
     functionName: 'deleteSuperStream',
-  })
+  });
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"deposit"`
@@ -1850,7 +1850,7 @@ export const useSimulateCookieJarDeposit =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
     functionName: 'deposit',
-  })
+  });
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"emergencyWithdraw"`
@@ -1859,7 +1859,7 @@ export const useSimulateCookieJarEmergencyWithdraw =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
     functionName: 'emergencyWithdraw',
-  })
+  });
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"grantJarAllowlistRole"`
@@ -1868,7 +1868,7 @@ export const useSimulateCookieJarGrantJarAllowlistRole =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
     functionName: 'grantJarAllowlistRole',
-  })
+  });
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"grantRole"`
@@ -1877,7 +1877,7 @@ export const useSimulateCookieJarGrantRole =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
     functionName: 'grantRole',
-  })
+  });
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"pause"`
@@ -1886,7 +1886,7 @@ export const useSimulateCookieJarPause =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
     functionName: 'pause',
-  })
+  });
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"renounceRole"`
@@ -1895,7 +1895,7 @@ export const useSimulateCookieJarRenounceRole =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
     functionName: 'renounceRole',
-  })
+  });
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"revokeJarAllowlistRole"`
@@ -1904,7 +1904,7 @@ export const useSimulateCookieJarRevokeJarAllowlistRole =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
     functionName: 'revokeJarAllowlistRole',
-  })
+  });
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"revokeRole"`
@@ -1913,7 +1913,7 @@ export const useSimulateCookieJarRevokeRole =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
     functionName: 'revokeRole',
-  })
+  });
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"swapPendingTokens"`
@@ -1922,7 +1922,7 @@ export const useSimulateCookieJarSwapPendingTokens =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
     functionName: 'swapPendingTokens',
-  })
+  });
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"unpause"`
@@ -1931,7 +1931,7 @@ export const useSimulateCookieJarUnpause =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
     functionName: 'unpause',
-  })
+  });
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"updateFeeCollector"`
@@ -1940,7 +1940,7 @@ export const useSimulateCookieJarUpdateFeeCollector =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
     functionName: 'updateFeeCollector',
-  })
+  });
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"updateFixedWithdrawalAmount"`
@@ -1949,7 +1949,7 @@ export const useSimulateCookieJarUpdateFixedWithdrawalAmount =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
     functionName: 'updateFixedWithdrawalAmount',
-  })
+  });
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"updateMaxWithdrawalAmount"`
@@ -1958,7 +1958,7 @@ export const useSimulateCookieJarUpdateMaxWithdrawalAmount =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
     functionName: 'updateMaxWithdrawalAmount',
-  })
+  });
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"updateSuperStream"`
@@ -1967,7 +1967,7 @@ export const useSimulateCookieJarUpdateSuperStream =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
     functionName: 'updateSuperStream',
-  })
+  });
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"updateWithdrawalInterval"`
@@ -1976,7 +1976,7 @@ export const useSimulateCookieJarUpdateWithdrawalInterval =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
     functionName: 'updateWithdrawalInterval',
-  })
+  });
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdraw"`
@@ -1985,7 +1985,7 @@ export const useSimulateCookieJarWithdraw =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
     functionName: 'withdraw',
-  })
+  });
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawAllowlistMode"`
@@ -1994,7 +1994,7 @@ export const useSimulateCookieJarWithdrawAllowlistMode =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
     functionName: 'withdrawAllowlistMode',
-  })
+  });
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawWithErc1155"`
@@ -2003,7 +2003,7 @@ export const useSimulateCookieJarWithdrawWithErc1155 =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
     functionName: 'withdrawWithErc1155',
-  })
+  });
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawWithErc721"`
@@ -2012,14 +2012,14 @@ export const useSimulateCookieJarWithdrawWithErc721 =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
     functionName: 'withdrawWithErc721',
-  })
+  });
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__
  */
 export const useWatchCookieJarEvent = /*#__PURE__*/ createUseWatchContractEvent(
-  { abi: cookieJarAbi },
-)
+  { abi: cookieJarAbi }
+);
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"Deposit"`
@@ -2028,7 +2028,7 @@ export const useWatchCookieJarDepositEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarAbi,
     eventName: 'Deposit',
-  })
+  });
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"EmergencyWithdrawal"`
@@ -2037,7 +2037,7 @@ export const useWatchCookieJarEmergencyWithdrawalEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarAbi,
     eventName: 'EmergencyWithdrawal',
-  })
+  });
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"FeeCollected"`
@@ -2046,7 +2046,7 @@ export const useWatchCookieJarFeeCollectedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarAbi,
     eventName: 'FeeCollected',
-  })
+  });
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"FeeCollectorUpdated"`
@@ -2055,7 +2055,7 @@ export const useWatchCookieJarFeeCollectorUpdatedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarAbi,
     eventName: 'FeeCollectorUpdated',
-  })
+  });
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"ParameterUpdated"`
@@ -2064,7 +2064,7 @@ export const useWatchCookieJarParameterUpdatedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarAbi,
     eventName: 'ParameterUpdated',
-  })
+  });
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"Paused"`
@@ -2073,7 +2073,7 @@ export const useWatchCookieJarPausedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarAbi,
     eventName: 'Paused',
-  })
+  });
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"PausedStateChanged"`
@@ -2082,7 +2082,7 @@ export const useWatchCookieJarPausedStateChangedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarAbi,
     eventName: 'PausedStateChanged',
-  })
+  });
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"PendingTokensRecovered"`
@@ -2091,7 +2091,7 @@ export const useWatchCookieJarPendingTokensRecoveredEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarAbi,
     eventName: 'PendingTokensRecovered',
-  })
+  });
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"RoleAdminChanged"`
@@ -2100,7 +2100,7 @@ export const useWatchCookieJarRoleAdminChangedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarAbi,
     eventName: 'RoleAdminChanged',
-  })
+  });
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"RoleGranted"`
@@ -2109,7 +2109,7 @@ export const useWatchCookieJarRoleGrantedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarAbi,
     eventName: 'RoleGranted',
-  })
+  });
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"RoleRevoked"`
@@ -2118,7 +2118,7 @@ export const useWatchCookieJarRoleRevokedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarAbi,
     eventName: 'RoleRevoked',
-  })
+  });
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"TokenSwapped"`
@@ -2127,7 +2127,7 @@ export const useWatchCookieJarTokenSwappedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarAbi,
     eventName: 'TokenSwapped',
-  })
+  });
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"Unpaused"`
@@ -2136,14 +2136,14 @@ export const useWatchCookieJarUnpausedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarAbi,
     eventName: 'Unpaused',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__
  */
 export const useReadCookieJarFactory = /*#__PURE__*/ createUseReadContract({
   abi: cookieJarFactoryAbi,
-})
+});
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"DEFAULT_FEE_COLLECTOR"`
@@ -2152,7 +2152,7 @@ export const useReadCookieJarFactoryDefaultFeeCollector =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarFactoryAbi,
     functionName: 'DEFAULT_FEE_COLLECTOR',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"DEFAULT_FEE_PERCENTAGE"`
@@ -2161,7 +2161,7 @@ export const useReadCookieJarFactoryDefaultFeePercentage =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarFactoryAbi,
     functionName: 'DEFAULT_FEE_PERCENTAGE',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"MIN_ERC20_DEPOSIT"`
@@ -2170,7 +2170,7 @@ export const useReadCookieJarFactoryMinErc20Deposit =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarFactoryAbi,
     functionName: 'MIN_ERC20_DEPOSIT',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"MIN_ETH_DEPOSIT"`
@@ -2179,14 +2179,14 @@ export const useReadCookieJarFactoryMinEthDeposit =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarFactoryAbi,
     functionName: 'MIN_ETH_DEPOSIT',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"OWNER"`
  */
 export const useReadCookieJarFactoryOwner = /*#__PURE__*/ createUseReadContract(
-  { abi: cookieJarFactoryAbi, functionName: 'OWNER' },
-)
+  { abi: cookieJarFactoryAbi, functionName: 'OWNER' }
+);
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"admins"`
@@ -2195,7 +2195,7 @@ export const useReadCookieJarFactoryAdmins =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarFactoryAbi,
     functionName: 'admins',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"cookieJars"`
@@ -2204,7 +2204,7 @@ export const useReadCookieJarFactoryCookieJars =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarFactoryAbi,
     functionName: 'cookieJars',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"getAllJars"`
@@ -2213,7 +2213,7 @@ export const useReadCookieJarFactoryGetAllJars =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarFactoryAbi,
     functionName: 'getAllJars',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"getJarCount"`
@@ -2222,7 +2222,7 @@ export const useReadCookieJarFactoryGetJarCount =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarFactoryAbi,
     functionName: 'getJarCount',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"getJarInfo"`
@@ -2231,7 +2231,7 @@ export const useReadCookieJarFactoryGetJarInfo =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarFactoryAbi,
     functionName: 'getJarInfo',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"getMetadata"`
@@ -2240,7 +2240,7 @@ export const useReadCookieJarFactoryGetMetadata =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarFactoryAbi,
     functionName: 'getMetadata',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"jarInfo"`
@@ -2249,14 +2249,14 @@ export const useReadCookieJarFactoryJarInfo =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarFactoryAbi,
     functionName: 'jarInfo',
-  })
+  });
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__
  */
 export const useWriteCookieJarFactory = /*#__PURE__*/ createUseWriteContract({
   abi: cookieJarFactoryAbi,
-})
+});
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"createCookieJar"`
@@ -2265,7 +2265,7 @@ export const useWriteCookieJarFactoryCreateCookieJar =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarFactoryAbi,
     functionName: 'createCookieJar',
-  })
+  });
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"setAdmin"`
@@ -2274,7 +2274,7 @@ export const useWriteCookieJarFactorySetAdmin =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarFactoryAbi,
     functionName: 'setAdmin',
-  })
+  });
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"updateMetadata"`
@@ -2283,13 +2283,13 @@ export const useWriteCookieJarFactoryUpdateMetadata =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarFactoryAbi,
     functionName: 'updateMetadata',
-  })
+  });
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__
  */
 export const useSimulateCookieJarFactory =
-  /*#__PURE__*/ createUseSimulateContract({ abi: cookieJarFactoryAbi })
+  /*#__PURE__*/ createUseSimulateContract({ abi: cookieJarFactoryAbi });
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"createCookieJar"`
@@ -2298,7 +2298,7 @@ export const useSimulateCookieJarFactoryCreateCookieJar =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarFactoryAbi,
     functionName: 'createCookieJar',
-  })
+  });
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"setAdmin"`
@@ -2307,7 +2307,7 @@ export const useSimulateCookieJarFactorySetAdmin =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarFactoryAbi,
     functionName: 'setAdmin',
-  })
+  });
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"updateMetadata"`
@@ -2316,13 +2316,13 @@ export const useSimulateCookieJarFactoryUpdateMetadata =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarFactoryAbi,
     functionName: 'updateMetadata',
-  })
+  });
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarFactoryAbi}__
  */
 export const useWatchCookieJarFactoryEvent =
-  /*#__PURE__*/ createUseWatchContractEvent({ abi: cookieJarFactoryAbi })
+  /*#__PURE__*/ createUseWatchContractEvent({ abi: cookieJarFactoryAbi });
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `eventName` set to `"AdminUpdated"`
@@ -2331,7 +2331,7 @@ export const useWatchCookieJarFactoryAdminUpdatedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarFactoryAbi,
     eventName: 'AdminUpdated',
-  })
+  });
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `eventName` set to `"JarCreated"`
@@ -2340,7 +2340,7 @@ export const useWatchCookieJarFactoryJarCreatedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarFactoryAbi,
     eventName: 'JarCreated',
-  })
+  });
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `eventName` set to `"MetadataUpdated"`
@@ -2349,14 +2349,14 @@ export const useWatchCookieJarFactoryMetadataUpdatedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarFactoryAbi,
     eventName: 'MetadataUpdated',
-  })
+  });
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc20Abi}__
  */
 export const useReadErc20 = /*#__PURE__*/ createUseReadContract({
   abi: erc20Abi,
-})
+});
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc20Abi}__ and `functionName` set to `"allowance"`
@@ -2364,7 +2364,7 @@ export const useReadErc20 = /*#__PURE__*/ createUseReadContract({
 export const useReadErc20Allowance = /*#__PURE__*/ createUseReadContract({
   abi: erc20Abi,
   functionName: 'allowance',
-})
+});
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc20Abi}__ and `functionName` set to `"balanceOf"`
@@ -2372,7 +2372,7 @@ export const useReadErc20Allowance = /*#__PURE__*/ createUseReadContract({
 export const useReadErc20BalanceOf = /*#__PURE__*/ createUseReadContract({
   abi: erc20Abi,
   functionName: 'balanceOf',
-})
+});
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc20Abi}__ and `functionName` set to `"decimals"`
@@ -2380,7 +2380,7 @@ export const useReadErc20BalanceOf = /*#__PURE__*/ createUseReadContract({
 export const useReadErc20Decimals = /*#__PURE__*/ createUseReadContract({
   abi: erc20Abi,
   functionName: 'decimals',
-})
+});
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc20Abi}__ and `functionName` set to `"name"`
@@ -2388,7 +2388,7 @@ export const useReadErc20Decimals = /*#__PURE__*/ createUseReadContract({
 export const useReadErc20Name = /*#__PURE__*/ createUseReadContract({
   abi: erc20Abi,
   functionName: 'name',
-})
+});
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc20Abi}__ and `functionName` set to `"symbol"`
@@ -2396,7 +2396,7 @@ export const useReadErc20Name = /*#__PURE__*/ createUseReadContract({
 export const useReadErc20Symbol = /*#__PURE__*/ createUseReadContract({
   abi: erc20Abi,
   functionName: 'symbol',
-})
+});
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link erc20Abi}__ and `functionName` set to `"totalSupply"`
@@ -2404,14 +2404,14 @@ export const useReadErc20Symbol = /*#__PURE__*/ createUseReadContract({
 export const useReadErc20TotalSupply = /*#__PURE__*/ createUseReadContract({
   abi: erc20Abi,
   functionName: 'totalSupply',
-})
+});
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link erc20Abi}__
  */
 export const useWriteErc20 = /*#__PURE__*/ createUseWriteContract({
   abi: erc20Abi,
-})
+});
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link erc20Abi}__ and `functionName` set to `"approve"`
@@ -2419,7 +2419,7 @@ export const useWriteErc20 = /*#__PURE__*/ createUseWriteContract({
 export const useWriteErc20Approve = /*#__PURE__*/ createUseWriteContract({
   abi: erc20Abi,
   functionName: 'approve',
-})
+});
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link erc20Abi}__ and `functionName` set to `"transfer"`
@@ -2427,7 +2427,7 @@ export const useWriteErc20Approve = /*#__PURE__*/ createUseWriteContract({
 export const useWriteErc20Transfer = /*#__PURE__*/ createUseWriteContract({
   abi: erc20Abi,
   functionName: 'transfer',
-})
+});
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link erc20Abi}__ and `functionName` set to `"transferFrom"`
@@ -2435,14 +2435,14 @@ export const useWriteErc20Transfer = /*#__PURE__*/ createUseWriteContract({
 export const useWriteErc20TransferFrom = /*#__PURE__*/ createUseWriteContract({
   abi: erc20Abi,
   functionName: 'transferFrom',
-})
+});
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link erc20Abi}__
  */
 export const useSimulateErc20 = /*#__PURE__*/ createUseSimulateContract({
   abi: erc20Abi,
-})
+});
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link erc20Abi}__ and `functionName` set to `"approve"`
@@ -2450,14 +2450,14 @@ export const useSimulateErc20 = /*#__PURE__*/ createUseSimulateContract({
 export const useSimulateErc20Approve = /*#__PURE__*/ createUseSimulateContract({
   abi: erc20Abi,
   functionName: 'approve',
-})
+});
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link erc20Abi}__ and `functionName` set to `"transfer"`
  */
 export const useSimulateErc20Transfer = /*#__PURE__*/ createUseSimulateContract(
-  { abi: erc20Abi, functionName: 'transfer' },
-)
+  { abi: erc20Abi, functionName: 'transfer' }
+);
 
 /**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link erc20Abi}__ and `functionName` set to `"transferFrom"`
@@ -2466,14 +2466,14 @@ export const useSimulateErc20TransferFrom =
   /*#__PURE__*/ createUseSimulateContract({
     abi: erc20Abi,
     functionName: 'transferFrom',
-  })
+  });
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link erc20Abi}__
  */
 export const useWatchErc20Event = /*#__PURE__*/ createUseWatchContractEvent({
   abi: erc20Abi,
-})
+});
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link erc20Abi}__ and `eventName` set to `"Approval"`
@@ -2482,7 +2482,7 @@ export const useWatchErc20ApprovalEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: erc20Abi,
     eventName: 'Approval',
-  })
+  });
 
 /**
  * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link erc20Abi}__ and `eventName` set to `"Transfer"`
@@ -2491,4 +2491,4 @@ export const useWatchErc20TransferEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: erc20Abi,
     eventName: 'Transfer',
-  })
+  });

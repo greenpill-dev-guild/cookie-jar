@@ -1,47 +1,51 @@
-"use client";
+'use client';
 
-import type React from "react";
-import { useState, useEffect } from "react";
-import { useNavigateToTop } from "@/hooks/app/useNavigateToTop";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { keccak256, toHex } from "viem";
-import { ETH_ADDRESS, parseTokenAmount, useTokenInfo } from "@/lib/blockchain/token-utils";
-import { log } from "@/lib/app/logger";
-import {
-  useReadCookieJarHasRole,
-  useWriteCookieJarEmergencyWithdraw,
-} from "../../generated";
+import { AlertCircle, AlertTriangle, UserPlus } from 'lucide-react';
+import type React from 'react';
+import { useEffect, useState } from 'react';
+import { keccak256, toHex } from 'viem';
+import { useAccount, useChainId } from 'wagmi';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
   CardDescription,
+  CardFooter,
   CardHeader,
   CardTitle,
-  CardFooter,
-} from "@/components/ui/card";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { AlertCircle, UserPlus, AlertTriangle } from "lucide-react";
-import { useToast } from "@/hooks/app/useToast";
-import { useAccount, useChainId } from "wagmi";
-import { getNativeCurrency } from "@/config/supported-networks";
-import { AllowlistManagement } from "./AllowListManagement";
+} from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { getNativeCurrency } from '@/config/supported-networks';
+import { useNavigateToTop } from '@/hooks/app/useNavigateToTop';
+import { useToast } from '@/hooks/app/useToast';
+import { log } from '@/lib/app/logger';
+import {
+  ETH_ADDRESS,
+  parseTokenAmount,
+  useTokenInfo,
+} from '@/lib/blockchain/token-utils';
+import {
+  useReadCookieJarHasRole,
+  useWriteCookieJarEmergencyWithdraw,
+} from '../../generated';
+import { AllowlistManagement } from './AllowListManagement';
 
 interface AdminFunctionsProps {
   address: `0x${string}`;
 }
 
 // Hash the JAR_OWNER role
-const JAR_OWNER_ROLE = keccak256(toHex("JAR_OWNER")) as `0x${string}`;
+const JAR_OWNER_ROLE = keccak256(toHex('JAR_OWNER')) as `0x${string}`;
 
 export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
   const chainId = useChainId();
   const nativeCurrency = getNativeCurrency(chainId);
   const { scrollToTop } = useNavigateToTop();
-  const [withdrawalAmount, setWithdrawalAmount] = useState("");
-  const [tokenAddress, setTokenAddress] = useState("");
+  const [withdrawalAmount, setWithdrawalAmount] = useState('');
+  const [tokenAddress, setTokenAddress] = useState('');
   const [tokenToWithdraw, setTokenToWithdraw] = useState<`0x${string}`>(
-    ETH_ADDRESS as `0x${string}`,
+    ETH_ADDRESS as `0x${string}`
   );
 
   // Update emergency tokenToWithdraw when tokenAddress changes
@@ -64,7 +68,7 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
     args: [
       JAR_OWNER_ROLE,
       currentUserAddress ||
-        ("0x0000000000000000000000000000000000000000" as `0x${string}`),
+        ('0x0000000000000000000000000000000000000000' as `0x${string}`),
     ],
   });
 
@@ -78,8 +82,8 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
   useEffect(() => {
     if (isEmergencyWithdrawSuccess) {
       toast({
-        title: "Emergency Withdrawal Complete",
-        description: "Funds have been successfully withdrawn.",
+        title: 'Emergency Withdrawal Complete',
+        description: 'Funds have been successfully withdrawn.',
       });
     }
   }, [isEmergencyWithdrawSuccess, toast]);
@@ -87,7 +91,7 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
   // Emergency withdraw function
   const handleEmergencyWithdraw = () => {
     if (!withdrawalAmount) return;
-    log.info("Emergency withdrawal amount", { withdrawalAmount });
+    log.info('Emergency withdrawal amount', { withdrawalAmount });
 
     try {
       const parsedAmount = parseTokenAmount(withdrawalAmount, decimals);
@@ -98,15 +102,15 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
       });
 
       toast({
-        title: "Emergency Withdraw Initiated",
-        description: `Attempting to withdraw ${withdrawalAmount} ${symbol || (tokenToWithdraw === ETH_ADDRESS ? "ETH" : "tokens")}.`,
+        title: 'Emergency Withdraw Initiated',
+        description: `Attempting to withdraw ${withdrawalAmount} ${symbol || (tokenToWithdraw === ETH_ADDRESS ? 'ETH' : 'tokens')}.`,
       });
     } catch (error) {
-      log.error("Emergency withdrawal error", { error });
+      log.error('Emergency withdrawal error', { error });
       toast({
-        title: "Emergency Withdraw Failed",
-        description: `Error: ${error instanceof Error ? error.message : "Unknown error"}`,
-        variant: "destructive",
+        title: 'Emergency Withdraw Failed',
+        description: `Error: ${error instanceof Error ? error.message : 'Unknown error'}`,
+        variant: 'destructive',
       });
     }
   };

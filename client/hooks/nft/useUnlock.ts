@@ -1,7 +1,7 @@
-import { isAddress } from "viem";
-import { useAccount, useChainId } from "wagmi";
-import { useState, useEffect, useMemo } from "react";
-import { Web3Service } from "@unlock-protocol/unlock-js";
+import { Web3Service } from '@unlock-protocol/unlock-js';
+import { useEffect, useMemo, useState } from 'react';
+import { isAddress } from 'viem';
+import { useAccount, useChainId } from 'wagmi';
 
 /**
  * Lock information from Unlock Protocol
@@ -88,98 +88,98 @@ interface useUnlockResult {
 }
 
 // Minimal ABI for Unlock Protocol PublicLock contract
-const PUBLIC_LOCK_ABI = [
+const _PUBLIC_LOCK_ABI = [
   {
-    inputs: [{ name: "_user", type: "address" }],
-    name: "getHasValidKey",
-    outputs: [{ name: "", type: "bool" }],
-    stateMutability: "view",
-    type: "function",
+    inputs: [{ name: '_user', type: 'address' }],
+    name: 'getHasValidKey',
+    outputs: [{ name: '', type: 'bool' }],
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "name",
-    outputs: [{ name: "", type: "string" }],
-    stateMutability: "view",
-    type: "function",
+    name: 'name',
+    outputs: [{ name: '', type: 'string' }],
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "symbol",
-    outputs: [{ name: "", type: "string" }],
-    stateMutability: "view",
-    type: "function",
+    name: 'symbol',
+    outputs: [{ name: '', type: 'string' }],
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "keyPrice",
-    outputs: [{ name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
+    name: 'keyPrice',
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "maxNumberOfKeys",
-    outputs: [{ name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
+    name: 'maxNumberOfKeys',
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "totalSupply",
-    outputs: [{ name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
+    name: 'totalSupply',
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
   },
   {
     inputs: [],
-    name: "expirationDuration",
-    outputs: [{ name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
+    name: 'expirationDuration',
+    outputs: [{ name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
   },
 ] as const;
 
 // Unlock Protocol contract addresses per network
 const UNLOCK_ADDRESSES: Record<number, string> = {
-  1: "0x3d5409CcE1d45233dE1D4eBDEe74b8E004abDD44", // Ethereum Mainnet
-  10: "0x99b1348a9129ac49c6de7F11245773dE2f51fB0c", // Optimism
-  100: "0x14bb3586Ce2946E71B95Fe00Fc73dd30ed830863", // Gnosis Chain
-  8453: "0xd0b14797b9D08493BD8D5DdB5d75A825f5c40C82", // Base
-  42161: "0xeC83f7Ba8E6c55de8B8F704c63C7e6cEe8f61fca", // Arbitrum
-  137: "0xE8E5cd156f89F7bdB267EabD5C43Af3d5AF2A78f", // Polygon
-  11155111: "0x627118a4fB747016911e5cDA82e2E77C531e8206", // Sepolia
+  1: '0x3d5409CcE1d45233dE1D4eBDEe74b8E004abDD44', // Ethereum Mainnet
+  10: '0x99b1348a9129ac49c6de7F11245773dE2f51fB0c', // Optimism
+  100: '0x14bb3586Ce2946E71B95Fe00Fc73dd30ed830863', // Gnosis Chain
+  8453: '0xd0b14797b9D08493BD8D5DdB5d75A825f5c40C82', // Base
+  42161: '0xeC83f7Ba8E6c55de8B8F704c63C7e6cEe8f61fca', // Arbitrum
+  137: '0xE8E5cd156f89F7bdB267EabD5C43Af3d5AF2A78f', // Polygon
+  11155111: '0x627118a4fB747016911e5cDA82e2E77C531e8206', // Sepolia
 };
 
 // Get RPC URL for chain - simplified for now, would use from config in real app
 const getRPCUrl = (chainId: number): string => {
   switch (chainId) {
     case 1:
-      return process.env.NEXT_PUBLIC_ETHEREUM_RPC_URL || "https://eth.drpc.org";
+      return process.env.NEXT_PUBLIC_ETHEREUM_RPC_URL || 'https://eth.drpc.org';
     case 10:
       return (
-        process.env.NEXT_PUBLIC_OPTIMISM_RPC_URL || "https://optimism.drpc.org"
+        process.env.NEXT_PUBLIC_OPTIMISM_RPC_URL || 'https://optimism.drpc.org'
       );
     case 100:
       return (
-        process.env.NEXT_PUBLIC_GNOSIS_RPC_URL || "https://gnosis.drpc.org"
+        process.env.NEXT_PUBLIC_GNOSIS_RPC_URL || 'https://gnosis.drpc.org'
       );
     case 8453:
-      return process.env.NEXT_PUBLIC_BASE_RPC_URL || "https://base.drpc.org";
+      return process.env.NEXT_PUBLIC_BASE_RPC_URL || 'https://base.drpc.org';
     case 42161:
       return (
-        process.env.NEXT_PUBLIC_ARBITRUM_RPC_URL || "https://arbitrum.drpc.org"
+        process.env.NEXT_PUBLIC_ARBITRUM_RPC_URL || 'https://arbitrum.drpc.org'
       );
     case 137:
       return (
-        process.env.NEXT_PUBLIC_POLYGON_RPC_URL || "https://polygon.drpc.org"
+        process.env.NEXT_PUBLIC_POLYGON_RPC_URL || 'https://polygon.drpc.org'
       );
     case 11155111:
       return (
-        process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL || "https://sepolia.drpc.org"
+        process.env.NEXT_PUBLIC_SEPOLIA_RPC_URL || 'https://sepolia.drpc.org'
       );
     default:
-      return "https://eth.drpc.org"; // Fallback to Ethereum
+      return 'https://eth.drpc.org'; // Fallback to Ethereum
   }
 };
 
@@ -187,31 +187,31 @@ const getRPCUrl = (chainId: number): string => {
 const getNetworkName = (chainId: number): string => {
   switch (chainId) {
     case 1:
-      return "mainnet";
+      return 'mainnet';
     case 10:
-      return "optimism";
+      return 'optimism';
     case 100:
-      return "gnosis";
+      return 'gnosis';
     case 8453:
-      return "base";
+      return 'base';
     case 42161:
-      return "arbitrum";
+      return 'arbitrum';
     case 137:
-      return "polygon";
+      return 'polygon';
     case 11155111:
-      return "sepolia";
+      return 'sepolia';
     default:
-      return "mainnet";
+      return 'mainnet';
   }
 };
 
 /**
  * Custom hook for Unlock Protocol integration
- * 
+ *
  * Provides comprehensive Unlock Protocol functionality including lock validation,
  * key ownership verification, and membership status checking. Uses the official
  * Unlock Protocol SDK for reliable cross-network support.
- * 
+ *
  * Features:
  * - Multi-network lock support
  * - Real-time key validity checking
@@ -219,10 +219,10 @@ const getNetworkName = (chainId: number): string => {
  * - Membership verification
  * - Automatic key expiration tracking
  * - SDK-powered data fetching
- * 
+ *
  * @param options - Configuration options for Unlock functionality
  * @returns Object with lock data, key status, and utility functions
- * 
+ *
  * @example
  * ```tsx
  * const {
@@ -236,9 +236,9 @@ const getNetworkName = (chainId: number): string => {
  *   fetchUserKeys: true,
  *   checkValidity: true
  * });
- * 
+ *
  * if (isLoading) return <div>Checking membership...</div>;
- * 
+ *
  * return (
  *   <div>
  *     {lockInfo && <h2>{lockInfo.name}</h2>}
@@ -254,9 +254,7 @@ const getNetworkName = (chainId: number): string => {
  * );
  * ```
  */
-export function useUnlock(
-  options: useUnlockOptions = {},
-): useUnlockResult {
+export function useUnlock(options: useUnlockOptions = {}): useUnlockResult {
   const { address: userAddress } = useAccount();
   const chainId = useChainId();
   const [lockInfo, setLockInfo] = useState<LockInfo | null>(null);
@@ -292,7 +290,7 @@ export function useUnlock(
       const key = await web3Service.getKeyByLockForOwner(
         lockAddress,
         userAddress,
-        chainId,
+        chainId
       );
 
       if (key && key.expiration > Date.now() / 1000) {
@@ -308,8 +306,8 @@ export function useUnlock(
         setUserKeys([]);
       }
     } catch (error) {
-      console.error("Error fetching user keys:", error);
-      setKeysError("Failed to fetch your membership keys");
+      console.error('Error fetching user keys:', error);
+      setKeysError('Failed to fetch your membership keys');
       setUserKeys([]);
     } finally {
       setIsLoadingKeys(false);
@@ -318,10 +316,10 @@ export function useUnlock(
 
   // Validate lock address using real Unlock SDK
   const validateLockAddress = async (
-    address: string,
+    address: string
   ): Promise<LockInfo | null> => {
     if (!isAddress(address)) {
-      throw new Error("Invalid contract address format");
+      throw new Error('Invalid contract address format');
     }
 
     setIsLoadingLock(true);
@@ -344,17 +342,17 @@ export function useUnlock(
         expirationDuration: lock.expirationDuration,
         currencySymbol:
           lock.currencyContractAddress ===
-          "0x0000000000000000000000000000000000000000"
-            ? "ETH"
-            : "TOKEN",
+          '0x0000000000000000000000000000000000000000'
+            ? 'ETH'
+            : 'TOKEN',
       };
 
       setLockInfo(lockInfo);
       setLockError(null);
       return lockInfo;
     } catch (error) {
-      console.error("Lock validation failed:", error);
-      setLockError("Invalid Unlock Protocol lock contract");
+      console.error('Lock validation failed:', error);
+      setLockError('Invalid Unlock Protocol lock contract');
       setLockInfo(null);
       return null;
     } finally {
@@ -364,7 +362,7 @@ export function useUnlock(
 
   // Check user key validity using real Unlock SDK
   const checkUserKeyValidity = async (
-    lockAddress: string,
+    lockAddress: string
   ): Promise<boolean> => {
     if (!userAddress || !isAddress(lockAddress)) {
       return false;
@@ -377,12 +375,12 @@ export function useUnlock(
       const key = await web3Service.getKeyByLockForOwner(
         lockAddress,
         userAddress,
-        chainId,
+        chainId
       );
       const isValid = key && key.expiration > Date.now() / 1000;
       return Boolean(isValid);
     } catch (error) {
-      console.error("Error checking key validity:", error);
+      console.error('Error checking key validity:', error);
       return false;
     } finally {
       setIsCheckingValidity(false);
@@ -404,14 +402,14 @@ export function useUnlock(
     if (options.lockAddress && userAddress && options.fetchUserKeys) {
       fetchUserKeys(options.lockAddress, userAddress);
     }
-  }, [options.lockAddress, userAddress, options.fetchUserKeys, web3Service]);
+  }, [options.lockAddress, userAddress, options.fetchUserKeys, fetchUserKeys]);
 
   // Auto-validate lock when provided
   useEffect(() => {
     if (options.lockAddress && isAddress(options.lockAddress)) {
       validateLockAddress(options.lockAddress);
     }
-  }, [options.lockAddress, web3Service]);
+  }, [options.lockAddress, validateLockAddress]);
 
   return {
     lockInfo,

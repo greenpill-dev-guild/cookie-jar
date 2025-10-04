@@ -29,14 +29,14 @@ contract CookieJarFactory {
     /// @notice Optimized jar information struct - packed for gas efficiency
     /// @dev Replaces 4 separate mappings: isFactoryJar, jarCreator, jarCreationTime
     struct JarInfo {
-        address creator;    // 20 bytes
-        uint64 createdAt;   // 8 bytes
-        bool exists;        // 1 byte + 3 bytes padding = 32 bytes total
+        address creator; // 20 bytes
+        uint64 createdAt; // 8 bytes
+        bool exists; // 1 byte + 3 bytes padding = 32 bytes total
     }
-    
+
     /// @notice Separate mapping for metadata to avoid dynamic array overhead in struct
     mapping(address => string) private jarMetadata;
-    
+
     /// @notice Get default multi-token configuration (optimized inline)
     function _getDefaultMultiTokenConfig() private pure returns (CookieJarLib.MultiTokenConfig memory) {
         return CookieJarLib.MultiTokenConfig(false, 500, 0, 3000); // Positional args for smaller bytecode
@@ -47,20 +47,19 @@ contract CookieJarFactory {
 
     /// @notice Emitted when a new jar is created
     event JarCreated(address indexed jarAddress, address indexed creator);
-    
+
     /// @notice Emitted when jar metadata is updated
     event MetadataUpdated(address indexed jarAddress, string metadata);
-    
+
     /// @notice Emitted when admin access is granted/revoked
     event AdminUpdated(address indexed admin, bool granted);
-
 
     /// @notice Access control modifiers
     modifier onlyOwner() {
         if (msg.sender != OWNER) revert NotAuthorized();
         _;
     }
-    
+
     modifier onlyAdmin() {
         if (msg.sender != OWNER && !admins[msg.sender]) revert NotAuthorized();
         _;
@@ -75,7 +74,7 @@ contract CookieJarFactory {
     ) {
         if (_defaultFeeCollector == address(0)) revert CookieJarLib.ZeroAddress();
         if (_owner == address(0)) revert CookieJarLib.ZeroAddress();
-        
+
         DEFAULT_FEE_COLLECTOR = _defaultFeeCollector;
         DEFAULT_FEE_PERCENTAGE = _feePercentage;
         MIN_ETH_DEPOSIT = _minEthDeposit;
@@ -106,19 +105,19 @@ contract CookieJarFactory {
     /// @return creator The address that created the jar
     /// @return createdAt The timestamp when the jar was created
     /// @return metadata The jar's metadata string
-    function getJarInfo(address jarAddress) external view 
-        returns (address creator, uint256 createdAt, string memory metadata) {
+    function getJarInfo(
+        address jarAddress
+    ) external view returns (address creator, uint256 createdAt, string memory metadata) {
         JarInfo storage info = jarInfo[jarAddress];
         if (!info.exists) revert JarNotFound();
         return (info.creator, uint256(info.createdAt), jarMetadata[jarAddress]);
     }
-    
+
     /// @notice Get jar metadata only (for backwards compatibility)
     function getMetadata(address jarAddress) external view returns (string memory) {
         if (!jarInfo[jarAddress].exists) revert JarNotFound();
         return jarMetadata[jarAddress];
     }
-
 
     /// @notice Update metadata for a specific jar (jar OWNER only)
     /// @dev Uses direct mapping lookup for gas optimization
@@ -145,59 +144,55 @@ contract CookieJarFactory {
         CookieJarLib.AccessConfig calldata accessConfig,
         CookieJarLib.MultiTokenConfig calldata multiTokenConfig
     ) external returns (address jarAddress) {
-        
         // Inline config building with validation
-        uint256 minDep = params.supportedCurrency == CookieJarLib.ETH_ADDRESS 
-            ? uint256(MIN_ETH_DEPOSIT) : uint256(MIN_ERC20_DEPOSIT);
-            
+        uint256 minDep = params.supportedCurrency == CookieJarLib.ETH_ADDRESS
+            ? uint256(MIN_ETH_DEPOSIT)
+            : uint256(MIN_ERC20_DEPOSIT);
+
         // Validate ERC20 if not ETH
         if (params.supportedCurrency != CookieJarLib.ETH_ADDRESS) {
             if (ERC20(params.supportedCurrency).decimals() == 0) revert CookieJarLib.InvalidTokenAddress();
         }
-        
+
         uint256 feePerc = params.feePercentageOnDeposit == 0 ? DEFAULT_FEE_PERCENTAGE : params.feePercentageOnDeposit;
         if (feePerc > CookieJarLib.PERCENTAGE_BASE) feePerc = CookieJarLib.PERCENTAGE_BASE;
-        
+
         // Validate multi-token config if enabled
         if (multiTokenConfig.enabled && multiTokenConfig.maxSlippagePercent == 0) {
             revert CookieJarLib.InvalidTokenAddress();
         }
-        
+
         // Build final config inline
         CookieJarLib.JarConfig memory config = CookieJarLib.JarConfig(
-            params.jarOwner,                    // jarOwner
-            params.supportedCurrency,          // supportedCurrency
-            DEFAULT_FEE_COLLECTOR,             // feeCollector
-            params.accessType,                 // accessType
-            params.withdrawalOption,           // withdrawalOption
-            params.strictPurpose,              // strictPurpose
+            params.jarOwner, // jarOwner
+            params.supportedCurrency, // supportedCurrency
+            DEFAULT_FEE_COLLECTOR, // feeCollector
+            params.accessType, // accessType
+            params.withdrawalOption, // withdrawalOption
+            params.strictPurpose, // strictPurpose
             params.emergencyWithdrawalEnabled, // emergencyWithdrawalEnabled
-            params.oneTimeWithdrawal,          // oneTimeWithdrawal
-            params.fixedAmount,                // fixedAmount
-            params.maxWithdrawal,              // maxWithdrawal
-            params.withdrawalInterval,         // withdrawalInterval
-            minDep,                            // minDeposit
-            feePerc,                           // feePercentageOnDeposit
-            params.maxWithdrawalPerPeriod,     // maxWithdrawalPerPeriod
-            params.metadata,                   // metadata
+            params.oneTimeWithdrawal, // oneTimeWithdrawal
+            params.fixedAmount, // fixedAmount
+            params.maxWithdrawal, // maxWithdrawal
+            params.withdrawalInterval, // withdrawalInterval
+            minDep, // minDeposit
+            feePerc, // feePercentageOnDeposit
+            params.maxWithdrawalPerPeriod, // maxWithdrawalPerPeriod
+            params.metadata, // metadata
             multiTokenConfig.enabled ? multiTokenConfig : _getDefaultMultiTokenConfig() // multiTokenConfig
         );
-        
+
         // Create the jar with Superfluid host address from official deployments
         // Automatically detects and uses the correct Superfluid host for current chain
         address superfluidHost = SuperfluidConfig.getSuperfluidHost(block.chainid);
         CookieJar newJar = new CookieJar(config, accessConfig, superfluidHost);
         jarAddress = address(newJar);
-        
+
         // Store jar info using optimized struct
         cookieJars.push(jarAddress); // Keep array for compatibility
-        jarInfo[jarAddress] = JarInfo({
-            creator: msg.sender,
-            createdAt: uint64(block.timestamp),
-            exists: true
-        });
+        jarInfo[jarAddress] = JarInfo({creator: msg.sender, createdAt: uint64(block.timestamp), exists: true});
         jarMetadata[jarAddress] = params.metadata;
-        
+
         emit JarCreated(jarAddress, msg.sender);
         return jarAddress;
     }

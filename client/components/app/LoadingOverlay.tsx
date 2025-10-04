@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { X } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
 
 interface LoadingOverlayProps {
   message?: string;
@@ -11,7 +11,7 @@ interface LoadingOverlayProps {
 }
 
 export function LoadingOverlay({
-  message = "Processing...",
+  message = 'Processing...',
   isOpen,
   onClose,
 }: LoadingOverlayProps) {
@@ -32,7 +32,7 @@ export function LoadingOverlay({
           variant="ghost"
           size="icon"
           className="absolute top-2 right-2 text-white hover:bg-white/20 z-10"
-          onClick={() => onClose && onClose()}
+          onClick={() => onClose?.()}
         >
           <X className="h-5 w-5" />
         </Button>

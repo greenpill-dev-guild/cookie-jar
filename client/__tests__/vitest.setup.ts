@@ -1,16 +1,16 @@
-import "@testing-library/jest-dom";
-import { vi } from "vitest";
+import '@testing-library/jest-dom';
+import { vi } from 'vitest';
 
 // Polyfills for Node.js environment compatibility
 Object.assign(global, {
   TextEncoder:
-    typeof TextEncoder !== "undefined"
+    typeof TextEncoder !== 'undefined'
       ? TextEncoder
-      : require("util").TextEncoder,
+      : require('node:util').TextEncoder,
   TextDecoder:
-    typeof TextDecoder !== "undefined"
+    typeof TextDecoder !== 'undefined'
       ? TextDecoder
-      : require("util").TextDecoder,
+      : require('node:util').TextDecoder,
 });
 
 // Fix for webidl-conversions and whatwg-url compatibility
@@ -20,7 +20,7 @@ globalThis.Map = globalThis.Map || Map;
 globalThis.Set = globalThis.Set || Set;
 
 // Mock crypto for Node.js environment
-if (typeof global.crypto === "undefined") {
+if (typeof global.crypto === 'undefined') {
   global.crypto = {
     getRandomValues: (arr: Uint8Array) => {
       for (let i = 0; i < arr.length; i++) {
@@ -53,11 +53,11 @@ global.URL =
   class URL {
     href: string;
     constructor(url: string) {
-      if (!url || typeof url !== "string") {
-        throw new Error("Invalid URL");
+      if (!url || typeof url !== 'string') {
+        throw new Error('Invalid URL');
       }
       if (!url.match(/^https?:\/\/.+/)) {
-        throw new Error("Invalid URL");
+        throw new Error('Invalid URL');
       }
       this.href = url;
     }

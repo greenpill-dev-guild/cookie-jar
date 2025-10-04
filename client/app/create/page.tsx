@@ -1,28 +1,26 @@
-"use client";
+'use client';
 
-import React from "react";
-import { useState, useEffect, lazy, Suspense } from "react";
-import { useAccount, useChainId } from "wagmi";
-import { isV2Chain } from "@/config/supported-networks";
-import { ProtocolErrorBoundary } from "@/components/app/ProtocolErrorBoundary";
-import { useJarCreation } from "@/hooks/jar/useJarCreation";
-import { useStepNavigation } from "@/hooks/app/useStepNavigation";
-
+import { lazy, Suspense, useEffect, useState } from 'react';
+import { useAccount, useChainId } from 'wagmi';
+import { ProtocolErrorBoundary } from '@/components/app/ProtocolErrorBoundary';
+import { CreateJarForm } from '@/components/create/CreateJarForm';
 // Import extracted components
-import { CreateJarHeader } from "@/components/create/CreateJarHeader";
-import { ProgressIndicator } from "@/components/create/ProgressIndicator";
-import { CreateJarForm } from "@/components/create/CreateJarForm";
+import { CreateJarHeader } from '@/components/create/CreateJarHeader';
+import { ProgressIndicator } from '@/components/create/ProgressIndicator';
+import { isV2Chain } from '@/config/supported-networks';
+import { useStepNavigation } from '@/hooks/app/useStepNavigation';
+import { useJarCreation } from '@/hooks/jar/useJarCreation';
 
 // Lazy load heavy components for better bundle splitting
 const StatusCards = lazy(() =>
-  import("@/components/create/StatusCards").then((module) => ({
+  import('@/components/create/StatusCards').then((module) => ({
     default: module.StatusCards,
-  })),
+  }))
 );
 const CreateJarModals = lazy(() =>
-  import("@/components/create/CreateJarModals").then((module) => ({
+  import('@/components/create/CreateJarModals').then((module) => ({
     default: module.CreateJarModals,
-  })),
+  }))
 );
 
 export default function CreateCookieJarForm() {
@@ -84,14 +82,14 @@ export default function CreateCookieJarForm() {
     <ProtocolErrorBoundary
       protocolName="Cookie Jar Creation"
       maxRetries={2}
-      showDetails={process.env.NODE_ENV === "development"}
+      showDetails={process.env.NODE_ENV === 'development'}
     >
       <div className="max-w-2xl mx-auto">
         <CreateJarHeader isV2Contract={isV2Contract} />
-        <ProgressIndicator 
-          currentStep={currentStep} 
-          totalSteps={totalSteps} 
-          isV2Contract={isV2Contract} 
+        <ProgressIndicator
+          currentStep={currentStep}
+          totalSteps={totalSteps}
+          isV2Contract={isV2Contract}
         />
 
         <CreateJarForm

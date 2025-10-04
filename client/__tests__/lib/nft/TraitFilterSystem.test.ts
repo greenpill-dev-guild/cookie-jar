@@ -1,11 +1,9 @@
-import { describe, it, expect, beforeEach } from 'vitest';
-import { 
+import { beforeEach, describe, expect, it } from 'vitest';
+import {
+  type AdvancedNFTFilters,
+  type NFTWithTraits,
   TraitFilterSystem,
   traitFilterSystem,
-  NFTWithTraits,
-  AdvancedNFTFilters,
-  TraitFilter,
-  NFTAttribute
 } from '../../../lib/nft/advanced/TraitFilterSystem';
 
 describe('TraitFilterSystem', () => {
@@ -14,7 +12,7 @@ describe('TraitFilterSystem', () => {
 
   beforeEach(() => {
     filterSystem = new TraitFilterSystem();
-    
+
     mockNFTs = [
       {
         id: 'nft1',
@@ -106,11 +104,13 @@ describe('TraitFilterSystem', () => {
   describe('trait filtering', () => {
     it('should filter NFTs by trait value using "in" operator', () => {
       const filters: AdvancedNFTFilters = {
-        traits: [{
-          trait_type: 'Element',
-          values: ['Fire', 'Water'],
-          operator: 'in',
-        }],
+        traits: [
+          {
+            trait_type: 'Element',
+            values: ['Fire', 'Water'],
+            operator: 'in',
+          },
+        ],
       };
 
       const result = filterSystem.applyFilters(mockNFTs, filters);
@@ -122,21 +122,25 @@ describe('TraitFilterSystem', () => {
 
     it('should filter NFTs by trait value using "not_in" operator', () => {
       const filters: AdvancedNFTFilters = {
-        traits: [{
-          trait_type: 'Element',
-          values: ['Fire'],
-          operator: 'not_in',
-        }],
+        traits: [
+          {
+            trait_type: 'Element',
+            values: ['Fire'],
+            operator: 'not_in',
+          },
+        ],
       };
 
       const result = filterSystem.applyFilters(mockNFTs, filters);
 
       // Should exclude NFTs with Element=Fire, keep others
       expect(result.length).toBeGreaterThan(0);
-      expect(result.find(nft => nft.name === 'Fire Dragon')).toBeUndefined();
+      expect(result.find((nft) => nft.name === 'Fire Dragon')).toBeUndefined();
       // All remaining NFTs should not have Element=Fire
-      result.forEach(nft => {
-        const elementTrait = nft.attributes?.find(attr => attr.trait_type === 'Element');
+      result.forEach((nft) => {
+        const elementTrait = nft.attributes?.find(
+          (attr) => attr.trait_type === 'Element'
+        );
         if (elementTrait) {
           expect(elementTrait.value).not.toBe('Fire');
         }
@@ -145,50 +149,72 @@ describe('TraitFilterSystem', () => {
 
     it('should filter NFTs by numeric trait using "gt" operator', () => {
       const filters: AdvancedNFTFilters = {
-        traits: [{
-          trait_type: 'Level',
-          values: [50],
-          operator: 'gt',
-        }],
+        traits: [
+          {
+            trait_type: 'Level',
+            values: [50],
+            operator: 'gt',
+          },
+        ],
       };
 
       const result = filterSystem.applyFilters(mockNFTs, filters);
 
       expect(result).toHaveLength(3); // Fire Dragon (85), Earth Golem (67), Air Phoenix (95)
-      expect(result.every(nft => {
-        const levelAttr = nft.attributes?.find(attr => attr.trait_type === 'Level');
-        return levelAttr && typeof levelAttr.value === 'number' && levelAttr.value > 50;
-      })).toBe(true);
+      expect(
+        result.every((nft) => {
+          const levelAttr = nft.attributes?.find(
+            (attr) => attr.trait_type === 'Level'
+          );
+          return (
+            levelAttr &&
+            typeof levelAttr.value === 'number' &&
+            levelAttr.value > 50
+          );
+        })
+      ).toBe(true);
     });
 
     it('should filter NFTs by numeric trait using "range" operator', () => {
       const filters: AdvancedNFTFilters = {
-        traits: [{
-          trait_type: 'Level',
-          values: [],
-          operator: 'range',
-          min_value: 40,
-          max_value: 70,
-        }],
+        traits: [
+          {
+            trait_type: 'Level',
+            values: [],
+            operator: 'range',
+            min_value: 40,
+            max_value: 70,
+          },
+        ],
       };
 
       const result = filterSystem.applyFilters(mockNFTs, filters);
 
       expect(result).toHaveLength(2); // Water Sprite (42), Earth Golem (67)
-      expect(result.every(nft => {
-        const levelAttr = nft.attributes?.find(attr => attr.trait_type === 'Level');
-        return levelAttr && typeof levelAttr.value === 'number' && 
-               levelAttr.value >= 40 && levelAttr.value <= 70;
-      })).toBe(true);
+      expect(
+        result.every((nft) => {
+          const levelAttr = nft.attributes?.find(
+            (attr) => attr.trait_type === 'Level'
+          );
+          return (
+            levelAttr &&
+            typeof levelAttr.value === 'number' &&
+            levelAttr.value >= 40 &&
+            levelAttr.value <= 70
+          );
+        })
+      ).toBe(true);
     });
 
     it('should filter NFTs by trait existence using "exists" operator', () => {
       const filters: AdvancedNFTFilters = {
-        traits: [{
-          trait_type: 'Wings',
-          values: [],
-          operator: 'exists',
-        }],
+        traits: [
+          {
+            trait_type: 'Wings',
+            values: [],
+            operator: 'exists',
+          },
+        ],
       };
 
       const result = filterSystem.applyFilters(mockNFTs, filters);
@@ -281,7 +307,9 @@ describe('TraitFilterSystem', () => {
       const result = filterSystem.applyFilters(mockNFTs, filters);
 
       expect(result).toHaveLength(4); // All except Basic Warrior (missing Element)
-      expect(result.find(nft => nft.name === 'Basic Warrior')).toBeUndefined();
+      expect(
+        result.find((nft) => nft.name === 'Basic Warrior')
+      ).toBeUndefined();
     });
 
     it('should filter by excluded traits', () => {
@@ -293,7 +321,7 @@ describe('TraitFilterSystem', () => {
       const result = filterSystem.applyFilters(mockNFTs, filters);
 
       expect(result).toHaveLength(4); // All except Air Phoenix
-      expect(result.find(nft => nft.name === 'Air Phoenix')).toBeUndefined();
+      expect(result.find((nft) => nft.name === 'Air Phoenix')).toBeUndefined();
     });
   });
 
@@ -307,7 +335,9 @@ describe('TraitFilterSystem', () => {
       const result = filterSystem.applyFilters(mockNFTs, filters);
 
       expect(result).toHaveLength(4); // All from 10k collection
-      expect(result.find(nft => nft.name === 'Basic Warrior')).toBeUndefined();
+      expect(
+        result.find((nft) => nft.name === 'Basic Warrior')
+      ).toBeUndefined();
     });
   });
 
@@ -362,14 +392,14 @@ describe('TraitFilterSystem', () => {
       // Should have stats for all trait types present
       expect(stats.length).toBeGreaterThan(0);
 
-      const elementStat = stats.find(s => s.trait_type === 'Element');
+      const elementStat = stats.find((s) => s.trait_type === 'Element');
       if (elementStat) {
         expect(elementStat.unique_values).toBeGreaterThan(0);
         expect(elementStat.total_count).toBeGreaterThan(0);
         expect(elementStat.is_numeric).toBe(false);
       }
 
-      const levelStat = stats.find(s => s.trait_type === 'Level');
+      const levelStat = stats.find((s) => s.trait_type === 'Level');
       if (levelStat) {
         expect(levelStat.is_numeric).toBe(true);
         expect(levelStat.min_value).toBeDefined();
@@ -384,12 +414,12 @@ describe('TraitFilterSystem', () => {
 
     it('should calculate trait percentages correctly', () => {
       const stats = filterSystem.generateTraitStatistics(mockNFTs.slice(0, 4));
-      
-      const elementStat = stats.find(s => s.trait_type === 'Element');
-      expect(elementStat!.values).toHaveLength(4);
-      
+
+      const elementStat = stats.find((s) => s.trait_type === 'Element');
+      expect(elementStat?.values).toHaveLength(4);
+
       // Each element appears once out of 4 NFTs = 25%
-      elementStat!.values.forEach(value => {
+      elementStat?.values.forEach((value) => {
         expect(value.percentage).toBe(25);
         expect(value.count).toBe(1);
       });
@@ -399,11 +429,13 @@ describe('TraitFilterSystem', () => {
   describe('trait suggestions', () => {
     it('should generate trait suggestions based on current filters', () => {
       const currentFilters: AdvancedNFTFilters = {
-        traits: [{
-          trait_type: 'Element',
-          values: ['Fire'],
-          operator: 'in',
-        }],
+        traits: [
+          {
+            trait_type: 'Element',
+            values: ['Fire'],
+            operator: 'in',
+          },
+        ],
       };
 
       const suggestions = filterSystem.getTraitSuggestions(
@@ -415,9 +447,9 @@ describe('TraitFilterSystem', () => {
       expect(suggestions).toHaveLength(3);
       expect(suggestions[0]).toHaveProperty('trait_type');
       expect(suggestions[0]).toHaveProperty('suggested_values');
-      
+
       // Each suggestion should include count and filter prediction
-      suggestions[0].suggested_values.forEach(value => {
+      suggestions[0].suggested_values.forEach((value) => {
         expect(value).toHaveProperty('value');
         expect(value).toHaveProperty('count');
         expect(value).toHaveProperty('would_filter_to');
@@ -430,7 +462,7 @@ describe('TraitFilterSystem', () => {
       const filter = filterSystem.buildSmartFilters(mockNFTs, 'rarest');
 
       expect(filter).toHaveProperty('rarity_rank');
-      expect(filter.rarity_rank!.max).toBe(Math.ceil(mockNFTs.length * 0.1));
+      expect(filter.rarity_rank?.max).toBe(Math.ceil(mockNFTs.length * 0.1));
       expect(filter.sort_by).toBe('rarity_rank');
       expect(filter.sort_direction).toBe('asc');
     });
@@ -455,7 +487,7 @@ describe('TraitFilterSystem', () => {
       const filter = filterSystem.buildSmartFilters(mockNFTs, 'trending');
 
       expect(filter).toHaveProperty('last_sale_range');
-      expect(filter.last_sale_range!.min).toBe(0);
+      expect(filter.last_sale_range?.min).toBe(0);
       expect(filter.sort_by).toBe('last_sale');
       expect(filter.sort_direction).toBe('desc');
     });
@@ -486,11 +518,13 @@ describe('TraitFilterSystem', () => {
   describe('URL serialization', () => {
     it('should serialize filters to URL params', () => {
       const filters: AdvancedNFTFilters = {
-        traits: [{
-          trait_type: 'Element',
-          values: ['Fire'],
-          operator: 'in',
-        }],
+        traits: [
+          {
+            trait_type: 'Element',
+            values: ['Fire'],
+            operator: 'in',
+          },
+        ],
         rarity_rank: { min: 1, max: 100 },
         price_range: { min: 0.1, max: 1.0 },
         sort_by: 'rarity_rank',
@@ -508,11 +542,16 @@ describe('TraitFilterSystem', () => {
 
     it('should deserialize filters from URL params', () => {
       const params = new URLSearchParams();
-      params.set('traits', JSON.stringify([{
-        trait_type: 'Element',
-        values: ['Fire'],
-        operator: 'in',
-      }]));
+      params.set(
+        'traits',
+        JSON.stringify([
+          {
+            trait_type: 'Element',
+            values: ['Fire'],
+            operator: 'in',
+          },
+        ])
+      );
       params.set('rarity_rank', JSON.stringify({ min: 1, max: 100 }));
       params.set('sort_by', 'price');
 
@@ -548,11 +587,13 @@ describe('TraitFilterSystem', () => {
       };
 
       const filters: AdvancedNFTFilters = {
-        traits: [{
-          trait_type: 'Element',
-          values: ['Fire'],
-          operator: 'in',
-        }],
+        traits: [
+          {
+            trait_type: 'Element',
+            values: ['Fire'],
+            operator: 'in',
+          },
+        ],
       };
 
       const result = filterSystem.applyFilters([nftWithoutAttrs], filters);
@@ -573,11 +614,13 @@ describe('TraitFilterSystem', () => {
       };
 
       const filters: AdvancedNFTFilters = {
-        traits: [{
-          trait_type: 'Level',
-          values: [50],
-          operator: 'gt',
-        }],
+        traits: [
+          {
+            trait_type: 'Level',
+            values: [50],
+            operator: 'gt',
+          },
+        ],
       };
 
       const result = filterSystem.applyFilters([mixedNFT], filters);

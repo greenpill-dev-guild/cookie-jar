@@ -1,6 +1,6 @@
-import { isAddress } from "viem";
-import { useBlockNumber, useReadContract } from "wagmi";
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useState } from 'react';
+import { isAddress } from 'viem';
+import { useBlockNumber, useReadContract } from 'wagmi';
 
 /**
  * NFT balance proof structure for preventing race conditions
@@ -25,7 +25,7 @@ interface UseNFTBalanceProofParams {
   /** Token ID to check balance for */
   tokenId: string;
   /** NFT standard (ERC721 or ERC1155) */
-  tokenType: "ERC721" | "ERC1155";
+  tokenType: 'ERC721' | 'ERC1155';
   /** User address to check balance for */
   userAddress?: string;
   /** Whether to enable proof generation */
@@ -52,44 +52,44 @@ interface UseNFTBalanceProofReturn {
 const ERC1155_ABI = [
   {
     inputs: [
-      { internalType: "address", name: "account", type: "address" },
-      { internalType: "uint256", name: "id", type: "uint256" },
+      { internalType: 'address', name: 'account', type: 'address' },
+      { internalType: 'uint256', name: 'id', type: 'uint256' },
     ],
-    name: "balanceOf",
-    outputs: [{ internalType: "uint256", name: "", type: "uint256" }],
-    stateMutability: "view",
-    type: "function",
+    name: 'balanceOf',
+    outputs: [{ internalType: 'uint256', name: '', type: 'uint256' }],
+    stateMutability: 'view',
+    type: 'function',
   },
 ] as const;
 
 // ERC721 ABI for ownership checking
 const ERC721_ABI = [
   {
-    inputs: [{ internalType: "uint256", name: "tokenId", type: "uint256" }],
-    name: "ownerOf",
-    outputs: [{ internalType: "address", name: "", type: "address" }],
-    stateMutability: "view",
-    type: "function",
+    inputs: [{ internalType: 'uint256', name: 'tokenId', type: 'uint256' }],
+    name: 'ownerOf',
+    outputs: [{ internalType: 'address', name: '', type: 'address' }],
+    stateMutability: 'view',
+    type: 'function',
   },
 ] as const;
 
 /**
  * Custom hook for generating and managing NFT balance proofs
- * 
+ *
  * Creates cryptographically verifiable proofs of NFT ownership at specific
  * block numbers to prevent race conditions in transactions. Useful for
  * ensuring ownership hasn't changed between UI state and transaction execution.
- * 
+ *
  * Features:
  * - Block-based proof generation
  * - Automatic staleness detection
  * - Support for both ERC-721 and ERC-1155
  * - Race condition prevention
  * - Automatic refresh capabilities
- * 
+ *
  * @param params - Configuration for proof generation
  * @returns Object with proof data and management functions
- * 
+ *
  * @example
  * ```tsx
  * const {
@@ -104,7 +104,7 @@ const ERC721_ABI = [
  *   tokenType: 'ERC721',
  *   userAddress: account
  * });
- * 
+ *
  * // Check proof before transaction
  * if (proof && !isStale && proof.isValid) {
  *   // Proceed with transaction using proof data
@@ -131,7 +131,7 @@ export const useNFTBalanceProof = ({
   });
 
   const isValidContract = contractAddress && isAddress(contractAddress);
-  const isValidTokenId = tokenId && tokenId !== "";
+  const isValidTokenId = tokenId && tokenId !== '';
   const shouldFetch =
     enabled && isValidContract && isValidTokenId && userAddress;
 
@@ -144,13 +144,13 @@ export const useNFTBalanceProof = ({
   } = useReadContract({
     address: isValidContract ? (contractAddress as `0x${string}`) : undefined,
     abi: ERC1155_ABI,
-    functionName: "balanceOf",
+    functionName: 'balanceOf',
     args:
       userAddress && isValidTokenId
         ? [userAddress as `0x${string}`, BigInt(tokenId)]
         : undefined,
     query: {
-      enabled: Boolean(shouldFetch && tokenType === "ERC1155"),
+      enabled: Boolean(shouldFetch && tokenType === 'ERC1155'),
     },
   });
 
@@ -163,10 +163,10 @@ export const useNFTBalanceProof = ({
   } = useReadContract({
     address: isValidContract ? (contractAddress as `0x${string}`) : undefined,
     abi: ERC721_ABI,
-    functionName: "ownerOf",
+    functionName: 'ownerOf',
     args: isValidTokenId ? [BigInt(tokenId)] : undefined,
     query: {
-      enabled: Boolean(shouldFetch && tokenType === "ERC721"),
+      enabled: Boolean(shouldFetch && tokenType === 'ERC721'),
     },
   });
 
@@ -180,7 +180,7 @@ export const useNFTBalanceProof = ({
 
     if (contractError) {
       setError(
-        "Failed to validate NFT ownership. Contract may be invalid or network error.",
+        'Failed to validate NFT ownership. Contract may be invalid or network error.'
       );
       setProof(null);
       return;
@@ -189,10 +189,10 @@ export const useNFTBalanceProof = ({
     let balance: bigint;
     let isValid = false;
 
-    if (tokenType === "ERC1155" && erc1155Balance !== undefined) {
+    if (tokenType === 'ERC1155' && erc1155Balance !== undefined) {
       balance = erc1155Balance;
       isValid = balance > 0n;
-    } else if (tokenType === "ERC721" && erc721Owner && userAddress) {
+    } else if (tokenType === 'ERC721' && erc721Owner && userAddress) {
       // For ERC721, balance is 1 if owned, 0 if not
       balance =
         erc721Owner.toLowerCase() === userAddress.toLowerCase() ? 1n : 0n;
@@ -228,14 +228,14 @@ export const useNFTBalanceProof = ({
       if (!proofData || !currentBlock) return true;
       return Number(currentBlock) - proofData.blockNumber > 5; // Max 5 blocks old
     },
-    [currentBlock],
+    [currentBlock]
   );
 
   // Refresh proof by refetching data
   const refreshProof = useCallback(() => {
-    if (tokenType === "ERC1155") {
+    if (tokenType === 'ERC1155') {
       refetchERC1155();
-    } else if (tokenType === "ERC721") {
+    } else if (tokenType === 'ERC721') {
       refetchERC721();
     }
   }, [tokenType, refetchERC1155, refetchERC721]);
@@ -260,26 +260,26 @@ export const useNFTBalanceProof = ({
 export const validateBalanceProof = (
   proof: BalanceProof | null,
   currentBlock: number,
-  minRequiredBalance: bigint = 1n,
+  minRequiredBalance: bigint = 1n
 ): {
   isValid: boolean;
   reason?: string;
 } => {
   if (!proof) {
-    return { isValid: false, reason: "No balance proof available" };
+    return { isValid: false, reason: 'No balance proof available' };
   }
 
   if (!proof.isValid) {
     return {
       isValid: false,
-      reason: "Invalid balance proof - insufficient balance",
+      reason: 'Invalid balance proof - insufficient balance',
     };
   }
 
   if (currentBlock - proof.blockNumber > 5) {
     return {
       isValid: false,
-      reason: "Balance proof is too old (more than 5 blocks)",
+      reason: 'Balance proof is too old (more than 5 blocks)',
     };
   }
 
@@ -301,15 +301,15 @@ export const validateBalanceProof = (
  * @returns Map of proofs by contract-token key
  */
 export const useMultipleNFTBalanceProofs = (
-  nfts: Array<{
+  _nfts: Array<{
     contractAddress: string;
     tokenId: string;
-    tokenType: "ERC721" | "ERC1155";
+    tokenType: 'ERC721' | 'ERC1155';
   }>,
-  userAddress?: string,
+  _userAddress?: string
 ): Map<string, BalanceProof | null> => {
-  const [proofsMap, setProofsMap] = useState<Map<string, BalanceProof | null>>(
-    new Map(),
+  const [proofsMap, _setProofsMap] = useState<Map<string, BalanceProof | null>>(
+    new Map()
   );
 
   // This would be implemented to manage multiple proofs efficiently

@@ -1,25 +1,26 @@
 // Load environment variables from root directory
-import { config } from "dotenv";
-import { resolve, dirname } from "path";
-import { fileURLToPath } from "url";
+
+import { dirname, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { config } from 'dotenv';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const rootDir = resolve(__dirname, "..");
+const rootDir = resolve(__dirname, '..');
 
 // Load root .env files in order of precedence
-config({ path: resolve(rootDir, ".env.local") });
-config({ path: resolve(rootDir, ".env") });
+config({ path: resolve(rootDir, '.env.local') });
+config({ path: resolve(rootDir, '.env') });
 
-let userConfig = undefined;
+let userConfig;
 try {
   // try to import ESM first
-  userConfig = await import("./v0-user-next.config.mjs");
-} catch (e) {
+  userConfig = await import('./v0-user-next.config.mjs');
+} catch {
   try {
     // fallback to CJS import
-    userConfig = await import("./v0-user-next.config");
-  } catch (innerError) {
+    userConfig = await import('./v0-user-next.config');
+  } catch {
     // ignore error
   }
 }
@@ -32,18 +33,15 @@ const nextConfig = {
       process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID,
     NEXT_PUBLIC_ALCHEMY_API_KEY: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
   },
-  eslint: {
-    ignoreDuringBuilds: false,
-  },
   typescript: {
     ignoreBuildErrors: false,
   },
   // ⚡ OPTIMIZED: Enable image optimization
   images: {
-    domains: ["localhost"],
-    formats: ["image/webp", "image/avif"],
+    domains: ['localhost'],
+    formats: ['image/webp', 'image/avif'],
     minimumCacheTTL: 60,
-    unoptimized: process.env.NODE_ENV === "development", // Skip optimization in dev for faster builds
+    unoptimized: process.env.NODE_ENV === 'development', // Skip optimization in dev for faster builds
   },
   experimental: {
     webpackBuildWorker: true,
@@ -51,9 +49,9 @@ const nextConfig = {
     parallelServerCompiles: true,
     scrollRestoration: true, // Enable automatic scroll restoration for route changes
     optimizePackageImports: [
-      "@radix-ui/react-icons",
-      "lucide-react",
-      "@hookform/resolvers",
+      '@radix-ui/react-icons',
+      'lucide-react',
+      '@hookform/resolvers',
     ],
   },
   // ⚡ Performance optimizations
@@ -64,7 +62,7 @@ const nextConfig = {
 
   // Configure Turbopack root to avoid multiple lockfile warnings
   turbopack: {
-    root: resolve(__dirname, ".."),
+    root: resolve(__dirname, '..'),
   },
 
   // ⚡ Minimal bundle optimization (aggressive splitting caused 30x slowdown)
@@ -88,13 +86,13 @@ const nextConfig = {
     // };
 
     // Bundle analyzer for production builds only
-    if (!dev && !isServer && process.env.ANALYZE === "true") {
-      const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
+    if (!dev && !isServer && process.env.ANALYZE === 'true') {
+      const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
       config.plugins.push(
         new BundleAnalyzerPlugin({
-          analyzerMode: "static",
+          analyzerMode: 'static',
           openAnalyzer: false,
-        }),
+        })
       );
     }
 
@@ -108,7 +106,7 @@ if (userConfig) {
 
   for (const key in config) {
     if (
-      typeof nextConfig[key] === "object" &&
+      typeof nextConfig[key] === 'object' &&
       !Array.isArray(nextConfig[key])
     ) {
       nextConfig[key] = {

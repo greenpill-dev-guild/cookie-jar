@@ -1,17 +1,18 @@
-import React, { useEffect } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import {
-  Key,
-  CheckCircle2,
   AlertCircle,
-  Loader2,
+  CheckCircle2,
   ExternalLink,
+  Key,
+  Loader2,
   RefreshCw,
-} from "lucide-react";
-import { useAccount } from "wagmi";
-import { useUnlock } from "@/hooks/nft/useUnlock";
+} from 'lucide-react';
+import type React from 'react';
+import { useEffect } from 'react';
+import { useAccount } from 'wagmi';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { useUnlock } from '@/hooks/nft/useUnlock';
 
 interface UnlockMembershipStatusProps {
   lockAddress: string;
@@ -20,7 +21,7 @@ interface UnlockMembershipStatusProps {
 
 export const UnlockMembershipStatus: React.FC<UnlockMembershipStatusProps> = ({
   lockAddress,
-  className = "",
+  className = '',
 }) => {
   const { address: userAddress } = useAccount();
 
@@ -142,7 +143,7 @@ export const UnlockMembershipStatus: React.FC<UnlockMembershipStatusProps> = ({
 
   return (
     <Card
-      className={`border-l-4 ${hasValidKey ? "border-l-green-500 border-green-200" : "border-l-amber-500 border-amber-200"} ${className}`}
+      className={`border-l-4 ${hasValidKey ? 'border-l-green-500 border-green-200' : 'border-l-amber-500 border-amber-200'} ${className}`}
     >
       <CardContent className="p-4">
         <div className="space-y-4">
@@ -150,10 +151,10 @@ export const UnlockMembershipStatus: React.FC<UnlockMembershipStatusProps> = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
               <div
-                className={`p-2 rounded-lg ${hasValidKey ? "bg-green-100" : "bg-amber-100"}`}
+                className={`p-2 rounded-lg ${hasValidKey ? 'bg-green-100' : 'bg-amber-100'}`}
               >
                 <Key
-                  className={`h-5 w-5 ${hasValidKey ? "text-green-600" : "text-amber-600"}`}
+                  className={`h-5 w-5 ${hasValidKey ? 'text-green-600' : 'text-amber-600'}`}
                 />
               </div>
               <div>
@@ -161,14 +162,14 @@ export const UnlockMembershipStatus: React.FC<UnlockMembershipStatusProps> = ({
                   <p className="font-medium text-[#3c2a14]">
                     Unlock Membership Status
                   </p>
-                  <Badge variant={hasValidKey ? "default" : "secondary"}>
-                    {hasValidKey ? "✓ Active" : "✗ Inactive"}
+                  <Badge variant={hasValidKey ? 'default' : 'secondary'}>
+                    {hasValidKey ? '✓ Active' : '✗ Inactive'}
                   </Badge>
                 </div>
                 <p className="text-sm text-[#8b7355]">
                   {hasValidKey
-                    ? "You have a valid membership key"
-                    : "No valid membership key found"}
+                    ? 'You have a valid membership key'
+                    : 'No valid membership key found'}
                 </p>
               </div>
             </div>
@@ -179,7 +180,7 @@ export const UnlockMembershipStatus: React.FC<UnlockMembershipStatusProps> = ({
               disabled={isLoading}
             >
               <RefreshCw
-                className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
+                className={`h-4 w-4 ${isLoading ? 'animate-spin' : ''}`}
               />
             </Button>
           </div>
@@ -190,14 +191,14 @@ export const UnlockMembershipStatus: React.FC<UnlockMembershipStatusProps> = ({
               <div>
                 <p className="text-[#8b7355] font-medium">Lock Name</p>
                 <p className="text-[#3c2a14]">
-                  {lockInfo.name || "Unknown Lock"}
+                  {lockInfo.name || 'Unknown Lock'}
                 </p>
               </div>
               {lockInfo.keyPrice && (
                 <div>
                   <p className="text-[#8b7355] font-medium">Key Price</p>
                   <p className="text-[#3c2a14]">
-                    {lockInfo.keyPrice} {lockInfo.currencySymbol || "ETH"}
+                    {lockInfo.keyPrice} {lockInfo.currencySymbol || 'ETH'}
                   </p>
                 </div>
               )}
@@ -205,7 +206,7 @@ export const UnlockMembershipStatus: React.FC<UnlockMembershipStatusProps> = ({
                 <div>
                   <p className="text-[#8b7355] font-medium">Key Duration</p>
                   <p className="text-[#3c2a14]">
-                    {Math.floor(lockInfo.expirationDuration / (24 * 60 * 60))}{" "}
+                    {Math.floor(lockInfo.expirationDuration / (24 * 60 * 60))}{' '}
                     days
                   </p>
                 </div>
@@ -223,7 +224,7 @@ export const UnlockMembershipStatus: React.FC<UnlockMembershipStatusProps> = ({
                     onClick={() =>
                       window.open(
                         `https://etherscan.io/address/${lockAddress}`,
-                        "_blank",
+                        '_blank'
                       )
                     }
                   >
@@ -239,7 +240,7 @@ export const UnlockMembershipStatus: React.FC<UnlockMembershipStatusProps> = ({
             <div className="border-t pt-4">
               <p className="text-[#8b7355] font-medium mb-2">Your Keys</p>
               <div className="space-y-2">
-                {userKeys.map((key, index) => (
+                {userKeys.map((key, _index) => (
                   <div
                     key={key.keyId}
                     className="flex items-center justify-between p-2 bg-gray-50 rounded-lg"
@@ -251,14 +252,14 @@ export const UnlockMembershipStatus: React.FC<UnlockMembershipStatusProps> = ({
                       <p className="text-xs text-[#8b7355]">
                         {key.isValid
                           ? `Expires: ${new Date(key.expiration * 1000).toLocaleDateString()}`
-                          : "Expired"}
+                          : 'Expired'}
                       </p>
                     </div>
                     <Badge
-                      variant={key.isValid ? "default" : "destructive"}
+                      variant={key.isValid ? 'default' : 'destructive'}
                       className="text-xs"
                     >
-                      {key.isValid ? "Valid" : "Expired"}
+                      {key.isValid ? 'Valid' : 'Expired'}
                     </Badge>
                   </div>
                 ))}
@@ -276,8 +277,8 @@ export const UnlockMembershipStatus: React.FC<UnlockMembershipStatusProps> = ({
                     No Membership Found
                   </p>
                   <p className="text-xs text-amber-700">
-                    You don&apos;t have a valid key for this lock. Purchase or obtain
-                    a membership key to access this jar.
+                    You don&apos;t have a valid key for this lock. Purchase or
+                    obtain a membership key to access this jar.
                   </p>
                 </div>
               </div>

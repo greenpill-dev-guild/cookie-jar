@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { AlertTriangle, RefreshCw, ArrowLeft } from "lucide-react";
-import { log } from "@/lib/app/logger";
+import { AlertTriangle, ArrowLeft, RefreshCw } from 'lucide-react';
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { log } from '@/lib/app/logger';
 
 interface ProtocolErrorBoundaryState {
   hasError: boolean;
@@ -76,9 +76,9 @@ export class ProtocolErrorBoundary extends React.Component<
     const { protocolName } = this.props;
 
     // Log in development
-    if (process.env.NODE_ENV === "development") {
-      log.error("Protocol Error Boundary", {
-        protocol: protocolName || "Unknown",
+    if (process.env.NODE_ENV === 'development') {
+      log.error('Protocol Error Boundary', {
+        protocol: protocolName || 'Unknown',
         error: error.message,
         stack: error.stack,
         componentStack: errorInfo.componentStack,
@@ -87,8 +87,8 @@ export class ProtocolErrorBoundary extends React.Component<
 
     // Send to monitoring service in production
     if (
-      typeof window !== "undefined" &&
-      process.env.NODE_ENV === "production"
+      typeof window !== 'undefined' &&
+      process.env.NODE_ENV === 'production'
     ) {
       try {
         // Example: Send to monitoring service
@@ -99,7 +99,9 @@ export class ProtocolErrorBoundary extends React.Component<
         //   componentStack: errorInfo.componentStack
         // })
       } catch (monitoringError) {
-        log.warn("Failed to log error to monitoring service", { error: monitoringError });
+        log.warn('Failed to log error to monitoring service', {
+          error: monitoringError,
+        });
       }
     }
   };
@@ -118,7 +120,7 @@ export class ProtocolErrorBoundary extends React.Component<
     }
 
     // Exponential backoff: 1s, 2s, 4s
-    const delay = Math.pow(2, retryCount) * 1000;
+    const delay = 2 ** retryCount * 1000;
 
     this.retryTimeoutId = setTimeout(() => {
       this.setState((prevState) => ({
@@ -131,7 +133,7 @@ export class ProtocolErrorBoundary extends React.Component<
   };
 
   private goBack = () => {
-    if (typeof window !== "undefined") {
+    if (typeof window !== 'undefined') {
       window.history.back();
     }
   };
@@ -139,33 +141,33 @@ export class ProtocolErrorBoundary extends React.Component<
   private getErrorMessage = (error?: Error): string => {
     const { protocolName } = this.props;
 
-    if (!error) return "An unexpected error occurred";
+    if (!error) return 'An unexpected error occurred';
 
     // Protocol-specific error messages
-    if (error.message.includes("network") || error.message.includes("fetch")) {
-      return `Unable to connect to ${protocolName || "the protocol"} service. Please check your internet connection and try again.`;
+    if (error.message.includes('network') || error.message.includes('fetch')) {
+      return `Unable to connect to ${protocolName || 'the protocol'} service. Please check your internet connection and try again.`;
     }
 
     if (
-      error.message.includes("wallet") ||
-      error.message.includes("connection")
+      error.message.includes('wallet') ||
+      error.message.includes('connection')
     ) {
-      return "Wallet connection error. Please reconnect your wallet and try again.";
+      return 'Wallet connection error. Please reconnect your wallet and try again.';
     }
 
-    if (error.message.includes("contract") || error.message.includes("abi")) {
-      return `${protocolName || "Protocol"} contract interaction failed. This may be due to network congestion or contract issues.`;
+    if (error.message.includes('contract') || error.message.includes('abi')) {
+      return `${protocolName || 'Protocol'} contract interaction failed. This may be due to network congestion or contract issues.`;
     }
 
     if (
-      error.message.includes("permission") ||
-      error.message.includes("unauthorized")
+      error.message.includes('permission') ||
+      error.message.includes('unauthorized')
     ) {
-      return `You don't have the required permissions to access this ${protocolName || "protocol"} feature.`;
+      return `You don't have the required permissions to access this ${protocolName || 'protocol'} feature.`;
     }
 
     // Generic error message
-    return `An error occurred while loading the ${protocolName || "protocol"} interface. Please try again.`;
+    return `An error occurred while loading the ${protocolName || 'protocol'} interface. Please try again.`;
   };
 
   render() {
@@ -197,7 +199,7 @@ export class ProtocolErrorBoundary extends React.Component<
             <AlertTriangle className="h-6 w-6 text-red-600" />
           </div>
           <CardTitle className="text-xl font-semibold text-gray-900">
-            {protocolName ? `${protocolName} Error` : "Something went wrong"}
+            {protocolName ? `${protocolName} Error` : 'Something went wrong'}
           </CardTitle>
         </CardHeader>
 
@@ -235,7 +237,7 @@ export class ProtocolErrorBoundary extends React.Component<
                 variant="default"
               >
                 <RefreshCw className="h-4 w-4" />
-                Try Again{" "}
+                Try Again{' '}
                 {retryCount > 0 && `(${maxRetries - retryCount} attempts left)`}
               </Button>
             )}
@@ -291,7 +293,7 @@ export function useProtocolErrorBoundary() {
         }
       }
     },
-    [clearError, captureError],
+    [clearError, captureError]
   );
 
   return {
@@ -311,7 +313,7 @@ export function withProtocolErrorBoundary<T extends object>(
     protocolName?: string;
     maxRetries?: number;
     showDetails?: boolean;
-  },
+  }
 ) {
   const WrappedComponent = React.forwardRef<any, T>((props, ref) => (
     <ProtocolErrorBoundary {...options}>

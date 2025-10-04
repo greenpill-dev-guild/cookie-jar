@@ -1,29 +1,29 @@
-"use client";
+'use client';
 
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
+import { Trash2 } from 'lucide-react';
+import type React from 'react';
+import { isAddress } from 'viem';
+// import { NFTGateInput } from "@/components/nft/NFTGateInput"; // TODO: Component not found
+import { NFTSelector, type SelectedNFT } from '@/components/nft/NFTSelector';
+import { ProtocolSelector } from '@/components/nft/ProtocolSelector';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Trash2 } from "lucide-react";
-import { ProtocolSelector } from "@/components/nft/ProtocolSelector";
-// import { NFTGateInput } from "@/components/nft/NFTGateInput"; // TODO: Component not found
-import { NFTSelector, type SelectedNFT } from "@/components/nft/NFTSelector";
-import { shortenAddress } from "@/lib/app/utils";
-import { isAddress } from "viem";
+} from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import {
   AccessType,
-  WithdrawalTypeOptions,
   NFTType,
-} from "@/hooks/jar/useJarCreation";
+  WithdrawalTypeOptions,
+} from '@/hooks/jar/useJarCreation';
+import { shortenAddress } from '@/lib/app/utils';
 
 interface StepContentProps {
   step: number;
@@ -56,7 +56,7 @@ const BasicConfigStep: React.FC<{ formData: any }> = ({ formData }) => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-end">
-        {process.env.NODE_ENV === "development" && (
+        {process.env.NODE_ENV === 'development' && (
           <Button
             variant="outline"
             size="sm"
@@ -108,7 +108,7 @@ const BasicConfigStep: React.FC<{ formData: any }> = ({ formData }) => {
                     // Could add toast here if needed
                   }
                 } catch (err) {
-                  console.error("Failed to read clipboard:", err);
+                  console.error('Failed to read clipboard:', err);
                 }
               }}
             >
@@ -130,9 +130,9 @@ const BasicConfigStep: React.FC<{ formData: any }> = ({ formData }) => {
           <p className="text-sm text-gray-600 mt-1">
             {formData.jarOwnerAddress &&
             formData.jarOwnerAddress !==
-              "0x0000000000000000000000000000000000000000"
+              '0x0000000000000000000000000000000000000000'
               ? `Currently set to: ${shortenAddress(formData.jarOwnerAddress, 10)}`
-              : "The address that will own and manage this jar"}
+              : 'The address that will own and manage this jar'}
           </p>
         </div>
 
@@ -141,7 +141,7 @@ const BasicConfigStep: React.FC<{ formData: any }> = ({ formData }) => {
           <Select
             value={
               formData.showCustomCurrency
-                ? "CUSTOM"
+                ? 'CUSTOM'
                 : formData.supportedCurrency
             }
             onValueChange={formData.handleCurrencyChange}
@@ -202,7 +202,7 @@ const BasicConfigStep: React.FC<{ formData: any }> = ({ formData }) => {
                 formData.supportedCurrency !== formData.ETH_ADDRESS &&
                 isAddress(formData.supportedCurrency) && (
                   <p className="text-sm text-green-600">
-                    ✓ Custom ERC-20 set:{" "}
+                    ✓ Custom ERC-20 set:{' '}
                     {shortenAddress(formData.supportedCurrency, 10)}
                   </p>
                 )}
@@ -257,7 +257,7 @@ const WithdrawalSettingsStep: React.FC<{ formData: any }> = ({ formData }) => {
             value={formData.withdrawalOption.toString()}
             onValueChange={(value) =>
               formData.setWithdrawalOption(
-                parseInt(value) as WithdrawalTypeOptions,
+                parseInt(value, 10) as WithdrawalTypeOptions
               )
             }
           >
@@ -328,7 +328,7 @@ const WithdrawalSettingsStep: React.FC<{ formData: any }> = ({ formData }) => {
               id="strictPurpose"
               checked={formData.strictPurpose}
               onCheckedChange={formData.handleCheckboxChange(
-                formData.setStrictPurpose,
+                formData.setStrictPurpose
               )}
             />
             <Label htmlFor="strictPurpose" className="text-sm">
@@ -341,7 +341,7 @@ const WithdrawalSettingsStep: React.FC<{ formData: any }> = ({ formData }) => {
               id="emergencyWithdrawal"
               checked={formData.emergencyWithdrawalEnabled}
               onCheckedChange={formData.handleCheckboxChange(
-                formData.setEmergencyWithdrawalEnabled,
+                formData.setEmergencyWithdrawalEnabled
               )}
             />
             <Label htmlFor="emergencyWithdrawal" className="text-sm">
@@ -354,7 +354,7 @@ const WithdrawalSettingsStep: React.FC<{ formData: any }> = ({ formData }) => {
               id="oneTimeWithdrawal"
               checked={formData.oneTimeWithdrawal}
               onCheckedChange={formData.handleCheckboxChange(
-                formData.setOneTimeWithdrawal,
+                formData.setOneTimeWithdrawal
               )}
             />
             <Label htmlFor="oneTimeWithdrawal" className="text-sm">
@@ -390,13 +390,17 @@ const AccessControlStep: React.FC<{ formData: any }> = ({ formData }) => {
               Select NFT for Access Control
             </Label>
             <p className="text-sm text-muted-foreground mb-4">
-              Choose an NFT that users must own to access this jar. You can search public collections or select from your own NFTs.
+              Choose an NFT that users must own to access this jar. You can
+              search public collections or select from your own NFTs.
             </p>
-            
+
             <NFTSelector
               onSelect={(selectedNFT: SelectedNFT) => {
                 // Convert SelectedNFT to the format expected by handleAddNFT
-                const nftType = selectedNFT.tokenType === "ERC721" ? NFTType.ERC721 : NFTType.ERC1155;
+                const nftType =
+                  selectedNFT.tokenType === 'ERC721'
+                    ? NFTType.ERC721
+                    : NFTType.ERC1155;
                 formData.handleAddNFT(selectedNFT.contractAddress, nftType);
               }}
               maxHeight="400px"
@@ -406,7 +410,9 @@ const AccessControlStep: React.FC<{ formData: any }> = ({ formData }) => {
 
           {formData.nftAddresses.length > 0 && (
             <div className="space-y-3">
-              <Label className="text-base font-medium">Selected NFT Requirements:</Label>
+              <Label className="text-base font-medium">
+                Selected NFT Requirements:
+              </Label>
               <div className="space-y-2">
                 {formData.nftAddresses.map((address: string, index: number) => (
                   <div
@@ -415,13 +421,19 @@ const AccessControlStep: React.FC<{ formData: any }> = ({ formData }) => {
                   >
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1">
-                        <span className="text-sm font-medium">NFT Contract</span>
-                        <span className={`text-xs px-2 py-0.5 rounded ${
-                          formData.nftTypes[index] === NFTType.ERC721 
-                            ? "bg-purple-100 text-purple-800" 
-                            : "bg-blue-100 text-blue-800"
-                        }`}>
-                          {formData.nftTypes[index] === NFTType.ERC721 ? "ERC721" : "ERC1155"}
+                        <span className="text-sm font-medium">
+                          NFT Contract
+                        </span>
+                        <span
+                          className={`text-xs px-2 py-0.5 rounded ${
+                            formData.nftTypes[index] === NFTType.ERC721
+                              ? 'bg-purple-100 text-purple-800'
+                              : 'bg-blue-100 text-blue-800'
+                          }`}
+                        >
+                          {formData.nftTypes[index] === NFTType.ERC721
+                            ? 'ERC721'
+                            : 'ERC1155'}
                         </span>
                       </div>
                       <p className="text-sm text-muted-foreground font-mono truncate">
@@ -433,10 +445,10 @@ const AccessControlStep: React.FC<{ formData: any }> = ({ formData }) => {
                       size="sm"
                       onClick={() => {
                         formData.setNftAddresses((prev: string[]) =>
-                          prev.filter((_, i) => i !== index),
+                          prev.filter((_, i) => i !== index)
                         );
                         formData.setNftTypes((prev: number[]) =>
-                          prev.filter((_, i) => i !== index),
+                          prev.filter((_, i) => i !== index)
                         );
                       }}
                       className="text-red-500 hover:text-red-700 hover:bg-red-50"
@@ -448,7 +460,10 @@ const AccessControlStep: React.FC<{ formData: any }> = ({ formData }) => {
               </div>
               <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
                 <p className="text-sm text-green-800">
-                  ✓ Users must own NFTs from {formData.nftAddresses.length} selected collection{formData.nftAddresses.length !== 1 ? 's' : ''} to access this jar.
+                  ✓ Users must own NFTs from {formData.nftAddresses.length}{' '}
+                  selected collection
+                  {formData.nftAddresses.length !== 1 ? 's' : ''} to access this
+                  jar.
                 </p>
               </div>
             </div>
@@ -457,7 +472,8 @@ const AccessControlStep: React.FC<{ formData: any }> = ({ formData }) => {
           {formData.nftAddresses.length === 0 && (
             <div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
               <p className="text-sm text-amber-800">
-                ⚠️ Please select at least one NFT collection to enable NFT-gated access.
+                ⚠️ Please select at least one NFT collection to enable NFT-gated
+                access.
               </p>
             </div>
           )}
@@ -485,12 +501,12 @@ const FinalSettingsStep: React.FC<{ formData: any; isV2Contract: boolean }> = ({
               checked={formData.enableCustomFee}
               disabled={!isV2Contract}
               onCheckedChange={formData.handleCheckboxChange(
-                formData.setEnableCustomFee,
+                formData.setEnableCustomFee
               )}
             />
             <Label
               htmlFor="enableCustomFee"
-              className={`text-sm ${!isV2Contract ? "text-gray-400" : ""}`}
+              className={`text-sm ${!isV2Contract ? 'text-gray-400' : ''}`}
             >
               Set custom deposit fee percentage
               {!isV2Contract && (
@@ -531,21 +547,21 @@ const FinalSettingsStep: React.FC<{ formData: any; isV2Contract: boolean }> = ({
                 v2 Enhanced
               </span>
             </h4>
-            
+
             <div className="space-y-4">
               <div className="flex items-center space-x-2">
                 <Checkbox
                   id="enableStreaming"
                   checked={formData.streamingEnabled}
                   onCheckedChange={formData.handleCheckboxChange(
-                    formData.setStreamingEnabled,
+                    formData.setStreamingEnabled
                   )}
                 />
                 <Label htmlFor="enableStreaming" className="text-sm">
                   Enable token streaming
                 </Label>
               </div>
-              
+
               {formData.streamingEnabled && (
                 <div className="ml-6 space-y-4 p-3 bg-white rounded border border-blue-200">
                   <div className="flex items-center space-x-2">
@@ -553,7 +569,7 @@ const FinalSettingsStep: React.FC<{ formData: any; isV2Contract: boolean }> = ({
                       id="requireStreamApproval"
                       checked={formData.requireStreamApproval}
                       onCheckedChange={formData.handleCheckboxChange(
-                        formData.setRequireStreamApproval,
+                        formData.setRequireStreamApproval
                       )}
                     />
                     <Label htmlFor="requireStreamApproval" className="text-sm">
@@ -570,7 +586,9 @@ const FinalSettingsStep: React.FC<{ formData: any; isV2Contract: boolean }> = ({
                         id="maxStreamRate"
                         type="number"
                         value={formData.maxStreamRate}
-                        onChange={(e) => formData.setMaxStreamRate(e.target.value)}
+                        onChange={(e) =>
+                          formData.setMaxStreamRate(e.target.value)
+                        }
                         placeholder="1.0"
                         step="0.001"
                         min="0"
@@ -588,7 +606,9 @@ const FinalSettingsStep: React.FC<{ formData: any; isV2Contract: boolean }> = ({
                         id="minStreamDuration"
                         type="number"
                         value={formData.minStreamDuration}
-                        onChange={(e) => formData.setMinStreamDuration(e.target.value)}
+                        onChange={(e) =>
+                          formData.setMinStreamDuration(e.target.value)
+                        }
                         placeholder="1"
                         min="1"
                       />
@@ -605,7 +625,7 @@ const FinalSettingsStep: React.FC<{ formData: any; isV2Contract: boolean }> = ({
                   id="enableAutoSwap"
                   checked={formData.autoSwapEnabled}
                   onCheckedChange={formData.handleCheckboxChange(
-                    formData.setAutoSwapEnabled,
+                    formData.setAutoSwapEnabled
                   )}
                 />
                 <Label htmlFor="enableAutoSwap" className="text-sm">
@@ -616,9 +636,17 @@ const FinalSettingsStep: React.FC<{ formData: any; isV2Contract: boolean }> = ({
               <div className="text-xs text-blue-700 bg-blue-50 p-2 rounded border">
                 <strong>ℹ️ Advanced Features:</strong>
                 <ul className="mt-1 ml-4 list-disc space-y-1">
-                  <li>Streaming allows continuous funding from external sources</li>
-                  <li>Auto-swap converts ETH deposits to your jar&apos;s token automatically</li>
-                  <li>Other ERC-20 tokens sent to the jar can be manually recovered and swapped</li>
+                  <li>
+                    Streaming allows continuous funding from external sources
+                  </li>
+                  <li>
+                    Auto-swap converts ETH deposits to your jar&apos;s token
+                    automatically
+                  </li>
+                  <li>
+                    Other ERC-20 tokens sent to the jar can be manually
+                    recovered and swapped
+                  </li>
                 </ul>
               </div>
             </div>
@@ -631,22 +659,22 @@ const FinalSettingsStep: React.FC<{ formData: any; isV2Contract: boolean }> = ({
         <h4 className="font-medium">Configuration Summary</h4>
         <div className="text-sm space-y-1">
           <div>
-            <strong>Name:</strong> {formData.jarName || "Not set"}
+            <strong>Name:</strong> {formData.jarName || 'Not set'}
           </div>
           <div>
             <strong>Owner:</strong> {formData.jarOwnerAddress}
           </div>
           <div>
-            <strong>Currency:</strong>{" "}
+            <strong>Currency:</strong>{' '}
             {formData.supportedCurrency === formData.ETH_ADDRESS
-              ? "ETH"
+              ? 'ETH'
               : formData.supportedCurrency}
           </div>
           <div>
             <strong>Access Type:</strong> {AccessType[formData.accessType]}
           </div>
           <div>
-            <strong>Withdrawal:</strong>{" "}
+            <strong>Withdrawal:</strong>{' '}
             {WithdrawalTypeOptions[formData.withdrawalOption]}
             {formData.withdrawalOption === WithdrawalTypeOptions.Fixed
               ? ` (${formData.fixedAmount} per withdrawal)`
@@ -654,19 +682,19 @@ const FinalSettingsStep: React.FC<{ formData: any; isV2Contract: boolean }> = ({
           </div>
           <div>
             <strong>Interval:</strong> {formData.withdrawalInterval} day
-            {parseInt(formData.withdrawalInterval) === 1 ? "" : "s"}
+            {parseInt(formData.withdrawalInterval, 10) === 1 ? '' : 's'}
           </div>
           <div>
-            <strong>Strict Purpose:</strong>{" "}
-            {formData.strictPurpose ? "Yes" : "No"}
+            <strong>Strict Purpose:</strong>{' '}
+            {formData.strictPurpose ? 'Yes' : 'No'}
           </div>
           <div>
-            <strong>Emergency Withdrawal:</strong>{" "}
-            {formData.emergencyWithdrawalEnabled ? "Enabled" : "Disabled"}
+            <strong>Emergency Withdrawal:</strong>{' '}
+            {formData.emergencyWithdrawalEnabled ? 'Enabled' : 'Disabled'}
           </div>
           <div>
-            <strong>One-time Only:</strong>{" "}
-            {formData.oneTimeWithdrawal ? "Yes" : "No"}
+            <strong>One-time Only:</strong>{' '}
+            {formData.oneTimeWithdrawal ? 'Yes' : 'No'}
           </div>
           {formData.enableCustomFee && (
             <div>
@@ -676,21 +704,27 @@ const FinalSettingsStep: React.FC<{ formData: any; isV2Contract: boolean }> = ({
           {isV2Contract && (
             <>
               <div>
-                <strong>Streaming:</strong> {formData.streamingEnabled ? "Enabled" : "Disabled"}
-                {formData.streamingEnabled && formData.requireStreamApproval && " (Manual Approval)"}
+                <strong>Streaming:</strong>{' '}
+                {formData.streamingEnabled ? 'Enabled' : 'Disabled'}
+                {formData.streamingEnabled &&
+                  formData.requireStreamApproval &&
+                  ' (Manual Approval)'}
               </div>
               {formData.streamingEnabled && (
                 <>
                   <div>
-                    <strong>Max Stream Rate:</strong> {formData.maxStreamRate} tokens/sec
+                    <strong>Max Stream Rate:</strong> {formData.maxStreamRate}{' '}
+                    tokens/sec
                   </div>
                   <div>
-                    <strong>Min Stream Duration:</strong> {formData.minStreamDuration} hours
+                    <strong>Min Stream Duration:</strong>{' '}
+                    {formData.minStreamDuration} hours
                   </div>
                 </>
               )}
               <div>
-                <strong>Auto-Swap ETH:</strong> {formData.autoSwapEnabled ? "Enabled" : "Disabled"}
+                <strong>Auto-Swap ETH:</strong>{' '}
+                {formData.autoSwapEnabled ? 'Enabled' : 'Disabled'}
               </div>
             </>
           )}

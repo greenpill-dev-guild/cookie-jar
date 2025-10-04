@@ -1,15 +1,15 @@
-import { Suspense } from "react";
-import { useAccount } from "wagmi";
+import { ArrowLeft, ArrowRight, CheckCircle2, Loader2 } from 'lucide-react';
+import { Suspense } from 'react';
+import { useAccount } from 'wagmi';
+import { Button } from '@/components/ui/button';
 import {
   Card,
   CardContent,
+  CardFooter,
   CardHeader,
   CardTitle,
-  CardFooter,
-} from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Loader2, CheckCircle2, ArrowLeft, ArrowRight } from "lucide-react";
-import { StepContent } from "./StepContent";
+} from '@/components/ui/card';
+import { StepContent } from './StepContent';
 
 interface CreateJarFormProps {
   currentStep: number;
@@ -37,11 +37,11 @@ export function CreateJarForm({
   const getStepTitle = () => {
     switch (currentStep) {
       case 1:
-        return "Basic Configuration";
+        return 'Basic Configuration';
       case 2:
-        return "Withdrawal Settings";
+        return 'Withdrawal Settings';
       case 3:
-        return isV2Contract ? "Access Control" : "";
+        return isV2Contract ? 'Access Control' : '';
       case 4:
         if (!isV2Contract) {
           return (
@@ -53,18 +53,16 @@ export function CreateJarForm({
             </div>
           );
         }
-        return "Final Settings & Review";
+        return 'Final Settings & Review';
       default:
-        return "";
+        return '';
     }
   };
 
   return (
     <Card className="shadow-lg">
       <CardHeader>
-        <CardTitle className="text-xl">
-          {getStepTitle()}
-        </CardTitle>
+        <CardTitle className="text-xl">{getStepTitle()}</CardTitle>
       </CardHeader>
 
       <CardContent>
@@ -96,7 +94,7 @@ export function CreateJarForm({
         )}
 
         <div
-          className={`w-full md:w-auto ${currentStep === 1 ? "md:ml-auto" : ""}`}
+          className={`w-full md:w-auto ${currentStep === 1 ? 'md:ml-auto' : ''}`}
         >
           {currentStep < totalSteps ? (
             <Button

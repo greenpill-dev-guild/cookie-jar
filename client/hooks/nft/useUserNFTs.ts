@@ -1,17 +1,17 @@
-import { useAccount, useChainId } from "wagmi";
-import { useState, useEffect, useCallback } from "react";
+import { useCallback, useEffect, useState } from 'react';
+import { useAccount, useChainId } from 'wagmi';
 
 /**
  * Alchemy network identifier mapping by chain ID
  */
 const ALCHEMY_NETWORKS: Record<number, string> = {
-  1: "eth-mainnet", // Ethereum Mainnet
-  11155111: "eth-sepolia", // Sepolia Testnet
-  8453: "base-mainnet", // Base
-  84532: "base-sepolia", // Base Sepolia
-  10: "opt-mainnet", // Optimism
-  11155420: "opt-sepolia", // Optimism Sepolia
-  42161: "arb-mainnet", // Arbitrum One
+  1: 'eth-mainnet', // Ethereum Mainnet
+  11155111: 'eth-sepolia', // Sepolia Testnet
+  8453: 'base-mainnet', // Base
+  84532: 'base-sepolia', // Base Sepolia
+  10: 'opt-mainnet', // Optimism
+  11155420: 'opt-sepolia', // Optimism Sepolia
+  42161: 'arb-mainnet', // Arbitrum One
 };
 
 /**
@@ -41,7 +41,7 @@ export interface UserNFT {
     /** Collection symbol */
     symbol?: string;
     /** Token standard (ERC721 or ERC1155) */
-    tokenType: "ERC721" | "ERC1155" | "UNKNOWN";
+    tokenType: 'ERC721' | 'ERC1155' | 'UNKNOWN';
   };
   /** Token ID within the contract */
   tokenId: string;
@@ -66,7 +66,7 @@ export interface NFTCollection {
   /** Collection symbol */
   symbol?: string;
   /** Token standard used by collection */
-  tokenType: "ERC721" | "ERC1155" | "UNKNOWN";
+  tokenType: 'ERC721' | 'ERC1155' | 'UNKNOWN';
   /** All NFTs in this collection */
   nfts: UserNFT[];
 }
@@ -107,11 +107,11 @@ export interface useUserNFTsOptions {
 
 /**
  * Custom hook to fetch user's NFTs using Alchemy API
- * 
+ *
  * Fetches NFTs owned by the connected user with support for filtering,
  * pagination, and metadata fetching. Uses Alchemy's getNFTsForOwner API
  * for reliable cross-chain NFT data.
- * 
+ *
  * Features:
  * - Multi-chain support (Ethereum, Base, Optimism, Arbitrum)
  * - Contract address filtering
@@ -119,10 +119,10 @@ export interface useUserNFTsOptions {
  * - Collection grouping
  * - Metadata fetching toggle
  * - Automatic error handling and retries
- * 
+ *
  * @param options - Configuration options for NFT fetching
  * @returns Object with NFT data, loading state, and control functions
- * 
+ *
  * @example
  * ```tsx
  * const {
@@ -138,10 +138,10 @@ export interface useUserNFTsOptions {
  *   pageSize: 50,
  *   contractAddresses: ['0x...'] // Optional filter
  * });
- * 
+ *
  * if (isLoading) return <div>Loading NFTs...</div>;
  * if (error) return <div>Error: {error}</div>;
- * 
+ *
  * return (
  *   <div>
  *     {collections.map(collection => (
@@ -157,7 +157,7 @@ export interface useUserNFTsOptions {
  * ```
  */
 export function useUserNFTs(
-  options: useUserNFTsOptions = {},
+  options: useUserNFTsOptions = {}
 ): useUserNFTsResult {
   const {
     contractAddresses,
@@ -184,10 +184,10 @@ export function useUserNFTs(
       if (!address || !alchemyId || !alchemyNetwork) {
         setError(
           !address
-            ? "Wallet not connected"
+            ? 'Wallet not connected'
             : !alchemyId
-              ? "Alchemy API key not configured"
-              : "Network not supported by Alchemy",
+              ? 'Alchemy API key not configured'
+              : 'Network not supported by Alchemy'
         );
         return;
       }
@@ -207,12 +207,12 @@ export function useUserNFTs(
 
         // Add contract addresses filter if specified
         if (contractAddresses && contractAddresses.length > 0) {
-          params.append("contractAddresses", contractAddresses.join(","));
+          params.append('contractAddresses', contractAddresses.join(','));
         }
 
         // Add pagination if loading more
         if (isLoadMore && pageKey) {
-          params.append("pageKey", pageKey);
+          params.append('pageKey', pageKey);
         }
 
         const url = `${baseUrl}/getNFTsForOwner?${params.toString()}`;
@@ -221,7 +221,7 @@ export function useUserNFTs(
 
         if (!response.ok) {
           throw new Error(
-            `Alchemy API error: ${response.status} ${response.statusText}`,
+            `Alchemy API error: ${response.status} ${response.statusText}`
           );
         }
 
@@ -276,13 +276,13 @@ export function useUserNFTs(
               nfts: [],
             });
           }
-          collectionsMap.get(key)!.nfts.push(nft);
+          collectionsMap.get(key)?.nfts.push(nft);
         });
 
         setCollections(Array.from(collectionsMap.values()));
       } catch (err) {
-        console.error("Error fetching NFTs:", err);
-        setError(err instanceof Error ? err.message : "Failed to fetch NFTs");
+        console.error('Error fetching NFTs:', err);
+        setError(err instanceof Error ? err.message : 'Failed to fetch NFTs');
       } finally {
         setIsLoading(false);
       }
@@ -295,7 +295,8 @@ export function useUserNFTs(
       withMetadata,
       pageSize,
       pageKey,
-    ],
+      nfts,
+    ]
   );
 
   const loadMore = useCallback(() => {
@@ -315,7 +316,7 @@ export function useUserNFTs(
     if (enabled && address) {
       refetch();
     }
-  }, [enabled, address, chainId, contractAddresses, refetch]);
+  }, [enabled, address, refetch]);
 
   return {
     nfts,
@@ -329,13 +330,13 @@ export function useUserNFTs(
 }
 
 // Helper function to map Alchemy token types to our format
-function mapTokenType(alchemyType: string): "ERC721" | "ERC1155" | "UNKNOWN" {
+function mapTokenType(alchemyType: string): 'ERC721' | 'ERC1155' | 'UNKNOWN' {
   switch (alchemyType?.toUpperCase()) {
-    case "ERC721":
-      return "ERC721";
-    case "ERC1155":
-      return "ERC1155";
+    case 'ERC721':
+      return 'ERC721';
+    case 'ERC1155':
+      return 'ERC1155';
     default:
-      return "UNKNOWN";
+      return 'UNKNOWN';
   }
 }

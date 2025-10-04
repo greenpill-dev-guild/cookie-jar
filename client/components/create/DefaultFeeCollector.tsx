@@ -1,18 +1,18 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { useWriteCookieJarUpdateFeeCollector } from "../../generated";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { CheckCircle, AlertCircle } from "lucide-react";
+import { AlertCircle, CheckCircle } from 'lucide-react';
+import React, { useState } from 'react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { useWriteCookieJarUpdateFeeCollector } from '../../generated';
 
 const DefaultFeeCollector = ({
   contractAddress,
 }: {
   contractAddress: `0x${string}`;
 }) => {
-  const [newFeeCollectorAddress, setNewFeeCollectorAddress] = useState("");
+  const [newFeeCollectorAddress, setNewFeeCollectorAddress] = useState('');
   const [isSuccess, setIsSuccess] = useState(false);
 
   const {
@@ -27,7 +27,7 @@ const DefaultFeeCollector = ({
   React.useEffect(() => {
     if (isTransactionSuccess) {
       setIsSuccess(true);
-      setNewFeeCollectorAddress("");
+      setNewFeeCollectorAddress('');
 
       // Reset success message after 5 seconds
       const timer = setTimeout(() => {
@@ -40,7 +40,7 @@ const DefaultFeeCollector = ({
 
   const handleSubmit = (e: any) => {
     e.preventDefault();
-    if (!newFeeCollectorAddress || !newFeeCollectorAddress.startsWith("0x"))
+    if (!newFeeCollectorAddress || !newFeeCollectorAddress.startsWith('0x'))
       return;
 
     updateFeeCollector({
@@ -62,7 +62,7 @@ const DefaultFeeCollector = ({
           <Alert className="bg-green-50 border-green-200">
             <CheckCircle className="h-4 w-4 text-green-600" />
             <AlertDescription className="text-green-600">
-              Fee collector updated successfully! Transaction hash:{" "}
+              Fee collector updated successfully! Transaction hash:{' '}
               {feeCollectorData?.slice(0, 10)}...
             </AlertDescription>
           </Alert>
@@ -73,7 +73,7 @@ const DefaultFeeCollector = ({
             <AlertCircle className="h-4 w-4 text-red-600" />
             <AlertDescription className="text-red-600">
               {feeCollectorError?.message ||
-                "Failed to update fee collector. Please try again."}
+                'Failed to update fee collector. Please try again.'}
             </AlertDescription>
           </Alert>
         )}
@@ -101,10 +101,10 @@ const DefaultFeeCollector = ({
 
           <Button
             type="submit"
-            disabled={!newFeeCollectorAddress.startsWith("0x")}
+            disabled={!newFeeCollectorAddress.startsWith('0x')}
             className="w-full sm:w-auto"
           >
-            {"Update Fee Collector"}
+            {'Update Fee Collector'}
           </Button>
         </form>
       </div>

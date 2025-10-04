@@ -4,19 +4,25 @@ interface ProgressIndicatorProps {
   isV2Contract?: boolean;
 }
 
-export function ProgressIndicator({ 
-  currentStep, 
-  totalSteps, 
-  isV2Contract = true 
+export function ProgressIndicator({
+  currentStep,
+  totalSteps,
+  isV2Contract = true,
 }: ProgressIndicatorProps) {
   // Normalize step number for progress calculation
   // For v1 contracts: step 4 should be treated as step 3 for progress purposes
-  const normalizedStep = !isV2Contract && currentStep === 4 ? 3 : 
-                        !isV2Contract && currentStep > 2 ? currentStep - 1 : 
-                        currentStep;
-  
-  const progressPercentage = Math.min(100, Math.round((normalizedStep / totalSteps) * 100));
-  
+  const normalizedStep =
+    !isV2Contract && currentStep === 4
+      ? 3
+      : !isV2Contract && currentStep > 2
+        ? currentStep - 1
+        : currentStep;
+
+  const progressPercentage = Math.min(
+    100,
+    Math.round((normalizedStep / totalSteps) * 100)
+  );
+
   return (
     <div className="mb-8">
       <div className="flex items-center justify-between mb-2">

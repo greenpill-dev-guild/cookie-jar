@@ -1,20 +1,14 @@
-"use client";
+'use client';
 
-import type React from "react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Progress } from "@/components/ui/progress";
-import { useToast } from "@/hooks/app/useToast";
-import { 
-  Play, 
-  2_Pause, 
-  Clock, 
-  TrendingUp,
-  Droplets
-} from "lucide-react";
-import { formatUnits } from "viem";
-import { formatAddress } from "@/lib/app/utils";
+import { Clock, Droplets, Play, TrendingUp } from 'lucide-react';
+import type React from 'react';
+import { formatUnits } from 'viem';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { useToast } from '@/hooks/app/useToast';
+import { formatAddress } from '@/lib/app/utils';
 
 interface StreamData {
   id: number;
@@ -32,27 +26,27 @@ interface StreamData {
 
 interface StreamProcessingCardProps {
   stream: StreamData;
-  onProcess: (14_streamId: number) => Promise<void>;
+  onProcess: (streamId: number) => Promise<void>;
   isProcessing: boolean;
   showActions?: boolean;
 }
 
-export const StreamProcessingCard: React.FC<StreamProcessingCardProps> = ({ 
-  stream, 
+export const StreamProcessingCard: React.FC<StreamProcessingCardProps> = ({
+  stream,
   onProcess,
   isProcessing,
-  showActions = true
+  showActions = true,
 }) => {
   const { toast } = useToast();
 
   const handleProcess = async () => {
     try {
       await onProcess(stream.id);
-    } catch (error) {
+    } catch {
       toast({
-        title: "Processing Failed",
+        title: 'Processing Failed',
         description: `Failed to process stream #${stream.id}`,
-        variant: "destructive",
+        variant: 'destructive',
       });
     }
   };
@@ -60,24 +54,24 @@ export const StreamProcessingCard: React.FC<StreamProcessingCardProps> = ({
   const calculateTimeUntilNext = (): string => {
     const now = Date.now();
     const timeUntilNext = stream.nextProcessTime - now;
-    
-    if (timeUntilNext <= 0) return "Ready to process";
-    
+
+    if (timeUntilNext <= 0) return 'Ready to process';
+
     const minutes = Math.floor(timeUntilNext / 60000);
     const hours = Math.floor(minutes / 60);
     const days = Math.floor(hours / 24);
-    
+
     if (days > 0) return `${days}d ${hours % 24}h`;
     if (hours > 0) return `${hours}h ${minutes % 60}m`;
     if (minutes > 0) return `${minutes}m`;
-    return "< 1m";
+    return '< 1m';
   };
 
   const getProcessingProgress = (): number => {
     const now = Date.now();
     const timeSinceLastProcess = now - stream.lastProcessedTime;
     const timeUntilNext = stream.nextProcessTime - stream.lastProcessedTime;
-    
+
     if (timeUntilNext <= 0) return 100;
     return Math.min(100, (timeSinceLastProcess / timeUntilNext) * 100);
   };
@@ -85,7 +79,7 @@ export const StreamProcessingCard: React.FC<StreamProcessingCardProps> = ({
   const formatRate = (ratePerSecond: bigint, decimals: number): string => {
     const ratePerHour = ratePerSecond * BigInt(3600);
     const ratePerDay = ratePerSecond * BigInt(86400);
-    
+
     if (ratePerDay < BigInt(10) ** BigInt(decimals)) {
       return `${formatUnits(ratePerHour, decimals)}/hr`;
     } else {
@@ -94,22 +88,32 @@ export const StreamProcessingCard: React.FC<StreamProcessingCardProps> = ({
   };
 
   const isReadyToProcess = () => {
-    return Date.now() >= stream.nextProcessTime && stream.pendingAmount > BigInt(0);
+    return (
+      Date.now() >= stream.nextProcessTime && stream.pendingAmount > BigInt(0)
+    );
   };
 
   return (
-    <Card className={`border-l-4 ${isReadyToProcess() ? 'border-l-green-500' : 'border-l-blue-500'}`}>
+    <Card
+      className={`border-l-4 ${isReadyToProcess() ? 'border-l-green-500' : 'border-l-blue-500'}`}
+    >
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm font-medium">
             Stream #{stream.id}
           </CardTitle>
           <div className="flex items-center gap-2">
-            <Badge variant={stream.isActive ? "default" : "secondary"} className="text-xs">
-              {stream.isActive ? "Active" : "Paused"}
+            <Badge
+              variant={stream.isActive ? 'default' : 'secondary'}
+              className="text-xs"
+            >
+              {stream.isActive ? 'Active' : 'Paused'}
             </Badge>
             {isReadyToProcess() && (
-              <Badge variant="outline" className="text-xs border-green-500 text-green-700">
+              <Badge
+                variant="outline"
+                className="text-xs border-green-500 text-green-700"
+              >
                 Ready
               </Badge>
             )}
@@ -125,7 +129,9 @@ export const StreamProcessingCard: React.FC<StreamProcessingCardProps> = ({
           </div>
           <div>
             <p className="text-gray-600">Rate</p>
-            <p className="font-medium">{formatRate(stream.ratePerSecond, stream.decimals)}</p>
+            <p className="font-medium">
+              {formatRate(stream.ratePerSecond, stream.decimals)}
+            </p>
           </div>
         </div>
 
@@ -144,7 +150,8 @@ export const StreamProcessingCard: React.FC<StreamProcessingCardProps> = ({
               <span className="font-medium text-blue-700">Pending</span>
             </div>
             <p className="font-mono text-lg text-blue-800">
-              {formatUnits(stream.pendingAmount, stream.decimals).slice(0, 8)} {stream.tokenSymbol}
+              {formatUnits(stream.pendingAmount, stream.decimals).slice(0, 8)}{' '}
+              {stream.tokenSymbol}
             </p>
           </div>
 
@@ -154,7 +161,8 @@ export const StreamProcessingCard: React.FC<StreamProcessingCardProps> = ({
               <span className="font-medium text-green-700">Total Streamed</span>
             </div>
             <p className="font-mono text-lg text-green-800">
-              {formatUnits(stream.totalStreamed, stream.decimals).slice(0, 8)} {stream.tokenSymbol}
+              {formatUnits(stream.totalStreamed, stream.decimals).slice(0, 8)}{' '}
+              {stream.tokenSymbol}
             </p>
           </div>
         </div>
@@ -165,7 +173,7 @@ export const StreamProcessingCard: React.FC<StreamProcessingCardProps> = ({
               size="sm"
               onClick={handleProcess}
               disabled={!isReadyToProcess() || isProcessing}
-              variant={isReadyToProcess() ? "default" : "outline"}
+              variant={isReadyToProcess() ? 'default' : 'outline'}
             >
               {isProcessing ? (
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
@@ -174,7 +182,7 @@ export const StreamProcessingCard: React.FC<StreamProcessingCardProps> = ({
               ) : (
                 <Clock className="h-4 w-4 mr-2" />
               )}
-              {isReadyToProcess() ? "Process Now" : "Waiting"}
+              {isReadyToProcess() ? 'Process Now' : 'Waiting'}
             </Button>
           </div>
         )}

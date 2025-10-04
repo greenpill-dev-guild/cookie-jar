@@ -1,6 +1,6 @@
-"use client";
+'use client';
 
-import { useState, useCallback } from "react";
+import { useCallback, useState } from 'react';
 
 /**
  * Return type for useStepNavigation hook
@@ -20,18 +20,18 @@ interface StepNavigationReturn {
 
 /**
  * Custom hook for managing multi-step form navigation
- * 
+ *
  * Provides step navigation logic with automatic handling of v1/v2 contract
  * differences. V1 contracts skip the access control step (step 3) since
  * they don't support advanced access control features.
- * 
+ *
  * @param isV2Contract - Whether the current contract is v2 (supports all steps)
  * @returns Object with current step, navigation functions, and metadata
- * 
+ *
  * @example
  * ```tsx
  * const { currentStep, nextStep, prevStep, totalSteps } = useStepNavigation(isV2);
- * 
+ *
  * return (
  *   <div>
  *     Step {currentStep} of {totalSteps}
@@ -41,7 +41,9 @@ interface StepNavigationReturn {
  * );
  * ```
  */
-export const useStepNavigation = (isV2Contract: boolean): StepNavigationReturn => {
+export const useStepNavigation = (
+  isV2Contract: boolean
+): StepNavigationReturn => {
   const [currentStep, setCurrentStep] = useState(1);
   const totalSteps = isV2Contract ? 4 : 3; // Skip access control for v1
 

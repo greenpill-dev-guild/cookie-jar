@@ -1,14 +1,26 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useAccount } from "wagmi";
-import { ChevronLeft, ChevronRight, Check, AlertCircle, Smartphone } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Alert, AlertDescription } from "@/components/ui/alert";
-import { StepContent } from "./StepContent";
+import {
+  AlertCircle,
+  Check,
+  ChevronLeft,
+  ChevronRight,
+  Smartphone,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { useAccount } from 'wagmi';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import { StepContent } from './StepContent';
 
 interface MobileOptimizedFormProps {
   currentStep: number;
@@ -40,46 +52,67 @@ export function MobileOptimizedForm({
     const checkMobile = () => {
       setIsMobile(window.innerWidth < 768);
     };
-    
+
     checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
   // Detect virtual keyboard on mobile
   useEffect(() => {
     if (!isMobile) return;
 
-    const initialViewportHeight = window.visualViewport?.height || window.innerHeight;
-    
+    const initialViewportHeight =
+      window.visualViewport?.height || window.innerHeight;
+
     const handleViewportChange = () => {
       const currentHeight = window.visualViewport?.height || window.innerHeight;
       const heightDifference = initialViewportHeight - currentHeight;
-      
+
       // If viewport height decreased by more than 150px, assume keyboard is visible
       setKeyboardVisible(heightDifference > 150);
     };
 
     if (window.visualViewport) {
-      window.visualViewport.addEventListener("resize", handleViewportChange);
-      return () => window.visualViewport?.removeEventListener("resize", handleViewportChange);
+      window.visualViewport.addEventListener('resize', handleViewportChange);
+      return () =>
+        window.visualViewport?.removeEventListener(
+          'resize',
+          handleViewportChange
+        );
     }
   }, [isMobile]);
 
   const getStepInfo = (step: number) => {
     switch (step) {
       case 1:
-        return { title: "Basic Info", icon: "📝", description: "Name and settings" };
+        return {
+          title: 'Basic Info',
+          icon: '📝',
+          description: 'Name and settings',
+        };
       case 2:
-        return { title: "Withdrawals", icon: "💰", description: "How users can withdraw" };
+        return {
+          title: 'Withdrawals',
+          icon: '💰',
+          description: 'How users can withdraw',
+        };
       case 3:
-        return isV2Contract 
-          ? { title: "Access Control", icon: "🔐", description: "Who can access" }
-          : { title: "Skip", icon: "⏭️", description: "Not available in v1" };
+        return isV2Contract
+          ? {
+              title: 'Access Control',
+              icon: '🔐',
+              description: 'Who can access',
+            }
+          : { title: 'Skip', icon: '⏭️', description: 'Not available in v1' };
       case 4:
-        return { title: "Review & Create", icon: "✅", description: "Confirm and deploy" };
+        return {
+          title: 'Review & Create',
+          icon: '✅',
+          description: 'Confirm and deploy',
+        };
       default:
-        return { title: "Step", icon: "📄", description: "" };
+        return { title: 'Step', icon: '📄', description: '' };
     }
   };
 
@@ -105,7 +138,7 @@ export function MobileOptimizedForm({
               {currentStep}/{totalSteps}
             </Badge>
           </div>
-          
+
           {/* Progress Bar */}
           <div className="px-4 pb-3">
             <Progress value={progressPercentage} className="h-2" />
@@ -118,8 +151,12 @@ export function MobileOptimizedForm({
       )}
 
       {/* Main Content */}
-      <div className={`${isMobile ? 'p-4 pb-20' : ''} ${keyboardVisible ? 'pb-4' : ''}`}>
-        <Card className={`${isMobile ? 'border-none shadow-none' : 'shadow-lg'}`}>
+      <div
+        className={`${isMobile ? 'p-4 pb-20' : ''} ${keyboardVisible ? 'pb-4' : ''}`}
+      >
+        <Card
+          className={`${isMobile ? 'border-none shadow-none' : 'shadow-lg'}`}
+        >
           {!isMobile && (
             <CardHeader>
               <div className="flex items-center justify-between">
@@ -145,7 +182,9 @@ export function MobileOptimizedForm({
                   <div className="text-3xl">{stepInfo.icon}</div>
                   <div>
                     <h2 className="text-xl font-semibold">{stepInfo.title}</h2>
-                    <p className="text-sm text-muted-foreground">{stepInfo.description}</p>
+                    <p className="text-sm text-muted-foreground">
+                      {stepInfo.description}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -172,11 +211,12 @@ export function MobileOptimizedForm({
           </CardContent>
 
           {!keyboardVisible && (
-            <CardFooter 
+            <CardFooter
               className={`
-                ${isMobile 
-                  ? 'fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4 flex-col gap-3' 
-                  : 'flex-row justify-between gap-3'
+                ${
+                  isMobile
+                    ? 'fixed bottom-0 left-0 right-0 bg-white border-t shadow-lg p-4 flex-col gap-3'
+                    : 'flex-row justify-between gap-3'
                 }
               `}
             >
@@ -256,24 +296,29 @@ export function MobileOptimizedForm({
 export function useMobileFormOptimizations() {
   const [isMobile, setIsMobile] = useState(false);
   const [keyboardVisible, setKeyboardVisible] = useState(false);
-  const [orientation, setOrientation] = useState<'portrait' | 'landscape'>('portrait');
+  const [orientation, setOrientation] = useState<'portrait' | 'landscape'>(
+    'portrait'
+  );
 
   useEffect(() => {
     const checkMobile = () => {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
-      
+
       if (mobile) {
-        setOrientation(window.innerWidth > window.innerHeight ? 'landscape' : 'portrait');
+        setOrientation(
+          window.innerWidth > window.innerHeight ? 'landscape' : 'portrait'
+        );
       }
     };
 
     const handleKeyboard = () => {
       if (!isMobile) return;
-      
-      const viewportHeight = window.visualViewport?.height || window.innerHeight;
+
+      const viewportHeight =
+        window.visualViewport?.height || window.innerHeight;
       const windowHeight = window.screen.height;
-      
+
       setKeyboardVisible(viewportHeight < windowHeight * 0.75);
     };
 
@@ -282,7 +327,7 @@ export function useMobileFormOptimizations() {
 
     window.addEventListener('resize', checkMobile);
     window.addEventListener('resize', handleKeyboard);
-    
+
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize', handleKeyboard);
     }

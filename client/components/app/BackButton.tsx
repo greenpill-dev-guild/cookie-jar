@@ -1,13 +1,12 @@
-"use client";
+'use client';
 
-import type React from "react";
-
-import { useRouter, usePathname } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
-import { cn } from "@/lib/app/utils";
-import { Button } from "@/components/ui/button";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
-import Image from "next/image";
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { ArrowLeft } from 'lucide-react';
+import Image from 'next/image';
+import { usePathname, useRouter } from 'next/navigation';
+import type React from 'react';
+import { Button } from '@/components/ui/button';
+import { cn } from '@/lib/app/utils';
 
 interface BackButtonProps {
   className?: string;
@@ -15,21 +14,18 @@ interface BackButtonProps {
   children?: React.ReactNode;
 }
 
-export function BackButton({
-  className = "",
-  children,
-}: BackButtonProps) {
+export function BackButton({ className = '', children }: BackButtonProps) {
   const router = useRouter();
   const pathname = usePathname();
 
   // Don't show on home page
-  if (pathname === "/") return null;
+  if (pathname === '/') return null;
 
   return (
     <div
       className={cn(
-        "flex items-center justify-between w-full bg-white rounded-xl py-2 px-4 shadow-sm",
-        className,
+        'flex items-center justify-between w-full bg-white rounded-xl py-2 px-4 shadow-sm',
+        className
       )}
     >
       <button
@@ -53,13 +49,13 @@ export function BackButton({
             authenticationStatus,
             mounted,
           }) => {
-            const ready = mounted && authenticationStatus !== "loading";
+            const ready = mounted && authenticationStatus !== 'loading';
             const connected =
               ready &&
               account &&
               chain &&
               (!authenticationStatus ||
-                authenticationStatus === "authenticated");
+                authenticationStatus === 'authenticated');
 
             if (!connected) {
               return null; // Don't show network buttons if not connected
@@ -90,8 +86,8 @@ export function BackButton({
                     <div className="w-4 h-4 relative">
                       {chain.iconUrl && (
                         <Image
-                          alt={chain.name ?? "Chain icon"}
-                          src={chain.iconUrl || "/placeholder.svg"}
+                          alt={chain.name ?? 'Chain icon'}
+                          src={chain.iconUrl || '/placeholder.svg'}
                           fill
                           sizes="16px"
                           className="object-contain"

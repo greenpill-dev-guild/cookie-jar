@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import React from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { CheckCircle2, AlertCircle } from "lucide-react";
+import { AlertCircle, CheckCircle2 } from 'lucide-react';
+import type React from 'react';
+import { Card, CardContent } from '@/components/ui/card';
 
 interface StatusCardsProps {
   newJarPreview: {
@@ -38,8 +38,8 @@ export const StatusCards: React.FC<StatusCardsProps> = ({
                   ...{newJarPreview.address.slice(-6)}
                 </p>
                 <p className="text-sm text-green-600">
-                  <strong>Currency:</strong>{" "}
-                  {newJarPreview.currency === ETH_ADDRESS ? "ETH" : "ERC20"}
+                  <strong>Currency:</strong>{' '}
+                  {newJarPreview.currency === ETH_ADDRESS ? 'ETH' : 'ERC20'}
                 </p>
                 <p className="text-xs text-green-600 mt-2">
                   Redirecting to your new jar...

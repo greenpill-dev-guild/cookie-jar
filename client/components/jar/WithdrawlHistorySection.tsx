@@ -1,15 +1,14 @@
-"use client";
+'use client';
 
-import type React from "react";
-import type { Address } from "viem";
-
+import type React from 'react';
+import type { Address } from 'viem';
+import { formatAddress } from '@/lib/app/utils';
 // Import token utilities
 import {
   ETH_ADDRESS,
-  useTokenInfo,
   formatTokenAmount,
-} from "@/lib/blockchain/token-utils";
-import { formatAddress } from "@/lib/app/utils";
+  useTokenInfo,
+} from '@/lib/blockchain/token-utils';
 
 // Export the Withdrawal interface so it can be imported elsewhere
 export interface Withdrawal {
@@ -48,32 +47,32 @@ export const WithdrawalHistorySection: React.FC<
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                   <p className="font-medium text-[#3c2a14]">
-                    <span className="text-[#3c2a14]">Amount:</span>{" "}
+                    <span className="text-[#3c2a14]">Amount:</span>{' '}
                     <span className="text-[#ff5e14]">
                       {formatTokenAmount(
                         withdrawal.amount,
                         tokenDecimals,
                         tokenSymbol,
-                        6,
+                        6
                       )}
                     </span>
                   </p>
                 </div>
                 <div>
                   <p className="font-medium text-[#3c2a14]">
-                    <span className="text-[#3c2a14]">Purpose:</span>{" "}
+                    <span className="text-[#3c2a14]">Purpose:</span>{' '}
                     <span className="text-[#8b7355]">
-                      {withdrawal.purpose || "No purpose provided"}
+                      {withdrawal.purpose || 'No purpose provided'}
                     </span>
                   </p>
                 </div>
                 <div>
                   <p className="font-medium text-[#3c2a14]">
-                    <span className="text-[#3c2a14]">Recipient:</span>{" "}
+                    <span className="text-[#3c2a14]">Recipient:</span>{' '}
                     <span className="text-[#8b7355]">
                       {withdrawal.recipient
                         ? formatAddress(withdrawal.recipient)
-                        : "No withdrawal address provided"}
+                        : 'No withdrawal address provided'}
                     </span>
                   </p>
                 </div>

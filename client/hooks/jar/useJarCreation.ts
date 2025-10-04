@@ -1,33 +1,33 @@
-"use client";
+'use client';
 
+import { useQueryClient } from '@tanstack/react-query';
+import { useRouter } from 'next/navigation';
+import { useCallback, useEffect, useState } from 'react';
+import { decodeEventLog, isAddress, parseEther } from 'viem';
 import {
   useAccount,
   useChainId,
-  useWriteContract,
   useWaitForTransactionReceipt,
-} from "wagmi";
-import { useRouter } from "next/navigation";
-import { useState, useCallback, useEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import { parseEther, isAddress, decodeEventLog } from "viem";
+  useWriteContract,
+} from 'wagmi';
 
-import { contractAddresses, isV2Chain } from "@/config/supported-networks";
-import { cookieJarFactoryAbi } from "@/generated";
-import { cookieJarFactoryV1Abi } from "@/lib/blockchain/cookie-jar-v1-abi";
-import { cookieJarFactoryV2Abi } from "@/lib/blockchain/cookie-jar-v2-abi";
+import { contractAddresses, isV2Chain } from '@/config/supported-networks';
+import { cookieJarFactoryAbi } from '@/generated';
+import { cookieJarFactoryV1Abi } from '@/lib/blockchain/cookie-jar-v1-abi';
+import { cookieJarFactoryV2Abi } from '@/lib/blockchain/cookie-jar-v2-abi';
 
-import { useToast } from "../app/useToast";
+import { useToast } from '../app/useToast';
 
 // Constants
 /** Standard ETH address placeholder used in contracts */
-const ETH_ADDRESS = "0x0000000000000000000000000000000000000003";
+const ETH_ADDRESS = '0x0000000000000000000000000000000000000003';
 
 /**
  * Protocol configuration for advanced access control
  */
 export interface ProtocolConfig {
   /** Type of access control mechanism */
-  accessType: "Allowlist" | "NFT" | "POAP" | "Unlock" | "Hypercert" | "Hats";
+  accessType: 'Allowlist' | 'NFT' | 'POAP' | 'Unlock' | 'Hypercert' | 'Hats';
   /** NFT contract addresses for NFT-gated access */
   nftAddresses?: string[];
   /** NFT types (ERC721=1, ERC1155=2) corresponding to addresses */
@@ -92,12 +92,12 @@ export enum NFTType {
 
 /**
  * Custom hook for Cookie Jar creation workflow
- * 
+ *
  * Provides comprehensive jar creation functionality including form state
  * management, validation, contract interaction, and transaction handling.
  * Supports both v1 and v2 contract deployments with automatic protocol
  * detection and parameter adaptation.
- * 
+ *
  * Features:
  * - Multi-step form management
  * - Real-time validation
@@ -105,9 +105,9 @@ export enum NFTType {
  * - Advanced access control (v2)
  * - Transaction status tracking
  * - Automatic redirect on success
- * 
+ *
  * @returns Object with form state, handlers, validation, and transaction status
- * 
+ *
  * @example
  * ```tsx
  * const {
@@ -118,11 +118,11 @@ export enum NFTType {
  *   validateStep1,
  *   formErrors
  * } = useJarCreation();
- * 
+ *
  * return (
  *   <form onSubmit={(e) => { e.preventDefault(); confirmSubmit(); }}>
- *     <input 
- *       value={jarName} 
+ *     <input
+ *       value={jarName}
  *       onChange={(e) => setJarName(e.target.value)}
  *     />
  *     {formErrors.map(error => <p key={error}>{error}</p>)}
@@ -141,43 +141,43 @@ export const useJarCreation = () => {
   const queryClient = useQueryClient();
 
   // Form state
-  const [selectedNetwork, setSelectedNetwork] = useState<string>("baseSepolia");
+  const [selectedNetwork, setSelectedNetwork] = useState<string>('baseSepolia');
   const [jarOwnerAddress, setJarOwnerAddress] = useState<`0x${string}`>(
-    "0x0000000000000000000000000000000000000000",
+    '0x0000000000000000000000000000000000000000'
   );
   const [supportedCurrency, setSupportedCurrency] =
     useState<`0x${string}`>(ETH_ADDRESS);
   const [accessType, setAccessType] = useState<AccessType>(
-    AccessType.Allowlist,
+    AccessType.Allowlist
   );
   const [withdrawalOption, setWithdrawalOption] =
     useState<WithdrawalTypeOptions>(WithdrawalTypeOptions.Fixed);
-  const [fixedAmount, setFixedAmount] = useState("0");
-  const [maxWithdrawal, setMaxWithdrawal] = useState("0");
-  const [withdrawalInterval, setWithdrawalInterval] = useState("0");
+  const [fixedAmount, setFixedAmount] = useState('0');
+  const [maxWithdrawal, setMaxWithdrawal] = useState('0');
+  const [withdrawalInterval, setWithdrawalInterval] = useState('0');
   const [strictPurpose, setStrictPurpose] = useState(true);
   const [emergencyWithdrawalEnabled, setEmergencyWithdrawalEnabled] =
     useState(true);
   const [oneTimeWithdrawal, setOneTimeWithdrawal] = useState(false);
-  const [metadata, setMetadata] = useState("");
+  const [metadata, setMetadata] = useState('');
 
   // New metadata fields
-  const [jarName, setJarName] = useState("");
-  const [imageUrl, setImageUrl] = useState("");
-  const [externalLink, setExternalLink] = useState("");
-  const [customFee, setCustomFee] = useState("");
+  const [jarName, setJarName] = useState('');
+  const [imageUrl, setImageUrl] = useState('');
+  const [externalLink, setExternalLink] = useState('');
+  const [customFee, setCustomFee] = useState('');
   const [enableCustomFee, setEnableCustomFee] = useState(false);
 
   // Streaming configuration state
   const [streamingEnabled, setStreamingEnabled] = useState(false);
   const [requireStreamApproval, setRequireStreamApproval] = useState(true);
-  const [maxStreamRate, setMaxStreamRate] = useState("1.0");
-  const [minStreamDuration, setMinStreamDuration] = useState("1");
+  const [maxStreamRate, setMaxStreamRate] = useState('1.0');
+  const [minStreamDuration, setMinStreamDuration] = useState('1');
   const [autoSwapEnabled, setAutoSwapEnabled] = useState(false);
 
   // Currency selection state
   const [showCustomCurrency, setShowCustomCurrency] = useState(false);
-  const [customCurrencyAddress, setCustomCurrencyAddress] = useState("");
+  const [customCurrencyAddress, setCustomCurrencyAddress] = useState('');
 
   // NFT management state
   const [nftAddresses, setNftAddresses] = useState<string[]>([]);
@@ -185,7 +185,7 @@ export const useJarCreation = () => {
 
   // Protocol configuration state
   const [protocolConfig, setProtocolConfig] = useState<ProtocolConfig>({
-    accessType: "Allowlist",
+    accessType: 'Allowlist',
   });
 
   // Form validation state
@@ -193,7 +193,7 @@ export const useJarCreation = () => {
   const [formErrors, setFormErrors] = useState<string[]>([]);
 
   // Transaction state
-  const [isCreating, setIsCreating] = useState(false);
+  const [_isCreating, setIsCreating] = useState(false);
   const [newJarPreview, setNewJarPreview] = useState<{
     address: string;
     name: string;
@@ -224,15 +224,15 @@ export const useJarCreation = () => {
   // Helper functions
   const parseAmount = (amount: string) => {
     try {
-      return parseEther(amount || "0");
+      return parseEther(amount || '0');
     } catch {
-      return parseEther("0");
+      return parseEther('0');
     }
   };
 
   const handleCheckboxChange =
     (setter: (value: boolean) => void) =>
-    (checked: boolean | "indeterminate") => {
+    (checked: boolean | 'indeterminate') => {
       setter(checked === true);
     };
 
@@ -244,20 +244,20 @@ export const useJarCreation = () => {
     const errors: string[] = [];
 
     if (!jarName.trim()) {
-      errors.push("Jar name is required");
+      errors.push('Jar name is required');
     }
 
     if (jarOwnerAddress && !isAddress(jarOwnerAddress)) {
-      errors.push("Jar owner address must be a valid Ethereum address");
+      errors.push('Jar owner address must be a valid Ethereum address');
     }
 
     if (!isAddress(supportedCurrency)) {
       if (showCustomCurrency && customCurrencyAddress) {
         if (!isAddress(customCurrencyAddress)) {
-          errors.push("Custom currency must be a valid contract address");
+          errors.push('Custom currency must be a valid contract address');
         }
       } else if (supportedCurrency !== ETH_ADDRESS) {
-        errors.push("Valid currency address is required");
+        errors.push('Valid currency address is required');
       }
     }
 
@@ -281,16 +281,16 @@ export const useJarCreation = () => {
 
     if (withdrawalOption === WithdrawalTypeOptions.Fixed) {
       if (!fixedAmount || parseFloat(fixedAmount) <= 0) {
-        errors.push("Fixed withdrawal amount must be greater than 0");
+        errors.push('Fixed withdrawal amount must be greater than 0');
       }
     } else {
       if (!maxWithdrawal || parseFloat(maxWithdrawal) <= 0) {
-        errors.push("Maximum withdrawal amount must be greater than 0");
+        errors.push('Maximum withdrawal amount must be greater than 0');
       }
     }
 
-    if (!withdrawalInterval || parseInt(withdrawalInterval) <= 0) {
-      errors.push("Withdrawal interval must be greater than 0 days");
+    if (!withdrawalInterval || parseInt(withdrawalInterval, 10) <= 0) {
+      errors.push('Withdrawal interval must be greater than 0 days');
     }
 
     return {
@@ -308,14 +308,14 @@ export const useJarCreation = () => {
     if (accessType === AccessType.NFTGated) {
       if (nftAddresses.length === 0) {
         errors.push(
-          "At least one NFT address is required for NFT-gated access",
+          'At least one NFT address is required for NFT-gated access'
         );
       }
 
       nftAddresses.forEach((addr, index) => {
         if (!isAddress(addr)) {
           errors.push(
-            `NFT address ${index + 1} is not a valid Ethereum address`,
+            `NFT address ${index + 1} is not a valid Ethereum address`
           );
         }
       });
@@ -339,7 +339,7 @@ export const useJarCreation = () => {
         parseFloat(customFee) < 0 ||
         parseFloat(customFee) > 100
       ) {
-        errors.push("Custom fee must be between 0 and 100 percent");
+        errors.push('Custom fee must be between 0 and 100 percent');
       }
     }
 
@@ -375,10 +375,10 @@ export const useJarCreation = () => {
   const handleProtocolConfigChange = (config: ProtocolConfig) => {
     setProtocolConfig(config);
     switch (config.accessType) {
-      case "Allowlist":
+      case 'Allowlist':
         setAccessType(AccessType.Allowlist);
         break;
-      case "NFT":
+      case 'NFT':
         setAccessType(AccessType.NFTGated);
         if (config.nftAddresses) {
           setNftAddresses(config.nftAddresses);
@@ -387,16 +387,16 @@ export const useJarCreation = () => {
           setNftTypes(config.nftTypes.map((t) => t as NFTType));
         }
         break;
-      case "POAP":
+      case 'POAP':
         setAccessType(AccessType.POAP);
         break;
-      case "Unlock":
+      case 'Unlock':
         setAccessType(AccessType.Unlock);
         break;
-      case "Hypercert":
+      case 'Hypercert':
         setAccessType(AccessType.Hypercert);
         break;
-      case "Hats":
+      case 'Hats':
         setAccessType(AccessType.Hats);
         break;
     }
@@ -430,25 +430,25 @@ export const useJarCreation = () => {
     // Create metadata based on contract version
     const finalMetadata = isV2Contract
       ? JSON.stringify({
-          version: "2.0",
+          version: '2.0',
           name: jarName,
           description: metadata,
           image: imageUrl,
           external_url: externalLink,
         })
-      : jarName || metadata || "Cookie Jar";
+      : jarName || metadata || 'Cookie Jar';
 
     try {
       if (!factoryAddress) {
         throw new Error(
-          `No contract address found for the current network (Chain ID: ${chainId}). Please switch to a supported network.`,
+          `No contract address found for the current network (Chain ID: ${chainId}). Please switch to a supported network.`
         );
       }
 
       if (isV2Contract) {
         // V2 Contract - Use struct-based approach
         const feeBps =
-          enableCustomFee && customFee !== ""
+          enableCustomFee && customFee !== ''
             ? Math.round(parseFloat(customFee) * 100)
             : 0;
 
@@ -460,7 +460,7 @@ export const useJarCreation = () => {
           withdrawalOption: withdrawalOption,
           fixedAmount: parseAmount(fixedAmount),
           maxWithdrawal: parseAmount(maxWithdrawal),
-          withdrawalInterval: BigInt(withdrawalInterval || "0"),
+          withdrawalInterval: BigInt(withdrawalInterval || '0'),
           strictPurpose: strictPurpose,
           emergencyWithdrawalEnabled: emergencyWithdrawalEnabled,
           oneTimeWithdrawal: oneTimeWithdrawal,
@@ -476,29 +476,29 @@ export const useJarCreation = () => {
           poapReq: {
             eventId: BigInt(0),
             poapContract:
-              "0x0000000000000000000000000000000000000000" as `0x${string}`,
+              '0x0000000000000000000000000000000000000000' as `0x${string}`,
           },
           unlockReq: {
             lockAddress:
-              "0x0000000000000000000000000000000000000000" as `0x${string}`,
+              '0x0000000000000000000000000000000000000000' as `0x${string}`,
           },
           hypercertReq: {
             tokenContract:
-              "0x0000000000000000000000000000000000000000" as `0x${string}`,
+              '0x0000000000000000000000000000000000000000' as `0x${string}`,
             tokenId: BigInt(0),
             minBalance: BigInt(1),
           },
           hatsReq: {
             hatId: BigInt(0),
             hatsContract:
-              "0x0000000000000000000000000000000000000000" as `0x${string}`,
+              '0x0000000000000000000000000000000000000000' as `0x${string}`,
           },
         };
 
         writeContract({
           address: factoryAddress,
           abi: cookieJarFactoryV2Abi,
-          functionName: "createCookieJar",
+          functionName: 'createCookieJar',
           args: [params, accessConfig],
         });
       } else {
@@ -506,7 +506,7 @@ export const useJarCreation = () => {
         writeContract({
           address: factoryAddress,
           abi: cookieJarFactoryV1Abi,
-          functionName: "createCookieJar",
+          functionName: 'createCookieJar',
           args: [
             jarOwnerAddress,
             supportedCurrency,
@@ -516,7 +516,7 @@ export const useJarCreation = () => {
             withdrawalOption,
             parseAmount(fixedAmount),
             parseAmount(maxWithdrawal),
-            BigInt(withdrawalInterval || "0"),
+            BigInt(withdrawalInterval || '0'),
             strictPurpose,
             emergencyWithdrawalEnabled,
             oneTimeWithdrawal,
@@ -528,12 +528,12 @@ export const useJarCreation = () => {
 
       setIsCreating(true);
     } catch (error) {
-      console.error("Error creating jar:", error);
+      console.error('Error creating jar:', error);
       toast({
-        title: "Transaction Failed",
+        title: 'Transaction Failed',
         description:
-          error instanceof Error ? error.message : "An unknown error occurred",
-        variant: "destructive",
+          error instanceof Error ? error.message : 'An unknown error occurred',
+        variant: 'destructive',
       });
     }
   }, [
@@ -561,36 +561,37 @@ export const useJarCreation = () => {
     emergencyWithdrawalEnabled,
     oneTimeWithdrawal,
     toast,
+    parseAmount,
   ]);
 
   // Reset form function
   const resetForm = useCallback(() => {
-    setJarName("");
-    setJarOwnerAddress("0x0000000000000000000000000000000000000000");
+    setJarName('');
+    setJarOwnerAddress('0x0000000000000000000000000000000000000000');
     setSupportedCurrency(ETH_ADDRESS);
     setAccessType(AccessType.Allowlist);
     setWithdrawalOption(WithdrawalTypeOptions.Fixed);
-    setFixedAmount("0");
-    setMaxWithdrawal("0");
-    setWithdrawalInterval("0");
+    setFixedAmount('0');
+    setMaxWithdrawal('0');
+    setWithdrawalInterval('0');
     setStrictPurpose(true);
     setEmergencyWithdrawalEnabled(true);
     setOneTimeWithdrawal(false);
-    setMetadata("");
-    setImageUrl("");
-    setExternalLink("");
-    setCustomFee("");
+    setMetadata('');
+    setImageUrl('');
+    setExternalLink('');
+    setCustomFee('');
     setEnableCustomFee(false);
     setStreamingEnabled(false);
     setRequireStreamApproval(true);
-    setMaxStreamRate("1.0");
-    setMinStreamDuration("1");
+    setMaxStreamRate('1.0');
+    setMinStreamDuration('1');
     setAutoSwapEnabled(false);
     setShowCustomCurrency(false);
-    setCustomCurrencyAddress("");
+    setCustomCurrencyAddress('');
     setNftAddresses([]);
     setNftTypes([]);
-    setProtocolConfig({ accessType: "Allowlist" });
+    setProtocolConfig({ accessType: 'Allowlist' });
   }, []);
 
   // Currency options for the supported network
@@ -598,8 +599,8 @@ export const useJarCreation = () => {
     const options = [
       {
         value: ETH_ADDRESS,
-        label: "ETH (Native)",
-        description: "Use native Ethereum",
+        label: 'ETH (Native)',
+        description: 'Use native Ethereum',
       },
     ];
 
@@ -607,24 +608,24 @@ export const useJarCreation = () => {
     if (chainId === 31337) {
       // Local development
       options.push({
-        value: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
-        label: "DEMO Token",
-        description: "Local development token",
+        value: '0x036CbD53842c5426634e7929541eC2318f3dCF7e',
+        label: 'DEMO Token',
+        description: 'Local development token',
       });
     } else if (chainId === 84532) {
       // Base Sepolia
       options.push({
-        value: "0x4200000000000000000000000000000000000006",
-        label: "WETH",
-        description: "Wrapped ETH on Base Sepolia",
+        value: '0x4200000000000000000000000000000000000006',
+        label: 'WETH',
+        description: 'Wrapped ETH on Base Sepolia',
       });
     }
 
     // Add custom option
     options.push({
-      value: "CUSTOM",
-      label: "Custom ERC-20",
-      description: "Enter your own ERC-20 token address",
+      value: 'CUSTOM',
+      label: 'Custom ERC-20',
+      description: 'Enter your own ERC-20 token address',
     });
 
     return options;
@@ -632,12 +633,12 @@ export const useJarCreation = () => {
 
   // Handle currency selection change
   const handleCurrencyChange = (value: string) => {
-    if (value === "CUSTOM") {
+    if (value === 'CUSTOM') {
       setShowCustomCurrency(true);
     } else {
       setShowCustomCurrency(false);
       setSupportedCurrency(value as `0x${string}`);
-      setCustomCurrencyAddress("");
+      setCustomCurrencyAddress('');
     }
   };
 
@@ -649,7 +650,7 @@ export const useJarCreation = () => {
     try {
       return isAddress(address);
     } catch (error) {
-      console.error("ERC-20 validation error:", error);
+      console.error('ERC-20 validation error:', error);
       return false;
     }
   };
@@ -662,64 +663,64 @@ export const useJarCreation = () => {
       if (isValidERC20) {
         setSupportedCurrency(customCurrencyAddress as `0x${string}`);
         toast({
-          title: "Custom currency set",
-          description: "ERC-20 token address has been set successfully",
+          title: 'Custom currency set',
+          description: 'ERC-20 token address has been set successfully',
         });
       } else {
         toast({
-          title: "Invalid ERC-20 address",
+          title: 'Invalid ERC-20 address',
           description:
             "The address doesn't appear to be a valid ERC-20 contract. Please verify the address.",
-          variant: "destructive",
+          variant: 'destructive',
         });
       }
     } else {
       toast({
-        title: "Invalid address",
-        description: "Please enter a valid Ethereum address",
-        variant: "destructive",
+        title: 'Invalid address',
+        description: 'Please enter a valid Ethereum address',
+        variant: 'destructive',
       });
     }
   };
 
   // Development helper
   const prepopulateRandomData = () => {
-    if (process.env.NODE_ENV !== "development") return;
+    if (process.env.NODE_ENV !== 'development') return;
 
     const randomNames = [
-      "Cookie Fund",
-      "Dev Grants",
-      "Community Pool",
-      "Test Jar",
-      "Demo Fund",
-      "Alpha Pool",
+      'Cookie Fund',
+      'Dev Grants',
+      'Community Pool',
+      'Test Jar',
+      'Demo Fund',
+      'Alpha Pool',
     ];
     const randomDescriptions = [
-      "A fund for supporting cookie development",
-      "Grants for innovative projects",
-      "Community-driven funding pool",
-      "Testing new jar functionality",
-      "Demonstration of jar capabilities",
-      "Early access funding",
+      'A fund for supporting cookie development',
+      'Grants for innovative projects',
+      'Community-driven funding pool',
+      'Testing new jar functionality',
+      'Demonstration of jar capabilities',
+      'Early access funding',
     ];
     const randomImages = [
-      "https://picsum.photos/400/300?random=1",
-      "https://picsum.photos/400/300?random=2",
-      "https://picsum.photos/400/300?random=3",
+      'https://picsum.photos/400/300?random=1',
+      'https://picsum.photos/400/300?random=2',
+      'https://picsum.photos/400/300?random=3',
     ];
     const randomLinks = [
-      "https://example.com/project1",
-      "https://github.com/test/repo",
-      "https://docs.example.com",
+      'https://example.com/project1',
+      'https://github.com/test/repo',
+      'https://docs.example.com',
     ];
 
     setJarName(randomNames[Math.floor(Math.random() * randomNames.length)]);
     setMetadata(
-      randomDescriptions[Math.floor(Math.random() * randomDescriptions.length)],
+      randomDescriptions[Math.floor(Math.random() * randomDescriptions.length)]
     );
     setImageUrl(randomImages[Math.floor(Math.random() * randomImages.length)]);
     setExternalLink(
-      randomLinks[Math.floor(Math.random() * randomLinks.length)],
+      randomLinks[Math.floor(Math.random() * randomLinks.length)]
     );
 
     if (Math.random() > 0.5) {
@@ -728,7 +729,7 @@ export const useJarCreation = () => {
     }
 
     if (Math.random() > 0.7) {
-      setSupportedCurrency("0x036CbD53842c5426634e7929541eC2318f3dCF7e");
+      setSupportedCurrency('0x036CbD53842c5426634e7929541eC2318f3dCF7e');
     }
 
     setFixedAmount((Math.random() * 0.5).toFixed(3));
@@ -739,7 +740,7 @@ export const useJarCreation = () => {
   // Trigger confetti animation
   const triggerConfetti = async () => {
     try {
-      const confettiModule = await import("canvas-confetti");
+      const confettiModule = await import('canvas-confetti');
       const confetti = confettiModule.default;
       confetti({
         particleCount: 100,
@@ -747,24 +748,24 @@ export const useJarCreation = () => {
         origin: { y: 0.6 },
       });
     } catch (error) {
-      console.log("Confetti animation failed:", error);
+      console.log('Confetti animation failed:', error);
     }
   };
 
   // Effects
   useEffect(() => {
     if (txConfirmed && receipt) {
-      console.log("🎉 Transaction confirmed:", receipt);
+      console.log('🎉 Transaction confirmed:', receipt);
 
       // Invalidate cache to show new jar immediately
       queryClient.invalidateQueries({
-        queryKey: ["cookie-jar-factory", chainId, factoryAddress],
+        queryKey: ['cookie-jar-factory', chainId, factoryAddress],
       });
 
       toast({
-        title: "Cookie Jar Created! 🎉",
+        title: 'Cookie Jar Created! 🎉',
         description:
-          "Your new jar has been deployed successfully. Visit /jars to see it in the list!",
+          'Your new jar has been deployed successfully. Visit /jars to see it in the list!',
       });
 
       triggerConfetti();
@@ -779,32 +780,31 @@ export const useJarCreation = () => {
                 abi: isV2Contract ? cookieJarFactoryAbi : cookieJarFactoryV1Abi,
                 data: log.data,
                 topics: log.topics,
-                eventName: "CookieJarCreated",
+                eventName: 'CookieJarCreated',
               });
 
-              if (decodedLog.eventName === "CookieJarCreated") {
+              if (decodedLog.eventName === 'CookieJarCreated') {
                 jarAddress = (decodedLog.args as any)?.cookieJarAddress;
                 console.log(
-                  "✅ Decoded CookieJarCreated event - jar address:",
-                  jarAddress,
+                  '✅ Decoded CookieJarCreated event - jar address:',
+                  jarAddress
                 );
                 break;
               }
-            } catch (decodeError) {
+            } catch {
               console.log(
-                "📝 Log is not CookieJarCreated event, checking next log",
+                '📝 Log is not CookieJarCreated event, checking next log'
               );
-              continue;
             }
           }
         }
 
         if (jarAddress && isAddress(jarAddress)) {
-          console.log("🎯 Successfully extracted jar address:", jarAddress);
+          console.log('🎯 Successfully extracted jar address:', jarAddress);
 
           setNewJarPreview({
             address: jarAddress,
-            name: jarName || "New Cookie Jar",
+            name: jarName || 'New Cookie Jar',
             currency: supportedCurrency,
           });
 
@@ -818,15 +818,15 @@ export const useJarCreation = () => {
         }
 
         console.warn(
-          "⚠️ Could not extract jar address from event, redirecting to jars page",
+          '⚠️ Could not extract jar address from event, redirecting to jars page'
         );
         setTimeout(() => {
-          router.push("/jars");
+          router.push('/jars');
         }, 500);
       } catch (error) {
-        console.error("❌ Error extracting jar address:", error);
+        console.error('❌ Error extracting jar address:', error);
         setTimeout(() => {
-          router.push("/jars");
+          router.push('/jars');
         }, 500);
       }
 
@@ -845,16 +845,17 @@ export const useJarCreation = () => {
     queryClient,
     chainId,
     factoryAddress,
+    triggerConfetti,
   ]);
 
   useEffect(() => {
     if (createError) {
-      console.error("Transaction error:", createError);
+      console.error('Transaction error:', createError);
 
       toast({
-        title: "Transaction Failed",
-        description: createError.message || "Failed to create cookie jar",
-        variant: "destructive",
+        title: 'Transaction Failed',
+        description: createError.message || 'Failed to create cookie jar',
+        variant: 'destructive',
       });
 
       setIsCreating(false);
@@ -872,7 +873,7 @@ export const useJarCreation = () => {
     if (!isV2Contract) {
       setAccessType(AccessType.Allowlist);
       setEnableCustomFee(false);
-      setCustomFee("");
+      setCustomFee('');
     }
   }, [isV2Contract]);
 

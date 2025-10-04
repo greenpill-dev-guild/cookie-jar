@@ -1,7 +1,7 @@
 // Note: Using simplified Hats integration until proper SDK types are available
 // import { HatsSubgraphClient, Hat, Tree, Wearer } from '@hatsprotocol/sdk-v1-subgraph';
-import { createPublicClient, http, Chain } from 'viem';
-import { mainnet, polygon, arbitrum, optimism, gnosis } from 'viem/chains';
+import type { Chain } from 'viem';
+import { arbitrum, gnosis, mainnet, optimism, polygon } from 'viem/chains';
 import { log } from '@/lib/app/logger';
 
 export interface HatDetails {
@@ -51,7 +51,7 @@ export interface HatsSearchResult {
 }
 
 // Support multiple chains for Hats Protocol
-const SUPPORTED_CHAINS: { [key: number]: Chain } = {
+const _SUPPORTED_CHAINS: { [key: number]: Chain } = {
   1: mainnet,
   10: optimism,
   100: gnosis,
@@ -61,7 +61,7 @@ const SUPPORTED_CHAINS: { [key: number]: Chain } = {
 
 export class HatsProvider {
   private chainId: number;
-  
+
   constructor(chainId: number = 1) {
     this.chainId = chainId;
   }
@@ -69,10 +69,13 @@ export class HatsProvider {
   /**
    * Get a single hat by ID (static method for protocol configs)
    */
-  static async getHatById(hatId: string, contractAddress?: string): Promise<HatDetails | null> {
+  static async getHatById(
+    hatId: string,
+    _contractAddress?: string
+  ): Promise<HatDetails | null> {
     try {
       const provider = new HatsProvider();
-      
+
       const query = `
         query GetHatById($hatId: ID!) {
           hat(id: $hatId) {
@@ -101,7 +104,7 @@ export class HatsProvider {
       `;
 
       const data = await provider.executeGraphQLQuery(query, { hatId });
-      
+
       if (!data?.hat) {
         return null;
       }
@@ -136,13 +139,17 @@ export class HatsProvider {
       10: 'https://api.thegraph.com/subgraphs/name/hats-protocol/hats-v1-optimism',
       100: 'https://api.thegraph.com/subgraphs/name/hats-protocol/hats-v1-gnosis',
       137: 'https://api.thegraph.com/subgraphs/name/hats-protocol/hats-v1-polygon',
-      42161: 'https://api.thegraph.com/subgraphs/name/hats-protocol/hats-v1-arbitrum-one',
+      42161:
+        'https://api.thegraph.com/subgraphs/name/hats-protocol/hats-v1-arbitrum-one',
     };
-    
+
     return endpoints[chainId] || endpoints[1];
   }
 
-  private async executeGraphQLQuery(query: string, variables: any = {}): Promise<any> {
+  private async executeGraphQLQuery(
+    query: string,
+    variables: any = {}
+  ): Promise<any> {
     try {
       const endpoint = this.getSubgraphEndpoint(this.chainId);
       const response = await fetch(endpoint, {
@@ -173,7 +180,7 @@ export class HatsProvider {
    */
   async searchHats(
     query: string,
-    chainId: number = 1,
+    _chainId: number = 1,
     options: {
       limit?: number;
       skip?: number;
@@ -183,7 +190,7 @@ export class HatsProvider {
   ): Promise<HatsSearchResult> {
     try {
       const { limit = 20, skip = 0, activeOnly = true } = options;
-      
+
       const graphqlQuery = `
         query SearchHats($first: Int!, $skip: Int!, $where: Hat_filter) {
           hats(first: $first, skip: $skip, where: $where, orderBy: createdAt, orderDirection: desc) {
@@ -231,7 +238,8 @@ export class HatsProvider {
 
       // Filter results by query (client-side filtering)
       const filteredHats = data.hats.filter((hat: any) => {
-        const searchText = `${hat.details || ''} ${hat.id} ${hat.prettyId || ''}`.toLowerCase();
+        const searchText =
+          `${hat.details || ''} ${hat.id} ${hat.prettyId || ''}`.toLowerCase();
         return !query || searchText.includes(query.toLowerCase());
       });
 
@@ -264,7 +272,8 @@ export class HatsProvider {
         wearers: [],
         totalResults: filteredHats.length,
         hasNextPage: filteredHats.length === limit,
-        nextPageParam: filteredHats.length === limit ? String(skip + limit) : undefined,
+        nextPageParam:
+          filteredHats.length === limit ? String(skip + limit) : undefined,
       };
     } catch (error) {
       log.error('Error searching hats', { error, query });
@@ -283,7 +292,7 @@ export class HatsProvider {
    */
   async getUserHats(
     address: string,
-    chainId: number = 1,
+    _chainId: number = 1,
     options: {
       limit?: number;
       skip?: number;
@@ -337,7 +346,7 @@ export class HatsProvider {
 
       const userWearer = data.wearers[0];
       let userHats = userWearer.currentHats || [];
-      
+
       // Filter active hats if requested
       if (activeOnly) {
         userHats = userHats.filter((hat: any) => hat.status);
@@ -365,11 +374,13 @@ export class HatsProvider {
         subHats: [],
       }));
 
-      const formattedWearers: HatWearer[] = [{
-        id: userWearer.id,
-        address: userWearer.id,
-        hats: formattedHats,
-      }];
+      const formattedWearers: HatWearer[] = [
+        {
+          id: userWearer.id,
+          address: userWearer.id,
+          hats: formattedHats,
+        },
+      ];
 
       return {
         hats: formattedHats,
@@ -394,10 +405,14 @@ export class HatsProvider {
   /**
    * Check if user wears a specific hat
    */
-  async userWearsHat(address: string, hatId: string, chainId: number = 1): Promise<boolean> {
+  async userWearsHat(
+    address: string,
+    hatId: string,
+    chainId: number = 1
+  ): Promise<boolean> {
     try {
       const userHats = await this.getUserHats(address, chainId);
-      return userHats.hats.some(hat => hat.id === hatId);
+      return userHats.hats.some((hat) => hat.id === hatId);
     } catch (error) {
       log.error('Error checking if user wears hat', { error, address, hatId });
       return false;
@@ -407,7 +422,10 @@ export class HatsProvider {
   /**
    * Get hat details by ID
    */
-  async getHat(hatId: string, chainId: number = 1): Promise<HatDetails | null> {
+  async getHat(
+    hatId: string,
+    _chainId: number = 1
+  ): Promise<HatDetails | null> {
     try {
       const graphqlQuery = `
         query GetHat($hatId: String!) {
@@ -474,7 +492,7 @@ export class HatsProvider {
    * Get popular/trending hats
    */
   async getTrendingHats(
-    chainId: number = 1,
+    _chainId: number = 1,
     limit: number = 10
   ): Promise<HatDetails[]> {
     try {
@@ -511,7 +529,7 @@ export class HatsProvider {
       }
 
       return data.hats
-        .filter((hat: any) => parseInt(hat.currentSupply || '0') > 0)
+        .filter((hat: any) => parseInt(hat.currentSupply || '0', 10) > 0)
         .slice(0, limit)
         .map((hat: any) => ({
           id: hat.id,

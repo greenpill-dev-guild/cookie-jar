@@ -1,6 +1,6 @@
 // Test for usePOAPs hook
-import "@testing-library/jest-dom";
-import { vi } from "vitest";
+import '@testing-library/jest-dom';
+import { vi } from 'vitest';
 
 interface POAPEvent {
   id: string;
@@ -19,37 +19,37 @@ interface UserPOAP {
   created: string;
 }
 
-describe("usePOAPs Hook Logic", () => {
+describe('usePOAPs Hook Logic', () => {
   // Mock hook behavior
   const mockusePOAPs = (
     userAddress?: string,
-    options: { eventId?: string; fetchUserPOAPs?: boolean } = {},
+    options: { eventId?: string; fetchUserPOAPs?: boolean } = {}
   ) => {
     const mockUserPOAPs: UserPOAP[] = userAddress
       ? [
           {
             event: {
-              id: "12345",
-              name: "ETH Denver 2024",
-              description: "Attended ETH Denver 2024",
-              image_url: "https://example.com/poap1.png",
-              start_date: "2024-02-01",
+              id: '12345',
+              name: 'ETH Denver 2024',
+              description: 'Attended ETH Denver 2024',
+              image_url: 'https://example.com/poap1.png',
+              start_date: '2024-02-01',
               supply: 5000,
             },
-            tokenId: "987654",
-            created: "2024-02-03T10:00:00Z",
+            tokenId: '987654',
+            created: '2024-02-03T10:00:00Z',
           },
           {
             event: {
-              id: "12346",
-              name: "Web3 Workshop NYC",
-              description: "Participated in Web3 development workshop",
-              image_url: "https://example.com/poap2.png",
-              start_date: "2024-01-15",
+              id: '12346',
+              name: 'Web3 Workshop NYC',
+              description: 'Participated in Web3 development workshop',
+              image_url: 'https://example.com/poap2.png',
+              start_date: '2024-01-15',
               supply: 100,
             },
-            tokenId: "987655",
-            created: "2024-01-15T14:30:00Z",
+            tokenId: '987655',
+            created: '2024-01-15T14:30:00Z',
           },
         ]
       : [];
@@ -58,10 +58,10 @@ describe("usePOAPs Hook Logic", () => {
       ? {
           id: options.eventId,
           name: `Event #${options.eventId}`,
-          description: "Community event POAP",
-          start_date: "2024-01-01",
+          description: 'Community event POAP',
+          start_date: '2024-01-01',
           supply: 1000,
-          created_date: "2024-01-01",
+          created_date: '2024-01-01',
         }
       : null;
 
@@ -76,11 +76,11 @@ describe("usePOAPs Hook Logic", () => {
       userPOAPsError: null,
       searchEvents: async (query: string): Promise<POAPEvent[]> => [
         {
-          id: "12345",
+          id: '12345',
           name: `${query} Conference 2024`,
-          description: "Annual blockchain conference",
-          image_url: "https://example.com/event1.png",
-          start_date: "2024-03-15",
+          description: 'Annual blockchain conference',
+          image_url: 'https://example.com/event1.png',
+          start_date: '2024-03-15',
           supply: 500,
         },
       ],
@@ -89,8 +89,8 @@ describe("usePOAPs Hook Logic", () => {
         return {
           id: eventId,
           name: `Event #${eventId}`,
-          description: "Valid POAP event",
-          start_date: "2024-01-01",
+          description: 'Valid POAP event',
+          start_date: '2024-01-01',
           supply: 1000,
         };
       },
@@ -103,98 +103,88 @@ describe("usePOAPs Hook Logic", () => {
     };
   };
 
-  describe("User POAP Fetching", () => {
-    it("returns empty array when no address provided", () => {
+  describe('User POAP Fetching', () => {
+    it('returns empty array when no address provided', () => {
       const result = mockusePOAPs(undefined, { fetchUserPOAPs: true });
       expect(result.userPOAPs).toEqual([]);
     });
 
-    it("returns user POAPs when address provided", () => {
+    it('returns user POAPs when address provided', () => {
       const result = mockusePOAPs(
-        "0x1234567890123456789012345678901234567890",
-        { fetchUserPOAPs: true },
+        '0x1234567890123456789012345678901234567890',
+        { fetchUserPOAPs: true }
       );
 
       expect(result.userPOAPs).toHaveLength(2);
-      expect(result.userPOAPs[0].event.name).toBe("ETH Denver 2024");
-      expect(result.userPOAPs[0].tokenId).toBe("987654");
-      expect(result.userPOAPs[1].event.name).toBe("Web3 Workshop NYC");
+      expect(result.userPOAPs[0].event.name).toBe('ETH Denver 2024');
+      expect(result.userPOAPs[0].tokenId).toBe('987654');
+      expect(result.userPOAPs[1].event.name).toBe('Web3 Workshop NYC');
     });
 
-    it("does not fetch user POAPs when option is disabled", () => {
+    it('does not fetch user POAPs when option is disabled', () => {
       const result = mockusePOAPs(
-        "0x1234567890123456789012345678901234567890",
-        { fetchUserPOAPs: false },
+        '0x1234567890123456789012345678901234567890',
+        { fetchUserPOAPs: false }
       );
       expect(result.userPOAPs).toEqual([]);
     });
   });
 
-  describe("Event Information", () => {
-    it("fetches event info when eventId provided", () => {
+  describe('Event Information', () => {
+    it('fetches event info when eventId provided', () => {
       const result = mockusePOAPs(
-        "0x1234567890123456789012345678901234567890",
-        { eventId: "12345" },
+        '0x1234567890123456789012345678901234567890',
+        { eventId: '12345' }
       );
 
       expect(result.eventInfo).not.toBeNull();
-      expect(result.eventInfo?.id).toBe("12345");
-      expect(result.eventInfo?.name).toBe("Event #12345");
+      expect(result.eventInfo?.id).toBe('12345');
+      expect(result.eventInfo?.name).toBe('Event #12345');
     });
 
-    it("returns null when no eventId provided", () => {
-      const result = mockusePOAPs(
-        "0x1234567890123456789012345678901234567890",
-      );
+    it('returns null when no eventId provided', () => {
+      const result = mockusePOAPs('0x1234567890123456789012345678901234567890');
       expect(result.eventInfo).toBeNull();
     });
   });
 
-  describe("Event Search", () => {
-    it("searches events by query string", async () => {
-      const result = mockusePOAPs(
-        "0x1234567890123456789012345678901234567890",
-      );
-      const searchResults = await result.searchEvents("ETH");
+  describe('Event Search', () => {
+    it('searches events by query string', async () => {
+      const result = mockusePOAPs('0x1234567890123456789012345678901234567890');
+      const searchResults = await result.searchEvents('ETH');
 
       expect(searchResults).toHaveLength(1);
-      expect(searchResults[0].name).toBe("ETH Conference 2024");
-      expect(searchResults[0].id).toBe("12345");
+      expect(searchResults[0].name).toBe('ETH Conference 2024');
+      expect(searchResults[0].id).toBe('12345');
     });
 
-    it("returns empty array for failed searches", async () => {
+    it('returns empty array for failed searches', async () => {
       // In a real implementation, this would handle API errors
-      const result = mockusePOAPs(
-        "0x1234567890123456789012345678901234567890",
-      );
-      const searchResults = await result.searchEvents("");
+      const result = mockusePOAPs('0x1234567890123456789012345678901234567890');
+      const searchResults = await result.searchEvents('');
 
       // Mock would still return results, but real implementation might return empty for empty query
       expect(Array.isArray(searchResults)).toBe(true);
     });
   });
 
-  describe("Event Validation", () => {
-    it("validates numeric event IDs", async () => {
-      const result = mockusePOAPs(
-        "0x1234567890123456789012345678901234567890",
-      );
+  describe('Event Validation', () => {
+    it('validates numeric event IDs', async () => {
+      const result = mockusePOAPs('0x1234567890123456789012345678901234567890');
 
-      const validEvent = await result.validateEventId("12345");
+      const validEvent = await result.validateEventId('12345');
       expect(validEvent).not.toBeNull();
-      expect(validEvent?.id).toBe("12345");
+      expect(validEvent?.id).toBe('12345');
 
-      const invalidEvent = await result.validateEventId("not-a-number");
+      const invalidEvent = await result.validateEventId('not-a-number');
       expect(invalidEvent).toBeNull();
     });
 
-    it("handles edge cases in event ID validation", async () => {
-      const result = mockusePOAPs(
-        "0x1234567890123456789012345678901234567890",
-      );
+    it('handles edge cases in event ID validation', async () => {
+      const result = mockusePOAPs('0x1234567890123456789012345678901234567890');
 
       // Test various invalid inputs
-      const testCases = ["", "0", "-1", "abc", "12.34", "12345abc"];
+      const testCases = ['', '0', '-1', 'abc', '12.34', '12345abc'];
 
       for (const testCase of testCases) {
         if (!/^\d+$/.test(testCase)) {
@@ -205,36 +195,34 @@ describe("usePOAPs Hook Logic", () => {
     });
   });
 
-  describe("User POAP Checking", () => {
-    it("correctly identifies if user has POAP from event", () => {
+  describe('User POAP Checking', () => {
+    it('correctly identifies if user has POAP from event', () => {
       const result = mockusePOAPs(
-        "0x1234567890123456789012345678901234567890",
-        { fetchUserPOAPs: true },
+        '0x1234567890123456789012345678901234567890',
+        { fetchUserPOAPs: true }
       );
 
       // User has POAPs from events 12345 and 12346
-      expect(result.checkUserHasPOAP("12345")).toBe(true);
-      expect(result.checkUserHasPOAP("12346")).toBe(true);
+      expect(result.checkUserHasPOAP('12345')).toBe(true);
+      expect(result.checkUserHasPOAP('12346')).toBe(true);
 
       // User doesn't have POAP from event 99999
-      expect(result.checkUserHasPOAP("99999")).toBe(false);
+      expect(result.checkUserHasPOAP('99999')).toBe(false);
     });
 
-    it("returns false when user has no POAPs", () => {
+    it('returns false when user has no POAPs', () => {
       const result = mockusePOAPs(
-        "0x1234567890123456789012345678901234567890",
-        { fetchUserPOAPs: false },
+        '0x1234567890123456789012345678901234567890',
+        { fetchUserPOAPs: false }
       );
 
-      expect(result.checkUserHasPOAP("12345")).toBe(false);
+      expect(result.checkUserHasPOAP('12345')).toBe(false);
     });
   });
 
-  describe("Loading States", () => {
-    it("tracks loading states correctly", () => {
-      const result = mockusePOAPs(
-        "0x1234567890123456789012345678901234567890",
-      );
+  describe('Loading States', () => {
+    it('tracks loading states correctly', () => {
+      const result = mockusePOAPs('0x1234567890123456789012345678901234567890');
 
       // Mock shows no loading by default
       expect(result.isLoading).toBe(false);
@@ -242,10 +230,10 @@ describe("usePOAPs Hook Logic", () => {
       expect(result.isLoadingUserPOAPs).toBe(false);
     });
 
-    it("combines loading states properly", () => {
+    it('combines loading states properly', () => {
       // Test that overall loading is true if any component is loading
       const mockLoadingResult = {
-        ...mockusePOAPs("0x1234567890123456789012345678901234567890"),
+        ...mockusePOAPs('0x1234567890123456789012345678901234567890'),
         isLoadingEvent: true,
         isLoadingUserPOAPs: false,
         isLoading: true, // Should be true if any sub-loading is true
@@ -255,66 +243,66 @@ describe("usePOAPs Hook Logic", () => {
     });
   });
 
-  describe("Error Handling", () => {
-    it("handles user POAP fetch errors", () => {
+  describe('Error Handling', () => {
+    it('handles user POAP fetch errors', () => {
       const mockErrorResult = {
-        ...mockusePOAPs("0x1234567890123456789012345678901234567890"),
-        userPOAPsError: "Failed to fetch your POAP collection",
-        error: "Failed to fetch your POAP collection",
+        ...mockusePOAPs('0x1234567890123456789012345678901234567890'),
+        userPOAPsError: 'Failed to fetch your POAP collection',
+        error: 'Failed to fetch your POAP collection',
       };
 
       expect(mockErrorResult.userPOAPsError).toBe(
-        "Failed to fetch your POAP collection",
+        'Failed to fetch your POAP collection'
       );
       expect(mockErrorResult.error).toBe(
-        "Failed to fetch your POAP collection",
+        'Failed to fetch your POAP collection'
       );
     });
 
-    it("handles event fetch errors", () => {
+    it('handles event fetch errors', () => {
       const mockErrorResult = {
-        ...mockusePOAPs("0x1234567890123456789012345678901234567890"),
-        eventError: "Event not found or invalid",
-        error: "Event not found or invalid",
+        ...mockusePOAPs('0x1234567890123456789012345678901234567890'),
+        eventError: 'Event not found or invalid',
+        error: 'Event not found or invalid',
       };
 
-      expect(mockErrorResult.eventError).toBe("Event not found or invalid");
-      expect(mockErrorResult.error).toBe("Event not found or invalid");
+      expect(mockErrorResult.eventError).toBe('Event not found or invalid');
+      expect(mockErrorResult.error).toBe('Event not found or invalid');
     });
 
-    it("prioritizes first error when multiple errors exist", () => {
+    it('prioritizes first error when multiple errors exist', () => {
       const mockErrorResult = {
-        ...mockusePOAPs("0x1234567890123456789012345678901234567890"),
-        userPOAPsError: "User error",
-        eventError: "Event error",
-        error: "User error", // Should be the first error
+        ...mockusePOAPs('0x1234567890123456789012345678901234567890'),
+        userPOAPsError: 'User error',
+        eventError: 'Event error',
+        error: 'User error', // Should be the first error
       };
 
-      expect(mockErrorResult.error).toBe("User error");
+      expect(mockErrorResult.error).toBe('User error');
     });
   });
 
-  describe("Data Structure Validation", () => {
-    it("returns proper POAP data structure", () => {
+  describe('Data Structure Validation', () => {
+    it('returns proper POAP data structure', () => {
       const result = mockusePOAPs(
-        "0x1234567890123456789012345678901234567890",
-        { fetchUserPOAPs: true },
+        '0x1234567890123456789012345678901234567890',
+        { fetchUserPOAPs: true }
       );
 
       const userPoap = result.userPOAPs[0];
-      expect(userPoap).toHaveProperty("event");
-      expect(userPoap).toHaveProperty("tokenId");
-      expect(userPoap).toHaveProperty("created");
+      expect(userPoap).toHaveProperty('event');
+      expect(userPoap).toHaveProperty('tokenId');
+      expect(userPoap).toHaveProperty('created');
 
-      expect(userPoap.event).toHaveProperty("id");
-      expect(userPoap.event).toHaveProperty("name");
-      expect(userPoap.event).toHaveProperty("description");
+      expect(userPoap.event).toHaveProperty('id');
+      expect(userPoap.event).toHaveProperty('name');
+      expect(userPoap.event).toHaveProperty('description');
     });
 
-    it("handles optional fields properly", () => {
+    it('handles optional fields properly', () => {
       const result = mockusePOAPs(
-        "0x1234567890123456789012345678901234567890",
-        { fetchUserPOAPs: true },
+        '0x1234567890123456789012345678901234567890',
+        { fetchUserPOAPs: true }
       );
 
       const event = result.userPOAPs[0].event;

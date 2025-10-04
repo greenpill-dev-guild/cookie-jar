@@ -1,14 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import {
-    ISuperfluid,
-    ISuperToken,
-    IConstantFlowAgreementV1,
-    ISuperAgreement
-} from "@superfluid-finance/ethereum-contracts/interfaces/superfluid/ISuperfluid.sol";
+import {ISuperfluid, ISuperToken, IConstantFlowAgreementV1, ISuperAgreement} from "@superfluid-finance/ethereum-contracts/interfaces/superfluid/ISuperfluid.sol";
 import {CookieJarLib} from "./CookieJarLib.sol";
-
 
 /// @title Streaming
 /// @notice Library for Superfluid streaming functionality
@@ -16,11 +10,11 @@ library Streaming {
     /// @notice Optimized Real-time Super Token stream via Superfluid Protocol
     /// @dev Packed struct to reduce gas and storage costs
     struct SuperfluidStream {
-        address superToken;              // Super Token contract address (20 bytes)
-        address sender;                  // Stream sender (20 bytes) - 40 bytes total in slot 1+2
-        int96 flowRate;                 // Real-time flow rate (12 bytes)
-        uint32 startTime;              // Stream start timestamp (4 bytes) - sufficient until 2106
-        bool isActive;                  // Stream status (1 byte) - 17 bytes total in slot 3
+        address superToken; // Super Token contract address (20 bytes)
+        address sender; // Stream sender (20 bytes) - 40 bytes total in slot 1+2
+        int96 flowRate; // Real-time flow rate (12 bytes)
+        uint32 startTime; // Stream start timestamp (4 bytes) - sufficient until 2106
+        bool isActive; // Stream status (1 byte) - 17 bytes total in slot 3
         // 15 bytes padding in slot 3
     }
 
@@ -51,7 +45,7 @@ library Streaming {
         ISuperToken token = ISuperToken(superToken);
 
         // Check if stream already exists
-        (, int96 existingFlowRate,,) = cfa.getFlow(token, sender, address(this));
+        (, int96 existingFlowRate, , ) = cfa.getFlow(token, sender, address(this));
         if (existingFlowRate != 0) revert CookieJarLib.StreamAlreadyExists();
 
         // Create the actual Superfluid stream
@@ -200,9 +194,11 @@ library Streaming {
 
         superfluidHost = ISuperfluid(superfluidHostAddress);
         cfa = IConstantFlowAgreementV1(
-            address(superfluidHost.getAgreementClass(
-                keccak256("org.superfluid-finance.agreements.ConstantFlowAgreement.v1")
-            ))
+            address(
+                superfluidHost.getAgreementClass(
+                    keccak256("org.superfluid-finance.agreements.ConstantFlowAgreement.v1")
+                )
+            )
         );
     }
 
@@ -220,12 +216,7 @@ library Streaming {
         address superToken,
         address sender,
         address receiver
-    ) external view returns (
-        uint256 lastUpdated,
-        int96 flowrate,
-        uint256 deposit,
-        uint256 owedDeposit
-    ) {
+    ) external view returns (uint256 lastUpdated, int96 flowrate, uint256 deposit, uint256 owedDeposit) {
         ISuperToken token = ISuperToken(superToken);
         return cfa.getFlow(token, sender, receiver);
     }
@@ -256,12 +247,7 @@ library Streaming {
         IConstantFlowAgreementV1 cfa,
         address superToken,
         address account
-    ) external view returns (
-        uint256 lastUpdated,
-        int96 flowrate,
-        uint256 deposit,
-        uint256 owedDeposit
-    ) {
+    ) external view returns (uint256 lastUpdated, int96 flowrate, uint256 deposit, uint256 owedDeposit) {
         ISuperToken token = ISuperToken(superToken);
         return cfa.getAccountFlowInfo(token, account);
     }

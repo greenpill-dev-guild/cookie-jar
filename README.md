@@ -6,7 +6,8 @@ Decentralized funding pools with smart access control. Create shared ETH/ERC20 p
 
 **Manual Install**: Node.js 18+, Git  
 **Auto-Install**: pnpm, Foundry *(installed automatically)*  
-**System**: 4GB+ RAM, 2GB storage
+**System**: 4GB+ RAM, 2GB storage  
+**Editor**: VS Code or Cursor *(recommended for inline linting)*
 
 > ⚠️ **Note on Submodules**: This repository uses git submodules for Foundry dependencies. If you encounter SSH errors during `pnpm install`, see the [Submodule/Foundry Setup Issues](#submodulefoundry-setup-issues) section for quick HTTPS workaround or SSH setup instructions.
 
@@ -36,6 +37,17 @@ Open http://localhost:3000 and explore 4 pre-seeded demo jars with Cookie Monste
 > **✨ Auto-setup**: Shell script checks system, installs missing tools (pnpm/Foundry), then sets up complete dev environment.
 > 
 > **💡 Note**: If you don't have pnpm installed, Option 1 installs it for you. If you already have pnpm, use Option 2.
+
+### 🎨 Editor Setup (Recommended)
+
+For the best development experience with **inline linting errors** and **auto-fix on save**:
+
+1. Open workspace in VS Code or Cursor
+2. Install recommended extensions when prompted (ESLint, Prettier, Solidity)
+3. Reload window to activate linting
+4. Errors now appear inline as you code!
+
+See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md#editor-setup) for details.
 
 ## 💻 Development
 

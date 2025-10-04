@@ -1,230 +1,239 @@
-import { test, expect } from './utils/wallet-utils'
-import { SELECTORS, ANVIL_ACCOUNTS } from './utils/constants'
+import { SELECTORS } from './utils/constants';
+import { expect, test } from './utils/wallet-utils';
 
 test.describe('💰 Jar Operations E2E', () => {
   test.beforeEach(async ({ wallet }) => {
     // Connect as Cookie Monster (has NFTs and is allowlisted)
-    await wallet.connectWallet(1)
-  })
+    await wallet.connectWallet(1);
+  });
 
   test('Complete deposit and withdrawal flow', async ({ page, wallet }) => {
-    console.log('💰 Testing deposit and withdrawal flow...')
-    
+    console.log('💰 Testing deposit and withdrawal flow...');
+
     // Navigate to jars page and select first jar
-    await page.goto('/jars')
-    await page.waitForSelector(SELECTORS.cards.jarCard, { timeout: 10000 })
-    
+    await page.goto('/jars');
+    await page.waitForSelector(SELECTORS.cards.jarCard, { timeout: 10000 });
+
     // Click on first jar card
-    await page.click(SELECTORS.cards.jarCard)
-    await page.waitForSelector(SELECTORS.cards.jarTitle)
-    
+    await page.click(SELECTORS.cards.jarCard);
+    await page.waitForSelector(SELECTORS.cards.jarTitle);
+
     // Get initial balance for comparison
-    const balanceElement = page.locator(SELECTORS.cards.jarBalance).first()
-    const initialBalance = await balanceElement.textContent()
-    console.log('📊 Initial jar balance:', initialBalance)
-    
+    const balanceElement = page.locator(SELECTORS.cards.jarBalance).first();
+    const initialBalance = await balanceElement.textContent();
+    console.log('📊 Initial jar balance:', initialBalance);
+
     // Test Deposit Flow
-    console.log('💳 Testing deposit...')
-    await page.click(SELECTORS.tabs.deposit)
-    
+    console.log('💳 Testing deposit...');
+    await page.click(SELECTORS.tabs.deposit);
+
     // Fill deposit amount
-    await page.fill(SELECTORS.forms.amount, '1.0')
-    
+    await page.fill(SELECTORS.forms.amount, '1.0');
+
     // Click deposit button
-    await page.click(SELECTORS.buttons.deposit)
-    
+    await page.click(SELECTORS.buttons.deposit);
+
     // Handle transaction
-    await wallet.signTransaction()
-    
+    await wallet.signTransaction();
+
     // Verify deposit success
-    await expect(page.locator(SELECTORS.status.success)).toBeVisible()
-    
+    await expect(page.locator(SELECTORS.status.success)).toBeVisible();
+
     // Wait for React Query cache to update and verify balance changed
-    await page.waitForTimeout(3000)
-    const newBalance = await balanceElement.textContent()
-    console.log('📊 New jar balance:', newBalance)
-    expect(newBalance).not.toBe(initialBalance)
+    await page.waitForTimeout(3000);
+    const newBalance = await balanceElement.textContent();
+    console.log('📊 New jar balance:', newBalance);
+    expect(newBalance).not.toBe(initialBalance);
 
     // Test Withdrawal Flow
-    console.log('💸 Testing withdrawal...')
-    await page.click(SELECTORS.tabs.withdraw)
-    
+    console.log('💸 Testing withdrawal...');
+    await page.click(SELECTORS.tabs.withdraw);
+
     // Check if user can withdraw (allowlisted or has NFT)
-    const withdrawSection = page.locator('text=Get Cookie').locator('..').locator('..')
-    const canWithdraw = await withdrawSection.locator(SELECTORS.buttons.withdraw).isVisible()
-    
+    const withdrawSection = page
+      .locator('text=Get Cookie')
+      .locator('..')
+      .locator('..');
+    const canWithdraw = await withdrawSection
+      .locator(SELECTORS.buttons.withdraw)
+      .isVisible();
+
     if (canWithdraw) {
-      console.log('✅ User can withdraw')
-      
+      console.log('✅ User can withdraw');
+
       // Check if purpose is required
-      const purposeField = page.locator(SELECTORS.forms.purpose)
+      const purposeField = page.locator(SELECTORS.forms.purpose);
       if (await purposeField.isVisible()) {
-        await purposeField.fill('E2E test withdrawal for verification')
+        await purposeField.fill('E2E test withdrawal for verification');
       }
-      
+
       // Check if amount input is needed (variable withdrawal)
-      const amountField = withdrawSection.locator(SELECTORS.forms.amount)
+      const amountField = withdrawSection.locator(SELECTORS.forms.amount);
       if (await amountField.isVisible()) {
-        await amountField.fill('0.1')
+        await amountField.fill('0.1');
       }
-      
+
       // Get balance before withdrawal
-      const balanceBeforeWithdraw = await balanceElement.textContent()
-      
+      const balanceBeforeWithdraw = await balanceElement.textContent();
+
       // Perform withdrawal
-      await page.click(SELECTORS.buttons.withdraw)
-      await wallet.signTransaction()
-      
+      await page.click(SELECTORS.buttons.withdraw);
+      await wallet.signTransaction();
+
       // Verify withdrawal success
-      await expect(page.locator(SELECTORS.status.success)).toBeVisible()
-      
+      await expect(page.locator(SELECTORS.status.success)).toBeVisible();
+
       // Verify balance decreased
-      await page.waitForTimeout(3000)
-      const balanceAfterWithdraw = await balanceElement.textContent()
-      expect(balanceAfterWithdraw).not.toBe(balanceBeforeWithdraw)
-      
-      console.log('✅ Withdrawal completed successfully')
+      await page.waitForTimeout(3000);
+      const balanceAfterWithdraw = await balanceElement.textContent();
+      expect(balanceAfterWithdraw).not.toBe(balanceBeforeWithdraw);
+
+      console.log('✅ Withdrawal completed successfully');
     } else {
-      console.log('ℹ️ User cannot withdraw (not allowlisted)')
-      
+      console.log('ℹ️ User cannot withdraw (not allowlisted)');
+
       // Should see access denied message
       await expect(
-        page.locator('text=Not Allowlisted').or(
-          page.locator('text=access denied')
-        )
-      ).toBeVisible()
+        page
+          .locator('text=Not Allowlisted')
+          .or(page.locator('text=access denied'))
+      ).toBeVisible();
     }
-  })
+  });
 
   test('NFT-gated withdrawal flow', async ({ page, wallet }) => {
-    console.log('🎨 Testing NFT-gated withdrawal...')
-    
+    console.log('🎨 Testing NFT-gated withdrawal...');
+
     // Navigate to jars and look for NFT-gated jars
-    await page.goto('/jars')
-    
+    await page.goto('/jars');
+
     // Find NFT-gated jar (look for NFT-Gated access type)
-    const nftJar = page.locator(SELECTORS.cards.jarCard)
+    const nftJar = page
+      .locator(SELECTORS.cards.jarCard)
       .filter({ hasText: 'NFT-Gated' })
-      .first()
-    
-    const nftJarExists = await nftJar.isVisible()
-    test.skip(!nftJarExists, 'No NFT-gated jars found - needs v2 contracts')
-    
-    await nftJar.click()
-    
+      .first();
+
+    const nftJarExists = await nftJar.isVisible();
+    test.skip(!nftJarExists, 'No NFT-gated jars found - needs v2 contracts');
+
+    await nftJar.click();
+
     // Verify NFT ownership is detected (Cookie Monster should own NFT #0)
-    await expect(page.locator('text=You own, text=NFT')).toBeVisible()
-    
+    await expect(page.locator('text=You own, text=NFT')).toBeVisible();
+
     // Perform NFT withdrawal
-    await page.click(SELECTORS.tabs.withdraw)
-    
+    await page.click(SELECTORS.tabs.withdraw);
+
     // Fill NFT-specific fields
-    await page.fill(SELECTORS.nft.addressInput, '0x5FbDB2315678afecb367f032d93F642f64180aa3')
-    await page.fill(SELECTORS.nft.tokenIdInput, '0')
-    
+    await page.fill(
+      SELECTORS.nft.addressInput,
+      '0x5FbDB2315678afecb367f032d93F642f64180aa3'
+    );
+    await page.fill(SELECTORS.nft.tokenIdInput, '0');
+
     // Fill withdrawal amount if variable
-    const amountField = page.locator(SELECTORS.forms.amount)
+    const amountField = page.locator(SELECTORS.forms.amount);
     if (await amountField.isVisible()) {
-      await amountField.fill('0.05')
+      await amountField.fill('0.05');
     }
-    
+
     // Fill purpose if required
-    const purposeField = page.locator(SELECTORS.forms.purpose)
+    const purposeField = page.locator(SELECTORS.forms.purpose);
     if (await purposeField.isVisible()) {
-      await purposeField.fill('NFT holder withdrawal test')
+      await purposeField.fill('NFT holder withdrawal test');
     }
-    
+
     // Perform withdrawal
-    await page.click(SELECTORS.buttons.withdraw)
-    await wallet.signTransaction()
-    
-    await expect(page.locator(SELECTORS.status.success)).toBeVisible()
-    
-    console.log('✅ NFT withdrawal test passed!')
-  })
+    await page.click(SELECTORS.buttons.withdraw);
+    await wallet.signTransaction();
+
+    await expect(page.locator(SELECTORS.status.success)).toBeVisible();
+
+    console.log('✅ NFT withdrawal test passed!');
+  });
 
   test('Access control enforcement', async ({ page, wallet }) => {
-    console.log('🔒 Testing access control enforcement...')
-    
+    console.log('🔒 Testing access control enforcement...');
+
     // Switch to non-allowlisted user
-    await wallet.switchAccount(3) // Test User - not allowlisted
-    
-    await page.goto('/jars')
-    await page.click(SELECTORS.cards.jarCard)
-    
+    await wallet.switchAccount(3); // Test User - not allowlisted
+
+    await page.goto('/jars');
+    await page.click(SELECTORS.cards.jarCard);
+
     // Try to withdraw
-    await page.click(SELECTORS.tabs.withdraw)
-    
+    await page.click(SELECTORS.tabs.withdraw);
+
     // Should see access denied
     await expect(
-      page.locator('text=Not Allowlisted').or(
-        page.locator('text=access denied').or(
-          page.locator('text=cannot')
-        )
-      )
-    ).toBeVisible()
-    
+      page
+        .locator('text=Not Allowlisted')
+        .or(page.locator('text=access denied').or(page.locator('text=cannot')))
+    ).toBeVisible();
+
     // Withdrawal button should either be disabled or not visible
-    const withdrawButton = page.locator(SELECTORS.buttons.withdraw)
-    const canWithdraw = await withdrawButton.isVisible() && await withdrawButton.isEnabled()
-    
-    expect(canWithdraw).toBe(false)
-    
-    console.log('✅ Access control enforcement test passed!')
-  })
+    const withdrawButton = page.locator(SELECTORS.buttons.withdraw);
+    const canWithdraw =
+      (await withdrawButton.isVisible()) && (await withdrawButton.isEnabled());
+
+    expect(canWithdraw).toBe(false);
+
+    console.log('✅ Access control enforcement test passed!');
+  });
 
   test('Cooldown period enforcement', async ({ page, wallet }) => {
-    console.log('⏰ Testing cooldown period enforcement...')
-    
+    console.log('⏰ Testing cooldown period enforcement...');
+
     // Connect as allowlisted user
-    await wallet.connectWallet(1)
-    
-    await page.goto('/jars')
-    await page.click(SELECTORS.cards.jarCard)
-    await page.click(SELECTORS.tabs.withdraw)
-    
+    await wallet.connectWallet(1);
+
+    await page.goto('/jars');
+    await page.click(SELECTORS.cards.jarCard);
+    await page.click(SELECTORS.tabs.withdraw);
+
     // Check if user can withdraw
-    const canWithdraw = await page.locator(SELECTORS.buttons.withdraw).isVisible()
-    
+    const canWithdraw = await page
+      .locator(SELECTORS.buttons.withdraw)
+      .isVisible();
+
     if (canWithdraw) {
       // Perform first withdrawal
-      const purposeField = page.locator(SELECTORS.forms.purpose)
+      const purposeField = page.locator(SELECTORS.forms.purpose);
       if (await purposeField.isVisible()) {
-        await purposeField.fill('First withdrawal for cooldown test')
+        await purposeField.fill('First withdrawal for cooldown test');
       }
-      
-      const amountField = page.locator(SELECTORS.forms.amount)
+
+      const amountField = page.locator(SELECTORS.forms.amount);
       if (await amountField.isVisible()) {
-        await amountField.fill('0.05')
+        await amountField.fill('0.05');
       }
-      
-      await page.click(SELECTORS.buttons.withdraw)
-      await wallet.signTransaction()
-      
-      await expect(page.locator(SELECTORS.status.success)).toBeVisible()
-      
+
+      await page.click(SELECTORS.buttons.withdraw);
+      await wallet.signTransaction();
+
+      await expect(page.locator(SELECTORS.status.success)).toBeVisible();
+
       // Immediately try to withdraw again - should be in cooldown
-      await page.reload()
-      await page.click(SELECTORS.tabs.withdraw)
-      
+      await page.reload();
+      await page.click(SELECTORS.tabs.withdraw);
+
       // Should see cooldown message or disabled state
-      const hasCountdown = await page.locator('text=cooldown').or(
-        page.locator('text=wait').or(
-          page.locator('text=next withdrawal')
-        )
-      ).isVisible()
-      
+      const hasCountdown = await page
+        .locator('text=cooldown')
+        .or(page.locator('text=wait').or(page.locator('text=next withdrawal')))
+        .isVisible();
+
       if (hasCountdown) {
-        console.log('✅ Cooldown period properly enforced')
+        console.log('✅ Cooldown period properly enforced');
       } else {
         // Alternative: withdrawal button should be disabled
-        const withdrawButton = page.locator(SELECTORS.buttons.withdraw)
-        const isDisabled = await withdrawButton.isDisabled()
-        expect(isDisabled).toBe(true)
-        console.log('✅ Withdrawal disabled during cooldown')
+        const withdrawButton = page.locator(SELECTORS.buttons.withdraw);
+        const isDisabled = await withdrawButton.isDisabled();
+        expect(isDisabled).toBe(true);
+        console.log('✅ Withdrawal disabled during cooldown');
       }
     } else {
-      test.skip(true, 'User cannot withdraw from this jar')
+      test.skip(true, 'User cannot withdraw from this jar');
     }
-  })
-})
+  });
+});

@@ -1,8 +1,7 @@
-"use client";
+'use client';
 
-import * as React from "react";
-import type { TooltipProps } from "recharts";
-import { cn } from "@/lib/app/utils";
+import * as React from 'react';
+import { cn } from '@/lib/app/utils';
 
 // Chart container with CSS variables for colors
 export function ChartContainer({
@@ -22,25 +21,25 @@ export function ChartContainer({
         acc[`--color-${key}`] = value.color;
         return acc;
       },
-      {} as Record<string, string>,
+      {} as Record<string, string>
     );
   }, [config]);
 
   return (
-    <div className={cn("w-full", className)} style={style} {...props}>
+    <div className={cn('w-full', className)} style={style} {...props}>
       {children}
     </div>
   );
 }
 
 // Tooltip component for charts
-export function ChartTooltip<T>({
+export function ChartTooltip<_T>({
   className,
   active,
   payload,
-  label,
+  label: _label,
   ...props
-}: React.ComponentProps<"div"> & {
+}: React.ComponentProps<'div'> & {
   payload?: Array<{
     name?: string;
     value: number;
@@ -57,8 +56,8 @@ export function ChartTooltip<T>({
   return (
     <div
       className={cn(
-        "rounded-lg border border-[#4a3520] bg-[#3c2a14] p-2 shadow-sm",
-        className,
+        'rounded-lg border border-[#4a3520] bg-[#3c2a14] p-2 shadow-sm',
+        className
       )}
       {...props}
     />
@@ -66,13 +65,13 @@ export function ChartTooltip<T>({
 }
 
 // Tooltip content component
-export function ChartTooltipContent<T>({
+export function ChartTooltipContent<_T>({
   active,
   payload,
   label,
   className,
   ...props
-}: React.ComponentProps<"div"> & {
+}: React.ComponentProps<'div'> & {
   payload?: Array<{
     name?: string;
     value: number;
@@ -89,8 +88,8 @@ export function ChartTooltipContent<T>({
   return (
     <div
       className={cn(
-        "rounded-lg border border-[#4a3520] bg-[#3c2a14] p-2 shadow-sm",
-        className,
+        'rounded-lg border border-[#4a3520] bg-[#3c2a14] p-2 shadow-sm',
+        className
       )}
       {...props}
     >

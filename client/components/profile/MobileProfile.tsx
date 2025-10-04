@@ -1,23 +1,22 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import { useAccount, useDisconnect } from "wagmi";
-import { ConnectButton } from "@rainbow-me/rainbowkit";
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 import {
-  Copy,
   Check,
-  ExternalLink,
-  LogOut,
-  Wallet,
-  Eye,
-  Search,
+  Copy,
   Edit,
-} from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { shortenAddress } from "@/lib/app/utils";
-import { getExplorerAddressUrl } from "@/lib/blockchain/networks";
-import { useChainId } from "wagmi";
+  ExternalLink,
+  Eye,
+  LogOut,
+  Search,
+  Wallet,
+} from 'lucide-react';
+import { useState } from 'react';
+import { useAccount, useChainId, useDisconnect } from 'wagmi';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { shortenAddress } from '@/lib/app/utils';
+import { getExplorerAddressUrl } from '@/lib/blockchain/networks';
 
 interface ConnectedMobileViewProps {
   address: string;
@@ -80,7 +79,7 @@ function ConnectedMobileView({
         <div className="space-y-3">
           <Button
             onClick={() =>
-              window.open(getExplorerAddressUrl(address, chainId), "_blank")
+              window.open(getExplorerAddressUrl(address, chainId), '_blank')
             }
             variant="outline"
             className="w-full flex items-center justify-center gap-2 py-3 bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 hover:border-blue-300"
@@ -121,7 +120,7 @@ function DisconnectedMobileView() {
 
         <div className="w-full">
           <ConnectButton.Custom>
-            {({ account, chain, openConnectModal, mounted }) => {
+            {({ account, chain: _chain, openConnectModal, mounted }) => {
               if (!mounted)
                 return (
                   <div className="w-full h-12 bg-[hsl(var(--cj-warm-white))] rounded-lg animate-pulse" />

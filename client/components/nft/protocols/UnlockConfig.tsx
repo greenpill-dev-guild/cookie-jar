@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Loader2, CheckCircle2 } from "lucide-react";
-import { ProtocolConfigBase } from "../ProtocolConfigBase";
-import { UnlockProvider } from "@/lib/nft/protocols/UnlockProvider";
+import { CheckCircle2, Loader2 } from 'lucide-react';
+import type React from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { UnlockProvider } from '@/lib/nft/protocols/UnlockProvider';
+import { ProtocolConfigBase } from '../ProtocolConfigBase';
 
 interface LockDetails {
   address: string;
@@ -30,27 +31,22 @@ export const UnlockConfig: React.FC<UnlockConfigProps> = ({
   initialConfig,
   className,
 }) => {
-  const [unlockAddress, setUnlockAddress] = useState(initialConfig?.unlockAddress || "");
+  const [unlockAddress, setUnlockAddress] = useState(
+    initialConfig?.unlockAddress || ''
+  );
   const [selectedLock, setSelectedLock] = useState<LockDetails | null>(null);
   const [isValidating, setIsValidating] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
-  // Load initial lock if provided
-  useEffect(() => {
-    if (initialConfig?.unlockAddress && !selectedLock) {
-      validateLock(initialConfig.unlockAddress);
-    }
-  }, [initialConfig, selectedLock]);
-
-  const validateLock = async (lockAddress: string) => {
+  const validateLock = useCallback(async (lockAddress: string) => {
     if (!lockAddress) {
-      setValidationError("Please enter an Unlock Protocol lock address.");
+      setValidationError('Please enter an Unlock Protocol lock address.');
       return;
     }
 
     // Basic address validation
     if (!lockAddress.match(/^0x[a-fA-F0-9]{40}$/)) {
-      setValidationError("Please enter a valid Ethereum address.");
+      setValidationError('Please enter a valid Ethereum address.');
       return;
     }
 
@@ -59,22 +55,29 @@ export const UnlockConfig: React.FC<UnlockConfigProps> = ({
 
     try {
       const lockDetails = await UnlockProvider.getLockDetails(lockAddress);
-      
+
       if (lockDetails) {
         setSelectedLock(lockDetails);
         onConfigChange({ unlockAddress: lockAddress });
       } else {
-        setValidationError("Lock not found. Please check the address.");
+        setValidationError('Lock not found. Please check the address.');
         setSelectedLock(null);
       }
     } catch (err) {
-      console.error("Error validating Unlock lock:", err);
-      setValidationError("Error validating lock. Please try again.");
+      console.error('Error validating Unlock lock:', err);
+      setValidationError('Error validating lock. Please try again.');
       setSelectedLock(null);
     } finally {
       setIsValidating(false);
     }
-  };
+  }, []);
+
+  // Load initial lock if provided
+  useEffect(() => {
+    if (initialConfig?.unlockAddress && !selectedLock) {
+      validateLock(initialConfig.unlockAddress);
+    }
+  }, [initialConfig, selectedLock, validateLock]);
 
   const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newAddress = e.target.value;
@@ -90,8 +93,8 @@ export const UnlockConfig: React.FC<UnlockConfigProps> = ({
   const formatPrice = (priceValue: string, symbol?: string) => {
     try {
       const priceNum = parseFloat(priceValue);
-      if (priceNum === 0) return "Free";
-      return `${priceNum} ${symbol || "ETH"}`;
+      if (priceNum === 0) return 'Free';
+      return `${priceNum} ${symbol || 'ETH'}`;
     } catch {
       return priceValue;
     }
@@ -99,19 +102,19 @@ export const UnlockConfig: React.FC<UnlockConfigProps> = ({
 
   const formatDuration = (seconds: string) => {
     try {
-      const secs = parseInt(seconds);
-      if (secs === 0) return "No expiration";
-      
+      const secs = parseInt(seconds, 10);
+      if (secs === 0) return 'No expiration';
+
       const days = Math.floor(secs / (24 * 60 * 60));
       const hours = Math.floor((secs % (24 * 60 * 60)) / (60 * 60));
-      
+
       if (days > 0) {
         return `${days} day${days !== 1 ? 's' : ''}${hours > 0 ? ` ${hours}h` : ''}`;
       }
-      
+
       return `${hours} hour${hours !== 1 ? 's' : ''}`;
     } catch {
-      return seconds + " seconds";
+      return `${seconds} seconds`;
     }
   };
 
@@ -155,7 +158,7 @@ export const UnlockConfig: React.FC<UnlockConfigProps> = ({
                 Validating Lock...
               </>
             ) : (
-              "Validate Lock"
+              'Validate Lock'
             )}
           </Button>
         </div>
@@ -171,24 +174,41 @@ export const UnlockConfig: React.FC<UnlockConfigProps> = ({
                 </p>
                 <div className="mt-2 space-y-2 text-sm">
                   <div>
-                    <p><span className="font-medium">Name:</span> {selectedLock.name}</p>
-                    <p><span className="font-medium">Address:</span> <code className="text-xs bg-gray-100 px-1 rounded">{selectedLock.address}</code></p>
+                    <p>
+                      <span className="font-medium">Name:</span>{' '}
+                      {selectedLock.name}
+                    </p>
+                    <p>
+                      <span className="font-medium">Address:</span>{' '}
+                      <code className="text-xs bg-gray-100 px-1 rounded">
+                        {selectedLock.address}
+                      </code>
+                    </p>
                   </div>
-                  
+
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="outline" className="text-xs">
-                      Price: {formatPrice(selectedLock.price, selectedLock.currencySymbol)}
+                      Price:{' '}
+                      {formatPrice(
+                        selectedLock.price,
+                        selectedLock.currencySymbol
+                      )}
                     </Badge>
                     <Badge variant="outline" className="text-xs">
-                      Duration: {formatDuration(selectedLock.expirationDuration)}
+                      Duration:{' '}
+                      {formatDuration(selectedLock.expirationDuration)}
                     </Badge>
                     <Badge variant="outline" className="text-xs">
-                      Supply: {selectedLock.totalSupply}/{selectedLock.maxNumberOfKeys}
+                      Supply: {selectedLock.totalSupply}/
+                      {selectedLock.maxNumberOfKeys}
                     </Badge>
                   </div>
-                  
+
                   {selectedLock.symbol && (
-                    <p><span className="font-medium">Symbol:</span> {selectedLock.symbol}</p>
+                    <p>
+                      <span className="font-medium">Symbol:</span>{' '}
+                      {selectedLock.symbol}
+                    </p>
                   )}
                 </div>
               </div>
@@ -199,10 +219,10 @@ export const UnlockConfig: React.FC<UnlockConfigProps> = ({
         {/* Help Text */}
         <div className="text-xs text-gray-500 space-y-1">
           <p>
-            Find existing locks at{" "}
-            <a 
-              href="https://unlock-protocol.com/locks" 
-              target="_blank" 
+            Find existing locks at{' '}
+            <a
+              href="https://unlock-protocol.com/locks"
+              target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 hover:underline"
             >
@@ -210,10 +230,10 @@ export const UnlockConfig: React.FC<UnlockConfigProps> = ({
             </a>
           </p>
           <p>
-            Learn more about Unlock Protocol at{" "}
-            <a 
-              href="https://docs.unlock-protocol.com/" 
-              target="_blank" 
+            Learn more about Unlock Protocol at{' '}
+            <a
+              href="https://docs.unlock-protocol.com/"
+              target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 hover:underline"
             >

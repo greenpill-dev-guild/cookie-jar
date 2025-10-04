@@ -1,8 +1,11 @@
+/* eslint-disable no-console, no-unused-vars -- Temporarily disabled during ESLint -> Biome migration */
 /**
  * Centralized logging utility for the Cookie Jar application
- * 
+ *
  * Provides consistent logging with development/production environment awareness
  * and structured log formatting. Safe for SSR environments.
+ *
+ * Note: This file intentionally uses console methods and has unused exports for type safety
  */
 
 export enum LogLevel {
@@ -35,15 +38,20 @@ class Logger {
       this.minLevel = LogLevel.WARN;
     } else {
       // Client-side initialization - check multiple environment indicators
-      this.isDevelopment = (
-        (typeof process !== 'undefined' && process.env?.NODE_ENV === 'development') ||
-        (typeof window !== 'undefined' && window.location?.hostname === 'localhost')
-      );
+      this.isDevelopment =
+        (typeof process !== 'undefined' &&
+          process.env?.NODE_ENV === 'development') ||
+        (typeof window !== 'undefined' &&
+          window.location?.hostname === 'localhost');
       this.minLevel = this.isDevelopment ? LogLevel.DEBUG : LogLevel.WARN;
     }
   }
 
-  private formatMessage(level: LogLevel, message: string, context?: string): string {
+  private formatMessage(
+    level: LogLevel,
+    message: string,
+    context?: string
+  ): string {
     const timestamp = new Date().toISOString();
     const levelStr = LogLevel[level];
     const contextStr = context ? `[${context}]` : '';
@@ -55,8 +63,13 @@ class Logger {
   }
 
   debug(message: string, data?: any, context?: string): void {
-    if (isSSR || !this.shouldLog(LogLevel.DEBUG) || typeof console === 'undefined') return;
-    
+    if (
+      isSSR ||
+      !this.shouldLog(LogLevel.DEBUG) ||
+      typeof console === 'undefined'
+    )
+      return;
+
     if (data) {
       console.log(this.formatMessage(LogLevel.DEBUG, message, context), data);
     } else {
@@ -65,8 +78,13 @@ class Logger {
   }
 
   info(message: string, data?: any, context?: string): void {
-    if (isSSR || !this.shouldLog(LogLevel.INFO) || typeof console === 'undefined') return;
-    
+    if (
+      isSSR ||
+      !this.shouldLog(LogLevel.INFO) ||
+      typeof console === 'undefined'
+    )
+      return;
+
     if (data) {
       console.log(this.formatMessage(LogLevel.INFO, message, context), data);
     } else {
@@ -75,8 +93,13 @@ class Logger {
   }
 
   warn(message: string, data?: any, context?: string): void {
-    if (isSSR || !this.shouldLog(LogLevel.WARN) || typeof console === 'undefined') return;
-    
+    if (
+      isSSR ||
+      !this.shouldLog(LogLevel.WARN) ||
+      typeof console === 'undefined'
+    )
+      return;
+
     if (data) {
       console.warn(this.formatMessage(LogLevel.WARN, message, context), data);
     } else {
@@ -85,10 +108,19 @@ class Logger {
   }
 
   error(message: string, error?: Error | any, context?: string): void {
-    if (isSSR || !this.shouldLog(LogLevel.ERROR) || typeof console === 'undefined') return;
-    
-    const formattedMessage = this.formatMessage(LogLevel.ERROR, message, context);
-    
+    if (
+      isSSR ||
+      !this.shouldLog(LogLevel.ERROR) ||
+      typeof console === 'undefined'
+    )
+      return;
+
+    const formattedMessage = this.formatMessage(
+      LogLevel.ERROR,
+      message,
+      context
+    );
+
     if (error) {
       console.error(formattedMessage, error);
     } else {
@@ -101,7 +133,10 @@ class Logger {
    */
   dev(message: string, data?: any, context?: string): void {
     if (isSSR || !this.isDevelopment || typeof console === 'undefined') return;
-    console.log(`🔧 DEV ${context ? `[${context}]` : ''} ${message}`, data || '');
+    console.log(
+      `🔧 DEV ${context ? `[${context}]` : ''} ${message}`,
+      data || ''
+    );
   }
 }
 

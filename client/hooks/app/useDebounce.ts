@@ -1,8 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 /**
  * Custom hook to debounce a value
- * 
+ *
  * @param value - The value to debounce
  * @param delay - The delay in milliseconds
  * @returns The debounced value
@@ -25,12 +25,15 @@ export function useDebounce<T>(value: T, delay: number): T {
 
 /**
  * Custom hook to debounce a value with loading state
- * 
+ *
  * @param value - The value to debounce
  * @param delay - The delay in milliseconds
  * @returns Object with debounced value and loading state
  */
-export function useDebounceWithLoading<T>(value: T, delay: number): {
+export function useDebounceWithLoading<T>(
+  value: T,
+  delay: number
+): {
   debouncedValue: T;
   isDebouncing: boolean;
 } {
@@ -39,7 +42,7 @@ export function useDebounceWithLoading<T>(value: T, delay: number): {
 
   useEffect(() => {
     setIsDebouncing(true);
-    
+
     const handler = setTimeout(() => {
       setDebouncedValue(value);
       setIsDebouncing(false);

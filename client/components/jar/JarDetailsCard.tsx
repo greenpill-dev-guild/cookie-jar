@@ -1,24 +1,21 @@
-"use client";
+'use client';
 
-import Image from "next/image";
 import {
-  Card,
-  CardContent,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import {
-  ShieldAlert,
-  Users,
+  Clock,
   Coins,
   Copy,
   ExternalLink,
-  Clock,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { formatAddress } from "@/lib/app/utils";
-import { formatJarBalance, copyToClipboard } from "@/lib/display/jar-display";
-import type { JarMetadata } from "@/hooks/jar/useJarMetadata";
-import type { JarPermissions } from "@/hooks/jar/useJarPermissions";
+  ShieldAlert,
+  Users,
+} from 'lucide-react';
+import Image from 'next/image';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import type { JarMetadata } from '@/hooks/jar/useJarMetadata';
+import type { JarPermissions } from '@/hooks/jar/useJarPermissions';
+import { formatAddress } from '@/lib/app/utils';
+import { copyToClipboard, formatJarBalance } from '@/lib/display/jar-display';
 
 interface JarConfig {
   accessType?: string;
@@ -84,7 +81,7 @@ export function JarDetailsCard({
                       sizes="64px"
                       className="rounded-lg object-cover"
                       onError={(e) => {
-                        (e.target as HTMLImageElement).style.display = "none";
+                        (e.target as HTMLImageElement).style.display = 'none';
                       }}
                     />
                   </div>
@@ -105,14 +102,10 @@ export function JarDetailsCard({
                   )}
                 </div>
                 {metadata.description && (
-                  <p className="text-[#4a3520] mt-1">
-                    {metadata.description}
-                  </p>
+                  <p className="text-[#4a3520] mt-1">{metadata.description}</p>
                 )}
                 {!metadata.description && (
-                  <p className="text-[#4a3520] mt-1">
-                    Shared Token Pool
-                  </p>
+                  <p className="text-[#4a3520] mt-1">Shared Token Pool</p>
                 )}
               </div>
               {isAdmin && (
@@ -154,8 +147,14 @@ export function JarDetailsCard({
                 <ShieldAlert className="h-4 w-4 text-[#ff5e14]" />
                 <div>
                   <p className="text-[#4a3520] font-medium">Status</p>
-                  <p className={`font-medium ${config.denylist ? "text-red-600" : config.allowlist ? "text-green-600" : "text-red-600"}`}>
-                    {config.denylist ? "Denied" : config.allowlist ? "Authorized" : "Not Authorized"}
+                  <p
+                    className={`font-medium ${config.denylist ? 'text-red-600' : config.allowlist ? 'text-green-600' : 'text-red-600'}`}
+                  >
+                    {config.denylist
+                      ? 'Denied'
+                      : config.allowlist
+                        ? 'Authorized'
+                        : 'Not Authorized'}
                   </p>
                 </div>
               </div>
@@ -166,7 +165,9 @@ export function JarDetailsCard({
                 <div>
                   <p className="text-[#4a3520] font-medium">Rules</p>
                   <p className="text-[#1a1a1a]">
-                    {config.withdrawalOption === "Fixed" ? "Fixed Amount" : "Variable Amount"}
+                    {config.withdrawalOption === 'Fixed'
+                      ? 'Fixed Amount'
+                      : 'Variable Amount'}
                   </p>
                 </div>
               </div>
@@ -177,7 +178,9 @@ export function JarDetailsCard({
                 <div>
                   <p className="text-[#4a3520] font-medium">Contract</p>
                   <div className="flex items-center gap-1">
-                    <p className="text-[#1a1a1a] font-mono text-xs">{formatAddress(addressString)}</p>
+                    <p className="text-[#1a1a1a] font-mono text-xs">
+                      {formatAddress(addressString)}
+                    </p>
                     <Button
                       variant="ghost"
                       size="icon"
@@ -192,53 +195,53 @@ export function JarDetailsCard({
             </div>
           </div>
 
-            {/* User Status */}
-            {(showUserFunctions || isAdmin || isFeeCollector) && (
-              <div className="mt-6">
-                <h3 className="text-base font-semibold text-[#3c2a14] mb-2">
-                  Your Status
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {config.denylist ? (
+          {/* User Status */}
+          {(showUserFunctions || isAdmin || isFeeCollector) && (
+            <div className="mt-6">
+              <h3 className="text-base font-semibold text-[#3c2a14] mb-2">
+                Your Status
+              </h3>
+              <div className="flex flex-wrap gap-2">
+                {config.denylist ? (
+                  <Badge
+                    variant="outline"
+                    className="flex items-center gap-1 bg-[#ffebee] text-[#c62828] border-[#c62828] px-3 py-1"
+                  >
+                    <ShieldAlert className="h-3 w-3 mr-1" />
+                    Denylisted
+                  </Badge>
+                ) : (
+                  showUserFunctions && (
                     <Badge
                       variant="outline"
-                      className="flex items-center gap-1 bg-[#ffebee] text-[#c62828] border-[#c62828] px-3 py-1"
+                      className="flex items-center gap-1 bg-[#e6f7e6] text-[#2e7d32] border-[#2e7d32] px-3 py-1"
                     >
-                      <ShieldAlert className="h-3 w-3 mr-1" />
-                      Denylisted
+                      <Users className="h-3 w-3 mr-1" />
+                      Allowlisted
                     </Badge>
-                  ) : (
-                    showUserFunctions && (
-                      <Badge
-                        variant="outline"
-                        className="flex items-center gap-1 bg-[#e6f7e6] text-[#2e7d32] border-[#2e7d32] px-3 py-1"
-                      >
-                        <Users className="h-3 w-3 mr-1" />
-                        Allowlisted
-                      </Badge>
-                    )
-                  )}
-                  {isFeeCollector && (
-                    <Badge
-                      variant="outline"
-                      className="flex items-center gap-1 bg-[#e3f2fd] text-[#1976d2] border-[#1976d2] px-3 py-1"
-                    >
-                      <Coins className="h-3 w-3 mr-1" />
-                      Fee Collector
-                    </Badge>
-                  )}
-                  {isAdmin && (
-                    <Badge
-                      variant="outline"
-                      className="flex items-center gap-1 bg-[#fce4ec] text-[#c2185b] border-[#c2185b] px-3 py-1"
-                    >
-                      <ShieldAlert className="h-3 w-3 mr-1" />
-                      Admin
-                    </Badge>
-                  )}
-                </div>
+                  )
+                )}
+                {isFeeCollector && (
+                  <Badge
+                    variant="outline"
+                    className="flex items-center gap-1 bg-[#e3f2fd] text-[#1976d2] border-[#1976d2] px-3 py-1"
+                  >
+                    <Coins className="h-3 w-3 mr-1" />
+                    Fee Collector
+                  </Badge>
+                )}
+                {isAdmin && (
+                  <Badge
+                    variant="outline"
+                    className="flex items-center gap-1 bg-[#fce4ec] text-[#c2185b] border-[#c2185b] px-3 py-1"
+                  >
+                    <ShieldAlert className="h-3 w-3 mr-1" />
+                    Admin
+                  </Badge>
+                )}
               </div>
-            )}
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>

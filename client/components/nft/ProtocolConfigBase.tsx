@@ -1,7 +1,8 @@
-import React, { ReactNode } from 'react';
 import { AlertCircle, ExternalLink } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import type React from 'react';
+import type { ReactNode } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/app/utils';
 
@@ -21,7 +22,7 @@ export const ProtocolConfigBase: React.FC<ProtocolConfigBaseProps> = ({
   title,
   description,
   icon,
-  color = "bg-gray-500",
+  color = 'bg-gray-500',
   validationError,
   isLoading = false,
   className,
@@ -29,17 +30,27 @@ export const ProtocolConfigBase: React.FC<ProtocolConfigBaseProps> = ({
   children,
 }) => {
   return (
-    <Card className={cn("border-l-4", className)} style={{ borderLeftColor: color.replace('bg-', '#') }}>
+    <Card
+      className={cn('border-l-4', className)}
+      style={{ borderLeftColor: color.replace('bg-', '#') }}
+    >
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             {icon && (
-              <div className={cn("w-8 h-8 rounded-full flex items-center justify-center text-white", color)}>
+              <div
+                className={cn(
+                  'w-8 h-8 rounded-full flex items-center justify-center text-white',
+                  color
+                )}
+              >
                 {icon}
               </div>
             )}
             <div>
-              <CardTitle className="text-lg font-semibold text-[#3c2a14]">{title}</CardTitle>
+              <CardTitle className="text-lg font-semibold text-[#3c2a14]">
+                {title}
+              </CardTitle>
               <p className="text-sm text-[#8b7355] mt-1">{description}</p>
             </div>
           </div>

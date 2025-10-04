@@ -1,25 +1,24 @@
-"use client";
+'use client';
 
+import { ArrowUpToLine } from 'lucide-react';
 // AllowlistWithdrawalSection.tsx
-import React from "react";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { ArrowUpToLine } from "lucide-react";
+import React from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import {
-  ETH_ADDRESS,
-  useTokenInfo,
-  2_parseTokenAmount,
-  formatTokenAmount,
   checkDecimals,
-} from "@/lib/blockchain/token-utils";
+  ETH_ADDRESS,
+  formatTokenAmount,
+  useTokenInfo,
+} from '@/lib/blockchain/token-utils';
 
 interface AllowlistWithdrawalSectionProps {
   config: any; // Ideally this would be more specifically typed
   withdrawPurpose: string;
-  setWithdrawPurpose: (23_value: string) => void;
+  setWithdrawPurpose: (value: string) => void;
   withdrawAmount: string;
-  setWithdrawAmount: (22_value: string) => void;
+  setWithdrawAmount: (value: string) => void;
   handleWithdrawAllowlist: () => void;
   handleWithdrawAllowlistVariable: () => void;
 }
@@ -37,13 +36,13 @@ export const AllowlistWithdrawalSection: React.FC<
 }) => {
   // Get token information using the token utils
   const { symbol: tokenSymbol, decimals: tokenDecimals } = useTokenInfo(
-    config?.currency || ETH_ADDRESS,
+    config?.currency || ETH_ADDRESS
   );
 
   // State for validation errors
   const [amountError, setAmountError] = React.useState<string | null>(null);
   // Fixed amount withdrawal with purpose
-  if (config.strictPurpose && config.withdrawalOption === "Fixed") {
+  if (config.strictPurpose && config.withdrawalOption === 'Fixed') {
     return (
       <div className="space-y-6 py-4">
         <div className="space-y-3">
@@ -88,7 +87,7 @@ export const AllowlistWithdrawalSection: React.FC<
                   ? formatTokenAmount(
                       BigInt(config.fixedAmount),
                       tokenDecimals,
-                      tokenSymbol,
+                      tokenSymbol
                     )
                   : `0 ${tokenSymbol}`}
                 )
@@ -101,18 +100,18 @@ export const AllowlistWithdrawalSection: React.FC<
   }
 
   // Fixed amount withdrawal without purpose
-  if (!config.strictPurpose && config.withdrawalOption === "Fixed") {
+  if (!config.strictPurpose && config.withdrawalOption === 'Fixed') {
     return (
       <div className="space-y-6 py-8">
         <p className="text-[#ff5e14] font-medium text-xl text-center">
-          You can get a fixed cookie of{" "}
+          You can get a fixed cookie of{' '}
           {config.fixedAmount
             ? formatTokenAmount(
                 BigInt(config.fixedAmount),
                 tokenDecimals,
-                tokenSymbol,
+                tokenSymbol
               )
-            : `0 ${tokenSymbol}`}{" "}
+            : `0 ${tokenSymbol}`}{' '}
           from this jar.
         </p>
         {Number(config.lastWithdrawalAllowlist) > 0 && (
@@ -145,7 +144,7 @@ export const AllowlistWithdrawalSection: React.FC<
   }
 
   // Variable amount withdrawal with purpose
-  if (config.strictPurpose && config.withdrawalOption === "Variable") {
+  if (config.strictPurpose && config.withdrawalOption === 'Variable') {
     return (
       <div className="space-y-4">
         <div className="space-y-2">
@@ -169,18 +168,18 @@ export const AllowlistWithdrawalSection: React.FC<
                 setWithdrawAmount(result.value);
               }
             }}
-            className={`border-[#f0e6d8] bg-white text-[#3c2a14] ${amountError ? "border-red-500" : ""}`}
+            className={`border-[#f0e6d8] bg-white text-[#3c2a14] ${amountError ? 'border-red-500' : ''}`}
           />
           {amountError ? (
             <p className="text-sm text-red-500">{amountError}</p>
           ) : (
             <p className="text-sm text-[#8b7355]">
-              Maximum withdrawal:{" "}
+              Maximum withdrawal:{' '}
               {config.maxWithdrawal
                 ? formatTokenAmount(
                     BigInt(config.maxWithdrawal),
                     tokenDecimals,
-                    tokenSymbol,
+                    tokenSymbol
                   )
                 : `0 ${tokenSymbol}`}
             </p>
@@ -223,7 +222,7 @@ export const AllowlistWithdrawalSection: React.FC<
             ) : (
               <>
                 <ArrowUpToLine className="h-4 w-4 mr-2" />
-                Get Cookie ({withdrawAmount || "0"} {tokenSymbol})
+                Get Cookie ({withdrawAmount || '0'} {tokenSymbol})
               </>
             )}
           </Button>
@@ -233,7 +232,7 @@ export const AllowlistWithdrawalSection: React.FC<
   }
 
   // Variable amount withdrawal without purpose
-  if (!config.strictPurpose && config.withdrawalOption === "Variable") {
+  if (!config.strictPurpose && config.withdrawalOption === 'Variable') {
     return (
       <div className="space-y-4">
         <div className="space-y-2">
@@ -257,18 +256,18 @@ export const AllowlistWithdrawalSection: React.FC<
                 setWithdrawAmount(result.value);
               }
             }}
-            className={`border-[#f0e6d8] bg-white text-[#3c2a14] ${amountError ? "border-red-500" : ""}`}
+            className={`border-[#f0e6d8] bg-white text-[#3c2a14] ${amountError ? 'border-red-500' : ''}`}
           />
           {amountError ? (
             <p className="text-sm text-red-500">{amountError}</p>
           ) : (
             <p className="text-sm text-[#8b7355]">
-              Maximum withdrawal:{" "}
+              Maximum withdrawal:{' '}
               {config.maxWithdrawal
                 ? formatTokenAmount(
                     BigInt(config.maxWithdrawal),
                     tokenDecimals,
-                    tokenSymbol,
+                    tokenSymbol
                   )
                 : `0 ${tokenSymbol}`}
             </p>
@@ -294,7 +293,7 @@ export const AllowlistWithdrawalSection: React.FC<
             ) : (
               <>
                 <ArrowUpToLine className="h-4 w-4 mr-2" />
-                Get Cookie ({withdrawAmount || "0"} {tokenSymbol})
+                Get Cookie ({withdrawAmount || '0'} {tokenSymbol})
               </>
             )}
           </Button>

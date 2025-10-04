@@ -1,11 +1,10 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "pnpm run build",
-  "installCommand": "pnpm install --ignore-scripts",
+  "buildCommand": "cd .. && pnpm check && cd client && pnpm build:skip-lint",
+  "installCommand": "cd .. && pnpm install --ignore-scripts",
   "outputDirectory": ".next",
   "framework": "nextjs",
   "env": {
     "NODE_ENV": "production"
   }
 }
-

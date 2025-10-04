@@ -368,6 +368,13 @@
     box-shadow: 0 0 0.4em 0 var(--color-background);
   }
 
+  .icon-arrow {
+    width: 20px;
+    margin-left: 12px;
+    position: relative;
+    top: 6%;
+  }
+
   .btn-content .icon-arrow {
     transition: 0.5s;
     margin-right: 0px;
@@ -379,21 +386,14 @@
     margin-right: 20px;
   }
 
-  .icon-arrow {
-    width: 20px;
-    margin-left: 12px;
-    position: relative;
-    top: 6%;
+  .btn-content-small .icon-arrow {
+    transform: scale(0.4);
   }
 
   /* Smaller animated button for header */
   .btn-content-small {
     font-size: 16px;
     padding: 3px 16px;
-  }
-
-  .btn-content-small .icon-arrow {
-    transform: scale(0.4);
   }
 
   /* SVG */
@@ -608,26 +608,26 @@ body {
 *,
 *:before,
 *:after {
-  scrollbar-width: none !important;
-  -ms-overflow-style: none !important;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 *::-webkit-scrollbar {
-  width: 0 !important;
-  height: 0 !important;
-  background: transparent !important;
+  width: 0;
+  height: 0;
+  background: transparent;
 }
 
 *::-webkit-scrollbar-track {
-  background: transparent !important;
+  background: transparent;
 }
 
 *::-webkit-scrollbar-thumb {
-  background: transparent !important;
+  background: transparent;
 }
 
 *::-webkit-scrollbar-corner {
-  background: transparent !important;
+  background: transparent;
 }
 
 /* Mobile safe area support */
@@ -649,7 +649,7 @@ body {
 
 /* Ensure app bar is always fixed */
 .mobile-app-bar {
-  position: fixed !important;
+  position: fixed;
   bottom: 0;
   left: 0;
   right: 0;
@@ -743,11 +743,11 @@ body {
   .btn-accessible {
     @apply min-h-[44px] min-w-[44px] focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
   }
-  
+
   .btn-mobile-full {
     @apply w-full md:w-auto;
   }
-  
+
   /* Icon-only button accessibility */
   .btn-icon-accessible {
     @apply min-h-[44px] min-w-[44px] p-2 focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;

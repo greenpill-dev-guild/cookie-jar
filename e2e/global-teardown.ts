@@ -1,12 +1,12 @@
-import { FullConfig } from '@playwright/test'
+import type { FullConfig } from '@playwright/test';
 
-async function globalTeardown(config: FullConfig) {
-  console.log('🧹 Cleaning up E2E test environment...')
-  
+async function globalTeardown(_config: FullConfig) {
+  console.log('🧹 Cleaning up E2E test environment...');
+
   // Your existing `pnpm dev` process will handle cleanup when stopped
   // We don't need to explicitly stop services since they're managed by the dev script
-  
-  console.log('✅ E2E cleanup complete')
+
+  console.log('✅ E2E cleanup complete');
 }
 
-export default globalTeardown
+export default globalTeardown;

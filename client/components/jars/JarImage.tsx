@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { Image as ImageIcon } from "lucide-react";
-import Image from "next/image";
+import { Image as ImageIcon } from 'lucide-react';
+import Image from 'next/image';
+import { useEffect, useState } from 'react';
 
 interface JarImageProps {
   metadata?: string;
@@ -21,7 +21,7 @@ export function JarImage({ metadata, jarName }: JarImageProps) {
           setImageUrl(parsed.image);
           setImageError(false);
         }
-      } catch (e) {
+      } catch {
         // Ignore JSON parse errors
       }
     }

@@ -1,10 +1,10 @@
-"use client";
+'use client';
 
-import { useState, useEffect } from "react";
-import { useAccount } from "wagmi";
-import { Button } from "@/components/ui/button";
-import { useChainModal } from "@rainbow-me/rainbowkit";
-import { supportedChains } from "@/config/supported-networks";
+import { useChainModal } from '@rainbow-me/rainbowkit';
+import { useEffect, useState } from 'react';
+import { useAccount } from 'wagmi';
+import { Button } from '@/components/ui/button';
+import { supportedChains } from '@/config/supported-networks';
 
 export function NetworkSwitcher() {
   const { isConnected, chain } = useAccount();
@@ -57,8 +57,8 @@ export function NetworkSwitcher() {
             Unsupported Network
           </h3>
           <p className="text-[hsl(var(--cj-medium-brown))] mb-6">
-            The network you&apos;re currently connected to is not supported by Cookie
-            Jar. Please switch to a supported network to continue.
+            The network you&apos;re currently connected to is not supported by
+            Cookie Jar. Please switch to a supported network to continue.
           </p>
 
           <div className="flex flex-col gap-3">

@@ -1,8 +1,11 @@
-"use client";
+'use client';
 
-import { useQuery } from "@tanstack/react-query";
-import { useChainId } from "wagmi";
-import { createSuperfluidFramework, isSuperfluidSupported } from "@/lib/blockchain/superfluid-config";
+import { useQuery } from '@tanstack/react-query';
+import { useChainId } from 'wagmi';
+import {
+  createSuperfluidFramework,
+  isSuperfluidSupported,
+} from '@/lib/blockchain/superfluid-config';
 
 /**
  * Hook for initializing and caching Superfluid Framework
@@ -12,7 +15,7 @@ export const useSuperfluidFramework = () => {
   const chainId = useChainId();
 
   return useQuery({
-    queryKey: ["superfluidFramework", chainId],
+    queryKey: ['superfluidFramework', chainId],
     queryFn: async () => {
       if (!isSuperfluidSupported(chainId)) {
         throw new Error(`Superfluid not supported on chain ${chainId}`);
@@ -26,7 +29,7 @@ export const useSuperfluidFramework = () => {
     enabled: !!chainId && isSuperfluidSupported(chainId),
     retry: (failureCount, error) => {
       // Don't retry if chain is not supported
-      if (error.message.includes("not supported")) return false;
+      if (error.message.includes('not supported')) return false;
       // Retry up to 3 times for network errors
       return failureCount < 3;
     },

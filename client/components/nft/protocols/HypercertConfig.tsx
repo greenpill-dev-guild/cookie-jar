@@ -1,10 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Loader2, CheckCircle2 } from "lucide-react";
-import { ProtocolConfigBase } from "../ProtocolConfigBase";
-import { HypercertsProvider } from "@/lib/nft/protocols/HypercertsProvider";
+import { CheckCircle2, Loader2 } from 'lucide-react';
+import Image from 'next/image';
+import type React from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { HypercertsProvider } from '@/lib/nft/protocols/HypercertsProvider';
+import { ProtocolConfigBase } from '../ProtocolConfigBase';
 
 interface HypercertDetails {
   id: string;
@@ -27,45 +29,55 @@ export const HypercertConfig: React.FC<HypercertConfigProps> = ({
   initialConfig,
   className,
 }) => {
-  const [hypercertId, setHypercertId] = useState(initialConfig?.hypercertId || "");
-  const [selectedHypercert, setSelectedHypercert] = useState<HypercertDetails | null>(null);
+  const [hypercertId, setHypercertId] = useState(
+    initialConfig?.hypercertId || ''
+  );
+  const [selectedHypercert, setSelectedHypercert] =
+    useState<HypercertDetails | null>(null);
   const [isValidating, setIsValidating] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
+
+  const validateHypercert = useCallback(
+    async (hypercertIdToValidate: string) => {
+      if (!hypercertIdToValidate) {
+        setValidationError('Please enter a Hypercert ID.');
+        return;
+      }
+
+      setIsValidating(true);
+      setValidationError(null);
+
+      try {
+        const hypercertDetails = await HypercertsProvider.getHypercertById(
+          hypercertIdToValidate
+        );
+
+        if (hypercertDetails) {
+          setSelectedHypercert(hypercertDetails);
+          onConfigChange({ hypercertId: hypercertIdToValidate });
+        } else {
+          setValidationError(
+            'Hypercert not found. Please check the Hypercert ID.'
+          );
+          setSelectedHypercert(null);
+        }
+      } catch (err) {
+        console.error('Error validating Hypercert:', err);
+        setValidationError('Error validating Hypercert. Please try again.');
+        setSelectedHypercert(null);
+      } finally {
+        setIsValidating(false);
+      }
+    },
+    []
+  );
 
   // Load initial hypercert if provided
   useEffect(() => {
     if (initialConfig?.hypercertId && !selectedHypercert) {
       validateHypercert(initialConfig.hypercertId);
     }
-  }, [initialConfig, selectedHypercert]);
-
-  const validateHypercert = async (hypercertIdToValidate: string) => {
-    if (!hypercertIdToValidate) {
-      setValidationError("Please enter a Hypercert ID.");
-      return;
-    }
-
-    setIsValidating(true);
-    setValidationError(null);
-
-    try {
-      const hypercertDetails = await HypercertsProvider.getHypercertById(hypercertIdToValidate);
-      
-      if (hypercertDetails) {
-        setSelectedHypercert(hypercertDetails);
-        onConfigChange({ hypercertId: hypercertIdToValidate });
-      } else {
-        setValidationError("Hypercert not found. Please check the Hypercert ID.");
-        setSelectedHypercert(null);
-      }
-    } catch (err) {
-      console.error("Error validating Hypercert:", err);
-      setValidationError("Error validating Hypercert. Please try again.");
-      setSelectedHypercert(null);
-    } finally {
-      setIsValidating(false);
-    }
-  };
+  }, [initialConfig, selectedHypercert, validateHypercert]);
 
   const handleHypercertIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newHypercertId = e.target.value;
@@ -118,7 +130,7 @@ export const HypercertConfig: React.FC<HypercertConfigProps> = ({
                 Validating Hypercert...
               </>
             ) : (
-              "Validate Hypercert"
+              'Validate Hypercert'
             )}
           </Button>
         </div>
@@ -133,30 +145,48 @@ export const HypercertConfig: React.FC<HypercertConfigProps> = ({
                   Hypercert Validated Successfully
                 </p>
                 <div className="mt-2 space-y-1 text-sm">
-                  <p><span className="font-medium">ID:</span> {selectedHypercert.id}</p>
+                  <p>
+                    <span className="font-medium">ID:</span>{' '}
+                    {selectedHypercert.id}
+                  </p>
                   {selectedHypercert.name && (
-                    <p><span className="font-medium">Name:</span> {selectedHypercert.name}</p>
+                    <p>
+                      <span className="font-medium">Name:</span>{' '}
+                      {selectedHypercert.name}
+                    </p>
                   )}
                   {selectedHypercert.description && (
                     <p className="text-xs">
-                      <span className="font-medium">Description:</span> {selectedHypercert.description}
+                      <span className="font-medium">Description:</span>{' '}
+                      {selectedHypercert.description}
                     </p>
                   )}
                   {selectedHypercert.creator && (
-                    <p><span className="font-medium">Creator:</span> {selectedHypercert.creator}</p>
+                    <p>
+                      <span className="font-medium">Creator:</span>{' '}
+                      {selectedHypercert.creator}
+                    </p>
                   )}
                   {selectedHypercert.totalUnits && (
-                    <p><span className="font-medium">Total Units:</span> {selectedHypercert.totalUnits}</p>
+                    <p>
+                      <span className="font-medium">Total Units:</span>{' '}
+                      {selectedHypercert.totalUnits}
+                    </p>
                   )}
                   {selectedHypercert.transferRestriction && (
-                    <p><span className="font-medium">Transfer Restriction:</span> {selectedHypercert.transferRestriction}</p>
+                    <p>
+                      <span className="font-medium">Transfer Restriction:</span>{' '}
+                      {selectedHypercert.transferRestriction}
+                    </p>
                   )}
                 </div>
               </div>
               {selectedHypercert.image && (
-                <img
+                <Image
                   src={selectedHypercert.image}
-                  alt={selectedHypercert.name || "Hypercert"}
+                  alt={selectedHypercert.name || 'Hypercert'}
+                  width={48}
+                  height={48}
                   className="w-12 h-12 rounded object-cover"
                 />
               )}
@@ -167,10 +197,10 @@ export const HypercertConfig: React.FC<HypercertConfigProps> = ({
         {/* Help Text */}
         <div className="text-xs text-gray-500 space-y-1">
           <p>
-            Hypercerts represent positive impact work. Find Hypercerts at{" "}
-            <a 
-              href="https://hypercerts.org/explorer" 
-              target="_blank" 
+            Hypercerts represent positive impact work. Find Hypercerts at{' '}
+            <a
+              href="https://hypercerts.org/explorer"
+              target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 hover:underline"
             >
@@ -178,10 +208,10 @@ export const HypercertConfig: React.FC<HypercertConfigProps> = ({
             </a>
           </p>
           <p>
-            Learn more about Hypercerts at{" "}
-            <a 
-              href="https://hypercerts.org/docs/" 
-              target="_blank" 
+            Learn more about Hypercerts at{' '}
+            <a
+              href="https://hypercerts.org/docs/"
+              target="_blank"
               rel="noopener noreferrer"
               className="text-blue-600 hover:underline"
             >

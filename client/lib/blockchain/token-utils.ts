@@ -1,12 +1,10 @@
-import { useReadContracts } from "wagmi";
-import { parseUnits, formatUnits, erc20Abi, isAddress } from "viem";
-import type { Address } from "viem";
-import { log } from "console";
-import { useChainId } from "wagmi";
-import { getNativeCurrency } from "@/config/supported-networks";
+import type { Address } from 'viem';
+import { erc20Abi, formatUnits, isAddress, parseUnits } from 'viem';
+import { useChainId, useReadContracts } from 'wagmi';
+import { getNativeCurrency } from '@/config/supported-networks';
 
 // Known address constants
-export const ETH_ADDRESS = "0x0000000000000000000000000000000000000003";
+export const ETH_ADDRESS = '0x0000000000000000000000000000000000000003';
 
 /**
  * Hook to fetch token information (symbol and decimals)
@@ -23,12 +21,12 @@ export function useTokenInfo(tokenAddress: Address) {
       {
         address: tokenAddress,
         abi: erc20Abi,
-        functionName: "symbol",
+        functionName: 'symbol',
       },
       {
         address: tokenAddress,
         abi: erc20Abi,
-        functionName: "decimals",
+        functionName: 'decimals',
       },
     ],
     query: {
@@ -44,7 +42,7 @@ export function useTokenInfo(tokenAddress: Address) {
       isERC20: false,
       isEth: true,
       error: false,
-      errorMessage: "",
+      errorMessage: '',
     };
   }
 
@@ -52,11 +50,11 @@ export function useTokenInfo(tokenAddress: Address) {
   const hasSymbol = tokenInfo?.[0]?.result !== undefined;
   const hasDecimals = tokenInfo?.[1]?.result !== undefined;
   const error = isERC20 && (!hasSymbol || !hasDecimals);
-  const symbol = hasSymbol ? (tokenInfo[0].result as string) : "ERROR";
+  const symbol = hasSymbol ? (tokenInfo[0].result as string) : 'ERROR';
   const decimals = hasDecimals ? Number(tokenInfo[1].result) : 0;
 
   // Generate appropriate error message
-  let errorMessage = "";
+  let errorMessage = '';
   if (error) {
     if (!hasSymbol && !hasDecimals) {
       errorMessage =
@@ -90,7 +88,7 @@ export function formatTokenAmount(
   amount: bigint | undefined,
   decimals: number,
   symbol: string,
-  maxDecimals: number = 4,
+  maxDecimals: number = 4
 ) {
   if (!amount) return `0 ${symbol}`;
 
@@ -98,7 +96,7 @@ export function formatTokenAmount(
     const formatted = formatUnits(amount, decimals);
     return `${Number(formatted).toFixed(maxDecimals)} ${symbol}`;
   } catch (error) {
-    console.error("Error formatting amount:", error);
+    console.error('Error formatting amount:', error);
     return `${amount || 0} ${symbol}`;
   }
 }
@@ -110,7 +108,7 @@ export function formatTokenAmount(
  * @returns Amount in smallest unit as BigInt
  */
 export function parseTokenAmount(amountStr: string, decimals: number) {
-  if (!amountStr || amountStr === "0") return BigInt(0);
+  if (!amountStr || amountStr === '0') return BigInt(0);
   return parseUnits(amountStr, decimals) || BigInt(0);
 }
 
@@ -122,44 +120,44 @@ export function parseTokenAmount(amountStr: string, decimals: number) {
  */
 export function checkDecimals(
   value: string,
-  tokenDecimals: number,
+  tokenDecimals: number
 ): { value: string | null; error: string | null } {
-  if (value === "") {
+  if (value === '') {
     return { value, error: null };
   }
 
   // Input length validation to prevent ReDoS attacks
   if (value.length > 50) {
-    return { value: null, error: "Number input too long." };
+    return { value: null, error: 'Number input too long.' };
   }
 
   // Use JavaScript's built-in parsing instead of regex to avoid ReDoS
   // Allow only digits, single decimal point, and leading decimal point
   const trimmed = value.trim();
-  
+
   // Quick character-based validation (much faster than regex)
   let hasDecimal = false;
   let decimalIndex = -1;
-  
+
   for (let i = 0; i < trimmed.length; i++) {
     const char = trimmed[i];
     if (char === '.') {
       if (hasDecimal) {
         // Multiple decimal points
-        return { value: null, error: "Please enter a valid number." };
+        return { value: null, error: 'Please enter a valid number.' };
       }
       hasDecimal = true;
       decimalIndex = i;
     } else if (char < '0' || char > '9') {
       // Invalid character
-      return { value: null, error: "Please enter a valid number." };
+      return { value: null, error: 'Please enter a valid number.' };
     }
   }
 
   // Check for edge cases
   if (trimmed === '.' || trimmed === '') {
     if (trimmed === '') return { value, error: null };
-    return { value: null, error: "Please enter a valid number." };
+    return { value: null, error: 'Please enter a valid number.' };
   }
 
   // Validate decimal places if there's a decimal point

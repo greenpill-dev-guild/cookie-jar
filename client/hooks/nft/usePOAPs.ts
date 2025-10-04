@@ -1,6 +1,10 @@
-import { useState, useEffect } from "react";
-import { useAccount, useChainId } from "wagmi";
-import { poapProvider, POAPEvent as ProviderPOAPEvent, POAPToken } from "@/lib/nft/protocols/POAPProvider";
+import { useEffect, useState } from 'react';
+import { useAccount, useChainId } from 'wagmi';
+import {
+  type POAPToken,
+  type POAPEvent as ProviderPOAPEvent,
+  poapProvider,
+} from '@/lib/nft/protocols/POAPProvider';
 
 /**
  * POAP event information structure - extends the provider interface
@@ -72,11 +76,11 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 /**
  * Custom hook for POAP (Proof of Attendance Protocol) integration
- * 
+ *
  * Provides comprehensive POAP functionality including event validation,
  * attendance verification, and collection management. Uses the POAP SDK
  * for reliable event data and user POAP fetching.
- * 
+ *
  * Features:
  * - Event information and validation
  * - User POAP collection fetching
@@ -84,10 +88,10 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
  * - Event search functionality
  * - Cached data with configurable refresh
  * - Error handling and retry logic
- * 
+ *
  * @param options - Configuration options for POAP functionality
  * @returns Object with POAP data, event info, and utility functions
- * 
+ *
  * @example
  * ```tsx
  * const {
@@ -101,9 +105,9 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
  *   fetchUserPOAPs: true,
  *   withMetadata: true
  * });
- * 
+ *
  * if (isLoading) return <div>Loading POAPs...</div>;
- * 
+ *
  * return (
  *   <div>
  *     {eventInfo && (
@@ -121,11 +125,9 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
  * );
  * ```
  */
-export function usePOAPs(
-  options: usePOAPsOptions = {},
-): usePOAPsResult {
+export function usePOAPs(options: usePOAPsOptions = {}): usePOAPsResult {
   const { address: userAddress } = useAccount();
-  const chainId = useChainId();
+  const _chainId = useChainId();
   const [userPOAPs, setUserPOAPs] = useState<UserPOAP[]>([]);
   const [eventInfo, setEventInfo] = useState<POAPEvent | null>(null);
   const [isLoadingUserPOAPs, setIsLoadingUserPOAPs] = useState(false);
@@ -155,7 +157,7 @@ export function usePOAPs(
       });
 
       // Convert to hook format
-      const userPOAPs: UserPOAP[] = result.tokens.map(token => ({
+      const userPOAPs: UserPOAP[] = result.tokens.map((token) => ({
         ...token,
         event: {
           ...token.event,
@@ -171,8 +173,10 @@ export function usePOAPs(
 
       setUserPOAPs(userPOAPs);
     } catch (error) {
-      console.error("Error fetching user POAPs:", error);
-      setUserPOAPsError("Failed to fetch your POAP collection. Please check your API key.");
+      console.error('Error fetching user POAPs:', error);
+      setUserPOAPsError(
+        'Failed to fetch your POAP collection. Please check your API key.'
+      );
     } finally {
       setIsLoadingUserPOAPs(false);
     }
@@ -192,18 +196,18 @@ export function usePOAPs(
         return;
       }
 
-      const event = await poapProvider.getEvent(parseInt(eventId));
-      
+      const event = await poapProvider.getEvent(parseInt(eventId, 10));
+
       if (!event) {
-        throw new Error("Event not found");
+        throw new Error('Event not found');
       }
 
       const poapEvent = event as POAPEvent;
       eventCache.set(eventId, poapEvent);
       setEventInfo(poapEvent);
     } catch (error) {
-      console.error("Error fetching event info:", error);
-      setEventError("Event not found or invalid");
+      console.error('Error fetching event info:', error);
+      setEventError('Event not found or invalid');
       setEventInfo(null);
     } finally {
       setIsLoadingEvent(false);
@@ -221,31 +225,31 @@ export function usePOAPs(
 
       return result.events as POAPEvent[];
     } catch (error) {
-      console.error("Error searching events:", error);
+      console.error('Error searching events:', error);
       return [];
     }
   };
 
   // Validate specific event ID
   const validateEventId = async (
-    eventId: string,
+    eventId: string
   ): Promise<POAPEvent | null> => {
     try {
       if (!/^\d+$/.test(eventId)) {
-        throw new Error("Event ID must be numeric");
+        throw new Error('Event ID must be numeric');
       }
 
-      const event = await poapProvider.getEvent(parseInt(eventId));
-      return event as POAPEvent || null;
+      const event = await poapProvider.getEvent(parseInt(eventId, 10));
+      return (event as POAPEvent) || null;
     } catch (error) {
-      console.error("Error validating event ID:", error);
+      console.error('Error validating event ID:', error);
       return null;
     }
   };
 
   // Check if user has POAP from specific event
   const checkUserHasPOAP = (eventId: string): boolean => {
-    const numericEventId = parseInt(eventId);
+    const numericEventId = parseInt(eventId, 10);
     return userPOAPs.some((poap) => poap.event.id === numericEventId);
   };
 
@@ -264,13 +268,13 @@ export function usePOAPs(
     if (userAddress && options.fetchUserPOAPs) {
       fetchUserPOAPs(userAddress);
     }
-  }, [userAddress, options.fetchUserPOAPs]);
+  }, [userAddress, options.fetchUserPOAPs, fetchUserPOAPs]);
 
   useEffect(() => {
     if (options.eventId) {
       fetchEventInfo(options.eventId);
     }
-  }, [options.eventId]);
+  }, [options.eventId, fetchEventInfo]);
 
   return {
     userPOAPs,

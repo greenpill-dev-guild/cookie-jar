@@ -1,51 +1,40 @@
-"use client";
+'use client';
 
-import type React from "react";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/app/useToast";
-import { useAccount, useChainId } from "wagmi";
-import { 
-  2_Play, 
-  Pause, 
-  2_CheckCircle, 
-  2_Clock, 
-  2_AlertCircle, 
-  Waves, 
-  Settings,
-  ExternalLink 
-} from "lucide-react";
-import { formatUnits} from "viem";
-import { formatAddress } from "@/lib/app/utils";
-import { useStreamingData } from "@/hooks/jar/useStreamingData";
-import { useStreamingActions } from "@/hooks/jar/useStreamingActions";
-import { useSuperfluidAccountInfo } from "@/hooks/jar/useSuperfluidAccountInfo";
-import { useSuperfluidTokenInfo } from "@/hooks/blockchain/useSuperfluidTokenInfo";
-
-
+import { Pause, Settings, Waves } from 'lucide-react';
+import type React from 'react';
+import { useState } from 'react';
+import { formatUnits } from 'viem';
+import { useAccount, useChainId } from 'wagmi';
+import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/app/useToast';
+import { useSuperfluidTokenInfo } from '@/hooks/blockchain/useSuperfluidTokenInfo';
+import { useStreamingActions } from '@/hooks/jar/useStreamingActions';
+import { useStreamingData } from '@/hooks/jar/useStreamingData';
+import { useSuperfluidAccountInfo } from '@/hooks/jar/useSuperfluidAccountInfo';
+import { formatAddress } from '@/lib/app/utils';
 
 interface StreamingPanelProps {
   jarAddress: `0x${string}`;
   isAdmin: boolean;
 }
 
-export const StreamingPanel: React.FC<StreamingPanelProps> = ({ 
-  jarAddress, 
-  isAdmin 
+export const StreamingPanel: React.FC<StreamingPanelProps> = ({
+  jarAddress,
+  isAdmin,
 }) => {
-  const { _toast } = useToast();
-  const_chainId = useChainId();
+  const { toast: _toast } = useToast();
+  const _chainId = useChainId();
   const { address: _userAddress } = useAccount();
 
   // Stream registration form state
-  const [9_newStreamSender, setNewStreamSender] = useState("");
-  const [newStreamToken, setNewStreamToken] = useState("");
-  const [newStreamRate, setNewStreamRate] = useState("");
+  const [_newStreamSender, _setNewStreamSender] = useState('');
+  const [newStreamToken, setNewStreamToken] = useState('');
+  const [newStreamRate, setNewStreamRate] = useState('');
 
   // Use real Superfluid SDK hooks
   const {
@@ -54,7 +43,7 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
     isLoadingStreams,
     calculateClaimable,
     formatStreamRate,
-    4_refetchStreams,
+    refetchStreams: _refetchStreams,
   } = useStreamingData(jarAddress);
 
   const {
@@ -73,10 +62,10 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
       await createSuperStream(newStreamToken, newStreamRate);
 
       // Reset form on success
-      setNewStreamToken("");
-      setNewStreamRate("");
+      setNewStreamToken('');
+      setNewStreamRate('');
     } catch (error) {
-      console.error("Failed to create stream:", error);
+      console.error('Failed to create stream:', error);
     }
   };
 
@@ -100,7 +89,7 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
           Streaming Management
         </CardTitle>
       </CardHeader>
-      
+
       <CardContent>
         <Tabs defaultValue="overview" className="space-y-4">
           <TabsList className="grid w-full grid-cols-3">
@@ -141,20 +130,38 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
               <CardContent>
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
-                    <div className="text-2xl font-bold text-blue-600">{streams.length}</div>
+                    <div className="text-2xl font-bold text-blue-600">
+                      {streams.length}
+                    </div>
                     <div className="text-sm text-gray-600">Active Streams</div>
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-green-600">
-                      {streams.reduce((sum, stream) => sum + Number(formatUnits(stream.ratePerSecond, 18)), 0).toFixed(3)}
+                      {streams
+                        .reduce(
+                          (sum, stream) =>
+                            sum + Number(formatUnits(stream.ratePerSecond, 18)),
+                          0
+                        )
+                        .toFixed(3)}
                     </div>
-                    <div className="text-sm text-gray-600">Total Rate (ETH/s)</div>
+                    <div className="text-sm text-gray-600">
+                      Total Rate (ETH/s)
+                    </div>
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-purple-600">
-                      {streams.reduce((sum, stream) => sum + Number(formatUnits(stream.totalStreamed, 18)), 0).toFixed(3)}
+                      {streams
+                        .reduce(
+                          (sum, stream) =>
+                            sum + Number(formatUnits(stream.totalStreamed, 18)),
+                          0
+                        )
+                        .toFixed(3)}
                     </div>
-                    <div className="text-sm text-gray-600">Total Streamed (ETH)</div>
+                    <div className="text-sm text-gray-600">
+                      Total Streamed (ETH)
+                    </div>
                   </div>
                 </div>
               </CardContent>
@@ -188,7 +195,9 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
             <TabsContent value="manage" className="space-y-4">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Create Superfluid Stream</CardTitle>
+                  <CardTitle className="text-lg">
+                    Create Superfluid Stream
+                  </CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -202,7 +211,7 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
                       />
                     </div>
                   </div>
-                  
+
                   <div>
                     <Label htmlFor="rate">Rate (tokens per second)</Label>
                     <Input
@@ -212,7 +221,7 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
                       onChange={(e) => setNewStreamRate(e.target.value)}
                     />
                   </div>
-                  
+
                   <Button
                     onClick={handleCreateSuperStream}
                     disabled={isCreating}
@@ -237,12 +246,12 @@ export const StreamingPanel: React.FC<StreamingPanelProps> = ({
 
 interface StreamCardProps {
   stream: any; // Using any for now, should be properly typed
-  onUpdate: (13_rate: string) => void;
+  onUpdate: (rate: string) => void;
   onDelete: () => void;
   isUpdating: boolean;
   isDeleting: boolean;
-  formatStreamRate: (21_rate: bigint, 38_decimals: number) => string;
-  calculateClaimable: (23_stream: any) => bigint;
+  formatStreamRate: (rate: bigint, decimals: number) => string;
+  calculateClaimable: (stream: any) => bigint;
   isAdmin: boolean;
 }
 
@@ -254,7 +263,7 @@ const StreamCard: React.FC<StreamCardProps> = ({
   isDeleting,
   formatStreamRate,
   calculateClaimable,
-  isAdmin
+  isAdmin,
 }) => {
   const { data: _tokenInfo } = useSuperfluidTokenInfo(stream.token);
 
@@ -264,25 +273,27 @@ const StreamCard: React.FC<StreamCardProps> = ({
         <div className="flex items-start justify-between">
           <div className="space-y-2 flex-1">
             <div className="flex items-center gap-2">
-              <Badge variant={stream.isActive ? "default" : "secondary"}>
-                {stream.isActive ? "Active" : "Inactive"}
+              <Badge variant={stream.isActive ? 'default' : 'secondary'}>
+                {stream.isActive ? 'Active' : 'Inactive'}
               </Badge>
               <span className="text-sm font-mono text-gray-600">
-                {stream.tokenSymbol || "TOKEN"}
+                {stream.tokenSymbol || 'TOKEN'}
               </span>
             </div>
 
             <div className="text-sm space-y-1">
               <p>
-                <span className="font-medium">From:</span>{" "}
-                <span className="font-mono">{formatAddress(stream.sender)}</span>
+                <span className="font-medium">From:</span>{' '}
+                <span className="font-mono">
+                  {formatAddress(stream.sender)}
+                </span>
               </p>
               <p>
-                <span className="font-medium">Rate:</span>{" "}
+                <span className="font-medium">Rate:</span>{' '}
                 {formatStreamRate(stream.ratePerSecond, 18)}
               </p>
               <p>
-                <span className="font-medium">Total Streamed:</span>{" "}
+                <span className="font-medium">Total Streamed:</span>{' '}
                 {formatUnits(stream.totalStreamed, 18)}
               </p>
             </div>
@@ -290,7 +301,8 @@ const StreamCard: React.FC<StreamCardProps> = ({
             {stream.isActive && (
               <div className="bg-green-50 p-2 rounded text-sm">
                 <p className="text-green-700 font-medium">
-                  Claimable: {formatUnits(calculateClaimable(stream), 18)} tokens
+                  Claimable: {formatUnits(calculateClaimable(stream), 18)}{' '}
+                  tokens
                 </p>
               </div>
             )}
@@ -303,7 +315,10 @@ const StreamCard: React.FC<StreamCardProps> = ({
                   size="sm"
                   variant="outline"
                   onClick={() => {
-                    const newRate = prompt("Enter new flow rate (wei per second):", stream.ratePerSecond.toString());
+                    const newRate = prompt(
+                      'Enter new flow rate (wei per second):',
+                      stream.ratePerSecond.toString()
+                    );
                     if (newRate) onUpdate(newRate);
                   }}
                   disabled={isUpdating}

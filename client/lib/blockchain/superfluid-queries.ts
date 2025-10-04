@@ -1,10 +1,10 @@
 /**
  * GraphQL Queries for Superfluid Subgraph
- * 
+ *
  * Queries for fetching stream data from The Graph
  */
 
-import { gql } from "graphql-request";
+import { gql } from 'graphql-request';
 
 /**
  * Query to fetch all active streams flowing to a specific receiver (jar address)

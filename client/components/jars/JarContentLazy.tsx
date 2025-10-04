@@ -1,24 +1,24 @@
-"use client";
-import { useCookieJarFactory } from "@/hooks/jar/useJarFactory";
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { ShieldAlert, Loader2, RotateCcw } from "lucide-react";
-import { JarGridSkeleton } from "@/components/jars/JarSkeleton";
-import { useRouter } from "next/navigation";
-import { useChainId, useAccount } from "wagmi";
-import { getNativeCurrency } from "@/config/supported-networks";
-import { useState, useMemo, useCallback } from "react";
-import { ETH_ADDRESS } from "@/lib/blockchain/token-utils";
-import { JarControls } from "./JarControls";
-import { JarGrid } from "./JarGrid";
-import { useMultipleTokenSymbols } from "@/hooks/blockchain/useMultipleTokenSymbols";
-import { getNetworkName } from "@/lib/blockchain/networks";
+'use client';
+import { Loader2, RotateCcw, ShieldAlert } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { useCallback, useMemo, useState } from 'react';
+import { useAccount, useChainId } from 'wagmi';
+import { JarGridSkeleton } from '@/components/jars/JarSkeleton';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
+import { getNativeCurrency } from '@/config/supported-networks';
+import { useMultipleTokenSymbols } from '@/hooks/blockchain/useMultipleTokenSymbols';
+import { useCookieJarFactory } from '@/hooks/jar/useJarFactory';
+import { getNetworkName } from '@/lib/blockchain/networks';
+import { ETH_ADDRESS } from '@/lib/blockchain/token-utils';
+import { JarControls } from './JarControls';
+import { JarGrid } from './JarGrid';
 
 interface JarContentProps {
   userAddress?: string;
 }
 
-export function JarContentLazy({ _userAddress }: JarContentProps) {
+export function JarContentLazy({ userAddress: _userAddress }: JarContentProps) {
   const router = useRouter();
   const chainId = useChainId();
   const { isConnected } = useAccount();
@@ -35,10 +35,10 @@ export function JarContentLazy({ _userAddress }: JarContentProps) {
   } = useCookieJarFactory();
 
   const nativeCurrency = getNativeCurrency(chainId);
-  const [searchTerm, setSearchTerm] = useState("");
+  const [searchTerm, setSearchTerm] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const jarsPerPage = 9;
-  const [filterOption, setFilterOption] = useState("all");
+  const [filterOption, setFilterOption] = useState('all');
   const [isRefreshing, setIsRefreshing] = useState(false);
 
   // Get unique ERC20 currency addresses from all jars (exclude ETH)
@@ -63,20 +63,20 @@ export function JarContentLazy({ _userAddress }: JarContentProps) {
     (jarAddress: string) => {
       router.push(`/jar/${jarAddress}`);
     },
-    [router],
+    [router]
   );
 
   // Enhanced refresh function with loading state
   const handleRefresh = useCallback(async () => {
     setIsRefreshing(true);
-    console.log("🔄 Manual refresh triggered by user");
+    console.log('🔄 Manual refresh triggered by user');
 
     try {
       await refresh();
       // Small delay to show the refresh animation
       setTimeout(() => setIsRefreshing(false), 500);
     } catch (error) {
-      console.error("❌ Refresh failed:", error);
+      console.error('❌ Refresh failed:', error);
       setIsRefreshing(false);
     }
   }, [refresh]);
@@ -86,9 +86,9 @@ export function JarContentLazy({ _userAddress }: JarContentProps) {
     return cookieJarsData.filter(
       (jar) =>
         jar.metadata?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        jar.jarAddress.toLowerCase().includes(searchTerm.toLowerCase()),
+        jar.jarAddress.toLowerCase().includes(searchTerm.toLowerCase())
     );
-  }, [cookieJarsData, searchTerm, filterOption]);
+  }, [cookieJarsData, searchTerm]);
 
   // Get jars for the current page
   const currentJars = useMemo(() => {
@@ -101,7 +101,7 @@ export function JarContentLazy({ _userAddress }: JarContentProps) {
 
   // Progress indicator during loading
   if (isLoading && fetchProgress) {
-    console.log("📊 JarContentLazy: Rendering progress state");
+    console.log('📊 JarContentLazy: Rendering progress state');
     return (
       <div className="space-y-6">
         <Card>
@@ -122,7 +122,7 @@ export function JarContentLazy({ _userAddress }: JarContentProps) {
                   />
                 </div>
                 <p className="text-xs text-gray-600 mt-1">
-                  {fetchProgress.successful} successful, {fetchProgress.failed}{" "}
+                  {fetchProgress.successful} successful, {fetchProgress.failed}{' '}
                   failed
                 </p>
               </div>
@@ -136,13 +136,13 @@ export function JarContentLazy({ _userAddress }: JarContentProps) {
 
   // Loading state
   if (isLoading) {
-    console.log("⏳ JarContentLazy: Rendering loading state");
+    console.log('⏳ JarContentLazy: Rendering loading state');
     return <JarGridSkeleton />;
   }
 
   // Error state
   if (error) {
-    console.error("❌ JarContentLazy: Rendering error state:", error);
+    console.error('❌ JarContentLazy: Rendering error state:', error);
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] cj-card-primary rounded-lg p-8">
         <div className="text-center space-y-4">
@@ -159,7 +159,7 @@ export function JarContentLazy({ _userAddress }: JarContentProps) {
             className="mt-4"
           >
             <Loader2
-              className={`h-4 w-4 mr-2 ${isRefreshing ? "animate-spin" : ""}`}
+              className={`h-4 w-4 mr-2 ${isRefreshing ? 'animate-spin' : ''}`}
             />
             Try Again
           </Button>
@@ -170,7 +170,7 @@ export function JarContentLazy({ _userAddress }: JarContentProps) {
 
   // Empty state
   if (cookieJarsData.length === 0) {
-    console.log("📭 JarContentLazy: Rendering empty state");
+    console.log('📭 JarContentLazy: Rendering empty state');
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] cj-card-primary rounded-lg p-8">
         <div className="text-center space-y-4">
@@ -183,7 +183,7 @@ export function JarContentLazy({ _userAddress }: JarContentProps) {
             the first one to get started!
           </p>
           <Button
-            onClick={() => router.push("/create")}
+            onClick={() => router.push('/create')}
             className="cj-btn-primary"
           >
             Create First Cookie Jar
@@ -238,7 +238,7 @@ export function JarContentLazy({ _userAddress }: JarContentProps) {
                     <div className="mt-2 space-y-1">
                       {failedJars.map((failure, index) => (
                         <div key={index} className="text-xs text-yellow-700">
-                          <strong>{failure.jarAddress.slice(0, 8)}...:</strong>{" "}
+                          <strong>{failure.jarAddress.slice(0, 8)}...:</strong>{' '}
                           {failure.errorMessage}
                         </div>
                       ))}

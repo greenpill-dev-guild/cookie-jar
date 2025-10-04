@@ -1,18 +1,20 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useCallback } from "react";
-import { useWriteContract, useWaitForTransactionReceipt, useChainId } from "wagmi";
-
-import { cookieJarFactoryAbi } from "@/generated";
-import { contractAddresses } from "@/config/supported-networks";
-
-import { useToast } from "../app/useToast";
-import { 
+import { useCallback, useEffect, useState } from 'react';
+import {
+  useChainId,
+  useWaitForTransactionReceipt,
+  useWriteContract,
+} from 'wagmi';
+import { contractAddresses } from '@/config/supported-networks';
+import { cookieJarFactoryAbi } from '@/generated';
+import {
+  createMetadataJson,
+  isValidUrl,
   parseJarMetadata as parseMetadataUtil,
   validateMetadataSize,
-  createMetadataJson,
-  isValidUrl 
-} from "@/lib/jar/metadata-utils";
+} from '@/lib/jar/metadata-utils';
+import { useToast } from '../app/useToast';
 
 /**
  * Parsed jar metadata structure
@@ -38,14 +40,14 @@ export interface JarConfig {
 
 /**
  * Custom hook to handle Cookie Jar metadata parsing, editing, and updates
- * 
+ *
  * Provides comprehensive metadata management including parsing legacy and v2
  * metadata formats, form state management for editing, validation, and
  * on-chain updates through the factory contract.
- * 
+ *
  * @param config - Jar configuration containing raw metadata string
  * @returns Object with parsed metadata, editing state, and update functions
- * 
+ *
  * @example
  * ```tsx
  * const {
@@ -56,13 +58,13 @@ export interface JarConfig {
  *   editName,
  *   setEditName
  * } = useJarMetadata(jarConfig);
- * 
+ *
  * // Display current metadata
  * console.log(metadata.name, metadata.description);
- * 
+ *
  * // Start editing
  * startEditing();
- * 
+ *
  * // Update metadata on-chain
  * handleMetadataUpdate(jarAddress, refetchJarData);
  * ```
@@ -70,24 +72,27 @@ export interface JarConfig {
 export const useJarMetadata = (config: JarConfig | undefined) => {
   const { toast } = useToast();
   const chainId = useChainId();
-  
+
   // Metadata editing state
   const [isEditingMetadata, setIsEditingMetadata] = useState(false);
-  const [editName, setEditName] = useState("");
-  const [editImage, setEditImage] = useState("");
-  const [editLink, setEditLink] = useState("");
-  const [editDescription, setEditDescription] = useState("");
+  const [editName, setEditName] = useState('');
+  const [editImage, setEditImage] = useState('');
+  const [editLink, setEditLink] = useState('');
+  const [editDescription, setEditDescription] = useState('');
 
   // Parse metadata from config using consolidated utility
-  const parseMetadata = useCallback((metadataString: string | undefined): JarMetadata => {
-    const parsed = parseMetadataUtil(metadataString);
-    return {
-      name: parsed.name,
-      description: parsed.description,
-      image: parsed.image,
-      link: parsed.link,
-    };
-  }, []);
+  const parseMetadata = useCallback(
+    (metadataString: string | undefined): JarMetadata => {
+      const parsed = parseMetadataUtil(metadataString);
+      return {
+        name: parsed.name,
+        description: parsed.description,
+        image: parsed.image,
+        link: parsed.link,
+      };
+    },
+    []
+  );
 
   const metadata = parseMetadata(config?.metadata);
 
@@ -106,27 +111,27 @@ export const useJarMetadata = (config: JarConfig | undefined) => {
   const validateMetadataEdit = useCallback(() => {
     if (!editName || editName.length < 3) {
       toast({
-        title: "Validation Error",
-        description: "Jar name must be at least 3 characters long.",
-        variant: "destructive",
+        title: 'Validation Error',
+        description: 'Jar name must be at least 3 characters long.',
+        variant: 'destructive',
       });
       return false;
     }
 
     if (editImage && !isValidUrl(editImage)) {
       toast({
-        title: "Validation Error",
-        description: "Please enter a valid URL for the image.",
-        variant: "destructive",
+        title: 'Validation Error',
+        description: 'Please enter a valid URL for the image.',
+        variant: 'destructive',
       });
       return false;
     }
 
     if (editLink && !isValidUrl(editLink)) {
       toast({
-        title: "Validation Error",
-        description: "Please enter a valid URL for the external link.",
-        variant: "destructive",
+        title: 'Validation Error',
+        description: 'Please enter a valid URL for the external link.',
+        variant: 'destructive',
       });
       return false;
     }
@@ -155,51 +160,63 @@ export const useJarMetadata = (config: JarConfig | undefined) => {
     });
 
   // Handle metadata update
-  const handleMetadataUpdate = useCallback((addressString: `0x${string}`, refetch: () => void) => {
-    if (!validateMetadataEdit()) return;
+  const handleMetadataUpdate = useCallback(
+    (addressString: `0x${string}`, _refetch: () => void) => {
+      if (!validateMetadataEdit()) return;
 
-    if (!factoryAddress) {
-      toast({
-        title: "Error",
-        description: "Factory address not found for this network.",
-        variant: "destructive",
+      if (!factoryAddress) {
+        toast({
+          title: 'Error',
+          description: 'Factory address not found for this network.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      const updatedMetadata = {
+        name: editName,
+        description: editDescription,
+        image: editImage,
+        link: editLink,
+      };
+      const metadataJson = createMetadataJson(updatedMetadata);
+
+      // Validate metadata size using consolidated utility
+      const sizeValidation = validateMetadataSize(metadataJson);
+      if (!sizeValidation.valid) {
+        toast({
+          title: 'Metadata Too Large',
+          description: sizeValidation.error || 'Metadata exceeds size limit.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      updateMetadata({
+        address: factoryAddress,
+        abi: cookieJarFactoryAbi,
+        functionName: 'updateMetadata',
+        args: [addressString, metadataJson],
       });
-      return;
-    }
-
-    const updatedMetadata = {
-      name: editName,
-      description: editDescription,
-      image: editImage,
-      link: editLink,
-    };
-    const metadataJson = createMetadataJson(updatedMetadata);
-
-    // Validate metadata size using consolidated utility
-    const sizeValidation = validateMetadataSize(metadataJson);
-    if (!sizeValidation.valid) {
-      toast({
-        title: "Metadata Too Large",
-        description: sizeValidation.error || "Metadata exceeds size limit.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    updateMetadata({
-      address: factoryAddress,
-      abi: cookieJarFactoryAbi,
-      functionName: "updateMetadata",
-      args: [addressString, metadataJson],
-    });
-  }, [validateMetadataEdit, factoryAddress, editName, editDescription, editImage, editLink, updateMetadata, toast]);
+    },
+    [
+      validateMetadataEdit,
+      factoryAddress,
+      editName,
+      editDescription,
+      editImage,
+      editLink,
+      updateMetadata,
+      toast,
+    ]
+  );
 
   // Handle metadata update success/error
   useEffect(() => {
     if (isMetadataUpdateSuccess) {
       toast({
-        title: "Jar Info Updated",
-        description: "Your cookie jar details have been saved.",
+        title: 'Jar Info Updated',
+        description: 'Your cookie jar details have been saved.',
       });
       setIsEditingMetadata(false);
     }
@@ -208,10 +225,10 @@ export const useJarMetadata = (config: JarConfig | undefined) => {
   useEffect(() => {
     if (metadataUpdateError) {
       toast({
-        title: "Update Failed",
+        title: 'Update Failed',
         description:
-          metadataUpdateError.message || "Failed to update jar information.",
-        variant: "destructive",
+          metadataUpdateError.message || 'Failed to update jar information.',
+        variant: 'destructive',
       });
     }
   }, [metadataUpdateError, toast]);

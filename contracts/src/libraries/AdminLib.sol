@@ -10,7 +10,7 @@ import {CookieJarLib} from "./CookieJarLib.sol";
 /// @dev Extracted from CookieJar to improve modularity and maintainability
 library AdminLib {
     using SafeERC20 for IERC20;
-    
+
     /// @notice Updates withdrawal limits with proper validation
     /// @param withdrawalOption The withdrawal type (Fixed or Variable)
     /// @param newAmount The new withdrawal amount
@@ -23,7 +23,7 @@ library AdminLib {
         uint256 currentMaxWithdrawal
     ) internal returns (uint256 updatedFixed, uint256 updatedMax) {
         if (newAmount == 0) revert CookieJarLib.ZeroAmount();
-        
+
         if (withdrawalOption == CookieJarLib.WithdrawalTypeOptions.Fixed) {
             updatedFixed = newAmount;
             updatedMax = currentMaxWithdrawal;
@@ -34,8 +34,7 @@ library AdminLib {
             emit CookieJarLib.ParameterUpdated(CookieJarLib.PARAM_MAX_WITHDRAWAL, newAmount);
         }
     }
-    
-    
+
     /// @notice Performs emergency withdrawal with comprehensive validation
     /// @param token Token address (address(3) for ETH, ERC20 otherwise)
     /// @param amount Amount to withdraw
@@ -53,16 +52,16 @@ library AdminLib {
     ) internal returns (uint256 newCurrencyBalance) {
         if (!emergencyEnabled) revert CookieJarLib.EmergencyWithdrawalDisabled();
         if (amount == 0) revert CookieJarLib.ZeroAmount();
-        
+
         newCurrencyBalance = currencyHeldByJar;
-        
+
         if (token == currency) {
             if (currencyHeldByJar < amount) revert CookieJarLib.InsufficientBalance();
             newCurrencyBalance = currencyHeldByJar - amount;
         }
-        
+
         emit CookieJarLib.EmergencyWithdrawal(recipient, token, amount);
-        
+
         if (token == CookieJarLib.ETH_ADDRESS) {
             (bool sent, ) = recipient.call{value: amount}("");
             if (!sent) revert CookieJarLib.TransferFailed();
@@ -70,7 +69,7 @@ library AdminLib {
             IERC20(token).safeTransfer(recipient, amount);
         }
     }
-    
+
     /// @notice Updates fee collector with validation
     /// @param currentCollector Current fee collector address
     /// @param newCollector New fee collector address
@@ -82,7 +81,7 @@ library AdminLib {
     ) internal returns (address) {
         if (sender != currentCollector) revert CookieJarLib.NotFeeCollector();
         if (newCollector == address(0)) revert CookieJarLib.FeeCollectorAddressCannotBeZeroAddress();
-        
+
         emit CookieJarLib.FeeCollectorUpdated(currentCollector, newCollector);
         return newCollector;
     }

@@ -1,9 +1,9 @@
-"use client";
+'use client';
 
-import type { ReactNode } from "react";
-import { motion } from "framer-motion";
-import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { motion } from 'framer-motion';
+import { usePathname } from 'next/navigation';
+import type { ReactNode } from 'react';
+import { useEffect, useState } from 'react';
 
 interface PageTransitionProps {
   children: ReactNode;
@@ -19,23 +19,23 @@ export function PageTransition({ children }: PageTransitionProps) {
 
     // Immediate scroll to header on route change
     const header =
-      document.querySelector("header") ||
+      document.querySelector('header') ||
       document.querySelector('[role="banner"]');
     if (header) {
       header.scrollIntoView({
-        behavior: "instant",
-        block: "start",
-        inline: "nearest",
+        behavior: 'instant',
+        block: 'start',
+        inline: 'nearest',
       });
     } else {
-      window.scrollTo({ top: 0, behavior: "instant" });
+      window.scrollTo({ top: 0, behavior: 'instant' });
     }
 
     // Mark scroll as complete after a brief moment
     setTimeout(() => {
       setIsScrollComplete(true);
     }, 50);
-  }, [pathname]);
+  }, []);
 
   return (
     <motion.div
@@ -47,7 +47,7 @@ export function PageTransition({ children }: PageTransitionProps) {
       }}
       exit={{ opacity: 0, y: -30 }}
       transition={{
-        type: "spring",
+        type: 'spring',
         stiffness: 400,
         damping: 25,
         duration: 0.4,
