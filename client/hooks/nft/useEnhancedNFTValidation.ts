@@ -3,7 +3,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { isAddress } from "viem";
 import { useBlockNumber, useReadContract } from "wagmi";
-import { nftValidationCache } from "@/lib/nft/cache/NFTCacheManager";
+
+// Simple in-memory cache for validation results
+const validationCache = new Map<
+	string,
+	{ data: any; timestamp: number; blockNumber: number }
+>();
 
 // ERC165 interface IDs
 const ERC165_INTERFACE_ID = "0x01ffc9a7";
@@ -84,19 +89,15 @@ export function useEnhancedNFTValidation(
 	useEffect(() => {
 		if (!isValidAddress || !cacheKey || !enableCaching || forceFresh) return;
 
-		const cached = nftValidationCache.get(cacheKey, Number(currentBlock));
-		if (cached) {
+		const cached = validationCache.get(cacheKey);
+		if (
+			cached &&
+			(!currentBlock || cached.blockNumber >= Number(currentBlock) - 100)
+		) {
 			setResult({
-				...cached,
+				...cached.data,
 				fromCache: true,
-				cacheAge:
-					Date.now() -
-					(nftValidationCache
-						.getEntries()
-						?.find(
-							(entry: { key: string; entry: { timestamp: number } }) =>
-								entry.key === cacheKey,
-						)?.entry.timestamp || 0),
+				cacheAge: Date.now() - cached.timestamp,
 			});
 			return;
 		}
@@ -178,19 +179,15 @@ export function useEnhancedNFTValidation(
 
 		// Check if we have results
 		if (cacheKey && enableCaching && !forceFresh) {
-			const cached = nftValidationCache.get(cacheKey, Number(currentBlock));
-			if (cached) {
+			const cached = validationCache.get(cacheKey);
+			if (
+				cached &&
+				(!currentBlock || cached.blockNumber >= Number(currentBlock) - 100)
+			) {
 				setResult({
-					...cached,
+					...cached.data,
 					fromCache: true,
-					cacheAge:
-						Date.now() -
-						(nftValidationCache
-							.getEntries()
-							?.find(
-								(entry: { key: string; entry: { timestamp: number } }) =>
-									entry.key === cacheKey,
-							)?.entry.timestamp || 0),
+					cacheAge: Date.now() - cached.timestamp,
 				});
 				return;
 			}
@@ -236,12 +233,11 @@ export function useEnhancedNFTValidation(
 
 		// Cache the result
 		if (cacheKey && enableCaching && validationResult.isValid) {
-			nftValidationCache.set(
-				cacheKey,
-				validationResult,
-				Number(currentBlock),
-				300000, // 5 minutes
-			);
+			validationCache.set(cacheKey, {
+				data: validationResult,
+				timestamp: Date.now(),
+				blockNumber: Number(currentBlock) || 0,
+			});
 		}
 
 		setResult(validationResult);
@@ -305,13 +301,20 @@ export function useEnhancedNFTValidation(
 
 		// Clear cache if it exists
 		if (cacheKey) {
-			nftValidationCache.delete(cacheKey);
+			validationCache.delete(cacheKey);
 		}
 	}, [cacheKey]);
 
 	// Get cache stats
 	const getCacheStats = useCallback(() => {
-		return nftValidationCache.instance.getStats();
+		return {
+			size: validationCache.size,
+			entries: Array.from(validationCache.entries()).map(([key, value]) => ({
+				key,
+				age: Date.now() - value.timestamp,
+				blockNumber: value.blockNumber,
+			})),
+		};
 	}, []);
 
 	return {
@@ -351,10 +354,10 @@ export function useBatchNFTValidation(
 
 			// Check cache first
 			const cacheKey = `nft-validation-${address.toLowerCase()}`;
-			const cached = nftValidationCache.get(cacheKey);
+			const cached = validationCache.get(cacheKey);
 
 			if (cached && !options.forceFresh) {
-				validationResults[address] = { ...cached, fromCache: true };
+				validationResults[address] = { ...cached.data, fromCache: true };
 			} else {
 				// Would need to implement actual validation here
 				// For now, mark as pending
@@ -388,26 +391,46 @@ export function useBatchNFTValidation(
  * Hook to get validation statistics
  */
 export function useNFTValidationStats() {
-	const [stats, setStats] = useState(nftValidationCache.instance.getStats());
+	const getStats = useCallback(
+		() => ({
+			size: validationCache.size,
+			entries: Array.from(validationCache.entries()).map(([key, value]) => ({
+				key,
+				age: Date.now() - value.timestamp,
+				blockNumber: value.blockNumber,
+			})),
+		}),
+		[],
+	);
+
+	const [stats, setStats] = useState(getStats());
 
 	useEffect(() => {
 		const interval = setInterval(() => {
-			setStats(nftValidationCache.instance.getStats());
+			setStats(getStats());
 		}, 5000); // Update every 5 seconds
 
 		return () => clearInterval(interval);
-	}, []);
+	}, [getStats]);
 
 	const clearCache = useCallback(() => {
-		nftValidationCache.clear();
-		setStats(nftValidationCache.instance.getStats());
-	}, []);
+		validationCache.clear();
+		setStats(getStats());
+	}, [getStats]);
 
 	const cleanup = useCallback(() => {
-		const removed = nftValidationCache.instance.cleanup();
-		setStats(nftValidationCache.instance.getStats());
+		// Remove entries older than 5 minutes
+		const fiveMinutesAgo = Date.now() - 300000;
+		let removed = 0;
+		for (const [key, value] of validationCache.entries()) {
+			if (value.timestamp < fiveMinutesAgo) {
+				validationCache.delete(key);
+				removed++;
+			}
+		}
+		setStats(getStats());
 		return removed;
-	}, []);
+	}, [getStats]);
 
 	return {
 		stats,
