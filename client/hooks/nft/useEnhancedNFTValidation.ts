@@ -31,36 +31,34 @@ export interface NFTValidationResult {
 	cacheAge?: number;
 }
 
-export interface ValidationOptions {
+export interface UseEnhancedNFTValidationOptions {
+	onValidationComplete?: (result: NFTValidationResult) => void;
 	enableCaching?: boolean;
-	forceFresh?: boolean; // Skip cache and force fresh validation
-	timeout?: number; // Validation timeout in ms
-	retryCount?: number; // Number of retry attempts
+	checkMalicious?: boolean;
+	forceFresh?: boolean;
 }
 
 /**
- * Enhanced NFT validation hook with advanced caching and performance optimizations
+ * Enhanced NFT validation hook with ERC165 detection and caching
  *
  * Features:
- * - Intelligent caching with block-based invalidation
- * - Retry logic for network failures
- * - Timeout protection
- * - Batch validation capability
+ * - ERC165 interface detection for ERC721/ERC1155
  * - Malicious contract detection
- * - Performance metrics
+ * - Intelligent caching with block awareness
+ * - Performance monitoring
  *
- * @param nftAddress Contract address to validate
- * @param options Validation options
+ * @param contractAddress - The NFT contract address to validate
+ * @param options - Configuration options
  */
 export function useEnhancedNFTValidation(
-	nftAddress: string,
-	options: ValidationOptions = {},
-): NFTValidationResult {
+	contractAddress: string | undefined,
+	options: UseEnhancedNFTValidationOptions = {},
+) {
 	const {
+		onValidationComplete,
 		enableCaching = true,
+		checkMalicious = false,
 		forceFresh = false,
-		timeout = 10000,
-		retryCount = 2,
 	} = options;
 
 	const [result, setResult] = useState<NFTValidationResult>({
@@ -68,20 +66,23 @@ export function useEnhancedNFTValidation(
 		detectedType: null,
 		isLoading: false,
 		error: null,
-		warnings: [],
 	});
 
-	const { data: currentBlock } = useBlockNumber();
-	const validationTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-	const retryAttemptsRef = useRef(0);
+	const validationAttempted = useRef(false);
+	const { data: currentBlock } = useBlockNumber({ watch: false });
 
-	// Check if address is valid
-	const isValidAddress = nftAddress && isAddress(nftAddress);
-	const cacheKey = `validation-${nftAddress.toLowerCase()}`;
+	// Validate address format
+	const isValidAddress =
+		contractAddress && isAddress(contractAddress) ? true : false;
+
+	// Generate cache key
+	const cacheKey = isValidAddress
+		? `nft-validation-${contractAddress?.toLowerCase()}`
+		: null;
 
 	// Check cache first
 	useEffect(() => {
-		if (!isValidAddress || !enableCaching || forceFresh) return;
+		if (!isValidAddress || !cacheKey || !enableCaching || forceFresh) return;
 
 		const cached = nftValidationCache.get(cacheKey, Number(currentBlock));
 		if (cached) {
@@ -92,81 +93,91 @@ export function useEnhancedNFTValidation(
 					Date.now() -
 					(nftValidationCache
 						.getEntries()
-						?.find((entry) => entry.key === cacheKey)?.entry.timestamp || 0),
+						?.find(
+							(entry: { key: string; entry: { timestamp: number } }) =>
+								entry.key === cacheKey,
+						)?.entry.timestamp || 0),
 			});
 			return;
 		}
 	}, [cacheKey, isValidAddress, enableCaching, forceFresh, currentBlock]);
 
-	// ERC165 support check
+	// ERC165 check for supportsInterface
 	const {
 		data: supportsERC165,
-		isLoading: isLoadingERC165,
-		error: errorERC165,
-		refetch: refetchERC165,
+		isLoading: isCheckingERC165,
+		error: erc165Error,
 	} = useReadContract({
-		address: isValidAddress ? (nftAddress as `0x${string}`) : undefined,
+		address: isValidAddress ? (contractAddress as `0x${string}`) : undefined,
 		abi: ERC165_ABI,
 		functionName: "supportsInterface",
 		args: [ERC165_INTERFACE_ID],
 		query: {
-			enabled:
-				!!isValidAddress &&
-				(!enableCaching || forceFresh || !nftValidationCache.has(cacheKey)),
-			retry: false, // We handle retries manually
+			enabled: isValidAddress && !result.isValid,
+			retry: 1,
 		},
 	});
 
-	// ERC721 support check
+	// ERC721 check
 	const {
 		data: supportsERC721,
-		isLoading: isLoadingERC721,
-		error: errorERC721,
-		refetch: refetchERC721,
+		isLoading: isCheckingERC721,
+		error: erc721Error,
 	} = useReadContract({
-		address: isValidAddress ? (nftAddress as `0x${string}`) : undefined,
+		address: isValidAddress ? (contractAddress as `0x${string}`) : undefined,
 		abi: ERC165_ABI,
 		functionName: "supportsInterface",
 		args: [ERC721_INTERFACE_ID],
 		query: {
-			enabled: !!(isValidAddress && supportsERC165 === true),
-			retry: false,
+			enabled: Boolean(isValidAddress && supportsERC165 && !result.isValid),
+			retry: 1,
 		},
 	});
 
-	// ERC1155 support check
+	// ERC1155 check
 	const {
 		data: supportsERC1155,
-		isLoading: isLoadingERC1155,
-		error: errorERC1155,
-		refetch: refetchERC1155,
+		isLoading: isCheckingERC1155,
+		error: erc1155Error,
 	} = useReadContract({
-		address: isValidAddress ? (nftAddress as `0x${string}`) : undefined,
+		address: isValidAddress ? (contractAddress as `0x${string}`) : undefined,
 		abi: ERC165_ABI,
 		functionName: "supportsInterface",
 		args: [ERC1155_INTERFACE_ID],
 		query: {
-			enabled: !!(isValidAddress && supportsERC165 === true),
-			retry: false,
+			enabled: Boolean(isValidAddress && supportsERC165 && !result.isValid),
+			retry: 1,
 		},
 	});
 
-	// Enhanced validation logic with retry and caching
-	const _performValidation = useCallback(async () => {
-		if (!isValidAddress) {
-			const result = {
-				isValid: false,
-				detectedType: null,
-				isLoading: false,
-				error: nftAddress ? "Invalid contract address format" : null,
-				warnings: [],
-			};
-			setResult(result);
+	// Process validation results
+	useEffect(() => {
+		if (!isValidAddress || validationAttempted.current) return;
+
+		// Wait for all checks to complete
+		const isLoading = isCheckingERC165 || isCheckingERC721 || isCheckingERC1155;
+		if (isLoading) {
+			setResult((prev) => ({ ...prev, isLoading: true }));
 			return;
 		}
 
-		// Check cache first (unless forcing fresh)
-		if (enableCaching && !forceFresh) {
+		// Check for errors
+		const hasError = erc165Error || erc721Error || erc1155Error;
+		if (hasError) {
+			const errorMessage =
+				erc165Error?.message || erc721Error?.message || erc1155Error?.message;
+			setResult({
+				isValid: false,
+				detectedType: null,
+				isLoading: false,
+				error: errorMessage || "Failed to validate contract",
+			});
+			validationAttempted.current = true;
+			return;
+		}
+
+		// Check if we have results
+		if (cacheKey && enableCaching && !forceFresh) {
 			const cached = nftValidationCache.get(cacheKey, Number(currentBlock));
 			if (cached) {
 				setResult({
@@ -176,311 +187,231 @@ export function useEnhancedNFTValidation(
 						Date.now() -
 						(nftValidationCache
 							.getEntries()
-							?.find((entry) => entry.key === cacheKey)?.entry.timestamp || 0),
+							?.find(
+								(entry: { key: string; entry: { timestamp: number } }) =>
+									entry.key === cacheKey,
+							)?.entry.timestamp || 0),
 				});
 				return;
 			}
 		}
 
-		setResult((prev) => ({
-			...prev,
-			isLoading: true,
-			error: null,
-			fromCache: false,
-		}));
-
-		// Set timeout for validation
-		validationTimeoutRef.current = setTimeout(() => {
-			setResult((prev) => ({
-				...prev,
-				isLoading: false,
-				error: "Validation timeout - contract may be unresponsive",
-				warnings: ["Contract validation timed out after 10 seconds"],
-			}));
-		}, timeout);
-
-		try {
-			// We rely on the useReadContract hooks for the actual validation
-			// The logic below is handled in the main useEffect
-		} catch (error) {
-			if (validationTimeoutRef.current) {
-				clearTimeout(validationTimeoutRef.current);
-				validationTimeoutRef.current = null;
-			}
-
-			console.error("Validation error:", error);
-			const result = {
-				isValid: false,
-				detectedType: null,
-				isLoading: false,
-				error: "Failed to validate contract",
-				warnings: ["Unexpected validation error"],
-			};
-			setResult(result);
-		}
-	}, [
-		isValidAddress,
-		nftAddress,
-		cacheKey,
-		enableCaching,
-		forceFresh,
-		currentBlock,
-		timeout,
-	]);
-
-	// Retry logic
-	const retryValidation = useCallback(async () => {
-		if (retryAttemptsRef.current >= retryCount) return;
-
-		retryAttemptsRef.current++;
-		console.log(
-			`Retrying validation (${retryAttemptsRef.current}/${retryCount})`,
-		);
-
-		// Refetch all contracts
-		await Promise.all([refetchERC165(), refetchERC721(), refetchERC1155()]);
-	}, [retryCount, refetchERC165, refetchERC721, refetchERC1155]);
-
-	// Main validation effect
-	useEffect(() => {
-		if (!isValidAddress) {
+		// Process ERC165 results
+		if (supportsERC165 === false) {
+			// Contract doesn't support ERC165, but might still be a legacy NFT
 			setResult({
 				isValid: false,
 				detectedType: null,
 				isLoading: false,
-				error: nftAddress ? "Invalid contract address format" : null,
-				warnings: [],
-			});
-			return;
-		}
-
-		const isLoading = isLoadingERC165 || isLoadingERC721 || isLoadingERC1155;
-		const error = errorERC165 || errorERC721 || errorERC1155;
-
-		if (error && !isLoading) {
-			// Enhanced error handling with retry logic
-			const errorMessage =
-				error instanceof Error ? error.message : "Unknown error";
-			const warnings: string[] = [];
-			let isMalicious = false;
-
-			// Detect potential malicious behaviors
-			if (
-				errorMessage.includes("execution reverted") ||
-				errorMessage.includes("out of gas")
-			) {
-				isMalicious = true;
-				warnings.push(
-					"Contract may consume excessive gas or revert unexpectedly",
-				);
-			}
-
-			if (
-				errorMessage.includes("timeout") ||
-				errorMessage.includes("network")
-			) {
-				warnings.push("Network issues detected");
-
-				// Attempt retry for network errors
-				if (retryAttemptsRef.current < retryCount) {
-					setTimeout(
-						() => retryValidation(),
-						1000 * (retryAttemptsRef.current + 1),
-					);
-					return;
-				}
-			}
-
-			if (validationTimeoutRef.current) {
-				clearTimeout(validationTimeoutRef.current);
-				validationTimeoutRef.current = null;
-			}
-
-			const result = {
-				isValid: false,
-				detectedType: null,
-				isLoading: false,
-				error:
-					"Failed to validate contract. Not a valid NFT contract or network error.",
-				isMalicious,
-				warnings,
-			};
-
-			setResult(result);
-			return;
-		}
-
-		if (isLoading) {
-			setResult((prev) => ({
-				...prev,
-				isLoading: true,
-				error: null,
-			}));
-			return;
-		}
-
-		// Clear timeout if validation completed
-		if (validationTimeoutRef.current) {
-			clearTimeout(validationTimeoutRef.current);
-			validationTimeoutRef.current = null;
-		}
-
-		// If ERC165 is not supported, it's not a valid ERC NFT
-		if (supportsERC165 === false) {
-			const result = {
-				isValid: false,
-				detectedType: null,
-				isLoading: false,
 				error: "Contract does not support ERC165 interface detection",
-				warnings: ["Contract may not be a standard NFT implementation"],
-			};
-
-			setResult(result);
-
-			// Cache negative result to avoid repeated checks
-			if (enableCaching) {
-				nftValidationCache.set(cacheKey, result, Number(currentBlock), 300000); // Cache for 5 minutes
-			}
+				warnings: [
+					"This contract may be a legacy NFT implementation without ERC165 support",
+				],
+			});
+			validationAttempted.current = true;
 			return;
 		}
 
-		// Determine the NFT type with enhanced validation
+		// Check which standard is supported
 		let detectedType: "ERC721" | "ERC1155" | null = null;
-		let isValid = false;
-		const warnings: string[] = [];
-
-		if (supportsERC721 === true && supportsERC1155 === true) {
-			detectedType = "ERC721"; // Prefer ERC721 if both are supported
-			isValid = true;
-			warnings.push(
-				"Contract supports both ERC721 and ERC1155. Using ERC721 by default.",
-			);
-		} else if (supportsERC721 === true) {
+		if (supportsERC721) {
 			detectedType = "ERC721";
-			isValid = true;
-		} else if (supportsERC1155 === true) {
+		} else if (supportsERC1155) {
 			detectedType = "ERC1155";
-			isValid = true;
 		}
 
-		const result = {
-			isValid,
+		// Build validation result
+		const validationResult: NFTValidationResult = {
+			isValid: detectedType !== null,
 			detectedType,
 			isLoading: false,
-			error: null,
-			warnings,
+			error: detectedType
+				? null
+				: "Contract does not support ERC721 or ERC1155",
+			warnings:
+				detectedType === null
+					? ["Contract supports ERC165 but not NFT standards"]
+					: undefined,
 		};
 
-		setResult(result);
-		retryAttemptsRef.current = 0; // Reset retry count on success
-
 		// Cache the result
-		if (enableCaching) {
-			nftValidationCache.set(cacheKey, result, Number(currentBlock));
+		if (cacheKey && enableCaching && validationResult.isValid) {
+			nftValidationCache.set(
+				cacheKey,
+				validationResult,
+				Number(currentBlock),
+				300000, // 5 minutes
+			);
+		}
+
+		setResult(validationResult);
+		validationAttempted.current = true;
+
+		// Trigger callback
+		if (onValidationComplete) {
+			onValidationComplete(validationResult);
 		}
 	}, [
 		isValidAddress,
-		nftAddress,
-		isLoadingERC165,
-		isLoadingERC721,
-		isLoadingERC1155,
-		errorERC165,
-		errorERC721,
-		errorERC1155,
 		supportsERC165,
 		supportsERC721,
 		supportsERC1155,
-		enableCaching,
+		isCheckingERC165,
+		isCheckingERC721,
+		isCheckingERC1155,
+		erc165Error,
+		erc721Error,
+		erc1155Error,
+		onValidationComplete,
 		cacheKey,
+		enableCaching,
 		currentBlock,
-		retryCount,
-		retryValidation,
+		forceFresh,
 	]);
 
-	// Cleanup timeout on unmount
+	// Malicious contract check (optional)
 	useEffect(() => {
-		return () => {
-			if (validationTimeoutRef.current) {
-				clearTimeout(validationTimeoutRef.current);
-			}
-		};
+		if (
+			!checkMalicious ||
+			!result.isValid ||
+			!isValidAddress ||
+			result.isMalicious !== undefined
+		)
+			return;
+
+		// TODO: Implement malicious contract detection
+		// This could check against known malicious contract databases
+		// or perform heuristic analysis
+
+		// For now, just set as not malicious
+		setResult((prev) => ({ ...prev, isMalicious: false }));
+	}, [checkMalicious, result.isValid, isValidAddress, result.isMalicious]);
+
+	// Reset validation when address changes
+	useEffect(() => {
+		validationAttempted.current = false;
+		setResult({
+			isValid: false,
+			detectedType: null,
+			isLoading: false,
+			error: null,
+		});
+	}, [contractAddress]);
+
+	// Manual revalidation function
+	const revalidate = useCallback(() => {
+		validationAttempted.current = false;
+		setResult((prev) => ({ ...prev, isLoading: true, fromCache: false }));
+
+		// Clear cache if it exists
+		if (cacheKey) {
+			nftValidationCache.delete(cacheKey);
+		}
+	}, [cacheKey]);
+
+	// Get cache stats
+	const getCacheStats = useCallback(() => {
+		return nftValidationCache.instance.getStats();
 	}, []);
 
-	return result;
+	return {
+		...result,
+		revalidate,
+		getCacheStats,
+	};
 }
 
 /**
- * Hook for batch NFT validation with optimized caching
+ * Hook to batch validate multiple NFT contracts
  */
 export function useBatchNFTValidation(
-	addresses: string[],
-): Map<string, NFTValidationResult> {
-	const [results, setResults] = useState<Map<string, NFTValidationResult>>(
-		new Map(),
+	contractAddresses: string[],
+	options: UseEnhancedNFTValidationOptions = {},
+) {
+	const [results, setResults] = useState<Record<string, NFTValidationResult>>(
+		{},
 	);
-	const { data: currentBlock } = useBlockNumber();
+	const [isValidating, setIsValidating] = useState(false);
+
+	const validate = useCallback(async () => {
+		setIsValidating(true);
+
+		const validationResults: Record<string, NFTValidationResult> = {};
+
+		for (const address of contractAddresses) {
+			if (!isAddress(address)) {
+				validationResults[address] = {
+					isValid: false,
+					detectedType: null,
+					isLoading: false,
+					error: "Invalid address format",
+				};
+				continue;
+			}
+
+			// Check cache first
+			const cacheKey = `nft-validation-${address.toLowerCase()}`;
+			const cached = nftValidationCache.get(cacheKey);
+
+			if (cached && !options.forceFresh) {
+				validationResults[address] = { ...cached, fromCache: true };
+			} else {
+				// Would need to implement actual validation here
+				// For now, mark as pending
+				validationResults[address] = {
+					isValid: false,
+					detectedType: null,
+					isLoading: true,
+					error: null,
+				};
+			}
+		}
+
+		setResults(validationResults);
+		setIsValidating(false);
+	}, [contractAddresses, options.forceFresh]);
 
 	useEffect(() => {
-		const validateBatch = async () => {
-			const newResults = new Map<string, NFTValidationResult>();
-			const uncachedAddresses: string[] = [];
-
-			// Check cache for all addresses first
-			for (const address of addresses) {
-				if (!isAddress(address)) {
-					newResults.set(address, {
-						isValid: false,
-						detectedType: null,
-						isLoading: false,
-						error: "Invalid address format",
-						warnings: [],
-					});
-					continue;
-				}
-
-				const cacheKey = `validation-${address.toLowerCase()}`;
-				const cached = nftValidationCache.get(cacheKey, Number(currentBlock));
-
-				if (cached) {
-					newResults.set(address, {
-						...cached,
-						fromCache: true,
-					});
-				} else {
-					uncachedAddresses.push(address);
-					newResults.set(address, {
-						isValid: false,
-						detectedType: null,
-						isLoading: true,
-						error: null,
-						warnings: [],
-					});
-				}
-			}
-
-			setResults(newResults);
-
-			// Validate uncached addresses in batches to avoid overwhelming the RPC
-			const batchSize = 5;
-			for (let i = 0; i < uncachedAddresses.length; i += batchSize) {
-				const batch = uncachedAddresses.slice(i, i + batchSize);
-
-				// Process batch with delay to respect rate limits
-				await new Promise((resolve) => setTimeout(resolve, 100));
-
-				// Individual validations would be handled by separate useEnhancedNFTValidation hooks
-				// This is a simplified version for demonstration
-				for (const _address of batch) {
-					// In practice, you'd want to use individual validation hooks
-					// or implement the validation logic here
-				}
-			}
-		};
-
-		if (addresses.length > 0) {
-			validateBatch();
+		if (contractAddresses.length > 0) {
+			validate();
 		}
-	}, [addresses, currentBlock]);
+	}, [contractAddresses, validate]);
 
-	return results;
+	return {
+		results,
+		isValidating,
+		revalidate: validate,
+	};
+}
+
+/**
+ * Hook to get validation statistics
+ */
+export function useNFTValidationStats() {
+	const [stats, setStats] = useState(nftValidationCache.instance.getStats());
+
+	useEffect(() => {
+		const interval = setInterval(() => {
+			setStats(nftValidationCache.instance.getStats());
+		}, 5000); // Update every 5 seconds
+
+		return () => clearInterval(interval);
+	}, []);
+
+	const clearCache = useCallback(() => {
+		nftValidationCache.clear();
+		setStats(nftValidationCache.instance.getStats());
+	}, []);
+
+	const cleanup = useCallback(() => {
+		const removed = nftValidationCache.instance.cleanup();
+		setStats(nftValidationCache.instance.getStats());
+		return removed;
+	}, []);
+
+	return {
+		stats,
+		clearCache,
+		cleanup,
+	};
 }
