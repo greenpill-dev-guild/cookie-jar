@@ -16,8 +16,8 @@
 **Changes**:
 ```json
 {
-  "build:client": "bun check && bun --filter client run build:skip-lint",
-  "build:client:dev": "bun --filter client run build",
+  "build:client": "bun check && cd client && bun build:skip-lint",
+  "build:client:dev": "cd client && bun build",
   "type-check": "cd client && bun type-check"
 }
 ```
@@ -62,7 +62,7 @@ const validationCache = new Map<string, {
 
 2. **Build**: `bun run build:client`
    - Runs `bun check` (lint + type-check)
-   - Then runs `bun --filter client run build:skip-lint`
+   - Then `cd client && bun build:skip-lint`
    - Builds Next.js app to `client/.next`
 
 3. **Type-check**: `cd client && bun type-check`

@@ -121,9 +121,9 @@ echo "👀 Starting contract file watcher..."
 ./scripts/watch-deploy.sh > contracts/watch-deploy.log 2>&1 &
 WATCHER_PID=$!
 
-# Generate client types (from project root, using workspace command)
+# Generate client types (from project root, cd into client directory)
 echo "⚙️  Generating client types..."
-bun --filter client run generate
+cd client && bun generate
 
 if [ $? -ne 0 ]; then
     echo "❌ Client type generation failed"
