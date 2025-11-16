@@ -39,7 +39,7 @@ const createWrapper = () => {
 };
 
 // Skip Superfluid subgraph tests by default - they require GraphQL mocking infrastructure
-// Run with: RUN_GRAPHQL_TESTS=true pnpm test
+// Run with: RUN_GRAPHQL_TESTS=true bun test
 const describeOrSkip =
 	process.env.RUN_GRAPHQL_TESTS === "true" ? describe : describe.skip;
 

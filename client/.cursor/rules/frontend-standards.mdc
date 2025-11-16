@@ -291,8 +291,8 @@ import Image from 'next/image';
 
 ### Pre-Commit Checklist
 Before committing, ensure:
-- [ ] `pnpm type-check` passes (no TypeScript errors)
-- [ ] `pnpm lint` passes (no ESLint errors)
+- [ ] `bun type-check` passes (no TypeScript errors)
+- [ ] `bun lint` passes (no ESLint errors)
 - [ ] No `console.log`, `console.error`, or `console.warn` statements
 - [ ] All quotes/apostrophes in JSX are escaped (&apos;, &quot;)
 - [ ] All `<img>` tags converted to `<Image />`
@@ -408,10 +408,10 @@ it('allows user to deposit funds', async () => {
 
 ## Development Commands
 ```bash
-pnpm dev           # Development server
-pnpm build         # Production build
-pnpm type-check    # Type checking (fast)
-pnpm lint          # ESLint
-pnpm test          # Vitest tests
-pnpm test:watch    # Watch mode
+bun dev            # Development server
+bun build          # Production build
+bun type-check     # Type checking (fast)
+bun lint           # ESLint
+bun test           # Vitest tests
+bun test:watch     # Watch mode
 ```

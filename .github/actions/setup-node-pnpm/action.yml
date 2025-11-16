@@ -1,15 +1,15 @@
-name: 'Setup Node.js and pnpm'
-description: 'Setup Node.js, pnpm, and install dependencies for Cookie Jar project'
+name: 'Setup Node.js and bun'
+description: 'Setup Node.js, bun, and install dependencies for Cookie Jar project'
 
 inputs:
   node-version:
     description: 'Node.js version to use'
     required: false
     default: '18'
-  pnpm-version:
-    description: 'pnpm version to use'
+  bun-version:
+    description: 'bun version to use'
     required: false
-    default: '8'
+    default: '1.0'
   working-directory:
     description: 'Working directory to run commands'
     required: false
@@ -22,13 +22,11 @@ runs:
       uses: actions/setup-node@v4
       with:
         node-version: ${{ inputs.node-version }}
-        cache: 'npm'
-        cache-dependency-path: '${{ inputs.working-directory }}/pnpm-lock.yaml'
     
-    - name: Setup pnpm
-      uses: pnpm/action-setup@v3
+    - name: Setup bun
+      uses: oven-sh/setup-bun@v2
       with:
-        version: ${{ inputs.pnpm-version }}
+        bun-version: ${{ inputs.bun-version }}
     
     - name: Install dependencies
       shell: bash
@@ -37,8 +35,8 @@ runs:
         # Try frozen lockfile first, fallback to regular install in CI
         if [ "$CI" = "true" ] || [ "$GITHUB_ACTIONS" = "true" ]; then
           echo "🤖 CI environment detected"
-          pnpm install --no-frozen-lockfile || pnpm install
+          bun install --no-frozen-lockfile || bun install
         else
           echo "🔒 Using frozen lockfile for local consistency"
-          pnpm install --frozen-lockfile
+          bun install --frozen-lockfile
         fi

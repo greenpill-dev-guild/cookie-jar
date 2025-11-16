@@ -8,7 +8,7 @@ on:
 
 env:
   NODE_VERSION: '18'
-  PNPM_VERSION: '8'
+  BUN_VERSION: '1.0'
 
 jobs:
   code-quality:
@@ -20,11 +20,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Setup Node.js and pnpm
+    - name: Setup Node.js and bun
       uses: ./.github/actions/setup-node-pnpm
       with:
         node-version: ${{ env.NODE_VERSION }}
-        pnpm-version: ${{ env.PNPM_VERSION }}
+        bun-version: ${{ env.BUN_VERSION }}
     
     - name: Lint client code
       run: |
@@ -32,7 +32,7 @@ jobs:
         echo "🔍 Running ESLint..."
         
         # Use Next.js lint - allow warnings but fail on errors
-        if pnpm run lint 2>&1 | tee lint-output.log; then
+        if bun run lint 2>&1 | tee lint-output.log; then
           echo "✅ ESLint completed successfully"
         else
           # Check if there are actual errors (not just warnings)
@@ -50,20 +50,20 @@ jobs:
     - name: TypeScript type checking
       run: |
         cd client  
-        pnpm run type-check
+        bun run type-check
     
     - name: Format check
       run: |
         cd client
         echo "🎨 Checking code formatting..."
         
-        if pnpm run format:check 2>&1 | tee format-output.log; then
+        if bun run format:check 2>&1 | tee format-output.log; then
           echo "✅ Code formatting is consistent"
         else
           echo ""
           echo "⚠️  Code formatting issues found in some files"
           echo "📝 This is not critical, but helps maintain code consistency"
-          echo "💡 To fix locally: 'pnpm run format' or 'npx prettier --write .'"
+          echo "💡 To fix locally: 'bun run format' or 'npx prettier --write .'"
           echo ""
           echo "🔍 Consider setting up Prettier in your IDE for auto-formatting on save"
           echo "   • VS Code: Install 'Prettier' extension"

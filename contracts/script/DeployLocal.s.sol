@@ -78,7 +78,7 @@ contract DeployLocalScript is Script {
         console.log("   SUCCESS: Cookie Monster NFTs minted to special accounts!");
         console.log("      NFT Contract Address:", address(cookieMonsterNft));
         console.log(
-            "      NOTE: NFT address will change on Anvil restart. Use 'pnpm nft:address' to get current address."
+            "      NOTE: NFT address will change on Anvil restart. Use 'bun nft:address' to get current address."
         );
 
         // Deploy demo ERC20 token

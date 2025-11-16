@@ -7,7 +7,7 @@ declare const it: any;
 declare const expect: any;
 
 // Skip NFT validation tests by default - they require blockchain state
-// Run with: RUN_BLOCKCHAIN_TESTS=true pnpm test
+// Run with: RUN_BLOCKCHAIN_TESTS=true bun test
 const describeOrSkip =
 	process.env.RUN_BLOCKCHAIN_TESTS === "true" ? describe : describe.skip;
 

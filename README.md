@@ -5,11 +5,11 @@ Decentralized funding pools with smart access control. Create shared ETH/ERC20 p
 ## 📋 Prerequisites
 
 **Manual Install**: Node.js 18+, Git  
-**Auto-Install**: pnpm, Foundry *(installed automatically)*  
+**Auto-Install**: bun, Foundry *(installed automatically)*  
 **System**: 4GB+ RAM, 2GB storage  
 **Editor**: VS Code or Cursor *(recommended for inline linting)*
 
-> ⚠️ **Note on Submodules**: This repository uses git submodules for Foundry dependencies. If you encounter SSH errors during `pnpm install`, see the [Submodule/Foundry Setup Issues](#submodulefoundry-setup-issues) section for quick HTTPS workaround or SSH setup instructions.
+> ⚠️ **Note on Submodules**: This repository uses git submodules for Foundry dependencies. If you encounter SSH errors during `bun install`, see the [Submodule/Foundry Setup Issues](#submodulefoundry-setup-issues) section for quick HTTPS workaround or SSH setup instructions.
 
 ## 🚀 Quick Start
 
@@ -19,24 +19,24 @@ Choose your installation method:
 ```bash
 git clone https://github.com/greenpill-dev-guild/cookie-jar.git
 cd cookie-jar
-npm install  # Auto-installs pnpm + Foundry (via preinstall hook)
-pnpm install # Install project dependencies
-pnpm dev     # Start development
+npm install  # Auto-installs bun + Foundry (via preinstall hook)
+bun install  # Install project dependencies
+bun dev      # Start development
 ```
 
-### Option 2: Direct install (pnpm)
+### Option 2: Direct install (bun)
 ```bash
 git clone https://github.com/greenpill-dev-guild/cookie-jar.git
 cd cookie-jar
-pnpm install # Auto-installs Foundry + all dependencies
-pnpm dev     # Start development
+bun install  # Auto-installs Foundry + all dependencies
+bun dev      # Start development
 ```
 
 Open http://localhost:3000 and explore 4 pre-seeded demo jars with Cookie Monster NFTs! 🍪
 
-> **✨ Auto-setup**: Shell script checks system, installs missing tools (pnpm/Foundry), then sets up complete dev environment.
+> **✨ Auto-setup**: Shell script checks system, installs missing tools (bun/Foundry), then sets up complete dev environment.
 > 
-> **💡 Note**: If you don't have pnpm installed, Option 1 installs it for you. If you already have pnpm, use Option 2.
+> **💡 Note**: If you don't have bun installed, Option 1 installs it for you. If you already have bun, use Option 2.
 
 ### 🎨 Editor Setup (Recommended)
 
@@ -52,11 +52,11 @@ See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md#editor-setup) for details.
 ## 💻 Development
 
 ```bash
-pnpm dev                    # Local development (fastest)
-pnpm dev:ethereum           # Fork Ethereum mainnet  
-pnpm dev:celo               # Fork Celo network
-pnpm dev:base               # Fork Base network
-pnpm dev:base-sepolia       # Fork Base Sepolia testnet
+bun dev                     # Local development (fastest)
+bun dev:ethereum            # Fork Ethereum mainnet  
+bun dev:celo                # Fork Celo network
+bun dev:base                # Fork Base network
+bun dev:base-sepolia        # Fork Base Sepolia testnet
 ```
 
 **Auto-included**: Anvil blockchain, contract deployment, demo seeding, hot reload, type generation.
@@ -116,13 +116,13 @@ cookie-jar/
 
 **Contracts**: Edit in `contracts/src/` → Auto-recompile → Auto-redeploy → Regen types  
 **Client**: `localhost:3000` with hot reload on Chain ID 31337  
-**Testing**: `pnpm test` (both contracts + client)
+**Testing**: `bun test` (both contracts + client)
 
 ```bash
-pnpm test:contracts     # Smart contract tests
-pnpm test:client        # Frontend tests  
-pnpm deploy:local       # Manual deployment
-pnpm seed:demo          # Refresh demo data
+bun test:contracts      # Smart contract tests
+bun test:client         # Frontend tests  
+bun deploy:local        # Manual deployment
+bun seed:demo           # Refresh demo data
 ```
 
 ## 🔧 Network Configuration
@@ -146,35 +146,35 @@ pnpm seed:demo          # Refresh demo data
 
 ## 🛠️ Available Commands
 
-**All commands use `pnpm`:**
+**All commands use `bun`:**
 
 ```bash
 # Essential
-pnpm dev                   # Start local development
-pnpm test                  # Run all tests
-pnpm build                 # Build contracts + client
+bun dev                    # Start local development
+bun test                   # Run all tests
+bun build                  # Build contracts + client
 
 # Development variants  
-pnpm dev:ethereum          # Fork Ethereum mainnet
-pnpm dev:celo              # Fork Celo network
-pnpm dev:base              # Fork Base network
-pnpm dev:base-sepolia      # Fork Base Sepolia testnet
+bun dev:ethereum           # Fork Ethereum mainnet
+bun dev:celo               # Fork Celo network
+bun dev:base               # Fork Base network
+bun dev:base-sepolia       # Fork Base Sepolia testnet
 
 # Deployment
-pnpm deploy:local          # Deploy to Anvil
-pnpm deploy:ethereum       # Deploy to mainnet
-pnpm deploy:celo           # Deploy to celo
-pnpm deploy:base           # Deploy to base
-pnpm deploy:base-sepolia   # Deploy to mainnet
+bun deploy:local           # Deploy to Anvil
+bun deploy:ethereum        # Deploy to mainnet
+bun deploy:celo            # Deploy to celo
+bun deploy:base            # Deploy to base
+bun deploy:base-sepolia    # Deploy to mainnet
 
-pnpm seed:demo             # Refresh demo data
-pnpm generate              # Regenerate types
+bun seed:demo              # Refresh demo data
+bun generate               # Regenerate types
 
 # Utilities
-pnpm lint                  # Lint all code
-pnpm format                # Format all code
-pnpm clean                 # Clean build artifacts
-pnpm dev:stop              # Stop all services
+bun lint                   # Lint all code
+bun format                 # Format all code
+bun clean                  # Clean build artifacts
+bun dev:stop               # Stop all services
 ```
 
 ## 🚀 Production Deployment Guide
@@ -317,32 +317,32 @@ contracts/
 #### Port Conflicts
 - Client: Port 3000
 - Anvil: Port 8545
-- **Solution**: Kill conflicting processes with `pnpm dev:stop`
+- **Solution**: Kill conflicting processes with `bun dev:stop`
 
 #### Contract Changes Not Reflecting
 1. Check `contracts/anvil.log` for blockchain errors
-2. Manually redeploy: `pnpm deploy:local`
-3. Regenerate types: `pnpm generate`
-4. Check deployment sync: `pnpm sync:check`
+2. Manually redeploy: `bun deploy:local`
+3. Regenerate types: `bun generate`
+4. Check deployment sync: `bun sync:check`
 
 #### Client Not Connecting to Local Contracts
 1. Ensure `NODE_ENV=development` 
 2. Check `client/public/contracts/local-deployment.json` exists
 3. Verify Anvil is running on port 8545
-4. Try restarting: `pnpm seed:reset`
+4. Try restarting: `bun seed:reset`
 
 #### Environment Issues
 1. Check Node.js version: `node --version` (should be ≥18.0.0)
-2. Check pnpm version: `pnpm --version` (should be ≥8.0.0)
+2. Check bun version: `bun --version` (should be ≥1.0.0)
 3. Check Foundry installation: `forge --version`
-4. Reinstall dependencies: `rm -rf node_modules */node_modules && pnpm install`
+4. Reinstall dependencies: `rm -rf node_modules */node_modules && bun install`
 
 #### Enhanced Features Dependencies
 For full functionality of performance monitoring and advanced UX features:
 ```bash
 # Install optional enhancement dependencies
-pnpm add web-vitals lodash date-fns
-pnpm add -D @types/lodash
+bun add web-vitals lodash date-fns
+bun add -D @types/lodash
 ```
 
 #### Submodule/Foundry Setup Issues
@@ -360,7 +360,7 @@ git config --global url."https://".insteadOf git://
 # Clean and reinstall
 cd cookie-jar
 rm -rf lib contracts/lib
-pnpm install
+bun install
 ```
 
 **✅ Proper Solution (Recommended)** - Better long-term:
@@ -383,7 +383,7 @@ ssh -T git@github.com
 # 5. Clean and reinstall
 cd cookie-jar
 rm -rf lib contracts/lib
-pnpm install
+bun install
 ```
 
 📚 **Full SSH Setup Guide**: [GitHub SSH Documentation](https://docs.github.com/en/authentication/connecting-to-github-with-ssh)
@@ -447,14 +447,14 @@ tail -f contracts/watch-deploy.log   # Contract watcher logs
    git clone https://github.com/greenpill-dev-guild/cookie-jar.git
    cd cookie-jar
    
-   # If you don't have pnpm:
-   npm install && pnpm install
+   # If you don't have bun:
+   npm install && bun install
    
-   # If you have pnpm:
-   pnpm install
+   # If you have bun:
+   bun install
    
    # Start development:
-   pnpm dev
+   bun dev
    ```
 3. **Open Client**: Navigate to http://localhost:3000  
 4. **Connect Wallet**: Add local network (Chain ID: 31337) to your Web3 wallet
@@ -469,7 +469,7 @@ tail -f contracts/watch-deploy.log   # Contract watcher logs
 ### 🎉 Minimal Configuration for Development
 
 Almost no setup needed for local development! The monorepo approach makes it seamless:
-- **Auto-installs**: pnpm and Foundry are installed automatically if missing
+- **Auto-installs**: bun and Foundry are installed automatically if missing
 - **Auto-deploys**: Contracts deploy automatically on first run
 - **Auto-configures**: Client configuration updates automatically
 
@@ -479,7 +479,7 @@ Just clone, install, and develop!
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Make your changes and test: `pnpm test`
+3. Make your changes and test: `bun test`
 4. Commit with conventional commits: `git commit -m "feat: add amazing feature"`
 5. Push and create a Pull Request
 

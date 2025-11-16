@@ -1,6 +1,6 @@
 // Integration test for Unlock Protocol SDK with real lock data
 // SKIP BY DEFAULT: Unlock SDK has ethers.js dependency issues in test environment
-// Run with: RUN_UNLOCK_INTEGRATION=true pnpm test
+// Run with: RUN_UNLOCK_INTEGRATION=true bun test
 
 import { beforeAll, describe, expect, it } from "vitest";
 

@@ -30,7 +30,7 @@ jobs:
       with:
         version: nightly
     
-    # Skip all pnpm/Node.js dependencies - contracts tests don't need them
+    # Skip all bun/Node.js dependencies - contracts tests don't need them
     
     - name: Build contracts
       run: |

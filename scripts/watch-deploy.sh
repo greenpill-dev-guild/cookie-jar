@@ -39,7 +39,7 @@ deploy_contracts() {
         
         # Trigger client type regeneration
         echo "⚙️ Triggering client type regeneration..."
-        cd client && pnpm generate && cd ..
+        cd client && bun generate && cd ..
         
         # Optional: Notify client of updates via API
         if command -v curl &> /dev/null; then
@@ -66,5 +66,5 @@ elif command -v inotifywait &> /dev/null; then
 else
     echo "⚠️  No file watcher found. Install fswatch (macOS) or inotify-tools (Linux)"
     echo "Falling back to manual deployment mode..."
-    echo "Run 'pnpm deploy:local' after making changes to contracts/src/"
+    echo "Run 'bun deploy:local' after making changes to contracts/src/"
 fi

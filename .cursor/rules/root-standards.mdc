@@ -13,7 +13,7 @@ alwaysApply: true
 - Web3-native with ethical considerations
 
 ## Monorepo Structure
-- **pnpm workspaces** for package management
+- **bun workspaces** for package management
 - **Conventional commits**: `feat:`, `fix:`, `chore:`, `docs:`, `test:`
 - **Quality gates**: All PRs require passing build, test, lint, type-check
 - **Coverage requirements**: Never decrease below current levels (90%+ for new code)
@@ -22,16 +22,16 @@ alwaysApply: true
 
 ```bash
 # Full stack development
-pnpm dev                # Local with fresh Anvil chain
-pnpm dev:ethereum       # Fork Ethereum mainnet  
-pnpm dev:base           # Fork Base network
+bun dev                 # Local with fresh Anvil chain
+bun dev:ethereum        # Fork Ethereum mainnet  
+bun dev:base            # Fork Base network
 
 # Testing & quality
-pnpm test               # All tests across packages
-pnpm test:coverage      # Coverage report
-pnpm lint               # Lint all packages
-pnpm type-check         # Fast TypeScript validation (preferred)
-pnpm build              # Build all packages
+bun test                # All tests across packages
+bun test:coverage       # Coverage report
+bun lint                # Lint all packages
+bun type-check          # Fast TypeScript validation (preferred)
+bun build               # Build all packages
 ```
 
 ## Tech Stack Standards
@@ -74,9 +74,9 @@ pnpm build              # Build all packages
 
 ### Pre-Commit Requirements
 ```bash
-pnpm type-check  # Must pass (no TypeScript errors)
-pnpm lint        # Must pass (no ESLint errors)
-pnpm build       # Must complete successfully
+bun type-check   # Must pass (no TypeScript errors)
+bun lint         # Must pass (no ESLint errors)
+bun build        # Must complete successfully
 ```
 
 ### Common Patterns

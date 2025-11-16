@@ -97,10 +97,10 @@ if [ "$SKIP_SETUP" != "true" ]; then
     # Check dependencies
     echo -e "${BLUE}1. Checking dependencies...${NC}"
     
-    if command -v pnpm &> /dev/null; then
-        echo -e "${GREEN}✅ pnpm is available${NC}"
+    if command -v bun &> /dev/null; then
+        echo -e "${GREEN}✅ bun is available${NC}"
     else
-        echo -e "${RED}❌ pnpm not found${NC}"
+        echo -e "${RED}❌ bun not found${NC}"
         exit 1
     fi
     
@@ -184,8 +184,8 @@ if [ "$SKIP_SETUP" != "true" ]; then
     if [ "$SETUP_ONLY" = "true" ]; then
         echo ""
         echo -e "${YELLOW}📋 Setup-only mode completed. To run tests:${NC}"
-        echo -e "  pnpm test:e2e           # Run all E2E tests"
-        echo -e "  pnpm test:e2e:ui        # Interactive UI mode"  
+        echo -e "  bun test:e2e           # Run all E2E tests"
+        echo -e "  bun test:e2e:ui        # Interactive UI mode"  
         echo -e "  ./scripts/test-e2e.sh   # This script with tests"
         exit 0
     fi
@@ -208,11 +208,11 @@ else
         echo -e "${BLUE}   CI should have development environment running already${NC}"
         echo -e "${BLUE}   Continuing with tests...${NC}"
     else
-        echo -e "${YELLOW}⚠️  Client not running. You may need to start 'pnpm dev' first${NC}"
+        echo -e "${YELLOW}⚠️  Client not running. You may need to start 'bun dev' first${NC}"
         echo -e "${BLUE}   Attempting to start development environment...${NC}"
         
         # Try to start dev environment in background
-        pnpm dev > dev.log 2>&1 &
+        bun dev > dev.log 2>&1 &
         DEV_PID=$!
         
         echo "📋 Waiting for development environment (up to 2 minutes)..."
@@ -227,7 +227,7 @@ else
           sleep 3
           if [ $i -eq 40 ]; then
             echo -e "${YELLOW}⚠️  Development environment taking longer than expected${NC}"
-            echo -e "${BLUE}   You may need to start 'pnpm dev' manually in another terminal${NC}"
+            echo -e "${BLUE}   You may need to start 'bun dev' manually in another terminal${NC}"
             break
           fi
         done
@@ -242,7 +242,7 @@ if curl -s -X POST -H "Content-Type: application/json" \
     echo -e "${GREEN}✅ Anvil blockchain is running${NC}"
 else
     echo -e "${YELLOW}⚠️  Anvil blockchain not responding${NC}"
-    echo -e "${BLUE}   Make sure 'pnpm dev' is running${NC}"
+    echo -e "${BLUE}   Make sure 'bun dev' is running${NC}"
 fi
 
 # Run E2E tests
@@ -282,14 +282,14 @@ if $TEST_CMD; then
     if [ ! -z "$DEV_PID" ] && kill -0 $DEV_PID 2>/dev/null; then
         echo ""
         echo -e "${BLUE}🧹 Development environment is still running (PID: $DEV_PID)${NC}"
-        echo -e "${YELLOW}   To stop: kill $DEV_PID or pnpm dev:stop${NC}"
+        echo -e "${YELLOW}   To stop: kill $DEV_PID or bun dev:stop${NC}"
     fi
     
 else
     echo ""
     echo -e "${YELLOW}⚠️  Some tests may have issues${NC}"
     echo -e "${BLUE}📋 Common troubleshooting:${NC}"
-    echo -e "  1. Ensure dev environment: pnpm dev"
+    echo -e "  1. Ensure dev environment: bun dev"
     echo -e "  2. Check client: curl http://localhost:3000"
     echo -e "  3. Check Anvil: curl -X POST http://127.0.0.1:8545"
     echo -e "  4. Review reports: e2e/playwright-report/"

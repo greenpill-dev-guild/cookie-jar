@@ -8,7 +8,7 @@ on:
 
 env:
   NODE_VERSION: '18'
-  PNPM_VERSION: '8'
+  BUN_VERSION: '1.0'
 
 jobs:
   integration-tests:
@@ -22,11 +22,11 @@ jobs:
       with:
         submodules: recursive
     
-    - name: Setup Node.js and pnpm
+    - name: Setup Node.js and bun
       uses: ./.github/actions/setup-node-pnpm
       with:
         node-version: ${{ env.NODE_VERSION }}
-        pnpm-version: ${{ env.PNPM_VERSION }}
+        bun-version: ${{ env.BUN_VERSION }}
     
     - name: Install Foundry
       uses: foundry-rs/foundry-toolchain@v1
@@ -117,7 +117,7 @@ jobs:
       run: |
         echo "⚙️  Generating client types..."
         cd client
-        pnpm run generate
+        bun run generate
         
         if [ $? -ne 0 ]; then
             echo "❌ Client type generation failed"
@@ -134,17 +134,17 @@ jobs:
         # Check if integration test script exists
         if grep -q "test:integration" package.json; then
           echo "Running integration test suite..."
-          pnpm run test:integration
+          bun run test:integration
         else
           echo "⚠️  No specific integration test script found"
           echo "Running tests that can work with blockchain environment..."
           
           # Run vitest with proper syntax for integration tests
-          if pnpm run test -- --run --testTimeout 60000 2>/dev/null; then
+          if bun run test -- --run --testTimeout 60000 2>/dev/null; then
             echo "✅ Integration tests completed with vitest"
           else
             echo "⚠️  Fallback: Running basic unit tests..."
-            pnpm run test || echo "⚠️  Some tests may have failed due to missing blockchain context"
+            bun run test || echo "⚠️  Some tests may have failed due to missing blockchain context"
           fi
         fi
         

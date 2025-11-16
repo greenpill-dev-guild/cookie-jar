@@ -59,7 +59,7 @@ async function waitForServices() {
 
 			if (attempts >= maxAttempts) {
 				throw new Error(
-					`❌ ${service.name} failed to start within 2 minutes. Make sure 'pnpm dev' is running.`,
+					`❌ ${service.name} failed to start within 2 minutes. Make sure 'bun dev' is running.`,
 				);
 			}
 		}
@@ -75,7 +75,7 @@ async function verifyContracts() {
 
 		if (!response.ok) {
 			throw new Error(
-				"Deployment file not found. Ensure contracts are deployed with `pnpm dev`.",
+				"Deployment file not found. Ensure contracts are deployed with `bun dev`.",
 			);
 		}
 
@@ -96,7 +96,7 @@ async function verifyContracts() {
 		process.env.TEST_TOKEN_ADDRESS = deployment.DemoToken || "";
 	} catch (error) {
 		console.error("❌ Contract verification failed:", error);
-		console.log("\n💡 Make sure to run `pnpm dev` before running E2E tests");
+		console.log("\n💡 Make sure to run `bun dev` before running E2E tests");
 		console.log(
 			"   This will start Anvil, deploy contracts, and start the client",
 		);

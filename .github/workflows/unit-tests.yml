@@ -8,7 +8,7 @@ on:
 
 env:
   NODE_VERSION: '18'
-  PNPM_VERSION: '8'
+  BUN_VERSION: '1.0'
 
 jobs:
   unit-tests:
@@ -20,11 +20,11 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Setup Node.js and pnpm
+    - name: Setup Node.js and bun
       uses: ./.github/actions/setup-node-pnpm
       with:
         node-version: ${{ env.NODE_VERSION }}
-        pnpm-version: ${{ env.PNPM_VERSION }}
+        bun-version: ${{ env.BUN_VERSION }}
     
     - name: Run unit tests with coverage
       run: |
@@ -44,7 +44,7 @@ jobs:
         fi
         
         # Run tests with coverage - allow some failures during environment transition
-        if pnpm run test:coverage; then
+        if bun run test:coverage; then
           echo "✅ All unit tests passed!"
         else
           echo "⚠️  Some unit tests failed, but environment errors are resolved"

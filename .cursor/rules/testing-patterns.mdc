@@ -214,14 +214,14 @@ export const TEST_CONTRACTS = {
 ## Testing Commands
 ```bash
 # Unit tests
-pnpm test                    # All tests
-pnpm test:watch              # Watch mode
-pnpm test:coverage           # Coverage report
+bun test                     # All tests
+bun test:watch               # Watch mode
+bun test:coverage            # Coverage report
 
 # E2E tests
-pnpm test:e2e                # Full E2E suite
-pnpm test:e2e:ui             # Visual test runner
-pnpm test:e2e:debug          # Debug mode
+bun test:e2e                 # Full E2E suite
+bun test:e2e:ui              # Visual test runner
+bun test:e2e:debug           # Debug mode
 
 # Contract tests
 cd contracts && forge test   # All contract tests

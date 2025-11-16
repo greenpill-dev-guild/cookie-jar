@@ -66,7 +66,7 @@ vi.mock("@/hooks/useToast", () => ({
 }));
 
 // Skip useJarCreation tests by default - they require full WagmiProvider setup
-// Run with: RUN_WAGMI_TESTS=true pnpm test
+// Run with: RUN_WAGMI_TESTS=true bun test
 const describeOrSkip =
 	process.env.RUN_WAGMI_TESTS === "true" ? describe : describe.skip;
 

@@ -107,19 +107,19 @@ cast send $CONTRACT_ADDRESS \
 
 ```bash
 # 1. Deploy to testnet
-pnpm deploy:base-sepolia
+bun deploy:base-sepolia
 
 # 2. Verify deployment
-pnpm verify:deployment
+bun verify:deployment
 
 # 3. Seed test data (if needed)
-pnpm seed:testnet
+bun seed:testnet
 
 # 4. Test frontend integration
-pnpm dev:base-sepolia
+bun dev:base-sepolia
 
 # 5. Run E2E tests against testnet
-pnpm test:e2e:testnet
+bun test:e2e:testnet
 ```
 
 ## Deployment Script Pattern
@@ -200,7 +200,7 @@ contract Deploy is Script {
 ### Vercel Deployment
 ```bash
 # Build and verify locally first
-pnpm build
+bun build
 
 # Check for build errors
 # Verify environment variables in Vercel dashboard

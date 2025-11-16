@@ -49,7 +49,7 @@ beforeEach(() => {
 });
 
 // Skip SDK integration tests by default - they require WagmiProvider
-// Run with: RUN_SDK_TESTS=true pnpm test
+// Run with: RUN_SDK_TESTS=true bun test
 const describeOrSkip =
 	process.env.RUN_SDK_TESTS === "true" ? describe : describe.skip;
 
