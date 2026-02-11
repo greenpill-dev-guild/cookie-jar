@@ -116,11 +116,11 @@ cookie-jar/
 
 **Contracts**: Edit in `contracts/src/` → Auto-recompile → Auto-redeploy → Regen types  
 **Client**: `localhost:3000` with hot reload on Chain ID 31337  
-**Testing**: `bun test` (both contracts + client)
+**Testing**: `bun run test` (both contracts + client)
 
 ```bash
-bun test:contracts      # Smart contract tests
-bun test:client         # Frontend tests  
+bun run test:contracts  # Smart contract tests
+bun run test:client     # Frontend tests
 bun deploy:local        # Manual deployment
 bun seed:demo           # Refresh demo data
 ```
@@ -151,7 +151,7 @@ bun seed:demo           # Refresh demo data
 ```bash
 # Essential
 bun dev                    # Start local development
-bun test                   # Run all tests
+bun run test               # Run all tests
 bun build                  # Build contracts + client
 
 # Development variants  
@@ -479,7 +479,7 @@ Just clone, install, and develop!
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Make your changes and test: `bun test`
+3. Make your changes and test: `bun run test`
 4. Commit with conventional commits: `git commit -m "feat: add amazing feature"`
 5. Push and create a Pull Request
 

@@ -10,6 +10,7 @@ import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 import {CookieJarLib} from "./libraries/CookieJarLib.sol";
+import {CookieJarValidation} from "./libraries/CookieJarValidation.sol";
 import {UniversalSwapAdapter} from "./libraries/UniversalSwapAdapter.sol";
 import {Streaming} from "./libraries/Streaming.sol";
 import {ISuperfluid, IConstantFlowAgreementV1} from "@superfluid-finance/ethereum-contracts/interfaces/superfluid/ISuperfluid.sol";
@@ -461,10 +462,8 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
         if (amount == 0) revert CookieJarLib.ZeroAmount();
         if (currencyHeldByJar < amount) revert CookieJarLib.InsufficientBalance();
 
-        // Validate purpose requirement
-        if (STRICT_PURPOSE && bytes(purpose).length < 27) {
-            revert CookieJarLib.InvalidPurpose();
-        }
+        // Validate purpose requirement (uses Unicode code-point counting)
+        CookieJarValidation.validatePurpose(STRICT_PURPOSE, purpose);
 
         // Validate withdrawal amount
         if (WITHDRAWAL_OPTION == CookieJarLib.WithdrawalTypeOptions.Fixed) {
