@@ -13,6 +13,8 @@ import {
 	useTokenInfo,
 } from "@/lib/blockchain/token-utils";
 
+const PURPOSE_MIN_LENGTH = 27;
+
 interface AllowlistWithdrawalSectionProps {
 	config: any; // Ideally this would be more specifically typed
 	withdrawPurpose: string;
@@ -34,6 +36,7 @@ export const AllowlistWithdrawalSection: React.FC<
 	handleWithdrawAllowlist,
 	handleWithdrawAllowlistVariable,
 }) => {
+
 	// Get token information using the token utils
 	const { symbol: tokenSymbol, decimals: tokenDecimals } = useTokenInfo(
 		config?.currency || ETH_ADDRESS,
@@ -70,7 +73,7 @@ export const AllowlistWithdrawalSection: React.FC<
 						className="w-full bg-[#ff5e14] hover:bg-[#e54d00] text-white py-6 text-lg"
 						disabled={
 							!withdrawPurpose ||
-							withdrawPurpose.length < 10 ||
+							withdrawPurpose.length < PURPOSE_MIN_LENGTH ||
 							config.isWithdrawPending
 						}
 					>
@@ -210,7 +213,7 @@ export const AllowlistWithdrawalSection: React.FC<
 							!withdrawAmount ||
 							Number(withdrawAmount) <= 0 ||
 							!withdrawPurpose ||
-							withdrawPurpose.length < 10 ||
+							withdrawPurpose.length < PURPOSE_MIN_LENGTH ||
 							config.isWithdrawPending
 						}
 					>

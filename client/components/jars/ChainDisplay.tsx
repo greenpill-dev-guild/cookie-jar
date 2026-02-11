@@ -9,11 +9,18 @@ interface ChainDisplayProps {
 
 export function ChainDisplay({ chainId }: ChainDisplayProps) {
 	return (
-		<div className="flex items-center gap-2 px-3 py-2 bg-[hsl(var(--cj-warm-white))] border border-[hsl(var(--border))] rounded-lg">
-			<Globe2 className="h-4 w-4 text-[hsl(var(--cj-medium-brown))]" />
-			<span className="text-sm font-medium text-[hsl(var(--cj-dark-brown))]">
-				{getNetworkName(chainId)}
-			</span>
+		<div className="flex h-12 w-full items-center gap-3 rounded-xl border border-[hsl(var(--cj-input-border))] bg-[hsl(var(--cj-nav-bg))] px-4 text-left">
+			<div className="flex h-9 w-9 items-center justify-center rounded-full border border-[hsl(var(--border))] bg-[hsl(var(--cj-warm-white))]">
+				<Globe2 className="h-4 w-4 text-[hsl(var(--cj-medium-brown))]" />
+			</div>
+			<div className="min-w-0 leading-tight">
+				<span className="text-[11px] uppercase tracking-wide text-[hsl(var(--cj-light-brown))]">
+					Network
+				</span>
+				<p className="text-sm font-semibold text-[hsl(var(--cj-dark-brown))] truncate">
+					{getNetworkName(chainId)}
+				</p>
+			</div>
 		</div>
 	);
 }

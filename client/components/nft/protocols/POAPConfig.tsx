@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useDebounce } from "@/hooks/app/useDebounce";
 import { POAPProvider } from "@/lib/nft/protocols/POAPProvider";
+import { ACCESS_CONTROL_DOC_LINKS } from "../doc-links";
 import { ProtocolConfigBase } from "../ProtocolConfigBase";
 
 interface POAPEvent {
@@ -140,7 +141,7 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
 			validationError={validationError}
 			isLoading={isValidating}
 			className={className}
-			learnMoreUrl="https://poap.xyz/"
+			learnMoreUrl={ACCESS_CONTROL_DOC_LINKS.poap}
 		>
 			<div className="space-y-6">
 				{/* Search Events */}

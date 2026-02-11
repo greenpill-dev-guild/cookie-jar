@@ -15,12 +15,9 @@ import { contractAddresses, isV2Chain } from "@/config/supported-networks";
 import { cookieJarFactoryAbi } from "@/generated";
 import { cookieJarFactoryV1Abi } from "@/lib/blockchain/cookie-jar-v1-abi";
 import { cookieJarFactoryV2Abi } from "@/lib/blockchain/cookie-jar-v2-abi";
+import { ETH_ADDRESS } from "@/lib/blockchain/token-utils";
 
 import { useToast } from "../app/useToast";
-
-// Constants
-/** Standard ETH address placeholder used in contracts */
-const ETH_ADDRESS = "0x0000000000000000000000000000000000000003";
 
 /**
  * Protocol configuration for advanced access control

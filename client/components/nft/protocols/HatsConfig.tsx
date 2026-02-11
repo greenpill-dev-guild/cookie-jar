@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { HatsProvider } from "@/lib/nft/protocols/HatsProvider";
+import { ACCESS_CONTROL_DOC_LINKS } from "../doc-links";
 import { ProtocolConfigBase } from "../ProtocolConfigBase";
 
 interface HatDetails {
@@ -120,7 +121,7 @@ export const HatsConfig: React.FC<HatsConfigProps> = ({
 			validationError={validationError}
 			isLoading={isValidating}
 			className={className}
-			learnMoreUrl="https://www.hatsprotocol.xyz/"
+			learnMoreUrl={ACCESS_CONTROL_DOC_LINKS.hats}
 		>
 			<div className="space-y-4">
 				{/* Hat ID Input */}

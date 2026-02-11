@@ -10,6 +10,7 @@ import {
 	optimismSepolia,
 	sepolia,
 } from "wagmi/chains";
+import { ETH_ADDRESS } from "@/lib/blockchain/constants";
 
 // Import auto-generated deployment configuration
 // This file is automatically updated when contracts are deployed
@@ -88,67 +89,67 @@ export const nativeCurrencies: Record<number, NativeCurrency> = {
 		symbol: "ETH",
 		name: "Ethereum",
 		decimals: 18,
-		address: "0x0000000000000000000000000000000000000003",
+		address: ETH_ADDRESS,
 	},
 	[base.id]: {
 		symbol: "ETH",
 		name: "Ethereum",
 		decimals: 18,
-		address: "0x0000000000000000000000000000000000000003",
+		address: ETH_ADDRESS,
 	},
 	[optimism.id]: {
 		symbol: "ETH",
 		name: "Ethereum",
 		decimals: 18,
-		address: "0x0000000000000000000000000000000000000003",
+		address: ETH_ADDRESS,
 	},
 	[arbitrum.id]: {
 		symbol: "ETH",
 		name: "Ethereum",
 		decimals: 18,
-		address: "0x0000000000000000000000000000000000000003",
+		address: ETH_ADDRESS,
 	},
 	[gnosis.id]: {
 		symbol: "xDAI",
 		name: "xDAI",
 		decimals: 18,
-		address: "0x0000000000000000000000000000000000000003",
+		address: ETH_ADDRESS,
 	},
 	[baseSepolia.id]: {
 		symbol: "ETH",
 		name: "Ethereum",
 		decimals: 18,
-		address: "0x0000000000000000000000000000000000000003",
+		address: ETH_ADDRESS,
 	},
 	[sepolia.id]: {
 		symbol: "ETH",
 		name: "Ethereum",
 		decimals: 18,
-		address: "0x0000000000000000000000000000000000000003",
+		address: ETH_ADDRESS,
 	},
 	[optimismSepolia.id]: {
 		symbol: "ETH",
 		name: "Ethereum",
 		decimals: 18,
-		address: "0x0000000000000000000000000000000000000003",
+		address: ETH_ADDRESS,
 	},
 	[celoSepolia.id]: {
 		symbol: "CELO",
 		name: "Celo",
 		decimals: 18,
-		address: "0x0000000000000000000000000000000000000003",
+		address: ETH_ADDRESS,
 	},
 	[celo.id]: {
 		symbol: "CELO",
 		name: "Celo",
 		decimals: 18,
-		address: "0x0000000000000000000000000000000000000003",
+		address: ETH_ADDRESS,
 	},
 	[anvilLocal.id]: {
 		symbol: "ETH",
 		name: "Ethereum",
 		decimals: 18,
-		address: "0x0000000000000000000000000000000000000003",
+		address: ETH_ADDRESS,
 	},
 };
 

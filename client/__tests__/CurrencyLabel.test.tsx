@@ -1,6 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import type React from "react";
 import { vi } from "vitest";
+import { ETH_ADDRESS } from "@/lib/blockchain/constants";
 
 // CurrencyLabel component logic for testing
 const CurrencyLabel: React.FC<{
@@ -13,7 +14,7 @@ const CurrencyLabel: React.FC<{
 	formatAddress = (addr) => `${addr.slice(0, 6)}...${addr.slice(-4)}`,
 }) => {
 	if (!address) return null;
-	if (address === "0x0000000000000000000000000000000000000003")
+	if (address.toLowerCase() === ETH_ADDRESS.toLowerCase())
 		return <span>ETH</span>;
 
 	return <span>{tokenSymbol || formatAddress(address)}</span>;
@@ -26,9 +27,7 @@ describe("CurrencyLabel", () => {
 	});
 
 	it("renders ETH for ETH address", () => {
-		render(
-			<CurrencyLabel address="0x0000000000000000000000000000000000000003" />,
-		);
+		render(<CurrencyLabel address={ETH_ADDRESS} />);
 		expect(screen.getByText("ETH")).toBeInTheDocument();
 	});
 
@@ -55,7 +54,7 @@ describe("CurrencyLabel", () => {
 	it("handles different ETH address formats", () => {
 		render(
 			<CurrencyLabel
-				address="0x0000000000000000000000000000000000000003"
+				address={ETH_ADDRESS}
 				tokenSymbol="SHOULD_NOT_SHOW"
 			/>,
 		);

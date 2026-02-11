@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { HypercertsProvider } from "@/lib/nft/protocols/HypercertsProvider";
+import { ACCESS_CONTROL_DOC_LINKS } from "../doc-links";
 import { ProtocolConfigBase } from "../ProtocolConfigBase";
 
 interface HypercertDetails {
@@ -99,7 +100,7 @@ export const HypercertConfig: React.FC<HypercertConfigProps> = ({
 			validationError={validationError}
 			isLoading={isValidating}
 			className={className}
-			learnMoreUrl="https://hypercerts.org/"
+			learnMoreUrl={ACCESS_CONTROL_DOC_LINKS.hypercerts}
 		>
 			<div className="space-y-4">
 				{/* Hypercert ID Input */}

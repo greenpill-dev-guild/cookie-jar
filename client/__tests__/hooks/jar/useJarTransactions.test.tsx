@@ -57,8 +57,8 @@ describe("useJarTransactions - Unit Tests", () => {
 			const validPurpose = "Team expenses for development work";
 			const invalidPurpose = "short";
 
-			expect(validPurpose.length).toBeGreaterThan(10);
-			expect(invalidPurpose.length).toBeLessThan(10);
+			expect(validPurpose.length).toBeGreaterThan(27);
+			expect(invalidPurpose.length).toBeLessThan(27);
 		});
 	});
 

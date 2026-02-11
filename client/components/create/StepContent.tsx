@@ -127,7 +127,7 @@ const BasicConfigStep: React.FC<{ formData: any }> = ({ formData }) => {
 							</svg>
 						</Button>
 					</div>
-					<p className="text-sm text-gray-600 mt-1">
+					<p className="text-sm text-muted-foreground mt-1">
 						{formData.jarOwnerAddress &&
 						formData.jarOwnerAddress !==
 							"0x0000000000000000000000000000000000000000"
@@ -157,7 +157,7 @@ const BasicConfigStep: React.FC<{ formData: any }> = ({ formData }) => {
 								<SelectItem key={option.value} value={option.value}>
 									<div>
 										<div className="font-medium">{option.label}</div>
-										<div className="text-sm text-gray-600">
+										<div className="text-sm text-muted-foreground">
 											{option.description}
 										</div>
 									</div>
@@ -332,7 +332,7 @@ const WithdrawalSettingsStep: React.FC<{ formData: any }> = ({ formData }) => {
 							)}
 						/>
 						<Label htmlFor="strictPurpose" className="text-sm">
-							Require purpose description (minimum 20 characters)
+							Require purpose description (minimum 27 characters)
 						</Label>
 					</div>
 
@@ -381,6 +381,7 @@ const AccessControlStep: React.FC<{ formData: any }> = ({ formData }) => {
 			<ProtocolSelector
 				onConfigChange={formData.handleProtocolConfigChange}
 				initialConfig={formData.protocolConfig}
+				showViewToggle={false}
 			/>
 
 			{formData.accessType === AccessType.NFTGated && (

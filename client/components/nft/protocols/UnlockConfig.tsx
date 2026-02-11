@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { UnlockProvider } from "@/lib/nft/protocols/UnlockProvider";
+import { ACCESS_CONTROL_DOC_LINKS } from "../doc-links";
 import { ProtocolConfigBase } from "../ProtocolConfigBase";
 
 interface LockDetails {
@@ -127,7 +128,7 @@ export const UnlockConfig: React.FC<UnlockConfigProps> = ({
 			validationError={validationError}
 			isLoading={isValidating}
 			className={className}
-			learnMoreUrl="https://unlock-protocol.com/"
+			learnMoreUrl={ACCESS_CONTROL_DOC_LINKS.unlock}
 		>
 			<div className="space-y-4">
 				{/* Lock Address Input */}

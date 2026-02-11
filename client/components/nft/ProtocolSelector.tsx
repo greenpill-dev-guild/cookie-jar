@@ -14,6 +14,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useResponsive } from "@/hooks/app/useResponsive";
 import { cn } from "@/lib/app/utils";
 import { NFTSelector } from "./NFTSelector";
+import { ACCESS_CONTROL_DOC_LINKS } from "./doc-links";
 import { HatsConfig } from "./protocols/HatsConfig";
 import { HypercertConfig } from "./protocols/HypercertConfig";
 // Import protocol configs
@@ -50,7 +51,7 @@ const ACCESS_METHODS = [
 		icon: <Users className="h-5 w-5" />,
 		color: "bg-blue-500",
 		badge: <Badge className="bg-blue-100 text-blue-800">Simple</Badge>,
-		learnMoreUrl: "https://docs.cookiejar.wtf/access-types/allowlist",
+		learnMoreUrl: ACCESS_CONTROL_DOC_LINKS.allowlist,
 	},
 	{
 		id: "NFT" as AccessMethod,
@@ -58,7 +59,7 @@ const ACCESS_METHODS = [
 		icon: <Shield className="h-5 w-5" />,
 		color: "bg-purple-500",
 		badge: <Badge className="bg-purple-100 text-purple-800">Flexible</Badge>,
-		learnMoreUrl: "https://docs.cookiejar.wtf/access-types/nft-gated",
+		learnMoreUrl: ACCESS_CONTROL_DOC_LINKS.nft,
 	},
 	{
 		id: "POAP" as AccessMethod,
@@ -66,7 +67,7 @@ const ACCESS_METHODS = [
 		icon: <span className="text-lg">🎖️</span>,
 		color: "bg-purple-500",
 		badge: <Badge className="bg-purple-100 text-purple-800">Event</Badge>,
-		learnMoreUrl: "https://poap.xyz/",
+		learnMoreUrl: ACCESS_CONTROL_DOC_LINKS.poap,
 	},
 	{
 		id: "Hats" as AccessMethod,
@@ -74,7 +75,7 @@ const ACCESS_METHODS = [
 		icon: <span className="text-lg">🎩</span>,
 		color: "bg-yellow-500",
 		badge: <Badge className="bg-yellow-100 text-yellow-800">Roles</Badge>,
-		learnMoreUrl: "https://www.hatsprotocol.xyz/",
+		learnMoreUrl: ACCESS_CONTROL_DOC_LINKS.hats,
 	},
 	{
 		id: "Hypercert" as AccessMethod,
@@ -82,7 +83,7 @@ const ACCESS_METHODS = [
 		icon: <span className="text-lg">🏆</span>,
 		color: "bg-green-500",
 		badge: <Badge className="bg-green-100 text-green-800">Impact</Badge>,
-		learnMoreUrl: "https://hypercerts.org/",
+		learnMoreUrl: ACCESS_CONTROL_DOC_LINKS.hypercerts,
 	},
 	{
 		id: "Unlock" as AccessMethod,
@@ -90,7 +91,7 @@ const ACCESS_METHODS = [
 		icon: <span className="text-lg">🔓</span>,
 		color: "bg-blue-500",
 		badge: <Badge className="bg-blue-100 text-blue-800">Subscription</Badge>,
-		learnMoreUrl: "https://unlock-protocol.com/",
+		learnMoreUrl: ACCESS_CONTROL_DOC_LINKS.unlock,
 	},
 ];
 

@@ -19,6 +19,7 @@ vi.mock("@/config/deployments.auto", () => ({
 }));
 
 import { useJarCreation } from "@/hooks/jar/useJarCreation";
+import { ETH_ADDRESS } from "@/lib/blockchain/constants";
 
 // Mock wagmi hooks
 vi.mock("wagmi", () => ({
@@ -98,17 +99,13 @@ describeOrSkip("useJarCreation", () => {
 		it("should use address(3) for ETH address", () => {
 			const { result } = renderHookWithProviders();
 
-			expect(result.current.ETH_ADDRESS).toBe(
-				"0x0000000000000000000000000000000000000003",
-			);
+			expect(result.current.ETH_ADDRESS).toBe(ETH_ADDRESS);
 		});
 
 		it("should initialize supportedCurrency with correct ETH address", () => {
 			const { result } = renderHookWithProviders();
 
-			expect(result.current.supportedCurrency).toBe(
-				"0x0000000000000000000000000000000000000003",
-			);
+			expect(result.current.supportedCurrency).toBe(ETH_ADDRESS);
 		});
 	});
 

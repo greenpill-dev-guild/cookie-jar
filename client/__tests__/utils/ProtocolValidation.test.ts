@@ -263,10 +263,10 @@ describe("Protocol Validation Utilities", () => {
 					return { isValid: false, error: "Purpose is required" };
 				}
 
-				if (purpose.length < 10) {
+				if (purpose.length < 27) {
 					return {
 						isValid: false,
-						error: "Purpose must be at least 10 characters",
+						error: "Purpose must be at least 27 characters",
 					};
 				}
 
