@@ -40,6 +40,7 @@ library Streaming {
         mapping(address => mapping(address => SuperfluidStream)) storage superStreams,
         mapping(address => int96) storage superTokenFlowRates
     ) external {
+        if (superToken == address(0)) revert CookieJarLib.InvalidTokenAddress();
         if (flowRate <= 0) revert CookieJarLib.InvalidStreamRate();
 
         ISuperToken token = ISuperToken(superToken);

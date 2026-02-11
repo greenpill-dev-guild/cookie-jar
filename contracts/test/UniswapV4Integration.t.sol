@@ -6,8 +6,24 @@ import {CookieJar} from "../src/CookieJar.sol";
 import {UniversalSwapAdapter} from "../src/libraries/UniversalSwapAdapter.sol";
 import {CookieJarLib} from "../src/libraries/CookieJarLib.sol";
 
+/// @dev Harness contract that wraps internal library functions as external calls.
+/// vm.expectRevert only intercepts reverts from external calls. Since library internal
+/// functions are inlined, we need this wrapper to create an external call boundary.
+contract SwapAdapterHarness {
+    function swapExactInputSingle(
+        address tokenIn,
+        address tokenOut,
+        uint256 amountIn,
+        uint256 minAmountOut,
+        address to
+    ) external returns (uint256) {
+        return UniversalSwapAdapter.swapExactInputSingle(tokenIn, tokenOut, amountIn, minAmountOut, to);
+    }
+}
+
 contract UniswapV4IntegrationTest is Test {
     CookieJar internal _jar;
+    SwapAdapterHarness internal _harness;
 
     address internal _owner = address(0x123);
     address internal _user = address(0x456);
@@ -58,6 +74,9 @@ contract UniswapV4IntegrationTest is Test {
 
         // Deploy jar
         _jar = new CookieJar(_jarConfig, _accessConfig, address(0)); // Superfluid host disabled for testing
+
+        // Deploy harness for testing library revert conditions
+        _harness = new SwapAdapterHarness();
     }
 
     // === UNIVERSAL SWAP ADAPTER TESTS ===
@@ -162,14 +181,14 @@ contract UniswapV4IntegrationTest is Test {
 
         vm.expectRevert(abi.encodeWithSelector(UniversalSwapAdapter.UnsupportedChain.selector, 999999));
 
-        // This should fail with UnsupportedChain error
-        UniversalSwapAdapter.swapExactInputSingle(_mockToken, address(0x999), 1000e18, 900e18, _user);
+        // Use harness to create external call boundary for vm.expectRevert
+        _harness.swapExactInputSingle(_mockToken, address(0x999), 1000e18, 900e18, _user);
     }
 
     function testZeroAmount() public {
         vm.expectRevert(UniversalSwapAdapter.ZeroAmount.selector);
 
-        UniversalSwapAdapter.swapExactInputSingle(
+        _harness.swapExactInputSingle(
             _mockToken,
             address(0x999),
             0, // Zero amount
@@ -181,7 +200,7 @@ contract UniswapV4IntegrationTest is Test {
     function testZeroAddress() public {
         vm.expectRevert(UniversalSwapAdapter.ZeroAddress.selector);
 
-        UniversalSwapAdapter.swapExactInputSingle(
+        _harness.swapExactInputSingle(
             _mockToken,
             address(0x999),
             1000e18,

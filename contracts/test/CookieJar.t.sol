@@ -1487,7 +1487,7 @@ contract CookieJarTest is Test {
 
         // Should fail - user doesn't own any token from the contract
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAuthorized.selector));
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InsufficientNFTBalance.selector));
         testJar.withdraw(fixedAmount, purpose);
     }
 
@@ -1582,7 +1582,7 @@ contract CookieJarTest is Test {
 
         // Should fail - user owns token 5, not token 3
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAuthorized.selector));
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NFTNotOwned.selector));
         testJar.withdraw(fixedAmount, purpose);
     }
 
@@ -1695,9 +1695,9 @@ contract CookieJarTest is Test {
     }
 
     function test_RevertWhen_WithdrawNFTModeInvalidNFTGate() public {
-        // User doesn't own any NFTs from the configured contract
+        // User doesn't own any NFTs from the configured contract (ERC721, tokenId=0)
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAuthorized.selector));
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InsufficientNFTBalance.selector));
         jarNftErc20Fixed.withdrawWithErc721(fixedAmount, purpose);
     }
 
@@ -1705,7 +1705,7 @@ contract CookieJarTest is Test {
         uint256 dummyTokenId = dummyErc721.mint(attacker);
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAuthorized.selector));
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InsufficientNFTBalance.selector));
         jarNftEthFixed.withdrawWithErc721(fixedAmount, purpose);
     }
 
@@ -1714,7 +1714,7 @@ contract CookieJarTest is Test {
         dummyErc1155.mint(attacker, dummyTokenId, 1);
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAuthorized.selector));
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InsufficientNFTBalance.selector));
         jarNft1155EthVariable.withdrawWithErc1155(fixedAmount, purpose);
     }
 
