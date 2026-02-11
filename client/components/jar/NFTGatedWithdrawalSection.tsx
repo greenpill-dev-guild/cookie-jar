@@ -159,7 +159,7 @@ export const NFTGatedWithdrawalSection: React.FC<
 		address: (activeNFT?.contractAddress as `0x${string}`) || undefined,
 		abi: ERC721_ABI,
 		functionName: "ownerOf",
-		args: activeNFT?.tokenId ? (() => { const id = safeBigInt(activeNFT.tokenId); return id !== undefined ? [id] : undefined; })() : undefined,
+		args: activeNFT?.tokenId ? (() => { const id = safeBigInt(activeNFT.tokenId); return id !== undefined ? [id] as const : undefined; })() : undefined,
 		query: {
 			enabled: !!(
 				activeNFT?.contractAddress &&
@@ -181,7 +181,7 @@ export const NFTGatedWithdrawalSection: React.FC<
 		functionName: "balanceOf",
 		args:
 			userAddress && activeNFT?.tokenId
-				? (() => { const id = safeBigInt(activeNFT.tokenId); return id !== undefined ? [userAddress, id] : undefined; })()
+				? (() => { const id = safeBigInt(activeNFT.tokenId); return id !== undefined ? [userAddress, id] as const : undefined; })()
 				: undefined,
 		query: {
 			enabled: !!(
