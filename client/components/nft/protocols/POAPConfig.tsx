@@ -139,6 +139,7 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
 			icon="🎖️"
 			color="bg-purple-500"
 			validationError={validationError}
+			errorId="poap-event-error"
 			isLoading={isValidating}
 			className={className}
 			learnMoreUrl={ACCESS_CONTROL_DOC_LINKS.poap}
@@ -164,9 +165,10 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
 					{searchResults.length > 0 && (
 						<div className="mt-2 border rounded-md max-h-48 overflow-y-auto">
 							{searchResults.map((event) => (
-								<div
+								<button
+									type="button"
 									key={event.id}
-									className="flex items-center p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
+									className="flex items-center p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0 w-full text-left"
 									onClick={() => handleEventSelect(event)}
 								>
 									{event.image_url && (
@@ -187,7 +189,7 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
 											</p>
 										)}
 									</div>
-								</div>
+								</button>
 							))}
 						</div>
 					)}
@@ -216,6 +218,8 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
 							value={eventId}
 							onChange={handleEventIdChange}
 							className="flex-1"
+							aria-invalid={!!validationError}
+							aria-describedby={validationError ? "poap-event-error" : undefined}
 						/>
 						<Button
 							onClick={handleValidateEventId}

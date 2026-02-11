@@ -98,6 +98,7 @@ export const HypercertConfig: React.FC<HypercertConfigProps> = ({
 			icon="🏆"
 			color="bg-green-500"
 			validationError={validationError}
+			errorId="hypercert-error"
 			isLoading={isValidating}
 			className={className}
 			learnMoreUrl={ACCESS_CONTROL_DOC_LINKS.hypercerts}
@@ -112,6 +113,8 @@ export const HypercertConfig: React.FC<HypercertConfigProps> = ({
 						value={hypercertId}
 						onChange={handleHypercertIdChange}
 						className="mt-1"
+						aria-invalid={!!validationError}
+						aria-describedby={validationError ? "hypercert-error" : undefined}
 					/>
 					<p className="text-xs text-gray-500 mt-1">
 						The unique identifier for the Hypercert token

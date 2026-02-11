@@ -1,8 +1,10 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useQueryClient } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
 import { decodeEventLog, isAddress, parseEther } from "viem";
 import {
 	useAccount,
@@ -18,117 +20,24 @@ import { cookieJarFactoryV2Abi } from "@/lib/blockchain/cookie-jar-v2-abi";
 import { ETH_ADDRESS } from "@/lib/blockchain/token-utils";
 
 import { useToast } from "../app/useToast";
+import {
+	AccessType,
+	NFTType,
+	WithdrawalTypeOptions,
+	jarCreationSchema,
+	type JarCreationFormData,
+	type ProtocolConfig,
+} from "./schemas/jarCreationSchema";
+
+// Re-export for backward compatibility (used by StepContent, page, etc.)
+export { AccessType, WithdrawalTypeOptions, NFTType };
+export type { ProtocolConfig, JarCreationFormData };
 
 /**
- * Protocol configuration for advanced access control
- */
-export interface ProtocolConfig {
-	/** Type of access control mechanism */
-	accessType: "Allowlist" | "NFT" | "POAP" | "Unlock" | "Hypercert" | "Hats";
-	/** NFT contract addresses for NFT-gated access */
-	nftAddresses?: string[];
-	/** NFT types (ERC721=1, ERC1155=2) corresponding to addresses */
-	nftTypes?: number[];
-	/** POAP event ID for POAP-gated access */
-	poapEventId?: number;
-	/** POAP contract address */
-	poapContractAddress?: `0x${string}`;
-	/** Unlock Protocol lock address */
-	unlockAddress?: `0x${string}`;
-	/** Hypercert contract address */
-	hypercertAddress?: `0x${string}`;
-	/** Minimum Hypercert balance required */
-	hypercertMinBalance?: number;
-	/** Maximum Hypercert balance allowed */
-	hypercertMaxBalance?: number;
-	/** Hats Protocol hat ID */
-	hatsId?: number;
-	/** Hats Protocol contract address */
-	hatsAddress?: `0x${string}`;
-}
-
-/**
- * Access control types supported by Cookie Jars
- */
-export enum AccessType {
-	/** Manual allowlist management */
-	Allowlist = 0,
-	/** NFT ownership required */
-	NFTGated = 1,
-	/** POAP token required */
-	POAP = 2,
-	/** Unlock Protocol membership required */
-	Unlock = 3,
-	/** Hypercert ownership required */
-	Hypercert = 4,
-	/** Hats Protocol role required */
-	Hats = 5,
-}
-
-/**
- * Withdrawal amount options for Cookie Jars
- */
-export enum WithdrawalTypeOptions {
-	/** Fixed withdrawal amount */
-	Fixed = 0,
-	/** Variable withdrawal amount up to maximum */
-	Variable = 1,
-}
-
-/**
- * NFT token standards supported
- */
-export enum NFTType {
-	/** No NFT requirement */
-	None = 0,
-	/** ERC-721 (unique tokens) */
-	ERC721 = 1,
-	/** ERC-1155 (multi-token) */
-	ERC1155 = 2,
-}
-
-/**
- * Custom hook for Cookie Jar creation workflow
+ * Custom hook for Cookie Jar creation workflow.
  *
- * Provides comprehensive jar creation functionality including form state
- * management, validation, contract interaction, and transaction handling.
- * Supports both v1 and v2 contract deployments with automatic protocol
- * detection and parameter adaptation.
- *
- * Features:
- * - Multi-step form management
- * - Real-time validation
- * - ERC-20 and ETH support
- * - Advanced access control (v2)
- * - Transaction status tracking
- * - Automatic redirect on success
- *
- * @returns Object with form state, handlers, validation, and transaction status
- *
- * @example
- * ```tsx
- * const {
- *   jarName,
- *   setJarName,
- *   confirmSubmit,
- *   isCreating,
- *   validateStep1,
- *   formErrors
- * } = useJarCreation();
- *
- * return (
- *   <form onSubmit={(e) => { e.preventDefault(); confirmSubmit(); }}>
- *     <input
- *       value={jarName}
- *       onChange={(e) => setJarName(e.target.value)}
- *     />
- *     {formErrors.map(error => <p key={error}>{error}</p>)}
- *     <button type="submit" disabled={isCreating}>
- *       {isCreating ? 'Creating...' : 'Create Jar'}
- *     </button>
- *   </form>
- * );
- * ```
+ * Manages form state via React Hook Form + Zod, contract interactions,
+ * transaction lifecycle, and step validation for the multi-step wizard.
  */
 export const useJarCreation = () => {
 	const router = useRouter();
@@ -137,59 +46,46 @@ export const useJarCreation = () => {
 	const { toast } = useToast();
 	const queryClient = useQueryClient();
 
-	// Form state
-	const [selectedNetwork, setSelectedNetwork] = useState<string>("baseSepolia");
-	const [jarOwnerAddress, setJarOwnerAddress] = useState<`0x${string}`>(
-		"0x0000000000000000000000000000000000000000",
-	);
-	const [supportedCurrency, setSupportedCurrency] =
-		useState<`0x${string}`>(ETH_ADDRESS);
-	const [accessType, setAccessType] = useState<AccessType>(
-		AccessType.Allowlist,
-	);
-	const [withdrawalOption, setWithdrawalOption] =
-		useState<WithdrawalTypeOptions>(WithdrawalTypeOptions.Fixed);
-	const [fixedAmount, setFixedAmount] = useState("0");
-	const [maxWithdrawal, setMaxWithdrawal] = useState("0");
-	const [withdrawalInterval, setWithdrawalInterval] = useState("0");
-	const [strictPurpose, setStrictPurpose] = useState(true);
-	const [emergencyWithdrawalEnabled, setEmergencyWithdrawalEnabled] =
-		useState(true);
-	const [oneTimeWithdrawal, setOneTimeWithdrawal] = useState(false);
-	const [metadata, setMetadata] = useState("");
-
-	// New metadata fields
-	const [jarName, setJarName] = useState("");
-	const [imageUrl, setImageUrl] = useState("");
-	const [externalLink, setExternalLink] = useState("");
-	const [customFee, setCustomFee] = useState("");
-	const [enableCustomFee, setEnableCustomFee] = useState(false);
-
-	// Streaming configuration state
-	const [streamingEnabled, setStreamingEnabled] = useState(false);
-	const [requireStreamApproval, setRequireStreamApproval] = useState(true);
-	const [maxStreamRate, setMaxStreamRate] = useState("1.0");
-	const [minStreamDuration, setMinStreamDuration] = useState("1");
-	const [autoSwapEnabled, setAutoSwapEnabled] = useState(false);
-
-	// Currency selection state
-	const [showCustomCurrency, setShowCustomCurrency] = useState(false);
-	const [customCurrencyAddress, setCustomCurrencyAddress] = useState("");
-
-	// NFT management state
-	const [nftAddresses, setNftAddresses] = useState<string[]>([]);
-	const [nftTypes, setNftTypes] = useState<number[]>([]);
-
-	// Protocol configuration state
-	const [protocolConfig, setProtocolConfig] = useState<ProtocolConfig>({
-		accessType: "Allowlist",
+	// ── Form state (replaces 30+ individual useState calls) ──
+	// Cast needed: @hookform/resolvers@3.3 types expect Zod 3.22 internals,
+	// but bun resolved to Zod 3.25 which has incompatible _parse signature.
+	// Runtime behavior is identical — this is purely a type-level conflict.
+	const form = useForm<JarCreationFormData>({
+		resolver: zodResolver(jarCreationSchema as any),
+		defaultValues: {
+			jarName: "",
+			jarOwnerAddress: "0x0000000000000000000000000000000000000000",
+			supportedCurrency: ETH_ADDRESS,
+			metadata: "",
+			imageUrl: "",
+			externalLink: "",
+			showCustomCurrency: false,
+			customCurrencyAddress: "",
+			withdrawalOption: WithdrawalTypeOptions.Fixed,
+			fixedAmount: "0",
+			maxWithdrawal: "0",
+			withdrawalInterval: "0",
+			strictPurpose: true,
+			emergencyWithdrawalEnabled: true,
+			oneTimeWithdrawal: false,
+			accessType: AccessType.Allowlist,
+			nftAddresses: [],
+			nftTypes: [],
+			protocolConfig: { accessType: "Allowlist" },
+			enableCustomFee: false,
+			customFee: "",
+			streamingEnabled: false,
+			requireStreamApproval: true,
+			maxStreamRate: "1.0",
+			minStreamDuration: "1",
+			autoSwapEnabled: false,
+		},
+		mode: "onTouched",
 	});
 
-	// Form validation state
+	// ── Non-form state ──
 	const [isFormError, setIsFormError] = useState(false);
 	const [formErrors, setFormErrors] = useState<string[]>([]);
-
-	// Transaction state
 	const [_isCreating, setIsCreating] = useState(false);
 	const [newJarPreview, setNewJarPreview] = useState<{
 		address: string;
@@ -197,7 +93,7 @@ export const useJarCreation = () => {
 		currency: string;
 	} | null>(null);
 
-	// Contract interaction
+	// ── Contract interaction ──
 	const {
 		writeContract,
 		data: hash,
@@ -208,17 +104,14 @@ export const useJarCreation = () => {
 		isLoading: isWaitingForTx,
 		isSuccess: txConfirmed,
 		data: receipt,
-	} = useWaitForTransactionReceipt({
-		hash,
-	});
+	} = useWaitForTransactionReceipt({ hash });
 
-	// Get factory address
 	const factoryAddress = contractAddresses.cookieJarFactory[chainId] as
 		| `0x${string}`
 		| undefined;
 	const isV2Contract = isV2Chain(chainId);
 
-	// Helper functions
+	// ── Helpers ──
 	const parseAmount = (amount: string) => {
 		try {
 			return parseEther(amount || "0");
@@ -227,17 +120,22 @@ export const useJarCreation = () => {
 		}
 	};
 
-	const handleCheckboxChange =
-		(setter: (value: boolean) => void) =>
-		(checked: boolean | "indeterminate") => {
-			setter(checked === true);
-		};
+	// ── Step validation ──
+	// These read from form.getValues() instead of individual state variables.
+	// Cross-field conditional logic stays here because Zod can't handle
+	// cross-step superRefine with RHF's trigger().
 
-	// Validation functions
 	const validateStep1 = useCallback((): {
 		isValid: boolean;
 		errors: string[];
 	} => {
+		const {
+			jarName,
+			jarOwnerAddress,
+			supportedCurrency,
+			showCustomCurrency,
+			customCurrencyAddress,
+		} = form.getValues();
 		const errors: string[] = [];
 
 		if (!jarName.trim()) {
@@ -258,22 +156,15 @@ export const useJarCreation = () => {
 			}
 		}
 
-		return {
-			isValid: errors.length === 0,
-			errors,
-		};
-	}, [
-		jarName,
-		jarOwnerAddress,
-		supportedCurrency,
-		showCustomCurrency,
-		customCurrencyAddress,
-	]);
+		return { isValid: errors.length === 0, errors };
+	}, [form]);
 
 	const validateStep2 = useCallback((): {
 		isValid: boolean;
 		errors: string[];
 	} => {
+		const { withdrawalOption, fixedAmount, maxWithdrawal, withdrawalInterval } =
+			form.getValues();
 		const errors: string[] = [];
 
 		if (withdrawalOption === WithdrawalTypeOptions.Fixed) {
@@ -290,16 +181,14 @@ export const useJarCreation = () => {
 			errors.push("Withdrawal interval must be greater than 0 days");
 		}
 
-		return {
-			isValid: errors.length === 0,
-			errors,
-		};
-	}, [withdrawalOption, fixedAmount, maxWithdrawal, withdrawalInterval]);
+		return { isValid: errors.length === 0, errors };
+	}, [form]);
 
 	const validateStep3 = useCallback((): {
 		isValid: boolean;
 		errors: string[];
 	} => {
+		const { accessType, nftAddresses } = form.getValues();
 		const errors: string[] = [];
 
 		if (accessType === AccessType.NFTGated) {
@@ -309,25 +198,22 @@ export const useJarCreation = () => {
 				);
 			}
 
-			nftAddresses.forEach((addr, index) => {
+			for (const addr of nftAddresses) {
 				if (!isAddress(addr)) {
-					errors.push(
-						`NFT address ${index + 1} is not a valid Ethereum address`,
-					);
+					errors.push(`NFT address is not a valid Ethereum address`);
+					break;
 				}
-			});
+			}
 		}
 
-		return {
-			isValid: errors.length === 0,
-			errors,
-		};
-	}, [accessType, nftAddresses]);
+		return { isValid: errors.length === 0, errors };
+	}, [form]);
 
 	const validateStep4 = useCallback((): {
 		isValid: boolean;
 		errors: string[];
 	} => {
+		const { enableCustomFee, customFee } = form.getValues();
 		const errors: string[] = [];
 
 		if (enableCustomFee) {
@@ -340,11 +226,8 @@ export const useJarCreation = () => {
 			}
 		}
 
-		return {
-			isValid: errors.length === 0,
-			errors,
-		};
-	}, [enableCustomFee, customFee]);
+		return { isValid: errors.length === 0, errors };
+	}, [form]);
 
 	const validateAll = useCallback((): {
 		isValid: boolean;
@@ -362,51 +245,12 @@ export const useJarCreation = () => {
 			...step4.errors,
 		];
 
-		return {
-			isValid: allErrors.length === 0,
-			errors: allErrors,
-		};
+		return { isValid: allErrors.length === 0, errors: allErrors };
 	}, [validateStep1, validateStep2, validateStep3, validateStep4]);
 
-	// Protocol configuration handler
-	const handleProtocolConfigChange = (config: ProtocolConfig) => {
-		setProtocolConfig(config);
-		switch (config.accessType) {
-			case "Allowlist":
-				setAccessType(AccessType.Allowlist);
-				break;
-			case "NFT":
-				setAccessType(AccessType.NFTGated);
-				if (config.nftAddresses) {
-					setNftAddresses(config.nftAddresses);
-				}
-				if (config.nftTypes) {
-					setNftTypes(config.nftTypes.map((t) => t as NFTType));
-				}
-				break;
-			case "POAP":
-				setAccessType(AccessType.POAP);
-				break;
-			case "Unlock":
-				setAccessType(AccessType.Unlock);
-				break;
-			case "Hypercert":
-				setAccessType(AccessType.Hypercert);
-				break;
-			case "Hats":
-				setAccessType(AccessType.Hats);
-				break;
-		}
-	};
-
-	// Handle NFT addition
-	const handleAddNFT = (address: string, type: number) => {
-		setNftAddresses((prev) => [...prev, address]);
-		setNftTypes((prev) => [...prev, type as NFTType]);
-	};
-
-	// Main form submission
+	// ── Form submission ──
 	const confirmSubmit = useCallback(() => {
+		const values = form.getValues();
 		const { isValid, errors } = validateAll();
 
 		if (!isValid) {
@@ -418,22 +262,20 @@ export const useJarCreation = () => {
 		setFormErrors([]);
 		setIsFormError(false);
 
-		// Only use NFT addresses if access type is TokenGated
 		const effectiveNftAddresses =
-			accessType === AccessType.NFTGated ? nftAddresses || [] : [];
+			values.accessType === AccessType.NFTGated ? values.nftAddresses : [];
 		const effectiveNftTypes =
-			accessType === AccessType.NFTGated ? nftTypes || [] : [];
+			values.accessType === AccessType.NFTGated ? values.nftTypes : [];
 
-		// Create metadata based on contract version
 		const finalMetadata = isV2Contract
 			? JSON.stringify({
 					version: "2.0",
-					name: jarName,
-					description: metadata,
-					image: imageUrl,
-					external_url: externalLink,
+					name: values.jarName,
+					description: values.metadata,
+					image: values.imageUrl,
+					external_url: values.externalLink,
 				})
-			: jarName || metadata || "Cookie Jar";
+			: values.jarName || values.metadata || "Cookie Jar";
 
 		try {
 			if (!factoryAddress) {
@@ -443,33 +285,32 @@ export const useJarCreation = () => {
 			}
 
 			if (isV2Contract) {
-				// V2 Contract - Use struct-based approach
 				const feeBps =
-					enableCustomFee && customFee !== ""
-						? Math.round(parseFloat(customFee) * 100)
+					values.enableCustomFee && values.customFee !== ""
+						? Math.round(parseFloat(values.customFee) * 100)
 						: 0;
 
-				// Create parameter structs for V2
 				const params = {
-					cookieJarOwner: jarOwnerAddress,
-					supportedCurrency: supportedCurrency,
-					accessType: accessType,
-					withdrawalOption: withdrawalOption,
-					fixedAmount: parseAmount(fixedAmount),
-					maxWithdrawal: parseAmount(maxWithdrawal),
-					withdrawalInterval: BigInt(withdrawalInterval || "0"),
-					strictPurpose: strictPurpose,
-					emergencyWithdrawalEnabled: emergencyWithdrawalEnabled,
-					oneTimeWithdrawal: oneTimeWithdrawal,
+					cookieJarOwner: values.jarOwnerAddress as `0x${string}`,
+					supportedCurrency: values.supportedCurrency as `0x${string}`,
+					accessType: values.accessType,
+					withdrawalOption: values.withdrawalOption,
+					fixedAmount: parseAmount(values.fixedAmount),
+					maxWithdrawal: parseAmount(values.maxWithdrawal),
+					withdrawalInterval: BigInt(values.withdrawalInterval || "0"),
+					strictPurpose: values.strictPurpose,
+					emergencyWithdrawalEnabled: values.emergencyWithdrawalEnabled,
+					oneTimeWithdrawal: values.oneTimeWithdrawal,
 					metadata: finalMetadata,
 					customFeePercentage: BigInt(feeBps),
-					maxWithdrawalPerPeriod: BigInt(0), // Default to unlimited
+					maxWithdrawalPerPeriod: BigInt(0),
 				};
 
 				const accessConfig = {
-					nftAddresses: effectiveNftAddresses as readonly `0x${string}`[],
+					nftAddresses:
+						effectiveNftAddresses as readonly `0x${string}`[],
 					nftTypes: effectiveNftTypes as readonly number[],
-					allowlist: [] as readonly `0x${string}`[], // Will be populated by admin later
+					allowlist: [] as readonly `0x${string}`[],
 					poapReq: {
 						eventId: BigInt(0),
 						poapContract:
@@ -499,25 +340,24 @@ export const useJarCreation = () => {
 					args: [params, accessConfig],
 				});
 			} else {
-				// V1 Contract - Use legacy approach
 				writeContract({
 					address: factoryAddress,
 					abi: cookieJarFactoryV1Abi,
 					functionName: "createCookieJar",
 					args: [
-						jarOwnerAddress,
-						supportedCurrency,
-						accessType,
+						values.jarOwnerAddress as `0x${string}`,
+						values.supportedCurrency as `0x${string}`,
+						values.accessType,
 						effectiveNftAddresses as readonly `0x${string}`[],
 						effectiveNftTypes,
-						withdrawalOption,
-						parseAmount(fixedAmount),
-						parseAmount(maxWithdrawal),
-						BigInt(withdrawalInterval || "0"),
-						strictPurpose,
-						emergencyWithdrawalEnabled,
-						oneTimeWithdrawal,
-						[] as readonly `0x${string}`[], // Empty allowlist for now
+						values.withdrawalOption,
+						parseAmount(values.fixedAmount),
+						parseAmount(values.maxWithdrawal),
+						BigInt(values.withdrawalInterval || "0"),
+						values.strictPurpose,
+						values.emergencyWithdrawalEnabled,
+						values.oneTimeWithdrawal,
+						[] as readonly `0x${string}`[],
 						finalMetadata,
 					],
 				});
@@ -529,212 +369,23 @@ export const useJarCreation = () => {
 			toast({
 				title: "Transaction Failed",
 				description:
-					error instanceof Error ? error.message : "An unknown error occurred",
+					error instanceof Error
+						? error.message
+						: "An unknown error occurred",
 				variant: "destructive",
 			});
 		}
 	}, [
+		form,
 		validateAll,
-		accessType,
-		nftAddresses,
-		nftTypes,
 		isV2Contract,
-		jarName,
-		metadata,
-		imageUrl,
-		externalLink,
 		factoryAddress,
 		chainId,
-		enableCustomFee,
-		customFee,
 		writeContract,
-		jarOwnerAddress,
-		supportedCurrency,
-		withdrawalOption,
-		fixedAmount,
-		maxWithdrawal,
-		withdrawalInterval,
-		strictPurpose,
-		emergencyWithdrawalEnabled,
-		oneTimeWithdrawal,
 		toast,
-		parseAmount,
 	]);
 
-	// Reset form function
-	const resetForm = useCallback(() => {
-		setJarName("");
-		setJarOwnerAddress("0x0000000000000000000000000000000000000000");
-		setSupportedCurrency(ETH_ADDRESS);
-		setAccessType(AccessType.Allowlist);
-		setWithdrawalOption(WithdrawalTypeOptions.Fixed);
-		setFixedAmount("0");
-		setMaxWithdrawal("0");
-		setWithdrawalInterval("0");
-		setStrictPurpose(true);
-		setEmergencyWithdrawalEnabled(true);
-		setOneTimeWithdrawal(false);
-		setMetadata("");
-		setImageUrl("");
-		setExternalLink("");
-		setCustomFee("");
-		setEnableCustomFee(false);
-		setStreamingEnabled(false);
-		setRequireStreamApproval(true);
-		setMaxStreamRate("1.0");
-		setMinStreamDuration("1");
-		setAutoSwapEnabled(false);
-		setShowCustomCurrency(false);
-		setCustomCurrencyAddress("");
-		setNftAddresses([]);
-		setNftTypes([]);
-		setProtocolConfig({ accessType: "Allowlist" });
-	}, []);
-
-	// Currency options for the supported network
-	const getCurrencyOptions = () => {
-		const options: Array<{ value: string; label: string; description: string }> = [
-			{
-				value: ETH_ADDRESS,
-				label: "ETH (Native)",
-				description: "Use native Ethereum",
-			},
-		];
-
-		// Add chain-specific ERC20 tokens
-		if (chainId === 31337) {
-			// Local development
-			options.push({
-				value: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
-				label: "DEMO Token",
-				description: "Local development token",
-			});
-		} else if (chainId === 84532) {
-			// Base Sepolia
-			options.push({
-				value: "0x4200000000000000000000000000000000000006",
-				label: "WETH",
-				description: "Wrapped ETH on Base Sepolia",
-			});
-		}
-
-		// Add custom option
-		options.push({
-			value: "CUSTOM",
-			label: "Custom ERC-20",
-			description: "Enter your own ERC-20 token address",
-		});
-
-		return options;
-	};
-
-	// Handle currency selection change
-	const handleCurrencyChange = (value: string) => {
-		if (value === "CUSTOM") {
-			setShowCustomCurrency(true);
-		} else {
-			setShowCustomCurrency(false);
-			setSupportedCurrency(value as `0x${string}`);
-			setCustomCurrencyAddress("");
-		}
-	};
-
-	// Basic ERC-20 validation
-	const validateERC20Address = async (address: string): Promise<boolean> => {
-		if (!isAddress(address)) return false;
-		if (address.toLowerCase() === ETH_ADDRESS.toLowerCase()) return true;
-
-		try {
-			return isAddress(address);
-		} catch (error) {
-			console.error("ERC-20 validation error:", error);
-			return false;
-		}
-	};
-
-	// Handle custom currency address
-	const handleCustomCurrencySubmit = async () => {
-		if (customCurrencyAddress && isAddress(customCurrencyAddress)) {
-			const isValidERC20 = await validateERC20Address(customCurrencyAddress);
-
-			if (isValidERC20) {
-				setSupportedCurrency(customCurrencyAddress as `0x${string}`);
-				toast({
-					title: "Custom currency set",
-					description: "ERC-20 token address has been set successfully",
-				});
-			} else {
-				toast({
-					title: "Invalid ERC-20 address",
-					description:
-						"The address doesn't appear to be a valid ERC-20 contract. Please verify the address.",
-					variant: "destructive",
-				});
-			}
-		} else {
-			toast({
-				title: "Invalid address",
-				description: "Please enter a valid Ethereum address",
-				variant: "destructive",
-			});
-		}
-	};
-
-	// Development helper
-	const prepopulateRandomData = () => {
-		if (process.env.NODE_ENV !== "development") return;
-
-		const randomNames = [
-			"Cookie Fund",
-			"Dev Grants",
-			"Community Pool",
-			"Test Jar",
-			"Demo Fund",
-			"Alpha Pool",
-		];
-		const randomDescriptions = [
-			"A fund for supporting cookie development",
-			"Grants for innovative projects",
-			"Community-driven funding pool",
-			"Testing new jar functionality",
-			"Demonstration of jar capabilities",
-			"Early access funding",
-		];
-		const randomImages = [
-			"https://picsum.photos/400/300?random=1",
-			"https://picsum.photos/400/300?random=2",
-			"https://picsum.photos/400/300?random=3",
-		];
-		const randomLinks = [
-			"https://example.com/project1",
-			"https://github.com/test/repo",
-			"https://docs.example.com",
-		];
-
-		setJarName(randomNames[Math.floor(Math.random() * randomNames.length)]);
-		setMetadata(
-			randomDescriptions[Math.floor(Math.random() * randomDescriptions.length)],
-		);
-		setImageUrl(randomImages[Math.floor(Math.random() * randomImages.length)]);
-		setExternalLink(
-			randomLinks[Math.floor(Math.random() * randomLinks.length)],
-		);
-
-		if (Math.random() > 0.5) {
-			setEnableCustomFee(true);
-			setCustomFee((Math.random() * 1.9 + 0.1).toFixed(2));
-		}
-
-		if (Math.random() > 0.7) {
-			setSupportedCurrency("0x036CbD53842c5426634e7929541eC2318f3dCF7e");
-		}
-
-		setFixedAmount((Math.random() * 0.5).toFixed(3));
-		setMaxWithdrawal((Math.random() * 2).toFixed(3));
-		setWithdrawalInterval(String(Math.floor(Math.random() * 30 + 1)));
-	};
-
-	// Trigger confetti animation
+	// ── Confetti ──
 	const triggerConfetti = async () => {
 		try {
 			const confettiModule = await import("canvas-confetti");
@@ -749,18 +400,19 @@ export const useJarCreation = () => {
 		}
 	};
 
-	// Effects
+	// ── Effects ──
+
+	// Handle successful transaction
 	useEffect(() => {
 		if (txConfirmed && receipt) {
-			console.log("🎉 Transaction confirmed:", receipt);
+			const values = form.getValues();
 
-			// Invalidate cache to show new jar immediately
 			queryClient.invalidateQueries({
 				queryKey: ["cookie-jar-factory", chainId, factoryAddress],
 			});
 
 			toast({
-				title: "Cookie Jar Created! 🎉",
+				title: "Cookie Jar Created!",
 				description:
 					"Your new jar has been deployed successfully. Visit /jars to see it in the list!",
 			});
@@ -774,7 +426,9 @@ export const useJarCreation = () => {
 					for (const log of receipt.logs) {
 						try {
 							const decodedLog = decodeEventLog({
-								abi: isV2Contract ? cookieJarFactoryAbi : cookieJarFactoryV1Abi,
+								abi: isV2Contract
+									? cookieJarFactoryAbi
+									: cookieJarFactoryV1Abi,
 								data: log.data,
 								topics: log.topics,
 								eventName: "CookieJarCreated",
@@ -782,27 +436,19 @@ export const useJarCreation = () => {
 
 							if (decodedLog.eventName === "CookieJarCreated") {
 								jarAddress = (decodedLog.args as any)?.cookieJarAddress;
-								console.log(
-									"✅ Decoded CookieJarCreated event - jar address:",
-									jarAddress,
-								);
 								break;
 							}
 						} catch {
-							console.log(
-								"📝 Log is not CookieJarCreated event, checking next log",
-							);
+							// Log is not CookieJarCreated event, checking next
 						}
 					}
 				}
 
 				if (jarAddress && isAddress(jarAddress)) {
-					console.log("🎯 Successfully extracted jar address:", jarAddress);
-
 					setNewJarPreview({
 						address: jarAddress,
-						name: jarName || "New Cookie Jar",
-						currency: supportedCurrency,
+						name: values.jarName || "New Cookie Jar",
+						currency: values.supportedCurrency,
 					});
 
 					setTimeout(() => {
@@ -810,41 +456,36 @@ export const useJarCreation = () => {
 					}, 1000);
 
 					setIsCreating(false);
-					resetForm();
+					form.reset();
 					return;
 				}
 
-				console.warn(
-					"⚠️ Could not extract jar address from event, redirecting to jars page",
-				);
 				setTimeout(() => {
 					router.push("/jars");
 				}, 500);
 			} catch (error) {
-				console.error("❌ Error extracting jar address:", error);
+				console.error("Error extracting jar address:", error);
 				setTimeout(() => {
 					router.push("/jars");
 				}, 500);
 			}
 
 			setIsCreating(false);
-			resetForm();
+			form.reset();
 		}
 	}, [
 		txConfirmed,
 		receipt,
 		router,
-		jarName,
-		supportedCurrency,
 		isV2Contract,
 		toast,
-		resetForm,
+		form,
 		queryClient,
 		chainId,
 		factoryAddress,
-		triggerConfetti,
 	]);
 
+	// Handle transaction error
 	useEffect(() => {
 		if (createError) {
 			console.error("Transaction error:", createError);
@@ -860,82 +501,25 @@ export const useJarCreation = () => {
 		}
 	}, [createError, toast]);
 
+	// Sync wallet address to form
 	useEffect(() => {
 		if (isConnected && address) {
-			setJarOwnerAddress(address);
+			form.setValue("jarOwnerAddress", address);
 		}
-	}, [isConnected, address]);
+	}, [isConnected, address, form]);
 
+	// Reset v2-only fields when switching to v1 chain
 	useEffect(() => {
 		if (!isV2Contract) {
-			setAccessType(AccessType.Allowlist);
-			setEnableCustomFee(false);
-			setCustomFee("");
+			form.setValue("accessType", AccessType.Allowlist);
+			form.setValue("enableCustomFee", false);
+			form.setValue("customFee", "");
 		}
-	}, [isV2Contract]);
+	}, [isV2Contract, form]);
 
 	return {
-		// Form state
-		selectedNetwork,
-		setSelectedNetwork,
-		jarOwnerAddress,
-		setJarOwnerAddress,
-		supportedCurrency,
-		setSupportedCurrency,
-		accessType,
-		setAccessType,
-		withdrawalOption,
-		setWithdrawalOption,
-		fixedAmount,
-		setFixedAmount,
-		maxWithdrawal,
-		setMaxWithdrawal,
-		withdrawalInterval,
-		setWithdrawalInterval,
-		strictPurpose,
-		setStrictPurpose,
-		emergencyWithdrawalEnabled,
-		setEmergencyWithdrawalEnabled,
-		oneTimeWithdrawal,
-		setOneTimeWithdrawal,
-		metadata,
-		setMetadata,
-		jarName,
-		setJarName,
-		imageUrl,
-		setImageUrl,
-		externalLink,
-		setExternalLink,
-		customFee,
-		setCustomFee,
-		enableCustomFee,
-		setEnableCustomFee,
-		streamingEnabled,
-		setStreamingEnabled,
-		requireStreamApproval,
-		setRequireStreamApproval,
-		maxStreamRate,
-		setMaxStreamRate,
-		minStreamDuration,
-		setMinStreamDuration,
-		autoSwapEnabled,
-		setAutoSwapEnabled,
-		showCustomCurrency,
-		setShowCustomCurrency,
-		customCurrencyAddress,
-		setCustomCurrencyAddress,
-		nftAddresses,
-		setNftAddresses,
-		nftTypes,
-		setNftTypes,
-		protocolConfig,
-		setProtocolConfig,
-		isFormError,
-		setIsFormError,
-		formErrors,
-		setFormErrors,
-		newJarPreview,
-		setNewJarPreview,
+		// RHF form instance — wrap in <FormProvider {...form}>
+		form,
 
 		// Transaction state
 		isCreating: isPending,
@@ -944,26 +528,23 @@ export const useJarCreation = () => {
 		receipt,
 		createError,
 
+		// Error state
+		isFormError,
+		formErrors,
+
+		// Preview
+		newJarPreview,
+
 		// Actions
 		confirmSubmit,
-		resetForm,
-		handleCheckboxChange,
-		handleProtocolConfigChange,
-		handleAddNFT,
-		handleCurrencyChange,
-		handleCustomCurrencySubmit,
-		prepopulateRandomData,
+		resetForm: () => form.reset(),
 
-		// Validation
+		// Per-step validation
 		validateStep1,
 		validateStep2,
 		validateStep3,
 		validateStep4,
 		validateAll,
-
-		// Utilities
-		getCurrencyOptions,
-		parseAmount,
 
 		// Constants
 		ETH_ADDRESS,

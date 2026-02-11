@@ -119,6 +119,7 @@ export const HatsConfig: React.FC<HatsConfigProps> = ({
 			icon="🎩"
 			color="bg-yellow-500"
 			validationError={validationError}
+			errorId="hats-error"
 			isLoading={isValidating}
 			className={className}
 			learnMoreUrl={ACCESS_CONTROL_DOC_LINKS.hats}
@@ -133,6 +134,8 @@ export const HatsConfig: React.FC<HatsConfigProps> = ({
 						value={hatId}
 						onChange={handleHatIdChange}
 						className="mt-1"
+						aria-invalid={!!validationError}
+						aria-describedby={validationError ? "hats-error" : undefined}
 					/>
 					<p className="text-xs text-gray-500 mt-1">
 						Hat IDs are hierarchical addresses in the Hats tree structure

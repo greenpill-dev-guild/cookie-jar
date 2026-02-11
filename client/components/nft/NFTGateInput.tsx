@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
 	AlertCircle,
 	CheckCircle2,
+	Clock,
 	ExternalLink,
 	ImageIcon,
 	Info,
@@ -14,7 +15,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import type React from "react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useReducer, useRef, useState } from "react";
 import { isAddress } from "viem";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -35,14 +36,15 @@ import { useEnhancedNFTValidation } from "@/hooks/nft/useEnhancedNFTValidation";
 import { AlchemyNFTProvider } from "@/lib/nft/AlchemyProvider";
 import { getAlchemyApiKey } from "@/lib/nft/config";
 
-// Input validation constants
+// ── Constants ──
+
 const VALIDATION_CONSTANTS = {
 	MAX_ADDRESS_LENGTH: 42,
 	MIN_ADDRESS_LENGTH: 42,
 	MAX_COLLECTION_NAME_LENGTH: 100,
 	MAX_DESCRIPTION_LENGTH: 500,
 	MAX_IMAGE_URL_LENGTH: 500,
-	MAX_QUANTITY: 1000000, // 1M max quantity
+	MAX_QUANTITY: 1000000,
 	MIN_QUANTITY: 1,
 	MAX_GATES_PER_JAR: 20,
 	DEBOUNCE_DELAY: 500,
@@ -57,7 +59,8 @@ const VALIDATION_CONSTANTS = {
 	],
 } as const;
 
-// Input sanitization utilities
+// ── Sanitization ──
+
 const sanitizeInput = {
 	address: (input: string): string => {
 		return input
@@ -71,20 +74,17 @@ const sanitizeInput = {
 		return input
 			.trim()
 			.slice(0, maxLength)
-			.replace(/[<>'"]/g, ""); // Remove potentially dangerous characters
+			.replace(/[<>'"]/g, "");
 	},
 
 	url: (input: string | undefined): string => {
 		if (!input) return "";
-
-		// Check for malicious patterns
 		for (const pattern of VALIDATION_CONSTANTS.MALICIOUS_PATTERNS) {
 			if (pattern.test(input)) {
 				console.warn("Malicious URL pattern detected, sanitizing:", input);
 				return "";
 			}
 		}
-
 		return input.slice(0, VALIDATION_CONSTANTS.MAX_IMAGE_URL_LENGTH);
 	},
 
@@ -97,18 +97,24 @@ const sanitizeInput = {
 	},
 };
 
-// Rate limiting hook
+// ── Rate Limiting Hook (enhanced with countdown) ──
+
+/**
+ * Rate limiter that tracks API call frequency within a sliding window.
+ * Returns both a gate function and a countdown (in seconds) until
+ * the next call slot opens — useful for showing "retry in Xs" in the UI.
+ */
 const useRateLimit = (maxCalls: number, windowMs: number) => {
 	const callsRef = useRef<number[]>([]);
+	const [resetIn, setResetIn] = useState(0);
+	const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
 	const isAllowed = useCallback(() => {
 		const now = Date.now();
 		const cutoff = now - windowMs;
 
-		// Remove old calls outside the window
 		callsRef.current = callsRef.current.filter((time) => time > cutoff);
 
-		// Check if we're under the limit
 		if (callsRef.current.length < maxCalls) {
 			callsRef.current.push(now);
 			return true;
@@ -117,8 +123,32 @@ const useRateLimit = (maxCalls: number, windowMs: number) => {
 		return false;
 	}, [maxCalls, windowMs]);
 
-	return { isAllowed };
+	// Update countdown when rate-limited
+	useEffect(() => {
+		const tick = () => {
+			const now = Date.now();
+			const cutoff = now - windowMs;
+			const activeCalls = callsRef.current.filter((time) => time > cutoff);
+
+			if (activeCalls.length >= maxCalls && activeCalls.length > 0) {
+				const oldestCall = activeCalls[0];
+				const msUntilReset = oldestCall + windowMs - now;
+				setResetIn(Math.max(0, Math.ceil(msUntilReset / 1000)));
+			} else {
+				setResetIn(0);
+			}
+		};
+
+		timerRef.current = setInterval(tick, 1000);
+		return () => {
+			if (timerRef.current) clearInterval(timerRef.current);
+		};
+	}, [maxCalls, windowMs]);
+
+	return { isAllowed, resetIn };
 };
+
+// ── Types ──
 
 enum NFTType {
 	None = 0,
@@ -135,13 +165,10 @@ export interface EnhancedNFTGate {
 	verified?: boolean;
 	floorPrice?: number;
 	totalSupply?: number;
-	// Quantity-based gating (ERC1155)
 	minQuantity?: number;
 	maxQuantity?: number;
 	enableQuantityGating?: boolean;
-	// Analytics
 	enableAnalytics?: boolean;
-	// Trait-based requirements (future)
 	requiredTraits?: Array<{
 		trait_type: string;
 		value: string | number;
@@ -169,6 +196,89 @@ interface CollectionPreview {
 	externalUrl?: string;
 	warnings?: string[];
 }
+
+// ── Form State Reducer ──
+
+interface NFTGateFormState {
+	nftAddress: string;
+	selectedType: NFTType;
+	debouncedAddress: string;
+	showAdvanced: boolean;
+	inputErrors: string[];
+	enableQuantityGating: boolean;
+	minQuantity: number;
+	maxQuantity: number;
+	enableAnalytics: boolean;
+	enableTraitGating: boolean;
+}
+
+type NFTGateFormAction =
+	| { type: "SET_ADDRESS"; payload: string }
+	| { type: "SET_TYPE"; payload: NFTType }
+	| { type: "SET_DEBOUNCED_ADDRESS"; payload: string }
+	| { type: "TOGGLE_ADVANCED" }
+	| { type: "SET_ERRORS"; payload: string[] }
+	| { type: "SET_QUANTITY_GATING"; payload: boolean }
+	| { type: "SET_MIN_QUANTITY"; payload: number }
+	| { type: "SET_MAX_QUANTITY"; payload: number }
+	| { type: "SET_ANALYTICS"; payload: boolean }
+	| { type: "SET_TRAIT_GATING"; payload: boolean }
+	| { type: "RESET" };
+
+const INITIAL_STATE: NFTGateFormState = {
+	nftAddress: "",
+	selectedType: NFTType.ERC721,
+	debouncedAddress: "",
+	showAdvanced: false,
+	inputErrors: [],
+	enableQuantityGating: false,
+	minQuantity: 1,
+	maxQuantity: 10,
+	enableAnalytics: true,
+	enableTraitGating: false,
+};
+
+function nftGateFormReducer(
+	state: NFTGateFormState,
+	action: NFTGateFormAction,
+): NFTGateFormState {
+	switch (action.type) {
+		case "SET_ADDRESS":
+			return { ...state, nftAddress: action.payload };
+		case "SET_TYPE":
+			return {
+				...state,
+				selectedType: action.payload,
+				// Auto-disable quantity gating when switching to ERC721
+				enableQuantityGating:
+					action.payload === NFTType.ERC721
+						? false
+						: state.enableQuantityGating,
+			};
+		case "SET_DEBOUNCED_ADDRESS":
+			return { ...state, debouncedAddress: action.payload };
+		case "TOGGLE_ADVANCED":
+			return { ...state, showAdvanced: !state.showAdvanced };
+		case "SET_ERRORS":
+			return { ...state, inputErrors: action.payload };
+		case "SET_QUANTITY_GATING":
+			return { ...state, enableQuantityGating: action.payload };
+		case "SET_MIN_QUANTITY":
+			return { ...state, minQuantity: action.payload };
+		case "SET_MAX_QUANTITY":
+			return { ...state, maxQuantity: action.payload };
+		case "SET_ANALYTICS":
+			return { ...state, enableAnalytics: action.payload };
+		case "SET_TRAIT_GATING":
+			return { ...state, enableTraitGating: action.payload };
+		case "RESET":
+			return INITIAL_STATE;
+		default:
+			return state;
+	}
+}
+
+// ── Sub-components ──
 
 const NFTCard: React.FC<{
 	preview: CollectionPreview;
@@ -261,35 +371,38 @@ const NFTCard: React.FC<{
 	</Card>
 );
 
+// ── Main Component ──
+
 export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 	onAddNFT,
 	existingGates = [],
 	className = "",
 }) => {
-	const [nftAddress, setNftAddress] = useState("");
-	const [selectedType, setSelectedType] = useState<NFTType>(NFTType.ERC721);
-	const [debouncedAddress, setDebouncedAddress] = useState("");
-	const [showAdvanced, setShowAdvanced] = useState(false);
-	const [inputErrors, setInputErrors] = useState<string[]>([]);
+	const [state, dispatch] = useReducer(nftGateFormReducer, INITIAL_STATE);
 
-	// Advanced configuration state
-	const [enableQuantityGating, setEnableQuantityGating] = useState(false);
-	const [minQuantity, setMinQuantity] = useState(1);
-	const [maxQuantity, setMaxQuantity] = useState(10);
-	const [enableAnalytics, setEnableAnalytics] = useState(true);
-	const [enableTraitGating, setEnableTraitGating] = useState(false);
+	const {
+		nftAddress,
+		selectedType,
+		debouncedAddress,
+		showAdvanced,
+		inputErrors,
+		enableQuantityGating,
+		minQuantity,
+		maxQuantity,
+		enableAnalytics,
+		enableTraitGating,
+	} = state;
 
-	// Rate limiting for API calls
-	const { isAllowed: canMakeApiCall } = useRateLimit(
+	// Rate limiting with countdown
+	const { isAllowed: canMakeApiCall, resetIn } = useRateLimit(
 		VALIDATION_CONSTANTS.MAX_API_CALLS_PER_MINUTE,
-		60 * 1000, // 1 minute window
+		60 * 1000,
 	);
 
-	// Enhanced input validation
+	// Input validation
 	const validateInputs = useCallback(() => {
 		const errors: string[] = [];
 
-		// Address validation
 		if (nftAddress) {
 			const sanitizedAddress = sanitizeInput.address(nftAddress);
 			if (sanitizedAddress.length < VALIDATION_CONSTANTS.MIN_ADDRESS_LENGTH) {
@@ -298,7 +411,6 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 			if (!isAddress(sanitizedAddress)) {
 				errors.push("Invalid Ethereum address format");
 			}
-			// Check for common mistake patterns
 			if (nftAddress.includes(" ")) {
 				errors.push("Address cannot contain spaces");
 			}
@@ -310,7 +422,6 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 			}
 		}
 
-		// Quantity validation
 		if (enableQuantityGating) {
 			if (minQuantity < VALIDATION_CONSTANTS.MIN_QUANTITY) {
 				errors.push(
@@ -327,14 +438,13 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 			}
 		}
 
-		// Check for too many gates
 		if (existingGates.length >= VALIDATION_CONSTANTS.MAX_GATES_PER_JAR) {
 			errors.push(
 				`Cannot add more than ${VALIDATION_CONSTANTS.MAX_GATES_PER_JAR} NFT gates per jar`,
 			);
 		}
 
-		setInputErrors(errors);
+		dispatch({ type: "SET_ERRORS", payload: errors });
 		return errors.length === 0;
 	}, [
 		nftAddress,
@@ -344,36 +454,36 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 		existingGates.length,
 	]);
 
-	// Enhanced debounced address with validation and sanitization
+	// Debounced address with validation
 	useEffect(() => {
 		const timer = setTimeout(() => {
 			if (nftAddress.trim()) {
 				const sanitized = sanitizeInput.address(nftAddress);
 				if (validateInputs()) {
-					setDebouncedAddress(sanitized);
+					dispatch({ type: "SET_DEBOUNCED_ADDRESS", payload: sanitized });
 				} else {
-					setDebouncedAddress("");
+					dispatch({ type: "SET_DEBOUNCED_ADDRESS", payload: "" });
 				}
 			} else {
-				setDebouncedAddress("");
-				setInputErrors([]);
+				dispatch({ type: "SET_DEBOUNCED_ADDRESS", payload: "" });
+				dispatch({ type: "SET_ERRORS", payload: [] });
 			}
 		}, VALIDATION_CONSTANTS.DEBOUNCE_DELAY);
 		return () => clearTimeout(timer);
 	}, [nftAddress, validateInputs]);
 
-	// Enhanced validation with rate limiting
+	// Contract validation
 	const { isValid, detectedType, isLoading, error } = useEnhancedNFTValidation(
 		canMakeApiCall() ? debouncedAddress : "",
 	);
 
-	// Enhanced collection preview fetching with error boundaries
+	// Collection preview
 	const {
 		data: collectionPreview,
 		isLoading: isLoadingPreview,
 		error: previewError,
 	} = useQuery({
-		queryKey: ["nft-collection-preview", debouncedAddress, canMakeApiCall],
+		queryKey: ["nft-collection-preview", debouncedAddress],
 		queryFn: async (): Promise<CollectionPreview | null> => {
 			if (
 				!debouncedAddress ||
@@ -390,8 +500,6 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 				}
 
 				const provider = new AlchemyNFTProvider(apiKey);
-
-				// Enhanced validation with malicious contract detection
 				const validation = await provider.validateContract(debouncedAddress);
 
 				if (!validation.isValid) {
@@ -404,9 +512,8 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 					return null;
 				}
 
-				// Safe metadata fetching with timeout
 				const timeoutPromise = new Promise<never>((_, reject) => {
-					setTimeout(() => reject(new Error("Request timeout")), 10000); // 10s timeout
+					setTimeout(() => reject(new Error("Request timeout")), 10000);
 				});
 
 				const metadata = await Promise.race([
@@ -414,7 +521,6 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 					timeoutPromise,
 				]);
 
-				// Sanitize all returned data
 				return {
 					name: sanitizeInput.string(
 						metadata.collection || metadata.name,
@@ -427,14 +533,14 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 					image: sanitizeInput.url(metadata.image),
 					contractType: metadata.tokenType,
 					verified:
-						!validation.isMalicious && (validation.warnings?.length ?? 0) === 0,
+						!validation.isMalicious &&
+						(validation.warnings?.length ?? 0) === 0,
 					isActive: true,
 					warnings: validation.warnings,
 				};
 			} catch (error) {
 				console.error("Failed to fetch collection preview:", error);
 
-				// Check if it's a rate limit error
 				if (error instanceof Error && error.message.includes("rate limit")) {
 					throw new Error(
 						"Rate limit exceeded. Please wait before trying again.",
@@ -450,25 +556,23 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 			isValid &&
 			canMakeApiCall()
 		),
-		staleTime: 5 * 60 * 1000, // 5 minutes
-		gcTime: 30 * 60 * 1000, // 30 minutes
+		staleTime: 5 * 60 * 1000,
+		gcTime: 30 * 60 * 1000,
 		retry: (failureCount, error) => {
-			// Don't retry rate limit errors
 			if (error instanceof Error && error.message.includes("rate limit")) {
 				return false;
 			}
-			return failureCount < 2; // Only retry twice
+			return failureCount < 2;
 		},
-		retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000), // Exponential backoff
+		retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 5000),
 	});
 
-	// Check if user-selected type matches detected type
+	// Type matching
 	const typeMatches =
 		!detectedType ||
 		(detectedType === "ERC721" && selectedType === NFTType.ERC721) ||
 		(detectedType === "ERC1155" && selectedType === NFTType.ERC1155);
 
-	// Check for duplicates
 	const isDuplicate = existingGates.some(
 		(gate) => gate.address.toLowerCase() === nftAddress.toLowerCase(),
 	);
@@ -476,24 +580,16 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 	const canAdd =
 		nftAddress && isValid && typeMatches && !isLoading && !isDuplicate;
 
-	// Auto-populate type if detected type is different
+	// Auto-correct type when detected type differs
 	useEffect(() => {
 		if (detectedType && !typeMatches) {
 			const newType =
 				detectedType === "ERC721" ? NFTType.ERC721 : NFTType.ERC1155;
-			setSelectedType(newType);
+			dispatch({ type: "SET_TYPE", payload: newType });
 		}
 	}, [detectedType, typeMatches]);
 
-	// Reset quantity gating when type changes to ERC721
-	useEffect(() => {
-		if (selectedType === NFTType.ERC721) {
-			setEnableQuantityGating(false);
-		}
-	}, [selectedType]);
-
 	const handleAddNFT = useCallback(() => {
-		// Final validation check before adding
 		if (!canAdd || !validateInputs() || inputErrors.length > 0) {
 			console.warn("Cannot add NFT gate: validation failed", {
 				inputErrors,
@@ -502,7 +598,6 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 			return;
 		}
 
-		// Sanitize all inputs before creating the gate
 		const sanitizedAddress = sanitizeInput.address(nftAddress);
 		const sanitizedMinQuantity = sanitizeInput.quantity(minQuantity);
 		const sanitizedMaxQuantity = sanitizeInput.quantity(maxQuantity);
@@ -524,7 +619,6 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 			enableAnalytics,
 		};
 
-		// Add quantity-based gating for ERC1155 with enhanced validation
 		if (selectedType === NFTType.ERC1155 && enableQuantityGating) {
 			if (sanitizedMinQuantity < sanitizedMaxQuantity) {
 				gate.enableQuantityGating = true;
@@ -535,13 +629,11 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 			}
 		}
 
-		// Add trait-based requirements (placeholder for future implementation)
 		if (enableTraitGating) {
 			gate.enableTraitGating = true;
-			gate.requiredTraits = []; // Will be populated when trait gating is implemented
+			gate.requiredTraits = [];
 		}
 
-		// Log for security monitoring
 		console.info("Adding NFT gate:", {
 			address: sanitizedAddress,
 			type: selectedType === NFTType.ERC721 ? "ERC721" : "ERC1155",
@@ -551,17 +643,7 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 		});
 
 		onAddNFT(gate);
-
-		// Reset form with cleaned state
-		setNftAddress("");
-		setSelectedType(NFTType.ERC721);
-		setShowAdvanced(false);
-		setEnableQuantityGating(false);
-		setMinQuantity(1);
-		setMaxQuantity(10);
-		setEnableTraitGating(false);
-		setEnableAnalytics(true);
-		setInputErrors([]);
+		dispatch({ type: "RESET" });
 	}, [
 		canAdd,
 		validateInputs,
@@ -590,14 +672,12 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 	};
 
 	const getValidationMessage = () => {
-		// Show input validation errors first
 		if (inputErrors.length > 0) {
 			return inputErrors.join(", ");
 		}
 
-		// Show rate limit warning
-		if (!canMakeApiCall()) {
-			return "Rate limit reached. Please wait before trying again.";
+		if (resetIn > 0) {
+			return `Rate limit reached. Retry in ${resetIn}s.`;
 		}
 
 		if (!debouncedAddress) return null;
@@ -617,9 +697,9 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 		if (isValid && typeMatches) {
 			const warnings = collectionPreview?.warnings;
 			const warningText = warnings?.length
-				? ` (⚠️ ${warnings.length} warning${warnings.length > 1 ? "s" : ""})`
+				? ` (${warnings.length} warning${warnings.length > 1 ? "s" : ""})`
 				: "";
-			return `✓ Valid ${detectedType} contract${collectionPreview?.verified ? " (verified)" : ""}${warningText}`;
+			return `Valid ${detectedType} contract${collectionPreview?.verified ? " (verified)" : ""}${warningText}`;
 		}
 		return null;
 	};
@@ -635,7 +715,7 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 						type="button"
 						variant="ghost"
 						size="sm"
-						onClick={() => setShowAdvanced(!showAdvanced)}
+						onClick={() => dispatch({ type: "TOGGLE_ADVANCED" })}
 						className="text-sm text-gray-600 hover:text-[#ff5e14]"
 					>
 						<Settings className="h-4 w-4 mr-1" />
@@ -643,27 +723,40 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 					</Button>
 				</div>
 
+				{/* Rate limit countdown banner */}
+				{resetIn > 0 && (
+					<div className="flex items-center gap-2 px-3 py-2 rounded bg-amber-50 text-amber-800 border border-amber-200 text-xs">
+						<Clock className="h-3 w-3" />
+						<span>
+							API rate limit active. Next request available in{" "}
+							<strong>{resetIn}s</strong>.
+						</span>
+					</div>
+				)}
+
 				{/* NFT Address Input */}
 				<div className="grid grid-cols-1 md:grid-cols-12 gap-3">
 					<div className="md:col-span-6">
-						<Label className="text-sm text-[#3c2a14]">
+						<Label htmlFor="nft-contract-address" className="text-sm text-[#3c2a14]">
 							NFT Contract Address
 						</Label>
 						<div className="relative">
 							<Input
+								id="nft-contract-address"
 								placeholder="0x... (paste NFT contract address)"
 								className="bg-white border-gray-300 placeholder:text-[#8b7355] text-[#3c2a14] pr-8"
 								value={nftAddress}
 								onChange={(e) => {
 									const input = e.target.value.trim();
-									// Basic sanitization on input - full sanitization happens on debounce
 									const sanitized = input.slice(
 										0,
 										VALIDATION_CONSTANTS.MAX_ADDRESS_LENGTH,
 									);
-									setNftAddress(sanitized);
+									dispatch({ type: "SET_ADDRESS", payload: sanitized });
 								}}
 								maxLength={VALIDATION_CONSTANTS.MAX_ADDRESS_LENGTH}
+								aria-invalid={inputErrors.length > 0}
+								aria-describedby={inputErrors.length > 0 ? "nft-address-errors" : undefined}
 							/>
 							<div className="absolute right-2 top-1/2 transform -translate-y-1/2">
 								{getValidationIcon()}
@@ -676,7 +769,10 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 						<Select
 							value={selectedType.toString()}
 							onValueChange={(value) =>
-								setSelectedType(Number(value) as NFTType)
+								dispatch({
+									type: "SET_TYPE",
+									payload: Number(value) as NFTType,
+								})
 							}
 						>
 							<SelectTrigger className="bg-white border-gray-300">
@@ -704,20 +800,34 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 				</div>
 
 				{/* Validation Message */}
-				{debouncedAddress && (
+				{(debouncedAddress || resetIn > 0) && (
 					<div
+						id="nft-address-errors"
+						role="status"
 						className={`text-xs px-3 py-2 rounded ${
 							isValid && typeMatches && !isDuplicate
 								? "bg-green-50 text-green-700 border border-green-200"
-								: error || !typeMatches || isDuplicate
+								: error || !typeMatches || isDuplicate || resetIn > 0
 									? "bg-red-50 text-red-700 border border-red-200"
 									: "bg-gray-50 text-gray-600 border border-gray-200"
 						}`}
 					>
 						<div className="flex items-center gap-1">
-							{getValidationIcon()}
+							{resetIn > 0 ? (
+								<Clock className="h-4 w-4 text-amber-500" />
+							) : (
+								getValidationIcon()
+							)}
 							{getValidationMessage()}
 						</div>
+					</div>
+				)}
+
+				{/* Debounce loading indicator */}
+				{nftAddress.trim() && !debouncedAddress && inputErrors.length === 0 && (
+					<div className="flex items-center gap-2 text-xs text-gray-500">
+						<Loader2 className="h-3 w-3 animate-spin" />
+						<span>Waiting for input...</span>
 					</div>
 				)}
 
@@ -754,7 +864,10 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 											id="enableQuantity"
 											checked={enableQuantityGating}
 											onCheckedChange={(checked) =>
-												setEnableQuantityGating(checked === true)
+												dispatch({
+													type: "SET_QUANTITY_GATING",
+													payload: checked === true,
+												})
 											}
 										/>
 										<Label
@@ -773,9 +886,13 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 												</Label>
 												<div className="flex items-center gap-4 mt-2">
 													<Slider
+														aria-label="Minimum quantity required"
 														value={[minQuantity]}
 														onValueChange={(value) =>
-															setMinQuantity(sanitizeInput.quantity(value[0]))
+															dispatch({
+																type: "SET_MIN_QUANTITY",
+																payload: sanitizeInput.quantity(value[0]),
+															})
 														}
 														max={Math.min(
 															100,
@@ -797,9 +914,13 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 												</Label>
 												<div className="flex items-center gap-4 mt-2">
 													<Slider
+														aria-label="Maximum quantity allowed"
 														value={[maxQuantity]}
 														onValueChange={(value) =>
-															setMaxQuantity(sanitizeInput.quantity(value[0]))
+															dispatch({
+																type: "SET_MAX_QUANTITY",
+																payload: sanitizeInput.quantity(value[0]),
+															})
 														}
 														max={Math.min(
 															1000,
@@ -825,15 +946,12 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 
 							<Separator />
 
-							{/* Trait-Based Gating (Future Feature) */}
+							{/* Trait-Based Gating (disabled — coming soon) */}
 							<div className="space-y-4">
 								<div className="flex items-center space-x-2">
 									<Checkbox
 										id="enableTraits"
-										checked={enableTraitGating}
-										onCheckedChange={(checked) =>
-											setEnableTraitGating(checked === true)
-										}
+										checked={false}
 										disabled={true}
 									/>
 									<Label
@@ -846,16 +964,6 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 										</Badge>
 									</Label>
 								</div>
-
-								{enableTraitGating && (
-									<div className="ml-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-										<p className="text-sm text-gray-600">
-											🚧 Trait-based gating will allow you to require specific
-											NFT traits (e.g., rare attributes, specific backgrounds,
-											etc.)
-										</p>
-									</div>
-								)}
 							</div>
 
 							<Separator />
@@ -866,7 +974,10 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 									id="enableAnalytics"
 									checked={enableAnalytics}
 									onCheckedChange={(checked) =>
-										setEnableAnalytics(checked === true)
+										dispatch({
+											type: "SET_ANALYTICS",
+											payload: checked === true,
+										})
 									}
 								/>
 								<Label htmlFor="enableAnalytics" className="text-sm">
@@ -906,7 +1017,7 @@ export const EnhancedNFTGatesList: React.FC<{
 			</Label>
 
 			{gates.map((gate, index) => (
-				<Card key={index} className="border border-gray-200">
+				<Card key={`${gate.address}-${index}`} className="border border-gray-200">
 					<CardContent className="p-4">
 						<div className="flex items-start justify-between">
 							<div className="flex items-center gap-3 flex-1">
@@ -974,6 +1085,7 @@ export const EnhancedNFTGatesList: React.FC<{
 								size="sm"
 								onClick={() => onRemove(index)}
 								className="text-red-500 hover:text-red-700 hover:bg-red-50"
+								aria-label={`Remove ${gate.name || "NFT"} gate`}
 							>
 								<Trash2 className="h-4 w-4" />
 							</Button>

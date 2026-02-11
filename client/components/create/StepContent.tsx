@@ -2,8 +2,10 @@
 
 import { Trash2 } from "lucide-react";
 import type React from "react";
+import { useCallback, useMemo } from "react";
+import { useFormContext } from "react-hook-form";
 import { isAddress } from "viem";
-// import { NFTGateInput } from "@/components/nft/NFTGateInput"; // TODO: Component not found
+import { useChainId } from "wagmi";
 import { NFTSelector, type SelectedNFT } from "@/components/nft/NFTSelector";
 import { ProtocolSelector } from "@/components/nft/ProtocolSelector";
 import { Button } from "@/components/ui/button";
@@ -20,39 +22,188 @@ import {
 import { Textarea } from "@/components/ui/textarea";
 import {
 	AccessType,
+	METHOD_TO_ACCESS_TYPE,
 	NFTType,
 	WithdrawalTypeOptions,
-} from "@/hooks/jar/useJarCreation";
+	type JarCreationFormData,
+} from "@/hooks/jar/schemas/jarCreationSchema";
+import type { ProtocolConfig as SelectorProtocolConfig } from "@/components/nft/ProtocolSelector";
+import { useToast } from "@/hooks/app/useToast";
+import { ETH_ADDRESS } from "@/lib/blockchain/token-utils";
 import { shortenAddress } from "@/lib/app/utils";
 
 interface StepContentProps {
 	step: number;
-	formData: any; // Using any to avoid complex type imports for now
 	isV2Contract: boolean;
 }
 
 export const StepContent: React.FC<StepContentProps> = ({
 	step,
-	formData,
 	isV2Contract,
 }) => {
 	switch (step) {
 		case 1:
-			return <BasicConfigStep formData={formData} />;
+			return <BasicConfigStep />;
 		case 2:
-			return <WithdrawalSettingsStep formData={formData} />;
+			return <WithdrawalSettingsStep />;
 		case 3:
-			return isV2Contract ? <AccessControlStep formData={formData} /> : null;
+			return isV2Contract ? <AccessControlStep /> : null;
 		case 4:
-			return (
-				<FinalSettingsStep formData={formData} isV2Contract={isV2Contract} />
-			);
+			return <FinalSettingsStep isV2Contract={isV2Contract} />;
 		default:
 			return null;
 	}
 };
 
-const BasicConfigStep: React.FC<{ formData: any }> = ({ formData }) => {
+// ─────────────────────────────────────────────
+// Step 1: Basic Configuration
+// ─────────────────────────────────────────────
+
+const BasicConfigStep: React.FC = () => {
+	const { register, watch, setValue, formState: { errors } } =
+		useFormContext<JarCreationFormData>();
+	const { toast } = useToast();
+	const chainId = useChainId();
+
+	const showCustomCurrency = watch("showCustomCurrency");
+	const supportedCurrency = watch("supportedCurrency");
+	const customCurrencyAddress = watch("customCurrencyAddress");
+	const jarOwnerAddress = watch("jarOwnerAddress");
+
+	const currencyOptions = useMemo(() => {
+		const options: Array<{
+			value: string;
+			label: string;
+			description: string;
+		}> = [
+			{
+				value: ETH_ADDRESS,
+				label: "ETH (Native)",
+				description: "Use native Ethereum",
+			},
+		];
+
+		if (chainId === 31337) {
+			options.push({
+				value: "0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+				label: "DEMO Token",
+				description: "Local development token",
+			});
+		} else if (chainId === 84532) {
+			options.push({
+				value: "0x4200000000000000000000000000000000000006",
+				label: "WETH",
+				description: "Wrapped ETH on Base Sepolia",
+			});
+		}
+
+		options.push({
+			value: "CUSTOM",
+			label: "Custom ERC-20",
+			description: "Enter your own ERC-20 token address",
+		});
+
+		return options;
+	}, [chainId]);
+
+	const handleCurrencyChange = useCallback(
+		(value: string) => {
+			if (value === "CUSTOM") {
+				setValue("showCustomCurrency", true);
+			} else {
+				setValue("showCustomCurrency", false);
+				setValue("supportedCurrency", value);
+				setValue("customCurrencyAddress", "");
+			}
+		},
+		[setValue],
+	);
+
+	const handleCustomCurrencySubmit = useCallback(async () => {
+		if (customCurrencyAddress && isAddress(customCurrencyAddress)) {
+			setValue("supportedCurrency", customCurrencyAddress);
+			toast({
+				title: "Custom currency set",
+				description: "ERC-20 token address has been set successfully",
+			});
+		} else {
+			toast({
+				title: "Invalid address",
+				description: "Please enter a valid Ethereum address",
+				variant: "destructive",
+			});
+		}
+	}, [customCurrencyAddress, setValue, toast]);
+
+	const handlePrepopulate = useCallback(() => {
+		if (process.env.NODE_ENV !== "development") return;
+
+		const randomNames = [
+			"Cookie Fund",
+			"Dev Grants",
+			"Community Pool",
+			"Test Jar",
+			"Demo Fund",
+			"Alpha Pool",
+		];
+		const randomDescriptions = [
+			"A fund for supporting cookie development",
+			"Grants for innovative projects",
+			"Community-driven funding pool",
+			"Testing new jar functionality",
+			"Demonstration of jar capabilities",
+			"Early access funding",
+		];
+		const randomImages = [
+			"https://picsum.photos/400/300?random=1",
+			"https://picsum.photos/400/300?random=2",
+			"https://picsum.photos/400/300?random=3",
+		];
+		const randomLinks = [
+			"https://example.com/project1",
+			"https://github.com/test/repo",
+			"https://docs.example.com",
+		];
+
+		setValue(
+			"jarName",
+			randomNames[Math.floor(Math.random() * randomNames.length)],
+		);
+		setValue(
+			"metadata",
+			randomDescriptions[
+				Math.floor(Math.random() * randomDescriptions.length)
+			],
+		);
+		setValue(
+			"imageUrl",
+			randomImages[Math.floor(Math.random() * randomImages.length)],
+		);
+		setValue(
+			"externalLink",
+			randomLinks[Math.floor(Math.random() * randomLinks.length)],
+		);
+
+		if (Math.random() > 0.5) {
+			setValue("enableCustomFee", true);
+			setValue("customFee", (Math.random() * 1.9 + 0.1).toFixed(2));
+		}
+
+		if (Math.random() > 0.7) {
+			setValue(
+				"supportedCurrency",
+				"0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+			);
+		}
+
+		setValue("fixedAmount", (Math.random() * 0.5).toFixed(3));
+		setValue("maxWithdrawal", (Math.random() * 2).toFixed(3));
+		setValue(
+			"withdrawalInterval",
+			String(Math.floor(Math.random() * 30 + 1)),
+		);
+	}, [setValue]);
+
 	return (
 		<div className="space-y-6">
 			<div className="flex items-center justify-end">
@@ -60,10 +211,10 @@ const BasicConfigStep: React.FC<{ formData: any }> = ({ formData }) => {
 					<Button
 						variant="outline"
 						size="sm"
-						onClick={formData.prepopulateRandomData}
+						onClick={handlePrepopulate}
 						className="text-xs"
 					>
-						🎲 Fill with Random Data (Dev Only)
+						Fill with Random Data (Dev Only)
 					</Button>
 				)}
 			</div>
@@ -74,11 +225,17 @@ const BasicConfigStep: React.FC<{ formData: any }> = ({ formData }) => {
 					<Input
 						id="jarName"
 						data-testid="jar-name-input"
-						value={formData.jarName}
-						onChange={(e) => formData.setJarName(e.target.value)}
 						placeholder="e.g., Community Fund, Dev Grants"
 						aria-label="Enter a name for your cookie jar"
+						aria-invalid={!!errors.jarName}
+						aria-describedby={errors.jarName ? "jarName-error" : undefined}
+						{...register("jarName")}
 					/>
+					{errors.jarName && (
+						<p id="jarName-error" className="text-sm text-red-600 mt-1">
+							{errors.jarName.message}
+						</p>
+					)}
 				</div>
 
 				<div>
@@ -87,13 +244,11 @@ const BasicConfigStep: React.FC<{ formData: any }> = ({ formData }) => {
 						<Input
 							id="jarOwner"
 							data-testid="jar-owner-input"
-							value={formData.jarOwnerAddress}
-							onChange={(e) =>
-								formData.setJarOwnerAddress(e.target.value as `0x${string}`)
-							}
 							placeholder="0x... (defaults to your connected wallet)"
 							className="pr-12"
 							aria-label="Enter the Ethereum address that will own this jar"
+							aria-invalid={!!errors.jarOwnerAddress}
+							{...register("jarOwnerAddress")}
 						/>
 						<Button
 							type="button"
@@ -104,8 +259,7 @@ const BasicConfigStep: React.FC<{ formData: any }> = ({ formData }) => {
 								try {
 									const text = await navigator.clipboard.readText();
 									if (text && isAddress(text)) {
-										formData.setJarOwnerAddress(text as `0x${string}`);
-										// Could add toast here if needed
+										setValue("jarOwnerAddress", text);
 									}
 								} catch (err) {
 									console.error("Failed to read clipboard:", err);
@@ -128,10 +282,10 @@ const BasicConfigStep: React.FC<{ formData: any }> = ({ formData }) => {
 						</Button>
 					</div>
 					<p className="text-sm text-muted-foreground mt-1">
-						{formData.jarOwnerAddress &&
-						formData.jarOwnerAddress !==
+						{jarOwnerAddress &&
+						jarOwnerAddress !==
 							"0x0000000000000000000000000000000000000000"
-							? `Currently set to: ${shortenAddress(formData.jarOwnerAddress, 10)}`
+							? `Currently set to: ${shortenAddress(jarOwnerAddress, 10)}`
 							: "The address that will own and manage this jar"}
 					</p>
 				</div>
@@ -139,12 +293,8 @@ const BasicConfigStep: React.FC<{ formData: any }> = ({ formData }) => {
 				<div>
 					<Label htmlFor="currency">Currency *</Label>
 					<Select
-						value={
-							formData.showCustomCurrency
-								? "CUSTOM"
-								: formData.supportedCurrency
-						}
-						onValueChange={formData.handleCurrencyChange}
+						value={showCustomCurrency ? "CUSTOM" : supportedCurrency}
+						onValueChange={handleCurrencyChange}
 					>
 						<SelectTrigger
 							data-testid="currency-selector"
@@ -153,7 +303,7 @@ const BasicConfigStep: React.FC<{ formData: any }> = ({ formData }) => {
 							<SelectValue placeholder="Select currency" />
 						</SelectTrigger>
 						<SelectContent>
-							{formData.getCurrencyOptions().map((option: any) => (
+							{currencyOptions.map((option) => (
 								<SelectItem key={option.value} value={option.value}>
 									<div>
 										<div className="font-medium">{option.label}</div>
@@ -166,44 +316,41 @@ const BasicConfigStep: React.FC<{ formData: any }> = ({ formData }) => {
 						</SelectContent>
 					</Select>
 
-					{formData.showCustomCurrency && (
+					{showCustomCurrency && (
 						<div className="mt-3 space-y-2">
 							<Label htmlFor="customCurrency">ERC-20 Token Address</Label>
 							<div className="flex gap-2">
 								<Input
 									id="customCurrency"
-									value={formData.customCurrencyAddress}
-									onChange={(e) =>
-										formData.setCustomCurrencyAddress(e.target.value)
-									}
 									placeholder="0x... (ERC-20 contract address)"
 									className="flex-1"
+									{...register("customCurrencyAddress")}
 								/>
 								<Button
 									type="button"
 									variant="outline"
-									onClick={formData.handleCustomCurrencySubmit}
+									onClick={handleCustomCurrencySubmit}
 									disabled={
-										!formData.customCurrencyAddress ||
-										!isAddress(formData.customCurrencyAddress)
+										!customCurrencyAddress ||
+										!isAddress(customCurrencyAddress)
 									}
 									className="px-4"
 								>
 									Set
 								</Button>
 							</div>
-							{formData.customCurrencyAddress &&
-								!isAddress(formData.customCurrencyAddress) && (
+							{customCurrencyAddress &&
+								!isAddress(customCurrencyAddress) && (
 									<p className="text-sm text-red-600">
 										Please enter a valid Ethereum address
 									</p>
 								)}
-							{formData.supportedCurrency &&
-								formData.supportedCurrency !== formData.ETH_ADDRESS &&
-								isAddress(formData.supportedCurrency) && (
+							{supportedCurrency &&
+								supportedCurrency !== ETH_ADDRESS &&
+								isAddress(supportedCurrency) && (
 									<p className="text-sm text-green-600">
-										✓ Custom ERC-20 set:{" "}
-										{shortenAddress(formData.supportedCurrency, 10)}
+										Custom ERC-20 set:{" "}
+										{shortenAddress(supportedCurrency, 10)}
 									</p>
 								)}
 						</div>
@@ -214,10 +361,9 @@ const BasicConfigStep: React.FC<{ formData: any }> = ({ formData }) => {
 					<Label htmlFor="description">Description</Label>
 					<Textarea
 						id="description"
-						value={formData.metadata}
-						onChange={(e) => formData.setMetadata(e.target.value)}
 						placeholder="Describe what this jar is for..."
 						rows={3}
+						{...register("metadata")}
 					/>
 				</div>
 
@@ -225,9 +371,8 @@ const BasicConfigStep: React.FC<{ formData: any }> = ({ formData }) => {
 					<Label htmlFor="imageUrl">Image URL</Label>
 					<Input
 						id="imageUrl"
-						value={formData.imageUrl}
-						onChange={(e) => formData.setImageUrl(e.target.value)}
 						placeholder="https://example.com/image.jpg"
+						{...register("imageUrl")}
 					/>
 				</div>
 
@@ -235,9 +380,8 @@ const BasicConfigStep: React.FC<{ formData: any }> = ({ formData }) => {
 					<Label htmlFor="externalLink">External Link</Label>
 					<Input
 						id="externalLink"
-						value={formData.externalLink}
-						onChange={(e) => formData.setExternalLink(e.target.value)}
 						placeholder="https://example.com"
+						{...register("externalLink")}
 					/>
 				</div>
 			</div>
@@ -245,7 +389,19 @@ const BasicConfigStep: React.FC<{ formData: any }> = ({ formData }) => {
 	);
 };
 
-const WithdrawalSettingsStep: React.FC<{ formData: any }> = ({ formData }) => {
+// ─────────────────────────────────────────────
+// Step 2: Withdrawal Settings
+// ─────────────────────────────────────────────
+
+const WithdrawalSettingsStep: React.FC = () => {
+	const { register, watch, setValue } =
+		useFormContext<JarCreationFormData>();
+
+	const withdrawalOption = watch("withdrawalOption");
+	const strictPurpose = watch("strictPurpose");
+	const emergencyWithdrawalEnabled = watch("emergencyWithdrawalEnabled");
+	const oneTimeWithdrawal = watch("oneTimeWithdrawal");
+
 	return (
 		<div className="space-y-6">
 			<h3 className="text-lg font-semibold">Withdrawal Settings</h3>
@@ -254,9 +410,10 @@ const WithdrawalSettingsStep: React.FC<{ formData: any }> = ({ formData }) => {
 				<div>
 					<Label htmlFor="withdrawalType">Withdrawal Type *</Label>
 					<Select
-						value={formData.withdrawalOption.toString()}
+						value={withdrawalOption.toString()}
 						onValueChange={(value) =>
-							formData.setWithdrawalOption(
+							setValue(
+								"withdrawalOption",
 								parseInt(value, 10) as WithdrawalTypeOptions,
 							)
 						}
@@ -265,22 +422,27 @@ const WithdrawalSettingsStep: React.FC<{ formData: any }> = ({ formData }) => {
 							<SelectValue placeholder="Select withdrawal type" />
 						</SelectTrigger>
 						<SelectContent>
-							<SelectItem value="0">Fixed - Same amount each time</SelectItem>
-							<SelectItem value="1">Variable - User chooses amount</SelectItem>
+							<SelectItem value="0">
+								Fixed - Same amount each time
+							</SelectItem>
+							<SelectItem value="1">
+								Variable - User chooses amount
+							</SelectItem>
 						</SelectContent>
 					</Select>
 				</div>
 
-				{formData.withdrawalOption === WithdrawalTypeOptions.Fixed && (
+				{withdrawalOption === WithdrawalTypeOptions.Fixed && (
 					<div>
-						<Label htmlFor="fixedAmount">Fixed Withdrawal Amount *</Label>
+						<Label htmlFor="fixedAmount">
+							Fixed Withdrawal Amount *
+						</Label>
 						<Input
 							id="fixedAmount"
 							type="number"
-							value={formData.fixedAmount}
-							onChange={(e) => formData.setFixedAmount(e.target.value)}
 							placeholder="0.1"
 							step="0.001"
+							{...register("fixedAmount")}
 						/>
 						<p className="text-sm text-muted-foreground mt-1">
 							Amount users can withdraw each time
@@ -288,16 +450,17 @@ const WithdrawalSettingsStep: React.FC<{ formData: any }> = ({ formData }) => {
 					</div>
 				)}
 
-				{formData.withdrawalOption === WithdrawalTypeOptions.Variable && (
+				{withdrawalOption === WithdrawalTypeOptions.Variable && (
 					<div>
-						<Label htmlFor="maxWithdrawal">Maximum Withdrawal Amount *</Label>
+						<Label htmlFor="maxWithdrawal">
+							Maximum Withdrawal Amount *
+						</Label>
 						<Input
 							id="maxWithdrawal"
 							type="number"
-							value={formData.maxWithdrawal}
-							onChange={(e) => formData.setMaxWithdrawal(e.target.value)}
 							placeholder="1.0"
 							step="0.001"
+							{...register("maxWithdrawal")}
 						/>
 						<p className="text-sm text-muted-foreground mt-1">
 							Maximum amount users can withdraw at once
@@ -312,13 +475,13 @@ const WithdrawalSettingsStep: React.FC<{ formData: any }> = ({ formData }) => {
 					<Input
 						id="withdrawalInterval"
 						type="number"
-						value={formData.withdrawalInterval}
-						onChange={(e) => formData.setWithdrawalInterval(e.target.value)}
 						placeholder="7"
 						min="1"
+						{...register("withdrawalInterval")}
 					/>
 					<p className="text-sm text-muted-foreground mt-1">
-						Time between allowed withdrawals (e.g., 7 = weekly, 30 = monthly)
+						Time between allowed withdrawals (e.g., 7 = weekly, 30 =
+						monthly)
 					</p>
 				</div>
 
@@ -326,10 +489,10 @@ const WithdrawalSettingsStep: React.FC<{ formData: any }> = ({ formData }) => {
 					<div className="flex items-center space-x-2">
 						<Checkbox
 							id="strictPurpose"
-							checked={formData.strictPurpose}
-							onCheckedChange={formData.handleCheckboxChange(
-								formData.setStrictPurpose,
-							)}
+							checked={strictPurpose}
+							onCheckedChange={(checked) =>
+								setValue("strictPurpose", checked === true)
+							}
 						/>
 						<Label htmlFor="strictPurpose" className="text-sm">
 							Require purpose description (minimum 27 characters)
@@ -339,10 +502,13 @@ const WithdrawalSettingsStep: React.FC<{ formData: any }> = ({ formData }) => {
 					<div className="flex items-center space-x-2">
 						<Checkbox
 							id="emergencyWithdrawal"
-							checked={formData.emergencyWithdrawalEnabled}
-							onCheckedChange={formData.handleCheckboxChange(
-								formData.setEmergencyWithdrawalEnabled,
-							)}
+							checked={emergencyWithdrawalEnabled}
+							onCheckedChange={(checked) =>
+								setValue(
+									"emergencyWithdrawalEnabled",
+									checked === true,
+								)
+							}
 						/>
 						<Label htmlFor="emergencyWithdrawal" className="text-sm">
 							Enable emergency withdrawal
@@ -352,10 +518,10 @@ const WithdrawalSettingsStep: React.FC<{ formData: any }> = ({ formData }) => {
 					<div className="flex items-center space-x-2">
 						<Checkbox
 							id="oneTimeWithdrawal"
-							checked={formData.oneTimeWithdrawal}
-							onCheckedChange={formData.handleCheckboxChange(
-								formData.setOneTimeWithdrawal,
-							)}
+							checked={oneTimeWithdrawal}
+							onCheckedChange={(checked) =>
+								setValue("oneTimeWithdrawal", checked === true)
+							}
 						/>
 						<Label htmlFor="oneTimeWithdrawal" className="text-sm">
 							One-time withdrawal only (users can only claim once)
@@ -367,114 +533,186 @@ const WithdrawalSettingsStep: React.FC<{ formData: any }> = ({ formData }) => {
 	);
 };
 
-const AccessControlStep: React.FC<{ formData: any }> = ({ formData }) => {
+// ─────────────────────────────────────────────
+// Step 3: Access Control
+// ─────────────────────────────────────────────
+
+const AccessControlStep: React.FC = () => {
+	const { watch, setValue, getValues } =
+		useFormContext<JarCreationFormData>();
+
+	const accessType = watch("accessType");
+	const nftAddresses = watch("nftAddresses");
+	const nftTypes = watch("nftTypes");
+	const protocolConfig = watch("protocolConfig");
+
+	const handleProtocolConfigChange = useCallback(
+		(config: SelectorProtocolConfig) => {
+			// Bridge ProtocolSelector's { method: "NFT" } to form's { accessType: AccessType.NFTGated }
+			setValue("protocolConfig", {
+				...config,
+				accessType: config.method,
+			} as any);
+
+			const numericType = METHOD_TO_ACCESS_TYPE[config.method];
+			if (numericType !== undefined) {
+				setValue("accessType", numericType);
+			}
+
+			// Sync NFT-specific arrays when NFT method is selected
+			if (config.method === "NFT") {
+				if (config.nftAddresses) {
+					setValue("nftAddresses", config.nftAddresses);
+				}
+				if (config.nftTypes) {
+					setValue(
+						"nftTypes",
+						(config.nftTypes as number[]).map(
+							(t: number) => t as NFTType,
+						),
+					);
+				}
+			}
+		},
+		[setValue],
+	);
+
+	const handleAddNFT = useCallback(
+		(address: string, type: number) => {
+			const currentAddresses = getValues("nftAddresses");
+			const currentTypes = getValues("nftTypes");
+			setValue("nftAddresses", [...currentAddresses, address]);
+			setValue("nftTypes", [...currentTypes, type as NFTType]);
+		},
+		[getValues, setValue],
+	);
+
+	const handleRemoveNFT = useCallback(
+		(index: number) => {
+			const currentAddresses = getValues("nftAddresses");
+			const currentTypes = getValues("nftTypes");
+			setValue(
+				"nftAddresses",
+				currentAddresses.filter((_, i) => i !== index),
+			);
+			setValue(
+				"nftTypes",
+				currentTypes.filter((_, i) => i !== index),
+			);
+		},
+		[getValues, setValue],
+	);
+
 	return (
 		<div className="space-y-6">
 			<h3 className="text-lg font-semibold">Access Control</h3>
 			<div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
 				<p className="text-sm text-blue-800">
-					🚀 <strong>v2 Contract Feature:</strong> Enhanced access control with
-					support for NFT gates, POAP verification, and protocol integrations.
+					<strong>v2 Contract Feature:</strong> Enhanced access control
+					with support for NFT gates, POAP verification, and protocol
+					integrations.
 				</p>
 			</div>
 
 			<ProtocolSelector
-				onConfigChange={formData.handleProtocolConfigChange}
-				initialConfig={formData.protocolConfig}
+				onConfigChange={handleProtocolConfigChange}
+				initialConfig={protocolConfig}
 				showViewToggle={false}
 			/>
 
-			{formData.accessType === AccessType.NFTGated && (
+			{accessType === AccessType.NFTGated && (
 				<div className="mt-6 space-y-6">
 					<div className="border rounded-lg p-4">
 						<Label className="text-base font-medium mb-4 block">
 							Select NFT for Access Control
 						</Label>
 						<p className="text-sm text-muted-foreground mb-4">
-							Choose an NFT that users must own to access this jar. You can
-							search public collections or select from your own NFTs.
+							Choose an NFT that users must own to access this jar.
+							You can search public collections or select from your
+							own NFTs.
 						</p>
 
 						<NFTSelector
 							onSelect={(selectedNFT: SelectedNFT) => {
-								// Convert SelectedNFT to the format expected by handleAddNFT
 								const nftType =
 									selectedNFT.tokenType === "ERC721"
 										? NFTType.ERC721
 										: NFTType.ERC1155;
-								formData.handleAddNFT(selectedNFT.contractAddress, nftType);
+								handleAddNFT(
+									selectedNFT.contractAddress,
+									nftType,
+								);
 							}}
 							maxHeight="400px"
 							className="mt-4"
 						/>
 					</div>
 
-					{formData.nftAddresses.length > 0 && (
+					{nftAddresses.length > 0 && (
 						<div className="space-y-3">
 							<Label className="text-base font-medium">
 								Selected NFT Requirements:
 							</Label>
 							<div className="space-y-2">
-								{formData.nftAddresses.map((address: string, index: number) => (
-									<div
-										key={index}
-										className="flex items-center justify-between p-3 bg-muted rounded-lg border"
-									>
-										<div className="flex-1 min-w-0">
-											<div className="flex items-center gap-2 mb-1">
-												<span className="text-sm font-medium">
-													NFT Contract
-												</span>
-												<span
-													className={`text-xs px-2 py-0.5 rounded ${
-														formData.nftTypes[index] === NFTType.ERC721
-															? "bg-purple-100 text-purple-800"
-															: "bg-blue-100 text-blue-800"
-													}`}
-												>
-													{formData.nftTypes[index] === NFTType.ERC721
-														? "ERC721"
-														: "ERC1155"}
-												</span>
-											</div>
-											<p className="text-sm text-muted-foreground font-mono truncate">
-												{address}
-											</p>
-										</div>
-										<Button
-											variant="ghost"
-											size="sm"
-											onClick={() => {
-												formData.setNftAddresses((prev: string[]) =>
-													prev.filter((_, i) => i !== index),
-												);
-												formData.setNftTypes((prev: number[]) =>
-													prev.filter((_, i) => i !== index),
-												);
-											}}
-											className="text-red-500 hover:text-red-700 hover:bg-red-50"
+								{nftAddresses.map(
+									(address: string, index: number) => (
+										<div
+											key={`${address}-${index}`}
+											className="flex items-center justify-between p-3 bg-muted rounded-lg border"
 										>
-											<Trash2 className="h-4 w-4" />
-										</Button>
-									</div>
-								))}
+											<div className="flex-1 min-w-0">
+												<div className="flex items-center gap-2 mb-1">
+													<span className="text-sm font-medium">
+														NFT Contract
+													</span>
+													<span
+														className={`text-xs px-2 py-0.5 rounded ${
+															nftTypes[index] ===
+															NFTType.ERC721
+																? "bg-purple-100 text-purple-800"
+																: "bg-blue-100 text-blue-800"
+														}`}
+													>
+														{nftTypes[index] ===
+														NFTType.ERC721
+															? "ERC721"
+															: "ERC1155"}
+													</span>
+												</div>
+												<p className="text-sm text-muted-foreground font-mono truncate">
+													{address}
+												</p>
+											</div>
+											<Button
+												variant="ghost"
+												size="sm"
+												onClick={() =>
+													handleRemoveNFT(index)
+												}
+												className="text-red-500 hover:text-red-700 hover:bg-red-50"
+											>
+												<Trash2 className="h-4 w-4" />
+											</Button>
+										</div>
+									),
+								)}
 							</div>
 							<div className="p-3 bg-green-50 border border-green-200 rounded-lg">
 								<p className="text-sm text-green-800">
-									✓ Users must own NFTs from {formData.nftAddresses.length}{" "}
-									selected collection
-									{formData.nftAddresses.length !== 1 ? "s" : ""} to access this
-									jar.
+									Users must own NFTs from{" "}
+									{nftAddresses.length} selected collection
+									{nftAddresses.length !== 1 ? "s" : ""} to
+									access this jar.
 								</p>
 							</div>
 						</div>
 					)}
 
-					{formData.nftAddresses.length === 0 && (
+					{nftAddresses.length === 0 && (
 						<div className="p-3 bg-amber-50 border border-amber-200 rounded-lg">
 							<p className="text-sm text-amber-800">
-								⚠️ Please select at least one NFT collection to enable NFT-gated
-								access.
+								Please select at least one NFT collection to
+								enable NFT-gated access.
 							</p>
 						</div>
 					)}
@@ -484,10 +722,37 @@ const AccessControlStep: React.FC<{ formData: any }> = ({ formData }) => {
 	);
 };
 
-const FinalSettingsStep: React.FC<{ formData: any; isV2Contract: boolean }> = ({
-	formData,
+// ─────────────────────────────────────────────
+// Step 4: Final Settings & Review
+// ─────────────────────────────────────────────
+
+const FinalSettingsStep: React.FC<{ isV2Contract: boolean }> = ({
 	isV2Contract,
 }) => {
+	const { register, watch, setValue } =
+		useFormContext<JarCreationFormData>();
+
+	const enableCustomFee = watch("enableCustomFee");
+	const streamingEnabled = watch("streamingEnabled");
+	const requireStreamApproval = watch("requireStreamApproval");
+	const autoSwapEnabled = watch("autoSwapEnabled");
+
+	// Summary values
+	const jarName = watch("jarName");
+	const jarOwnerAddress = watch("jarOwnerAddress");
+	const supportedCurrency = watch("supportedCurrency");
+	const accessType = watch("accessType");
+	const withdrawalOption = watch("withdrawalOption");
+	const fixedAmount = watch("fixedAmount");
+	const maxWithdrawal = watch("maxWithdrawal");
+	const withdrawalInterval = watch("withdrawalInterval");
+	const strictPurpose = watch("strictPurpose");
+	const emergencyWithdrawalEnabled = watch("emergencyWithdrawalEnabled");
+	const oneTimeWithdrawal = watch("oneTimeWithdrawal");
+	const customFee = watch("customFee");
+	const maxStreamRate = watch("maxStreamRate");
+	const minStreamDuration = watch("minStreamDuration");
+
 	return (
 		<div className="space-y-6">
 			<h3 className="text-lg font-semibold">Final Settings & Review</h3>
@@ -499,11 +764,11 @@ const FinalSettingsStep: React.FC<{ formData: any; isV2Contract: boolean }> = ({
 					<div className="flex items-center space-x-2">
 						<Checkbox
 							id="enableCustomFee"
-							checked={formData.enableCustomFee}
+							checked={enableCustomFee}
 							disabled={!isV2Contract}
-							onCheckedChange={formData.handleCheckboxChange(
-								formData.setEnableCustomFee,
-							)}
+							onCheckedChange={(checked) =>
+								setValue("enableCustomFee", checked === true)
+							}
 						/>
 						<Label
 							htmlFor="enableCustomFee"
@@ -518,18 +783,19 @@ const FinalSettingsStep: React.FC<{ formData: any; isV2Contract: boolean }> = ({
 						</Label>
 					</div>
 
-					{formData.enableCustomFee && (
+					{enableCustomFee && (
 						<div>
-							<Label htmlFor="customFee">Custom Fee Percentage</Label>
+							<Label htmlFor="customFee">
+								Custom Fee Percentage
+							</Label>
 							<Input
 								id="customFee"
 								type="number"
-								value={formData.customFee}
-								onChange={(e) => formData.setCustomFee(e.target.value)}
 								placeholder="2.5"
 								step="0.1"
 								min="0"
 								max="100"
+								{...register("customFee")}
 							/>
 							<p className="text-sm text-muted-foreground mt-1">
 								Percentage fee charged on deposits (0-100%)
@@ -542,7 +808,7 @@ const FinalSettingsStep: React.FC<{ formData: any; isV2Contract: boolean }> = ({
 				{isV2Contract && (
 					<div className="space-y-4 p-4 border rounded-lg bg-blue-50/50">
 						<h4 className="font-medium text-base flex items-center gap-2">
-							<span className="w-2 h-2 bg-blue-500 rounded-full"></span>
+							<span className="w-2 h-2 bg-blue-500 rounded-full" />
 							Advanced Features
 							<span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
 								v2 Enhanced
@@ -553,28 +819,41 @@ const FinalSettingsStep: React.FC<{ formData: any; isV2Contract: boolean }> = ({
 							<div className="flex items-center space-x-2">
 								<Checkbox
 									id="enableStreaming"
-									checked={formData.streamingEnabled}
-									onCheckedChange={formData.handleCheckboxChange(
-										formData.setStreamingEnabled,
-									)}
+									checked={streamingEnabled}
+									onCheckedChange={(checked) =>
+										setValue(
+											"streamingEnabled",
+											checked === true,
+										)
+									}
 								/>
-								<Label htmlFor="enableStreaming" className="text-sm">
+								<Label
+									htmlFor="enableStreaming"
+									className="text-sm"
+								>
 									Enable token streaming
 								</Label>
 							</div>
 
-							{formData.streamingEnabled && (
+							{streamingEnabled && (
 								<div className="ml-6 space-y-4 p-3 bg-white rounded border border-blue-200">
 									<div className="flex items-center space-x-2">
 										<Checkbox
 											id="requireStreamApproval"
-											checked={formData.requireStreamApproval}
-											onCheckedChange={formData.handleCheckboxChange(
-												formData.setRequireStreamApproval,
-											)}
+											checked={requireStreamApproval}
+											onCheckedChange={(checked) =>
+												setValue(
+													"requireStreamApproval",
+													checked === true,
+												)
+											}
 										/>
-										<Label htmlFor="requireStreamApproval" className="text-sm">
-											Require manual approval for new streams
+										<Label
+											htmlFor="requireStreamApproval"
+											className="text-sm"
+										>
+											Require manual approval for new
+											streams
 										</Label>
 									</div>
 
@@ -586,13 +865,10 @@ const FinalSettingsStep: React.FC<{ formData: any; isV2Contract: boolean }> = ({
 											<Input
 												id="maxStreamRate"
 												type="number"
-												value={formData.maxStreamRate}
-												onChange={(e) =>
-													formData.setMaxStreamRate(e.target.value)
-												}
 												placeholder="1.0"
 												step="0.001"
 												min="0"
+												{...register("maxStreamRate")}
 											/>
 											<p className="text-xs text-muted-foreground mt-1">
 												Maximum allowed streaming rate
@@ -606,12 +882,11 @@ const FinalSettingsStep: React.FC<{ formData: any; isV2Contract: boolean }> = ({
 											<Input
 												id="minStreamDuration"
 												type="number"
-												value={formData.minStreamDuration}
-												onChange={(e) =>
-													formData.setMinStreamDuration(e.target.value)
-												}
 												placeholder="1"
 												min="1"
+												{...register(
+													"minStreamDuration",
+												)}
 											/>
 											<p className="text-xs text-muted-foreground mt-1">
 												Minimum time for streams
@@ -624,29 +899,36 @@ const FinalSettingsStep: React.FC<{ formData: any; isV2Contract: boolean }> = ({
 							<div className="flex items-center space-x-2">
 								<Checkbox
 									id="enableAutoSwap"
-									checked={formData.autoSwapEnabled}
-									onCheckedChange={formData.handleCheckboxChange(
-										formData.setAutoSwapEnabled,
-									)}
+									checked={autoSwapEnabled}
+									onCheckedChange={(checked) =>
+										setValue(
+											"autoSwapEnabled",
+											checked === true,
+										)
+									}
 								/>
-								<Label htmlFor="enableAutoSwap" className="text-sm">
+								<Label
+									htmlFor="enableAutoSwap"
+									className="text-sm"
+								>
 									Enable auto-swap for ETH deposits
 								</Label>
 							</div>
 
 							<div className="text-xs text-blue-700 bg-blue-50 p-2 rounded border">
-								<strong>ℹ️ Advanced Features:</strong>
+								<strong>Advanced Features:</strong>
 								<ul className="mt-1 ml-4 list-disc space-y-1">
 									<li>
-										Streaming allows continuous funding from external sources
+										Streaming allows continuous funding from
+										external sources
 									</li>
 									<li>
-										Auto-swap converts ETH deposits to your jar&apos;s token
-										automatically
+										Auto-swap converts ETH deposits to your
+										jar&apos;s token automatically
 									</li>
 									<li>
-										Other ERC-20 tokens sent to the jar can be manually
-										recovered and swapped
+										Other ERC-20 tokens sent to the jar can
+										be manually recovered and swapped
 									</li>
 								</ul>
 							</div>
@@ -660,72 +942,73 @@ const FinalSettingsStep: React.FC<{ formData: any; isV2Contract: boolean }> = ({
 				<h4 className="font-medium">Configuration Summary</h4>
 				<div className="text-sm space-y-1">
 					<div>
-						<strong>Name:</strong> {formData.jarName || "Not set"}
+						<strong>Name:</strong> {jarName || "Not set"}
 					</div>
 					<div>
-						<strong>Owner:</strong> {formData.jarOwnerAddress}
+						<strong>Owner:</strong> {jarOwnerAddress}
 					</div>
 					<div>
 						<strong>Currency:</strong>{" "}
-						{formData.supportedCurrency === formData.ETH_ADDRESS
+						{supportedCurrency === ETH_ADDRESS
 							? "ETH"
-							: formData.supportedCurrency}
+							: supportedCurrency}
 					</div>
 					<div>
-						<strong>Access Type:</strong> {AccessType[formData.accessType]}
+						<strong>Access Type:</strong>{" "}
+						{AccessType[accessType]}
 					</div>
 					<div>
 						<strong>Withdrawal:</strong>{" "}
-						{WithdrawalTypeOptions[formData.withdrawalOption]}
-						{formData.withdrawalOption === WithdrawalTypeOptions.Fixed
-							? ` (${formData.fixedAmount} per withdrawal)`
-							: ` (max ${formData.maxWithdrawal} per withdrawal)`}
+						{WithdrawalTypeOptions[withdrawalOption]}
+						{withdrawalOption === WithdrawalTypeOptions.Fixed
+							? ` (${fixedAmount} per withdrawal)`
+							: ` (max ${maxWithdrawal} per withdrawal)`}
 					</div>
 					<div>
-						<strong>Interval:</strong> {formData.withdrawalInterval} day
-						{parseInt(formData.withdrawalInterval, 10) === 1 ? "" : "s"}
+						<strong>Interval:</strong> {withdrawalInterval} day
+						{parseInt(withdrawalInterval, 10) === 1 ? "" : "s"}
 					</div>
 					<div>
 						<strong>Strict Purpose:</strong>{" "}
-						{formData.strictPurpose ? "Yes" : "No"}
+						{strictPurpose ? "Yes" : "No"}
 					</div>
 					<div>
 						<strong>Emergency Withdrawal:</strong>{" "}
-						{formData.emergencyWithdrawalEnabled ? "Enabled" : "Disabled"}
+						{emergencyWithdrawalEnabled ? "Enabled" : "Disabled"}
 					</div>
 					<div>
 						<strong>One-time Only:</strong>{" "}
-						{formData.oneTimeWithdrawal ? "Yes" : "No"}
+						{oneTimeWithdrawal ? "Yes" : "No"}
 					</div>
-					{formData.enableCustomFee && (
+					{enableCustomFee && (
 						<div>
-							<strong>Custom Fee:</strong> {formData.customFee}%
+							<strong>Custom Fee:</strong> {customFee}%
 						</div>
 					)}
 					{isV2Contract && (
 						<>
 							<div>
 								<strong>Streaming:</strong>{" "}
-								{formData.streamingEnabled ? "Enabled" : "Disabled"}
-								{formData.streamingEnabled &&
-									formData.requireStreamApproval &&
+								{streamingEnabled ? "Enabled" : "Disabled"}
+								{streamingEnabled &&
+									requireStreamApproval &&
 									" (Manual Approval)"}
 							</div>
-							{formData.streamingEnabled && (
+							{streamingEnabled && (
 								<>
 									<div>
-										<strong>Max Stream Rate:</strong> {formData.maxStreamRate}{" "}
-										tokens/sec
+										<strong>Max Stream Rate:</strong>{" "}
+										{maxStreamRate} tokens/sec
 									</div>
 									<div>
 										<strong>Min Stream Duration:</strong>{" "}
-										{formData.minStreamDuration} hours
+										{minStreamDuration} hours
 									</div>
 								</>
 							)}
 							<div>
 								<strong>Auto-Swap ETH:</strong>{" "}
-								{formData.autoSwapEnabled ? "Enabled" : "Disabled"}
+								{autoSwapEnabled ? "Enabled" : "Disabled"}
 							</div>
 						</>
 					)}
