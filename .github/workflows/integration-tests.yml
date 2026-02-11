@@ -71,6 +71,9 @@ jobs:
           fi
         done
 
+    - name: Create OZ v5 compatibility shims
+      run: ./scripts/oz-compat.sh
+
     - name: Deploy contracts (using dev-start.sh deployment logic)
       run: |
         echo "🚀 Deploying contracts for integration testing..."

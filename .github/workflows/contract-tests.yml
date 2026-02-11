@@ -32,7 +32,10 @@ jobs:
         version: nightly
     
     # Skip all bun/Node.js dependencies - contracts tests don't need them
-    
+
+    - name: Create OZ v5 compatibility shims
+      run: ./scripts/oz-compat.sh
+
     - name: Build contracts
       run: |
         echo "🔧 Building contracts..."
