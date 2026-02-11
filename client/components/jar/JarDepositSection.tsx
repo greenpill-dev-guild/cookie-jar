@@ -67,7 +67,7 @@ export function JarDepositSection() {
 						placeholder={
 							isNativeCurrency
 								? `0.1 ${nativeCurrency.symbol}`
-								: `1${`.${"0".repeat(tokenDecimals > 0 ? 0 : tokenDecimals)}`} ${tokenSymbol || "Tokens"}`
+								: `1.${"0".repeat(Math.max(0, tokenDecimals))} ${tokenSymbol || "Tokens"}`
 						}
 						value={amount}
 						onChange={(e) => setAmount(e.target.value)}

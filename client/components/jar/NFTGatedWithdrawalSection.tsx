@@ -29,6 +29,15 @@ import {
 	useTokenInfo,
 } from "@/lib/blockchain/token-utils";
 
+/** Safely convert a string to BigInt, returning undefined for invalid values */
+function safeBigInt(value: string): bigint | undefined {
+	try {
+		return BigInt(value);
+	} catch {
+		return undefined;
+	}
+}
+
 interface NFTGatedWithdrawalSectionProps {
 	config: any; // Ideally this would be more specifically typed
 	withdrawAmount: string;
@@ -150,11 +159,12 @@ export const NFTGatedWithdrawalSection: React.FC<
 		address: (activeNFT?.contractAddress as `0x${string}`) || undefined,
 		abi: ERC721_ABI,
 		functionName: "ownerOf",
-		args: activeNFT?.tokenId ? [BigInt(activeNFT.tokenId)] : undefined,
+		args: activeNFT?.tokenId ? (() => { const id = safeBigInt(activeNFT.tokenId); return id !== undefined ? [id] : undefined; })() : undefined,
 		query: {
 			enabled: !!(
 				activeNFT?.contractAddress &&
 				activeNFT?.tokenId &&
+				safeBigInt(activeNFT.tokenId) !== undefined &&
 				activeNFT?.tokenType === "ERC721"
 			),
 		},
@@ -171,12 +181,13 @@ export const NFTGatedWithdrawalSection: React.FC<
 		functionName: "balanceOf",
 		args:
 			userAddress && activeNFT?.tokenId
-				? [userAddress, BigInt(activeNFT.tokenId)]
+				? (() => { const id = safeBigInt(activeNFT.tokenId); return id !== undefined ? [userAddress, id] : undefined; })()
 				: undefined,
 		query: {
 			enabled: !!(
 				activeNFT?.contractAddress &&
 				activeNFT?.tokenId &&
+				safeBigInt(activeNFT.tokenId) !== undefined &&
 				activeNFT?.tokenType === "ERC1155" &&
 				userAddress
 			),
@@ -349,10 +360,11 @@ export const NFTGatedWithdrawalSection: React.FC<
 						</p>
 						<div className="grid gap-4 md:grid-cols-2">
 							<div className="md:col-span-2">
-								<label className="text-sm font-medium text-[#3c2a14]">
+								<label htmlFor="gateAddressInput" className="text-sm font-medium text-[#3c2a14]">
 									NFT Contract Address
 								</label>
 								<Input
+									id="gateAddressInput"
 									type="text"
 									placeholder="0x..."
 									value={gateAddress}
@@ -361,10 +373,11 @@ export const NFTGatedWithdrawalSection: React.FC<
 								/>
 							</div>
 							<div>
-								<label className="text-sm font-medium text-[#3c2a14]">
+								<label htmlFor="tokenIdInput" className="text-sm font-medium text-[#3c2a14]">
 									Token ID
 								</label>
 								<Input
+									id="tokenIdInput"
 									type="text"
 									placeholder="Token ID"
 									value={tokenId}
@@ -373,7 +386,7 @@ export const NFTGatedWithdrawalSection: React.FC<
 								/>
 							</div>
 							<div>
-								<label className="text-sm font-medium text-[#3c2a14]">
+								<label htmlFor="tokenTypeSelect" className="text-sm font-medium text-[#3c2a14]">
 									Token Standard
 								</label>
 								<Select
@@ -382,7 +395,7 @@ export const NFTGatedWithdrawalSection: React.FC<
 										setManualTokenType(value as SelectedNFT["tokenType"])
 									}
 								>
-									<SelectTrigger className="w-full">
+									<SelectTrigger id="tokenTypeSelect" className="w-full">
 										<SelectValue placeholder="Select token type" />
 									</SelectTrigger>
 									<SelectContent>

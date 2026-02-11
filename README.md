@@ -165,7 +165,7 @@ bun deploy:local           # Deploy to Anvil
 bun deploy:ethereum        # Deploy to mainnet
 bun deploy:celo            # Deploy to celo
 bun deploy:base            # Deploy to base
-bun deploy:base-sepolia    # Deploy to mainnet
+bun deploy:base-sepolia    # Deploy to Base Sepolia testnet
 
 bun seed:demo              # Refresh demo data
 bun generate               # Regenerate types

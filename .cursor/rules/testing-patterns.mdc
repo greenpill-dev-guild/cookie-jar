@@ -212,21 +212,28 @@ export const TEST_CONTRACTS = {
 ```
 
 ## Testing Commands
+
+> **IMPORTANT**: Always use `bun run <script>` (not `bun test`) to execute npm-style scripts.
+> `bun test` invokes Bun's built-in test runner, which bypasses Vitest configuration entirely.
+
 ```bash
-# Unit tests
-bun test                     # All tests
-bun test:watch               # Watch mode
-bun test:coverage            # Coverage report
+# Unit tests (from repo root)
+bun run test                 # All tests (contracts + client)
+bun run test:client          # Client tests only (runs vitest)
+bun run test:client:coverage # Client coverage report
 
-# E2E tests
-bun test:e2e                 # Full E2E suite
-bun test:e2e:ui              # Visual test runner
-bun test:e2e:debug           # Debug mode
+# Watch mode (from client workspace only)
+cd client && bun run test:watch   # Vitest watch mode (client workspace only)
 
-# Contract tests
-cd contracts && forge test   # All contract tests
-forge test -vvv              # Verbose output
-forge coverage               # Coverage report
+# E2E tests (defined at repo root)
+bun run test:e2e             # Full E2E suite
+bun run test:e2e:ui          # Visual test runner
+bun run test:e2e:debug       # Debug mode
+
+# Contract tests (from repo root)
+bun run test:contracts       # All contract tests
+bun run test:contracts:coverage  # Contract coverage report
+bun run test:contracts:gas   # Gas report
 ```
 
 ## CI/CD Requirements

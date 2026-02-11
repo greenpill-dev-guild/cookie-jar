@@ -23,12 +23,11 @@ alwaysApply: true
 ```bash
 # Full stack development
 bun dev                 # Local with fresh Anvil chain
-bun dev:ethereum        # Fork Ethereum mainnet  
-bun dev:base            # Fork Base network
 
 # Testing & quality
-bun test                # All tests across packages
-bun test:coverage       # Coverage report
+bun run test            # All tests across packages (IMPORTANT: use `bun run test`, not `bun test`)
+bun run test:client:coverage  # Client coverage report
+bun run test:contracts:coverage  # Contract coverage report
 bun lint                # Lint all packages
 bun type-check          # Fast TypeScript validation (preferred)
 bun build               # Build all packages

@@ -118,14 +118,14 @@ const SelectItem = React.forwardRef<
 	<SelectPrimitive.Item
 		ref={ref}
 		className={cn(
-			"relative flex w-full cursor-default select-none items-center rounded-md py-1.5 pl-8 pr-2 text-sm text-[hsl(var(--cj-input-text))] outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50 focus:bg-[hsla(var(--cj-brand-orange),0.15)] focus:text-[hsl(var(--cj-input-text))] data-[state=checked]:bg-[hsla(var(--cj-brand-orange),0.3)] data-[state=checked]:text-[hsl(var(--cj-creme-bg))]",
+			"relative flex w-full cursor-default select-none items-center rounded-md py-1.5 pl-8 pr-2 text-sm text-[hsl(var(--cj-input-text))] outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50 focus:bg-[hsla(var(--cj-brand-orange),0.15)] focus:text-[hsl(var(--cj-input-text))] data-[state=checked]:bg-[hsl(var(--cj-brand-orange))] data-[state=checked]:text-[hsl(var(--primary-foreground))]",
 			className,
 		)}
 		{...props}
 	>
 		<span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
 			<SelectPrimitive.ItemIndicator>
-				<Check className="h-4 w-4 text-[hsl(var(--cj-creme-bg))]" />
+				<Check className="h-4 w-4 text-[hsl(var(--primary-foreground))]" />
 			</SelectPrimitive.ItemIndicator>
 		</span>
 
