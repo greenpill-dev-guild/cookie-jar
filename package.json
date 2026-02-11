@@ -1,6 +1,6 @@
 {
 	"name": "cookie-jar",
-	"version": "3.1.0",
+	"version": "3.2.0",
 	"description": "A decentralized funding protocol with smart contract pools and frontend interface",
 	"private": true,
 	"author": "Greenpill Dev Guild",
