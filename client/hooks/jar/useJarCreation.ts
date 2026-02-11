@@ -593,7 +593,7 @@ export const useJarCreation = () => {
 
 	// Currency options for the supported network
 	const getCurrencyOptions = () => {
-		const options = [
+		const options: Array<{ value: string; label: string; description: string }> = [
 			{
 				value: ETH_ADDRESS,
 				label: "ETH (Native)",

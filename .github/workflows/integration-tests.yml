@@ -21,6 +21,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         submodules: recursive
+        fetch-depth: 0
     
     - name: Setup Node.js and bun
       uses: ./.github/actions/setup-node-pnpm
@@ -74,7 +75,10 @@ jobs:
       run: |
         echo "🚀 Deploying contracts for integration testing..."
         cd contracts
-        
+
+        # Use dev profile (matches local package.json scripts)
+        export FOUNDRY_PROFILE=dev
+
         # Build contracts first
         forge build
         
