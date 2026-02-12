@@ -219,7 +219,8 @@ contract CookieJarProtocolsTest is Test {
                 nftRequirement: CookieJarLib.NftRequirement({
                     nftContract: address(mockPoap),
                     tokenId: testEventId,
-                    minBalance: 1
+                    minBalance: 0,
+                    isPoapEventGate: true
                 })
             });
     }
@@ -232,7 +233,8 @@ contract CookieJarProtocolsTest is Test {
                 nftRequirement: CookieJarLib.NftRequirement({
                     nftContract: address(mockPoap),
                     tokenId: 0,
-                    minBalance: 0
+                    minBalance: 0,
+                    isPoapEventGate: false
                 })
             });
     }
@@ -245,7 +247,8 @@ contract CookieJarProtocolsTest is Test {
                 nftRequirement: CookieJarLib.NftRequirement({
                     nftContract: address(mockHypercert),
                     tokenId: testTokenId,
-                    minBalance: testMinBalance
+                    minBalance: testMinBalance,
+                    isPoapEventGate: false
                 })
             });
     }
@@ -258,7 +261,8 @@ contract CookieJarProtocolsTest is Test {
                 nftRequirement: CookieJarLib.NftRequirement({
                     nftContract: address(mockHats),
                     tokenId: testHatId,
-                    minBalance: 1
+                    minBalance: 1,
+                    isPoapEventGate: false
                 })
             });
     }

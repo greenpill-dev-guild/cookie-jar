@@ -139,6 +139,21 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
                 revert CookieJarLib.NoNFTAddressesProvided();
             }
 
+            if (ACCESS_TYPE == CookieJarLib.AccessType.ERC721) {
+                // minBalance is only used for ERC1155 gates.
+                if (accessConfig.nftRequirement.minBalance != 0) {
+                    revert CookieJarLib.InvalidNFTGate();
+                }
+                if (accessConfig.nftRequirement.isPoapEventGate && accessConfig.nftRequirement.tokenId == 0) {
+                    revert CookieJarLib.InvalidNFTGate();
+                }
+            } else if (ACCESS_TYPE == CookieJarLib.AccessType.ERC1155) {
+                // POAP/event gating is an ERC721-only concept.
+                if (accessConfig.nftRequirement.isPoapEventGate) {
+                    revert CookieJarLib.InvalidNFTGate();
+                }
+            }
+
             // Validate that the contract actually implements the required interface
             _validateNftContract(accessConfig.nftRequirement.nftContract, config.accessType);
 
@@ -427,9 +442,7 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
                 return;
             }
 
-            // POAP event gate marker: tokenId=eventId and minBalance>0.
-            // This preserves ABI shape while enabling strict event-level enforcement.
-            if (nftRequirement.minBalance > 0) {
+            if (nftRequirement.isPoapEventGate) {
                 _requirePoapEventOwnership(nftRequirement.nftContract, msg.sender, nftRequirement.tokenId);
                 return;
             }

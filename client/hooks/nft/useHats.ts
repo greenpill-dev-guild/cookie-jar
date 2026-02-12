@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { isAddress } from "viem";
 import { useAccount, useChainId, useReadContract } from "wagmi";
+import { log } from "@/lib/app/logger";
 import {
 	hatsProvider,
 	type HatDetails as ProviderHatDetails,
@@ -23,9 +24,9 @@ export interface HatInfo extends Omit<ProviderHatDetails, "maxSupply"> {
 export interface UserHat {
 	hatId: string;
 	hat: HatInfo;
-	isWearing: boolean;
-	isEligible: boolean;
-	isInGoodStanding: boolean;
+	isWearing?: boolean;
+	isEligible?: boolean;
+	isInGoodStanding?: boolean;
 }
 
 interface UseHatsOptions {
@@ -131,15 +132,7 @@ export function useHats(options: UseHatsOptions = {}): UseHatsResult {
 	const [isCheckingEligibility, setIsCheckingEligibility] = useState(false);
 	const [hatsError, setHatsError] = useState<string | null>(null);
 	const [eligibilityError, setEligibilityError] = useState<string | null>(null);
-
-	// Track mount state for async callbacks triggered by refetch()
-	const mountedRef = useRef(true);
-	useEffect(() => {
-		mountedRef.current = true;
-		return () => {
-			mountedRef.current = false;
-		};
-	}, []);
+	const refetchControllerRef = useRef<AbortController | null>(null);
 
 	const isLoading = isLoadingHats || isCheckingEligibility;
 	const error = hatsError || eligibilityError;
@@ -248,21 +241,18 @@ export function useHats(options: UseHatsOptions = {}): UseHatsResult {
 					activeOnly: true,
 				});
 
-				// Guard: don't update state if aborted or unmounted
+				// Guard: don't update state if aborted.
 				if (signal?.aborted) return;
 
 				const mapped: UserHat[] = result.hats.map((hat) => ({
 					hatId: hat.id,
 					hat: toHatInfo(hat),
-					isWearing: true,
-					isEligible: true,
-					isInGoodStanding: true,
 				}));
 
 				setUserHats(mapped);
 			} catch (err) {
 				if (signal?.aborted) return;
-				console.error("Error fetching user hats:", err);
+				log.error("Error fetching user hats:", err, "useHats");
 				setHatsError("Failed to fetch your organizational roles");
 			} finally {
 				if (!signal?.aborted) {
@@ -279,7 +269,13 @@ export function useHats(options: UseHatsOptions = {}): UseHatsResult {
 	 */
 	const validateHatIdImpl = useCallback(
 		async (hatId: string, signal?: AbortSignal): Promise<HatInfo | null> => {
-			if (!hatId || Number.isNaN(Number(hatId))) {
+			const normalizedHatId = hatId?.trim();
+			if (!normalizedHatId) throw new Error("Hat ID must be a valid number");
+
+			try {
+				const parsedHatId = BigInt(normalizedHatId);
+				if (parsedHatId < 0n) throw new Error("Negative hat ID");
+			} catch {
 				throw new Error("Hat ID must be a valid number");
 			}
 
@@ -287,7 +283,7 @@ export function useHats(options: UseHatsOptions = {}): UseHatsResult {
 			setEligibilityError(null);
 
 			try {
-				const hat = await hatsProvider.getHat(hatId, chainId);
+				const hat = await hatsProvider.getHat(normalizedHatId, chainId);
 
 				if (signal?.aborted) return null;
 
@@ -300,7 +296,7 @@ export function useHats(options: UseHatsOptions = {}): UseHatsResult {
 				return info;
 			} catch (err) {
 				if (signal?.aborted) return null;
-				console.error("Error validating hat ID:", err);
+				log.error("Error validating hat ID:", err, "useHats");
 				setEligibilityError("Hat ID not found or invalid");
 				setHatInfo(null);
 				return null;
@@ -327,17 +323,14 @@ export function useHats(options: UseHatsOptions = {}): UseHatsResult {
 				});
 				return result.hats.map(toHatInfo);
 			} catch (err) {
-				console.error("Error searching hats:", err);
+				log.error("Error searching hats:", err, "useHats");
 				return [];
 			}
 		},
 		[chainId],
 	);
 
-	/**
-	 * Public validateHatId — delegates to impl but respects mountedRef.
-	 * Used by consumers calling refetch() or validateHatId() directly.
-	 */
+	/** Public validateHatId API exposed to consumers. */
 	const validateHatId = useCallback(
 		async (hatId: string): Promise<HatInfo | null> => {
 			return validateHatIdImpl(hatId);
@@ -345,16 +338,19 @@ export function useHats(options: UseHatsOptions = {}): UseHatsResult {
 		[validateHatIdImpl],
 	);
 
-	/**
-	 * Refetch all data. Uses mountedRef guard since this is user-triggered
-	 * and not covered by the useEffect AbortController cleanup.
-	 */
+	/** Refetch all data with AbortController guards for in-flight calls. */
 	const refetch = useCallback(() => {
+		if (refetchControllerRef.current) {
+			refetchControllerRef.current.abort();
+		}
+		const controller = new AbortController();
+		refetchControllerRef.current = controller;
+
 		if (userAddress && options.fetchUserHats) {
-			fetchUserHatsImpl(userAddress);
+			fetchUserHatsImpl(userAddress, controller.signal);
 		}
 		if (options.hatId) {
-			validateHatIdImpl(options.hatId);
+			validateHatIdImpl(options.hatId, controller.signal);
 		}
 		refetchWearer();
 	}, [
@@ -365,6 +361,14 @@ export function useHats(options: UseHatsOptions = {}): UseHatsResult {
 		validateHatIdImpl,
 		refetchWearer,
 	]);
+
+	useEffect(() => {
+		return () => {
+			if (refetchControllerRef.current) {
+				refetchControllerRef.current.abort();
+			}
+		};
+	}, []);
 
 	// ── Effects ──
 

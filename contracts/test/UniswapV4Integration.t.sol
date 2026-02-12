@@ -69,7 +69,8 @@ contract UniswapV4IntegrationTest is Test {
         _accessConfig.nftRequirement = CookieJarLib.NftRequirement({
             nftContract: address(0),
             tokenId: 0,
-            minBalance: 0
+            minBalance: 0,
+            isPoapEventGate: false
         });
 
         // Deploy jar

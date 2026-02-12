@@ -43,6 +43,29 @@ function toBigIntOr(defaultValue: bigint, value: unknown): bigint {
 	return defaultValue;
 }
 
+function isMissingValue(value: unknown): boolean {
+	return (
+		value === undefined ||
+		value === null ||
+		(typeof value === "string" && value.trim().length === 0)
+	);
+}
+
+function toBigIntStrict(value: unknown): bigint | null {
+	if (typeof value === "bigint") return value;
+	if (typeof value === "number" && Number.isFinite(value)) {
+		return BigInt(Math.trunc(value));
+	}
+	if (typeof value === "string" && value.trim().length > 0) {
+		try {
+			return BigInt(value.trim());
+		} catch {
+			return null;
+		}
+	}
+	return null;
+}
+
 function protocolValue(
 	protocolConfig: JarCreationFormData["protocolConfig"],
 	keys: string[],
@@ -81,6 +104,7 @@ function resolveAccessConfig(values: JarCreationFormData): {
 				nftContract: ZERO_ADDRESS as `0x${string}`,
 				tokenId: 0n,
 				minBalance: 0n,
+				isPoapEventGate: false,
 			},
 		};
 	}
@@ -97,6 +121,7 @@ function resolveAccessConfig(values: JarCreationFormData): {
 				nftContract: nftAddress,
 				tokenId: 0n,
 				minBalance: nftType === NFTType.ERC1155 ? 1n : 0n,
+				isPoapEventGate: false,
 			},
 		};
 	}
@@ -112,10 +137,9 @@ function resolveAccessConfig(values: JarCreationFormData): {
 				nftContract: toAddressOrZero(
 					protocolValue(protocolConfig, ["poapContractAddress"]),
 				),
-				// Encode POAP event-level gate in existing struct fields.
-				// tokenId carries POAP event id, minBalance>0 marks event-mode enforcement.
 				tokenId: eventId,
-				minBalance: 1n,
+				minBalance: 0n,
+				isPoapEventGate: true,
 			},
 		};
 	}
@@ -129,6 +153,7 @@ function resolveAccessConfig(values: JarCreationFormData): {
 				),
 				tokenId: 0n,
 				minBalance: 0n,
+				isPoapEventGate: false,
 			},
 		};
 	}
@@ -155,6 +180,7 @@ function resolveAccessConfig(values: JarCreationFormData): {
 					1n,
 					protocolValue(protocolConfig, ["hypercertMinBalance"]),
 				),
+				isPoapEventGate: false,
 			},
 		};
 	}
@@ -168,32 +194,37 @@ function resolveAccessConfig(values: JarCreationFormData): {
 			),
 			tokenId: toBigIntOr(0n, protocolValue(protocolConfig, ["hatsId", "hatId"])),
 			minBalance: 1n,
+			isPoapEventGate: false,
 		},
 	};
 }
 
 export function getAccessConfigValidationError(
 	values: JarCreationFormData,
-): string | null {
+): string | undefined {
 	const protocolConfig = values.protocolConfig;
 
 	if (values.accessType === AccessType.NFTGated) {
 		if (!values.nftAddresses.length) {
 			return "At least one NFT address is required for NFT-gated access";
 		}
+		if (values.nftAddresses.length !== values.nftTypes.length) {
+			return "NFT addresses and NFT types must have the same length";
+		}
 		if (!isAddress(values.nftAddresses[0])) {
 			return "NFT address must be a valid Ethereum address";
 		}
-		return null;
+		return undefined;
 	}
 
 	if (values.accessType === AccessType.POAP) {
-		const eventId = toBigIntOr(
-			0n,
-			protocolValue(protocolConfig, ["poapEventId", "eventId"]),
-		);
-		if (eventId <= 0n) {
+		const rawEventId = protocolValue(protocolConfig, ["poapEventId", "eventId"]);
+		if (isMissingValue(rawEventId)) {
 			return "POAP event is required";
+		}
+		const eventId = toBigIntStrict(rawEventId);
+		if (eventId === null || eventId <= 0n) {
+			return "POAP event must be a valid number";
 		}
 		const poapContractAddress = protocolValue(protocolConfig, [
 			"poapContractAddress",
@@ -201,15 +232,18 @@ export function getAccessConfigValidationError(
 		if (poapContractAddress !== undefined && !isAddress(String(poapContractAddress))) {
 			return "POAP contract address must be a valid Ethereum address";
 		}
-		return null;
+		return undefined;
 	}
 
 	if (values.accessType === AccessType.Unlock) {
 		const unlockAddress = protocolValue(protocolConfig, ["unlockAddress"]);
-		if (!unlockAddress || !isAddress(String(unlockAddress))) {
+		if (isMissingValue(unlockAddress)) {
 			return "Unlock contract address is required";
 		}
-		return null;
+		if (!isAddress(String(unlockAddress))) {
+			return "Unlock contract address must be a valid Ethereum address";
+		}
+		return undefined;
 	}
 
 	if (values.accessType === AccessType.Hypercert) {
@@ -220,25 +254,43 @@ export function getAccessConfigValidationError(
 		if (!hypercertAddress || !isAddress(String(hypercertAddress))) {
 			return "Hypercert contract address is required";
 		}
-		const hypercertTokenId = toBigIntOr(
-			0n,
-			protocolValue(protocolConfig, ["hypercertTokenId", "hypercertId", "tokenId"]),
-		);
-		if (hypercertTokenId <= 0n) {
+		const rawHypercertTokenId = protocolValue(protocolConfig, [
+			"hypercertTokenId",
+			"hypercertId",
+			"tokenId",
+		]);
+		if (isMissingValue(rawHypercertTokenId)) {
 			return "Hypercert token ID is required";
 		}
-		return null;
+		const hypercertTokenId = toBigIntStrict(rawHypercertTokenId);
+		if (hypercertTokenId === null || hypercertTokenId <= 0n) {
+			return "Hypercert token ID must be a valid number";
+		}
+		const hypercertMinBalance = protocolValue(protocolConfig, [
+			"hypercertMinBalance",
+		]);
+		if (!isMissingValue(hypercertMinBalance)) {
+			const parsedMinBalance = toBigIntStrict(hypercertMinBalance);
+			if (parsedMinBalance === null || parsedMinBalance <= 0n) {
+				return "Hypercert minimum balance must be a valid number";
+			}
+		}
+		return undefined;
 	}
 
 	if (values.accessType === AccessType.Hats) {
-		const hatsId = toBigIntOr(0n, protocolValue(protocolConfig, ["hatsId", "hatId"]));
-		if (hatsId <= 0n) {
+		const rawHatsId = protocolValue(protocolConfig, ["hatsId", "hatId"]);
+		if (isMissingValue(rawHatsId)) {
 			return "Hat ID is required";
 		}
-		return null;
+		const hatsId = toBigIntStrict(rawHatsId);
+		if (hatsId === null || hatsId <= 0n) {
+			return "Hat ID must be a valid number";
+		}
+		return undefined;
 	}
 
-	return null;
+	return undefined;
 }
 
 export function buildV2CreateCookieJarArgs(input: {

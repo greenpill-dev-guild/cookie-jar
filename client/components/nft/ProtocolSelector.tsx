@@ -1,6 +1,6 @@
 import { ChevronDown, Monitor, Smartphone, Users } from "lucide-react";
 import type React from "react";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
 	Accordion,
 	AccordionContent,
@@ -230,14 +230,35 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 		[visibleMethods],
 	);
 
+	const onConfigChangeRef = useRef(onConfigChange);
+	const initialConfigRef = useRef(initialConfig);
+	const fallbackRef = useRef<AccessMethod | null>(null);
+
+	useEffect(() => {
+		onConfigChangeRef.current = onConfigChange;
+	}, [onConfigChange]);
+
+	useEffect(() => {
+		initialConfigRef.current = initialConfig;
+	}, [initialConfig]);
+
 	useEffect(() => {
 		if (filteredMethods.length === 0) return;
-		if (filteredMethods.some((method) => method.id === selectedMethod)) return;
+		if (filteredMethods.some((method) => method.id === selectedMethod)) {
+			fallbackRef.current = null;
+			return;
+		}
 
 		const fallbackMethod = filteredMethods[0].id;
+		if (fallbackRef.current === fallbackMethod) return;
+		fallbackRef.current = fallbackMethod;
+
 		setSelectedMethod(fallbackMethod);
-		onConfigChange({ ...initialConfig, method: fallbackMethod });
-	}, [filteredMethods, selectedMethod, onConfigChange, initialConfig]);
+		onConfigChangeRef.current({
+			...(initialConfigRef.current ?? {}),
+			method: fallbackMethod,
+		});
+	}, [filteredMethods, selectedMethod]);
 
 	// Determine actual view mode
 	const actualViewMode =

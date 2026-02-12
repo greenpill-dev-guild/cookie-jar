@@ -606,9 +606,24 @@ const AccessControlStep: React.FC = () => {
 
 	const handleAddNFT = useCallback(
 		(address: string, type: number) => {
+			const normalizedAddress = address.trim().toLowerCase();
+			if (!normalizedAddress) return;
+
 			const currentAddresses = getValues("nftAddresses");
 			const currentTypes = getValues("nftTypes");
-			setValue("nftAddresses", [...currentAddresses, address]);
+			const normalizedCurrentAddresses = currentAddresses.map((item) =>
+				item.trim().toLowerCase(),
+			);
+			const existingIndex = normalizedCurrentAddresses.indexOf(normalizedAddress);
+
+			if (existingIndex !== -1) {
+				const nextTypes = [...currentTypes];
+				nextTypes[existingIndex] = type as NFTType;
+				setValue("nftTypes", nextTypes);
+				return;
+			}
+
+			setValue("nftAddresses", [...currentAddresses, normalizedAddress]);
 			setValue("nftTypes", [...currentTypes, type as NFTType]);
 		},
 		[getValues, setValue],

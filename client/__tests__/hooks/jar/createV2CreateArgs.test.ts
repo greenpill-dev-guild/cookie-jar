@@ -5,8 +5,13 @@ import {
 	FACTORY_DEFAULT_FEE_SENTINEL,
 	buildV2CreateCookieJarArgs,
 	getFeePercentageOnDeposit,
+	getAccessConfigValidationError,
 } from "@/hooks/jar/createV2CreateArgs";
-import { ETH_ADDRESS, HATS_PROTOCOL_ADDRESS, POAP_TOKEN_ADDRESS } from "@/lib/blockchain/constants";
+import {
+	ETH_ADDRESS,
+	HATS_PROTOCOL_ADDRESS,
+	POAP_TOKEN_ADDRESS,
+} from "@/lib/blockchain/constants";
 
 vi.mock("@/hooks/jar/schemas/jarCreationSchema", () => ({
 	AccessType: {
@@ -169,7 +174,8 @@ describe("buildV2CreateCookieJarArgs", () => {
 		expect(poapJar.accessType).toBe(1);
 		expect(poapAccess.nftRequirement.nftContract).toBe(POAP_TOKEN_ADDRESS);
 		expect(poapAccess.nftRequirement.tokenId).toBe(1234n);
-		expect(poapAccess.nftRequirement.minBalance).toBe(1n);
+		expect(poapAccess.nftRequirement.minBalance).toBe(0n);
+		expect(poapAccess.nftRequirement.isPoapEventGate).toBe(true);
 
 		const [unlockJar] = buildV2CreateCookieJarArgs({
 			values: makeValues({
@@ -202,12 +208,243 @@ describe("buildV2CreateCookieJarArgs", () => {
 		const [hatsJar, hatsAccess] = buildV2CreateCookieJarArgs({
 			values: makeValues({
 				accessType: AccessType.Hats,
-				protocolConfig: { accessType: "Hats", hatsId: 99 },
+				protocolConfig: { accessType: "Hats", hatsId: "99" },
 			}),
 			metadata: "metadata",
 			parseAmount: () => 1n,
 		});
 		expect(hatsJar.accessType).toBe(2);
 		expect(hatsAccess.nftRequirement.nftContract).toBe(HATS_PROTOCOL_ADDRESS);
+		expect(hatsAccess.nftRequirement.isPoapEventGate).toBe(false);
+	});
+});
+
+describe("getAccessConfigValidationError", () => {
+	it("returns an error for NFT-gated access when address list is missing", () => {
+		const error = getAccessConfigValidationError(
+			makeValues({
+				accessType: AccessType.NFTGated,
+				nftAddresses: [],
+				nftTypes: [],
+			}),
+		);
+		expect(error).toBe("At least one NFT address is required for NFT-gated access");
+	});
+
+	it("returns an error for NFT-gated access when nftAddresses and nftTypes mismatch", () => {
+		const error = getAccessConfigValidationError(
+			makeValues({
+				accessType: AccessType.NFTGated,
+				nftAddresses: [
+					"0x1111111111111111111111111111111111111111",
+					"0x2222222222222222222222222222222222222222",
+				],
+				nftTypes: [NFTType.ERC721],
+			}),
+		);
+		expect(error).toBe("NFT addresses and NFT types must have the same length");
+	});
+
+	it("returns an error for NFT-gated access when address format is invalid", () => {
+		const error = getAccessConfigValidationError(
+			makeValues({
+				accessType: AccessType.NFTGated,
+				nftAddresses: ["not-an-address"],
+				nftTypes: [NFTType.ERC721],
+			}),
+		);
+		expect(error).toBe("NFT address must be a valid Ethereum address");
+	});
+
+	it("returns undefined for valid NFT-gated access", () => {
+		const error = getAccessConfigValidationError(
+			makeValues({
+				accessType: AccessType.NFTGated,
+				nftAddresses: ["0x1111111111111111111111111111111111111111"],
+				nftTypes: [NFTType.ERC1155],
+			}),
+		);
+		expect(error).toBeUndefined();
+	});
+
+	it("returns an error for POAP access when eventId is missing", () => {
+		const error = getAccessConfigValidationError(
+			makeValues({
+				accessType: AccessType.POAP,
+				protocolConfig: { accessType: "POAP" },
+			}),
+		);
+		expect(error).toBe("POAP event is required");
+	});
+
+	it("returns an error for POAP access when eventId is non-numeric", () => {
+		const error = getAccessConfigValidationError(
+			makeValues({
+				accessType: AccessType.POAP,
+				protocolConfig: { accessType: "POAP", eventId: "abc" },
+			}),
+		);
+		expect(error).toBe("POAP event must be a valid number");
+	});
+
+	it("returns an error for POAP access when contract fallback is invalid", () => {
+		const error = getAccessConfigValidationError(
+			makeValues({
+				accessType: AccessType.POAP,
+				protocolConfig: {
+					accessType: "POAP",
+					eventId: "1234",
+					poapContractAddress: "invalid-contract",
+				},
+			}),
+		);
+		expect(error).toBe("POAP contract address must be a valid Ethereum address");
+	});
+
+	it("returns undefined for valid POAP access", () => {
+		const error = getAccessConfigValidationError(
+			makeValues({
+				accessType: AccessType.POAP,
+				protocolConfig: {
+					accessType: "POAP",
+					eventId: "1234",
+					poapContractAddress: POAP_TOKEN_ADDRESS,
+				},
+			}),
+		);
+		expect(error).toBeUndefined();
+	});
+
+	it("returns an error for Unlock access when unlockAddress is missing", () => {
+		const error = getAccessConfigValidationError(
+			makeValues({
+				accessType: AccessType.Unlock,
+				protocolConfig: { accessType: "Unlock" },
+			}),
+		);
+		expect(error).toBe("Unlock contract address is required");
+	});
+
+	it("returns an error for Unlock access when unlockAddress is invalid", () => {
+		const error = getAccessConfigValidationError(
+			makeValues({
+				accessType: AccessType.Unlock,
+				protocolConfig: { accessType: "Unlock", unlockAddress: "invalid" },
+			}),
+		);
+		expect(error).toBe("Unlock contract address must be a valid Ethereum address");
+	});
+
+	it("returns undefined for valid Unlock access", () => {
+		const error = getAccessConfigValidationError(
+			makeValues({
+				accessType: AccessType.Unlock,
+				protocolConfig: {
+					accessType: "Unlock",
+					unlockAddress: "0x2222222222222222222222222222222222222222",
+				},
+			}),
+		);
+		expect(error).toBeUndefined();
+	});
+
+	it("returns an error for Hypercert access when address is missing", () => {
+		const error = getAccessConfigValidationError(
+			makeValues({
+				accessType: AccessType.Hypercert,
+				protocolConfig: {
+					accessType: "Hypercert",
+					hypercertTokenId: "1",
+				},
+			}),
+		);
+		expect(error).toBe("Hypercert contract address is required");
+	});
+
+	it("returns an error for Hypercert access when token ID is missing", () => {
+		const error = getAccessConfigValidationError(
+			makeValues({
+				accessType: AccessType.Hypercert,
+				protocolConfig: {
+					accessType: "Hypercert",
+					hypercertAddress: "0x3333333333333333333333333333333333333333",
+				},
+			}),
+		);
+		expect(error).toBe("Hypercert token ID is required");
+	});
+
+	it("returns an error for Hypercert access when token ID is non-numeric", () => {
+		const error = getAccessConfigValidationError(
+			makeValues({
+				accessType: AccessType.Hypercert,
+				protocolConfig: {
+					accessType: "Hypercert",
+					hypercertAddress: "0x3333333333333333333333333333333333333333",
+					hypercertTokenId: "abc",
+				},
+			}),
+		);
+		expect(error).toBe("Hypercert token ID must be a valid number");
+	});
+
+	it("returns an error for Hypercert access when min balance is invalid", () => {
+		const error = getAccessConfigValidationError(
+			makeValues({
+				accessType: AccessType.Hypercert,
+				protocolConfig: {
+					accessType: "Hypercert",
+					hypercertAddress: "0x3333333333333333333333333333333333333333",
+					hypercertTokenId: "1",
+					hypercertMinBalance: Number.NaN,
+				},
+			}),
+		);
+		expect(error).toBe("Hypercert minimum balance must be a valid number");
+	});
+
+	it("returns undefined for valid Hypercert access", () => {
+		const error = getAccessConfigValidationError(
+			makeValues({
+				accessType: AccessType.Hypercert,
+				protocolConfig: {
+					accessType: "Hypercert",
+					hypercertAddress: "0x3333333333333333333333333333333333333333",
+					hypercertTokenId: "42",
+					hypercertMinBalance: 1,
+				},
+			}),
+		);
+		expect(error).toBeUndefined();
+	});
+
+	it("returns an error for Hats access when hatsId is missing", () => {
+		const error = getAccessConfigValidationError(
+			makeValues({
+				accessType: AccessType.Hats,
+				protocolConfig: { accessType: "Hats" },
+			}),
+		);
+		expect(error).toBe("Hat ID is required");
+	});
+
+	it("returns an error for Hats access when hatsId is non-numeric", () => {
+		const error = getAccessConfigValidationError(
+			makeValues({
+				accessType: AccessType.Hats,
+				protocolConfig: { accessType: "Hats", hatsId: "abc" },
+			}),
+		);
+		expect(error).toBe("Hat ID must be a valid number");
+	});
+
+	it("returns undefined for valid Hats access", () => {
+		const error = getAccessConfigValidationError(
+			makeValues({
+				accessType: AccessType.Hats,
+				protocolConfig: { accessType: "Hats", hatsId: "99" },
+			}),
+		);
+		expect(error).toBeUndefined();
 	});
 });
