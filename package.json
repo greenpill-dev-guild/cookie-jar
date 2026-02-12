@@ -59,8 +59,12 @@
 		"generate": "cd client && bun generate",
 		"deploy:local": "cd contracts && FOUNDRY_PROFILE=dev forge script script/DeployLocal.s.sol --rpc-url http://127.0.0.1:8545 --broadcast --sender 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 && cd .. && bun copy:deployment",
 		"deploy:celo": "./scripts/deploy.sh celo",
+		"deploy:celo-alfajores": "./scripts/deploy.sh celo-alfajores",
 		"deploy:base": "./scripts/deploy.sh base",
+		"deploy:arbitrum": "./scripts/deploy.sh arbitrum",
+		"deploy:arbitrum-sepolia": "./scripts/deploy.sh arbitrum-sepolia",
 		"deploy:ethereum": "./scripts/deploy.sh ethereum",
+		"deploy:ethereum-sepolia": "./scripts/deploy.sh ethereum-sepolia",
 		"deploy:base-sepolia": "./scripts/deploy.sh base-sepolia"
 	},
 	"devDependencies": {
