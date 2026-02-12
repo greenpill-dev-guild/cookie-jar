@@ -165,6 +165,14 @@ contract CookieJarTest is Test {
             });
     }
 
+    /// @notice Build a purpose string with multi-byte Unicode code points.
+    /// @dev Uses `é` so byte length != code point length.
+    function buildUnicodePurpose(uint256 count) internal pure returns (string memory out) {
+        for (uint256 i = 0; i < count; i++) {
+            out = string.concat(out, unicode"é");
+        }
+    }
+
     function setUp() public {
         dummyToken = new DummyERC20();
         dummyErc721 = new DummyERC721();
@@ -1312,6 +1320,32 @@ contract CookieJarTest is Test {
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidPurpose.selector));
         jarAllowlistEthFixed.withdrawAllowlistMode(fixedAmount, shortPurpose);
+    }
+
+    function test_RevertWhen_WithdrawAllowlistPurposeHasOnly26UnicodeCodePoints() public {
+        vm.prank(owner);
+        jarAllowlistEthFixed.grantJarAllowlistRole(users);
+        vm.warp(block.timestamp + withdrawalInterval + 1);
+
+        string memory purpose26 = buildUnicodePurpose(26);
+
+        vm.prank(user);
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidPurpose.selector));
+        jarAllowlistEthFixed.withdrawAllowlistMode(fixedAmount, purpose26);
+    }
+
+    function test_WithdrawAllowlistPurposeWith27UnicodeCodePoints() public {
+        vm.prank(owner);
+        jarAllowlistEthFixed.grantJarAllowlistRole(users);
+        vm.warp(block.timestamp + withdrawalInterval + 1);
+
+        string memory purpose27 = buildUnicodePurpose(27);
+        uint256 userBalanceBefore = user.balance;
+
+        vm.prank(user);
+        jarAllowlistEthFixed.withdrawAllowlistMode(fixedAmount, purpose27);
+
+        assertEq(user.balance, userBalanceBefore + fixedAmount);
     }
 
     function test_RevertWhen_WithdrawAllowlistAlreadyWithdrawn() public {

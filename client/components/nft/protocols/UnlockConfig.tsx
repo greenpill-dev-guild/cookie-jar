@@ -126,6 +126,7 @@ export const UnlockConfig: React.FC<UnlockConfigProps> = ({
 			icon="🔓"
 			color="bg-blue-500"
 			validationError={validationError}
+			errorId="unlock-error"
 			isLoading={isValidating}
 			className={className}
 			learnMoreUrl={ACCESS_CONTROL_DOC_LINKS.unlock}
@@ -140,6 +141,8 @@ export const UnlockConfig: React.FC<UnlockConfigProps> = ({
 						value={unlockAddress}
 						onChange={handleAddressChange}
 						className="mt-1"
+						aria-invalid={!!validationError}
+						aria-describedby={validationError ? "unlock-error" : undefined}
 					/>
 					<p className="text-xs text-gray-500 mt-1">
 						The contract address of the Unlock Protocol lock

@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useDebounce } from "@/hooks/app/useDebounce";
+import { POAP_TOKEN_ADDRESS } from "@/lib/blockchain/constants";
 import { POAPProvider } from "@/lib/nft/protocols/POAPProvider";
 import { ACCESS_CONTROL_DOC_LINKS } from "../doc-links";
 import { ProtocolConfigBase } from "../ProtocolConfigBase";
@@ -21,7 +22,12 @@ interface POAPEvent {
 }
 
 export interface POAPConfigProps {
-	onConfigChange: (config: { eventId: string; eventName?: string }) => void;
+	onConfigChange: (config: {
+		eventId: string;
+		eventName?: string;
+		poapEventId?: number;
+		poapContractAddress?: string;
+	}) => void;
 	initialConfig?: { eventId: string; eventName?: string };
 	className?: string;
 }
@@ -92,7 +98,12 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
 		setSearchTerm(""); // Clear search
 		setSearchResults([]);
 		setValidationError(null);
-		onConfigChange({ eventId: eventIdStr, eventName: event.name });
+		onConfigChange({
+			eventId: eventIdStr,
+			eventName: event.name,
+			poapEventId: Number(event.id),
+			poapContractAddress: POAP_TOKEN_ADDRESS,
+		});
 	};
 
 	const handleEventIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -102,7 +113,12 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
 		setValidationError(null);
 
 		if (newEventId) {
-			onConfigChange({ eventId: newEventId });
+			const parsed = Number.parseInt(newEventId, 10);
+			onConfigChange({
+				eventId: newEventId,
+				poapEventId: Number.isFinite(parsed) ? parsed : undefined,
+				poapContractAddress: POAP_TOKEN_ADDRESS,
+			});
 		}
 	};
 
@@ -116,11 +132,16 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
 		setValidationError(null);
 
 		try {
-			const event = await POAPProvider.getEventById(eventId);
-			if (event) {
-				setSelectedEvent(event);
-				onConfigChange({ eventId: String(event.id), eventName: event.name });
-			} else {
+				const event = await POAPProvider.getEventById(eventId);
+				if (event) {
+					setSelectedEvent(event);
+					onConfigChange({
+						eventId: String(event.id),
+						eventName: event.name,
+						poapEventId: Number(event.id),
+						poapContractAddress: POAP_TOKEN_ADDRESS,
+					});
+				} else {
 				setValidationError("POAP Event ID not found.");
 				setSelectedEvent(null);
 			}
@@ -139,6 +160,7 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
 			icon="🎖️"
 			color="bg-purple-500"
 			validationError={validationError}
+			errorId="poap-event-error"
 			isLoading={isValidating}
 			className={className}
 			learnMoreUrl={ACCESS_CONTROL_DOC_LINKS.poap}
@@ -164,9 +186,10 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
 					{searchResults.length > 0 && (
 						<div className="mt-2 border rounded-md max-h-48 overflow-y-auto">
 							{searchResults.map((event) => (
-								<div
+								<button
+									type="button"
 									key={event.id}
-									className="flex items-center p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0"
+									className="flex items-center p-3 hover:bg-gray-50 cursor-pointer border-b last:border-b-0 w-full text-left"
 									onClick={() => handleEventSelect(event)}
 								>
 									{event.image_url && (
@@ -187,7 +210,7 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
 											</p>
 										)}
 									</div>
-								</div>
+								</button>
 							))}
 						</div>
 					)}
@@ -216,6 +239,8 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
 							value={eventId}
 							onChange={handleEventIdChange}
 							className="flex-1"
+							aria-invalid={!!validationError}
+							aria-describedby={validationError ? "poap-event-error" : undefined}
 						/>
 						<Button
 							onClick={handleValidateEventId}

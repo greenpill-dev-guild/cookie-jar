@@ -857,6 +857,7 @@ export const cookieJarAbi = [
   { type: 'error', inputs: [], name: 'FeeCollectorAddressCannotBeZeroAddress' },
   { type: 'error', inputs: [], name: 'FeeTransferFailed' },
   { type: 'error', inputs: [], name: 'InsufficientBalance' },
+  { type: 'error', inputs: [], name: 'InsufficientNFTBalance' },
   {
     type: 'error',
     inputs: [
@@ -871,6 +872,8 @@ export const cookieJarAbi = [
   { type: 'error', inputs: [], name: 'InvalidTokenAddress' },
   { type: 'error', inputs: [], name: 'InvalidWithdrawalType' },
   { type: 'error', inputs: [], name: 'LessThanMinimumDeposit' },
+  { type: 'error', inputs: [], name: 'NFTNotOwned' },
+  { type: 'error', inputs: [], name: 'NFTValidationFailed' },
   { type: 'error', inputs: [], name: 'NoNFTAddressesProvided' },
   { type: 'error', inputs: [], name: 'NotAuthorized' },
   { type: 'error', inputs: [], name: 'NotFeeCollector' },

@@ -119,7 +119,8 @@ export function useEnhancedNFTValidation(
 		},
 	});
 
-	// ERC721 check
+	// ERC721 and ERC1155 checks run in PARALLEL — both enable simultaneously
+	// when supportsERC165 becomes true. Wagmi fires independent RPC calls.
 	const {
 		data: supportsERC721,
 		isLoading: isCheckingERC721,
@@ -135,7 +136,6 @@ export function useEnhancedNFTValidation(
 		},
 	});
 
-	// ERC1155 check
 	const {
 		data: supportsERC1155,
 		isLoading: isCheckingERC1155,
@@ -177,21 +177,9 @@ export function useEnhancedNFTValidation(
 			return;
 		}
 
-		// Check if we have results
-		if (cacheKey && enableCaching && !forceFresh) {
-			const cached = validationCache.get(cacheKey);
-			if (
-				cached &&
-				(!currentBlock || cached.blockNumber >= Number(currentBlock) - 100)
-			) {
-				setResult({
-					...cached.data,
-					fromCache: true,
-					cacheAge: Date.now() - cached.timestamp,
-				});
-				return;
-			}
-		}
+		// Note: Cache is already checked in the earlier useEffect.
+		// If it was valid, result.isValid would be true and queries
+		// would be disabled, so we won't reach this point.
 
 		// Process ERC165 results
 		if (supportsERC165 === false) {
@@ -262,7 +250,6 @@ export function useEnhancedNFTValidation(
 		cacheKey,
 		enableCaching,
 		currentBlock,
-		forceFresh,
 	]);
 
 	// Malicious contract check (optional)

@@ -18,7 +18,6 @@ vi.mock("@/config/deployments.auto", () => ({
 	},
 }));
 
-import { useJarCreation } from "@/hooks/jar/useJarCreation";
 import { ETH_ADDRESS } from "@/lib/blockchain/constants";
 
 // Mock wagmi hooks
@@ -60,7 +59,7 @@ vi.mock("@/config/supported-networks", () => ({
 }));
 
 // Mock toast
-vi.mock("@/hooks/useToast", () => ({
+vi.mock("@/hooks/app/useToast", () => ({
 	useToast: () => ({
 		toast: vi.fn(),
 	}),
@@ -73,6 +72,12 @@ const describeOrSkip =
 
 describeOrSkip("useJarCreation", () => {
 	let queryClient: QueryClient;
+	let useJarCreation: typeof import("@/hooks/jar/useJarCreation").useJarCreation;
+
+	beforeAll(async () => {
+		const module = await import("@/hooks/jar/useJarCreation");
+		useJarCreation = module.useJarCreation;
+	});
 
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -85,6 +90,9 @@ describeOrSkip("useJarCreation", () => {
 	});
 
 	const renderHookWithProviders = () => {
+		if (!useJarCreation) {
+			throw new Error("useJarCreation hook not loaded");
+		}
 		return renderHook(() => useJarCreation(), {
 			wrapper: ({ children }: { children: React.ReactNode }) =>
 				React.createElement(
@@ -95,7 +103,7 @@ describeOrSkip("useJarCreation", () => {
 		});
 	};
 
-	describe("🔧 ETH Address Fix", () => {
+	describe("ETH Address Fix", () => {
 		it("should use address(3) for ETH address", () => {
 			const { result } = renderHookWithProviders();
 
@@ -105,11 +113,13 @@ describeOrSkip("useJarCreation", () => {
 		it("should initialize supportedCurrency with correct ETH address", () => {
 			const { result } = renderHookWithProviders();
 
-			expect(result.current.supportedCurrency).toBe(ETH_ADDRESS);
+			expect(result.current.form.getValues("supportedCurrency")).toBe(
+				ETH_ADDRESS,
+			);
 		});
 	});
 
-	describe("🚀 V1 vs V2 Logic", () => {
+	describe("V1 vs V2 Logic", () => {
 		it("should detect v1 contracts correctly", () => {
 			const { result } = renderHookWithProviders();
 
@@ -118,13 +128,13 @@ describeOrSkip("useJarCreation", () => {
 		});
 
 		it("should detect v2 contracts correctly", () => {
-			// Mock the deployments.auto module to return v2 for chain 31337
 			vi.doMock("@/config/deployments.auto", () => ({
 				isV2Chain: vi.fn().mockReturnValue(true),
 				DEPLOYMENTS: {
 					31337: {
 						chainId: 31337,
-						factoryAddress: "0xa2Cc1f3479E194B1aa16BeCc975aA25618f8d3AD",
+						factoryAddress:
+							"0xa2Cc1f3479E194B1aa16BeCc975aA25618f8d3AD",
 						isV2: true,
 						blockNumber: 0,
 						timestamp: 1759019328,
@@ -140,26 +150,28 @@ describeOrSkip("useJarCreation", () => {
 			const { result } = renderHookWithProviders();
 
 			act(() => {
-				result.current.setEnableCustomFee(true);
+				result.current.form.setValue("enableCustomFee", true);
 			});
 
-			// Should automatically disable custom fees for v1 when isV2Contract is false
-			expect(result.current.enableCustomFee).toBe(false);
+			// v1 effect should reset to false
+			expect(result.current.form.getValues("enableCustomFee")).toBe(
+				false,
+			);
 		});
 
 		it("should force allowlist access type for v1 contracts", () => {
 			const { result } = renderHookWithProviders();
 
 			act(() => {
-				result.current.setAccessType(1); // NFTGated
+				result.current.form.setValue("accessType", 1); // NFTGated
 			});
 
-			// Should automatically revert to allowlist for v1
-			expect(result.current.accessType).toBe(0); // Allowlist
+			// v1 effect should reset to Allowlist
+			expect(result.current.form.getValues("accessType")).toBe(0);
 		});
 	});
 
-	describe("📝 Form Validation", () => {
+	describe("Form Validation", () => {
 		it("should validate required jar name", () => {
 			const { result } = renderHookWithProviders();
 
@@ -173,8 +185,8 @@ describeOrSkip("useJarCreation", () => {
 			const { result } = renderHookWithProviders();
 
 			act(() => {
-				result.current.setWithdrawalOption(0); // Fixed
-				result.current.setFixedAmount("0");
+				result.current.form.setValue("withdrawalOption", 0); // Fixed
+				result.current.form.setValue("fixedAmount", "0");
 			});
 
 			const validation = result.current.validateStep2();
@@ -189,7 +201,7 @@ describeOrSkip("useJarCreation", () => {
 			const { result } = renderHookWithProviders();
 
 			act(() => {
-				result.current.setWithdrawalInterval("0");
+				result.current.form.setValue("withdrawalInterval", "0");
 			});
 
 			const validation = result.current.validateStep2();
@@ -204,8 +216,8 @@ describeOrSkip("useJarCreation", () => {
 			const { result } = renderHookWithProviders();
 
 			act(() => {
-				result.current.setEnableCustomFee(true);
-				result.current.setCustomFee("150"); // Over 100%
+				result.current.form.setValue("enableCustomFee", true);
+				result.current.form.setValue("customFee", "150"); // Over 100%
 			});
 
 			const validation = result.current.validateStep4();
@@ -217,50 +229,50 @@ describeOrSkip("useJarCreation", () => {
 		});
 	});
 
-	describe("💱 Currency Handling", () => {
-		it("should handle custom currency selection", () => {
+	describe("Currency Handling", () => {
+		it("should initialize with custom currency hidden", () => {
 			const { result } = renderHookWithProviders();
 
-			act(() => {
-				result.current.handleCurrencyChange("CUSTOM");
-			});
-
-			expect(result.current.showCustomCurrency).toBe(true);
+			expect(result.current.form.getValues("showCustomCurrency")).toBe(
+				false,
+			);
 		});
 
-		it("should validate ERC20 addresses", async () => {
+		it("should allow setting custom currency via form", () => {
 			const { result } = renderHookWithProviders();
 
 			act(() => {
-				result.current.setCustomCurrencyAddress(
+				result.current.form.setValue("showCustomCurrency", true);
+				result.current.form.setValue(
+					"customCurrencyAddress",
 					"0x1234567890123456789012345678901234567890",
 				);
 			});
 
-			await act(async () => {
-				await result.current.handleCustomCurrencySubmit();
-			});
-
-			// Should handle the submission (testing the function executes without throwing)
-			expect(result.current.handleCustomCurrencySubmit).toBeDefined();
+			expect(result.current.form.getValues("showCustomCurrency")).toBe(
+				true,
+			);
+			expect(
+				result.current.form.getValues("customCurrencyAddress"),
+			).toBe("0x1234567890123456789012345678901234567890");
 		});
 	});
 
-	describe("🧹 Form Reset", () => {
+	describe("Form Reset", () => {
 		it("should reset all form fields", () => {
 			const { result } = renderHookWithProviders();
 
 			// Set some values
 			act(() => {
-				result.current.setJarName("Test Jar");
-				result.current.setFixedAmount("0.5");
-				result.current.setEnableCustomFee(true);
+				result.current.form.setValue("jarName", "Test Jar");
+				result.current.form.setValue("fixedAmount", "0.5");
+				result.current.form.setValue("enableCustomFee", true);
 			});
 
 			// Verify values are set
-			expect(result.current.jarName).toBe("Test Jar");
-			expect(result.current.fixedAmount).toBe("0.5");
-			expect(result.current.enableCustomFee).toBe(true);
+			expect(result.current.form.getValues("jarName")).toBe("Test Jar");
+			expect(result.current.form.getValues("fixedAmount")).toBe("0.5");
+			expect(result.current.form.getValues("enableCustomFee")).toBe(true);
 
 			// Reset form
 			act(() => {
@@ -268,31 +280,11 @@ describeOrSkip("useJarCreation", () => {
 			});
 
 			// Verify values are reset
-			expect(result.current.jarName).toBe("");
-			expect(result.current.fixedAmount).toBe("0");
-			expect(result.current.enableCustomFee).toBe(false);
-		});
-	});
-
-	describe("🎲 Development Helpers", () => {
-		beforeEach(() => {
-			vi.stubEnv("NODE_ENV", "development");
-		});
-
-		afterEach(() => {
-			vi.unstubAllEnvs();
-		});
-
-		it("should populate random data in development", () => {
-			const { result } = renderHookWithProviders();
-
-			act(() => {
-				result.current.prepopulateRandomData();
-			});
-
-			// Should have populated some data
-			expect(result.current.jarName).toBeTruthy();
-			expect(result.current.fixedAmount).not.toBe("0");
+			expect(result.current.form.getValues("jarName")).toBe("");
+			expect(result.current.form.getValues("fixedAmount")).toBe("0");
+			expect(result.current.form.getValues("enableCustomFee")).toBe(
+				false,
+			);
 		});
 	});
 });

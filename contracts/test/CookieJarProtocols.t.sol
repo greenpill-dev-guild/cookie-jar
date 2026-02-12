@@ -10,16 +10,53 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 contract MockPOAP {
     mapping(uint256 => address) public owners;
     mapping(address => uint256) public ownerTokenCount;
+    mapping(uint256 => uint256) public tokenEventIds;
+    mapping(address => mapping(uint256 => uint256[])) private ownerEventTokens;
+    mapping(uint256 => uint256) private ownerEventTokenIndex;
 
     function setOwner(uint256 tokenId, address owner) external {
+        _setOwnerForEvent(tokenId, tokenEventIds[tokenId], owner);
+    }
+
+    function setOwnerForEvent(uint256 tokenId, uint256 eventId, address owner) external {
+        _setOwnerForEvent(tokenId, eventId, owner);
+    }
+
+    function _setOwnerForEvent(uint256 tokenId, uint256 eventId, address owner) internal {
         address previousOwner = owners[tokenId];
+        uint256 previousEventId = tokenEventIds[tokenId];
+
         if (previousOwner != address(0)) {
             ownerTokenCount[previousOwner]--;
+            _removeOwnerEventToken(previousOwner, previousEventId, tokenId);
         }
+
         owners[tokenId] = owner;
+        tokenEventIds[tokenId] = eventId;
+
         if (owner != address(0)) {
             ownerTokenCount[owner]++;
+            ownerEventTokens[owner][eventId].push(tokenId);
+            ownerEventTokenIndex[tokenId] = ownerEventTokens[owner][eventId].length;
         }
+    }
+
+    function _removeOwnerEventToken(address owner, uint256 eventId, uint256 tokenId) internal {
+        uint256 indexPlusOne = ownerEventTokenIndex[tokenId];
+        if (indexPlusOne == 0) return;
+
+        uint256[] storage tokens = ownerEventTokens[owner][eventId];
+        uint256 index = indexPlusOne - 1;
+        uint256 lastIndex = tokens.length - 1;
+
+        if (index != lastIndex) {
+            uint256 lastTokenId = tokens[lastIndex];
+            tokens[index] = lastTokenId;
+            ownerEventTokenIndex[lastTokenId] = index + 1;
+        }
+
+        tokens.pop();
+        ownerEventTokenIndex[tokenId] = 0;
     }
 
     function ownerOf(uint256 tokenId) external view returns (address) {
@@ -34,9 +71,11 @@ contract MockPOAP {
     }
 
     function tokenDetailsOfOwnerByEvent(address owner, uint256 eventId) external view returns (uint256[] memory) {
-        // Simple mock implementation - in reality this would check event ownership
-        uint256[] memory tokens = new uint256[](1);
-        tokens[0] = eventId * 1000 + (uint256(uint160(owner)) % 1000);
+        uint256[] storage stored = ownerEventTokens[owner][eventId];
+        uint256[] memory tokens = new uint256[](stored.length);
+        for (uint256 i = 0; i < stored.length; i++) {
+            tokens[i] = stored[i];
+        }
         return tokens;
     }
 }
@@ -172,15 +211,28 @@ contract CookieJarProtocolsTest is Test {
             );
     }
 
-    // Helper: ERC721 access config using mockPoap (POAP/Unlock tests)
-    function createERC721AccessConfig() internal view returns (CookieJarLib.AccessConfig memory) {
+    // Helper: ERC721 access config for POAP event-level gating
+    function createPoapAccessConfig() internal view returns (CookieJarLib.AccessConfig memory) {
+        return
+            CookieJarLib.AccessConfig({
+                allowlist: emptyAllowlist,
+                nftRequirement: CookieJarLib.NftRequirement({
+                    nftContract: address(mockPoap),
+                    tokenId: testEventId,
+                    minBalance: 1
+                })
+            });
+    }
+
+    // Helper: ERC721 access config for generic Unlock-style key ownership
+    function createUnlockAccessConfig() internal view returns (CookieJarLib.AccessConfig memory) {
         return
             CookieJarLib.AccessConfig({
                 allowlist: emptyAllowlist,
                 nftRequirement: CookieJarLib.NftRequirement({
                     nftContract: address(mockPoap),
                     tokenId: 0,
-                    minBalance: 1
+                    minBalance: 0
                 })
             });
     }
@@ -225,7 +277,7 @@ contract CookieJarProtocolsTest is Test {
         dummyToken.mint(owner, 100_000 * 1e18);
         vm.startPrank(owner);
 
-        // Create POAP jar (ERC721, ETH, Fixed) — uses mockPoap
+        // Create POAP jar (ERC721, ETH, Fixed) with event-level gate
         jarPoap = new CookieJar(
             createJarConfig(
                 owner,
@@ -242,7 +294,7 @@ contract CookieJarProtocolsTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createERC721AccessConfig(),
+            createPoapAccessConfig(),
             address(0) // Superfluid host disabled for testing
         );
 
@@ -263,7 +315,7 @@ contract CookieJarProtocolsTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createERC721AccessConfig(),
+            createUnlockAccessConfig(),
             address(0) // Superfluid host disabled for testing
         );
 
@@ -327,9 +379,9 @@ contract CookieJarProtocolsTest is Test {
     }
 
     function test_WithdrawERC721Mode() public {
-        // Setup user with POAP - user owns token ID 12345001
+        // Setup user with POAP for the required event.
         uint256 poapTokenId = 12345001;
-        mockPoap.setOwner(poapTokenId, user);
+        mockPoap.setOwnerForEvent(poapTokenId, testEventId, user);
 
         vm.warp(block.timestamp + withdrawalInterval + 1);
         uint256 jarBalanceBefore = address(jarPoap).balance;
@@ -361,9 +413,9 @@ contract CookieJarProtocolsTest is Test {
     }
 
     function test_RevertWhen_WithdrawPOAPModeTooSoon() public {
-        // Setup user with POAP
+        // Setup user with POAP for required event.
         uint256 poapTokenId = 12345001;
-        mockPoap.setOwner(poapTokenId, user);
+        mockPoap.setOwnerForEvent(poapTokenId, testEventId, user);
 
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
@@ -377,6 +429,16 @@ contract CookieJarProtocolsTest is Test {
         jarPoap.withdrawWithErc721(fixedAmount, purpose);
     }
 
+    function test_RevertWhen_WithdrawPOAPModeWrongEvent() public {
+        // User has a POAP, but for a different event than the jar requires.
+        mockPoap.setOwnerForEvent(12345002, testEventId + 1, user);
+
+        vm.warp(block.timestamp + withdrawalInterval + 1);
+        vm.prank(user);
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InsufficientNFTBalance.selector));
+        jarPoap.withdrawWithErc721(fixedAmount, purpose);
+    }
+
     // ==== Unlock Protocol Tests ====
 
     function test_ConstructorUnlockAccess() public {
@@ -384,7 +446,7 @@ contract CookieJarProtocolsTest is Test {
     }
 
     function test_WithdrawUnlockMode() public {
-        // jarUnlock uses mockPoap for ERC721 access — give user a POAP token
+        // jarUnlock uses generic ERC721 ownership (tokenId=0) — any token works
         mockPoap.setOwner(99999, user);
 
         vm.warp(block.timestamp + withdrawalInterval + 1);
@@ -554,7 +616,7 @@ contract CookieJarProtocolsTest is Test {
     // ==== Common Validation Tests ====
 
     function test_RevertWhen_ERC721WithdrawZeroAmount() public {
-        mockPoap.setOwner(12345, user);
+        mockPoap.setOwnerForEvent(12345, testEventId, user);
 
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.ZeroAmount.selector));
@@ -606,8 +668,7 @@ contract CookieJarProtocolsTest is Test {
 
     function test_MultipleAccessTypeWithdrawals() public {
         // Setup users for different protocols
-        // Both ERC721 jars use mockPoap as nftContract (tokenId=0 means any token)
-        mockPoap.setOwner(12345, user);
+        mockPoap.setOwnerForEvent(12345, testEventId, user);
         mockPoap.setOwner(12346, user2);
 
         vm.warp(block.timestamp + withdrawalInterval + 1);

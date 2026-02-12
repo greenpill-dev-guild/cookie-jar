@@ -15,22 +15,24 @@ interface CreateJarFormProps {
 	currentStep: number;
 	totalSteps: number;
 	isV2Contract: boolean;
-	formData: any; // Type this based on your useJarCreation hook return type
 	nextStep: () => void;
 	prevStep: () => void;
 	handleSubmit: () => void;
 	isCurrentStepValid: () => boolean;
+	isCreating: boolean;
+	isWaitingForTx: boolean;
 }
 
 export function CreateJarForm({
 	currentStep,
 	totalSteps,
 	isV2Contract,
-	formData,
 	nextStep,
 	prevStep,
 	handleSubmit,
 	isCurrentStepValid,
+	isCreating,
+	isWaitingForTx,
 }: CreateJarFormProps) {
 	const { isConnected } = useAccount();
 
@@ -75,7 +77,6 @@ export function CreateJarForm({
 				>
 					<StepContent
 						step={currentStep}
-						formData={formData}
 						isV2Contract={isV2Contract}
 					/>
 				</Suspense>
@@ -110,12 +111,12 @@ export function CreateJarForm({
 							onClick={handleSubmit}
 							disabled={
 								(!isCurrentStepValid() && isConnected) ||
-								formData.isCreating ||
-								formData.isWaitingForTx
+								isCreating ||
+								isWaitingForTx
 							}
 							className="w-full md:w-auto cj-btn-primary flex items-center justify-center gap-2"
 						>
-							{formData.isCreating || formData.isWaitingForTx ? (
+							{isCreating || isWaitingForTx ? (
 								<>
 									<Loader2 className="h-4 w-4 animate-spin" />
 									Creating...

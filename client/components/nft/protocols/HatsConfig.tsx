@@ -32,7 +32,12 @@ interface HatDetails {
 }
 
 export interface HatsConfigProps {
-	onConfigChange: (config: { hatId: string; hatsContract?: string }) => void;
+	onConfigChange: (config: {
+		hatId: string;
+		hatsContract?: string;
+		hatsId?: string;
+		hatsAddress?: string;
+	}) => void;
 	initialConfig?: { hatId: string; hatsContract?: string };
 	className?: string;
 }
@@ -66,13 +71,15 @@ export const HatsConfig: React.FC<HatsConfigProps> = ({
 					contractAddress,
 				);
 
-				if (hatDetails) {
-					setSelectedHat(hatDetails);
-					onConfigChange({
-						hatId: hatIdToValidate,
-						hatsContract: contractAddress,
-					});
-				} else {
+					if (hatDetails) {
+						setSelectedHat(hatDetails);
+						onConfigChange({
+							hatId: hatIdToValidate,
+							hatsContract: contractAddress,
+							hatsId: hatDetails.id,
+							hatsAddress: contractAddress,
+						});
+					} else {
 					setValidationError("Hat not found. Please check the Hat ID.");
 					setSelectedHat(null);
 				}
@@ -119,6 +126,7 @@ export const HatsConfig: React.FC<HatsConfigProps> = ({
 			icon="🎩"
 			color="bg-yellow-500"
 			validationError={validationError}
+			errorId="hats-error"
 			isLoading={isValidating}
 			className={className}
 			learnMoreUrl={ACCESS_CONTROL_DOC_LINKS.hats}
@@ -133,6 +141,8 @@ export const HatsConfig: React.FC<HatsConfigProps> = ({
 						value={hatId}
 						onChange={handleHatIdChange}
 						className="mt-1"
+						aria-invalid={!!validationError}
+						aria-describedby={validationError ? "hats-error" : undefined}
 					/>
 					<p className="text-xs text-gray-500 mt-1">
 						Hat IDs are hierarchical addresses in the Hats tree structure

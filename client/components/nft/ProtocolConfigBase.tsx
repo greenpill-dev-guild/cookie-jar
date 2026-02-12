@@ -12,6 +12,8 @@ export interface ProtocolConfigBaseProps {
 	icon?: string | ReactNode;
 	color?: string;
 	validationError?: string | null;
+	/** Stable ID applied to the error alert so inputs can reference it via aria-describedby */
+	errorId?: string;
 	isLoading?: boolean;
 	className?: string;
 	learnMoreUrl?: string;
@@ -24,6 +26,7 @@ export const ProtocolConfigBase: React.FC<ProtocolConfigBaseProps> = ({
 	icon,
 	color = "bg-gray-500",
 	validationError,
+	errorId,
 	isLoading = false,
 	className,
 	learnMoreUrl,
@@ -76,7 +79,7 @@ export const ProtocolConfigBase: React.FC<ProtocolConfigBaseProps> = ({
 				) : (
 					<>
 						{validationError && (
-							<Alert variant="destructive" className="mb-4">
+							<Alert variant="destructive" className="mb-4" id={errorId} role="alert">
 								<AlertCircle className="h-4 w-4" />
 								<AlertDescription>{validationError}</AlertDescription>
 							</Alert>
