@@ -287,6 +287,38 @@ export function useEnhancedNFTValidation(
 		onValidationRequest,
 	]);
 
+	useEffect(() => {
+		if (!isValidAddress || !contractAddress) return;
+
+		const isLoading = isCheckingERC165 || isCheckingERC721 || isCheckingERC1155;
+		if (!isLoading) return;
+
+		const requestKey = contractAddress.toLowerCase();
+		if (validationRequestRecorded.current === requestKey) return;
+
+		if (onValidationRequest) {
+			const canProceed = onValidationRequest();
+			if (canProceed === false) {
+				setResult({
+					isValid: false,
+					detectedType: null,
+					isLoading: false,
+					error: "Rate limit exceeded. Please wait before trying again.",
+				});
+				return;
+			}
+		}
+
+		validationRequestRecorded.current = requestKey;
+	}, [
+		isValidAddress,
+		contractAddress,
+		isCheckingERC165,
+		isCheckingERC721,
+		isCheckingERC1155,
+		onValidationRequest,
+	]);
+
 	// Malicious contract check (optional)
 	useEffect(() => {
 		if (
