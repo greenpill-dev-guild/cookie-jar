@@ -18,7 +18,6 @@ vi.mock("@/config/deployments.auto", () => ({
 	},
 }));
 
-import { useJarCreation } from "@/hooks/jar/useJarCreation";
 import { ETH_ADDRESS } from "@/lib/blockchain/constants";
 
 // Mock wagmi hooks
@@ -73,6 +72,12 @@ const describeOrSkip =
 
 describeOrSkip("useJarCreation", () => {
 	let queryClient: QueryClient;
+	let useJarCreation: typeof import("@/hooks/jar/useJarCreation").useJarCreation;
+
+	beforeAll(async () => {
+		const module = await import("@/hooks/jar/useJarCreation");
+		useJarCreation = module.useJarCreation;
+	});
 
 	beforeEach(() => {
 		vi.clearAllMocks();
@@ -85,6 +90,9 @@ describeOrSkip("useJarCreation", () => {
 	});
 
 	const renderHookWithProviders = () => {
+		if (!useJarCreation) {
+			throw new Error("useJarCreation hook not loaded");
+		}
 		return renderHook(() => useJarCreation(), {
 			wrapper: ({ children }: { children: React.ReactNode }) =>
 				React.createElement(

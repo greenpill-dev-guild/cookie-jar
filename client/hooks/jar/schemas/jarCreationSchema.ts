@@ -47,7 +47,7 @@ export const protocolConfigSchema = z.object({
 	hypercertMaxBalance: z.number().optional(),
 	hatsId: z.number().optional(),
 	hatsAddress: z.string().optional(),
-});
+}).passthrough();
 
 export type ProtocolConfig = z.infer<typeof protocolConfigSchema>;
 

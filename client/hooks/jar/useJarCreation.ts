@@ -16,10 +16,13 @@ import {
 import { contractAddresses, isV2Chain } from "@/config/supported-networks";
 import { cookieJarFactoryAbi } from "@/generated";
 import { cookieJarFactoryV1Abi } from "@/lib/blockchain/cookie-jar-v1-abi";
-import { cookieJarFactoryV2Abi } from "@/lib/blockchain/cookie-jar-v2-abi";
 import { ETH_ADDRESS } from "@/lib/blockchain/token-utils";
 
 import { useToast } from "../app/useToast";
+import {
+	buildV2CreateCookieJarArgs,
+	getAccessConfigValidationError,
+} from "./createV2CreateArgs";
 import {
 	AccessType,
 	NFTType,
@@ -188,7 +191,8 @@ export const useJarCreation = () => {
 		isValid: boolean;
 		errors: string[];
 	} => {
-		const { accessType, nftAddresses } = form.getValues();
+		const values = form.getValues();
+		const { accessType, nftAddresses } = values;
 		const errors: string[] = [];
 
 		if (accessType === AccessType.NFTGated) {
@@ -204,6 +208,11 @@ export const useJarCreation = () => {
 					break;
 				}
 			}
+		}
+
+		const accessValidationError = getAccessConfigValidationError(values);
+		if (accessValidationError) {
+			errors.push(accessValidationError);
 		}
 
 		return { isValid: errors.length === 0, errors };
@@ -284,62 +293,24 @@ export const useJarCreation = () => {
 				);
 			}
 
-			if (isV2Contract) {
-				const feeBps =
-					values.enableCustomFee && values.customFee !== ""
-						? Math.round(parseFloat(values.customFee) * 100)
-						: 0;
+				if (isV2Contract) {
+					const args = buildV2CreateCookieJarArgs({
+						values: {
+							...values,
+							nftAddresses: effectiveNftAddresses,
+							nftTypes: effectiveNftTypes,
+						},
+						metadata: finalMetadata,
+						parseAmount,
+					});
 
-				const params = {
-					cookieJarOwner: values.jarOwnerAddress as `0x${string}`,
-					supportedCurrency: values.supportedCurrency as `0x${string}`,
-					accessType: values.accessType,
-					withdrawalOption: values.withdrawalOption,
-					fixedAmount: parseAmount(values.fixedAmount),
-					maxWithdrawal: parseAmount(values.maxWithdrawal),
-					withdrawalInterval: BigInt(values.withdrawalInterval || "0"),
-					strictPurpose: values.strictPurpose,
-					emergencyWithdrawalEnabled: values.emergencyWithdrawalEnabled,
-					oneTimeWithdrawal: values.oneTimeWithdrawal,
-					metadata: finalMetadata,
-					customFeePercentage: BigInt(feeBps),
-					maxWithdrawalPerPeriod: BigInt(0),
-				};
-
-				const accessConfig = {
-					nftAddresses:
-						effectiveNftAddresses as readonly `0x${string}`[],
-					nftTypes: effectiveNftTypes as readonly number[],
-					allowlist: [] as readonly `0x${string}`[],
-					poapReq: {
-						eventId: BigInt(0),
-						poapContract:
-							"0x0000000000000000000000000000000000000000" as `0x${string}`,
-					},
-					unlockReq: {
-						lockAddress:
-							"0x0000000000000000000000000000000000000000" as `0x${string}`,
-					},
-					hypercertReq: {
-						tokenContract:
-							"0x0000000000000000000000000000000000000000" as `0x${string}`,
-						tokenId: BigInt(0),
-						minBalance: BigInt(1),
-					},
-					hatsReq: {
-						hatId: BigInt(0),
-						hatsContract:
-							"0x0000000000000000000000000000000000000000" as `0x${string}`,
-					},
-				};
-
-				writeContract({
-					address: factoryAddress,
-					abi: cookieJarFactoryV2Abi,
-					functionName: "createCookieJar",
-					args: [params, accessConfig],
-				});
-			} else {
+					writeContract({
+						address: factoryAddress,
+						abi: cookieJarFactoryAbi,
+						functionName: "createCookieJar",
+						args,
+					});
+				} else {
 				writeContract({
 					address: factoryAddress,
 					abi: cookieJarFactoryV1Abi,
@@ -423,26 +394,34 @@ export const useJarCreation = () => {
 				let jarAddress: string | null = null;
 
 				if (receipt.logs && receipt.logs.length > 0) {
-					for (const log of receipt.logs) {
-						try {
-							const decodedLog = decodeEventLog({
-								abi: isV2Contract
-									? cookieJarFactoryAbi
-									: cookieJarFactoryV1Abi,
-								data: log.data,
-								topics: log.topics,
-								eventName: "CookieJarCreated",
-							});
+						for (const log of receipt.logs) {
+							try {
+								const eventName = isV2Contract
+									? ("JarCreated" as const)
+									: ("CookieJarCreated" as const);
+								const decodedLog = decodeEventLog({
+									abi: isV2Contract
+										? cookieJarFactoryAbi
+										: cookieJarFactoryV1Abi,
+									data: log.data,
+									topics: log.topics,
+									eventName,
+								});
 
-							if (decodedLog.eventName === "CookieJarCreated") {
-								jarAddress = (decodedLog.args as any)?.cookieJarAddress;
-								break;
+								if (decodedLog.eventName === "JarCreated") {
+									jarAddress = (decodedLog.args as any)?.jarAddress;
+									break;
+								}
+
+								if (decodedLog.eventName === "CookieJarCreated") {
+									jarAddress = (decodedLog.args as any)?.cookieJarAddress;
+									break;
+								}
+							} catch {
+								// Log is not the expected jar-created event, checking next
 							}
-						} catch {
-							// Log is not CookieJarCreated event, checking next
 						}
 					}
-				}
 
 				if (jarAddress && isAddress(jarAddress)) {
 					setNewJarPreview({

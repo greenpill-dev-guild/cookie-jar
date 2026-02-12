@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useDebounce } from "@/hooks/app/useDebounce";
+import { POAP_TOKEN_ADDRESS } from "@/lib/blockchain/constants";
 import { POAPProvider } from "@/lib/nft/protocols/POAPProvider";
 import { ACCESS_CONTROL_DOC_LINKS } from "../doc-links";
 import { ProtocolConfigBase } from "../ProtocolConfigBase";
@@ -21,7 +22,12 @@ interface POAPEvent {
 }
 
 export interface POAPConfigProps {
-	onConfigChange: (config: { eventId: string; eventName?: string }) => void;
+	onConfigChange: (config: {
+		eventId: string;
+		eventName?: string;
+		poapEventId?: number;
+		poapContractAddress?: string;
+	}) => void;
 	initialConfig?: { eventId: string; eventName?: string };
 	className?: string;
 }
@@ -92,7 +98,12 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
 		setSearchTerm(""); // Clear search
 		setSearchResults([]);
 		setValidationError(null);
-		onConfigChange({ eventId: eventIdStr, eventName: event.name });
+		onConfigChange({
+			eventId: eventIdStr,
+			eventName: event.name,
+			poapEventId: Number(event.id),
+			poapContractAddress: POAP_TOKEN_ADDRESS,
+		});
 	};
 
 	const handleEventIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -102,7 +113,12 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
 		setValidationError(null);
 
 		if (newEventId) {
-			onConfigChange({ eventId: newEventId });
+			const parsed = Number.parseInt(newEventId, 10);
+			onConfigChange({
+				eventId: newEventId,
+				poapEventId: Number.isFinite(parsed) ? parsed : undefined,
+				poapContractAddress: POAP_TOKEN_ADDRESS,
+			});
 		}
 	};
 
@@ -116,11 +132,16 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
 		setValidationError(null);
 
 		try {
-			const event = await POAPProvider.getEventById(eventId);
-			if (event) {
-				setSelectedEvent(event);
-				onConfigChange({ eventId: String(event.id), eventName: event.name });
-			} else {
+				const event = await POAPProvider.getEventById(eventId);
+				if (event) {
+					setSelectedEvent(event);
+					onConfigChange({
+						eventId: String(event.id),
+						eventName: event.name,
+						poapEventId: Number(event.id),
+						poapContractAddress: POAP_TOKEN_ADDRESS,
+					});
+				} else {
 				setValidationError("POAP Event ID not found.");
 				setSelectedEvent(null);
 			}

@@ -1,6 +1,6 @@
 import { ChevronDown, Monitor, Smartphone, Users } from "lucide-react";
 import type React from "react";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
 	Accordion,
 	AccordionContent,
@@ -222,9 +222,22 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 
 	const { isMobile } = useResponsive();
 
-	const filteredMethods = visibleMethods
-		? ACCESS_METHODS.filter((m) => visibleMethods.includes(m.id))
-		: ACCESS_METHODS;
+	const filteredMethods = useMemo(
+		() =>
+			visibleMethods
+				? ACCESS_METHODS.filter((m) => visibleMethods.includes(m.id))
+				: ACCESS_METHODS,
+		[visibleMethods],
+	);
+
+	useEffect(() => {
+		if (filteredMethods.length === 0) return;
+		if (filteredMethods.some((method) => method.id === selectedMethod)) return;
+
+		const fallbackMethod = filteredMethods[0].id;
+		setSelectedMethod(fallbackMethod);
+		onConfigChange({ ...initialConfig, method: fallbackMethod });
+	}, [filteredMethods, selectedMethod, onConfigChange, initialConfig]);
 
 	// Determine actual view mode
 	const actualViewMode =
@@ -235,7 +248,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 	const handleMethodSelect = useCallback(
 		(method: AccessMethod) => {
 			setSelectedMethod(method);
-			onConfigChange({ method, ...initialConfig });
+			onConfigChange({ ...initialConfig, method });
 		},
 		[onConfigChange, initialConfig],
 	);

@@ -2,7 +2,7 @@
 
 import { Trash2 } from "lucide-react";
 import type React from "react";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useFormContext } from "react-hook-form";
 import { isAddress } from "viem";
 import { useChainId } from "wagmi";
@@ -27,15 +27,27 @@ import {
 	WithdrawalTypeOptions,
 	type JarCreationFormData,
 } from "@/hooks/jar/schemas/jarCreationSchema";
-import type { ProtocolConfig as SelectorProtocolConfig } from "@/components/nft/ProtocolSelector";
+import type {
+	AccessMethod,
+	ProtocolConfig as SelectorProtocolConfig,
+} from "@/components/nft/ProtocolSelector";
 import { useToast } from "@/hooks/app/useToast";
 import { ETH_ADDRESS } from "@/lib/blockchain/token-utils";
 import { shortenAddress } from "@/lib/app/utils";
+import { isPoapSupportedChain } from "@/config/supported-networks";
 
 interface StepContentProps {
 	step: number;
 	isV2Contract: boolean;
 }
+
+const VISIBLE_METHODS_WITHOUT_POAP: AccessMethod[] = [
+	"Allowlist",
+	"NFT",
+	"Hats",
+	"Hypercert",
+	"Unlock",
+];
 
 export const StepContent: React.FC<StepContentProps> = ({
 	step,
@@ -538,6 +550,7 @@ const WithdrawalSettingsStep: React.FC = () => {
 // ─────────────────────────────────────────────
 
 const AccessControlStep: React.FC = () => {
+	const chainId = useChainId();
 	const { watch, setValue, getValues } =
 		useFormContext<JarCreationFormData>();
 
@@ -545,6 +558,20 @@ const AccessControlStep: React.FC = () => {
 	const nftAddresses = watch("nftAddresses");
 	const nftTypes = watch("nftTypes");
 	const protocolConfig = watch("protocolConfig");
+	const poapSupported = isPoapSupportedChain(chainId);
+
+	useEffect(() => {
+		if (poapSupported || accessType !== AccessType.POAP) return;
+
+		setValue("accessType", AccessType.Allowlist);
+		setValue(
+			"protocolConfig",
+			{
+				method: "Allowlist",
+				accessType: "Allowlist",
+			} as any,
+		);
+	}, [poapSupported, accessType, setValue]);
 
 	const handleProtocolConfigChange = useCallback(
 		(config: SelectorProtocolConfig) => {
@@ -613,11 +640,22 @@ const AccessControlStep: React.FC = () => {
 					integrations.
 				</p>
 			</div>
+			{!poapSupported && (
+				<div className="p-4 bg-amber-50 border border-amber-200 rounded-lg">
+					<p className="text-sm text-amber-800">
+						POAP gating is only available on Gnosis Chain and is hidden on
+						this network.
+					</p>
+				</div>
+			)}
 
 			<ProtocolSelector
 				onConfigChange={handleProtocolConfigChange}
 				initialConfig={protocolConfig}
 				showViewToggle={false}
+				visibleMethods={
+					poapSupported ? undefined : VISIBLE_METHODS_WITHOUT_POAP
+				}
 			/>
 
 			{accessType === AccessType.NFTGated && (

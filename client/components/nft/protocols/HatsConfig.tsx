@@ -32,7 +32,12 @@ interface HatDetails {
 }
 
 export interface HatsConfigProps {
-	onConfigChange: (config: { hatId: string; hatsContract?: string }) => void;
+	onConfigChange: (config: {
+		hatId: string;
+		hatsContract?: string;
+		hatsId?: string;
+		hatsAddress?: string;
+	}) => void;
 	initialConfig?: { hatId: string; hatsContract?: string };
 	className?: string;
 }
@@ -66,13 +71,15 @@ export const HatsConfig: React.FC<HatsConfigProps> = ({
 					contractAddress,
 				);
 
-				if (hatDetails) {
-					setSelectedHat(hatDetails);
-					onConfigChange({
-						hatId: hatIdToValidate,
-						hatsContract: contractAddress,
-					});
-				} else {
+					if (hatDetails) {
+						setSelectedHat(hatDetails);
+						onConfigChange({
+							hatId: hatIdToValidate,
+							hatsContract: contractAddress,
+							hatsId: hatDetails.id,
+							hatsAddress: contractAddress,
+						});
+					} else {
 					setValidationError("Hat not found. Please check the Hat ID.");
 					setSelectedHat(null);
 				}

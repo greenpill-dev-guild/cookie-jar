@@ -28,6 +28,13 @@ export function isV2Chain(chainId: number): boolean {
 	return autoIsV2Chain(chainId);
 }
 
+// POAP token contract is only supported on Gnosis Chain for on-chain gating.
+const POAP_SUPPORTED_CHAINS = new Set<number>([gnosis.id]);
+
+export function isPoapSupportedChain(chainId: number): boolean {
+	return POAP_SUPPORTED_CHAINS.has(chainId);
+}
+
 // Local Anvil chain (Pure local development without fork)
 export const anvilLocal = {
 	id: 31337,
