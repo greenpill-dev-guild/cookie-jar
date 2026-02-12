@@ -142,7 +142,8 @@ contract CookieJarTest is Test {
             nftReq = CookieJarLib.NftRequirement({
                 nftContract: _nftAddresses[0],
                 tokenId: 0, // Any token from contract
-                minBalance: 1
+                minBalance: 0,
+                isPoapEventGate: false
             });
         }
 
@@ -160,7 +161,8 @@ contract CookieJarTest is Test {
                 nftRequirement: CookieJarLib.NftRequirement({
                     nftContract: _nftContract,
                     tokenId: _tokenId,
-                    minBalance: 1
+                    minBalance: 1,
+                    isPoapEventGate: false
                 })
             });
     }
@@ -1426,7 +1428,8 @@ contract CookieJarTest is Test {
                 nftRequirement: CookieJarLib.NftRequirement({
                     nftContract: address(dummyErc721),
                     tokenId: 0, // Any token from contract
-                    minBalance: 0
+                    minBalance: 0,
+                    isPoapEventGate: false
                 })
             }),
             address(0) // Superfluid host disabled for testing
@@ -1473,7 +1476,8 @@ contract CookieJarTest is Test {
                 nftRequirement: CookieJarLib.NftRequirement({
                     nftContract: address(dummyErc721),
                     tokenId: 0, // Any token from contract
-                    minBalance: 0
+                    minBalance: 0,
+                    isPoapEventGate: false
                 })
             }),
             address(0) // Superfluid host disabled for testing
@@ -1518,7 +1522,8 @@ contract CookieJarTest is Test {
                 nftRequirement: CookieJarLib.NftRequirement({
                     nftContract: address(dummyErc721),
                     tokenId: specificTokenId, // Specific token required
-                    minBalance: 0
+                    minBalance: 0,
+                    isPoapEventGate: false
                 })
             }),
             address(0) // Superfluid host disabled for testing
@@ -1569,7 +1574,8 @@ contract CookieJarTest is Test {
                 nftRequirement: CookieJarLib.NftRequirement({
                     nftContract: address(dummyErc721),
                     tokenId: 3, // Requires token 3
-                    minBalance: 0
+                    minBalance: 0,
+                    isPoapEventGate: false
                 })
             }),
             address(0) // Superfluid host disabled for testing

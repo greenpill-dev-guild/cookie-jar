@@ -147,7 +147,7 @@ Cookie Jar follows [Semantic Versioning](https://semver.org/):
 
 ## Upgrade Guides
 
-See [MIGRATIONS.md](MIGRATIONS.md) for upgrade instructions between major versions.
+See [README.md](../README.md) for current setup and upgrade guidance.
 
 ---
 

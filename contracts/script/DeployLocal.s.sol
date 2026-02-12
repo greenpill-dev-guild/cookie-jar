@@ -171,7 +171,12 @@ contract DeployLocalScript is Script {
 
         CookieJarLib.AccessConfig memory accessConfig1 = CookieJarLib.AccessConfig({
             allowlist: allowlist1,
-            nftRequirement: CookieJarLib.NftRequirement({nftContract: address(0), tokenId: 0, minBalance: 0})
+            nftRequirement: CookieJarLib.NftRequirement({
+                nftContract: address(0),
+                tokenId: 0,
+                minBalance: 0,
+                isPoapEventGate: false
+            })
         });
 
         factory.createCookieJar(params1, accessConfig1, defaultMultiToken);
@@ -221,7 +226,12 @@ contract DeployLocalScript is Script {
 
         CookieJarLib.AccessConfig memory accessConfig2 = CookieJarLib.AccessConfig({
             allowlist: allowlist2,
-            nftRequirement: CookieJarLib.NftRequirement({nftContract: address(0), tokenId: 0, minBalance: 0})
+            nftRequirement: CookieJarLib.NftRequirement({
+                nftContract: address(0),
+                tokenId: 0,
+                minBalance: 0,
+                isPoapEventGate: false
+            })
         });
 
         factory.createCookieJar(params2, accessConfig2, defaultMultiToken2);
@@ -273,7 +283,8 @@ contract DeployLocalScript is Script {
             nftRequirement: CookieJarLib.NftRequirement({
                 nftContract: nftAddresses[0],
                 tokenId: 0, // Any token from contract
-                minBalance: 1
+                minBalance: 0,
+                isPoapEventGate: false
             })
         });
 
@@ -325,7 +336,8 @@ contract DeployLocalScript is Script {
             nftRequirement: CookieJarLib.NftRequirement({
                 nftContract: nftAddresses[0],
                 tokenId: 0, // Any token from contract
-                minBalance: 1
+                minBalance: 0,
+                isPoapEventGate: false
             })
         });
 

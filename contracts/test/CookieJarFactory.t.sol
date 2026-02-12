@@ -60,7 +60,12 @@ contract CookieJarFactoryTest is Test {
         return
             CookieJarLib.AccessConfig({
                 allowlist: emptyAllowlist,
-                nftRequirement: CookieJarLib.NftRequirement({nftContract: address(0), tokenId: 0, minBalance: 0})
+                nftRequirement: CookieJarLib.NftRequirement({
+                    nftContract: address(0),
+                    tokenId: 0,
+                    minBalance: 0,
+                    isPoapEventGate: false
+                })
             });
     }
 
