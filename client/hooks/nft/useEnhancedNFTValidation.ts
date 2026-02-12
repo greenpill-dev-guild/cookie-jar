@@ -38,6 +38,7 @@ export interface NFTValidationResult {
 
 export interface UseEnhancedNFTValidationOptions {
 	onValidationComplete?: (result: NFTValidationResult) => void;
+	onValidationRequest?: () => boolean | void;
 	enableCaching?: boolean;
 	checkMalicious?: boolean;
 	forceFresh?: boolean;
@@ -61,6 +62,7 @@ export function useEnhancedNFTValidation(
 ) {
 	const {
 		onValidationComplete,
+		onValidationRequest,
 		enableCaching = true,
 		checkMalicious = false,
 		forceFresh = false,
@@ -74,6 +76,7 @@ export function useEnhancedNFTValidation(
 	});
 
 	const validationAttempted = useRef(false);
+	const validationRequestRecorded = useRef<string | null>(null);
 	const { data: currentBlock } = useBlockNumber({ watch: false });
 
 	// Validate address format
@@ -252,6 +255,38 @@ export function useEnhancedNFTValidation(
 		currentBlock,
 	]);
 
+	useEffect(() => {
+		if (!isValidAddress || !contractAddress) return;
+
+		const isLoading = isCheckingERC165 || isCheckingERC721 || isCheckingERC1155;
+		if (!isLoading) return;
+
+		const requestKey = contractAddress.toLowerCase();
+		if (validationRequestRecorded.current === requestKey) return;
+
+		if (onValidationRequest) {
+			const canProceed = onValidationRequest();
+			if (canProceed === false) {
+				setResult({
+					isValid: false,
+					detectedType: null,
+					isLoading: false,
+					error: "Rate limit exceeded. Please wait before trying again.",
+				});
+				return;
+			}
+		}
+
+		validationRequestRecorded.current = requestKey;
+	}, [
+		isValidAddress,
+		contractAddress,
+		isCheckingERC165,
+		isCheckingERC721,
+		isCheckingERC1155,
+		onValidationRequest,
+	]);
+
 	// Malicious contract check (optional)
 	useEffect(() => {
 		if (
@@ -273,6 +308,7 @@ export function useEnhancedNFTValidation(
 	// Reset validation when address changes
 	useEffect(() => {
 		validationAttempted.current = false;
+		validationRequestRecorded.current = null;
 		setResult({
 			isValid: false,
 			detectedType: null,
@@ -284,6 +320,7 @@ export function useEnhancedNFTValidation(
 	// Manual revalidation function
 	const revalidate = useCallback(() => {
 		validationAttempted.current = false;
+		validationRequestRecorded.current = null;
 		setResult((prev) => ({ ...prev, isLoading: true, fromCache: false }));
 
 		// Clear cache if it exists

@@ -43,9 +43,10 @@ export const protocolConfigSchema = z.object({
 	poapContractAddress: z.string().optional(),
 	unlockAddress: z.string().optional(),
 	hypercertAddress: z.string().optional(),
+	hypercertTokenId: z.string().optional(),
 	hypercertMinBalance: z.number().optional(),
 	hypercertMaxBalance: z.number().optional(),
-	hatsId: z.number().optional(),
+	hatsId: z.string().optional(),
 	hatsAddress: z.string().optional(),
 }).passthrough();
 

@@ -151,7 +151,8 @@ contract SuperfluidIntegrationTest is Test {
         _accessConfig.nftRequirement = CookieJarLib.NftRequirement({
             nftContract: address(0),
             tokenId: 0,
-            minBalance: 0
+            minBalance: 0,
+            isPoapEventGate: false
         });
     }
 

@@ -33,6 +33,7 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { useEnhancedNFTValidation } from "@/hooks/nft/useEnhancedNFTValidation";
+import { log } from "@/lib/app/logger";
 import { AlchemyNFTProvider } from "@/lib/nft/AlchemyProvider";
 import { getAlchemyApiKey } from "@/lib/nft/config";
 
@@ -81,7 +82,11 @@ const sanitizeInput = {
 		if (!input) return "";
 		for (const pattern of VALIDATION_CONSTANTS.MALICIOUS_PATTERNS) {
 			if (pattern.test(input)) {
-				console.warn("Malicious URL pattern detected, sanitizing:", input);
+				log.warn(
+					"Malicious URL pattern detected, sanitizing:",
+					input,
+					"NFTGateInput",
+				);
 				return "";
 			}
 		}
@@ -109,19 +114,23 @@ const useRateLimit = (maxCalls: number, windowMs: number) => {
 	const [resetIn, setResetIn] = useState(0);
 	const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-	const isAllowed = useCallback(() => {
+	const pruneExpiredCalls = useCallback(() => {
 		const now = Date.now();
 		const cutoff = now - windowMs;
-
 		callsRef.current = callsRef.current.filter((time) => time > cutoff);
+	}, [windowMs]);
 
-		if (callsRef.current.length < maxCalls) {
-			callsRef.current.push(now);
-			return true;
-		}
+	const canCall = useCallback(() => {
+		pruneExpiredCalls();
+		return callsRef.current.length < maxCalls;
+	}, [maxCalls, pruneExpiredCalls]);
 
-		return false;
-	}, [maxCalls, windowMs]);
+	const recordCall = useCallback(() => {
+		pruneExpiredCalls();
+		if (callsRef.current.length >= maxCalls) return false;
+		callsRef.current.push(Date.now());
+		return true;
+	}, [maxCalls, pruneExpiredCalls]);
 
 	// Update countdown when rate-limited
 	useEffect(() => {
@@ -145,7 +154,7 @@ const useRateLimit = (maxCalls: number, windowMs: number) => {
 		};
 	}, [maxCalls, windowMs]);
 
-	return { isAllowed, resetIn };
+	return { canCall, recordCall, resetIn };
 };
 
 // ── Types ──
@@ -394,7 +403,8 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 	} = state;
 
 	// Rate limiting with countdown
-	const { isAllowed: canMakeApiCall, resetIn } = useRateLimit(
+	const { canCall: canMakeApiCall, recordCall: recordApiCall, resetIn } =
+		useRateLimit(
 		VALIDATION_CONSTANTS.MAX_API_CALLS_PER_MINUTE,
 		60 * 1000,
 	);
@@ -475,6 +485,7 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 	// Contract validation
 	const { isValid, detectedType, isLoading, error } = useEnhancedNFTValidation(
 		canMakeApiCall() ? debouncedAddress : "",
+		{ onValidationRequest: () => recordApiCall() },
 	);
 
 	// Collection preview
@@ -492,10 +503,18 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 			)
 				return null;
 
+			if (!recordApiCall()) {
+				throw new Error("Rate limit exceeded. Please wait before trying again.");
+			}
+
 			try {
 				const apiKey = getAlchemyApiKey("mainnet");
 				if (!apiKey) {
-					console.warn("No Alchemy API key available for NFT validation");
+					log.warn(
+						"No Alchemy API key available for NFT validation",
+						undefined,
+						"NFTGateInput",
+					);
 					return null;
 				}
 
@@ -504,9 +523,10 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 
 				if (!validation.isValid) {
 					if (validation.isMalicious) {
-						console.warn(
+						log.warn(
 							"Potentially malicious contract detected:",
 							debouncedAddress,
+							"NFTGateInput",
 						);
 					}
 					return null;
@@ -539,7 +559,11 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 					warnings: validation.warnings,
 				};
 			} catch (error) {
-				console.error("Failed to fetch collection preview:", error);
+				log.error(
+					"Failed to fetch collection preview:",
+					error,
+					"NFTGateInput",
+				);
 
 				if (error instanceof Error && error.message.includes("rate limit")) {
 					throw new Error(
@@ -591,10 +615,14 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 
 	const handleAddNFT = useCallback(() => {
 		if (!canAdd || !validateInputs() || inputErrors.length > 0) {
-			console.warn("Cannot add NFT gate: validation failed", {
-				inputErrors,
-				canAdd,
-			});
+			log.warn(
+				"Cannot add NFT gate: validation failed",
+				{
+					inputErrors,
+					canAdd,
+				},
+				"NFTGateInput",
+			);
 			return;
 		}
 
@@ -625,7 +653,11 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 				gate.minQuantity = sanitizedMinQuantity;
 				gate.maxQuantity = sanitizedMaxQuantity;
 			} else {
-				console.warn("Invalid quantity range, skipping quantity gating");
+				log.warn(
+					"Invalid quantity range, skipping quantity gating",
+					undefined,
+					"NFTGateInput",
+				);
 			}
 		}
 
@@ -634,13 +666,17 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 			gate.requiredTraits = [];
 		}
 
-		console.info("Adding NFT gate:", {
-			address: sanitizedAddress,
-			type: selectedType === NFTType.ERC721 ? "ERC721" : "ERC1155",
-			hasQuantityGating: gate.enableQuantityGating,
-			hasTraitGating: gate.enableTraitGating,
-			verified: gate.verified,
-		});
+		log.info(
+			"Adding NFT gate:",
+			{
+				address: sanitizedAddress,
+				type: selectedType === NFTType.ERC721 ? "ERC721" : "ERC1155",
+				hasQuantityGating: gate.enableQuantityGating,
+				hasTraitGating: gate.enableTraitGating,
+				verified: gate.verified,
+			},
+			"NFTGateInput",
+		);
 
 		onAddNFT(gate);
 		dispatch({ type: "RESET" });

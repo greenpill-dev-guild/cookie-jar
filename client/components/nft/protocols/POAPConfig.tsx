@@ -132,16 +132,16 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
 		setValidationError(null);
 
 		try {
-				const event = await POAPProvider.getEventById(eventId);
-				if (event) {
-					setSelectedEvent(event);
-					onConfigChange({
-						eventId: String(event.id),
-						eventName: event.name,
-						poapEventId: Number(event.id),
-						poapContractAddress: POAP_TOKEN_ADDRESS,
-					});
-				} else {
+			const event = await POAPProvider.getEventById(eventId);
+			if (event) {
+				setSelectedEvent(event);
+				onConfigChange({
+					eventId: String(event.id),
+					eventName: event.name,
+					poapEventId: Number(event.id),
+					poapContractAddress: POAP_TOKEN_ADDRESS,
+				});
+			} else {
 				setValidationError("POAP Event ID not found.");
 				setSelectedEvent(null);
 			}

@@ -65,6 +65,7 @@ library CookieJarLib {
         address nftContract; // NFT contract address
         uint256 tokenId; // Token ID (0 for any token from contract)
         uint256 minBalance; // Minimum balance required (for ERC1155)
+        bool isPoapEventGate; // Explicit POAP event gate discriminator for ERC721
     }
 
     /// @notice SIMPLIFIED Multi-token configuration for cookie jar

@@ -71,15 +71,15 @@ export const HatsConfig: React.FC<HatsConfigProps> = ({
 					contractAddress,
 				);
 
-					if (hatDetails) {
-						setSelectedHat(hatDetails);
-						onConfigChange({
-							hatId: hatIdToValidate,
-							hatsContract: contractAddress,
-							hatsId: hatDetails.id,
-							hatsAddress: contractAddress,
-						});
-					} else {
+				if (hatDetails) {
+					setSelectedHat(hatDetails);
+					onConfigChange({
+						hatId: hatIdToValidate,
+						hatsContract: contractAddress,
+						hatsId: hatDetails.id,
+						hatsAddress: contractAddress,
+					});
+				} else {
 					setValidationError("Hat not found. Please check the Hat ID.");
 					setSelectedHat(null);
 				}
