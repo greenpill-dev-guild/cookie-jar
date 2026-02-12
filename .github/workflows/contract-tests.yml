@@ -24,27 +24,34 @@ jobs:
       uses: actions/checkout@v4
       with:
         submodules: recursive
+        fetch-depth: 0
     
     - name: Install Foundry
       uses: foundry-rs/foundry-toolchain@v1
       with:
         version: nightly
     
-    # Skip all pnpm/Node.js dependencies - contracts tests don't need them
-    
+    # Skip all bun/Node.js dependencies - contracts tests don't need them
+
+    - name: Create OZ v5 compatibility shims
+      run: ./scripts/oz-compat.sh
+
     - name: Build contracts
       run: |
         echo "🔧 Building contracts..."
         cd contracts
-        
+
+        # Use dev profile (matches local package.json scripts)
+        export FOUNDRY_PROFILE=dev
+
         # Build contracts with size reporting
         forge build --sizes
-        
+
         if [ $? -ne 0 ]; then
           echo "❌ Contract compilation failed"
           exit 1
         fi
-        
+
         echo "✅ Contracts compiled successfully"
         echo ""
         echo "📊 Contract sizes:"
@@ -54,7 +61,10 @@ jobs:
       run: |
         echo "🧪 Running Foundry test suite..."
         cd contracts
-        
+
+        # Use dev profile (matches local package.json scripts)
+        export FOUNDRY_PROFILE=dev
+
         # Run tests with detailed output and gas reporting
         forge test -vvv --gas-report
         
@@ -72,7 +82,10 @@ jobs:
       run: |
         echo "📊 Generating coverage report..."
         cd contracts
-        
+
+        # Use dev profile (matches local package.json scripts)
+        export FOUNDRY_PROFILE=dev
+
         # Generate coverage in lcov format for better tooling support
         forge coverage --report lcov
         
@@ -105,7 +118,9 @@ jobs:
       run: |
         echo "🔍 Running basic security analysis..."
         cd contracts
-        
+
+        export FOUNDRY_PROFILE=dev
+
         echo "📋 Checking compilation warnings:"
         forge build 2>&1 | tee build-warnings.log
         

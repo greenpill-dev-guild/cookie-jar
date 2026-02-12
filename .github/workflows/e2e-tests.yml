@@ -11,7 +11,7 @@ on:
 
 env:
   NODE_VERSION: '18'
-  PNPM_VERSION: '8'
+  BUN_VERSION: '1.0'
 
 jobs:
   e2e-tests:
@@ -25,11 +25,11 @@ jobs:
       with:
         submodules: recursive
 
-    - name: Setup Node.js and pnpm
+    - name: Setup Node.js and bun
       uses: ./.github/actions/setup-node-pnpm
       with:
         node-version: ${{ env.NODE_VERSION }}
-        pnpm-version: ${{ env.PNPM_VERSION }}
+        bun-version: ${{ env.BUN_VERSION }}
 
     - name: Install Foundry
       uses: foundry-rs/foundry-toolchain@v1
@@ -86,7 +86,7 @@ jobs:
         
         # Start client dev server
         cd client
-        pnpm generate
+        bun run generate
         npm run dev &
         CLIENT_PID=$!
         echo "CLIENT_PID=$CLIENT_PID" >> $GITHUB_ENV

@@ -27,7 +27,7 @@ const createWrapper = () => {
 };
 
 // Skip Superfluid streaming tests by default - they require Superfluid SDK mocking
-// Run with: RUN_SUPERFLUID_TESTS=true pnpm test
+// Run with: RUN_SUPERFLUID_TESTS=true bun test
 const describeOrSkip =
 	process.env.RUN_SUPERFLUID_TESTS === "true" ? describe : describe.skip;
 

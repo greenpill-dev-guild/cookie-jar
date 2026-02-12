@@ -79,7 +79,9 @@ describe("parseMetadata", () => {
 		);
 		expect(screen.getByTestId("image")).toHaveAttribute(
 			"src",
-			"https://example.com/image.png",
+			expect.stringContaining(
+				encodeURIComponent("https://example.com/image.png"),
+			),
 		);
 		expect(screen.getByTestId("link")).toHaveAttribute(
 			"href",
@@ -99,7 +101,9 @@ describe("parseMetadata", () => {
 		expect(screen.getByTestId("description")).toHaveTextContent(metadata); // fallback to raw string
 		expect(screen.getByTestId("image")).toHaveAttribute(
 			"src",
-			"https://example.com/image.png",
+			expect.stringContaining(
+				encodeURIComponent("https://example.com/image.png"),
+			),
 		);
 		expect(screen.getByTestId("link")).toHaveAttribute("href", "");
 	});
@@ -155,7 +159,9 @@ describe("parseMetadata", () => {
 		);
 		expect(screen.getByTestId("image")).toHaveAttribute(
 			"src",
-			"https://example.com/complete.png",
+			expect.stringContaining(
+				encodeURIComponent("https://example.com/complete.png"),
+			),
 		);
 		expect(screen.getByTestId("link")).toHaveAttribute(
 			"href",

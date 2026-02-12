@@ -139,6 +139,10 @@ const NFTCard = memo<{
 	if (viewMode === "list") {
 		return (
 			<Card
+				role="button"
+				tabIndex={0}
+				aria-pressed={isSelected}
+				aria-label={`Select ${getNFTName(nft)}${getCollectionName(nft) ? ` from ${getCollectionName(nft)}` : ""}`}
 				className={cn(
 					"cursor-pointer transition-all duration-200 hover:shadow-md",
 					isSelected
@@ -146,6 +150,12 @@ const NFTCard = memo<{
 						: "hover:border-[#ff5e14]",
 				)}
 				onClick={handleSelect}
+				onKeyDown={(e) => {
+					if (e.key === "Enter" || e.key === " ") {
+						e.preventDefault();
+						handleSelect();
+					}
+				}}
 			>
 				<CardContent className="p-4">
 					<div className="flex items-center gap-4">
@@ -203,6 +213,10 @@ const NFTCard = memo<{
 
 	return (
 		<Card
+			role="button"
+			tabIndex={0}
+			aria-pressed={isSelected}
+			aria-label={`Select ${getNFTName(nft)}${getCollectionName(nft) ? ` from ${getCollectionName(nft)}` : ""}`}
 			className={cn(
 				"relative cursor-pointer transition-all duration-200 hover:shadow-md group",
 				isSelected
@@ -211,6 +225,12 @@ const NFTCard = memo<{
 			)}
 			style={{ width, height }}
 			onClick={handleSelect}
+			onKeyDown={(e) => {
+				if (e.key === "Enter" || e.key === " ") {
+					e.preventDefault();
+					handleSelect();
+				}
+			}}
 		>
 			<CardContent className="relative p-0 w-full h-full flex flex-col">
 				{!imageLoaded && !imageError && <Skeleton className="w-full h-full" />}
@@ -362,6 +382,7 @@ export const NFTSelector: React.FC<NFTSelectorProps> = ({
 							size="sm"
 							onClick={handleClearSearch}
 							className="absolute right-1 top-1/2 transform -translate-y-1/2 h-6 w-6 p-0"
+							aria-label="Clear search"
 						>
 							<X className="h-4 w-4" />
 						</Button>
@@ -369,11 +390,13 @@ export const NFTSelector: React.FC<NFTSelectorProps> = ({
 				</div>
 
 				{!isMobile && (
-					<div className="flex gap-2">
+					<div className="flex gap-2" role="group" aria-label="View mode">
 						<Button
 							variant={viewMode === "grid" ? "default" : "outline"}
 							size="sm"
 							onClick={() => setViewMode("grid")}
+							aria-label="Grid view"
+							aria-pressed={viewMode === "grid"}
 						>
 							<Grid className="h-4 w-4" />
 						</Button>
@@ -381,6 +404,8 @@ export const NFTSelector: React.FC<NFTSelectorProps> = ({
 							variant={viewMode === "list" ? "default" : "outline"}
 							size="sm"
 							onClick={() => setViewMode("list")}
+							aria-label="List view"
+							aria-pressed={viewMode === "list"}
 						>
 							<List className="h-4 w-4" />
 						</Button>

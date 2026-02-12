@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { getNativeCurrency } from "@/config/supported-networks";
 import { useCookieJarConfig } from "@/hooks/jar/useJar";
 import { useJarTransactions } from "@/hooks/jar/useJarTransactions";
+import { ETH_ADDRESS } from "@/lib/blockchain/token-utils";
 
 export function JarDepositSection() {
 	const params = useParams();
@@ -26,6 +27,9 @@ export function JarDepositSection() {
 	} = useJarTransactions(config, addressString);
 
 	if (!config) return null;
+
+	const isNativeCurrency =
+		config.currency?.toLowerCase() === ETH_ADDRESS.toLowerCase();
 
 	return (
 		<div className="space-y-6">
@@ -61,9 +65,9 @@ export function JarDepositSection() {
 						id="fundAmount"
 						type="text"
 						placeholder={
-							config.currency === "0x0000000000000000000000000000000000000003"
+							isNativeCurrency
 								? `0.1 ${nativeCurrency.symbol}`
-								: `1${`.${"0".repeat(tokenDecimals > 0 ? 0 : tokenDecimals)}`} ${tokenSymbol || "Tokens"}`
+								: `1.${"0".repeat(Math.max(0, tokenDecimals))} ${tokenSymbol || "Tokens"}`
 						}
 						value={amount}
 						onChange={(e) => setAmount(e.target.value)}
@@ -81,7 +85,7 @@ export function JarDepositSection() {
 				</div>
 			</div>
 
-			{config.currency !== "0x0000000000000000000000000000000000000003" && (
+			{!isNativeCurrency && (
 				<div className="pt-2">
 					<p className="text-sm text-[#8b7355]">
 						Note: For ERC20 tokens, you&apos;ll need to approve the token

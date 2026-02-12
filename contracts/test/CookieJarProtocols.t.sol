@@ -9,9 +9,54 @@ import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 // Mock contracts for protocol testing
 contract MockPOAP {
     mapping(uint256 => address) public owners;
+    mapping(address => uint256) public ownerTokenCount;
+    mapping(uint256 => uint256) public tokenEventIds;
+    mapping(address => mapping(uint256 => uint256[])) private ownerEventTokens;
+    mapping(uint256 => uint256) private ownerEventTokenIndex;
 
     function setOwner(uint256 tokenId, address owner) external {
+        _setOwnerForEvent(tokenId, tokenEventIds[tokenId], owner);
+    }
+
+    function setOwnerForEvent(uint256 tokenId, uint256 eventId, address owner) external {
+        _setOwnerForEvent(tokenId, eventId, owner);
+    }
+
+    function _setOwnerForEvent(uint256 tokenId, uint256 eventId, address owner) internal {
+        address previousOwner = owners[tokenId];
+        uint256 previousEventId = tokenEventIds[tokenId];
+
+        if (previousOwner != address(0)) {
+            ownerTokenCount[previousOwner]--;
+            _removeOwnerEventToken(previousOwner, previousEventId, tokenId);
+        }
+
         owners[tokenId] = owner;
+        tokenEventIds[tokenId] = eventId;
+
+        if (owner != address(0)) {
+            ownerTokenCount[owner]++;
+            ownerEventTokens[owner][eventId].push(tokenId);
+            ownerEventTokenIndex[tokenId] = ownerEventTokens[owner][eventId].length;
+        }
+    }
+
+    function _removeOwnerEventToken(address owner, uint256 eventId, uint256 tokenId) internal {
+        uint256 indexPlusOne = ownerEventTokenIndex[tokenId];
+        if (indexPlusOne == 0) return;
+
+        uint256[] storage tokens = ownerEventTokens[owner][eventId];
+        uint256 index = indexPlusOne - 1;
+        uint256 lastIndex = tokens.length - 1;
+
+        if (index != lastIndex) {
+            uint256 lastTokenId = tokens[lastIndex];
+            tokens[index] = lastTokenId;
+            ownerEventTokenIndex[lastTokenId] = index + 1;
+        }
+
+        tokens.pop();
+        ownerEventTokenIndex[tokenId] = 0;
     }
 
     function ownerOf(uint256 tokenId) external view returns (address) {
@@ -20,10 +65,17 @@ contract MockPOAP {
         return owner;
     }
 
+    /// @dev ERC-721 balanceOf — required by Cookie Jar _validateNftContract()
+    function balanceOf(address owner) external view returns (uint256) {
+        return ownerTokenCount[owner];
+    }
+
     function tokenDetailsOfOwnerByEvent(address owner, uint256 eventId) external view returns (uint256[] memory) {
-        // Simple mock implementation - in reality this would check event ownership
-        uint256[] memory tokens = new uint256[](1);
-        tokens[0] = eventId * 1000 + (uint256(uint160(owner)) % 1000);
+        uint256[] storage stored = ownerEventTokens[owner][eventId];
+        uint256[] memory tokens = new uint256[](stored.length);
+        for (uint256 i = 0; i < stored.length; i++) {
+            tokens[i] = stored[i];
+        }
         return tokens;
     }
 }
@@ -61,6 +113,12 @@ contract MockHats {
 
     function isWearerOfHat(address user, uint256 hatId) external view returns (bool) {
         return wearerStatus[user][hatId];
+    }
+
+    /// @dev ERC-1155 balanceOf for Cookie Jar _checkAccess() compatibility.
+    /// Hats Protocol implements ERC-1155 and returns 0 or 1 based on hat wearing status.
+    function balanceOf(address account, uint256 id) external view returns (uint256) {
+        return wearerStatus[account][id] ? 1 : 0;
     }
 }
 
@@ -153,19 +211,58 @@ contract CookieJarProtocolsTest is Test {
             );
     }
 
-    // Helper function to create AccessConfig struct (simplified for new structure)
-    function createAccessConfigWithProtocols() internal view returns (CookieJarLib.AccessConfig memory) {
-        // Since we simplified to just ERC721/ERC1155, we'll use mock NFT contracts
-        address[] memory mockNftAddresses = new address[](1);
-        mockNftAddresses[0] = address(mockPoap); // Use mock POAP for ERC721 tests
-
+    // Helper: ERC721 access config for POAP event-level gating
+    function createPoapAccessConfig() internal view returns (CookieJarLib.AccessConfig memory) {
         return
             CookieJarLib.AccessConfig({
                 allowlist: emptyAllowlist,
                 nftRequirement: CookieJarLib.NftRequirement({
-                    nftContract: mockNftAddresses[0],
+                    nftContract: address(mockPoap),
+                    tokenId: testEventId,
+                    minBalance: 0,
+                    isPoapEventGate: true
+                })
+            });
+    }
+
+    // Helper: ERC721 access config for generic Unlock-style key ownership
+    function createUnlockAccessConfig() internal view returns (CookieJarLib.AccessConfig memory) {
+        return
+            CookieJarLib.AccessConfig({
+                allowlist: emptyAllowlist,
+                nftRequirement: CookieJarLib.NftRequirement({
+                    nftContract: address(mockPoap),
                     tokenId: 0,
-                    minBalance: 1
+                    minBalance: 0,
+                    isPoapEventGate: false
+                })
+            });
+    }
+
+    // Helper: ERC1155 access config using mockHypercert (Hypercert tests)
+    function createHypercertAccessConfig() internal view returns (CookieJarLib.AccessConfig memory) {
+        return
+            CookieJarLib.AccessConfig({
+                allowlist: emptyAllowlist,
+                nftRequirement: CookieJarLib.NftRequirement({
+                    nftContract: address(mockHypercert),
+                    tokenId: testTokenId,
+                    minBalance: testMinBalance,
+                    isPoapEventGate: false
+                })
+            });
+    }
+
+    // Helper: ERC1155 access config using mockHats (Hats Protocol tests)
+    function createHatsAccessConfig() internal view returns (CookieJarLib.AccessConfig memory) {
+        return
+            CookieJarLib.AccessConfig({
+                allowlist: emptyAllowlist,
+                nftRequirement: CookieJarLib.NftRequirement({
+                    nftContract: address(mockHats),
+                    tokenId: testHatId,
+                    minBalance: 1,
+                    isPoapEventGate: false
                 })
             });
     }
@@ -184,7 +281,7 @@ contract CookieJarProtocolsTest is Test {
         dummyToken.mint(owner, 100_000 * 1e18);
         vm.startPrank(owner);
 
-        // Create POAP jar
+        // Create POAP jar (ERC721, ETH, Fixed) with event-level gate
         jarPoap = new CookieJar(
             createJarConfig(
                 owner,
@@ -201,11 +298,11 @@ contract CookieJarProtocolsTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfigWithProtocols(),
+            createPoapAccessConfig(),
             address(0) // Superfluid host disabled for testing
         );
 
-        // Create Unlock jar
+        // Create Unlock jar (ERC721, ERC20, Variable) — uses mockPoap
         jarUnlock = new CookieJar(
             createJarConfig(
                 owner,
@@ -222,11 +319,11 @@ contract CookieJarProtocolsTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfigWithProtocols(),
+            createUnlockAccessConfig(),
             address(0) // Superfluid host disabled for testing
         );
 
-        // Create Hypercert jar
+        // Create Hypercert jar (ERC1155, ETH, Fixed) — uses mockHypercert
         jarHypercert = new CookieJar(
             createJarConfig(
                 owner,
@@ -243,11 +340,11 @@ contract CookieJarProtocolsTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfigWithProtocols(),
+            createHypercertAccessConfig(),
             address(0) // Superfluid host disabled for testing
         );
 
-        // Create Hats jar
+        // Create Hats jar (ERC1155, ERC20, Variable) — uses mockHats with testHatId
         jarHats = new CookieJar(
             createJarConfig(
                 owner,
@@ -264,7 +361,7 @@ contract CookieJarProtocolsTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfigWithProtocols(),
+            createHatsAccessConfig(),
             address(0) // Superfluid host disabled for testing
         );
 
@@ -286,9 +383,9 @@ contract CookieJarProtocolsTest is Test {
     }
 
     function test_WithdrawERC721Mode() public {
-        // Setup user with POAP - user owns token ID 12345001
+        // Setup user with POAP for the required event.
         uint256 poapTokenId = 12345001;
-        mockPoap.setOwner(poapTokenId, user);
+        mockPoap.setOwnerForEvent(poapTokenId, testEventId, user);
 
         vm.warp(block.timestamp + withdrawalInterval + 1);
         uint256 jarBalanceBefore = address(jarPoap).balance;
@@ -305,35 +402,44 @@ contract CookieJarProtocolsTest is Test {
     }
 
     function test_RevertWhen_WithdrawERC721ModeInvalidAccessType() public {
+        // Calling withdrawWithErc721 on an ERC1155 jar should revert
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidAccessType.selector));
-        jarUnlock.withdrawWithErc721(fixedAmount, purpose);
+        jarHypercert.withdrawWithErc721(fixedAmount, purpose);
     }
 
     function test_RevertWhen_WithdrawERC721ModeNotAuthorized() public {
-        // User doesn't own the POAP token
-        uint256 poapTokenId = 12345001;
-        // Don't set ownership for user, so they don't own the token
-
+        // User doesn't own any POAP tokens — balance is 0
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAuthorized.selector));
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InsufficientNFTBalance.selector));
         jarPoap.withdrawWithErc721(fixedAmount, purpose);
     }
 
     function test_RevertWhen_WithdrawPOAPModeTooSoon() public {
-        // Setup user with POAP
+        // Setup user with POAP for required event.
         uint256 poapTokenId = 12345001;
-        mockPoap.setOwner(poapTokenId, user);
+        mockPoap.setOwnerForEvent(poapTokenId, testEventId, user);
 
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
         jarPoap.withdrawWithErc721(fixedAmount, purpose);
 
-        // uint256 nextAllowed = jarPoap.lastWithdrawalPOAP(poapTokenId) + withdrawalInterval;
-        vm.prank(user);
+        // Second withdrawal too soon — should revert
+        uint256 nextAllowed = jarPoap.lastWithdrawalTime(user) + withdrawalInterval;
         skip(100);
-        // vm.expectRevert(abi.encodeWithSelector(CookieJarLib.WithdrawalTooSoon.selector, nextAllowed));
+        vm.prank(user);
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.WithdrawalTooSoon.selector, nextAllowed));
+        jarPoap.withdrawWithErc721(fixedAmount, purpose);
+    }
+
+    function test_RevertWhen_WithdrawPOAPModeWrongEvent() public {
+        // User has a POAP, but for a different event than the jar requires.
+        mockPoap.setOwnerForEvent(12345002, testEventId + 1, user);
+
+        vm.warp(block.timestamp + withdrawalInterval + 1);
+        vm.prank(user);
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InsufficientNFTBalance.selector));
         jarPoap.withdrawWithErc721(fixedAmount, purpose);
     }
 
@@ -344,8 +450,8 @@ contract CookieJarProtocolsTest is Test {
     }
 
     function test_WithdrawUnlockMode() public {
-        // Setup user with valid key
-        mockUnlock.setHasValidKey(user, true);
+        // jarUnlock uses generic ERC721 ownership (tokenId=0) — any token works
+        mockPoap.setOwner(99999, user);
 
         vm.warp(block.timestamp + withdrawalInterval + 1);
         uint256 jarBalanceBefore = dummyToken.balanceOf(address(jarUnlock));
@@ -358,22 +464,20 @@ contract CookieJarProtocolsTest is Test {
         assertEq(dummyToken.balanceOf(address(jarUnlock)), jarBalanceBefore - maxWithdrawal);
         assertEq(jarUnlock.currencyHeldByJar(), currencyHeldByJarBefore - maxWithdrawal);
         assertEq(dummyToken.balanceOf(user), userBalanceBefore + maxWithdrawal);
-        // assertEq(jarUnlock.lastWithdrawalProtocol(user), block.timestamp);
     }
 
-    function test_RevertWhen_WithdrawPOAPModeInvalidAccessType() public {
+    function test_RevertWhen_WithdrawERC1155ModeInvalidAccessType() public {
+        // Calling withdrawWithErc1155 on an ERC721 jar should revert
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidAccessType.selector));
-        jarPoap.withdrawWithErc721(fixedAmount, purpose);
+        jarPoap.withdrawWithErc1155(fixedAmount, purpose);
     }
 
     function test_RevertWhen_WithdrawUnlockModeNotAuthorized() public {
-        // User doesn't have valid key
-        mockUnlock.setHasValidKey(user, false);
-
+        // User doesn't own any tokens — mockPoap balanceOf returns 0
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAuthorized.selector));
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InsufficientNFTBalance.selector));
         jarUnlock.withdrawWithErc721(maxWithdrawal, purpose);
     }
 
@@ -407,17 +511,17 @@ contract CookieJarProtocolsTest is Test {
 
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAuthorized.selector));
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InsufficientNFTBalance.selector));
         jarHypercert.withdrawWithErc1155(fixedAmount, purpose);
     }
 
     function test_RevertWhen_WithdrawERC1155ModeWrongTokenId() public {
-        // User has balance but for wrong token ID
+        // User has balance but for wrong token ID — jar checks testTokenId, user has testTokenId+1
         mockHypercert.setBalance(user, testTokenId + 1, testMinBalance);
 
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAuthorized.selector));
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InsufficientNFTBalance.selector));
         jarHypercert.withdrawWithErc1155(fixedAmount, purpose);
     }
 
@@ -445,20 +549,78 @@ contract CookieJarProtocolsTest is Test {
         // assertEq(jarHats.lastWithdrawalProtocol(user), block.timestamp);
     }
 
-    function test_RevertWhen_WithdrawERC1155ModeNotAuthorized() public {
-        // User is not wearing the required hat
+    function test_RevertWhen_WithdrawHatsModeNotAuthorized() public {
+        // User is not wearing the required hat — balanceOf returns 0
         mockHats.setWearerStatus(user, testHatId, false);
 
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAuthorized.selector));
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InsufficientNFTBalance.selector));
         jarHats.withdrawWithErc1155(maxWithdrawal, purpose);
+    }
+
+    function test_RevertWhen_WithdrawHatsModeWrongHatId() public {
+        // User wears a DIFFERENT hat — should fail because jar checks testHatId
+        uint256 differentHatId = testHatId + 1;
+        mockHats.setWearerStatus(user, differentHatId, true);
+
+        vm.warp(block.timestamp + withdrawalInterval + 1);
+        vm.prank(user);
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InsufficientNFTBalance.selector));
+        jarHats.withdrawWithErc1155(maxWithdrawal, purpose);
+    }
+
+    function test_RevertWhen_HatsRevokedBetweenWithdrawals() public {
+        // Grant hat, withdraw, revoke hat, attempt second withdrawal
+        mockHats.setWearerStatus(user, testHatId, true);
+
+        vm.warp(block.timestamp + withdrawalInterval + 1);
+        vm.prank(user);
+        jarHats.withdrawWithErc1155(fixedAmount, purpose);
+
+        // Revoke hat (simulates operator removing gardener role)
+        mockHats.setWearerStatus(user, testHatId, false);
+
+        // Wait past cooldown — still should fail because hat is revoked
+        vm.warp(block.timestamp + withdrawalInterval + 1);
+        vm.prank(user);
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InsufficientNFTBalance.selector));
+        jarHats.withdrawWithErc1155(fixedAmount, purpose);
+    }
+
+    function test_HatsMultipleUsersIndependentCooldowns() public {
+        // Two users wearing the hat can withdraw independently
+        mockHats.setWearerStatus(user, testHatId, true);
+        mockHats.setWearerStatus(user2, testHatId, true);
+
+        vm.warp(block.timestamp + withdrawalInterval + 1);
+
+        // User 1 withdraws
+        vm.prank(user);
+        jarHats.withdrawWithErc1155(fixedAmount, purpose);
+
+        // User 2 can still withdraw (cooldown is per-user)
+        vm.prank(user2);
+        jarHats.withdrawWithErc1155(fixedAmount, purpose);
+
+        // User 1 is on cooldown
+        skip(100);
+        uint256 nextAllowed = jarHats.lastWithdrawalTime(user) + withdrawalInterval;
+        vm.prank(user);
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.WithdrawalTooSoon.selector, nextAllowed));
+        jarHats.withdrawWithErc1155(fixedAmount, purpose);
+
+        // User 2 is also on cooldown
+        uint256 nextAllowed2 = jarHats.lastWithdrawalTime(user2) + withdrawalInterval;
+        vm.prank(user2);
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.WithdrawalTooSoon.selector, nextAllowed2));
+        jarHats.withdrawWithErc1155(fixedAmount, purpose);
     }
 
     // ==== Common Validation Tests ====
 
     function test_RevertWhen_ERC721WithdrawZeroAmount() public {
-        mockPoap.setOwner(12345, user);
+        mockPoap.setOwnerForEvent(12345, testEventId, user);
 
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.ZeroAmount.selector));
@@ -466,8 +628,10 @@ contract CookieJarProtocolsTest is Test {
     }
 
     function test_RevertWhen_ERC721WithdrawShortPurpose() public {
-        mockUnlock.setHasValidKey(user, true);
+        // Give user access via mockPoap, then test purpose validation
+        mockPoap.setOwner(88888, user);
 
+        vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
         vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidPurpose.selector));
         jarUnlock.withdrawWithErc721(maxWithdrawal, shortPurpose);
@@ -476,7 +640,7 @@ contract CookieJarProtocolsTest is Test {
     function test_RevertWhen_ERC1155WithdrawInsufficientJarBalance() public {
         mockHypercert.setBalance(user, testTokenId, testMinBalance);
 
-        // Create empty jar
+        // Create empty jar using Hypercert access config
         vm.prank(owner);
         CookieJar emptyJar = new CookieJar(
             createJarConfig(
@@ -494,7 +658,7 @@ contract CookieJarProtocolsTest is Test {
                 true, // emergencyWithdrawalEnabled
                 false // oneTimeWithdrawal
             ),
-            createAccessConfigWithProtocols(),
+            createHypercertAccessConfig(),
             address(0) // Superfluid host disabled for testing
         );
 
@@ -508,18 +672,18 @@ contract CookieJarProtocolsTest is Test {
 
     function test_MultipleAccessTypeWithdrawals() public {
         // Setup users for different protocols
-        mockPoap.setOwner(12345, user);
-        mockUnlock.setHasValidKey(user2, true);
+        mockPoap.setOwnerForEvent(12345, testEventId, user);
+        mockPoap.setOwner(12346, user2);
 
         vm.warp(block.timestamp + withdrawalInterval + 1);
 
-        // POAP withdrawal
+        // POAP withdrawal (ETH, Fixed)
         uint256 userBalanceBefore = user.balance;
         vm.prank(user);
         jarPoap.withdrawWithErc721(fixedAmount, purpose);
         assertEq(user.balance, userBalanceBefore + fixedAmount);
 
-        // Unlock withdrawal
+        // Unlock withdrawal (ERC20, Variable) — also uses mockPoap for ERC721 access
         uint256 user2BalanceBefore = dummyToken.balanceOf(user2);
         vm.prank(user2);
         jarUnlock.withdrawWithErc721(maxWithdrawal, purpose);
@@ -535,15 +699,15 @@ contract CookieJarProtocolsTest is Test {
         vm.prank(user);
         jarHats.withdrawWithErc1155(fixedAmount, purpose);
 
-        // Second withdrawal should fail (too soon)
-        // uint256 nextAllowed = jarHats.lastWithdrawalProtocol(user) + withdrawalInterval;
+        // Second withdrawal too soon — should revert
+        uint256 nextAllowed = jarHats.lastWithdrawalTime(user) + withdrawalInterval;
         skip(100);
         vm.prank(user);
-        // vm.expectRevert(abi.encodeWithSelector(CookieJarLib.WithdrawalTooSoon.selector, nextAllowed));
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.WithdrawalTooSoon.selector, nextAllowed));
         jarHats.withdrawWithErc1155(fixedAmount, purpose);
 
-        // Third withdrawal should succeed after interval
-        // vm.warp(nextAllowed + 1);
+        // Third withdrawal after interval — should succeed
+        vm.warp(nextAllowed + 1);
         vm.prank(user);
         jarHats.withdrawWithErc1155(fixedAmount, purpose);
     }

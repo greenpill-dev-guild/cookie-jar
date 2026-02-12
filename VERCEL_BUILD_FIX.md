@@ -16,9 +16,9 @@
 **Changes**:
 ```json
 {
-  "build:client": "pnpm check && pnpm --filter client run build:skip-lint",
-  "build:client:dev": "pnpm --filter client run build",
-  "type-check": "cd client && pnpm type-check"
+  "build:client": "bun check && cd client && bun build:skip-lint",
+  "build:client:dev": "cd client && bun build",
+  "type-check": "cd client && bun type-check"
 }
 ```
 
@@ -55,17 +55,17 @@ const validationCache = new Map<string, {
 
 ### Build Flow on Vercel
 
-1. **Install**: `pnpm install --ignore-scripts`
+1. **Install**: `bun install --ignore-scripts`
    - Skips `preinstall` and `postinstall` hooks
    - Avoids Foundry installation and git submodule init
    - Faster, more reliable installs
 
-2. **Build**: `pnpm run build:client`
-   - Runs `pnpm check` (lint + type-check)
-   - Then runs `pnpm --filter client run build:skip-lint`
+2. **Build**: `bun run build:client`
+   - Runs `bun check` (lint + type-check)
+   - Then `cd client && bun build:skip-lint`
    - Builds Next.js app to `client/.next`
 
-3. **Type-check**: `cd client && pnpm type-check`
+3. **Type-check**: `cd client && bun type-check`
    - Changes to client directory FIRST
    - TypeScript finds `tsconfig.json` with proper `@/` paths
    - Resolves all module imports correctly
@@ -75,8 +75,8 @@ const validationCache = new Map<string, {
 **Configure these settings in your Vercel dashboard**:
 
 - **Root Directory**: `.` (root) or leave blank
-- **Build Command**: `pnpm run build:client`
-- **Install Command**: `pnpm install --ignore-scripts`
+- **Build Command**: `bun run build:client`
+- **Install Command**: `bun install --ignore-scripts`
 - **Output Directory**: `client/.next`
 - **Framework Preset**: Next.js
 - **Node Version**: 20.x
@@ -105,13 +105,13 @@ const validationCache = new Map<string, {
 ```bash
 # Test the full build pipeline
 cd /path/to/cookie-jar
-pnpm check          # Lint + type-check
-pnpm build:client   # Full client build
+bun check          # Lint + type-check
+bun build:client   # Full client build
 
 # Or test individual steps
-pnpm lint           # Should pass
-pnpm type-check     # Should pass (no errors)
-cd client && pnpm build:skip-lint  # Should complete
+bun lint           # Should pass
+bun type-check     # Should pass (no errors)
+cd client && bun build:skip-lint  # Should complete
 ```
 
 ## Next Deploy
@@ -123,8 +123,8 @@ On your next push to the `dev` branch, Vercel will:
 4. Successfully build and deploy ✅
 
 **Important**: Ensure your Vercel dashboard has these settings configured:
-- Build Command: `pnpm run build:client`
-- Install Command: `pnpm install --ignore-scripts`
+- Build Command: `bun run build:client`
+- Install Command: `bun install --ignore-scripts`
 - Output Directory: `client/.next`
 
 ## Rollback Plan
@@ -136,8 +136,8 @@ If issues occur, you can quickly rollback:
 cat > vercel.json << 'EOF'
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "buildCommand": "pnpm run build:client",
-  "installCommand": "pnpm install --ignore-scripts",
+  "buildCommand": "bun run build:client",
+  "installCommand": "bun install --ignore-scripts",
   "outputDirectory": "client/.next",
   "framework": null,
   "env": {

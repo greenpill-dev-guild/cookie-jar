@@ -38,6 +38,7 @@ import {
 	getExplorerAddressUrl,
 	getNetworkName,
 } from "@/lib/blockchain/networks";
+import { ETH_ADDRESS } from "@/lib/blockchain/token-utils";
 import { getAccessTypeName } from "@/lib/jar/access-types";
 
 export default function ProfilePage() {
@@ -253,8 +254,8 @@ function DesktopProfile() {
 													Currency:
 												</span>
 												<span className="text-[hsl(var(--cj-dark-brown))]">
-													{jar.currency ===
-													"0x0000000000000000000000000000000000000003"
+													{jar.currency?.toLowerCase() ===
+													ETH_ADDRESS.toLowerCase()
 														? `${nativeCurrency.symbol} (Native)`
 														: "ERC20"}
 												</span>

@@ -48,9 +48,21 @@ library CookieJarValidation {
         }
     }
 
-    /// @notice Validates purpose requirement
+    /// @notice Counts Unicode code points in a UTF-8 encoded string.
+    /// Leading bytes (not continuation bytes 10xxxxxx) mark the start of a new character.
+    function countUnicodeCodePoints(string memory s) internal pure returns (uint256 count) {
+        bytes memory b = bytes(s);
+        for (uint256 i = 0; i < b.length; i++) {
+            // Continuation bytes have the pattern 10xxxxxx (0x80..0xBF)
+            if ((uint8(b[i]) & 0xC0) != 0x80) {
+                count++;
+            }
+        }
+    }
+
+    /// @notice Validates purpose requirement using Unicode code point length
     function validatePurpose(bool strictPurpose, string memory purpose) internal pure {
-        if (strictPurpose && bytes(purpose).length < 10) {
+        if (strictPurpose && countUnicodeCodePoints(purpose) < 27) {
             revert CookieJarLib.InvalidPurpose();
         }
     }

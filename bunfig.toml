@@ -1,0 +1,50 @@
+# Bun Configuration for Cookie Jar Monorepo
+# https://bun.sh/docs/runtime/bunfig
+
+[install]
+# Use production-like installs with full dependency resolution
+production = false
+dev = true
+optional = true
+peer = true
+
+# Prevent phantom dependencies (like pnpm's approach)
+# This ensures all dependencies are explicitly declared
+registry = "https://registry.npmjs.org/"
+
+# Cache configuration for faster installs
+cache = true
+exact = false
+
+# Frozen lockfile in CI (similar to pnpm's --frozen-lockfile)
+# Set to true in CI environments
+frozenLockfile = false
+
+[install.scopes]
+# Use npm registry for all scopes
+"@" = "https://registry.npmjs.org/"
+
+[test]
+# Test runner configuration
+# Note: Vitest setup is configured in client/vitest.config.mjs, not here.
+# Do NOT preload vitest.setup.ts here — it imports Vitest globals that break
+# Bun's native test runner. Keep test runner-specific config in vitest.config.
+coverage = true
+
+[run]
+# Set shell to use for scripts (bun's shell is faster)
+shell = "bun"
+
+# Show script output
+silent = false
+
+# Set to true to always use bun runtime instead of node
+bun = true
+
+[define]
+# Environment variable substitutions
+# Note: Do NOT define process.env.NODE_ENV here — it statically replaces the
+# identifier at runtime, preventing dev servers from using NODE_ENV=development.
+# Apply production defines via build commands instead:
+#   bun build --define "process.env.NODE_ENV='production'"
+

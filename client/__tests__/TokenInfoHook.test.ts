@@ -1,9 +1,9 @@
 // Test for the token info resolution functionality
+import { ETH_ADDRESS } from "@/lib/blockchain/constants";
 
 describe("Token Info Hook Logic", () => {
 	// Mock the hook behavior for testing
 	const mockTokenInfo = (address: string, mockData: any) => {
-		const ETH_ADDRESS = "0x0000000000000000000000000000000000000003";
 		const _isERC20 = address && address !== ETH_ADDRESS;
 
 		if (address === ETH_ADDRESS) {
@@ -31,10 +31,7 @@ describe("Token Info Hook Logic", () => {
 
 	describe("Token Info Resolution", () => {
 		it("returns ETH info for ETH address", () => {
-			const result = mockTokenInfo(
-				"0x0000000000000000000000000000000000000003",
-				null,
-			);
+			const result = mockTokenInfo(ETH_ADDRESS, null);
 
 			expect(result).toEqual({
 				symbol: "ETH",

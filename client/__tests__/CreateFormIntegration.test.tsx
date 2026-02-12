@@ -144,7 +144,11 @@ const CreateFormLogic = () => {
 };
 
 describe("Create Form Integration", () => {
-	const user = userEvent.setup();
+	let user: ReturnType<typeof userEvent.setup>;
+
+	beforeEach(() => {
+		user = userEvent.setup();
+	});
 
 	it("validates complete form correctly", async () => {
 		render(<CreateFormLogic />);

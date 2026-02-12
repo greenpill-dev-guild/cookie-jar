@@ -1,17 +1,16 @@
 "use client";
 
 import { lazy, Suspense, useEffect, useState } from "react";
+import { FormProvider } from "react-hook-form";
 import { useAccount, useChainId } from "wagmi";
 import { ProtocolErrorBoundary } from "@/components/app/ProtocolErrorBoundary";
 import { CreateJarForm } from "@/components/create/CreateJarForm";
-// Import extracted components
 import { CreateJarHeader } from "@/components/create/CreateJarHeader";
 import { ProgressIndicator } from "@/components/create/ProgressIndicator";
 import { isV2Chain } from "@/config/supported-networks";
 import { useStepNavigation } from "@/hooks/app/useStepNavigation";
 import { useJarCreation } from "@/hooks/jar/useJarCreation";
 
-// Lazy load heavy components for better bundle splitting
 const StatusCards = lazy(() =>
 	import("@/components/create/StatusCards").then((module) => ({
 		default: module.StatusCards,
@@ -28,29 +27,37 @@ export default function CreateCookieJarForm() {
 	const chainId = useChainId();
 	const isV2Contract = isV2Chain(chainId);
 
-	// All form state and logic moved to custom hook
-	const formData = useJarCreation();
+	const {
+		form,
+		confirmSubmit,
+		validateStep1,
+		validateStep2,
+		validateStep3,
+		validateStep4,
+		isCreating,
+		isWaitingForTx,
+		newJarPreview,
+		formErrors,
+		isFormError,
+		ETH_ADDRESS,
+	} = useJarCreation();
 
-	// Step navigation moved to custom hook
 	const { currentStep, totalSteps, nextStep, prevStep } =
 		useStepNavigation(isV2Contract);
 
-	// Modal state (keep minimal state in main component)
 	const [showWalletModal, setShowWalletModal] = useState(false);
 	const [pendingSubmission, setPendingSubmission] = useState(false);
 
-	// Check if current step is valid
 	const isCurrentStepValid = () => {
 		switch (currentStep) {
 			case 1:
-				return formData.validateStep1().isValid;
+				return validateStep1().isValid;
 			case 2:
-				return formData.validateStep2().isValid;
+				return validateStep2().isValid;
 			case 3:
-				// Skip validation for step 3 on v1 chains
-				return isV2Contract ? formData.validateStep3().isValid : true;
+				return isV2Contract ? validateStep3().isValid : true;
 			case 4:
-				return formData.validateStep4().isValid;
+				return validateStep4().isValid;
 			default:
 				return false;
 		}
@@ -61,21 +68,19 @@ export default function CreateCookieJarForm() {
 		if (isConnected && address && pendingSubmission && showWalletModal) {
 			setShowWalletModal(false);
 			setPendingSubmission(false);
-			// Retry the submission
 			setTimeout(() => {
-				formData.confirmSubmit();
-			}, 100); // Small delay to ensure modal closes first
+				confirmSubmit();
+			}, 100);
 		}
-	}, [isConnected, address, pendingSubmission, showWalletModal, formData]);
+	}, [isConnected, address, pendingSubmission, showWalletModal, confirmSubmit]);
 
-	// Handle wallet connection modal trigger
 	const handleSubmit = () => {
 		if (!isConnected) {
 			setShowWalletModal(true);
 			setPendingSubmission(true);
 			return;
 		}
-		formData.confirmSubmit();
+		confirmSubmit();
 	};
 
 	return (
@@ -84,46 +89,49 @@ export default function CreateCookieJarForm() {
 			maxRetries={2}
 			showDetails={process.env.NODE_ENV === "development"}
 		>
-			<div className="max-w-2xl mx-auto">
-				<CreateJarHeader isV2Contract={isV2Contract} />
-				<ProgressIndicator
-					currentStep={currentStep}
-					totalSteps={totalSteps}
-					isV2Contract={isV2Contract}
-				/>
-
-				<CreateJarForm
-					currentStep={currentStep}
-					totalSteps={totalSteps}
-					isV2Contract={isV2Contract}
-					formData={formData}
-					nextStep={nextStep}
-					prevStep={prevStep}
-					handleSubmit={handleSubmit}
-					isCurrentStepValid={isCurrentStepValid}
-				/>
-
-				<Suspense
-					fallback={
-						<div className="h-32 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />
-					}
-				>
-					<StatusCards
-						newJarPreview={formData.newJarPreview}
-						formErrors={formData.formErrors}
-						isFormError={formData.isFormError}
-						ETH_ADDRESS={formData.ETH_ADDRESS}
+			<FormProvider {...form}>
+				<div className="max-w-2xl mx-auto">
+					<CreateJarHeader isV2Contract={isV2Contract} />
+					<ProgressIndicator
+						currentStep={currentStep}
+						totalSteps={totalSteps}
+						isV2Contract={isV2Contract}
 					/>
-				</Suspense>
-			</div>
+
+					<CreateJarForm
+						currentStep={currentStep}
+						totalSteps={totalSteps}
+						isV2Contract={isV2Contract}
+						nextStep={nextStep}
+						prevStep={prevStep}
+						handleSubmit={handleSubmit}
+						isCurrentStepValid={isCurrentStepValid}
+						isCreating={isCreating}
+						isWaitingForTx={isWaitingForTx}
+					/>
+
+					<Suspense
+						fallback={
+							<div className="h-32 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />
+						}
+					>
+						<StatusCards
+							newJarPreview={newJarPreview}
+							formErrors={formErrors}
+							isFormError={isFormError}
+							ETH_ADDRESS={ETH_ADDRESS}
+						/>
+					</Suspense>
+				</div>
+			</FormProvider>
 
 			<Suspense fallback={null}>
 				<CreateJarModals
 					showWalletModal={showWalletModal}
 					setShowWalletModal={setShowWalletModal}
 					setPendingSubmission={setPendingSubmission}
-					isCreating={formData.isCreating}
-					isWaitingForTx={formData.isWaitingForTx}
+					isCreating={isCreating}
+					isWaitingForTx={isWaitingForTx}
 				/>
 			</Suspense>
 		</ProtocolErrorBoundary>

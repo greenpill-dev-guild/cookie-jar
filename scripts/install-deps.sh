@@ -19,7 +19,7 @@ get_version() {
     if command_exists "$1"; then
         case "$1" in
             "node") node --version ;;
-            "pnpm") pnpm --version ;;
+            "bun") bun --version ;;
             "forge") forge --version | head -n1 | cut -d' ' -f3 ;;
             "git") git --version | cut -d' ' -f3 ;;
         esac
@@ -50,18 +50,18 @@ if ! command_exists git; then
 fi
 echo -e "${GREEN}✅ Git $(get_version git) found${NC}"
 
-# Install pnpm if missing
-if ! command_exists pnpm; then
-    echo -e "${YELLOW}📦 Installing pnpm...${NC}"
-    if ! npm install -g pnpm; then
-        echo -e "${RED}❌ Failed to install pnpm globally${NC}"
-        echo "   You may need to run: sudo npm install -g pnpm"
-        echo "   Or visit: https://pnpm.io/installation"
+# Install bun if missing
+if ! command_exists bun; then
+    echo -e "${YELLOW}📦 Installing bun...${NC}"
+    if ! npm install -g bun; then
+        echo -e "${RED}❌ Failed to install bun globally${NC}"
+        echo "   You may need to run: sudo npm install -g bun"
+        echo "   Or visit: https://bun.sh/docs/installation"
         exit 1
     fi
-    echo -e "${GREEN}✅ pnpm installed successfully${NC}"
+    echo -e "${GREEN}✅ bun installed successfully${NC}"
 else
-    echo -e "${GREEN}✅ pnpm v$(get_version pnpm) already installed${NC}"
+    echo -e "${GREEN}✅ bun v$(get_version bun) already installed${NC}"
 fi
 
 # Install Foundry if missing (skip in CI where official action handles it)

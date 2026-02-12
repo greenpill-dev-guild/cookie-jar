@@ -61,7 +61,7 @@ This directory contains the smart contracts for the Cookie Jar Protocol - a dece
   - Celo Alfajores: https://celo-alfajores.blockscout.com/address/0x5FC650F378475d1fF0E608964529E4863A339CD2?tab=contract
 
 ### Local Development
-For local development, contracts are automatically deployed with deterministic addresses when you run `pnpm dev` from the repo root.
+For local development, contracts are automatically deployed with deterministic addresses when you run `bun dev` from the repo root.
 
 ## 🛠️ Development Tools & Workflow
 
@@ -81,13 +81,13 @@ This project uses professional Solidity development tools for code quality and c
 
 ## 📋 Contract-Specific Commands
 
-> **💡 Tip**: Run these from the repo root with `pnpm` or from `contracts/` directory with `npm`
+> **💡 Tip**: Run these from the repo root with `bun` or from `contracts/` directory with `npm`
 
 ### Code Quality
 ```bash
 # From repo root
-pnpm lint:contracts        # Check for linting issues
-pnpm format:contracts      # Format all Solidity files
+bun lint:contracts        # Check for linting issues
+bun format:contracts      # Format all Solidity files
 
 # From contracts/ directory  
 npm run lint               # Check for linting issues
@@ -101,8 +101,8 @@ npm run fix                # Format + lint fix
 ### Building & Testing
 ```bash
 # From repo root
-pnpm build:contracts       # Compile contracts with Forge
-pnpm test:contracts        # Run all contract tests
+bun build:contracts       # Compile contracts with Forge
+bun test:contracts        # Run all contract tests
 
 # From contracts/ directory
 npm run build              # Compile contracts with Forge
@@ -114,9 +114,9 @@ npm run clean              # Clean build artifacts
 ### Local Development
 ```bash
 # From repo root (recommended)
-pnpm dev                   # Start full development environment
-pnpm deploy:local          # Deploy contracts to local Anvil
-pnpm seed:demo             # Seed demo environment
+bun dev                   # Start full development environment
+bun deploy:local          # Deploy contracts to local Anvil
+bun seed:demo             # Seed demo environment
 
 # Direct Foundry commands (from contracts/)
 forge build                # Compile contracts
@@ -129,13 +129,13 @@ forge fmt                  # Format Solidity files
 
 ### Prerequisites
 - **Foundry**: Install via `curl -L https://foundry.paradigm.xyz | bash && foundryup`
-- **Node.js & pnpm**: For dependency management and scripts
+- **Node.js & bun**: For dependency management and scripts
 
 ### Quick Setup
 ```bash
 # From repo root (recommended approach)
-pnpm install               # Installs all dependencies + runs forge install
-pnpm dev                   # Starts development environment with contracts
+bun install               # Installs all dependencies + runs forge install
+bun dev                   # Starts development environment with contracts
 
 # Manual setup (from contracts/ directory)
 forge install              # Install Foundry dependencies

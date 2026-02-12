@@ -6,12 +6,12 @@ Playwright end-to-end testing for Cookie Jar protocol, designed to work seamless
 
 ```bash
 # Terminal 1: Start development environment
-pnpm dev
+bun dev
 
 # Terminal 2: Run tests
-pnpm test:e2e              # Run all E2E tests
-pnpm test:e2e:ui           # Visual test runner
-pnpm test:e2e:debug        # Debug mode
+bun test:e2e              # Run all E2E tests
+bun test:e2e:ui           # Visual test runner
+bun test:e2e:debug        # Debug mode
 ```
 
 ## 📋 Test Structure
@@ -58,19 +58,19 @@ e2e/
 
 ```bash
 # Run only jar creation tests
-pnpm test:e2e jar-creation.spec.ts
+bun test:e2e jar-creation.spec.ts
 
 # Run only admin function tests
-pnpm test:e2e admin-functions.spec.ts
+bun test:e2e admin-functions.spec.ts
 
 # Run accessibility tests only
-pnpm test:accessibility
+bun test:accessibility
 
 # Run with browser visible (for debugging)
-pnpm test:e2e:headed
+bun test:e2e:headed
 
 # Generate HTML report
-pnpm test:e2e:report
+bun test:e2e:report
 ```
 
 ## 🔧 Troubleshooting
@@ -78,7 +78,7 @@ pnpm test:e2e:report
 ### Development Environment Not Ready
 ```bash
 # Make sure dev environment is running
-pnpm dev
+bun dev
 
 # Check services are ready
 curl http://localhost:3000         # Client should respond
@@ -88,19 +88,19 @@ curl -X POST http://127.0.0.1:8545 # Anvil should respond
 ### Tests Failing
 ```bash
 # Run with debug mode
-pnpm test:e2e:debug
+bun test:e2e:debug
 
 # Check browser console for errors
-pnpm test:e2e:headed
+bun test:e2e:headed
 
 # View detailed HTML report
-pnpm test:e2e:report
+bun test:e2e:report
 ```
 
 ### Slow Performance
 ```bash
 # Run single test file
-pnpm test:e2e basic-setup.spec.ts
+bun test:e2e basic-setup.spec.ts
 
 # Check if dev environment is properly started
 ps aux | grep anvil
@@ -129,8 +129,8 @@ ps aux | grep "next dev"
 
 ## 🚀 Next Steps
 
-1. **Run basic setup test**: `pnpm test:e2e basic-setup.spec.ts`
-2. **Run complete suite**: `pnpm test:e2e`
+1. **Run basic setup test**: `bun test:e2e basic-setup.spec.ts`
+2. **Run complete suite**: `bun test:e2e`
 3. **Add more test scenarios** as needed
 4. **Integrate with CI/CD** pipeline
 

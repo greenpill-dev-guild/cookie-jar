@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { HypercertsProvider } from "@/lib/nft/protocols/HypercertsProvider";
+import { ACCESS_CONTROL_DOC_LINKS } from "../doc-links";
 import { ProtocolConfigBase } from "../ProtocolConfigBase";
 
 interface HypercertDetails {
@@ -19,7 +20,11 @@ interface HypercertDetails {
 }
 
 export interface HypercertConfigProps {
-	onConfigChange: (config: { hypercertId: string }) => void;
+	onConfigChange: (config: {
+		hypercertId: string;
+		hypercertAddress?: string;
+		hypercertTokenId?: string;
+	}) => void;
 	initialConfig?: { hypercertId: string };
 	className?: string;
 }
@@ -54,7 +59,11 @@ export const HypercertConfig: React.FC<HypercertConfigProps> = ({
 
 				if (hypercertDetails) {
 					setSelectedHypercert(hypercertDetails);
-					onConfigChange({ hypercertId: hypercertIdToValidate });
+					onConfigChange({
+						hypercertId: hypercertIdToValidate,
+						hypercertAddress: hypercertDetails.contract,
+						hypercertTokenId: hypercertDetails.tokenID,
+					});
 				} else {
 					setValidationError(
 						"Hypercert not found. Please check the Hypercert ID.",
@@ -97,9 +106,10 @@ export const HypercertConfig: React.FC<HypercertConfigProps> = ({
 			icon="🏆"
 			color="bg-green-500"
 			validationError={validationError}
+			errorId="hypercert-error"
 			isLoading={isValidating}
 			className={className}
-			learnMoreUrl="https://hypercerts.org/"
+			learnMoreUrl={ACCESS_CONTROL_DOC_LINKS.hypercerts}
 		>
 			<div className="space-y-4">
 				{/* Hypercert ID Input */}
@@ -111,6 +121,8 @@ export const HypercertConfig: React.FC<HypercertConfigProps> = ({
 						value={hypercertId}
 						onChange={handleHypercertIdChange}
 						className="mt-1"
+						aria-invalid={!!validationError}
+						aria-describedby={validationError ? "hypercert-error" : undefined}
 					/>
 					<p className="text-xs text-gray-500 mt-1">
 						The unique identifier for the Hypercert token

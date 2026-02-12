@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { UnlockProvider } from "@/lib/nft/protocols/UnlockProvider";
+import { ACCESS_CONTROL_DOC_LINKS } from "../doc-links";
 import { ProtocolConfigBase } from "../ProtocolConfigBase";
 
 interface LockDetails {
@@ -125,9 +126,10 @@ export const UnlockConfig: React.FC<UnlockConfigProps> = ({
 			icon="🔓"
 			color="bg-blue-500"
 			validationError={validationError}
+			errorId="unlock-error"
 			isLoading={isValidating}
 			className={className}
-			learnMoreUrl="https://unlock-protocol.com/"
+			learnMoreUrl={ACCESS_CONTROL_DOC_LINKS.unlock}
 		>
 			<div className="space-y-4">
 				{/* Lock Address Input */}
@@ -139,6 +141,8 @@ export const UnlockConfig: React.FC<UnlockConfigProps> = ({
 						value={unlockAddress}
 						onChange={handleAddressChange}
 						className="mt-1"
+						aria-invalid={!!validationError}
+						aria-describedby={validationError ? "unlock-error" : undefined}
 					/>
 					<p className="text-xs text-gray-500 mt-1">
 						The contract address of the Unlock Protocol lock

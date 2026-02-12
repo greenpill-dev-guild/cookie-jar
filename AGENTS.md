@@ -46,25 +46,26 @@ docs/
 # Zero-configuration start
 git clone https://github.com/greenpill-dev-guild/cookie-jar.git
 cd cookie-jar
-npm install  # Auto-installs pnpm + Foundry
-npm run dev  # Starts everything
+npm install  # Auto-installs Foundry
+bun install  # Install dependencies
+bun dev      # Starts everything
 ```
 
 ### 2. Code Quality Commands
 
 ```bash
 # Fast TypeScript checking (use this first!)
-pnpm type-check
+bun type-check
 
 # Full testing suite
-pnpm test                # All tests
-pnpm test:client         # Frontend only
-pnpm test:contracts      # Contracts only
-pnpm test:e2e           # End-to-end
+bun test                # All tests
+bun test:client         # Frontend only
+bun test:contracts      # Contracts only
+bun test:e2e           # End-to-end
 
 # Code quality
-pnpm lint               # ESLint + Solhint
-pnpm format             # Prettier
+bun lint               # ESLint + Solhint
+bun format             # Prettier
 ```
 
 ### 3. Rule Application
@@ -153,11 +154,11 @@ export function JarCard({ address }: JarCardProps) {
 ## 📊 Quality Gates
 
 All PRs must pass:
-- ✅ `pnpm test` - All tests passing
-- ✅ `pnpm type-check` - No TypeScript errors
-- ✅ `pnpm lint` - Clean linting
-- ✅ `pnpm test:coverage` - Coverage maintained
-- ✅ `pnpm build` - Successful build
+- ✅ `bun test` - All tests passing
+- ✅ `bun type-check` - No TypeScript errors
+- ✅ `bun lint` - Clean linting
+- ✅ `bun test:coverage` - Coverage maintained
+- ✅ `bun build` - Successful build
 
 ## 🚨 Critical Patterns
 
@@ -256,8 +257,8 @@ Use conventional commits:
 
 ## 💡 Pro Tips
 
-1. **Use `pnpm type-check`** instead of full builds for TypeScript validation - it's 10x faster
-2. **Start with `pnpm dev`** from project root - it handles everything
+1. **Use `bun type-check`** instead of full builds for TypeScript validation - it's 10x faster
+2. **Start with `bun dev`** from project root - it handles everything
 3. **Check existing patterns** before creating new ones
 4. **Write tests first** for complex logic
 5. **Reference rule files** when unsure about patterns
@@ -268,26 +269,26 @@ Use conventional commits:
 
 ### "Can't find module" errors
 ```bash
-pnpm install  # Reinstall dependencies
-pnpm generate # Regenerate contract types
+bun install  # Reinstall dependencies
+bun generate # Regenerate contract types
 ```
 
 ### "Port already in use"
 ```bash
-pnpm dev:stop  # Stop all services
-pnpm dev       # Restart
+bun dev:stop  # Stop all services
+bun dev       # Restart
 ```
 
 ### "Contract not found"
 ```bash
-pnpm deploy:local  # Redeploy contracts
-pnpm generate      # Regenerate types
+bun deploy:local  # Redeploy contracts
+bun generate      # Regenerate types
 ```
 
 ### "Tests failing"
 ```bash
-pnpm test:coverage  # See what's not covered
-pnpm test:watch     # Debug in watch mode
+bun test:coverage  # See what's not covered
+bun test:watch     # Debug in watch mode
 ```
 
 ---

@@ -3,6 +3,7 @@ pragma solidity ^0.8.24;
 
 import {Test} from "forge-std/Test.sol";
 import {CookieJarFactory} from "../src/CookieJarFactory.sol";
+import {CookieJar} from "../src/CookieJar.sol";
 import {CookieJarLib} from "../src/libraries/CookieJarLib.sol";
 import {HelperConfig} from "../script/HelperConfig.s.sol";
 import {ERC20Mock} from "@openzeppelin/contracts/mocks/token/ERC20Mock.sol";
@@ -22,6 +23,7 @@ contract CookieJarFactoryTest is Test {
     address[] public emptyAllowlist;
     HelperConfig.NetworkConfig config;
     ERC20Mock testToken;
+    uint256 internal constant DEFAULT_FEE_SENTINEL = type(uint256).max;
 
     // Helper function to create default jar parameters
     function createDefaultJarParams(
@@ -60,7 +62,12 @@ contract CookieJarFactoryTest is Test {
         return
             CookieJarLib.AccessConfig({
                 allowlist: emptyAllowlist,
-                nftRequirement: CookieJarLib.NftRequirement({nftContract: address(0), tokenId: 0, minBalance: 0})
+                nftRequirement: CookieJarLib.NftRequirement({
+                    nftContract: address(0),
+                    tokenId: 0,
+                    minBalance: 0,
+                    isPoapEventGate: false
+                })
             });
     }
 
@@ -153,6 +160,55 @@ contract CookieJarFactoryTest is Test {
         address[] memory cookieJars = factory.getAllJars();
         assertEq(cookieJars.length, 1);
         assertEq(cookieJars[0], jarAddress);
+    }
+
+    /// @notice Sentinel value should use factory default fee percentage
+    function testCreateCookieJar_UsesFactoryDefaultFeeWhenSentinelIsProvided() public {
+        vm.prank(owner);
+        CookieJarLib.JarConfig memory params = createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, "Sentinel Fee");
+        params.feePercentageOnDeposit = DEFAULT_FEE_SENTINEL;
+
+        address jarAddress = factory.createCookieJar(
+            params,
+            createDefaultAccessConfig(),
+            createDefaultMultiTokenConfig()
+        );
+
+        uint256 expected = factory.DEFAULT_FEE_PERCENTAGE();
+        uint256 actual = CookieJar(payable(jarAddress)).FEE_PERCENTAGE_ON_DEPOSIT();
+        assertEq(actual, expected, "Sentinel should resolve to factory default fee");
+    }
+
+    /// @notice Explicit custom fee should be preserved on the deployed jar
+    function testCreateCookieJar_PreservesExplicitCustomFee() public {
+        vm.prank(owner);
+        CookieJarLib.JarConfig memory params = createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, "Custom Fee");
+        params.feePercentageOnDeposit = 250; // 2.5%
+
+        address jarAddress = factory.createCookieJar(
+            params,
+            createDefaultAccessConfig(),
+            createDefaultMultiTokenConfig()
+        );
+
+        uint256 actual = CookieJar(payable(jarAddress)).FEE_PERCENTAGE_ON_DEPOSIT();
+        assertEq(actual, 250, "Explicit custom fee should be preserved");
+    }
+
+    /// @notice Explicit zero-percent fee should remain zero (not treated as default)
+    function testCreateCookieJar_PreservesExplicitZeroFee() public {
+        vm.prank(owner);
+        CookieJarLib.JarConfig memory params = createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, "Zero Fee");
+        params.feePercentageOnDeposit = 0;
+
+        address jarAddress = factory.createCookieJar(
+            params,
+            createDefaultAccessConfig(),
+            createDefaultMultiTokenConfig()
+        );
+
+        uint256 actual = CookieJar(payable(jarAddress)).FEE_PERCENTAGE_ON_DEPOSIT();
+        assertEq(actual, 0, "Explicit zero fee should remain zero");
     }
 
     /// @notice Test creating a cookie jar with Variable withdrawal option

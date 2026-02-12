@@ -142,7 +142,8 @@ contract CookieJarTest is Test {
             nftReq = CookieJarLib.NftRequirement({
                 nftContract: _nftAddresses[0],
                 tokenId: 0, // Any token from contract
-                minBalance: 1
+                minBalance: 0,
+                isPoapEventGate: false
             });
         }
 
@@ -160,9 +161,18 @@ contract CookieJarTest is Test {
                 nftRequirement: CookieJarLib.NftRequirement({
                     nftContract: _nftContract,
                     tokenId: _tokenId,
-                    minBalance: 1
+                    minBalance: 1,
+                    isPoapEventGate: false
                 })
             });
+    }
+
+    /// @notice Build a purpose string with multi-byte Unicode code points.
+    /// @dev Uses `é` so byte length != code point length.
+    function buildUnicodePurpose(uint256 count) internal pure returns (string memory out) {
+        for (uint256 i = 0; i < count; i++) {
+            out = string.concat(out, unicode"é");
+        }
     }
 
     function setUp() public {
@@ -1314,6 +1324,32 @@ contract CookieJarTest is Test {
         jarAllowlistEthFixed.withdrawAllowlistMode(fixedAmount, shortPurpose);
     }
 
+    function test_RevertWhen_WithdrawAllowlistPurposeHasOnly26UnicodeCodePoints() public {
+        vm.prank(owner);
+        jarAllowlistEthFixed.grantJarAllowlistRole(users);
+        vm.warp(block.timestamp + withdrawalInterval + 1);
+
+        string memory purpose26 = buildUnicodePurpose(26);
+
+        vm.prank(user);
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InvalidPurpose.selector));
+        jarAllowlistEthFixed.withdrawAllowlistMode(fixedAmount, purpose26);
+    }
+
+    function test_WithdrawAllowlistPurposeWith27UnicodeCodePoints() public {
+        vm.prank(owner);
+        jarAllowlistEthFixed.grantJarAllowlistRole(users);
+        vm.warp(block.timestamp + withdrawalInterval + 1);
+
+        string memory purpose27 = buildUnicodePurpose(27);
+        uint256 userBalanceBefore = user.balance;
+
+        vm.prank(user);
+        jarAllowlistEthFixed.withdrawAllowlistMode(fixedAmount, purpose27);
+
+        assertEq(user.balance, userBalanceBefore + fixedAmount);
+    }
+
     function test_RevertWhen_WithdrawAllowlistAlreadyWithdrawn() public {
         vm.prank(owner);
         jarAllowlistEthOneTimeWithdrawal.grantJarAllowlistRole(users);
@@ -1426,7 +1462,8 @@ contract CookieJarTest is Test {
                 nftRequirement: CookieJarLib.NftRequirement({
                     nftContract: address(dummyErc721),
                     tokenId: 0, // Any token from contract
-                    minBalance: 0
+                    minBalance: 0,
+                    isPoapEventGate: false
                 })
             }),
             address(0) // Superfluid host disabled for testing
@@ -1473,7 +1510,8 @@ contract CookieJarTest is Test {
                 nftRequirement: CookieJarLib.NftRequirement({
                     nftContract: address(dummyErc721),
                     tokenId: 0, // Any token from contract
-                    minBalance: 0
+                    minBalance: 0,
+                    isPoapEventGate: false
                 })
             }),
             address(0) // Superfluid host disabled for testing
@@ -1487,7 +1525,7 @@ contract CookieJarTest is Test {
 
         // Should fail - user doesn't own any token from the contract
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAuthorized.selector));
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InsufficientNFTBalance.selector));
         testJar.withdraw(fixedAmount, purpose);
     }
 
@@ -1518,7 +1556,8 @@ contract CookieJarTest is Test {
                 nftRequirement: CookieJarLib.NftRequirement({
                     nftContract: address(dummyErc721),
                     tokenId: specificTokenId, // Specific token required
-                    minBalance: 0
+                    minBalance: 0,
+                    isPoapEventGate: false
                 })
             }),
             address(0) // Superfluid host disabled for testing
@@ -1569,7 +1608,8 @@ contract CookieJarTest is Test {
                 nftRequirement: CookieJarLib.NftRequirement({
                     nftContract: address(dummyErc721),
                     tokenId: 3, // Requires token 3
-                    minBalance: 0
+                    minBalance: 0,
+                    isPoapEventGate: false
                 })
             }),
             address(0) // Superfluid host disabled for testing
@@ -1582,7 +1622,7 @@ contract CookieJarTest is Test {
 
         // Should fail - user owns token 5, not token 3
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAuthorized.selector));
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NFTNotOwned.selector));
         testJar.withdraw(fixedAmount, purpose);
     }
 
@@ -1695,9 +1735,9 @@ contract CookieJarTest is Test {
     }
 
     function test_RevertWhen_WithdrawNFTModeInvalidNFTGate() public {
-        // User doesn't own any NFTs from the configured contract
+        // User doesn't own any NFTs from the configured contract (ERC721, tokenId=0)
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAuthorized.selector));
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InsufficientNFTBalance.selector));
         jarNftErc20Fixed.withdrawWithErc721(fixedAmount, purpose);
     }
 
@@ -1705,7 +1745,7 @@ contract CookieJarTest is Test {
         uint256 dummyTokenId = dummyErc721.mint(attacker);
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAuthorized.selector));
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InsufficientNFTBalance.selector));
         jarNftEthFixed.withdrawWithErc721(fixedAmount, purpose);
     }
 
@@ -1714,7 +1754,7 @@ contract CookieJarTest is Test {
         dummyErc1155.mint(attacker, dummyTokenId, 1);
         vm.warp(block.timestamp + withdrawalInterval + 1);
         vm.prank(user);
-        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.NotAuthorized.selector));
+        vm.expectRevert(abi.encodeWithSelector(CookieJarLib.InsufficientNFTBalance.selector));
         jarNft1155EthVariable.withdrawWithErc1155(fixedAmount, purpose);
     }
 

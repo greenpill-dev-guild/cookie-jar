@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { HatsProvider } from "@/lib/nft/protocols/HatsProvider";
+import { ACCESS_CONTROL_DOC_LINKS } from "../doc-links";
 import { ProtocolConfigBase } from "../ProtocolConfigBase";
 
 interface HatDetails {
@@ -31,7 +32,12 @@ interface HatDetails {
 }
 
 export interface HatsConfigProps {
-	onConfigChange: (config: { hatId: string; hatsContract?: string }) => void;
+	onConfigChange: (config: {
+		hatId: string;
+		hatsContract?: string;
+		hatsId?: string;
+		hatsAddress?: string;
+	}) => void;
 	initialConfig?: { hatId: string; hatsContract?: string };
 	className?: string;
 }
@@ -70,6 +76,8 @@ export const HatsConfig: React.FC<HatsConfigProps> = ({
 					onConfigChange({
 						hatId: hatIdToValidate,
 						hatsContract: contractAddress,
+						hatsId: hatDetails.id,
+						hatsAddress: contractAddress,
 					});
 				} else {
 					setValidationError("Hat not found. Please check the Hat ID.");
@@ -118,9 +126,10 @@ export const HatsConfig: React.FC<HatsConfigProps> = ({
 			icon="🎩"
 			color="bg-yellow-500"
 			validationError={validationError}
+			errorId="hats-error"
 			isLoading={isValidating}
 			className={className}
-			learnMoreUrl="https://www.hatsprotocol.xyz/"
+			learnMoreUrl={ACCESS_CONTROL_DOC_LINKS.hats}
 		>
 			<div className="space-y-4">
 				{/* Hat ID Input */}
@@ -132,6 +141,8 @@ export const HatsConfig: React.FC<HatsConfigProps> = ({
 						value={hatId}
 						onChange={handleHatIdChange}
 						className="mt-1"
+						aria-invalid={!!validationError}
+						aria-describedby={validationError ? "hats-error" : undefined}
 					/>
 					<p className="text-xs text-gray-500 mt-1">
 						Hat IDs are hierarchical addresses in the Hats tree structure

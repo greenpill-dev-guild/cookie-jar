@@ -154,7 +154,11 @@ contract CookieJarFactory {
             if (ERC20(params.supportedCurrency).decimals() == 0) revert CookieJarLib.InvalidTokenAddress();
         }
 
-        uint256 feePerc = params.feePercentageOnDeposit == 0 ? DEFAULT_FEE_PERCENTAGE : params.feePercentageOnDeposit;
+        // Use type(uint256).max as sentinel for "use factory default fee".
+        // This allows callers to explicitly set 0% fee (e.g., Green Goods jars).
+        uint256 feePerc = params.feePercentageOnDeposit == type(uint256).max
+            ? DEFAULT_FEE_PERCENTAGE
+            : params.feePercentageOnDeposit;
         if (feePerc > CookieJarLib.PERCENTAGE_BASE) feePerc = CookieJarLib.PERCENTAGE_BASE;
 
         // Validate multi-token config if enabled

@@ -44,7 +44,7 @@ export default defineConfig({
   webServer: process.env.E2E_START_SERVER ? [
     {
       // Use your existing dev command that starts Anvil + Next.js
-      command: 'pnpm dev',
+      command: 'bun dev',
       port: 3000,
       reuseExistingServer: true,
       timeout: 120000, // 2 minutes for full startup (Anvil + deployment + Next.js)

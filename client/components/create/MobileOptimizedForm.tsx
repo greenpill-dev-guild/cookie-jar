@@ -26,7 +26,6 @@ interface MobileOptimizedFormProps {
 	currentStep: number;
 	totalSteps: number;
 	isV2Contract: boolean;
-	formData: any;
 	nextStep: () => void;
 	prevStep: () => void;
 	handleSubmit: () => void;
@@ -37,7 +36,6 @@ export function MobileOptimizedForm({
 	currentStep,
 	totalSteps,
 	isV2Contract,
-	formData,
 	nextStep,
 	prevStep,
 	handleSubmit,
@@ -204,7 +202,6 @@ export function MobileOptimizedForm({
 						<div className={isMobile ? "" : "min-h-[400px]"}>
 							<StepContent
 								step={currentStep}
-								formData={formData}
 								isV2Contract={isV2Contract}
 							/>
 						</div>

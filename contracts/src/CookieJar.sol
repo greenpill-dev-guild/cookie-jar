@@ -10,9 +10,15 @@ import {Pausable} from "@openzeppelin/contracts/utils/Pausable.sol";
 import {ReentrancyGuard} from "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 import {CookieJarLib} from "./libraries/CookieJarLib.sol";
+import {CookieJarValidation} from "./libraries/CookieJarValidation.sol";
 import {UniversalSwapAdapter} from "./libraries/UniversalSwapAdapter.sol";
 import {Streaming} from "./libraries/Streaming.sol";
 import {ISuperfluid, IConstantFlowAgreementV1} from "@superfluid-finance/ethereum-contracts/interfaces/superfluid/ISuperfluid.sol";
+
+/// @dev Minimal POAP interface for event-level token ownership checks.
+interface IPOAP {
+    function tokenDetailsOfOwnerByEvent(address owner, uint256 eventId) external view returns (uint256[] memory);
+}
 
 /// @title CookieJar - Optimized Version
 /// @notice Decentralized funding pools with simplified access control
@@ -53,7 +59,7 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     uint256 public maxWithdrawal;
     /// @notice Time (in seconds) required between withdrawals.
     uint256 public withdrawalInterval;
-    /// @notice If true, each withdrawal must have a purpose string of at least 20 characters.
+    /// @notice If true, each withdrawal must have a purpose string of at least 27 characters.
     bool public immutable STRICT_PURPOSE;
     /// @notice Fee collector address; note that admin is not the fee collector.
     address public feeCollector;
@@ -131,6 +137,21 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
             // For ERC721 and ERC1155, validate NFT requirement
             if (accessConfig.nftRequirement.nftContract == address(0)) {
                 revert CookieJarLib.NoNFTAddressesProvided();
+            }
+
+            if (ACCESS_TYPE == CookieJarLib.AccessType.ERC721) {
+                // minBalance is only used for ERC1155 gates.
+                if (accessConfig.nftRequirement.minBalance != 0) {
+                    revert CookieJarLib.InvalidNFTGate();
+                }
+                if (accessConfig.nftRequirement.isPoapEventGate && accessConfig.nftRequirement.tokenId == 0) {
+                    revert CookieJarLib.InvalidNFTGate();
+                }
+            } else if (ACCESS_TYPE == CookieJarLib.AccessType.ERC1155) {
+                // POAP/event gating is an ERC721-only concept.
+                if (accessConfig.nftRequirement.isPoapEventGate) {
+                    revert CookieJarLib.InvalidNFTGate();
+                }
             }
 
             // Validate that the contract actually implements the required interface
@@ -280,6 +301,12 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
             if (currencyHeldByJar < amount) revert CookieJarLib.InsufficientBalance();
             currencyHeldByJar -= amount;
         }
+        // Clear pending token accounting to prevent stale swapPendingTokens() calls
+        address pendingKey = token == CookieJarLib.ETH_ADDRESS ? address(0) : token;
+        if (pendingTokenBalances[pendingKey] > 0) {
+            uint256 pending = pendingTokenBalances[pendingKey];
+            pendingTokenBalances[pendingKey] = amount >= pending ? 0 : pending - amount;
+        }
         emit CookieJarLib.EmergencyWithdrawal(msg.sender, token, amount);
         if (token == CookieJarLib.ETH_ADDRESS) {
             (bool sent, ) = msg.sender.call{value: amount}("");
@@ -335,7 +362,7 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
 
         // Emit events
         emit CookieJarLib.Deposit(msg.sender, remainingAmount, CURRENCY);
-        emit CookieJarLib.FeeCollected(feeCollector, fee, CURRENCY);
+        if (fee > 0) emit CookieJarLib.FeeCollected(feeCollector, fee, CURRENCY);
     }
 
     /// @notice Unified withdrawal function for all access types
@@ -409,23 +436,19 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
             // Inline ERC721 validation
             if (nftRequirement.nftContract == address(0)) revert CookieJarLib.InvalidTokenAddress();
 
-            // If tokenId is 0, check if user owns ANY token from the contract
-            // Otherwise, check ownership of specific token
+            // tokenId == 0 means "any token from contract" (generic ERC-721 gate)
             if (nftRequirement.tokenId == 0) {
-                // Check if user owns at least one token from the contract
-                try IERC721(nftRequirement.nftContract).balanceOf(msg.sender) returns (uint256 balance) {
-                    if (balance == 0) revert CookieJarLib.NotAuthorized();
-                } catch {
-                    revert CookieJarLib.NotAuthorized();
-                }
-            } else {
-                // Check ownership of specific token ID
-                try IERC721(nftRequirement.nftContract).ownerOf(nftRequirement.tokenId) returns (address owner) {
-                    if (owner != msg.sender) revert CookieJarLib.NotAuthorized();
-                } catch {
-                    revert CookieJarLib.NotAuthorized();
-                }
+                _requireAnyErc721Balance(nftRequirement.nftContract, msg.sender);
+                return;
             }
+
+            if (nftRequirement.isPoapEventGate) {
+                _requirePoapEventOwnership(nftRequirement.nftContract, msg.sender, nftRequirement.tokenId);
+                return;
+            }
+
+            // Otherwise require ownership of one specific ERC-721 token ID.
+            _requireErc721TokenOwnership(nftRequirement.nftContract, msg.sender, nftRequirement.tokenId);
         } else if (ACCESS_TYPE == CookieJarLib.AccessType.ERC1155) {
             // Inline ERC1155 validation
             if (nftRequirement.nftContract == address(0)) revert CookieJarLib.InvalidTokenAddress();
@@ -433,12 +456,36 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
             try IERC1155(nftRequirement.nftContract).balanceOf(msg.sender, nftRequirement.tokenId) returns (
                 uint256 bal
             ) {
-                if (bal < minBal) revert CookieJarLib.NotAuthorized();
+                if (bal < minBal) revert CookieJarLib.InsufficientNFTBalance();
             } catch {
-                revert CookieJarLib.NotAuthorized();
+                revert CookieJarLib.NFTValidationFailed();
             }
         } else {
             revert CookieJarLib.InvalidAccessType();
+        }
+    }
+
+    function _requireAnyErc721Balance(address nftContract, address account) internal view {
+        try IERC721(nftContract).balanceOf(account) returns (uint256 balance) {
+            if (balance == 0) revert CookieJarLib.InsufficientNFTBalance();
+        } catch {
+            revert CookieJarLib.NFTValidationFailed();
+        }
+    }
+
+    function _requireErc721TokenOwnership(address nftContract, address account, uint256 tokenId) internal view {
+        try IERC721(nftContract).ownerOf(tokenId) returns (address owner) {
+            if (owner != account) revert CookieJarLib.NFTNotOwned();
+        } catch {
+            revert CookieJarLib.NFTValidationFailed();
+        }
+    }
+
+    function _requirePoapEventOwnership(address nftContract, address account, uint256 eventId) internal view {
+        try IPOAP(nftContract).tokenDetailsOfOwnerByEvent(account, eventId) returns (uint256[] memory tokens) {
+            if (tokens.length == 0) revert CookieJarLib.InsufficientNFTBalance();
+        } catch {
+            revert CookieJarLib.NFTValidationFailed();
         }
     }
 
@@ -455,10 +502,8 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
         if (amount == 0) revert CookieJarLib.ZeroAmount();
         if (currencyHeldByJar < amount) revert CookieJarLib.InsufficientBalance();
 
-        // Validate purpose requirement
-        if (STRICT_PURPOSE && bytes(purpose).length < 10) {
-            revert CookieJarLib.InvalidPurpose();
-        }
+        // Validate purpose requirement (uses Unicode code-point counting)
+        CookieJarValidation.validatePurpose(STRICT_PURPOSE, purpose);
 
         // Validate withdrawal amount
         if (WITHDRAWAL_OPTION == CookieJarLib.WithdrawalTypeOptions.Fixed) {
@@ -485,16 +530,7 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
 
         // Validate period limits using user-specific rolling period
         if (MAX_WITHDRAWAL_PER_PERIOD > 0) {
-            uint256 withdrawnThisPeriod = withdrawnInCurrentPeriod[msg.sender];
-
-            // Check if we're in a new period (rolling 24-hour window per user)
-            if (
-                lastWithdrawalTime[msg.sender] > 0 &&
-                block.timestamp >= lastWithdrawalTime[msg.sender] + CookieJarLib.WITHDRAWAL_PERIOD
-            ) {
-                // New period started, reset counter
-                withdrawnThisPeriod = 0;
-            }
+            uint256 withdrawnThisPeriod = _effectiveWithdrawnInPeriod(msg.sender);
 
             if (withdrawnThisPeriod + amount > MAX_WITHDRAWAL_PER_PERIOD) {
                 uint256 available = MAX_WITHDRAWAL_PER_PERIOD - withdrawnThisPeriod;
@@ -506,9 +542,8 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
     /// @notice Execute withdrawal and update tracking
     /// @dev Consolidated withdrawal logic
     function _executeWithdrawal(uint256 amount) internal {
-        // Update withdrawal tracking
-        if (block.timestamp >= lastWithdrawalTime[msg.sender] + CookieJarLib.WITHDRAWAL_PERIOD) {
-            // New period, reset counter
+        // Reset period counter if new period started
+        if (_isNewPeriod(msg.sender)) {
             withdrawnInCurrentPeriod[msg.sender] = 0;
         }
 
@@ -520,10 +555,20 @@ contract CookieJar is AccessControl, Pausable, ReentrancyGuard {
         // Transfer funds
         if (CURRENCY == CookieJarLib.ETH_ADDRESS) {
             (bool success, ) = msg.sender.call{value: amount}("");
-            require(success, "ETH transfer failed");
+            if (!success) revert CookieJarLib.TransferFailed();
         } else {
             IERC20(CURRENCY).safeTransfer(msg.sender, amount);
         }
+    }
+
+    /// @notice Check if the user's withdrawal period has rolled over
+    function _isNewPeriod(address user) internal view returns (bool) {
+        return block.timestamp >= lastWithdrawalTime[user] + CookieJarLib.WITHDRAWAL_PERIOD;
+    }
+
+    /// @notice Get the effective withdrawn amount in the current period (resets if new period)
+    function _effectiveWithdrawnInPeriod(address user) internal view returns (uint256) {
+        return _isNewPeriod(user) ? 0 : withdrawnInCurrentPeriod[user];
     }
 
     function _grantRoles(bytes32 role, address[] memory users) internal {

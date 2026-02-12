@@ -16,7 +16,7 @@ permissions:
 
 env:
   NODE_VERSION: '18'
-  PNPM_VERSION: '8'
+  BUN_VERSION: '1.0'
 
 jobs:
   codeql-analysis:
@@ -40,11 +40,11 @@ jobs:
         # Optional: specify queries for more comprehensive analysis
         queries: security-and-quality
 
-    - name: Setup Node.js and pnpm for autobuild
+    - name: Setup Node.js and bun for autobuild
       uses: ./.github/actions/setup-node-pnpm
       with:
         node-version: ${{ env.NODE_VERSION }}
-        pnpm-version: ${{ env.PNPM_VERSION }}
+        bun-version: ${{ env.BUN_VERSION }}
 
     - name: Autobuild
       uses: github/codeql-action/autobuild@v2
@@ -63,19 +63,19 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Setup Node.js and pnpm
+    - name: Setup Node.js and bun
       uses: ./.github/actions/setup-node-pnpm
       with:
         node-version: ${{ env.NODE_VERSION }}
-        pnpm-version: ${{ env.PNPM_VERSION }}
+        bun-version: ${{ env.BUN_VERSION }}
         
     - name: Run dependency audit (Client)
       run: |
         echo "🔍 Scanning client dependencies for vulnerabilities..."
         cd client
         
-        echo "📋 Running pnpm audit..."
-        pnpm audit --audit-level=moderate --json > audit-results.json || true
+        echo "📋 Running npm audit (bun doesn't have native audit yet)..."
+        npm audit --audit-level=moderate --json > audit-results.json || true
         
         # Show results in readable format
         echo ""
@@ -84,7 +84,7 @@ jobs:
           # Check if we have any vulnerabilities
           if jq -e '.advisories | length > 0' audit-results.json > /dev/null 2>&1; then
             echo "⚠️  Vulnerabilities found!"
-            pnpm audit --audit-level=moderate
+            npm audit --audit-level=moderate
           else
             echo "✅ No vulnerabilities found"
           fi
@@ -108,7 +108,7 @@ jobs:
           echo ""
           echo "❌ Critical or high severity vulnerabilities found!"
           echo "💡 Please update dependencies or add exceptions if needed"
-          echo "📋 Run 'pnpm audit' locally for detailed information"
+          echo "📋 Run 'npm audit' locally for detailed information (bun audit support coming soon)"
           exit 1
         }
         

@@ -2,9 +2,9 @@ import type { Address } from "viem";
 import { erc20Abi, formatUnits, isAddress, parseUnits } from "viem";
 import { useChainId, useReadContracts } from "wagmi";
 import { getNativeCurrency } from "@/config/supported-networks";
+import { ETH_ADDRESS } from "./constants";
 
-// Known address constants
-export const ETH_ADDRESS = "0x0000000000000000000000000000000000000003";
+export { ETH_ADDRESS };
 
 /**
  * Hook to fetch token information (symbol and decimals)

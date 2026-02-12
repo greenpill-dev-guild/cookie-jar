@@ -16,7 +16,7 @@ cleanup() {
     pkill -f "forge script.*watch" || true
     pkill -f "next dev" || true
     pkill -f "npm run dev" || true
-    pkill -f "pnpm.*dev" || true
+    pkill -f "bun.*dev" || true
     exit 0
 }
 
@@ -28,7 +28,7 @@ echo "🔍 Checking prerequisites..."
 command -v anvil >/dev/null 2>&1 || { echo "❌ anvil not found. Install Foundry: https://getfoundry.sh"; exit 1; }
 command -v forge >/dev/null 2>&1 || { echo "❌ forge not found. Install Foundry: https://getfoundry.sh"; exit 1; }
 command -v node >/dev/null 2>&1 || { echo "❌ node not found. Install Node.js"; exit 1; }
-command -v pnpm >/dev/null 2>&1 || { echo "❌ pnpm not found. Install pnpm: npm install -g pnpm"; exit 1; }
+command -v bun >/dev/null 2>&1 || { echo "❌ bun not found. Install bun: npm install -g bun"; exit 1; }
 
 echo "✅ All prerequisites found!"
 
@@ -121,9 +121,9 @@ echo "👀 Starting contract file watcher..."
 ./scripts/watch-deploy.sh > contracts/watch-deploy.log 2>&1 &
 WATCHER_PID=$!
 
-# Generate client types (from project root, using workspace command)
+# Generate client types (from project root, cd into client directory)
 echo "⚙️  Generating client types..."
-pnpm --filter client run generate
+cd client && bun generate
 
 if [ $? -ne 0 ]; then
     echo "❌ Client type generation failed"

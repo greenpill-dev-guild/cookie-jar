@@ -78,7 +78,7 @@ contract DeployLocalScript is Script {
         console.log("   SUCCESS: Cookie Monster NFTs minted to special accounts!");
         console.log("      NFT Contract Address:", address(cookieMonsterNft));
         console.log(
-            "      NOTE: NFT address will change on Anvil restart. Use 'pnpm nft:address' to get current address."
+            "      NOTE: NFT address will change on Anvil restart. Use 'bun nft:address' to get current address."
         );
 
         // Deploy demo ERC20 token
@@ -171,7 +171,12 @@ contract DeployLocalScript is Script {
 
         CookieJarLib.AccessConfig memory accessConfig1 = CookieJarLib.AccessConfig({
             allowlist: allowlist1,
-            nftRequirement: CookieJarLib.NftRequirement({nftContract: address(0), tokenId: 0, minBalance: 0})
+            nftRequirement: CookieJarLib.NftRequirement({
+                nftContract: address(0),
+                tokenId: 0,
+                minBalance: 0,
+                isPoapEventGate: false
+            })
         });
 
         factory.createCookieJar(params1, accessConfig1, defaultMultiToken);
@@ -221,7 +226,12 @@ contract DeployLocalScript is Script {
 
         CookieJarLib.AccessConfig memory accessConfig2 = CookieJarLib.AccessConfig({
             allowlist: allowlist2,
-            nftRequirement: CookieJarLib.NftRequirement({nftContract: address(0), tokenId: 0, minBalance: 0})
+            nftRequirement: CookieJarLib.NftRequirement({
+                nftContract: address(0),
+                tokenId: 0,
+                minBalance: 0,
+                isPoapEventGate: false
+            })
         });
 
         factory.createCookieJar(params2, accessConfig2, defaultMultiToken2);
@@ -273,7 +283,8 @@ contract DeployLocalScript is Script {
             nftRequirement: CookieJarLib.NftRequirement({
                 nftContract: nftAddresses[0],
                 tokenId: 0, // Any token from contract
-                minBalance: 1
+                minBalance: 0,
+                isPoapEventGate: false
             })
         });
 
@@ -325,7 +336,8 @@ contract DeployLocalScript is Script {
             nftRequirement: CookieJarLib.NftRequirement({
                 nftContract: nftAddresses[0],
                 tokenId: 0, // Any token from contract
-                minBalance: 1
+                minBalance: 0,
+                isPoapEventGate: false
             })
         });
 
