@@ -1,0 +1,170 @@
+---
+description: Web3 integration patterns, transaction handling, and blockchain best practices
+globs:
+  - "**/*.ts"
+  - "**/*.tsx"
+  - "**/*.sol"
+alwaysApply: false
+---
+
+# Web3 Integration Patterns
+
+## Always Use viem + wagmi
+**NEVER use ethers.js**. All blockchain interactions must use viem and wagmi hooks.
+
+```typescript
+// ✅ GOOD - viem + wagmi
+import { useWriteContract, useReadContract } from 'wagmi'
+import { parseEther, formatEther } from 'viem'
+
+// ❌ BAD - ethers.js (never use)
+import { ethers } from 'ethers'
+```
+
+## Transaction Handling Pattern
+
+```typescript
+// Always include proper transaction flow
+const { writeContract, isPending, isSuccess, error } = useWriteContract()
+
+// 1. Loading state
+if (isPending) return <LoadingState />
+
+// 2. Success state  
+if (isSuccess) return <SuccessState />
+
+// 3. Error handling
+if (error) return <ErrorState error={error} />
+
+// 4. Transaction call with retry logic
+await writeContract({
+  address: contractAddress,
+  abi: contractAbi,
+  functionName: 'deposit',
+  args: [amount],
+  value: parseEther(amount)
+})
+```
+
+## Chain Validation
+Always verify chain ID before transactions:
+
+```typescript
+import { useChainId } from 'wagmi'
+
+const chainId = useChainId()
+const isSupportedChain = SUPPORTED_CHAINS.includes(chainId)
+
+if (!isSupportedChain) {
+  throw new Error(`Unsupported chain: ${chainId}`)
+}
+```
+
+## Gas Estimation
+Include gas estimation for user transparency:
+
+```typescript
+import { useEstimateGas } from 'wagmi'
+
+const { data: gasEstimate } = useEstimateGas({
+  to: contractAddress,
+  data: encodedData,
+  value: parseEther(amount)
+})
+```
+
+## Error Handling
+Use specific error types for better UX:
+
+```typescript
+import { BaseError, ContractFunctionRevertedError } from 'viem'
+
+try {
+  await writeContract(...)
+} catch (err) {
+  if (err instanceof BaseError) {
+    const revertError = err.walk(err => err instanceof ContractFunctionRevertedError)
+    if (revertError instanceof ContractFunctionRevertedError) {
+      const errorName = revertError.data?.errorName
+      // Handle specific contract errors
+    }
+  }
+}
+```
+
+## React Query Integration
+Use TanStack Query for blockchain state management:
+
+```typescript
+import { useQuery } from '@tanstack/react-query'
+import { usePublicClient } from 'wagmi'
+
+const { data, isLoading, error } = useQuery({
+  queryKey: ['contract-data', chainId, address],
+  queryFn: async () => {
+    return await publicClient.readContract({
+      address,
+      abi,
+      functionName: 'getData'
+    })
+  },
+  // Cache blockchain data appropriately
+  staleTime: 12_000, // 1 block on most chains
+  refetchOnWindowFocus: true
+})
+```
+
+## Uniswap Integration
+Use v4 with v3 fallback:
+
+```typescript
+// Check v4 availability first
+const useV4 = config.useV4 && isV4Chain(chainId)
+
+if (useV4) {
+  // Use v4 singleton with hooks pattern
+  await swapV4({
+    poolManager: config.v4PoolManager,
+    router: config.v4Router,
+    tokenIn,
+    tokenOut,
+    amountIn,
+    fee: config.v4Fee
+  })
+} else {
+  // Fallback to v3 concentrated liquidity
+  await swapV3({
+    router: config.v3Router,
+    tokenIn,
+    tokenOut,
+    amountIn,
+    fee: config.v3Fee,
+    deadline
+  })
+}
+```
+
+## Wallet Connection
+Use RainbowKit for consistent wallet UX:
+
+```typescript
+import { ConnectButton } from '@rainbow-me/rainbowkit'
+
+// Implement custom connect button for branding
+<ConnectButton.Custom>
+  {({ account, chain, openConnectModal, mounted }) => (
+    <button onClick={openConnectModal}>
+      {account ? account.displayName : 'Connect Wallet'}
+    </button>
+  )}
+</ConnectButton.Custom>
+```
+
+## Security Checklist
+- ✅ Validate chain ID before every transaction
+- ✅ Include gas limits to prevent griefing
+- ✅ Handle transaction failures gracefully
+- ✅ Never expose private keys or secrets
+- ✅ Sanitize user inputs before encoding
+- ✅ Use proper error boundaries for Web3 errors
+- ✅ Test on testnet before mainnet deployment

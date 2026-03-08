@@ -1,85 +1,122 @@
-let userConfig = undefined
+// Load environment variables from root directory
+
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
+import { config } from "dotenv";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
+const rootDir = resolve(__dirname, "..");
+
+// Load root .env files in order of precedence
+config({ path: resolve(rootDir, ".env.local") });
+config({ path: resolve(rootDir, ".env") });
+
+let userConfig;
 try {
-  // try to import ESM first
-  userConfig = await import('./v0-user-next.config.mjs')
-} catch (e) {
-  try {
-    // fallback to CJS import
-    userConfig = await import("./v0-user-next.config");
-  } catch (innerError) {
-    // ignore error
-  }
+	// try to import ESM first
+	userConfig = await import("./v0-user-next.config.mjs");
+} catch {
+	try {
+		// fallback to CJS import
+		userConfig = await import("./v0-user-next.config");
+	} catch {
+		// ignore error
+	}
 }
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-  typescript: {
-    ignoreBuildErrors: true,
-  },
-  // ⚡ OPTIMIZED: Enable image optimization
-  images: {
-    domains: ['localhost'],
-    formats: ['image/webp', 'image/avif'],
-    minimumCacheTTL: 60,
-  },
-  experimental: {
-    webpackBuildWorker: true,
-    parallelServerBuildTraces: true,
-    parallelServerCompiles: true,
-  },
-  // ⚡ Performance optimizations
-  compress: true,
-  poweredByHeader: false,
-  reactStrictMode: true,
-  swcMinify: true,
-  
-  // ⚡ Minimal bundle optimization (aggressive splitting caused 30x slowdown)
-  webpack: (config, { isServer, dev }) => {
-    // Only basic optimizations to avoid performance regressions
-    if (!isServer) {
-      config.resolve.fallback = {
-        ...config.resolve.fallback,
-        fs: false,
-        net: false,
-        tls: false,
-      };
-    }
-    
-    // Bundle analyzer for production builds only
-    if (!dev && !isServer && process.env.ANALYZE === 'true') {
-      const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer');
-      config.plugins.push(
-        new BundleAnalyzerPlugin({
-          analyzerMode: 'static',
-          openAnalyzer: false,
-        })
-      );
-    }
-    
-    return config;
-  },
-}
+	// Explicitly define environment variables to expose to client-side
+	env: {
+		NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID:
+			process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID,
+		NEXT_PUBLIC_ALCHEMY_API_KEY: process.env.NEXT_PUBLIC_ALCHEMY_API_KEY,
+	},
+	typescript: {
+		ignoreBuildErrors: false,
+	},
+	// ⚡ OPTIMIZED: Enable image optimization
+	images: {
+		domains: ["localhost"],
+		formats: ["image/webp", "image/avif"],
+		minimumCacheTTL: 60,
+		unoptimized: process.env.NODE_ENV === "development", // Skip optimization in dev for faster builds
+	},
+	experimental: {
+		webpackBuildWorker: true,
+		parallelServerBuildTraces: true,
+		parallelServerCompiles: true,
+		scrollRestoration: true, // Enable automatic scroll restoration for route changes
+		optimizePackageImports: [
+			"@radix-ui/react-icons",
+			"lucide-react",
+			"@hookform/resolvers",
+		],
+	},
+	// ⚡ Performance optimizations
+	compress: true,
+	poweredByHeader: false,
+	reactStrictMode: true,
+	// Removed deprecated swcMinify option - SWC minification is enabled by default in Next.js 13+
+
+	// Configure Turbopack root to avoid multiple lockfile warnings
+	turbopack: {
+		root: resolve(__dirname, ".."),
+	},
+
+	// ⚡ Minimal bundle optimization (aggressive splitting caused 30x slowdown)
+	webpack: (config, { isServer, dev }) => {
+		// Only basic optimizations to avoid performance regressions
+		if (!isServer) {
+			config.resolve.fallback = {
+				...config.resolve.fallback,
+				fs: false,
+				net: false,
+				tls: false,
+			};
+		}
+
+		// REMOVED conflicting optimization settings that conflict with Next.js 15's cacheUnaffected
+		// Next.js handles tree shaking and dead code elimination automatically
+		// config.optimization = {
+		//   ...config.optimization,
+		//   usedExports: true,
+		//   sideEffects: false,
+		// };
+
+		// Bundle analyzer for production builds only
+		if (!dev && !isServer && process.env.ANALYZE === "true") {
+			const { BundleAnalyzerPlugin } = require("webpack-bundle-analyzer");
+			config.plugins.push(
+				new BundleAnalyzerPlugin({
+					analyzerMode: "static",
+					openAnalyzer: false,
+				}),
+			);
+		}
+
+		return config;
+	},
+};
 
 if (userConfig) {
-  // ESM imports will have a "default" property
-  const config = userConfig.default || userConfig
+	// ESM imports will have a "default" property
+	const config = userConfig.default || userConfig;
 
-  for (const key in config) {
-    if (
-      typeof nextConfig[key] === 'object' &&
-      !Array.isArray(nextConfig[key])
-    ) {
-      nextConfig[key] = {
-        ...nextConfig[key],
-        ...config[key],
-      }
-    } else {
-      nextConfig[key] = config[key]
-    }
-  }
+	for (const key in config) {
+		if (
+			typeof nextConfig[key] === "object" &&
+			!Array.isArray(nextConfig[key])
+		) {
+			nextConfig[key] = {
+				...nextConfig[key],
+				...config[key],
+			};
+		} else {
+			nextConfig[key] = config[key];
+		}
+	}
 }
 
-export default nextConfig
+export default nextConfig;

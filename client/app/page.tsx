@@ -1,13 +1,11 @@
-import { LandingHero } from "@/components/page/home/landing-hero"
-import { Features } from "@/components/page/home/features"
-import { NetworkSupport } from "@/components/page/home/network-support"
-import { Footer } from "@/components/page/home/footer"
+import { Footer } from "@/components/app/footer";
+import { LandingHero } from "@/components/app/LandingHero";
 
 export default function Home() {
-  return (
-    <main className="flex min-h-screen flex-col">
-      <LandingHero />
-      <Footer />
-    </main>
-  )
+	return (
+		<div className="flex min-h-screen flex-col overflow-x-hidden -mx-4 md:-mx-6 lg:-mx-8 -my-4">
+			<LandingHero />
+			<Footer />
+		</div>
+	);
 }

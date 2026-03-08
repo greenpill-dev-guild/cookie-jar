@@ -24,6 +24,7 @@ export const cookieJarAbi = [
             internalType: 'address',
             type: 'address',
           },
+          { name: 'feeCollector', internalType: 'address', type: 'address' },
           {
             name: 'accessType',
             internalType: 'enum CookieJarLib.AccessType',
@@ -34,6 +35,13 @@ export const cookieJarAbi = [
             internalType: 'enum CookieJarLib.WithdrawalTypeOptions',
             type: 'uint8',
           },
+          { name: 'strictPurpose', internalType: 'bool', type: 'bool' },
+          {
+            name: 'emergencyWithdrawalEnabled',
+            internalType: 'bool',
+            type: 'bool',
+          },
+          { name: 'oneTimeWithdrawal', internalType: 'bool', type: 'bool' },
           { name: 'fixedAmount', internalType: 'uint256', type: 'uint256' },
           { name: 'maxWithdrawal', internalType: 'uint256', type: 'uint256' },
           {
@@ -47,14 +55,31 @@ export const cookieJarAbi = [
             internalType: 'uint256',
             type: 'uint256',
           },
-          { name: 'strictPurpose', internalType: 'bool', type: 'bool' },
-          { name: 'feeCollector', internalType: 'address', type: 'address' },
           {
-            name: 'emergencyWithdrawalEnabled',
-            internalType: 'bool',
-            type: 'bool',
+            name: 'maxWithdrawalPerPeriod',
+            internalType: 'uint256',
+            type: 'uint256',
           },
-          { name: 'oneTimeWithdrawal', internalType: 'bool', type: 'bool' },
+          { name: 'metadata', internalType: 'string', type: 'string' },
+          {
+            name: 'multiTokenConfig',
+            internalType: 'struct CookieJarLib.MultiTokenConfig',
+            type: 'tuple',
+            components: [
+              { name: 'enabled', internalType: 'bool', type: 'bool' },
+              {
+                name: 'maxSlippagePercent',
+                internalType: 'uint256',
+                type: 'uint256',
+              },
+              {
+                name: 'minSwapAmount',
+                internalType: 'uint256',
+                type: 'uint256',
+              },
+              { name: 'defaultFee', internalType: 'uint24', type: 'uint24' },
+            ],
+          },
         ],
       },
       {
@@ -62,21 +87,53 @@ export const cookieJarAbi = [
         internalType: 'struct CookieJarLib.AccessConfig',
         type: 'tuple',
         components: [
+          { name: 'allowlist', internalType: 'address[]', type: 'address[]' },
           {
-            name: 'nftAddresses',
-            internalType: 'address[]',
-            type: 'address[]',
+            name: 'nftRequirement',
+            internalType: 'struct CookieJarLib.NftRequirement',
+            type: 'tuple',
+            components: [
+              { name: 'nftContract', internalType: 'address', type: 'address' },
+              { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+              { name: 'minBalance', internalType: 'uint256', type: 'uint256' },
+              { name: 'isPoapEventGate', internalType: 'bool', type: 'bool' },
+            ],
           },
-          {
-            name: 'nftTypes',
-            internalType: 'enum CookieJarLib.NFTType[]',
-            type: 'uint8[]',
-          },
-          { name: 'whitelist', internalType: 'address[]', type: 'address[]' },
         ],
       },
+      { name: '_superfluidHost', internalType: 'address', type: 'address' },
     ],
     stateMutability: 'nonpayable',
+  },
+  { type: 'receive', stateMutability: 'payable' },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'ACCESS_TYPE',
+    outputs: [
+      { name: '', internalType: 'enum CookieJarLib.AccessType', type: 'uint8' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'CFA',
+    outputs: [
+      {
+        name: '',
+        internalType: 'contract IConstantFlowAgreementV1',
+        type: 'address',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'CURRENCY',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
+    stateMutability: 'view',
   },
   {
     type: 'function',
@@ -88,32 +145,83 @@ export const cookieJarAbi = [
   {
     type: 'function',
     inputs: [],
-    name: 'accessType',
+    name: 'EMERGENCY_WITHDRAWAL_ENABLED',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'FEE_PERCENTAGE_ON_DEPOSIT',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'MAX_WITHDRAWAL_PER_PERIOD',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'MIN_DEPOSIT',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'ONE_TIME_WITHDRAWAL',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'STRICT_PURPOSE',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'SUPERFLUID_HOST',
     outputs: [
-      { name: '', internalType: 'enum CookieJarLib.AccessType', type: 'uint8' },
+      { name: '', internalType: 'contract ISuperfluid', type: 'address' },
     ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'WITHDRAWAL_OPTION',
+    outputs: [
+      {
+        name: '',
+        internalType: 'enum CookieJarLib.WithdrawalTypeOptions',
+        type: 'uint8',
+      },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    name: 'allowlist',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
     stateMutability: 'view',
   },
   {
     type: 'function',
     inputs: [
-      { name: '_nftAddress', internalType: 'address', type: 'address' },
-      {
-        name: '_nftType',
-        internalType: 'enum CookieJarLib.NFTType',
-        type: 'uint8',
-      },
+      { name: 'superToken', internalType: 'address', type: 'address' },
+      { name: 'flowRate', internalType: 'int96', type: 'int96' },
     ],
-    name: 'addNFTGate',
+    name: 'createSuperStream',
     outputs: [],
     stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'currency',
-    outputs: [{ name: '', internalType: 'address', type: 'address' }],
-    stateMutability: 'view',
   },
   {
     type: 'function',
@@ -124,15 +232,15 @@ export const cookieJarAbi = [
   },
   {
     type: 'function',
-    inputs: [{ name: 'amount', internalType: 'uint256', type: 'uint256' }],
-    name: 'depositCurrency',
+    inputs: [{ name: 'superToken', internalType: 'address', type: 'address' }],
+    name: 'deleteSuperStream',
     outputs: [],
     stateMutability: 'nonpayable',
   },
   {
     type: 'function',
-    inputs: [],
-    name: 'depositETH',
+    inputs: [{ name: 'amount', internalType: 'uint256', type: 'uint256' }],
+    name: 'deposit',
     outputs: [],
     stateMutability: 'payable',
   },
@@ -149,22 +257,8 @@ export const cookieJarAbi = [
   {
     type: 'function',
     inputs: [],
-    name: 'emergencyWithdrawalEnabled',
-    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [],
     name: 'feeCollector',
     outputs: [{ name: '', internalType: 'address', type: 'address' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'feePercentageOnDeposit',
-    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
     stateMutability: 'view',
   },
   {
@@ -176,23 +270,35 @@ export const cookieJarAbi = [
   },
   {
     type: 'function',
-    inputs: [],
-    name: 'getNFTGatesArray',
+    inputs: [{ name: 'superToken', internalType: 'address', type: 'address' }],
+    name: 'getAccountFlowInfo',
     outputs: [
-      {
-        name: '',
-        internalType: 'struct CookieJarLib.NFTGate[]',
-        type: 'tuple[]',
-        components: [
-          { name: 'nftAddress', internalType: 'address', type: 'address' },
-          {
-            name: 'nftType',
-            internalType: 'enum CookieJarLib.NFTType',
-            type: 'uint8',
-          },
-        ],
-      },
+      { name: 'lastUpdated', internalType: 'uint256', type: 'uint256' },
+      { name: 'flowrate', internalType: 'int96', type: 'int96' },
+      { name: 'depositAmount', internalType: 'uint256', type: 'uint256' },
+      { name: 'owedDeposit', internalType: 'uint256', type: 'uint256' },
     ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getAllowlist',
+    outputs: [{ name: '', internalType: 'address[]', type: 'address[]' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'superToken', internalType: 'address', type: 'address' }],
+    name: 'getNetFlowRate',
+    outputs: [{ name: 'netFlowRate', internalType: 'int96', type: 'int96' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'getPendingTokenAddresses',
+    outputs: [{ name: 'tokens', internalType: 'address[]', type: 'address[]' }],
     stateMutability: 'view',
   },
   {
@@ -204,33 +310,23 @@ export const cookieJarAbi = [
   },
   {
     type: 'function',
-    inputs: [],
-    name: 'getWhitelist',
-    outputs: [{ name: '', internalType: 'address[]', type: 'address[]' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'getWithdrawalDataArray',
+    inputs: [
+      { name: 'superToken', internalType: 'address', type: 'address' },
+      { name: 'sender', internalType: 'address', type: 'address' },
+    ],
+    name: 'getSuperStreamInfo',
     outputs: [
-      {
-        name: '',
-        internalType: 'struct CookieJarLib.WithdrawalData[]',
-        type: 'tuple[]',
-        components: [
-          { name: 'amount', internalType: 'uint256', type: 'uint256' },
-          { name: 'purpose', internalType: 'string', type: 'string' },
-          { name: 'recipient', internalType: 'address', type: 'address' },
-        ],
-      },
+      { name: 'lastUpdated', internalType: 'uint256', type: 'uint256' },
+      { name: 'flowrate', internalType: 'int96', type: 'int96' },
+      { name: 'depositAmount', internalType: 'uint256', type: 'uint256' },
+      { name: 'owedDeposit', internalType: 'uint256', type: 'uint256' },
     ],
     stateMutability: 'view',
   },
   {
     type: 'function',
     inputs: [{ name: '_users', internalType: 'address[]', type: 'address[]' }],
-    name: 'grantJarWhitelistRole',
+    name: 'grantJarAllowlistRole',
     outputs: [],
     stateMutability: 'nonpayable',
   },
@@ -256,31 +352,9 @@ export const cookieJarAbi = [
   },
   {
     type: 'function',
-    inputs: [
-      { name: 'nftGate', internalType: 'address', type: 'address' },
-      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
-    ],
-    name: 'lastWithdrawalNFT',
-    outputs: [
-      {
-        name: 'lastWithdrawlTimestamp',
-        internalType: 'uint256',
-        type: 'uint256',
-      },
-    ],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [{ name: 'user', internalType: 'address', type: 'address' }],
-    name: 'lastWithdrawalWhitelist',
-    outputs: [
-      {
-        name: 'lastWithdrawalTimestamp',
-        internalType: 'uint256',
-        type: 'uint256',
-      },
-    ],
+    inputs: [{ name: '', internalType: 'address', type: 'address' }],
+    name: 'lastWithdrawalTime',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
     stateMutability: 'view',
   },
   {
@@ -293,37 +367,47 @@ export const cookieJarAbi = [
   {
     type: 'function',
     inputs: [],
-    name: 'minDeposit',
-    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
-    name: 'nftGates',
+    name: 'multiTokenConfig',
     outputs: [
-      { name: 'nftAddress', internalType: 'address', type: 'address' },
-      {
-        name: 'nftType',
-        internalType: 'enum CookieJarLib.NFTType',
-        type: 'uint8',
-      },
+      { name: 'enabled', internalType: 'bool', type: 'bool' },
+      { name: 'maxSlippagePercent', internalType: 'uint256', type: 'uint256' },
+      { name: 'minSwapAmount', internalType: 'uint256', type: 'uint256' },
+      { name: 'defaultFee', internalType: 'uint24', type: 'uint24' },
     ],
     stateMutability: 'view',
   },
   {
     type: 'function',
     inputs: [],
-    name: 'oneTimeWithdrawal',
+    name: 'nftRequirement',
+    outputs: [
+      { name: 'nftContract', internalType: 'address', type: 'address' },
+      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+      { name: 'minBalance', internalType: 'uint256', type: 'uint256' },
+      { name: 'isPoapEventGate', internalType: 'bool', type: 'bool' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'pause',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'paused',
     outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
     stateMutability: 'view',
   },
   {
     type: 'function',
-    inputs: [{ name: '_nftAddress', internalType: 'address', type: 'address' }],
-    name: 'removeNFTGate',
-    outputs: [],
-    stateMutability: 'nonpayable',
+    inputs: [{ name: '', internalType: 'address', type: 'address' }],
+    name: 'pendingTokenBalances',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
   },
   {
     type: 'function',
@@ -338,7 +422,7 @@ export const cookieJarAbi = [
   {
     type: 'function',
     inputs: [{ name: '_users', internalType: 'address[]', type: 'address[]' }],
-    name: 'revokeJarWhitelistRole',
+    name: 'revokeJarAllowlistRole',
     outputs: [],
     stateMutability: 'nonpayable',
   },
@@ -354,9 +438,25 @@ export const cookieJarAbi = [
   },
   {
     type: 'function',
-    inputs: [],
-    name: 'strictPurpose',
-    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
+    inputs: [
+      { name: '', internalType: 'address', type: 'address' },
+      { name: '', internalType: 'address', type: 'address' },
+    ],
+    name: 'superStreams',
+    outputs: [
+      { name: 'superToken', internalType: 'address', type: 'address' },
+      { name: 'sender', internalType: 'address', type: 'address' },
+      { name: 'flowRate', internalType: 'int96', type: 'int96' },
+      { name: 'startTime', internalType: 'uint32', type: 'uint32' },
+      { name: 'isActive', internalType: 'bool', type: 'bool' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '', internalType: 'address', type: 'address' }],
+    name: 'superTokenFlowRates',
+    outputs: [{ name: '', internalType: 'int96', type: 'int96' }],
     stateMutability: 'view',
   },
   {
@@ -365,6 +465,31 @@ export const cookieJarAbi = [
     name: 'supportsInterface',
     outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
     stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'token', internalType: 'address', type: 'address' },
+      { name: 'amount', internalType: 'uint256', type: 'uint256' },
+      { name: 'minJarTokensOut', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'swapPendingTokens',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: '', internalType: 'address', type: 'address' }],
+    name: 'totalWithdrawn',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'unpause',
+    outputs: [],
+    stateMutability: 'nonpayable',
   },
   {
     type: 'function',
@@ -396,6 +521,16 @@ export const cookieJarAbi = [
   {
     type: 'function',
     inputs: [
+      { name: 'superToken', internalType: 'address', type: 'address' },
+      { name: 'newFlowRate', internalType: 'int96', type: 'int96' },
+    ],
+    name: 'updateSuperStream',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
       { name: '_withdrawalInterval', internalType: 'uint256', type: 'uint256' },
     ],
     name: 'updateWithdrawalInterval',
@@ -404,20 +539,11 @@ export const cookieJarAbi = [
   },
   {
     type: 'function',
-    inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
-    name: 'whitelist',
-    outputs: [{ name: '', internalType: 'address', type: 'address' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
     inputs: [
       { name: 'amount', internalType: 'uint256', type: 'uint256' },
       { name: 'purpose', internalType: 'string', type: 'string' },
-      { name: 'gateAddress', internalType: 'address', type: 'address' },
-      { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
     ],
-    name: 'withdrawNFTMode',
+    name: 'withdraw',
     outputs: [],
     stateMutability: 'nonpayable',
   },
@@ -427,20 +553,29 @@ export const cookieJarAbi = [
       { name: 'amount', internalType: 'uint256', type: 'uint256' },
       { name: 'purpose', internalType: 'string', type: 'string' },
     ],
-    name: 'withdrawWhitelistMode',
+    name: 'withdrawAllowlistMode',
     outputs: [],
     stateMutability: 'nonpayable',
   },
   {
     type: 'function',
-    inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
-    name: 'withdrawalData',
-    outputs: [
+    inputs: [
       { name: 'amount', internalType: 'uint256', type: 'uint256' },
       { name: 'purpose', internalType: 'string', type: 'string' },
-      { name: 'recipient', internalType: 'address', type: 'address' },
     ],
-    stateMutability: 'view',
+    name: 'withdrawWithErc1155',
+    outputs: [],
+    stateMutability: 'nonpayable',
+  },
+  {
+    type: 'function',
+    inputs: [
+      { name: 'amount', internalType: 'uint256', type: 'uint256' },
+      { name: 'purpose', internalType: 'string', type: 'string' },
+    ],
+    name: 'withdrawWithErc721',
+    outputs: [],
+    stateMutability: 'nonpayable',
   },
   {
     type: 'function',
@@ -451,15 +586,9 @@ export const cookieJarAbi = [
   },
   {
     type: 'function',
-    inputs: [],
-    name: 'withdrawalOption',
-    outputs: [
-      {
-        name: '',
-        internalType: 'enum CookieJarLib.WithdrawalTypeOptions',
-        type: 'uint8',
-      },
-    ],
+    inputs: [{ name: '', internalType: 'address', type: 'address' }],
+    name: 'withdrawnInCurrentPeriod',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
     stateMutability: 'view',
   },
   {
@@ -467,7 +596,7 @@ export const cookieJarAbi = [
     anonymous: false,
     inputs: [
       {
-        name: 'sender',
+        name: 'depositor',
         internalType: 'address',
         type: 'address',
         indexed: true,
@@ -482,7 +611,7 @@ export const cookieJarAbi = [
         name: 'token',
         internalType: 'address',
         type: 'address',
-        indexed: false,
+        indexed: true,
       },
     ],
     name: 'Deposit',
@@ -491,17 +620,12 @@ export const cookieJarAbi = [
     type: 'event',
     anonymous: false,
     inputs: [
-      {
-        name: 'admin',
-        internalType: 'address',
-        type: 'address',
-        indexed: true,
-      },
+      { name: 'user', internalType: 'address', type: 'address', indexed: true },
       {
         name: 'token',
         internalType: 'address',
         type: 'address',
-        indexed: false,
+        indexed: true,
       },
       {
         name: 'amount',
@@ -517,13 +641,13 @@ export const cookieJarAbi = [
     anonymous: false,
     inputs: [
       {
-        name: 'collector',
+        name: 'feeCollector',
         internalType: 'address',
         type: 'address',
         indexed: true,
       },
       {
-        name: 'feeAmount',
+        name: 'amount',
         internalType: 'uint256',
         type: 'uint256',
         indexed: false,
@@ -532,7 +656,7 @@ export const cookieJarAbi = [
         name: 'token',
         internalType: 'address',
         type: 'address',
-        indexed: false,
+        indexed: true,
       },
     ],
     name: 'FeeCollected',
@@ -542,13 +666,13 @@ export const cookieJarAbi = [
     anonymous: false,
     inputs: [
       {
-        name: 'oldFeeCollector',
+        name: 'oldCollector',
         internalType: 'address',
         type: 'address',
         indexed: true,
       },
       {
-        name: 'newFeeCollector',
+        name: 'newCollector',
         internalType: 'address',
         type: 'address',
         indexed: true,
@@ -561,78 +685,59 @@ export const cookieJarAbi = [
     anonymous: false,
     inputs: [
       {
-        name: 'newFixedAmount',
+        name: 'paramName',
+        internalType: 'bytes32',
+        type: 'bytes32',
+        indexed: true,
+      },
+      {
+        name: 'newValue',
         internalType: 'uint256',
         type: 'uint256',
         indexed: false,
       },
     ],
-    name: 'FixedWithdrawalAmountUpdated',
+    name: 'ParameterUpdated',
   },
   {
     type: 'event',
     anonymous: false,
     inputs: [
       {
-        name: 'newMaxWithdrawal',
-        internalType: 'uint256',
-        type: 'uint256',
+        name: 'account',
+        internalType: 'address',
+        type: 'address',
         indexed: false,
       },
     ],
-    name: 'MaxWithdrawalUpdated',
+    name: 'Paused',
   },
   {
     type: 'event',
     anonymous: false,
     inputs: [
-      { name: 'user', internalType: 'address', type: 'address', indexed: true },
+      { name: 'paused', internalType: 'bool', type: 'bool', indexed: false },
+    ],
+    name: 'PausedStateChanged',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
       {
-        name: 'nftContract',
+        name: 'token',
         internalType: 'address',
         type: 'address',
         indexed: true,
       },
       {
-        name: 'tokenId',
+        name: 'amount',
         internalType: 'uint256',
         type: 'uint256',
         indexed: false,
       },
     ],
-    name: 'NFTAccessValidated',
-  },
-  {
-    type: 'event',
-    anonymous: false,
-    inputs: [
-      {
-        name: 'nftAddress',
-        internalType: 'address',
-        type: 'address',
-        indexed: false,
-      },
-      {
-        name: 'nftType',
-        internalType: 'enum CookieJarLib.NFTType',
-        type: 'uint8',
-        indexed: false,
-      },
-    ],
-    name: 'NFTGateAdded',
-  },
-  {
-    type: 'event',
-    anonymous: false,
-    inputs: [
-      {
-        name: 'nftAddress',
-        internalType: 'address',
-        type: 'address',
-        indexed: false,
-      },
-    ],
-    name: 'NFTGateRemoved',
+    name: 'PendingTokensRecovered',
   },
   {
     type: 'event',
@@ -699,38 +804,44 @@ export const cookieJarAbi = [
     anonymous: false,
     inputs: [
       {
-        name: 'recipient',
+        name: 'fromToken',
         internalType: 'address',
         type: 'address',
         indexed: true,
       },
       {
-        name: 'amount',
+        name: 'toToken',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
+      },
+      {
+        name: 'amountIn',
         internalType: 'uint256',
         type: 'uint256',
         indexed: false,
       },
       {
-        name: 'purpose',
-        internalType: 'string',
-        type: 'string',
+        name: 'amountOut',
+        internalType: 'uint256',
+        type: 'uint256',
         indexed: false,
       },
     ],
-    name: 'Withdrawal',
+    name: 'TokenSwapped',
   },
   {
     type: 'event',
     anonymous: false,
     inputs: [
       {
-        name: 'newWithdrawalInterval',
-        internalType: 'uint256',
-        type: 'uint256',
+        name: 'account',
+        internalType: 'address',
+        type: 'address',
         indexed: false,
       },
     ],
-    name: 'WithdrawalIntervalUpdated',
+    name: 'Unpaused',
   },
   { type: 'error', inputs: [], name: 'AccessControlBadConfirmation' },
   {
@@ -742,46 +853,73 @@ export const cookieJarAbi = [
     name: 'AccessControlUnauthorizedAccount',
   },
   { type: 'error', inputs: [], name: 'AdminCannotBeZeroAddress' },
-  { type: 'error', inputs: [], name: 'DuplicateNFTGate' },
   { type: 'error', inputs: [], name: 'EmergencyWithdrawalDisabled' },
+  { type: 'error', inputs: [], name: 'EnforcedPause' },
+  { type: 'error', inputs: [], name: 'ExpectedPause' },
   { type: 'error', inputs: [], name: 'FeeCollectorAddressCannotBeZeroAddress' },
   { type: 'error', inputs: [], name: 'FeeTransferFailed' },
   { type: 'error', inputs: [], name: 'InsufficientBalance' },
+  { type: 'error', inputs: [], name: 'InsufficientNFTBalance' },
+  {
+    type: 'error',
+    inputs: [
+      { name: 'amountOut', internalType: 'uint256', type: 'uint256' },
+      { name: 'minAmountOut', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'InsufficientOutput',
+  },
   { type: 'error', inputs: [], name: 'InvalidAccessType' },
   { type: 'error', inputs: [], name: 'InvalidNFTGate' },
-  { type: 'error', inputs: [], name: 'InvalidNFTType' },
   { type: 'error', inputs: [], name: 'InvalidPurpose' },
   { type: 'error', inputs: [], name: 'InvalidTokenAddress' },
   { type: 'error', inputs: [], name: 'InvalidWithdrawalType' },
   { type: 'error', inputs: [], name: 'LessThanMinimumDeposit' },
-  { type: 'error', inputs: [], name: 'NFTArrayLengthMismatch' },
-  { type: 'error', inputs: [], name: 'NFTGateNotFound' },
+  { type: 'error', inputs: [], name: 'NFTNotOwned' },
+  { type: 'error', inputs: [], name: 'NFTValidationFailed' },
   { type: 'error', inputs: [], name: 'NoNFTAddressesProvided' },
   { type: 'error', inputs: [], name: 'NotAuthorized' },
   { type: 'error', inputs: [], name: 'NotFeeCollector' },
   {
     type: 'error',
+    inputs: [
+      { name: 'requested', internalType: 'uint256', type: 'uint256' },
+      { name: 'available', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'PeriodWithdrawalLimitExceeded',
+  },
+  { type: 'error', inputs: [], name: 'ReentrancyGuardReentrantCall' },
+  {
+    type: 'error',
     inputs: [{ name: 'token', internalType: 'address', type: 'address' }],
     name: 'SafeERC20FailedOperation',
   },
+  {
+    type: 'error',
+    inputs: [{ name: 'reason', internalType: 'string', type: 'string' }],
+    name: 'SwapFailed',
+  },
   { type: 'error', inputs: [], name: 'TransferFailed' },
-  { type: 'error', inputs: [], name: 'WhitelistNotAllowedForNFTGated' },
+  {
+    type: 'error',
+    inputs: [{ name: 'chainId', internalType: 'uint256', type: 'uint256' }],
+    name: 'UnsupportedChain',
+  },
   { type: 'error', inputs: [], name: 'WithdrawalAlreadyDone' },
   {
     type: 'error',
     inputs: [
-      { name: 'provided', internalType: 'uint256', type: 'uint256' },
-      { name: 'required', internalType: 'uint256', type: 'uint256' },
+      { name: 'requested', internalType: 'uint256', type: 'uint256' },
+      { name: 'allowed', internalType: 'uint256', type: 'uint256' },
     ],
     name: 'WithdrawalAmountNotAllowed',
   },
   {
     type: 'error',
-    inputs: [
-      { name: 'nextAllowedTime', internalType: 'uint256', type: 'uint256' },
-    ],
+    inputs: [{ name: 'nextAllowed', internalType: 'uint256', type: 'uint256' }],
     name: 'WithdrawalTooSoon',
   },
+  { type: 'error', inputs: [], name: 'ZeroAddress' },
+  { type: 'error', inputs: [], name: 'ZeroAmount' },
   { type: 'error', inputs: [], name: 'ZeroAmount' },
 ] as const
 
@@ -800,37 +938,51 @@ export const cookieJarFactoryAbi = [
       },
       { name: '_owner', internalType: 'address', type: 'address' },
       { name: '_feePercentage', internalType: 'uint256', type: 'uint256' },
-      { name: '_minETHDeposit', internalType: 'uint256', type: 'uint256' },
-      { name: '_minERC20Deposit', internalType: 'uint256', type: 'uint256' },
+      { name: '_minEthDeposit', internalType: 'uint128', type: 'uint128' },
+      { name: '_minErc20Deposit', internalType: 'uint128', type: 'uint128' },
     ],
     stateMutability: 'nonpayable',
   },
   {
     type: 'function',
     inputs: [],
-    name: 'BLACKLISTED_JAR_CREATORS',
-    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'DEFAULT_FEE_COLLECTOR',
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
     stateMutability: 'view',
   },
   {
     type: 'function',
     inputs: [],
-    name: 'DEFAULT_ADMIN_ROLE',
-    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    name: 'DEFAULT_FEE_PERCENTAGE',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'MIN_ERC20_DEPOSIT',
+    outputs: [{ name: '', internalType: 'uint128', type: 'uint128' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [],
+    name: 'MIN_ETH_DEPOSIT',
+    outputs: [{ name: '', internalType: 'uint128', type: 'uint128' }],
     stateMutability: 'view',
   },
   {
     type: 'function',
     inputs: [],
     name: 'OWNER',
-    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    outputs: [{ name: '', internalType: 'address', type: 'address' }],
     stateMutability: 'view',
   },
   {
     type: 'function',
-    inputs: [],
-    name: 'PROTOCOL_ADMIN',
-    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
+    inputs: [{ name: '', internalType: 'address', type: 'address' }],
+    name: 'admins',
+    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
     stateMutability: 'view',
   },
   {
@@ -843,55 +995,18 @@ export const cookieJarFactoryAbi = [
   {
     type: 'function',
     inputs: [
-      { name: '_cookieJarOwner', internalType: 'address', type: 'address' },
-      { name: '_supportedCurrency', internalType: 'address', type: 'address' },
-      {
-        name: '_accessType',
-        internalType: 'enum CookieJarLib.AccessType',
-        type: 'uint8',
-      },
-      { name: '_nftAddresses', internalType: 'address[]', type: 'address[]' },
-      {
-        name: '_nftTypes',
-        internalType: 'enum CookieJarLib.NFTType[]',
-        type: 'uint8[]',
-      },
-      {
-        name: '_withdrawalOption',
-        internalType: 'enum CookieJarLib.WithdrawalTypeOptions',
-        type: 'uint8',
-      },
-      { name: '_fixedAmount', internalType: 'uint256', type: 'uint256' },
-      { name: '_maxWithdrawal', internalType: 'uint256', type: 'uint256' },
-      { name: '_withdrawalInterval', internalType: 'uint256', type: 'uint256' },
-      { name: '_strictPurpose', internalType: 'bool', type: 'bool' },
-      {
-        name: '_emergencyWithdrawalEnabled',
-        internalType: 'bool',
-        type: 'bool',
-      },
-      { name: '_oneTimeWithdrawal', internalType: 'bool', type: 'bool' },
-      { name: '_whitelist', internalType: 'address[]', type: 'address[]' },
-      { name: 'metadata', internalType: 'string', type: 'string' },
-    ],
-    name: 'createCookieJar',
-    outputs: [{ name: '', internalType: 'address', type: 'address' }],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    inputs: [
       {
         name: 'params',
-        internalType: 'struct CookieJarLib.CreateJarParams',
+        internalType: 'struct CookieJarLib.JarConfig',
         type: 'tuple',
         components: [
-          { name: 'cookieJarOwner', internalType: 'address', type: 'address' },
+          { name: 'jarOwner', internalType: 'address', type: 'address' },
           {
             name: 'supportedCurrency',
             internalType: 'address',
             type: 'address',
           },
+          { name: 'feeCollector', internalType: 'address', type: 'address' },
           {
             name: 'accessType',
             internalType: 'enum CookieJarLib.AccessType',
@@ -902,13 +1017,6 @@ export const cookieJarFactoryAbi = [
             internalType: 'enum CookieJarLib.WithdrawalTypeOptions',
             type: 'uint8',
           },
-          { name: 'fixedAmount', internalType: 'uint256', type: 'uint256' },
-          { name: 'maxWithdrawal', internalType: 'uint256', type: 'uint256' },
-          {
-            name: 'withdrawalInterval',
-            internalType: 'uint256',
-            type: 'uint256',
-          },
           { name: 'strictPurpose', internalType: 'bool', type: 'bool' },
           {
             name: 'emergencyWithdrawalEnabled',
@@ -916,11 +1024,43 @@ export const cookieJarFactoryAbi = [
             type: 'bool',
           },
           { name: 'oneTimeWithdrawal', internalType: 'bool', type: 'bool' },
-          { name: 'metadata', internalType: 'string', type: 'string' },
+          { name: 'fixedAmount', internalType: 'uint256', type: 'uint256' },
+          { name: 'maxWithdrawal', internalType: 'uint256', type: 'uint256' },
           {
-            name: 'customFeePercentage',
+            name: 'withdrawalInterval',
             internalType: 'uint256',
             type: 'uint256',
+          },
+          { name: 'minDeposit', internalType: 'uint256', type: 'uint256' },
+          {
+            name: 'feePercentageOnDeposit',
+            internalType: 'uint256',
+            type: 'uint256',
+          },
+          {
+            name: 'maxWithdrawalPerPeriod',
+            internalType: 'uint256',
+            type: 'uint256',
+          },
+          { name: 'metadata', internalType: 'string', type: 'string' },
+          {
+            name: 'multiTokenConfig',
+            internalType: 'struct CookieJarLib.MultiTokenConfig',
+            type: 'tuple',
+            components: [
+              { name: 'enabled', internalType: 'bool', type: 'bool' },
+              {
+                name: 'maxSlippagePercent',
+                internalType: 'uint256',
+                type: 'uint256',
+              },
+              {
+                name: 'minSwapAmount',
+                internalType: 'uint256',
+                type: 'uint256',
+              },
+              { name: 'defaultFee', internalType: 'uint24', type: 'uint24' },
+            ],
           },
         ],
       },
@@ -929,212 +1069,97 @@ export const cookieJarFactoryAbi = [
         internalType: 'struct CookieJarLib.AccessConfig',
         type: 'tuple',
         components: [
+          { name: 'allowlist', internalType: 'address[]', type: 'address[]' },
           {
-            name: 'nftAddresses',
-            internalType: 'address[]',
-            type: 'address[]',
+            name: 'nftRequirement',
+            internalType: 'struct CookieJarLib.NftRequirement',
+            type: 'tuple',
+            components: [
+              { name: 'nftContract', internalType: 'address', type: 'address' },
+              { name: 'tokenId', internalType: 'uint256', type: 'uint256' },
+              { name: 'minBalance', internalType: 'uint256', type: 'uint256' },
+              { name: 'isPoapEventGate', internalType: 'bool', type: 'bool' },
+            ],
           },
+        ],
+      },
+      {
+        name: 'multiTokenConfig',
+        internalType: 'struct CookieJarLib.MultiTokenConfig',
+        type: 'tuple',
+        components: [
+          { name: 'enabled', internalType: 'bool', type: 'bool' },
           {
-            name: 'nftTypes',
-            internalType: 'enum CookieJarLib.NFTType[]',
-            type: 'uint8[]',
+            name: 'maxSlippagePercent',
+            internalType: 'uint256',
+            type: 'uint256',
           },
-          { name: 'whitelist', internalType: 'address[]', type: 'address[]' },
+          { name: 'minSwapAmount', internalType: 'uint256', type: 'uint256' },
+          { name: 'defaultFee', internalType: 'uint24', type: 'uint24' },
         ],
       },
     ],
-    name: 'createCookieJarOptimized',
+    name: 'createCookieJar',
     outputs: [{ name: 'jarAddress', internalType: 'address', type: 'address' }],
     stateMutability: 'nonpayable',
   },
   {
     type: 'function',
-    inputs: [
-      { name: '_cookieJarOwner', internalType: 'address', type: 'address' },
-      { name: '_supportedCurrency', internalType: 'address', type: 'address' },
-      {
-        name: '_accessType',
-        internalType: 'enum CookieJarLib.AccessType',
-        type: 'uint8',
-      },
-      { name: '_nftAddresses', internalType: 'address[]', type: 'address[]' },
-      {
-        name: '_nftTypes',
-        internalType: 'enum CookieJarLib.NFTType[]',
-        type: 'uint8[]',
-      },
-      {
-        name: '_withdrawalOption',
-        internalType: 'enum CookieJarLib.WithdrawalTypeOptions',
-        type: 'uint8',
-      },
-      { name: '_fixedAmount', internalType: 'uint256', type: 'uint256' },
-      { name: '_maxWithdrawal', internalType: 'uint256', type: 'uint256' },
-      { name: '_withdrawalInterval', internalType: 'uint256', type: 'uint256' },
-      { name: '_strictPurpose', internalType: 'bool', type: 'bool' },
-      {
-        name: '_emergencyWithdrawalEnabled',
-        internalType: 'bool',
-        type: 'bool',
-      },
-      { name: '_oneTimeWithdrawal', internalType: 'bool', type: 'bool' },
-      { name: '_whitelist', internalType: 'address[]', type: 'address[]' },
-      { name: 'metadata', internalType: 'string', type: 'string' },
-      { name: 'customFeePercentage', internalType: 'uint256', type: 'uint256' },
-    ],
-    name: 'createCookieJarWithFee',
-    outputs: [{ name: '', internalType: 'address', type: 'address' }],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
     inputs: [],
-    name: 'defaultFeeCollector',
-    outputs: [{ name: '', internalType: 'address', type: 'address' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'defaultFeePercentage',
-    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'getCookieJars',
+    name: 'getAllJars',
     outputs: [{ name: '', internalType: 'address[]', type: 'address[]' }],
     stateMutability: 'view',
   },
   {
     type: 'function',
-    inputs: [{ name: 'jar', internalType: 'address', type: 'address' }],
+    inputs: [],
+    name: 'getJarCount',
+    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'jarAddress', internalType: 'address', type: 'address' }],
+    name: 'getJarInfo',
+    outputs: [
+      { name: 'creator', internalType: 'address', type: 'address' },
+      { name: 'createdAt', internalType: 'uint256', type: 'uint256' },
+      { name: 'metadata', internalType: 'string', type: 'string' },
+    ],
+    stateMutability: 'view',
+  },
+  {
+    type: 'function',
+    inputs: [{ name: 'jarAddress', internalType: 'address', type: 'address' }],
     name: 'getMetadata',
     outputs: [{ name: '', internalType: 'string', type: 'string' }],
     stateMutability: 'view',
   },
   {
     type: 'function',
-    inputs: [],
-    name: 'getMetadatas',
-    outputs: [{ name: '', internalType: 'string[]', type: 'string[]' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [{ name: 'role', internalType: 'bytes32', type: 'bytes32' }],
-    name: 'getRoleAdmin',
-    outputs: [{ name: '', internalType: 'bytes32', type: 'bytes32' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [{ name: '_users', internalType: 'address[]', type: 'address[]' }],
-    name: 'grantBlacklistedJarCreatorsRole',
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    inputs: [{ name: '_admin', internalType: 'address', type: 'address' }],
-    name: 'grantProtocolAdminRole',
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    inputs: [
-      { name: 'role', internalType: 'bytes32', type: 'bytes32' },
-      { name: 'account', internalType: 'address', type: 'address' },
-    ],
-    name: 'grantRole',
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    inputs: [
-      { name: 'role', internalType: 'bytes32', type: 'bytes32' },
-      { name: 'account', internalType: 'address', type: 'address' },
-    ],
-    name: 'hasRole',
-    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
     inputs: [{ name: '', internalType: 'address', type: 'address' }],
-    name: 'jarIndex',
-    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
-    name: 'metadatas',
-    outputs: [{ name: '', internalType: 'string', type: 'string' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'minERC20Deposit',
-    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [],
-    name: 'minETHDeposit',
-    outputs: [{ name: '', internalType: 'uint256', type: 'uint256' }],
-    stateMutability: 'view',
-  },
-  {
-    type: 'function',
-    inputs: [
-      { name: 'role', internalType: 'bytes32', type: 'bytes32' },
-      { name: 'callerConfirmation', internalType: 'address', type: 'address' },
+    name: 'jarInfo',
+    outputs: [
+      { name: 'creator', internalType: 'address', type: 'address' },
+      { name: 'createdAt', internalType: 'uint64', type: 'uint64' },
+      { name: 'exists', internalType: 'bool', type: 'bool' },
     ],
-    name: 'renounceRole',
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    inputs: [{ name: '_users', internalType: 'address[]', type: 'address[]' }],
-    name: 'revokeBlacklistedJarCreatorsRole',
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    inputs: [
-      { name: 'role', internalType: 'bytes32', type: 'bytes32' },
-      { name: 'account', internalType: 'address', type: 'address' },
-    ],
-    name: 'revokeRole',
-    outputs: [],
-    stateMutability: 'nonpayable',
-  },
-  {
-    type: 'function',
-    inputs: [{ name: 'interfaceId', internalType: 'bytes4', type: 'bytes4' }],
-    name: 'supportsInterface',
-    outputs: [{ name: '', internalType: 'bool', type: 'bool' }],
     stateMutability: 'view',
   },
   {
     type: 'function',
-    inputs: [{ name: '_newOwner', internalType: 'address', type: 'address' }],
-    name: 'transferOwnership',
+    inputs: [
+      { name: 'admin', internalType: 'address', type: 'address' },
+      { name: 'granted', internalType: 'bool', type: 'bool' },
+    ],
+    name: 'setAdmin',
     outputs: [],
     stateMutability: 'nonpayable',
   },
   {
     type: 'function',
     inputs: [
-      { name: 'jar', internalType: 'address', type: 'address' },
+      { name: 'jarAddress', internalType: 'address', type: 'address' },
       { name: 'newMetadata', internalType: 'string', type: 'string' },
     ],
     name: 'updateMetadata',
@@ -1146,29 +1171,43 @@ export const cookieJarFactoryAbi = [
     anonymous: false,
     inputs: [
       {
-        name: 'users',
-        internalType: 'address[]',
-        type: 'address[]',
-        indexed: false,
+        name: 'admin',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
       },
+      { name: 'granted', internalType: 'bool', type: 'bool', indexed: false },
     ],
-    name: 'BlacklistRoleGranted',
+    name: 'AdminUpdated',
   },
   {
     type: 'event',
     anonymous: false,
     inputs: [
       {
-        name: 'creator',
+        name: 'jarAddress',
         internalType: 'address',
         type: 'address',
         indexed: true,
       },
       {
-        name: 'cookieJarAddress',
+        name: 'creator',
         internalType: 'address',
         type: 'address',
-        indexed: false,
+        indexed: true,
+      },
+    ],
+    name: 'JarCreated',
+  },
+  {
+    type: 'event',
+    anonymous: false,
+    inputs: [
+      {
+        name: 'jarAddress',
+        internalType: 'address',
+        type: 'address',
+        indexed: true,
       },
       {
         name: 'metadata',
@@ -1177,143 +1216,12 @@ export const cookieJarFactoryAbi = [
         indexed: false,
       },
     ],
-    name: 'CookieJarCreated',
+    name: 'MetadataUpdated',
   },
-  {
-    type: 'event',
-    anonymous: false,
-    inputs: [
-      { name: 'jar', internalType: 'address', type: 'address', indexed: true },
-      {
-        name: 'newMetadata',
-        internalType: 'string',
-        type: 'string',
-        indexed: false,
-      },
-    ],
-    name: 'CookieJarMetadataUpdated',
-  },
-  {
-    type: 'event',
-    anonymous: false,
-    inputs: [
-      {
-        name: 'previousOwner',
-        internalType: 'address',
-        type: 'address',
-        indexed: true,
-      },
-      {
-        name: 'newOwner',
-        internalType: 'address',
-        type: 'address',
-        indexed: true,
-      },
-    ],
-    name: 'OwnershipTransferred',
-  },
-  {
-    type: 'event',
-    anonymous: false,
-    inputs: [
-      {
-        name: 'previous',
-        internalType: 'address',
-        type: 'address',
-        indexed: true,
-      },
-      {
-        name: 'current',
-        internalType: 'address',
-        type: 'address',
-        indexed: true,
-      },
-    ],
-    name: 'ProtocolAdminUpdated',
-  },
-  {
-    type: 'event',
-    anonymous: false,
-    inputs: [
-      { name: 'role', internalType: 'bytes32', type: 'bytes32', indexed: true },
-      {
-        name: 'previousAdminRole',
-        internalType: 'bytes32',
-        type: 'bytes32',
-        indexed: true,
-      },
-      {
-        name: 'newAdminRole',
-        internalType: 'bytes32',
-        type: 'bytes32',
-        indexed: true,
-      },
-    ],
-    name: 'RoleAdminChanged',
-  },
-  {
-    type: 'event',
-    anonymous: false,
-    inputs: [
-      { name: 'role', internalType: 'bytes32', type: 'bytes32', indexed: true },
-      {
-        name: 'account',
-        internalType: 'address',
-        type: 'address',
-        indexed: true,
-      },
-      {
-        name: 'sender',
-        internalType: 'address',
-        type: 'address',
-        indexed: true,
-      },
-    ],
-    name: 'RoleGranted',
-  },
-  {
-    type: 'event',
-    anonymous: false,
-    inputs: [
-      { name: 'role', internalType: 'bytes32', type: 'bytes32', indexed: true },
-      {
-        name: 'account',
-        internalType: 'address',
-        type: 'address',
-        indexed: true,
-      },
-      {
-        name: 'sender',
-        internalType: 'address',
-        type: 'address',
-        indexed: true,
-      },
-    ],
-    name: 'RoleRevoked',
-  },
-  { type: 'error', inputs: [], name: 'AccessControlBadConfirmation' },
-  {
-    type: 'error',
-    inputs: [
-      { name: 'account', internalType: 'address', type: 'address' },
-      { name: 'neededRole', internalType: 'bytes32', type: 'bytes32' },
-    ],
-    name: 'AccessControlUnauthorizedAccount',
-  },
-  { type: 'error', inputs: [], name: 'CookieJarFactory__Blacklisted' },
-  { type: 'error', inputs: [], name: 'CookieJarFactory__InvalidMetadata' },
-  { type: 'error', inputs: [], name: 'CookieJarFactory__JarNotFound' },
-  { type: 'error', inputs: [], name: 'CookieJarFactory__MetadataTooLong' },
-  {
-    type: 'error',
-    inputs: [],
-    name: 'CookieJarFactory__MismatchedArrayLengths',
-  },
-  { type: 'error', inputs: [], name: 'CookieJarFactory__NotAuthorized' },
-  { type: 'error', inputs: [], name: 'CookieJarFactory__NotJarOwner' },
-  { type: 'error', inputs: [], name: 'CookieJarFactory__NotValidERC20' },
-  { type: 'error', inputs: [], name: 'CookieJarFactory__UserIsNotBlacklisted' },
-  { type: 'error', inputs: [], name: 'FeeCollectorAddressCannotBeZeroAddress' },
+  { type: 'error', inputs: [], name: 'InvalidTokenAddress' },
+  { type: 'error', inputs: [], name: 'JarNotFound' },
+  { type: 'error', inputs: [], name: 'NotAuthorized' },
+  { type: 'error', inputs: [], name: 'ZeroAddress' },
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -1429,6 +1337,30 @@ export const useReadCookieJar = /*#__PURE__*/ createUseReadContract({
 })
 
 /**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"ACCESS_TYPE"`
+ */
+export const useReadCookieJarAccessType = /*#__PURE__*/ createUseReadContract({
+  abi: cookieJarAbi,
+  functionName: 'ACCESS_TYPE',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"CFA"`
+ */
+export const useReadCookieJarCfa = /*#__PURE__*/ createUseReadContract({
+  abi: cookieJarAbi,
+  functionName: 'CFA',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"CURRENCY"`
+ */
+export const useReadCookieJarCurrency = /*#__PURE__*/ createUseReadContract({
+  abi: cookieJarAbi,
+  functionName: 'CURRENCY',
+})
+
+/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"DEFAULT_ADMIN_ROLE"`
  */
 export const useReadCookieJarDefaultAdminRole =
@@ -1438,19 +1370,82 @@ export const useReadCookieJarDefaultAdminRole =
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"accessType"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"EMERGENCY_WITHDRAWAL_ENABLED"`
  */
-export const useReadCookieJarAccessType = /*#__PURE__*/ createUseReadContract({
+export const useReadCookieJarEmergencyWithdrawalEnabled =
+  /*#__PURE__*/ createUseReadContract({
+    abi: cookieJarAbi,
+    functionName: 'EMERGENCY_WITHDRAWAL_ENABLED',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"FEE_PERCENTAGE_ON_DEPOSIT"`
+ */
+export const useReadCookieJarFeePercentageOnDeposit =
+  /*#__PURE__*/ createUseReadContract({
+    abi: cookieJarAbi,
+    functionName: 'FEE_PERCENTAGE_ON_DEPOSIT',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"MAX_WITHDRAWAL_PER_PERIOD"`
+ */
+export const useReadCookieJarMaxWithdrawalPerPeriod =
+  /*#__PURE__*/ createUseReadContract({
+    abi: cookieJarAbi,
+    functionName: 'MAX_WITHDRAWAL_PER_PERIOD',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"MIN_DEPOSIT"`
+ */
+export const useReadCookieJarMinDeposit = /*#__PURE__*/ createUseReadContract({
   abi: cookieJarAbi,
-  functionName: 'accessType',
+  functionName: 'MIN_DEPOSIT',
 })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"currency"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"ONE_TIME_WITHDRAWAL"`
  */
-export const useReadCookieJarCurrency = /*#__PURE__*/ createUseReadContract({
+export const useReadCookieJarOneTimeWithdrawal =
+  /*#__PURE__*/ createUseReadContract({
+    abi: cookieJarAbi,
+    functionName: 'ONE_TIME_WITHDRAWAL',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"STRICT_PURPOSE"`
+ */
+export const useReadCookieJarStrictPurpose =
+  /*#__PURE__*/ createUseReadContract({
+    abi: cookieJarAbi,
+    functionName: 'STRICT_PURPOSE',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"SUPERFLUID_HOST"`
+ */
+export const useReadCookieJarSuperfluidHost =
+  /*#__PURE__*/ createUseReadContract({
+    abi: cookieJarAbi,
+    functionName: 'SUPERFLUID_HOST',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"WITHDRAWAL_OPTION"`
+ */
+export const useReadCookieJarWithdrawalOption =
+  /*#__PURE__*/ createUseReadContract({
+    abi: cookieJarAbi,
+    functionName: 'WITHDRAWAL_OPTION',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"allowlist"`
+ */
+export const useReadCookieJarAllowlist = /*#__PURE__*/ createUseReadContract({
   abi: cookieJarAbi,
-  functionName: 'currency',
+  functionName: 'allowlist',
 })
 
 /**
@@ -1463,29 +1458,11 @@ export const useReadCookieJarCurrencyHeldByJar =
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"emergencyWithdrawalEnabled"`
- */
-export const useReadCookieJarEmergencyWithdrawalEnabled =
-  /*#__PURE__*/ createUseReadContract({
-    abi: cookieJarAbi,
-    functionName: 'emergencyWithdrawalEnabled',
-  })
-
-/**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"feeCollector"`
  */
 export const useReadCookieJarFeeCollector = /*#__PURE__*/ createUseReadContract(
   { abi: cookieJarAbi, functionName: 'feeCollector' },
 )
-
-/**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"feePercentageOnDeposit"`
- */
-export const useReadCookieJarFeePercentageOnDeposit =
-  /*#__PURE__*/ createUseReadContract({
-    abi: cookieJarAbi,
-    functionName: 'feePercentageOnDeposit',
-  })
 
 /**
  * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"fixedAmount"`
@@ -1496,12 +1473,37 @@ export const useReadCookieJarFixedAmount = /*#__PURE__*/ createUseReadContract({
 })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"getNFTGatesArray"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"getAccountFlowInfo"`
  */
-export const useReadCookieJarGetNftGatesArray =
+export const useReadCookieJarGetAccountFlowInfo =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
-    functionName: 'getNFTGatesArray',
+    functionName: 'getAccountFlowInfo',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"getAllowlist"`
+ */
+export const useReadCookieJarGetAllowlist = /*#__PURE__*/ createUseReadContract(
+  { abi: cookieJarAbi, functionName: 'getAllowlist' },
+)
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"getNetFlowRate"`
+ */
+export const useReadCookieJarGetNetFlowRate =
+  /*#__PURE__*/ createUseReadContract({
+    abi: cookieJarAbi,
+    functionName: 'getNetFlowRate',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"getPendingTokenAddresses"`
+ */
+export const useReadCookieJarGetPendingTokenAddresses =
+  /*#__PURE__*/ createUseReadContract({
+    abi: cookieJarAbi,
+    functionName: 'getPendingTokenAddresses',
   })
 
 /**
@@ -1512,19 +1514,12 @@ export const useReadCookieJarGetRoleAdmin = /*#__PURE__*/ createUseReadContract(
 )
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"getWhitelist"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"getSuperStreamInfo"`
  */
-export const useReadCookieJarGetWhitelist = /*#__PURE__*/ createUseReadContract(
-  { abi: cookieJarAbi, functionName: 'getWhitelist' },
-)
-
-/**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"getWithdrawalDataArray"`
- */
-export const useReadCookieJarGetWithdrawalDataArray =
+export const useReadCookieJarGetSuperStreamInfo =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
-    functionName: 'getWithdrawalDataArray',
+    functionName: 'getSuperStreamInfo',
   })
 
 /**
@@ -1536,21 +1531,12 @@ export const useReadCookieJarHasRole = /*#__PURE__*/ createUseReadContract({
 })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"lastWithdrawalNFT"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"lastWithdrawalTime"`
  */
-export const useReadCookieJarLastWithdrawalNft =
+export const useReadCookieJarLastWithdrawalTime =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
-    functionName: 'lastWithdrawalNFT',
-  })
-
-/**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"lastWithdrawalWhitelist"`
- */
-export const useReadCookieJarLastWithdrawalWhitelist =
-  /*#__PURE__*/ createUseReadContract({
-    abi: cookieJarAbi,
-    functionName: 'lastWithdrawalWhitelist',
+    functionName: 'lastWithdrawalTime',
   })
 
 /**
@@ -1563,37 +1549,54 @@ export const useReadCookieJarMaxWithdrawal =
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"minDeposit"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"multiTokenConfig"`
  */
-export const useReadCookieJarMinDeposit = /*#__PURE__*/ createUseReadContract({
-  abi: cookieJarAbi,
-  functionName: 'minDeposit',
-})
-
-/**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"nftGates"`
- */
-export const useReadCookieJarNftGates = /*#__PURE__*/ createUseReadContract({
-  abi: cookieJarAbi,
-  functionName: 'nftGates',
-})
-
-/**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"oneTimeWithdrawal"`
- */
-export const useReadCookieJarOneTimeWithdrawal =
+export const useReadCookieJarMultiTokenConfig =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
-    functionName: 'oneTimeWithdrawal',
+    functionName: 'multiTokenConfig',
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"strictPurpose"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"nftRequirement"`
  */
-export const useReadCookieJarStrictPurpose =
+export const useReadCookieJarNftRequirement =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
-    functionName: 'strictPurpose',
+    functionName: 'nftRequirement',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"paused"`
+ */
+export const useReadCookieJarPaused = /*#__PURE__*/ createUseReadContract({
+  abi: cookieJarAbi,
+  functionName: 'paused',
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"pendingTokenBalances"`
+ */
+export const useReadCookieJarPendingTokenBalances =
+  /*#__PURE__*/ createUseReadContract({
+    abi: cookieJarAbi,
+    functionName: 'pendingTokenBalances',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"superStreams"`
+ */
+export const useReadCookieJarSuperStreams = /*#__PURE__*/ createUseReadContract(
+  { abi: cookieJarAbi, functionName: 'superStreams' },
+)
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"superTokenFlowRates"`
+ */
+export const useReadCookieJarSuperTokenFlowRates =
+  /*#__PURE__*/ createUseReadContract({
+    abi: cookieJarAbi,
+    functionName: 'superTokenFlowRates',
   })
 
 /**
@@ -1606,20 +1609,12 @@ export const useReadCookieJarSupportsInterface =
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"whitelist"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"totalWithdrawn"`
  */
-export const useReadCookieJarWhitelist = /*#__PURE__*/ createUseReadContract({
-  abi: cookieJarAbi,
-  functionName: 'whitelist',
-})
-
-/**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawalData"`
- */
-export const useReadCookieJarWithdrawalData =
+export const useReadCookieJarTotalWithdrawn =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
-    functionName: 'withdrawalData',
+    functionName: 'totalWithdrawn',
   })
 
 /**
@@ -1632,12 +1627,12 @@ export const useReadCookieJarWithdrawalInterval =
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawalOption"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawnInCurrentPeriod"`
  */
-export const useReadCookieJarWithdrawalOption =
+export const useReadCookieJarWithdrawnInCurrentPeriod =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarAbi,
-    functionName: 'withdrawalOption',
+    functionName: 'withdrawnInCurrentPeriod',
   })
 
 /**
@@ -1648,27 +1643,30 @@ export const useWriteCookieJar = /*#__PURE__*/ createUseWriteContract({
 })
 
 /**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"addNFTGate"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"createSuperStream"`
  */
-export const useWriteCookieJarAddNftGate = /*#__PURE__*/ createUseWriteContract(
-  { abi: cookieJarAbi, functionName: 'addNFTGate' },
-)
-
-/**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"depositCurrency"`
- */
-export const useWriteCookieJarDepositCurrency =
+export const useWriteCookieJarCreateSuperStream =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarAbi,
-    functionName: 'depositCurrency',
+    functionName: 'createSuperStream',
   })
 
 /**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"depositETH"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"deleteSuperStream"`
  */
-export const useWriteCookieJarDepositEth = /*#__PURE__*/ createUseWriteContract(
-  { abi: cookieJarAbi, functionName: 'depositETH' },
-)
+export const useWriteCookieJarDeleteSuperStream =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: cookieJarAbi,
+    functionName: 'deleteSuperStream',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"deposit"`
+ */
+export const useWriteCookieJarDeposit = /*#__PURE__*/ createUseWriteContract({
+  abi: cookieJarAbi,
+  functionName: 'deposit',
+})
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"emergencyWithdraw"`
@@ -1680,12 +1678,12 @@ export const useWriteCookieJarEmergencyWithdraw =
   })
 
 /**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"grantJarWhitelistRole"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"grantJarAllowlistRole"`
  */
-export const useWriteCookieJarGrantJarWhitelistRole =
+export const useWriteCookieJarGrantJarAllowlistRole =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarAbi,
-    functionName: 'grantJarWhitelistRole',
+    functionName: 'grantJarAllowlistRole',
   })
 
 /**
@@ -1697,13 +1695,12 @@ export const useWriteCookieJarGrantRole = /*#__PURE__*/ createUseWriteContract({
 })
 
 /**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"removeNFTGate"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"pause"`
  */
-export const useWriteCookieJarRemoveNftGate =
-  /*#__PURE__*/ createUseWriteContract({
-    abi: cookieJarAbi,
-    functionName: 'removeNFTGate',
-  })
+export const useWriteCookieJarPause = /*#__PURE__*/ createUseWriteContract({
+  abi: cookieJarAbi,
+  functionName: 'pause',
+})
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"renounceRole"`
@@ -1715,12 +1712,12 @@ export const useWriteCookieJarRenounceRole =
   })
 
 /**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"revokeJarWhitelistRole"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"revokeJarAllowlistRole"`
  */
-export const useWriteCookieJarRevokeJarWhitelistRole =
+export const useWriteCookieJarRevokeJarAllowlistRole =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarAbi,
-    functionName: 'revokeJarWhitelistRole',
+    functionName: 'revokeJarAllowlistRole',
   })
 
 /**
@@ -1729,6 +1726,23 @@ export const useWriteCookieJarRevokeJarWhitelistRole =
 export const useWriteCookieJarRevokeRole = /*#__PURE__*/ createUseWriteContract(
   { abi: cookieJarAbi, functionName: 'revokeRole' },
 )
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"swapPendingTokens"`
+ */
+export const useWriteCookieJarSwapPendingTokens =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: cookieJarAbi,
+    functionName: 'swapPendingTokens',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"unpause"`
+ */
+export const useWriteCookieJarUnpause = /*#__PURE__*/ createUseWriteContract({
+  abi: cookieJarAbi,
+  functionName: 'unpause',
+})
 
 /**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"updateFeeCollector"`
@@ -1758,6 +1772,15 @@ export const useWriteCookieJarUpdateMaxWithdrawalAmount =
   })
 
 /**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"updateSuperStream"`
+ */
+export const useWriteCookieJarUpdateSuperStream =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: cookieJarAbi,
+    functionName: 'updateSuperStream',
+  })
+
+/**
  * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"updateWithdrawalInterval"`
  */
 export const useWriteCookieJarUpdateWithdrawalInterval =
@@ -1767,21 +1790,38 @@ export const useWriteCookieJarUpdateWithdrawalInterval =
   })
 
 /**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawNFTMode"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdraw"`
  */
-export const useWriteCookieJarWithdrawNftMode =
+export const useWriteCookieJarWithdraw = /*#__PURE__*/ createUseWriteContract({
+  abi: cookieJarAbi,
+  functionName: 'withdraw',
+})
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawAllowlistMode"`
+ */
+export const useWriteCookieJarWithdrawAllowlistMode =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarAbi,
-    functionName: 'withdrawNFTMode',
+    functionName: 'withdrawAllowlistMode',
   })
 
 /**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawWhitelistMode"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawWithErc1155"`
  */
-export const useWriteCookieJarWithdrawWhitelistMode =
+export const useWriteCookieJarWithdrawWithErc1155 =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarAbi,
-    functionName: 'withdrawWhitelistMode',
+    functionName: 'withdrawWithErc1155',
+  })
+
+/**
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawWithErc721"`
+ */
+export const useWriteCookieJarWithdrawWithErc721 =
+  /*#__PURE__*/ createUseWriteContract({
+    abi: cookieJarAbi,
+    functionName: 'withdrawWithErc721',
   })
 
 /**
@@ -1792,30 +1832,30 @@ export const useSimulateCookieJar = /*#__PURE__*/ createUseSimulateContract({
 })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"addNFTGate"`
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"createSuperStream"`
  */
-export const useSimulateCookieJarAddNftGate =
+export const useSimulateCookieJarCreateSuperStream =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
-    functionName: 'addNFTGate',
+    functionName: 'createSuperStream',
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"depositCurrency"`
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"deleteSuperStream"`
  */
-export const useSimulateCookieJarDepositCurrency =
+export const useSimulateCookieJarDeleteSuperStream =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
-    functionName: 'depositCurrency',
+    functionName: 'deleteSuperStream',
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"depositETH"`
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"deposit"`
  */
-export const useSimulateCookieJarDepositEth =
+export const useSimulateCookieJarDeposit =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
-    functionName: 'depositETH',
+    functionName: 'deposit',
   })
 
 /**
@@ -1828,12 +1868,12 @@ export const useSimulateCookieJarEmergencyWithdraw =
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"grantJarWhitelistRole"`
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"grantJarAllowlistRole"`
  */
-export const useSimulateCookieJarGrantJarWhitelistRole =
+export const useSimulateCookieJarGrantJarAllowlistRole =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
-    functionName: 'grantJarWhitelistRole',
+    functionName: 'grantJarAllowlistRole',
   })
 
 /**
@@ -1846,12 +1886,12 @@ export const useSimulateCookieJarGrantRole =
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"removeNFTGate"`
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"pause"`
  */
-export const useSimulateCookieJarRemoveNftGate =
+export const useSimulateCookieJarPause =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
-    functionName: 'removeNFTGate',
+    functionName: 'pause',
   })
 
 /**
@@ -1864,12 +1904,12 @@ export const useSimulateCookieJarRenounceRole =
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"revokeJarWhitelistRole"`
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"revokeJarAllowlistRole"`
  */
-export const useSimulateCookieJarRevokeJarWhitelistRole =
+export const useSimulateCookieJarRevokeJarAllowlistRole =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
-    functionName: 'revokeJarWhitelistRole',
+    functionName: 'revokeJarAllowlistRole',
   })
 
 /**
@@ -1879,6 +1919,24 @@ export const useSimulateCookieJarRevokeRole =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
     functionName: 'revokeRole',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"swapPendingTokens"`
+ */
+export const useSimulateCookieJarSwapPendingTokens =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: cookieJarAbi,
+    functionName: 'swapPendingTokens',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"unpause"`
+ */
+export const useSimulateCookieJarUnpause =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: cookieJarAbi,
+    functionName: 'unpause',
   })
 
 /**
@@ -1909,6 +1967,15 @@ export const useSimulateCookieJarUpdateMaxWithdrawalAmount =
   })
 
 /**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"updateSuperStream"`
+ */
+export const useSimulateCookieJarUpdateSuperStream =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: cookieJarAbi,
+    functionName: 'updateSuperStream',
+  })
+
+/**
  * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"updateWithdrawalInterval"`
  */
 export const useSimulateCookieJarUpdateWithdrawalInterval =
@@ -1918,21 +1985,39 @@ export const useSimulateCookieJarUpdateWithdrawalInterval =
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawNFTMode"`
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdraw"`
  */
-export const useSimulateCookieJarWithdrawNftMode =
+export const useSimulateCookieJarWithdraw =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
-    functionName: 'withdrawNFTMode',
+    functionName: 'withdraw',
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawWhitelistMode"`
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawAllowlistMode"`
  */
-export const useSimulateCookieJarWithdrawWhitelistMode =
+export const useSimulateCookieJarWithdrawAllowlistMode =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarAbi,
-    functionName: 'withdrawWhitelistMode',
+    functionName: 'withdrawAllowlistMode',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawWithErc1155"`
+ */
+export const useSimulateCookieJarWithdrawWithErc1155 =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: cookieJarAbi,
+    functionName: 'withdrawWithErc1155',
+  })
+
+/**
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarAbi}__ and `functionName` set to `"withdrawWithErc721"`
+ */
+export const useSimulateCookieJarWithdrawWithErc721 =
+  /*#__PURE__*/ createUseSimulateContract({
+    abi: cookieJarAbi,
+    functionName: 'withdrawWithErc721',
   })
 
 /**
@@ -1979,48 +2064,39 @@ export const useWatchCookieJarFeeCollectorUpdatedEvent =
   })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"FixedWithdrawalAmountUpdated"`
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"ParameterUpdated"`
  */
-export const useWatchCookieJarFixedWithdrawalAmountUpdatedEvent =
+export const useWatchCookieJarParameterUpdatedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarAbi,
-    eventName: 'FixedWithdrawalAmountUpdated',
+    eventName: 'ParameterUpdated',
   })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"MaxWithdrawalUpdated"`
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"Paused"`
  */
-export const useWatchCookieJarMaxWithdrawalUpdatedEvent =
+export const useWatchCookieJarPausedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarAbi,
-    eventName: 'MaxWithdrawalUpdated',
+    eventName: 'Paused',
   })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"NFTAccessValidated"`
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"PausedStateChanged"`
  */
-export const useWatchCookieJarNftAccessValidatedEvent =
+export const useWatchCookieJarPausedStateChangedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarAbi,
-    eventName: 'NFTAccessValidated',
+    eventName: 'PausedStateChanged',
   })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"NFTGateAdded"`
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"PendingTokensRecovered"`
  */
-export const useWatchCookieJarNftGateAddedEvent =
+export const useWatchCookieJarPendingTokensRecoveredEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarAbi,
-    eventName: 'NFTGateAdded',
-  })
-
-/**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"NFTGateRemoved"`
- */
-export const useWatchCookieJarNftGateRemovedEvent =
-  /*#__PURE__*/ createUseWatchContractEvent({
-    abi: cookieJarAbi,
-    eventName: 'NFTGateRemoved',
+    eventName: 'PendingTokensRecovered',
   })
 
 /**
@@ -2051,21 +2127,21 @@ export const useWatchCookieJarRoleRevokedEvent =
   })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"Withdrawal"`
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"TokenSwapped"`
  */
-export const useWatchCookieJarWithdrawalEvent =
+export const useWatchCookieJarTokenSwappedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarAbi,
-    eventName: 'Withdrawal',
+    eventName: 'TokenSwapped',
   })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"WithdrawalIntervalUpdated"`
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarAbi}__ and `eventName` set to `"Unpaused"`
  */
-export const useWatchCookieJarWithdrawalIntervalUpdatedEvent =
+export const useWatchCookieJarUnpausedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarAbi,
-    eventName: 'WithdrawalIntervalUpdated',
+    eventName: 'Unpaused',
   })
 
 /**
@@ -2076,21 +2152,39 @@ export const useReadCookieJarFactory = /*#__PURE__*/ createUseReadContract({
 })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"BLACKLISTED_JAR_CREATORS"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"DEFAULT_FEE_COLLECTOR"`
  */
-export const useReadCookieJarFactoryBlacklistedJarCreators =
+export const useReadCookieJarFactoryDefaultFeeCollector =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarFactoryAbi,
-    functionName: 'BLACKLISTED_JAR_CREATORS',
+    functionName: 'DEFAULT_FEE_COLLECTOR',
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"DEFAULT_ADMIN_ROLE"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"DEFAULT_FEE_PERCENTAGE"`
  */
-export const useReadCookieJarFactoryDefaultAdminRole =
+export const useReadCookieJarFactoryDefaultFeePercentage =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarFactoryAbi,
-    functionName: 'DEFAULT_ADMIN_ROLE',
+    functionName: 'DEFAULT_FEE_PERCENTAGE',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"MIN_ERC20_DEPOSIT"`
+ */
+export const useReadCookieJarFactoryMinErc20Deposit =
+  /*#__PURE__*/ createUseReadContract({
+    abi: cookieJarFactoryAbi,
+    functionName: 'MIN_ERC20_DEPOSIT',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"MIN_ETH_DEPOSIT"`
+ */
+export const useReadCookieJarFactoryMinEthDeposit =
+  /*#__PURE__*/ createUseReadContract({
+    abi: cookieJarFactoryAbi,
+    functionName: 'MIN_ETH_DEPOSIT',
   })
 
 /**
@@ -2101,12 +2195,12 @@ export const useReadCookieJarFactoryOwner = /*#__PURE__*/ createUseReadContract(
 )
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"PROTOCOL_ADMIN"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"admins"`
  */
-export const useReadCookieJarFactoryProtocolAdmin =
+export const useReadCookieJarFactoryAdmins =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarFactoryAbi,
-    functionName: 'PROTOCOL_ADMIN',
+    functionName: 'admins',
   })
 
 /**
@@ -2119,30 +2213,30 @@ export const useReadCookieJarFactoryCookieJars =
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"defaultFeeCollector"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"getAllJars"`
  */
-export const useReadCookieJarFactoryDefaultFeeCollector =
+export const useReadCookieJarFactoryGetAllJars =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarFactoryAbi,
-    functionName: 'defaultFeeCollector',
+    functionName: 'getAllJars',
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"defaultFeePercentage"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"getJarCount"`
  */
-export const useReadCookieJarFactoryDefaultFeePercentage =
+export const useReadCookieJarFactoryGetJarCount =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarFactoryAbi,
-    functionName: 'defaultFeePercentage',
+    functionName: 'getJarCount',
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"getCookieJars"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"getJarInfo"`
  */
-export const useReadCookieJarFactoryGetCookieJars =
+export const useReadCookieJarFactoryGetJarInfo =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarFactoryAbi,
-    functionName: 'getCookieJars',
+    functionName: 'getJarInfo',
   })
 
 /**
@@ -2155,75 +2249,12 @@ export const useReadCookieJarFactoryGetMetadata =
   })
 
 /**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"getMetadatas"`
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"jarInfo"`
  */
-export const useReadCookieJarFactoryGetMetadatas =
+export const useReadCookieJarFactoryJarInfo =
   /*#__PURE__*/ createUseReadContract({
     abi: cookieJarFactoryAbi,
-    functionName: 'getMetadatas',
-  })
-
-/**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"getRoleAdmin"`
- */
-export const useReadCookieJarFactoryGetRoleAdmin =
-  /*#__PURE__*/ createUseReadContract({
-    abi: cookieJarFactoryAbi,
-    functionName: 'getRoleAdmin',
-  })
-
-/**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"hasRole"`
- */
-export const useReadCookieJarFactoryHasRole =
-  /*#__PURE__*/ createUseReadContract({
-    abi: cookieJarFactoryAbi,
-    functionName: 'hasRole',
-  })
-
-/**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"jarIndex"`
- */
-export const useReadCookieJarFactoryJarIndex =
-  /*#__PURE__*/ createUseReadContract({
-    abi: cookieJarFactoryAbi,
-    functionName: 'jarIndex',
-  })
-
-/**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"metadatas"`
- */
-export const useReadCookieJarFactoryMetadatas =
-  /*#__PURE__*/ createUseReadContract({
-    abi: cookieJarFactoryAbi,
-    functionName: 'metadatas',
-  })
-
-/**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"minERC20Deposit"`
- */
-export const useReadCookieJarFactoryMinErc20Deposit =
-  /*#__PURE__*/ createUseReadContract({
-    abi: cookieJarFactoryAbi,
-    functionName: 'minERC20Deposit',
-  })
-
-/**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"minETHDeposit"`
- */
-export const useReadCookieJarFactoryMinEthDeposit =
-  /*#__PURE__*/ createUseReadContract({
-    abi: cookieJarFactoryAbi,
-    functionName: 'minETHDeposit',
-  })
-
-/**
- * Wraps __{@link useReadContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"supportsInterface"`
- */
-export const useReadCookieJarFactorySupportsInterface =
-  /*#__PURE__*/ createUseReadContract({
-    abi: cookieJarFactoryAbi,
-    functionName: 'supportsInterface',
+    functionName: 'jarInfo',
   })
 
 /**
@@ -2243,84 +2274,12 @@ export const useWriteCookieJarFactoryCreateCookieJar =
   })
 
 /**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"createCookieJarOptimized"`
+ * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"setAdmin"`
  */
-export const useWriteCookieJarFactoryCreateCookieJarOptimized =
+export const useWriteCookieJarFactorySetAdmin =
   /*#__PURE__*/ createUseWriteContract({
     abi: cookieJarFactoryAbi,
-    functionName: 'createCookieJarOptimized',
-  })
-
-/**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"createCookieJarWithFee"`
- */
-export const useWriteCookieJarFactoryCreateCookieJarWithFee =
-  /*#__PURE__*/ createUseWriteContract({
-    abi: cookieJarFactoryAbi,
-    functionName: 'createCookieJarWithFee',
-  })
-
-/**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"grantBlacklistedJarCreatorsRole"`
- */
-export const useWriteCookieJarFactoryGrantBlacklistedJarCreatorsRole =
-  /*#__PURE__*/ createUseWriteContract({
-    abi: cookieJarFactoryAbi,
-    functionName: 'grantBlacklistedJarCreatorsRole',
-  })
-
-/**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"grantProtocolAdminRole"`
- */
-export const useWriteCookieJarFactoryGrantProtocolAdminRole =
-  /*#__PURE__*/ createUseWriteContract({
-    abi: cookieJarFactoryAbi,
-    functionName: 'grantProtocolAdminRole',
-  })
-
-/**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"grantRole"`
- */
-export const useWriteCookieJarFactoryGrantRole =
-  /*#__PURE__*/ createUseWriteContract({
-    abi: cookieJarFactoryAbi,
-    functionName: 'grantRole',
-  })
-
-/**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"renounceRole"`
- */
-export const useWriteCookieJarFactoryRenounceRole =
-  /*#__PURE__*/ createUseWriteContract({
-    abi: cookieJarFactoryAbi,
-    functionName: 'renounceRole',
-  })
-
-/**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"revokeBlacklistedJarCreatorsRole"`
- */
-export const useWriteCookieJarFactoryRevokeBlacklistedJarCreatorsRole =
-  /*#__PURE__*/ createUseWriteContract({
-    abi: cookieJarFactoryAbi,
-    functionName: 'revokeBlacklistedJarCreatorsRole',
-  })
-
-/**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"revokeRole"`
- */
-export const useWriteCookieJarFactoryRevokeRole =
-  /*#__PURE__*/ createUseWriteContract({
-    abi: cookieJarFactoryAbi,
-    functionName: 'revokeRole',
-  })
-
-/**
- * Wraps __{@link useWriteContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"transferOwnership"`
- */
-export const useWriteCookieJarFactoryTransferOwnership =
-  /*#__PURE__*/ createUseWriteContract({
-    abi: cookieJarFactoryAbi,
-    functionName: 'transferOwnership',
+    functionName: 'setAdmin',
   })
 
 /**
@@ -2348,84 +2307,12 @@ export const useSimulateCookieJarFactoryCreateCookieJar =
   })
 
 /**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"createCookieJarOptimized"`
+ * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"setAdmin"`
  */
-export const useSimulateCookieJarFactoryCreateCookieJarOptimized =
+export const useSimulateCookieJarFactorySetAdmin =
   /*#__PURE__*/ createUseSimulateContract({
     abi: cookieJarFactoryAbi,
-    functionName: 'createCookieJarOptimized',
-  })
-
-/**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"createCookieJarWithFee"`
- */
-export const useSimulateCookieJarFactoryCreateCookieJarWithFee =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: cookieJarFactoryAbi,
-    functionName: 'createCookieJarWithFee',
-  })
-
-/**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"grantBlacklistedJarCreatorsRole"`
- */
-export const useSimulateCookieJarFactoryGrantBlacklistedJarCreatorsRole =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: cookieJarFactoryAbi,
-    functionName: 'grantBlacklistedJarCreatorsRole',
-  })
-
-/**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"grantProtocolAdminRole"`
- */
-export const useSimulateCookieJarFactoryGrantProtocolAdminRole =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: cookieJarFactoryAbi,
-    functionName: 'grantProtocolAdminRole',
-  })
-
-/**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"grantRole"`
- */
-export const useSimulateCookieJarFactoryGrantRole =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: cookieJarFactoryAbi,
-    functionName: 'grantRole',
-  })
-
-/**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"renounceRole"`
- */
-export const useSimulateCookieJarFactoryRenounceRole =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: cookieJarFactoryAbi,
-    functionName: 'renounceRole',
-  })
-
-/**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"revokeBlacklistedJarCreatorsRole"`
- */
-export const useSimulateCookieJarFactoryRevokeBlacklistedJarCreatorsRole =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: cookieJarFactoryAbi,
-    functionName: 'revokeBlacklistedJarCreatorsRole',
-  })
-
-/**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"revokeRole"`
- */
-export const useSimulateCookieJarFactoryRevokeRole =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: cookieJarFactoryAbi,
-    functionName: 'revokeRole',
-  })
-
-/**
- * Wraps __{@link useSimulateContract}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `functionName` set to `"transferOwnership"`
- */
-export const useSimulateCookieJarFactoryTransferOwnership =
-  /*#__PURE__*/ createUseSimulateContract({
-    abi: cookieJarFactoryAbi,
-    functionName: 'transferOwnership',
+    functionName: 'setAdmin',
   })
 
 /**
@@ -2444,75 +2331,30 @@ export const useWatchCookieJarFactoryEvent =
   /*#__PURE__*/ createUseWatchContractEvent({ abi: cookieJarFactoryAbi })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `eventName` set to `"BlacklistRoleGranted"`
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `eventName` set to `"AdminUpdated"`
  */
-export const useWatchCookieJarFactoryBlacklistRoleGrantedEvent =
+export const useWatchCookieJarFactoryAdminUpdatedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarFactoryAbi,
-    eventName: 'BlacklistRoleGranted',
+    eventName: 'AdminUpdated',
   })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `eventName` set to `"CookieJarCreated"`
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `eventName` set to `"JarCreated"`
  */
-export const useWatchCookieJarFactoryCookieJarCreatedEvent =
+export const useWatchCookieJarFactoryJarCreatedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarFactoryAbi,
-    eventName: 'CookieJarCreated',
+    eventName: 'JarCreated',
   })
 
 /**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `eventName` set to `"CookieJarMetadataUpdated"`
+ * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `eventName` set to `"MetadataUpdated"`
  */
-export const useWatchCookieJarFactoryCookieJarMetadataUpdatedEvent =
+export const useWatchCookieJarFactoryMetadataUpdatedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarFactoryAbi,
-    eventName: 'CookieJarMetadataUpdated',
-  })
-
-/**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `eventName` set to `"OwnershipTransferred"`
- */
-export const useWatchCookieJarFactoryOwnershipTransferredEvent =
-  /*#__PURE__*/ createUseWatchContractEvent({
-    abi: cookieJarFactoryAbi,
-    eventName: 'OwnershipTransferred',
-  })
-
-/**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `eventName` set to `"ProtocolAdminUpdated"`
- */
-export const useWatchCookieJarFactoryProtocolAdminUpdatedEvent =
-  /*#__PURE__*/ createUseWatchContractEvent({
-    abi: cookieJarFactoryAbi,
-    eventName: 'ProtocolAdminUpdated',
-  })
-
-/**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `eventName` set to `"RoleAdminChanged"`
- */
-export const useWatchCookieJarFactoryRoleAdminChangedEvent =
-  /*#__PURE__*/ createUseWatchContractEvent({
-    abi: cookieJarFactoryAbi,
-    eventName: 'RoleAdminChanged',
-  })
-
-/**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `eventName` set to `"RoleGranted"`
- */
-export const useWatchCookieJarFactoryRoleGrantedEvent =
-  /*#__PURE__*/ createUseWatchContractEvent({
-    abi: cookieJarFactoryAbi,
-    eventName: 'RoleGranted',
-  })
-
-/**
- * Wraps __{@link useWatchContractEvent}__ with `abi` set to __{@link cookieJarFactoryAbi}__ and `eventName` set to `"RoleRevoked"`
- */
-export const useWatchCookieJarFactoryRoleRevokedEvent =
-  /*#__PURE__*/ createUseWatchContractEvent({
-    abi: cookieJarFactoryAbi,
-    eventName: 'RoleRevoked',
+    eventName: 'MetadataUpdated',
   })
 
 /**

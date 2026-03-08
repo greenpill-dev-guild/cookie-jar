@@ -1,0 +1,101 @@
+name: Code Quality & Linting
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18'
+  BUN_VERSION: '1.0'
+
+jobs:
+  code-quality:
+    name: Lint & Type Check
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js and bun
+      uses: ./.github/actions/setup-node-pnpm
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        bun-version: ${{ env.BUN_VERSION }}
+    
+    - name: Lint client code
+      run: |
+        cd client
+        echo "🔍 Running ESLint..."
+        
+        # Use Next.js lint - allow warnings but fail on errors
+        if bun run lint 2>&1 | tee lint-output.log; then
+          echo "✅ ESLint completed successfully"
+        else
+          # Check if there are actual errors (not just warnings)
+          if grep -q "Error:" lint-output.log; then
+            echo "❌ ESLint found errors that must be fixed:"
+            grep "Error:" lint-output.log || true
+            exit 1
+          else
+            echo "⚠️  ESLint found warnings (non-blocking):"
+            cat lint-output.log || true
+            echo "✅ No blocking errors found"
+          fi
+        fi
+    
+    - name: TypeScript type checking
+      run: |
+        cd client  
+        bun run type-check
+    
+    - name: Format check
+      run: |
+        cd client
+        echo "🎨 Checking code formatting..."
+        
+        if bun run format:check 2>&1 | tee format-output.log; then
+          echo "✅ Code formatting is consistent"
+        else
+          echo ""
+          echo "⚠️  Code formatting issues found in some files"
+          echo "📝 This is not critical, but helps maintain code consistency"
+          echo "💡 To fix locally: 'bun run format' or 'npx prettier --write .'"
+          echo ""
+          echo "🔍 Consider setting up Prettier in your IDE for auto-formatting on save"
+          echo "   • VS Code: Install 'Prettier' extension"
+          echo "   • Enable 'Format on Save' in settings"
+          echo ""
+          echo "⚠️  Allowing workflow to continue (formatting is not blocking)"
+        fi
+      continue-on-error: true  # Don't fail build on formatting issues
+    
+    - name: Check for unused dependencies
+      run: |
+        cd client
+        if command -v depcheck &> /dev/null; then
+          echo "📦 Checking for unused dependencies..."
+          npx depcheck --ignores="@types/*,@typescript-eslint/*,eslint-*"
+        else
+          echo "⚠️  Skipping dependency check (depcheck not available)"
+        fi
+      continue-on-error: true  # Don't fail build on unused deps
+    
+    - name: Summary
+      if: always()
+      run: |
+        echo ""
+        echo "✅ Code quality checks completed!"
+        echo "📋 This workflow provides fast feedback on:"
+        echo "  • ESLint rule compliance"
+        echo "  • TypeScript compilation"  
+        echo "  • Code formatting consistency"
+        echo ""
+        if [ "${{ job.status }}" = "success" ]; then
+          echo "🎉 All checks passed - code is ready for review!"
+        else
+          echo "❌ Some checks failed - please review and fix issues above"
+        fi

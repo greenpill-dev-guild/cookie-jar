@@ -1,0 +1,42 @@
+name: 'Setup Node.js and bun'
+description: 'Setup Node.js, bun, and install dependencies for Cookie Jar project'
+
+inputs:
+  node-version:
+    description: 'Node.js version to use'
+    required: false
+    default: '18'
+  bun-version:
+    description: 'bun version to use'
+    required: false
+    default: '1.0'
+  working-directory:
+    description: 'Working directory to run commands'
+    required: false
+    default: '.'
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ inputs.node-version }}
+    
+    - name: Setup bun
+      uses: oven-sh/setup-bun@v2
+      with:
+        bun-version: ${{ inputs.bun-version }}
+    
+    - name: Install dependencies
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      run: |
+        # Try frozen lockfile first, fallback to regular install in CI
+        if [ "$CI" = "true" ] || [ "$GITHUB_ACTIONS" = "true" ]; then
+          echo "🤖 CI environment detected"
+          bun install --no-frozen-lockfile || bun install
+        else
+          echo "🔒 Using frozen lockfile for local consistency"
+          bun install --frozen-lockfile
+        fi

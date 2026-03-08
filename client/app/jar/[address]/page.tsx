@@ -1,1042 +1,179 @@
-"use client"
-import { useParams, useRouter } from "next/navigation"
-import { useMemo } from "react"
-
-import { useCookieJarConfig } from "@/hooks/use-cookie-jar"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
-import { ShieldAlert, Users, Coins, Copy, ExternalLink, Loader2 } from "lucide-react"
-import { useSendTransaction, useAccount, useChainId, useContractReads } from "wagmi"
-import { parseEther, formatUnits, parseUnits } from "viem"
-import type { ReadContractErrorType } from "viem"
-import { keccak256, toUtf8Bytes } from "ethers"
-import { useState, useEffect, useRef } from "react"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Textarea } from "@/components/ui/textarea"
-import { Label } from "@/components/ui/label"
-import { useWriteCookieJarDepositEth, useWriteCookieJarDepositCurrency, useWriteErc20Approve, useReadCookieJarHasRole } from "@/generated"
-import { useWriteContract } from "wagmi"
-import { cookieJarFactoryAbi } from "@/generated"
-import { contractAddresses } from "@/config/supported-networks"
-import { useWaitForTransactionReceipt } from "wagmi"
-import { AdminFunctions } from "@/components/admin/AdminFunctions"
-import { formatAddress } from "@/lib/utils/format"
-import { getExplorerAddressUrl } from "@/lib/utils/network-utils"
-import DefaultFeeCollector from "@/components/FeeCollector/DefaultFeeCollector"
-import { Button } from "@/components/ui/button"
-import { useToast } from "@/hooks/design/use-toast"
-import { Input } from "@/components/ui/input"
-import { Separator } from "@/components/ui/separator"
-import { WhitelistWithdrawalSection } from "@/components/users/WhitelistWithdrawalSection"
-import { NFTGatedWithdrawalSection } from "@/components/users/NFTGatedWithdrawalSection"
-import { Clock, ArrowUpToLine } from "lucide-react"
-// Import the BackButton component
-import { AllowlistWithdrawalSection } from "@/components/users/AllowlistWithdrawalSection"
-import { useWriteCookieJarWithdrawAllowlistMode, useWriteCookieJarWithdrawNftMode } from "@/generated"
-import { CountdownTimer } from "@/components/users/CountdownTimer"
-import { WithdrawalHistorySection, type Withdrawal } from "@/components/users/WithdrawlHistorySection"
-
-// Import token utilities
-import { ETH_ADDRESS, useTokenInfo, parseTokenAmount, formatTokenAmount } from "@/lib/utils/token-utils"
-import { getNativeCurrency } from '@/config/supported-networks'
-
-// Hash the JAR_OWNER role
-const JAR_OWNER_ROLE = keccak256(toUtf8Bytes("JAR_OWNER")) as `0x${string}`
-
-export default function CookieJarConfigDetails() {
-  const params = useParams()
-  const router = useRouter()
-  const [amount, setAmount] = useState("")
-  const address = params.address as string
-  const { data: hash, sendTransaction } = useSendTransaction()
-  const { address: userAddress } = useAccount()
-  const [tokenAddress, setTokenAddress] = useState("")
-  const { toast } = useToast()
-  const pageRef = useRef<HTMLDivElement>(null)
-  const [withdrawAmount, setWithdrawAmount] = useState<string>("")
-  const [withdrawPurpose, setWithdrawPurpose] = useState<string>("")
-  const [gateAddress, setGateAddress] = useState<string>("")
-  const [tokenId, setTokenId] = useState<string>("")
-  const chainId = useChainId()
-  const nativeCurrency = getNativeCurrency(chainId)
-  
-  // Metadata editing state
-  const [isEditingMetadata, setIsEditingMetadata] = useState(false)
-  const [editName, setEditName] = useState("")
-  const [editImage, setEditImage] = useState("")
-  const [editLink, setEditLink] = useState("")
-  const [editDescription, setEditDescription] = useState("")
-
-  const addressString = address as `0x${string}`
-  const isValidAddress = typeof address === "string" && address.startsWith("0x")
-
-  const { config, isLoading, hasError, errors, refetch } = useCookieJarConfig(
-    isValidAddress ? (address as `0x${string}`) : "0x0000000000000000000000000000000000000000",
-  )
-
-  // Check if current user has the JAR_OWNER role
-  const { data: hasJarOwnerRole } = useReadCookieJarHasRole({
-    address: isValidAddress ? (address as `0x${string}`) : undefined,
-    args: userAddress ? [JAR_OWNER_ROLE, userAddress as `0x${string}`] : undefined,
-  })
-
-  const isAdmin = hasJarOwnerRole === true
-  const showUserFunctions = config?.allowlist === true && config?.accessType === "Allowlist"
-  const showNFTGatedFunctions = config?.accessType === "NFTGated"
-  const isFeeCollector =
-    userAddress && config?.feeCollector && userAddress.toLowerCase() === config.feeCollector.toLowerCase()
-
-  // Parse metadata from config
-  const parseMetadata = (metadataString: string | undefined) => {
-    if (!metadataString) return { name: "Cookie Jar", description: "", image: "", link: "" }
-    
-    try {
-      const parsed = JSON.parse(metadataString)
-      return {
-        name: parsed.name || "Cookie Jar",
-        description: parsed.description || metadataString, // fallback to raw string
-        image: parsed.image || "",
-        link: parsed.link || ""
-      }
-    } catch {
-      // If not JSON, treat as legacy description-only metadata
-      return {
-        name: metadataString || "Cookie Jar",
-        description: "",
-        image: "",
-        link: ""
-      }
-    }
-  }
-
-  const metadata = parseMetadata(config?.metadata)
-
-  // Initialize edit fields when entering edit mode
-  const startEditing = () => {
-    setEditName(metadata.name)
-    setEditImage(metadata.image)
-    setEditLink(metadata.link)
-    setEditDescription(metadata.description)
-    setIsEditingMetadata(true)
-  }
-
-  // Validate metadata edit form
-  const validateMetadataEdit = () => {
-    if (!editName || editName.length < 3) {
-      toast({
-        title: "Validation Error",
-        description: "Jar name must be at least 3 characters long.",
-        variant: "destructive",
-      })
-      return false
-    }
-    
-    if (editImage && !isValidUrl(editImage)) {
-      toast({
-        title: "Validation Error", 
-        description: "Please enter a valid URL for the image.",
-        variant: "destructive",
-      })
-      return false
-    }
-    
-    if (editLink && !isValidUrl(editLink)) {
-      toast({
-        title: "Validation Error",
-        description: "Please enter a valid URL for the external link.",
-        variant: "destructive", 
-      })
-      return false
-    }
-    
-    return true
-  }
-
-  // URL validation helper
-  const isValidUrl = (string: string): boolean => {
-    try {
-      new URL(string)
-      return true
-    } catch {
-      return false
-    }
-  }
-
-  // Handle metadata update
-  const handleMetadataUpdate = () => {
-    if (!validateMetadataEdit()) return
-    
-    if (!factoryAddress) {
-      toast({
-        title: "Error",
-        description: "Factory address not found for this network.",
-        variant: "destructive",
-      })
-      return
-    }
-
-    const updatedMetadata = {
-      name: editName,
-      description: editDescription,
-      image: editImage,
-      link: editLink
-    }
-    const metadataJson = JSON.stringify(updatedMetadata)
-    
-    // Validate metadata size (8KB limit)
-    const metadataSize = new TextEncoder().encode(metadataJson).length
-    if (metadataSize > 8192) {
-      toast({
-        title: "Metadata Too Large",
-        description: `Metadata is too large (${metadataSize} bytes). Maximum allowed size is 8KB (8,192 bytes). Please reduce the length of your jar name, description, or URLs.`,
-        variant: "destructive",
-      })
-      return
-    }
-    
-    updateMetadata({
-      address: factoryAddress,
-      abi: cookieJarFactoryAbi,
-      functionName: 'updateMetadata',
-      args: [addressString, metadataJson],
-    })
-  }
-
-  // Handle metadata update success/error
-  useEffect(() => {
-    if (isMetadataUpdateSuccess) {
-      toast({
-        title: "Jar Info Updated",
-        description: "Your cookie jar details have been saved.",
-      })
-      setIsEditingMetadata(false)
-      // Refetch jar configuration data to show updated metadata
-      setTimeout(() => {
-        refetch()
-      }, 1000)
-    }
-  }, [isMetadataUpdateSuccess, toast, refetch])
-
-  useEffect(() => {
-    if (metadataUpdateError) {
-      toast({
-        title: "Update Failed",
-        description: metadataUpdateError.message || "Failed to update jar information.",
-        variant: "destructive",
-      })
-    }
-  }, [metadataUpdateError, toast])
-
-  const { writeContract: DepositEth } = useWriteCookieJarDepositEth()
-  const { writeContract: DepositCurrency } = useWriteCookieJarDepositCurrency()
-  
-  // Get the factory address for the current chain
-  const factoryAddress = chainId
-    ? contractAddresses.cookieJarFactory[chainId] : undefined
-
-  // Metadata update contract write
-  const {
-    writeContract: updateMetadata,
-    data: updateTxHash,
-    isPending: isUpdatingMetadata,
-    error: metadataUpdateError,
-  } = useWriteContract()
-
-  // Wait for metadata update transaction
-  const {
-    isLoading: isWaitingForUpdate,
-    isSuccess: isMetadataUpdateSuccess,
-  } = useWaitForTransactionReceipt({
-    hash: updateTxHash,
-    query: { enabled: !!updateTxHash },
-  })
-  const {
-    writeContract: Approve,
-    isPending: isApprovalPending,
-    isSuccess: isApprovalSuccess,
-    isError: isApprovalError,
-  } = useWriteErc20Approve()
-
-  const [approvalCompleted, setApprovalCompleted] = useState(false)
-  const [pendingDepositAmount, setPendingDepositAmount] = useState<bigint>(BigInt(0))
-
-  const {
-    writeContract: withdrawAllowlistMode,
-    data: withdrawAllowlistModeData,
-    error: withdrawAllowlistModeError,
-    isSuccess: isWithdrawAllowlistSuccess,
-    isPending: isWithdrawAllowlistPending,
-  } = useWriteCookieJarWithdrawAllowlistMode()
-
-  const {
-    writeContract: withdrawNFTMode,
-    data: withdrawNFTModeData,
-    error: withdrawNFTModeError,
-    isSuccess: isWithdrawNFTSuccess,
-    isPending: isWithdrawNFTPending,
-  } = useWriteCookieJarWithdrawNftMode()
-
-  // Check if user is in cooldown period
-  const isInCooldown = useMemo(() => {
-    if (!config.lastWithdrawalAllowlist || !config.withdrawalInterval) return false
-
-    const now = Math.floor(Date.now() / 1000)
-    const nextWithdrawalTime = Number(config.lastWithdrawalAllowlist) + Number(config.withdrawalInterval)
-    return nextWithdrawalTime > now
-  }, [config.lastWithdrawalAllowlist, config.withdrawalInterval])
-
-  // Update the network name in the jar address page as well
-  const getNetworkInfo = () => {
-    if (!chainId) return { name: "Disconnected", color: "bg-gray-500" }
-
-    switch (chainId) {
-      case 84532: // Base Sepolia
-        return { name: "Base Sepolia", color: "bg-[#ff5e14]" }
-      case 8453: // Base Mainnet
-        return { name: "Base", color: "bg-blue-500" }
-      case 10: // Optimism
-        return { name: "Optimism", color: "bg-red-500" }
-      case 100: // Gnosis
-        return { name: "Gnosis", color: "bg-green-500" }
-      case 42161: // Arbitrum
-        return { name: "Arbitrum", color: "bg-blue-700" }
-      default:
-        return { name: "Unknown", color: "bg-gray-500" }
-    }
-  }
-
-  // Prevent unnecessary re-renders when switching tabs
-  useEffect(() => {
-    // This flag helps us track if we're switching tabs
-    let isTabActive = true
-
-    const handleVisibilityChange = () => {
-      // When the tab becomes visible again, we don't want to trigger a refresh
-      if (document.visibilityState === "visible" && !isTabActive) {
-        isTabActive = true
-        // Prevent any refresh actions here
-      } else if (document.visibilityState === "hidden") {
-        isTabActive = false
-      }
-    }
-
-    // Add the event listener
-    document.addEventListener("visibilitychange", handleVisibilityChange)
-
-    // Clean up
-    return () => {
-      document.removeEventListener("visibilitychange", handleVisibilityChange)
-    }
-  }, [])
-
-  // Use token utilities hook to get token information
-  const isERC20 = config?.currency && config.currency !== ETH_ADDRESS
-  const { symbol: tokenSymbol, decimals: tokenDecimals } = useTokenInfo(
-    isERC20 && config?.currency ? (config.currency) : ETH_ADDRESS
-  )
-
-  useEffect(() => {
-    if (isApprovalSuccess && approvalCompleted) {
-      DepositCurrency({
-        address: addressString as `0x${string}`,
-        args: [pendingDepositAmount],
-      })
-      setApprovalCompleted(false)
-      setPendingDepositAmount(BigInt(0))
-    }
-  }, [isApprovalSuccess, approvalCompleted, DepositCurrency, addressString, pendingDepositAmount])
-
-  const onSubmit = (value: string) => {
-    // Parse amount considering the token decimals
-    const amountBigInt = parseTokenAmount(value || "0", tokenDecimals)
-
-    if (config.currency === ETH_ADDRESS) {
-      DepositEth({
-        address: addressString as `0x${string}`,
-        value: amountBigInt,
-      })
-    } else {
-      setApprovalCompleted(true)
-      setPendingDepositAmount(amountBigInt)
-      try {
-        Approve({
-          address: config.currency as `0x${string}`,
-          args: [addressString as `0x${string}`, amountBigInt],
-        })
-      } catch (error) {
-        console.error("Approve error:", error)
-      }
-    }
-  }
-
-  const copyToClipboard = (text: string) => {
-    navigator.clipboard.writeText(text)
-    toast({
-      title: "Address copied",
-      description: "The address has been copied to your clipboard",
-    })
-  }
-
-  const handleWithdrawAllowlist = () => {
-    if (!config.contractAddress || !config.fixedAmount) return
-
-    withdrawAllowlistMode({
-      address: config.contractAddress,
-      args: [config.fixedAmount, withdrawPurpose],
-    })
-  }
-
-  const handleWithdrawAllowlistVariable = () => {
-    if (!config.contractAddress || !withdrawAmount) return
-
-    // Parse amount considering the token decimals
-    const parsedAmount = config.currency === ETH_ADDRESS
-      ? parseEther(withdrawAmount)
-      : parseTokenAmount(withdrawAmount, tokenDecimals)
-
-    withdrawAllowlistMode({
-      address: config.contractAddress,
-      args: [parsedAmount, withdrawPurpose],
-    })
-  }
-
-  const handleWithdrawNFT = () => {
-    if (!config.contractAddress || !config.fixedAmount || !gateAddress) return
-
-    withdrawNFTMode({
-      address: config.contractAddress,
-      args: [config.fixedAmount, withdrawPurpose, gateAddress as `0x${string}`, BigInt(tokenId || "0")],
-    })
-  }
-
-  const handleWithdrawNFTVariable = () => {
-    if (!config.contractAddress || !withdrawAmount || !gateAddress) return
-
-    // Parse amount considering the token decimals
-    const parsedAmount = config.currency === ETH_ADDRESS
-      ? parseEther(withdrawAmount)
-      : parseTokenAmount(withdrawAmount, tokenDecimals)
-
-    withdrawNFTMode({
-      address: config.contractAddress,
-      args: [parsedAmount, withdrawPurpose, gateAddress as `0x${string}`, BigInt(tokenId || "0")],
-    })
-  }
-
-  // Add success and error handling effects
-  useEffect(() => {
-    if (isWithdrawAllowlistSuccess || isWithdrawNFTSuccess) {
-      toast({
-        title: "Withdrawal Successful",
-        description: "Your withdrawal has been processed successfully.",
-      })
-      // Reset form fields
-      setWithdrawAmount("")
-      setWithdrawPurpose("")
-      setGateAddress("")
-      setTokenId("")
-    }
-  }, [isWithdrawAllowlistSuccess, isWithdrawNFTSuccess, toast])
-
-  useEffect(() => {
-    if (withdrawAllowlistModeError || withdrawNFTModeError) {
-      toast({
-        title: "Withdrawal Failed",
-        description:
-          (withdrawAllowlistModeError || withdrawNFTModeError)?.message || "An error occurred during withdrawal",
-        variant: "destructive",
-      })
-    }
-  }, [withdrawAllowlistModeError, withdrawNFTModeError, toast])
-
-  if (!isValidAddress) {
-    return (
-      <div className="container max-w-3xl mx-auto mt-8 p-6 bg-red-50 border border-red-200 rounded-lg">
-        <h2 className="text-xl font-bold text-red-700 mb-4">Invalid Address</h2>
-        <p className="text-red-600">No valid address was provided. Please check the URL and try again.</p>
-      </div>
-    )
-  }
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center min-h-screen">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#ff5e14]"></div>
-      </div>
-    )
-  }
-
-  if (hasError) {
-    return (
-      <div className="container max-w-3xl mx-auto mt-8 p-6 bg-red-50 border border-red-200 rounded-lg">
-        <h2 className="text-xl font-bold text-red-700 mb-4">Error Loading Configuration</h2>
-        <ul className="list-disc pl-5 text-red-600">
-          {errors
-            .filter((error): error is ReadContractErrorType => error !== null)
-            .map((error, index) => (
-              <li key={index}>{error.message || "Unknown error"}</li>
-            ))}
-        </ul>
-      </div>
-    )
-  }
-
-  // Format balance for display using the token decimals
-  const formattedBalance = () => {
-    if (!config.balance) return "0"
-
-    return formatTokenAmount(config.balance, tokenDecimals, tokenSymbol || nativeCurrency.symbol)
-  }
-
-  return (
-    <div className="container max-w-full px-4 md:px-8 py-8 bg-[#2b1d0e]" ref={pageRef}>
-      {/* Back button navigation */}
-      <div className="mb-6 relative">
-        <BackButton />
-      </div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-20 gap-6">
-        {/* Left sidebar with jar details */}
-        <div className="lg:col-span-11">
-          <div>
-            <Card className="shadow-lg bg-white border-none overflow-hidden">
-              <CardContent className="p-4">
-                <div className="space-y-4">
-                  {/* Jar Title and Description */}
-                  <div>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        {metadata.image && (
-                          <img 
-                            src={metadata.image} 
-                            alt={metadata.name}
-                            className="w-16 h-16 rounded-lg object-cover mb-3"
-                            onError={(e) => {
-                              (e.target as HTMLImageElement).style.display = 'none'
-                            }}
-                          />
-                        )}
-                        <div className="flex items-center gap-2">
-                          <h1 className="text-3xl font-bold text-[#1a1a1a]">{metadata.name}</h1>
-                          {metadata.link && (
-                            <a 
-                              href={metadata.link} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                              className="text-blue-600 hover:text-blue-800"
-                            >
-                              <ExternalLink className="w-5 h-5" />
-                            </a>
-                          )}
-                        </div>
-                        {metadata.description && (
-                          <p className="text-[#4a3520] mt-1">{metadata.description}</p>
-                        )}
-                        {!metadata.description && (
-                          <p className="text-[#4a3520] mt-1">Shared Token Pool</p>
-                        )}
-                      </div>
-                      {isAdmin && (
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={startEditing}
-                          className="ml-4 border-[#ff5e14] text-[#ff5e14] hover:bg-[#fff0e0]"
-                        >
-                          Edit Info
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-
-                  <Separator className="my-2" />
-
-                  {/* Jar Details - Key Value Pairs */}
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-[#4a3520] font-medium">Contract Address</span>
-                      <div className="flex items-center">
-                        <span className="text-[#1a1a1a] font-medium mr-2">{formatAddress(addressString)}</span>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          onClick={() => copyToClipboard(addressString)}
-                          className="h-7 w-7 text-[#ff5e14] hover:text-[#ff5e14] hover:bg-[#fff0e0]"
-                        >
-                          <Copy className="h-4 w-4" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-7 w-7 text-[#ff5e14] hover:text-[#ff5e14] hover:bg-[#fff0e0]"
-                          asChild
-                        >
-                          <a
-                            href={getExplorerAddressUrl(addressString, chainId)}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            <ExternalLink className="h-4 w-4" />
-                          </a>
-                        </Button>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-[#4a3520] font-medium">Access Type</span>
-                      <div className="flex items-center">
-                        <Users className="h-4 w-4 text-[#ff5e14] mr-2" />
-                        <span className="text-[#1a1a1a] font-medium">{config.accessType}</span>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-[#4a3520] font-medium">Cooldown Period</span>
-                      <div className="flex items-center">
-                        <Clock className="h-4 w-4 text-[#ff5e14] mr-2" />
-                        <span className="text-[#1a1a1a] font-medium">
-                          {config.withdrawalInterval
-                            ? (() => {
-                              // Import these at the top of the file (around line 15-20)
-                              const { formatTimeComponents, formatTimeString } = require("@/lib/utils/time-utils")
-                              const seconds = Number(config.withdrawalInterval)
-                              const { days, hours, minutes, seconds: secs } = formatTimeComponents(seconds)
-                              return formatTimeString(days, hours, minutes, secs)
-                            })()
-                            : "N/A"}
-                        </span>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-[#4a3520] font-medium">
-                        {config.withdrawalOption === "Fixed" ? "Fixed Amount" : "Max Withdrawal"}
-                      </span>
-                      <div className="flex items-center">
-                        <ArrowUpToLine className="h-4 w-4 text-[#ff5e14] mr-2" />
-                        <span className="text-[#1a1a1a] font-medium">
-                          {config.withdrawalOption === "Fixed"
-                            ? (config.fixedAmount
-                              ? config.currency === "0x0000000000000000000000000000000000000003"
-                                ? Number(formatUnits(config.fixedAmount, 18)).toFixed(4) + " " + nativeCurrency.symbol
-                                : Number(formatUnits(config.fixedAmount, tokenDecimals)).toFixed(4) + " " + tokenSymbol
-                              : "N/A")
-                            : (config.maxWithdrawal
-                              ? config.currency === "0x0000000000000000000000000000000000000003"
-                                ? Number(formatUnits(config.maxWithdrawal, 18)).toFixed(4) + " " + nativeCurrency.symbol
-                                : Number(formatUnits(config.maxWithdrawal, tokenDecimals)).toFixed(4) + " " + tokenSymbol
-                              : "N/A")
-                          }
-                        </span>
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-[#4a3520] font-medium">Current Balance</span>
-                      <span className="text-[#ff5e14] font-bold text-xl">{formattedBalance()}</span>
-                    </div>
-
-                    <Separator />
-
-                    {/* Add Allowlist Status indicator */}
-                    <div className="flex justify-between items-center py-2">
-                      <span className="text-[#4a3520] font-medium">Your Status</span>
-                      <div className="flex items-center">
-                        {config.blacklist ? (
-                          <span className="font-medium px-3 py-1 rounded-full text-white bg-red-500">Blacklisted</span>
-                        ) : (
-                          <span
-                            className={`font-medium px-3 py-1 rounded-full text-white ${config.whitelist ? "bg-green-500" : "bg-red-500"}`}
-                          >
-                            {config.whitelist ? "Allowlisted" : "Not Allowlisted"}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    <Separator />
-
-                    {/* Feature boxes */}
-                    <div className="grid grid-cols-3 gap-2 mt-3">
-                      <div className="bg-[#f8f8f8] p-2 rounded-lg text-center">
-                        <p className="text-[#4a3520] text-sm mb-1">Purpose Required</p>
-                        <p className="font-semibold text-[#1a1a1a]">{config.strictPurpose ? "Yes" : "No"}</p>
-                      </div>
-
-                      <div className="bg-[#f8f8f8] p-2 rounded-lg text-center">
-                        <p className="text-[#4a3520] text-sm mb-1">Fixed Amount</p>
-                        <p className="font-semibold text-[#1a1a1a]">
-                          {config.withdrawalOption === "Fixed" ? "Yes" : "No"}
-                          {config.withdrawalOption === "Fixed" && config.fixedAmount && (
-                            <span className="block text-xs text-[#ff5e14]">
-                              {config.currency === "0x0000000000000000000000000000000000000003"
-                                ? Number(formatUnits(config.fixedAmount || BigInt(0), 18)).toFixed(4) + " " + nativeCurrency.symbol
-                                : Number(formatUnits(config.fixedAmount || BigInt(0), tokenDecimals)).toFixed(4) + " " + tokenSymbol}
-                            </span>
-                          )}
-                        </p>
-                      </div>
-
-                      <div className="bg-[#f8f8f8] p-2 rounded-lg text-center">
-                        <p className="text-[#4a3520] text-sm mb-1">Emergency Withdrawal</p>
-                        <p className="font-semibold text-[#1a1a1a]">
-                          {config.emergencyWithdrawalEnabled ? "Enabled" : "Disabled"}
-                        </p>
-                      </div>
-                    </div>
-
-                    {/* User Status */}
-                    {(showUserFunctions || isAdmin || isFeeCollector) && (
-                      <div className="mt-6">
-                        <h3 className="text-base font-semibold text-[#3c2a14] mb-2">Your Status</h3>
-                        <div className="flex flex-wrap gap-2">
-                          {config.blacklist ? (
-                            <Badge
-                              variant="outline"
-                              className="flex items-center gap-1 bg-[#ffebee] text-[#c62828] border-[#c62828] px-3 py-1"
-                            >
-                              <ShieldAlert className="h-3 w-3 mr-1" />
-                              Blacklisted
-                            </Badge>
-                          ) : (
-                            showUserFunctions && (
-                              <Badge
-                                variant="outline"
-                                className="flex items-center gap-1 bg-[#e6f7e6] text-[#2e7d32] border-[#2e7d32] px-3 py-1"
-                              >
-                                <Users className="h-3 w-3 mr-1" />
-                                Allowlisted
-                              </Badge>
-                            )
-                          )}
-                          {isFeeCollector && (
-                            <Badge
-                              variant="outline"
-                              className="flex items-center gap-1 bg-[#e3f2fd] text-[#1976d2] border-[#1976d2] px-3 py-1"
-                            >
-                              <Coins className="h-3 w-3 mr-1" />
-                              Fee Collector
-                            </Badge>
-                          )}
-                          {isAdmin && (
-                            <Badge
-                              variant="outline"
-                              className="flex items-center gap-1 bg-[#fce4ec] text-[#c2185b] border-[#c2185b] px-3 py-1"
-                            >
-                              <ShieldAlert className="h-3 w-3 mr-1" />
-                              Admin
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-
-        {/* Right side - Jar Actions */}
-        <div className="lg:col-span-9">
-          <Tabs defaultValue={isAdmin ? "admin" : "withdraw"} className="w-full">
-            <TabsList className="mb-6 bg-[#fff8f0] p-1 w-full">
-              {isAdmin && (
-                <TabsTrigger
-                  value="admin"
-                  className="data-[state=active]:bg-white data-[state=active]:text-[#ff5e14] data-[state=active]:shadow-sm text-[#4a3520] flex-1"
-                >
-                  Admin Controls
-                </TabsTrigger>
-              )}
-              <TabsTrigger
-                value="withdraw"
-                className="data-[state=active]:bg-white data-[state=active]:text-[#ff5e14] data-[state=active]:shadow-sm text-[#4a3520] flex-1"
-              >
-                Get Cookie
-              </TabsTrigger>
-              <TabsTrigger
-                value="deposit"
-                className="data-[state=active]:bg-white data-[state=active]:text-[#ff5e14] data-[state=active]:shadow-sm text-[#4a3520] flex-1"
-              >
-                Jar Deposit
-              </TabsTrigger>
-
-              {isFeeCollector && (
-                <TabsTrigger
-                  value="feeCollector"
-                  className="data-[state=active]:bg-white data-[state=active]:text-[#ff5e14] data-[state=active]:shadow-sm text-[#4a3520] flex-1"
-                >
-                  Fee Collector
-                </TabsTrigger>
-              )}
-            </TabsList>
-
-            {/* Deposit Tab */}
-            <TabsContent value="deposit" className="mt-0">
-              <Card className="border-none shadow-md">
-                <CardHeader className="bg-[#fff8f0] rounded-t-lg">
-                  <CardTitle className="text-xl text-[#3c2a14]">Jar Deposit</CardTitle>
-                  <CardDescription className="text-[#8b7355]">
-                    All jar deposits are subject to a 1% fee
-                  </CardDescription>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <div className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="md:col-span-2">
-                        <label htmlFor="fundAmount" className="block text-[#ff5e14] font-medium mb-2">
-                          Amount to Deposit
-                        </label>
-                        <div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-3 rounded">
-                          <div className="flex items-center">
-                            <svg className="h-5 w-5 text-yellow-600 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                              <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
-                            </svg>
-                            <p className="text-sm text-yellow-700">
-                              Only deposits made through this interface are recognized.<br />
-                              Do not send funds directly to the smart contract.
-                            </p>
-                          </div>
-                        </div>
-                        <Input
-                          id="fundAmount"
-                          type="text"
-                          placeholder={
-                            config.currency === "0x0000000000000000000000000000000000000003"
-                              ? `0.1 ${nativeCurrency.symbol}`
-                              : `1${"." + "0".repeat(tokenDecimals > 0 ? 0 : tokenDecimals)} ${tokenSymbol || "Tokens"}`
-                          }
-                          value={amount}
-                          onChange={(e) => setAmount(e.target.value)}
-                          className="border-[#f0e6d8] bg-white text-[#3c2a14]"
-                        />
-                      </div>
-                      <div className="flex items-end">
-                        <Button
-                          onClick={() => onSubmit(amount)}
-                          className="w-full bg-[#ff5e14] hover:bg-[#e54d00] text-white h-10"
-                          disabled={!amount || Number(amount) <= 0}
-                        >
-                          Deposit Now
-                        </Button>
-                      </div>
-                    </div>
-
-                    {config.currency !== "0x0000000000000000000000000000000000000003" && (
-                      <div className="pt-2">
-                        <p className="text-sm text-[#8b7355]">
-                          Note: For ERC20 tokens, you'll need to approve the token transfer before depositing.
-                        </p>
-                      </div>
-                    )}
-
-                    {isApprovalPending && (
-                      <div className="mt-4 p-3 bg-[#fff8f0] rounded-lg text-[#4a3520]">
-                        Waiting for token approval... Please confirm the transaction in your wallet.
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Withdraw Tab */}
-            <TabsContent value="withdraw" className="mt-0">
-              <Card className="border-none shadow-md">
-                <CardHeader className="bg-[#fff8f0] rounded-t-lg">
-                  <CardTitle className="text-xl text-[#3c2a14]">Get Cookie</CardTitle>
-                  <CardDescription className="text-[#8b7355]">Receive cookies from this jar</CardDescription>
-                </CardHeader>
-                <CardContent className="p-8 relative min-h-[400px]">
-                  {config.blacklist ? (
-                    <div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-10 rounded-b-lg">
-                      <div className="bg-red-500 text-white font-medium px-6 py-2 rounded-full text-lg">
-                        You are Blacklisted
-                      </div>
-                    </div>
-                  ) : isInCooldown ? (
-                    <div className="absolute inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-10 rounded-b-lg">
-                      <div className="w-full max-w-xl mx-auto bg-[#f8f5f0]/90 rounded-xl shadow-lg">
-                        <CountdownTimer
-                          lastWithdrawalTimestamp={Number(config.lastWithdrawalAllowlist)}
-                          interval={Number(config.withdrawalInterval)}
-                          onComplete={() => {
-                            // Refetch jar data when timer completes to update withdrawal availability
-                            refetch()
-                          }}
-                        />
-                      </div>
-                    </div>
-                  ) : null}
-
-                  {showUserFunctions ? (
-                    <AllowlistWithdrawalSection
-                      config={{
-                        ...config,
-                        isWithdrawPending: isWithdrawAllowlistPending,
-                      }}
-                      withdrawPurpose={withdrawPurpose}
-                      setWithdrawPurpose={setWithdrawPurpose}
-                      withdrawAmount={withdrawAmount}
-                      setWithdrawAmount={setWithdrawAmount}
-                      handleWithdrawAllowlist={handleWithdrawAllowlist}
-                      handleWithdrawAllowlistVariable={handleWithdrawAllowlistVariable}
-                    />
-                  ) : showNFTGatedFunctions ? (
-                    <NFTGatedWithdrawalSection
-                      config={{
-                        ...config,
-                        isWithdrawPending: isWithdrawNFTPending,
-                      }}
-                      withdrawAmount={withdrawAmount}
-                      setWithdrawAmount={setWithdrawAmount}
-                      gateAddress={gateAddress}
-                      setGateAddress={setGateAddress}
-                      tokenId={tokenId}
-                      setTokenId={setTokenId}
-                      handleWithdrawNFT={handleWithdrawNFT}
-                      handleWithdrawNFTVariable={handleWithdrawNFTVariable}
-                    />
-                  ) : (
-                    <div className="flex flex-col items-center justify-center py-16">
-                      <div className="bg-red-500 text-white font-medium px-6 py-2 rounded-full text-lg">
-                        Not Allowlisted
-                      </div>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            </TabsContent>
-
-            {/* Admin Tab */}
-            {isAdmin && (
-              <TabsContent value="admin" className="mt-0">
-                <Card className="border-none shadow-md">
-                  <CardHeader className="bg-[#fff8f0] rounded-t-lg">
-                    <CardTitle className="text-xl text-[#3c2a14]">Admin Controls</CardTitle>
-                    <CardDescription className="text-[#8b7355]">
-                      Manage jar settings and access controls
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-6">
-                    <AdminFunctions address={address as `0x${string}`} />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            )}
-
-            {/* Fee Collector Tab */}
-            {isFeeCollector && (
-              <TabsContent value="feeCollector" className="mt-0">
-                <Card className="border-none shadow-md">
-                  <CardHeader className="bg-[#fff8f0] rounded-t-lg">
-                    <CardTitle className="text-xl text-[#3c2a14]">Fee Collector Settings</CardTitle>
-                    <CardDescription className="text-[#8b7355]">Manage fee collection settings</CardDescription>
-                  </CardHeader>
-                  <CardContent className="p-6">
-                    <DefaultFeeCollector contractAddress={address as `0x${string}`} />
-                  </CardContent>
-                </Card>
-              </TabsContent>
-            )}
-          </Tabs>
-        </div>
-      </div>
-
-      {/* Withdrawal History Section */}
-      <div className="mt-8">
-        <Card className="border-none shadow-md">
-          <CardHeader className="bg-[#fff8f0] rounded-t-lg">
-            <CardTitle className="text-xl text-[#3c2a14]">Withdrawal History</CardTitle>
-            <CardDescription className="text-[#8b7355]">Past withdrawals from this cookie jar</CardDescription>
-          </CardHeader>
-          <CardContent className="p-6">
-            <WithdrawalHistorySection
-              pastWithdrawals={config.pastWithdrawals ? ([...config.pastWithdrawals] as Withdrawal[]) : undefined}
-              tokenAddress={isERC20 && config?.currency ? (config.currency) : ETH_ADDRESS}
-            />
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Metadata Editing Modal */}
-      {isEditingMetadata && (
-        <Dialog open={isEditingMetadata} onOpenChange={setIsEditingMetadata}>
-          <DialogContent className="sm:max-w-md">
-            <DialogHeader>
-              <DialogTitle>Edit Jar Information</DialogTitle>
-              <DialogDescription>
-                Update the name, image, link, and description for your cookie jar.
-              </DialogDescription>
-            </DialogHeader>
-            <div className="grid gap-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="edit-name">Jar Name</Label>
-                <Input
-                  id="edit-name"
-                  value={editName}
-                  onChange={(e) => setEditName(e.target.value)}
-                  placeholder="My Cookie Jar"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-image">Image URL (Optional)</Label>
-                <Input
-                  id="edit-image"
-                  value={editImage}
-                  onChange={(e) => setEditImage(e.target.value)}
-                  placeholder="https://example.com/image.png"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-link">External Link (Optional)</Label>
-                <Input
-                  id="edit-link"
-                  value={editLink}
-                  onChange={(e) => setEditLink(e.target.value)}
-                  placeholder="https://yourwebsite.com"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="edit-description">Description (Optional)</Label>
-                <Textarea
-                  id="edit-description"
-                  value={editDescription}
-                  onChange={(e) => setEditDescription(e.target.value)}
-                  placeholder="Additional information about your jar"
-                  className="min-h-20"
-                />
-              </div>
-            </div>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setIsEditingMetadata(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                onClick={handleMetadataUpdate}
-                disabled={isUpdatingMetadata}
-                className="bg-[#ff5e14] hover:bg-[#e54d00] text-white"
-              >
-                {isUpdatingMetadata && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isUpdatingMetadata ? "Saving..." : "Save Changes"}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
-      )}
-    </div>
-  )
+"use client";
+
+import { useParams } from "next/navigation";
+import { useRef } from "react";
+import { useChainId } from "wagmi";
+import { ProtocolErrorBoundary } from "@/components/app/ProtocolErrorBoundary";
+import { JarActionsTabs } from "@/components/jar/JarActionsTabs";
+// Components
+import { JarDetailsCard } from "@/components/jar/JarDetailsCard";
+import { JarMetadataEditor } from "@/components/jar/JarMetadataEditor";
+import {
+	type Withdrawal,
+	WithdrawalHistorySection,
+} from "@/components/jar/WithdrawlHistorySection";
+import {
+	Card,
+	CardContent,
+	CardDescription,
+	CardHeader,
+	CardTitle,
+} from "@/components/ui/card";
+import { useNavigateToTop } from "@/hooks/app/useNavigateToTop";
+import { useToast } from "@/hooks/app/useToast";
+// Hooks
+import { useCookieJarConfig } from "@/hooks/jar/useJar";
+import { useJarMetadata } from "@/hooks/jar/useJarMetadata";
+import { useJarPermissions } from "@/hooks/jar/useJarPermissions";
+import { useJarTransactions } from "@/hooks/jar/useJarTransactions";
+
+// Utils
+import { ETH_ADDRESS } from "@/lib/blockchain/token-utils";
+
+export default function CookieJarPage() {
+	const params = useParams();
+	const { toast } = useToast();
+	const { scrollToTop } = useNavigateToTop();
+	const chainId = useChainId();
+	const pageRef = useRef<HTMLDivElement>(null);
+
+	const address = params.address as string;
+	const addressString = address as `0x${string}`;
+
+	const isValidAddress =
+		typeof address === "string" && address.startsWith("0x");
+
+	// Core jar configuration
+	const { config, isLoading, hasError, errors, refetch } = useCookieJarConfig(
+		isValidAddress
+			? addressString
+			: "0x0000000000000000000000000000000000000000",
+	);
+
+	// Extract hooks
+	const permissions = useJarPermissions(
+		isValidAddress ? addressString : undefined,
+		config,
+	);
+
+	const metadata = useJarMetadata(config);
+
+	const transactions = useJarTransactions(config, addressString);
+
+	// Handle invalid address
+	if (!isValidAddress) {
+		return (
+			<div className="container max-w-3xl mx-auto mt-8 p-6 bg-red-50 border border-red-200 rounded-lg">
+				<h2 className="text-xl font-bold text-red-700 mb-4">Invalid Address</h2>
+				<p className="text-red-600">
+					No valid address was provided. Please check the URL and try again.
+				</p>
+			</div>
+		);
+	}
+
+	// Handle loading state
+	if (isLoading) {
+		return (
+			<div className="flex justify-center items-center min-h-screen">
+				<div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#ff5e14]"></div>
+			</div>
+		);
+	}
+
+	// Handle error state
+	if (hasError || !config) {
+		return (
+			<div className="container max-w-3xl mx-auto mt-8 p-6 bg-red-50 border border-red-200 rounded-lg">
+				<h2 className="text-xl font-bold text-red-700 mb-4">
+					Error Loading Configuration
+				</h2>
+				{errors && (
+					<ul className="list-disc pl-5 text-red-600">
+						{errors
+							.filter((error): error is any => error !== null)
+							.map((error: any, index) => (
+								<li key={index}>{error.message || "Unknown error"}</li>
+							))}
+					</ul>
+				)}
+			</div>
+		);
+	}
+
+	const isERC20 = config.currency && config.currency !== ETH_ADDRESS;
+
+	return (
+		<ProtocolErrorBoundary protocolName="Cookie Jar" maxRetries={2}>
+			<div className="container max-w-full px-4 md:px-8 py-8" ref={pageRef}>
+				<div className="grid grid-cols-1 lg:grid-cols-20 gap-6">
+					{/* Left sidebar with jar details */}
+					<div className="lg:col-span-11">
+						<JarDetailsCard
+							addressString={addressString}
+							chainId={chainId}
+							metadata={metadata.metadata}
+							config={config}
+							permissions={permissions}
+							tokenSymbol={transactions.tokenSymbol}
+							tokenDecimals={transactions.tokenDecimals}
+							onEditClick={metadata.startEditing}
+							toast={toast}
+						/>
+					</div>
+
+					{/* Right side - Jar Actions */}
+					<div className="lg:col-span-9">
+						<JarActionsTabs
+							jarAddress={addressString}
+							permissions={permissions}
+							onTabChange={scrollToTop}
+						/>
+					</div>
+				</div>
+
+				{/* Withdrawal History Section */}
+				<div className="mt-8">
+					<Card className="border-none shadow-md">
+						<CardHeader className="bg-[#fff8f0] rounded-t-lg">
+							<CardTitle className="text-xl text-[#3c2a14]">
+								Withdrawal History
+							</CardTitle>
+							<CardDescription className="text-[#8b7355]">
+								Past withdrawals from this cookie jar
+							</CardDescription>
+						</CardHeader>
+						<CardContent className="p-6">
+							<WithdrawalHistorySection
+								pastWithdrawals={
+									config.pastWithdrawals
+										? ([...config.pastWithdrawals] as Withdrawal[])
+										: undefined
+								}
+								tokenAddress={
+									isERC20 && config.currency ? config.currency : ETH_ADDRESS
+								}
+							/>
+						</CardContent>
+					</Card>
+				</div>
+
+				{/* Metadata Editing Modal */}
+				<JarMetadataEditor
+					isEditingMetadata={metadata.isEditingMetadata}
+					setIsEditingMetadata={metadata.setIsEditingMetadata}
+					editName={metadata.editName}
+					setEditName={metadata.setEditName}
+					editImage={metadata.editImage}
+					setEditImage={metadata.setEditImage}
+					editLink={metadata.editLink}
+					setEditLink={metadata.setEditLink}
+					editDescription={metadata.editDescription}
+					setEditDescription={metadata.setEditDescription}
+					onSave={() => metadata.handleMetadataUpdate(addressString, refetch)}
+					isUpdatingMetadata={metadata.isUpdatingMetadata}
+				/>
+			</div>
+		</ProtocolErrorBoundary>
+	);
 }

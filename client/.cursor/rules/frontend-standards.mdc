@@ -1,0 +1,417 @@
+---
+description: Frontend development standards for Next.js, React, and Web3 integration
+globs:
+  - "**/*.tsx"
+  - "**/*.ts"
+alwaysApply: true
+---
+
+# Frontend Standards
+
+## Next.js App Router Patterns
+
+### File Structure
+```
+app/
+├── (routes)/           # Route groups
+│   ├── create/
+│   ├── jar/[address]/
+│   └── jars/
+├── layout.tsx          # Root layout
+└── page.tsx            # Root page
+
+components/
+├── ui/                 # shadcn/ui primitives
+├── create/             # Feature-specific
+├── jar/
+└── nft/
+
+hooks/
+├── app/                # App-level hooks
+├── jar/                # Feature hooks
+└── nft/
+```
+
+### Component Patterns
+```typescript
+// ✅ GOOD - Functional component with explicit types
+interface JarCardProps {
+  address: `0x${string}`
+  name: string
+  balance: bigint
+}
+
+export function JarCard({ address, name, balance }: JarCardProps) {
+  const { data, isLoading, error } = useJarData({ address })
+  
+  if (isLoading) return <Skeleton className="h-32" />
+  if (error) return <ErrorCard error={error} />
+  
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>{name}</CardTitle>
+      </CardHeader>
+      <CardContent>{formatEther(balance)} ETH</CardContent>
+    </Card>
+  )
+}
+
+// ❌ BAD - Class component, any types
+export class JarCard extends React.Component<any> {
+  render() {
+    return <div>{this.props.data}</div>
+  }
+}
+```
+
+## Logging Standards
+
+### Use Logger System (Never console.log)
+```typescript
+import { log } from '@/lib/app/logger'
+
+// ✅ GOOD - Structured logging with context
+log.info('User action', { userId, action: 'deposit' })
+log.error('Transaction failed', { error, txHash })
+log.warn('Rate limit approaching', { remaining, limit })
+log.debug('Cache hit', { key, ttl })
+log.dev('Development-only debug info', { state })
+
+// ❌ BAD - Direct console usage
+console.log('User action')
+console.error('Transaction failed', error)
+console.warn('Warning')
+```
+
+### Logger Benefits
+- Structured data for debugging
+- Log levels (debug, info, warn, error, dev)
+- Production filtering (no debug/dev logs)
+- Easy integration with monitoring tools
+- Consistent format across codebase
+
+### Logger Levels
+- `debug`: Detailed debugging info (filtered in production)
+- `info`: General informational messages
+- `warn`: Warning conditions that need attention
+- `error`: Error conditions that need immediate attention
+- `dev`: Development-only messages (completely stripped in production)
+
+## State Management
+
+### Use TanStack Query for Async State
+```typescript
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+
+// Read contract data
+const { data } = useQuery({
+  queryKey: ['jar', address, chainId],
+  queryFn: () => fetchJarData(address),
+  staleTime: 12_000, // 1 block
+  refetchOnWindowFocus: true
+})
+
+// Write operations
+const queryClient = useQueryClient()
+const { mutate } = useMutation({
+  mutationFn: depositFunds,
+  onSuccess: () => {
+    queryClient.invalidateQueries({ queryKey: ['jar', address] })
+  }
+})
+```
+
+### Local State with React Hooks
+```typescript
+// ✅ GOOD - Proper hooks usage
+const [amount, setAmount] = useState('')
+const parsedAmount = useMemo(() => parseEther(amount || '0'), [amount])
+
+const handleDeposit = useCallback(async () => {
+  await deposit({ amount: parsedAmount })
+}, [parsedAmount, deposit])
+
+// ❌ BAD - Missing dependencies, recreating on every render
+const handleDeposit = () => {
+  const parsed = parseEther(amount)
+  deposit(parsed)
+}
+```
+
+## Styling Standards
+
+### Tailwind CSS Patterns
+```tsx
+// ✅ GOOD - Utility-first with responsive design
+<Button className="w-full md:w-auto px-6 py-3 bg-orange-500 hover:bg-orange-600 transition-colors">
+  Deposit
+</Button>
+
+// Use cn() for conditional classes
+<div className={cn(
+  "rounded-lg border p-4",
+  isActive && "bg-orange-50 border-orange-500",
+  isDisabled && "opacity-50 cursor-not-allowed"
+)}>
+
+// ❌ BAD - Inline styles, no responsiveness
+<button style={{ backgroundColor: 'orange', padding: '12px' }}>
+  Deposit
+</button>
+```
+
+### Mobile-First Design
+```tsx
+// Always design for mobile first, then scale up
+<div className="
+  flex flex-col gap-4        /* Mobile: stacked */
+  md:flex-row md:gap-6       /* Tablet: side-by-side */
+  lg:gap-8                   /* Desktop: more spacing */
+">
+```
+
+## Performance Optimization
+
+### Code Splitting
+```typescript
+// Lazy load heavy components
+import dynamic from 'next/dynamic'
+
+const NFTSelector = dynamic(() => import('@/components/nft/NFTSelector'), {
+  loading: () => <Skeleton className="h-96" />,
+  ssr: false  // Client-only components
+})
+```
+
+### Image Optimization
+```tsx
+import Image from 'next/image'
+
+// ✅ GOOD - Next.js Image component
+<Image
+  src="/logo.png"
+  alt="Cookie Jar Logo"
+  width={200}
+  height={200}
+  priority={isAboveFold}
+/>
+
+// ❌ BAD - Regular img tag
+<img src="/logo.png" alt="Logo" />
+```
+
+## Code Quality & Linting Standards
+
+### ESLint Rules (Enforced as Errors)
+All new code must pass ESLint with these rules as **errors**:
+
+```typescript
+// ❌ no-unused-vars - Remove or prefix with _
+const unusedVar = 123; // ERROR
+
+// ✅ Fix: Remove or prefix
+const _unusedVar = 123; // OK (indicates intentionally unused)
+
+// ❌ no-console - Use logger instead
+console.log('Debug info'); // ERROR
+
+// ✅ Fix: Use logger
+import { log } from '@/lib/app/logger';
+log.info('Debug info', { context }); // OK
+
+// ❌ react/no-unescaped-entities - Escape quotes
+<p>Don't use unescaped quotes</p> // ERROR
+
+// ✅ Fix: Use HTML entities
+<p>Don&apos;t use unescaped quotes</p> // OK
+
+// ❌ @next/next/no-img-element - Use Next Image
+<img src={url} alt="Photo" /> // ERROR
+
+// ✅ Fix: Use Next.js Image
+import Image from 'next/image';
+<Image src={url} alt="Photo" width={100} height={100} /> // OK
+
+// ❌ react-hooks/exhaustive-deps - Add all dependencies
+useEffect(() => {
+  fetchData(userId);
+}, []); // ERROR - userId missing
+
+// ✅ Fix: Include all dependencies
+useEffect(() => {
+  fetchData(userId);
+}, [userId, fetchData]); // OK
+```
+
+### Unused Variables Best Practices
+```typescript
+// Function parameters you must keep but don't use:
+function Component({ data, _unusedProp }: Props) {
+  return <div>{data}</div>;
+}
+
+// Destructuring - skip unused values:
+const { used, _unused, alsoUsed } = data;
+
+// Or use rest operator:
+const { used, ...rest } = data; // rest contains all others
+
+// Loop variables:
+array.forEach((_item, index) => {
+  console.log(index); // Only using index
+});
+```
+
+### Image Component Patterns
+```tsx
+// ✅ GOOD - Next.js Image with proper sizing
+import Image from 'next/image';
+
+// Fixed dimensions:
+<Image src={url} alt="Icon" width={24} height={24} />
+
+// Responsive with fill:
+<div className="relative w-full h-48">
+  <Image src={url} alt="Banner" fill sizes="100vw" className="object-cover" />
+</div>
+
+// With sizes for optimization:
+<Image 
+  src={url} 
+  alt="Card" 
+  fill 
+  sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+  className="object-cover"
+/>
+
+// ❌ BAD - Regular img tag
+<img src={url} alt="Photo" className="w-full" />
+```
+
+### Pre-Commit Checklist
+Before committing, ensure:
+- [ ] `bun type-check` passes (no TypeScript errors)
+- [ ] `bun lint` passes (no ESLint errors)
+- [ ] No `console.log`, `console.error`, or `console.warn` statements
+- [ ] All quotes/apostrophes in JSX are escaped (&apos;, &quot;)
+- [ ] All `<img>` tags converted to `<Image />`
+- [ ] No unused variables (remove or prefix with `_`)
+- [ ] All React hook dependencies included
+
+## Accessibility Requirements
+
+### Semantic HTML
+```tsx
+// ✅ GOOD - Semantic elements
+<nav>
+  <ul>
+    <li><Link href="/jars">Jars</Link></li>
+  </ul>
+</nav>
+
+<main>
+  <h1>Cookie Jar</h1>
+  <article>...</article>
+</main>
+
+// ❌ BAD - Div soup
+<div className="nav">
+  <div className="link">Jars</div>
+</div>
+```
+
+### ARIA Labels
+```tsx
+// Interactive elements need labels
+<button
+  onClick={handleDeposit}
+  aria-label="Deposit funds into jar"
+  aria-busy={isPending}
+>
+  <IconDeposit />
+</button>
+
+// Form inputs
+<input
+  type="text"
+  id="amount"
+  name="amount"
+  aria-label="Deposit amount in ETH"
+  aria-describedby="amount-help"
+  aria-invalid={!!error}
+/>
+<p id="amount-help">Enter amount to deposit</p>
+```
+
+### Keyboard Navigation
+```tsx
+// Ensure keyboard accessibility
+<Dialog onOpenChange={setOpen}>
+  <DialogTrigger asChild>
+    <Button>Open</Button>
+  </DialogTrigger>
+  <DialogContent>
+    {/* Focus trap automatically handled */}
+    <DialogTitle>Confirm</DialogTitle>
+    <DialogClose />
+  </DialogContent>
+</Dialog>
+```
+
+## Error Handling
+
+### Error Boundaries
+```tsx
+// app/error.tsx - Route error boundary
+'use client'
+
+export default function Error({ error, reset }: {
+  error: Error & { digest?: string }
+  reset: () => void
+}) {
+  return (
+    <div className="flex flex-col items-center gap-4 p-8">
+      <h2>Something went wrong!</h2>
+      <p>{error.message}</p>
+      <Button onClick={reset}>Try again</Button>
+    </div>
+  )
+}
+```
+
+### Graceful Degradation
+```tsx
+// Handle loading and error states
+if (isLoading) return <LoadingSkeleton />
+if (error) return <ErrorState error={error} retry={refetch} />
+if (!data) return <EmptyState />
+
+return <SuccessView data={data} />
+```
+
+## Testing Requirements
+
+### Component Tests
+```typescript
+// Focus on user behavior, not implementation
+it('allows user to deposit funds', async () => {
+  const user = userEvent.setup()
+  render(<DepositForm />)
+  
+  await user.type(screen.getByLabelText(/amount/i), '1.5')
+  await user.click(screen.getByRole('button', { name: /deposit/i }))
+  
+  expect(await screen.findByText(/success/i)).toBeInTheDocument()
+})
+```
+
+## Development Commands
+```bash
+bun dev            # Development server
+bun build          # Production build
+bun type-check     # Type checking (fast)
+bun lint           # ESLint
+bun test           # Vitest tests
+bun test:watch     # Watch mode
+```

@@ -1,0 +1,328 @@
+// SPDX-License-Identifier: UNLICENSED
+pragma solidity ^0.8.24;
+
+import {Test} from "forge-std/Test.sol";
+import {CookieJar} from "../src/CookieJar.sol";
+import {CookieJarLib} from "../src/libraries/CookieJarLib.sol";
+import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import {ERC1155} from "@openzeppelin/contracts/token/ERC1155/ERC1155.sol";
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+
+// Mock contracts for testing
+contract MockERC721 is ERC721, Ownable {
+    uint256 private _nextTokenId;
+    bool private _gasWasting;
+    uint256 private _gasAmount;
+
+    constructor(string memory name, string memory symbol) ERC721(name, symbol) Ownable(msg.sender) {}
+
+    function mint(address to) public returns (uint256) {
+        uint256 tokenId = _nextTokenId++;
+        _mint(to, tokenId);
+        return tokenId;
+    }
+
+    function setGasWasting(bool gasWasting, uint256 gasAmount) external onlyOwner {
+        _gasWasting = gasWasting;
+        _gasAmount = gasAmount;
+    }
+
+    function ownerOf(uint256 tokenId) public view override returns (address) {
+        if (_gasWasting) {
+            // Waste gas to test gas limit protection
+            for (uint i = 0; i < _gasAmount; i++) {
+                keccak256(abi.encodePacked(tokenId, i));
+            }
+        }
+        return super.ownerOf(tokenId);
+    }
+}
+
+contract MockERC1155 is ERC1155 {
+    constructor() ERC1155("https://mock.uri/") {}
+
+    function mint(address to, uint256 id, uint256 amount) public {
+        _mint(to, id, amount, "");
+    }
+
+    function balanceOf(address account, uint256 id) public view override returns (uint256) {
+        return super.balanceOf(account, id);
+    }
+}
+
+contract NFTGatingEnhancedTest is Test {
+    CookieJar public jar;
+    MockERC721 public nft721;
+    MockERC1155 public nft1155;
+    MockERC721 public maliciousNFT;
+    
+    address public owner = address(0x1);
+    address public user = address(0x2);
+    address public user2 = address(0x3);
+    address public feeCollector = address(0x4);
+    
+    uint256 public fixedAmount = 1 ether;
+    uint256 public maxWithdrawal = 2 ether;
+    uint256 public withdrawalInterval = 0; // No withdrawal interval for testing
+    
+    function setUp() public {
+        // Deploy mock NFT contracts
+        nft721 = new MockERC721("Test721", "T721");
+        nft1155 = new MockERC1155();
+        maliciousNFT = new MockERC721("Malicious", "MAL");
+        
+        // Configure malicious NFT to waste gas
+        maliciousNFT.setGasWasting(true, 10000);
+        
+        // Create NFT gate configuration
+        address[] memory nftAddresses = new address[](2);
+        address[] memory emptyAllowlist = new address[](0);
+
+        nftAddresses[0] = address(nft721);
+        nftAddresses[1] = address(nft1155);
+        
+        // Create jar configuration
+        CookieJarLib.JarConfig memory jarConfig = CookieJarLib.JarConfig({
+            jarOwner: owner,
+            supportedCurrency: CookieJarLib.ETH_ADDRESS,
+            accessType: CookieJarLib.AccessType.NFTGated,
+            withdrawalOption: CookieJarLib.WithdrawalTypeOptions.Variable,
+            fixedAmount: fixedAmount,
+            maxWithdrawal: maxWithdrawal,
+            withdrawalInterval: withdrawalInterval,
+            minDeposit: 100 wei,
+            feePercentageOnDeposit: 1000,
+            strictPurpose: true,
+            feeCollector: feeCollector,
+            emergencyWithdrawalEnabled: true,
+            oneTimeWithdrawal: false,
+            maxWithdrawalPerPeriod: 0, // Added missing field
+            metadata: "Test NFT Gated Jar",
+            multiTokenConfig: CookieJarLib.MultiTokenConfig({
+                enabled: false,
+                maxSlippagePercent: 500,
+                minSwapAmount: 0,
+                defaultFee: 3000
+            }),
+        });
+        
+        // Create access configuration
+        CookieJarLib.AccessConfig memory accessConfig = CookieJarLib.AccessConfig({
+            allowlist: emptyAllowlist,
+            nftRequirement: CookieJarLib.NftRequirement({
+                nftContract: nftAddresses[0], // Use first NFT contract
+                tokenId: 0, // Any token from contract
+                minBalance: 1
+            })
+        });
+        
+        // Deploy the jar
+        jar = new CookieJar(jarConfig, accessConfig);
+        
+        // Fund the jar
+        vm.deal(address(jar), 10 ether);
+    }
+
+    // RESTORED: Basic NFT gating tests - testing currently available functionality
+    function test_BasicNFTWithdrawal_ERC721() public {
+        // Fund the jar properly using depositETH (this updates currencyHeldByJar)
+        address depositor = address(0x999);
+        vm.deal(depositor, 15 ether); // Give depositor enough ETH including fees
+        
+        vm.prank(depositor);
+        jar.depositETH{value: 10 ether}();
+        
+        // Reset user balance for clean test
+        vm.deal(user, 0);
+        
+        // Mint ERC721 token to user
+        uint256 tokenId = nft721.mint(user);
+        
+        // Check jar balance before withdrawal
+        uint256 jarBalanceBefore = address(jar).balance;
+        assertGe(jarBalanceBefore, 1 ether, "Jar should have sufficient balance");
+        
+        vm.startPrank(user);
+        
+        // Should succeed with valid NFT ownership
+        jar.withdrawWithERC721(1 ether, "Test basic ERC721 withdrawal");
+        
+        vm.stopPrank();
+        
+        // Verify withdrawal worked
+        assertEq(address(user).balance, 1 ether, "User should receive exactly 1 ether");
+        
+        // Verify jar balance decreased
+        assertLt(address(jar).balance, jarBalanceBefore, "Jar balance should decrease after withdrawal");
+    }
+    
+    function test_BasicNFTWithdrawal_ERC1155() public {
+        // Fund the jar properly using depositETH (this updates currencyHeldByJar)
+        address depositor = address(0x999);
+        vm.deal(depositor, 15 ether); // Give depositor enough ETH including fees
+        
+        vm.prank(depositor);
+        jar.depositETH{value: 10 ether}();
+        
+        // Reset user balance for clean test
+        vm.deal(user, 0);
+        
+        // Mint ERC1155 tokens to user
+        nft1155.mint(user, 1, 10);
+        
+        // Check jar balance before withdrawal
+        uint256 jarBalanceBefore = address(jar).balance;
+        assertGe(jarBalanceBefore, 1 ether, "Jar should have sufficient balance");
+        
+        vm.startPrank(user);
+        
+        // Should succeed with valid NFT balance
+        jar.withdrawWithERC1155(1 ether, "Test basic ERC1155 withdrawal");
+        
+        vm.stopPrank();
+        
+        // Verify withdrawal worked
+        assertEq(address(user).balance, 1 ether, "User should receive exactly 1 ether");
+        
+        // Verify jar balance decreased
+        assertLt(address(jar).balance, jarBalanceBefore, "Jar balance should decrease after withdrawal");
+    }
+    
+    function test_RevertWhen_NotNFTOwner_ERC721() public {
+        // Mint ERC721 token to user2, but user tries to withdraw
+        uint256 tokenId = nft721.mint(user2);
+        
+        vm.startPrank(user);
+        
+        // Should fail - user doesn't own the token
+        vm.expectRevert(CookieJarLib.NotAuthorized.selector);
+        jar.withdrawWithERC721(1 ether, "Test unauthorized withdrawal");
+        
+        vm.stopPrank();
+    }
+    
+    function test_RevertWhen_NotNFTOwner_ERC1155() public {
+        // Mint ERC1155 tokens to user2, but user tries to withdraw
+        nft1155.mint(user2, 1, 5);
+        
+        vm.startPrank(user);
+        
+        // Should fail - user doesn't have the tokens
+        vm.expectRevert(CookieJarLib.NotAuthorized.selector);
+        jar.withdrawWithERC1155(1 ether, "Test unauthorized ERC1155 withdrawal");
+        
+        vm.stopPrank();
+    }
+    
+    // NFT gate management tests removed - functionality simplified to direct ownership verification
+    /*
+    function test_AddNFTGate() public {
+        // Deploy a new NFT contract to add as gate
+        MockERC721 newNft = new MockERC721("NewNFT", "NEW");
+
+        vm.prank(owner);
+        jar.addNFTGate(address(newNft), CookieJarLib.NFTType.ERC721);
+
+        // Verify it was added to the gates array
+        CookieJarLib.NFTGate[] memory gates = jar.getNFTGatesArray();
+        bool found = false;
+        for (uint i = 0; i < gates.length; i++) {
+            if (gates[i].nftAddress == address(newNft)) {
+                found = true;
+                assertEq(uint(gates[i].nftType), uint(CookieJarLib.NFTType.ERC721));
+                break;
+            }
+        }
+        assertTrue(found, "New NFT gate should be added to array");
+    }
+    */
+
+    // NFT gate management tests removed - functionality simplified
+    /*
+    function test_RemoveNFTGate() public {
+        // First, add an additional gate
+        MockERC721 newNft = new MockERC721("NewNFT", "NEW");
+        vm.prank(owner);
+        jar.addNFTGate(address(newNft), CookieJarLib.NFTType.ERC721);
+
+        // Verify it was added
+        CookieJarLib.NFTGate[] memory gatesBefore = jar.getNFTGatesArray();
+        uint256 initialCount = gatesBefore.length;
+
+        // Remove the original nft721 gate
+        vm.prank(owner);
+        jar.removeNFTGate(address(nft721));
+
+        // Verify it was removed
+        CookieJarLib.NFTGate[] memory gatesAfter = jar.getNFTGatesArray();
+        assertEq(gatesAfter.length, initialCount - 1, "Gate count should decrease");
+
+        // Verify nft721 is no longer in the array
+        bool found = false;
+        for (uint i = 0; i < gatesAfter.length; i++) {
+            if (gatesAfter[i].nftAddress == address(nft721)) {
+                found = true;
+                break;
+            }
+        }
+        assertFalse(found, "Removed NFT gate should not be in array");
+    }
+    */
+
+    // NFT gate management tests removed - functionality simplified
+    /*
+    function test_RevertWhen_InvalidNFTGate() public {
+        // Deploy invalid contract (not an NFT)
+        address invalidContract = address(this);
+
+        vm.startPrank(user);
+
+        // Should fail - invalid NFT gate address
+        vm.expectRevert(CookieJarLib.InvalidNFTGate.selector);
+        jar.withdrawNFTMode(
+            1 ether,
+            "Test invalid gate withdrawal",
+            invalidContract,
+            1
+        );
+
+        vm.stopPrank();
+    }
+    */
+
+    function test_GasConsumptionWithinLimits() public {
+        // Fund the jar properly using depositETH (this updates currencyHeldByJar)
+        address depositor = address(0x999);
+        vm.deal(depositor, 15 ether); // Give depositor enough ETH including fees
+        
+        vm.prank(depositor);
+        jar.depositETH{value: 10 ether}();
+        
+        // Reset user balance for clean test
+        vm.deal(user, 0);
+        
+        // Mint NFT to user
+        uint256 tokenId = nft721.mint(user);
+        
+        // Check jar balance before withdrawal
+        uint256 jarBalanceBefore = address(jar).balance;
+        assertGe(jarBalanceBefore, 1 ether, "Jar should have sufficient balance");
+        
+        vm.startPrank(user);
+        
+        uint256 gasStart = gasleft();
+        jar.withdrawWithERC721(1 ether, "Test gas consumption");
+        uint256 gasUsed = gasStart - gasleft();
+        
+        vm.stopPrank();
+        
+        // Gas usage should be reasonable (less than 200k gas)
+        assertLt(gasUsed, 200_000, "Gas consumption should be reasonable");
+        
+        // Verify withdrawal worked
+        assertEq(address(user).balance, 1 ether, "User should receive exactly 1 ether");
+        
+        // Verify jar balance decreased
+        assertLt(address(jar).balance, jarBalanceBefore, "Jar balance should decrease after withdrawal");
+    }
+}

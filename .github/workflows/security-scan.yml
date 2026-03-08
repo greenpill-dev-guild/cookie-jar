@@ -1,0 +1,265 @@
+name: Security Analysis
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 3 * * 0'  # Weekly on Sundays at 3 AM UTC
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+  security-events: write
+
+env:
+  NODE_VERSION: '18'
+  BUN_VERSION: '1.0'
+
+jobs:
+  codeql-analysis:
+    name: CodeQL Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    
+    strategy:
+      fail-fast: false
+      matrix:
+        language: [ 'javascript', 'typescript' ]
+        
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Initialize CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: ${{ matrix.language }}
+        # Optional: specify queries for more comprehensive analysis
+        queries: security-and-quality
+
+    - name: Setup Node.js and bun for autobuild
+      uses: ./.github/actions/setup-node-pnpm
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        bun-version: ${{ env.BUN_VERSION }}
+
+    - name: Autobuild
+      uses: github/codeql-action/autobuild@v2
+
+    - name: Perform CodeQL Analysis
+      uses: github/codeql-action/analyze@v2
+      with:
+        category: "/language:${{ matrix.language }}"
+
+  dependency-scan:
+    name: Dependency Security Scan
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Setup Node.js and bun
+      uses: ./.github/actions/setup-node-pnpm
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        bun-version: ${{ env.BUN_VERSION }}
+        
+    - name: Run dependency audit (Client)
+      run: |
+        echo "🔍 Scanning client dependencies for vulnerabilities..."
+        cd client
+        
+        echo "📋 Running npm audit (bun doesn't have native audit yet)..."
+        npm audit --audit-level=moderate --json > audit-results.json || true
+        
+        # Show results in readable format
+        echo ""
+        echo "📊 AUDIT RESULTS SUMMARY:"
+        if [ -s audit-results.json ]; then
+          # Check if we have any vulnerabilities
+          if jq -e '.advisories | length > 0' audit-results.json > /dev/null 2>&1; then
+            echo "⚠️  Vulnerabilities found!"
+            npm audit --audit-level=moderate
+          else
+            echo "✅ No vulnerabilities found"
+          fi
+        else
+          echo "✅ No audit results - dependencies are clean"
+        fi
+        
+    - name: Check for known vulnerabilities with audit-ci
+      run: |
+        echo ""
+        echo "🔍 Running audit-ci for strict vulnerability checking..."
+        cd client
+        
+        # Install audit-ci if not available
+        if ! command -v audit-ci &> /dev/null; then
+          npm install -g audit-ci
+        fi
+        
+        # Run audit-ci with moderate level (fails CI on moderate+ vulnerabilities)
+        audit-ci --moderate --report-type summary || {
+          echo ""
+          echo "❌ Critical or high severity vulnerabilities found!"
+          echo "💡 Please update dependencies or add exceptions if needed"
+          echo "📋 Run 'npm audit' locally for detailed information (bun audit support coming soon)"
+          exit 1
+        }
+        
+    - name: License compliance check
+      run: |
+        echo ""  
+        echo "📜 Checking license compliance..."
+        cd client
+        
+        # Install license checker if not available
+        if ! command -v license-checker &> /dev/null; then
+          npm install -g license-checker
+        fi
+        
+        echo "📋 Generating license report..."
+        license-checker --summary --onlyAllow 'MIT;Apache-2.0;BSD-3-Clause;BSD-2-Clause;ISC;0BSD' || {
+          echo ""
+          echo "⚠️  Some dependencies may have restrictive licenses"
+          echo "💡 Review the license report above"
+          echo "🔍 Consider updating dependencies with incompatible licenses"
+          
+          echo ""
+          echo "📋 Full license breakdown:"
+          license-checker --summary
+          
+          # Don't fail CI for license issues, just warn
+          echo ""
+          echo "⚠️  License check completed with warnings (not failing CI)"
+        }
+      continue-on-error: true  # Don't fail CI for license issues
+        
+    - name: Upload security artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: security-reports
+        path: |
+          client/audit-results.json
+        retention-days: 30
+        
+  contract-security:
+    name: Smart Contract Security 
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' || github.event_name == 'workflow_dispatch' }}
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+    
+    - name: Install Foundry
+      uses: foundry-rs/foundry-toolchain@v1
+      with:
+        version: nightly
+        
+    - name: Build contracts
+      run: |
+        echo "🔧 Building contracts for security analysis..."
+        cd contracts
+        forge build
+        
+    - name: Static analysis with forge
+      run: |
+        echo "🔍 Running Forge static analysis..."
+        cd contracts
+        
+        echo "📋 Compilation warnings check:"
+        forge build 2>&1 | tee build-warnings.log
+        
+        if grep -E "(Warning|Error):" build-warnings.log; then
+          echo "⚠️  Found compilation warnings/errors"
+        else
+          echo "✅ No compilation warnings found"
+        fi
+        
+    - name: Gas optimization analysis
+      run: |
+        echo ""
+        echo "⛽ Running gas optimization analysis..."
+        cd contracts
+        
+        echo "📊 Contract sizes:"
+        forge build --sizes | tail -20
+        
+        echo ""
+        echo "📈 Gas usage in tests:"
+        forge test --gas-report | tail -30 || echo "No gas report available"
+        
+    - name: Security recommendations
+      run: |
+        echo ""
+        echo "🛡️  SECURITY RECOMMENDATIONS"
+        echo "============================"
+        echo "✅ Basic static analysis completed"
+        echo "💡 For production deployment, consider:"
+        echo "  • Professional security audit"
+        echo "  • Slither static analysis: pip install slither-analyzer"
+        echo "  • Mythril symbolic execution: pip install mythril"
+        echo "  • Formal verification for critical functions" 
+        echo "  • Bug bounty program after mainnet deployment"
+        echo ""
+        echo "🔗 Resources:"
+        echo "  • https://github.com/crytic/slither"
+        echo "  • https://github.com/ConsenSys/mythril"
+        echo "  • https://consensys.net/diligence/"
+        
+    - name: Upload contract security artifacts
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: contract-security-reports
+        path: |
+          contracts/build-warnings.log
+          contracts/out/
+        retention-days: 30
+
+  security-summary:
+    name: Security Summary
+    runs-on: ubuntu-latest
+    needs: [codeql-analysis, dependency-scan, contract-security]
+    if: always()
+    
+    steps:
+    - name: Security Analysis Summary
+      run: |
+        echo "🛡️  SECURITY ANALYSIS COMPLETED"
+        echo "==============================="
+        echo ""
+        
+        echo "📊 Analysis Results:"
+        echo "  • CodeQL Analysis: ${{ needs.codeql-analysis.result }}"
+        echo "  • Dependency Scan: ${{ needs.dependency-scan.result }}"
+        echo "  • Contract Security: ${{ needs.contract-security.result }}"
+        echo ""
+        
+        if [[ "${{ needs.codeql-analysis.result }}" == "success" && 
+              "${{ needs.dependency-scan.result }}" == "success" && 
+              ("${{ needs.contract-security.result }}" == "success" || "${{ needs.contract-security.result }}" == "skipped") ]]; then
+          echo "✅ All security checks passed!"
+          echo "🎉 Cookie Jar project security posture is healthy"
+        else
+          echo "⚠️  Some security checks had issues"
+          echo "💡 Review the detailed results above"
+          echo "🔍 Check security artifacts for more information"
+        fi
+        
+        echo ""
+        echo "🔄 This analysis runs:"
+        echo "  • On every PR to main branch"
+        echo "  • On every push to main branch"  
+        echo "  • Weekly on Sunday at 3 AM UTC"
+        echo "  • Manually via workflow dispatch"

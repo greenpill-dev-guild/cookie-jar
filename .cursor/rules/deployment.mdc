@@ -1,0 +1,253 @@
+---
+description: Production deployment patterns, security checklists, and verification steps
+globs:
+  - "**/script/**"
+  - "**/*.s.sol"
+alwaysApply: false
+---
+
+# Deployment Patterns
+
+## Secure Wallet Setup
+**ALWAYS use Foundry keystore for production deployments:**
+
+```bash
+# Import wallet securely
+cast wallet import deployer --interactive
+
+# Verify keystore
+cast wallet list
+
+# NEVER use private keys in env files for production
+```
+
+## Pre-Deployment Checklist
+
+### Environment Setup
+- [ ] `.env` configured with correct values
+- [ ] RPC URLs verified and tested
+- [ ] Etherscan API key configured
+- [ ] Factory configuration values reviewed
+- [ ] Secure wallet keystore created
+
+### Contract Verification
+- [ ] All tests passing: `forge test`
+- [ ] Gas optimization verified: `forge build --sizes`
+- [ ] Contract size under 24KB limit
+- [ ] NatSpec documentation complete
+- [ ] Security audit completed (for mainnet)
+
+### Network Configuration
+- [ ] Correct network RPC URL in `.env`
+- [ ] Sufficient funds in deployment wallet
+- [ ] Gas price checked and acceptable
+- [ ] Testnet deployment successful
+
+## Deployment Command Pattern
+
+```bash
+# Export environment variables
+export $(cat .env | xargs)
+
+# Deploy to target network
+cd contracts
+forge script script/Deploy.s.sol:Deploy \
+  --rpc-url $NETWORK_RPC_URL \
+  --account deployer \
+  --broadcast \
+  --verify \
+  --gas-estimate-multiplier 120
+
+# Example networks
+--rpc-url base-sepolia     # Base Sepolia testnet
+--rpc-url base              # Base mainnet
+--rpc-url ethereum          # Ethereum mainnet
+```
+
+## Mainnet Deployment Requirements
+
+### Code Review
+```solidity
+// REQUIRED: Explicit mainnet acknowledgment
+// I ACKNOWLEDGE MAINNET DEPLOYMENT
+// This contract will be deployed to mainnet with real funds
+// All security measures have been reviewed and approved
+```
+
+### Security Measures
+- [ ] Multi-sig ownership configured
+- [ ] Timelock on admin functions
+- [ ] Emergency pause functionality tested
+- [ ] Access controls verified
+- [ ] Reentrancy guards in place
+- [ ] Input validation complete
+
+### Post-Deployment Verification
+```bash
+# Verify contract on block explorer
+forge verify-contract \
+  --chain-id $CHAIN_ID \
+  --etherscan-api-key $ETHERSCAN_API_KEY \
+  $CONTRACT_ADDRESS \
+  src/CookieJar.sol:CookieJar
+
+# Test contract functions
+cast call $CONTRACT_ADDRESS "owner()" --rpc-url $RPC_URL
+cast call $CONTRACT_ADDRESS "version()" --rpc-url $RPC_URL
+
+# Verify ownership transfer (if applicable)
+cast send $CONTRACT_ADDRESS \
+  "transferOwnership(address)" \
+  $NEW_OWNER \
+  --account deployer \
+  --rpc-url $RPC_URL
+```
+
+## Testnet Deployment Workflow
+
+```bash
+# 1. Deploy to testnet
+bun deploy:base-sepolia
+
+# 2. Verify deployment
+bun verify:deployment
+
+# 3. Seed test data (if needed)
+bun seed:testnet
+
+# 4. Test frontend integration
+bun dev:base-sepolia
+
+# 5. Run E2E tests against testnet
+bun test:e2e:testnet
+```
+
+## Deployment Script Pattern
+
+```solidity
+// script/Deploy.s.sol
+pragma solidity ^0.8.0;
+
+import "forge-std/Script.sol";
+import "../src/CookieJarFactory.sol";
+
+contract Deploy is Script {
+    function run() external {
+        uint256 deployerPrivateKey = vm.envUint("DEPLOYER_PRIVATE_KEY");
+        
+        vm.startBroadcast(deployerPrivateKey);
+        
+        // 1. Deploy dependencies first
+        CookieJarRegistry registry = new CookieJarRegistry();
+        
+        // 2. Deploy main contracts
+        CookieJarFactory factory = new CookieJarFactory({
+            registry: address(registry),
+            feeCollector: vm.envAddress("FEE_COLLECTOR"),
+            minDeposit: vm.envUint("MIN_DEPOSIT")
+        });
+        
+        // 3. Configure contracts
+        registry.transferOwnership(address(factory));
+        
+        vm.stopBroadcast();
+        
+        // 4. Log deployment addresses
+        console.log("Registry:", address(registry));
+        console.log("Factory:", address(factory));
+    }
+}
+```
+
+## Contract Upgrade Pattern
+
+### For Immutable Contracts
+```solidity
+// Deploy new version
+// Update frontend to use new address
+// Communicate deprecation timeline
+// Provide migration tools for users
+```
+
+### For Upgradeable Contracts (if used)
+```solidity
+// Use transparent proxy pattern
+// Test upgrade on testnet first
+// Verify storage layout compatibility
+// Execute upgrade via multi-sig
+// Monitor for issues post-upgrade
+```
+
+## Rollback Plan
+
+### If Deployment Fails
+1. Do NOT retry immediately
+2. Diagnose root cause
+3. Fix issues in separate branch
+4. Test fix on testnet
+5. Deploy again with proper verification
+
+### If Critical Bug Found
+1. Pause contract (if pausable)
+2. Communicate with users immediately
+3. Deploy fix to testnet
+4. Audit fix thoroughly
+5. Deploy fix to mainnet via multi-sig
+6. Resume operations after verification
+
+## Frontend Deployment
+
+### Vercel Deployment
+```bash
+# Build and verify locally first
+bun build
+
+# Check for build errors
+# Verify environment variables in Vercel dashboard
+# Deploy
+vercel --prod
+
+# Post-deployment checks
+- [ ] Contract addresses correct
+- [ ] All pages load successfully
+- [ ] Wallet connection works
+- [ ] Transactions succeed
+- [ ] Analytics tracking works
+```
+
+### Environment Variables for Production
+```bash
+# Required
+NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID=
+NEXT_PUBLIC_ALCHEMY_API_KEY=
+
+# Optional but recommended
+NEXT_PUBLIC_ENABLE_ANALYTICS=true
+NEXT_PUBLIC_SENTRY_DSN=
+```
+
+## Monitoring & Alerts
+
+### Post-Deployment Monitoring
+- [ ] Set up Tenderly alerts for contract events
+- [ ] Monitor gas usage patterns
+- [ ] Track transaction success rates
+- [ ] Set up Sentry for frontend errors
+- [ ] Configure uptime monitoring
+- [ ] Set up block explorer alerts
+
+### Key Metrics to Track
+- Transaction success rate: > 95%
+- Average gas cost: within expected range
+- Frontend error rate: < 1%
+- API response time: < 500ms
+- Contract balance: monitored via alerts
+
+## Documentation Updates
+
+### After Deployment
+- [ ] Update contract addresses in README
+- [ ] Add block explorer links
+- [ ] Update deployment documentation
+- [ ] Create migration guide (if applicable)
+- [ ] Announce deployment to community

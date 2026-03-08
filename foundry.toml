@@ -1,0 +1,103 @@
+[profile.default]
+evm_version = "cancun"  # Required for Uniswap v4 transient storage
+via_ir = true
+optimizer = true
+optimizer_runs = 1    # Aggressively optimize for size to stay under 24KB limit
+bytecode_hash = "none"  # Remove metadata hash to save ~53 bytes
+cbor_metadata = false   # Disable CBOR metadata encoding
+# Additional optimizations for faster compilation
+solc_version = "0.8.30"  # Pin to specific version for consistent compilation
+cache = true            # Enable compilation cache for faster subsequent builds
+parallel = 4            # Use 4 parallel threads for compilation
+# Prioritize contract size to keep functionality
+src = "contracts/src"
+out = "contracts/out"
+libs = ["lib"]
+test = "contracts/test"
+script = "contracts/script"
+remappings = [
+    "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+    "erc4626-tests/=lib/openzeppelin-contracts/lib/erc4626-tests/",
+    "forge-std/=lib/forge-std/src/",
+    "halmos-cheatcodes/=lib/openzeppelin-contracts/lib/halmos-cheatcodes/src/",
+    "openzeppelin-contracts/=lib/openzeppelin-contracts/",
+    "@superfluid-finance/ethereum-contracts/=lib/protocol-monorepo/packages/ethereum-contracts/contracts/",
+    "universal-router/=lib/universal-router/",
+    "permit2/=lib/permit2/",
+]
+# Skip certora harness files that have missing dependencies
+skip = ["**/certora/**/*.sol", "lib/openzeppelin-contracts/certora/**"]
+# Load environment variables from root directory
+env_file = ".env"
+
+# File system permissions for auto-generated configuration updates
+fs_permissions = [
+    { access = "read-write", path = "./contracts/" },
+    { access = "read-write", path = "./client/config/" },
+    { access = "read-write", path = "./client/public/contracts/" },
+    { access = "read", path = "./" }
+]
+
+# Fast development profile - prioritizes compilation speed
+[profile.dev]
+evm_version = "cancun"
+via_ir = true            # Required for complex contracts
+optimizer = true
+optimizer_runs = 200     # Higher runs = faster compilation (trade-off: larger bytecode)
+cache = true
+parallel = 4
+src = "src"
+out = "out"
+libs = ["../lib"]
+test = "test"
+script = "script"
+skip = ["**/certora/**/*.sol", "lib/openzeppelin-contracts/certora/**"]
+env_file = "../.env"
+fs_permissions = [
+    { access = "read-write", path = "./" },
+    { access = "read-write", path = "../client/config/" },
+    { access = "read-write", path = "../client/public/contracts/" },
+    { access = "read", path = "../" }
+]
+
+# Size-optimized profile for deployment
+[profile.size]
+via_ir = true
+optimizer = true
+optimizer_runs = 1
+bytecode_hash = "none"
+cbor_metadata = false
+# Additional optimizations for faster compilation
+solc_version = "0.8.30"  # Pin to specific version for consistent compilation
+cache = true            # Enable compilation cache for faster subsequent builds
+parallel = 4            # Use 4 parallel threads for compilation
+# Disable some features for smaller bytecode
+src = "src"
+out = "out"
+libs = ["../lib"]
+remappings = [
+    "openzeppelin-contracts/=../lib/openzeppelin-contracts/contracts/"
+]
+# Load environment variables from root directory
+env_file = ".env.local"
+dot_env = ".env.local"
+PRIVATE_KEY = "${PRIVATE_KEY}"
+RPC_URL = "${RPC_URL}"
+# Allow writing deployment files for local development
+fs_permissions = [
+    { access = "read-write", path = "./contracts/" },
+    { access = "read-write", path = "./contracts" },
+    { access = "read-write", path = "./contracts/local-deployment.json" }
+]
+
+[rpc_endpoints]
+base-sepolia = "${BASE_SEPOLIA_RPC_URL}"
+sepolia = "${ETHEREUM_SEPOLIA_RPC_URL}"
+celo-alfajores = "${CELO_ALFAJORES_RPC_URL}"
+
+# Single API key for all chains
+[etherscan]
+base-sepolia = { key = "${ETHERSCAN_API_KEY}" }
+sepolia = { key = "${ETHERSCAN_API_KEY}" }
+
+# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

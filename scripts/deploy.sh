@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # 🚀 Cookie Jar - Multi-Network Deployment Script
-# Supports Celo, Ethereum, and Base Sepolia with optimized defaults
+# Supports Celo, Ethereum, Base, and Arbitrum deployments
 
 set -e
 
@@ -17,6 +17,27 @@ NETWORK=${1:-"celo-alfajores"}
 
 echo -e "${BLUE}🚀 Cookie Jar Multi-Network Deployment${NC}"
 echo -e "${BLUE}======================================${NC}"
+
+# Load only valid KEY=VALUE lines from dotenv-like files.
+# This avoids hard failures if the file contains stray tokens.
+load_env_file() {
+    local env_file="$1"
+    local valid_lines
+    local invalid_line_numbers
+
+    valid_lines=$(grep -E '^[[:space:]]*(export[[:space:]]+)?[A-Za-z_][A-Za-z0-9_]*=' "$env_file" || true)
+    invalid_line_numbers=$(grep -nEv '^[[:space:]]*$|^[[:space:]]*#|^[[:space:]]*(export[[:space:]]+)?[A-Za-z_][A-Za-z0-9_]*=' "$env_file" | cut -d: -f1 | tr '\n' ',' | sed 's/,$//' || true)
+
+    if [ -n "$valid_lines" ]; then
+        set -a
+        source /dev/stdin <<< "$valid_lines"
+        set +a
+    fi
+
+    if [ -n "$invalid_line_numbers" ]; then
+        echo -e "${YELLOW}⚠️  Ignored invalid .env lines: $invalid_line_numbers${NC}"
+    fi
+}
 
 # Function to get network configuration
 get_network_config() {
@@ -39,6 +60,12 @@ get_network_config() {
         "base-sepolia")
             echo "https://sepolia.base.org,84532,Deploy.s.sol:Deploy,BASE_SEPOLIA_TESTNET"
             ;;
+        "arbitrum")
+            echo "https://arb1.arbitrum.io/rpc,42161,Deploy.s.sol:Deploy,ARBITRUM_MAINNET"
+            ;;
+        "arbitrum-sepolia")
+            echo "https://sepolia-rollup.arbitrum.io/rpc,421614,Deploy.s.sol:Deploy,ARBITRUM_SEPOLIA_TESTNET"
+            ;;
         *)
             echo ""
             ;;
@@ -58,11 +85,30 @@ if [ -z "$NETWORK_CONFIG" ]; then
     echo -e "  • ethereum-sepolia (Chain ID: 11155111)"
     echo -e "  • base (Chain ID: 8453)"
     echo -e "  • base-sepolia (Chain ID: 84532)"
+    echo -e "  • arbitrum (Chain ID: 42161)"
+    echo -e "  • arbitrum-sepolia (Chain ID: 421614)"
     exit 1
 fi
 
 # Parse network configuration
-IFS=',' read -r RPC_URL CHAIN_ID DEPLOYER_SCRIPT ENV_NAME <<< "$NETWORK_CONFIG"
+IFS=',' read -r NETWORK_RPC_URL CHAIN_ID DEPLOYER_SCRIPT ENV_NAME <<< "$NETWORK_CONFIG"
+
+# Load environment variables FIRST
+if [ -f ".env.local" ]; then
+    load_env_file ".env.local"
+    echo -e "${GREEN}✅ Loaded environment from .env.local${NC}"
+else
+    echo -e "${YELLOW}⚠️  No .env.local found, using environment variables${NC}"
+fi
+
+# Set RPC URL AFTER loading env (prevent environment overrides for production networks)  
+if [[ "$NETWORK" == *"local"* ]] || [[ "$NETWORK" == "anvil"* ]]; then
+    # For local networks, allow environment override
+    RPC_URL=${RPC_URL:-$NETWORK_RPC_URL}
+else
+    # For production networks, use network-specific URL (ignore env override)
+    RPC_URL=$NETWORK_RPC_URL
+fi
 
 echo -e "${GREEN}📋 Deployment Configuration:${NC}"
 echo -e "  Network: $NETWORK"
@@ -71,20 +117,25 @@ echo -e "  RPC URL: $RPC_URL"
 echo -e "  Script: $DEPLOYER_SCRIPT"
 echo ""
 
-# Load environment variables
-if [ -f ".env.local" ]; then
-    source .env.local
-    echo -e "${GREEN}✅ Loaded environment from .env.local${NC}"
+# Validate authentication method
+# Use private key for local development (anvil), keystore for production
+if [[ "$NETWORK" == *"local"* ]] || [[ "$NETWORK" == "anvil"* ]] || [[ "$RPC_URL" == *"127.0.0.1"* ]] || [[ "$RPC_URL" == *"localhost"* ]]; then
+    # Local deployment - require private key
+    if [ -z "$PRIVATE_KEY" ]; then
+        echo -e "${RED}❌ PRIVATE_KEY is not set for local deployment${NC}"
+        echo -e "${YELLOW}💡 Add your private key to .env.local:${NC}"
+        echo -e "   PRIVATE_KEY=your_private_key_here"
+        exit 1
+    fi
+    echo -e "${GREEN}🔑 Using private key for local deployment${NC}"
+    USE_PRIVATE_KEY=true
 else
-    echo -e "${YELLOW}⚠️  No .env.local found, using environment variables${NC}"
-fi
-
-# Validate required environment variables
-if [ -z "$PRIVATE_KEY" ]; then
-    echo -e "${RED}❌ PRIVATE_KEY is not set${NC}"
-    echo -e "${YELLOW}💡 Add your private key to .env.local:${NC}"
-    echo -e "   PRIVATE_KEY=your_private_key_here"
-    exit 1
+    # Production deployment - use Foundry keystore
+    KEYSTORE_ACCOUNT=${KEYSTORE_ACCOUNT:-"deployer"}
+    echo -e "${GREEN}🔐 Using Foundry keystore account: $KEYSTORE_ACCOUNT${NC}"
+    echo -e "${YELLOW}💡 Make sure you have imported your account:${NC}"
+    echo -e "   cast wallet import $KEYSTORE_ACCOUNT --interactive"
+    USE_PRIVATE_KEY=false
 fi
 
 # Optional: Check for Etherscan API key for verification
@@ -104,15 +155,33 @@ case $NETWORK in
             echo -e "${YELLOW}⚠️  CELOSCAN_API_KEY not set - contracts won't be verified${NC}"
         fi
         ;;
+    "arbitrum"|"arbitrum-sepolia")
+        if [ -z "${ARBISCAN_API_KEY:-$ETHERSCAN_API_KEY}" ]; then
+            echo -e "${YELLOW}⚠️  ARBISCAN_API_KEY or ETHERSCAN_API_KEY not set - contracts won't be verified${NC}"
+        fi
+        ;;
 esac
 
 echo -e "${GREEN}🔧 Starting deployment...${NC}"
 
+# Export environment variables for forge script (if not local deployment)
+if [ "$USE_PRIVATE_KEY" = false ]; then
+    export FEE_COLLECTOR
+    export FACTORY_OWNER  
+    export FEE_PERCENTAGE
+    export MIN_ETH_DEPOSIT
+    export MIN_ERC20_DEPOSIT
+    export ETHERSCAN_API_KEY
+    export BASESCAN_API_KEY
+    export CELOSCAN_API_KEY
+    export ARBISCAN_API_KEY
+fi
+
 # Change to contracts directory
 cd contracts
 
-# Build contracts first
-echo -e "${BLUE}📦 Building contracts...${NC}"
+# Build contracts first (production profile for optimized bytecode)
+echo -e "${BLUE}📦 Building contracts (production profile)...${NC}"
 forge build
 
 if [ $? -ne 0 ]; then
@@ -125,13 +194,24 @@ echo -e "${GREEN}✅ Contracts compiled successfully${NC}"
 # Deploy contracts
 echo -e "${BLUE}🚀 Deploying to $NETWORK...${NC}"
 
-# Base forge command
-FORGE_CMD="forge script script/$DEPLOYER_SCRIPT \
-    --via-ir \
-    --rpc-url $RPC_URL \
-    --broadcast \
-    --private-key $PRIVATE_KEY \
-    -vvvv"
+# Base forge command with authentication
+if [ "$USE_PRIVATE_KEY" = true ]; then
+    # Local development with private key
+    FORGE_CMD="forge script script/$DEPLOYER_SCRIPT \
+        --via-ir \
+        --rpc-url $RPC_URL \
+        --broadcast \
+        --private-key $PRIVATE_KEY \
+        -vvvv"
+else
+    # Production deployment with keystore
+    FORGE_CMD="forge script script/$DEPLOYER_SCRIPT \
+        --via-ir \
+        --rpc-url $RPC_URL \
+        --broadcast \
+        --account $KEYSTORE_ACCOUNT \
+        -vvvv"
+fi
 
 # Add verification if API key is available
 case $NETWORK in
@@ -148,6 +228,11 @@ case $NETWORK in
     "celo"|"celo-alfajores")
         if [ -n "$CELOSCAN_API_KEY" ]; then
             FORGE_CMD="$FORGE_CMD --verify --etherscan-api-key $CELOSCAN_API_KEY"
+        fi
+        ;;
+    "arbitrum"|"arbitrum-sepolia")
+        if [ -n "${ARBISCAN_API_KEY:-$ETHERSCAN_API_KEY}" ]; then
+            FORGE_CMD="$FORGE_CMD --verify --etherscan-api-key ${ARBISCAN_API_KEY:-$ETHERSCAN_API_KEY}"
         fi
         ;;
 esac

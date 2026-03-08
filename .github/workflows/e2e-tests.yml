@@ -1,0 +1,171 @@
+name: End-to-End Tests
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  schedule:
+    - cron: '0 2 * * *'  # Nightly at 2 AM UTC
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: '18'
+  BUN_VERSION: '1.0'
+
+jobs:
+  e2e-tests:
+    name: Full E2E Test Suite
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        submodules: recursive
+
+    - name: Setup Node.js and bun
+      uses: ./.github/actions/setup-node-pnpm
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        bun-version: ${{ env.BUN_VERSION }}
+
+    - name: Install Foundry
+      uses: foundry-rs/foundry-toolchain@v1
+      with:
+        version: nightly
+
+    - name: Install Playwright Browsers
+      run: npx playwright install --with-deps
+
+    - name: Start development environment
+      run: |
+        echo "🚀 Starting full development environment for E2E tests..."
+        
+        # Start Anvil blockchain
+        cd contracts
+        anvil --host 0.0.0.0 --port 8545 --chain-id 31337 \
+          --accounts 10 --balance 1000 --gas-limit 30000000 \
+          --gas-price 0 > anvil.log 2>&1 &
+        ANVIL_PID=$!
+        echo "ANVIL_PID=$ANVIL_PID" >> $GITHUB_ENV
+        
+        # Wait for Anvil
+        for i in {1..30}; do
+          if curl -s -X POST -H "Content-Type: application/json" \
+             --data '{"jsonrpc":"2.0","method":"eth_blockNumber","params":[],"id":1}' \
+             http://127.0.0.1:8545 > /dev/null 2>&1; then
+            echo "✅ Anvil ready!"
+            break
+          fi
+          sleep 1
+          if [ $i -eq 30 ]; then
+            echo "❌ Anvil failed to start"
+            exit 1
+          fi
+        done
+        
+        # Deploy contracts using our deploy script
+        cd ..
+        echo "🏗️  Deploying contracts..."
+        cd contracts && forge build
+        
+        # Deploy using the same pattern as dev-start.sh
+        forge script script/DeployLocal.s.sol:DeployLocalScript \
+          --rpc-url http://127.0.0.1:8545 \
+          --broadcast \
+          --sender 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266 \
+          --private-key 0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80
+        
+        cd ..
+        
+        # Create deployment files
+        ./scripts/create-deployment-file.sh
+        ./scripts/copy-deployment.sh
+        
+        # Start client dev server
+        cd client
+        bun run generate
+        npm run dev &
+        CLIENT_PID=$!
+        echo "CLIENT_PID=$CLIENT_PID" >> $GITHUB_ENV
+        
+        # Wait for client
+        cd ..
+        for i in {1..60}; do
+          if curl -s http://localhost:3000 > /dev/null 2>&1; then
+            echo "✅ Next.js ready!"
+            break
+          fi
+          sleep 2
+          if [ $i -eq 60 ]; then
+            echo "❌ Next.js failed to start"
+            exit 1
+          fi
+        done
+
+    - name: Run E2E Tests with Enhanced Script
+      run: |
+        echo "🧪 Running E2E tests using enhanced script..."
+        # Use the enhanced script with CI mode
+        ./scripts/test-e2e.sh --skip-setup --ci
+      env:
+        CI: true
+        GITHUB_ACTIONS: true
+
+    - name: Cleanup processes
+      if: always()
+      run: |
+        echo "🧹 Cleaning up background processes..."
+        if [ ! -z "$ANVIL_PID" ]; then
+          kill $ANVIL_PID || true
+        fi
+        if [ ! -z "$CLIENT_PID" ]; then
+          kill $CLIENT_PID || true
+        fi
+        # Cleanup any remaining processes
+        pkill anvil || true
+        pkill -f "next dev" || true
+
+    - name: Upload Playwright Report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: playwright-report
+        path: e2e/playwright-report/
+        retention-days: 30
+
+    - name: Upload Test Results
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: test-results  
+        path: e2e/test-results/
+        retention-days: 30
+
+    - name: Upload Environment Logs
+      uses: actions/upload-artifact@v4
+      if: failure()
+      with:
+        name: environment-logs
+        path: |
+          contracts/anvil.log
+          dev.log
+        retention-days: 7
+
+    - name: Test Summary
+      if: always()
+      run: |
+        echo ""
+        echo "🎯 E2E TESTS COMPLETED"
+        echo "====================="
+        if [ "${{ job.status }}" = "success" ]; then
+          echo "✅ All E2E tests passed!"
+          echo "🚀 Full stack integration working perfectly"
+          echo "📊 Reports uploaded to artifacts"
+        else
+          echo "❌ Some E2E tests failed"
+          echo "💡 Check test artifacts for detailed results"
+          echo "🔍 Review environment logs if available"
+        fi

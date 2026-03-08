@@ -1,0 +1,18 @@
+# Build artifacts and generated files
+.next/
+node_modules/
+dist/
+build/
+coverage/
+.nyc_output/
+
+# Minified files
+**/*.min.js
+**/*.min.css
+
+# Auto-generated files
+client/generated.ts
+client/config/deployments.auto.ts
+**/*.auto.ts
+**/*.generated.ts
+**/*.generated.tsx
