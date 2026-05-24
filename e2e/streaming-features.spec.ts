@@ -337,7 +337,9 @@ test.describe("🌊 Streaming Features E2E", () => {
 		let attempts = 0;
 		while (attempts < 20) {
 			// Max 20 tab presses to find streaming tab
-			const focused = await page.locator(":focus").textContent();
+			const focused = await page.evaluate(
+				() => document.activeElement?.textContent ?? "",
+			);
 			if (focused?.includes("Streaming")) {
 				await page.keyboard.press("Enter");
 				break;
