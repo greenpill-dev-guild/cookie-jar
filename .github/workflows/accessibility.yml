@@ -36,6 +36,9 @@ jobs:
       with:
         version: nightly
 
+    - name: Apply OpenZeppelin compatibility shims
+      run: ./scripts/oz-compat.sh
+
     - name: Install Playwright Browsers
       run: npx playwright install --with-deps
 

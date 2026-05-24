@@ -92,25 +92,11 @@ jobs:
           echo "✅ No audit results - dependencies are clean"
         fi
         
-    - name: Check for known vulnerabilities with audit-ci
+    - name: Check for critical vulnerabilities with Bun audit
       run: |
         echo ""
-        echo "🔍 Running audit-ci for strict vulnerability checking..."
-        cd client
-        
-        # Install audit-ci if not available
-        if ! command -v audit-ci &> /dev/null; then
-          npm install -g audit-ci
-        fi
-        
-        # Run audit-ci with moderate level (fails CI on moderate+ vulnerabilities)
-        audit-ci --moderate --report-type summary || {
-          echo ""
-          echo "❌ Critical or high severity vulnerabilities found!"
-          echo "💡 Please update dependencies or add exceptions if needed"
-          echo "📋 Run 'npm audit' locally for detailed information (bun audit support coming soon)"
-          exit 1
-        }
+        echo "🔍 Running Bun audit for strict critical vulnerability checking..."
+        bun audit --audit-level critical
         
     - name: License compliance check
       run: |
@@ -165,6 +151,9 @@ jobs:
       uses: foundry-rs/foundry-toolchain@v1
       with:
         version: nightly
+
+    - name: Apply OpenZeppelin compatibility shims
+      run: ./scripts/oz-compat.sh
         
     - name: Build contracts
       run: |
