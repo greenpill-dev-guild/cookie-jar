@@ -11,7 +11,7 @@ on:
 
 env:
   NODE_VERSION: '18'
-  BUN_VERSION: '1.0'
+  BUN_VERSION: '1.3.10'
 
 jobs:
   accessibility-tests:

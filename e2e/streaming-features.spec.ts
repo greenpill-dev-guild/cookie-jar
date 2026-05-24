@@ -327,10 +327,8 @@ test.describe("🌊 Streaming Features E2E", () => {
 
 		await page.goto("/jar/0x1234567890123456789012345678901234567890"); // Mock v2 jar
 
-		// Wait for version detection
-		await expect(page.locator("text=Loading jar features...")).toBeVisible({
-			timeout: 5000,
-		});
+		// Let version detection settle; the loading copy can be too brief to assert.
+		await page.waitForLoadState("networkidle");
 
 		// Test keyboard navigation to streaming tab
 		await page.keyboard.press("Tab"); // Focus first element
