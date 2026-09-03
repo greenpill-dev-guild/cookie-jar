@@ -7,6 +7,10 @@ import { useFormContext } from "react-hook-form";
 import { isAddress } from "viem";
 import { useChainId } from "wagmi";
 import { NFTSelector, type SelectedNFT } from "@/components/nft/NFTSelector";
+import type {
+	AccessMethod,
+	ProtocolConfig as SelectorProtocolConfig,
+} from "@/components/nft/ProtocolSelector";
 import { ProtocolSelector } from "@/components/nft/ProtocolSelector";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -20,21 +24,17 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
+import { isPoapSupportedChain } from "@/config/supported-networks";
+import { useToast } from "@/hooks/app/useToast";
 import {
 	AccessType,
+	type JarCreationFormData,
 	METHOD_TO_ACCESS_TYPE,
 	NFTType,
 	WithdrawalTypeOptions,
-	type JarCreationFormData,
 } from "@/hooks/jar/schemas/jarCreationSchema";
-import type {
-	AccessMethod,
-	ProtocolConfig as SelectorProtocolConfig,
-} from "@/components/nft/ProtocolSelector";
-import { useToast } from "@/hooks/app/useToast";
-import { ETH_ADDRESS } from "@/lib/blockchain/token-utils";
 import { shortenAddress } from "@/lib/app/utils";
-import { isPoapSupportedChain } from "@/config/supported-networks";
+import { ETH_ADDRESS } from "@/lib/blockchain/token-utils";
 
 interface StepContentProps {
 	step: number;

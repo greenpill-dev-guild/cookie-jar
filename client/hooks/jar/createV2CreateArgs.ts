@@ -1,5 +1,5 @@
+import { type ContractFunctionArgs, isAddress } from "viem";
 import type { cookieJarFactoryAbi } from "@/generated";
-import { isAddress, type ContractFunctionArgs } from "viem";
 import {
 	HATS_PROTOCOL_ADDRESS,
 	POAP_TOKEN_ADDRESS,
@@ -7,8 +7,8 @@ import {
 } from "@/lib/blockchain/constants";
 import {
 	AccessType,
-	NFTType,
 	type JarCreationFormData,
+	NFTType,
 } from "./schemas/jarCreationSchema";
 
 export const FACTORY_DEFAULT_FEE_SENTINEL = 2n ** 256n - 1n;

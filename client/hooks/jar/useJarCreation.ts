@@ -25,11 +25,11 @@ import {
 } from "./createV2CreateArgs";
 import {
 	AccessType,
-	NFTType,
-	WithdrawalTypeOptions,
-	jarCreationSchema,
 	type JarCreationFormData,
+	jarCreationSchema,
+	NFTType,
 	type ProtocolConfig,
+	WithdrawalTypeOptions,
 } from "./schemas/jarCreationSchema";
 
 // Re-export for backward compatibility (used by StepContent, page, etc.)
