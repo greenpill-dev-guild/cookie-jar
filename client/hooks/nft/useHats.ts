@@ -260,7 +260,7 @@ export function useHats(options: UseHatsOptions = {}): UseHatsResult {
 				}
 			}
 		},
-		[chainId],
+		[chainId]
 	);
 
 	/**
@@ -306,7 +306,7 @@ export function useHats(options: UseHatsOptions = {}): UseHatsResult {
 				}
 			}
 		},
-		[chainId],
+		[chainId]
 	);
 
 	/**
@@ -327,7 +327,7 @@ export function useHats(options: UseHatsOptions = {}): UseHatsResult {
 				return [];
 			}
 		},
-		[chainId],
+		[chainId]
 	);
 
 	/** Public validateHatId API exposed to consumers. */
@@ -335,7 +335,7 @@ export function useHats(options: UseHatsOptions = {}): UseHatsResult {
 		async (hatId: string): Promise<HatInfo | null> => {
 			return validateHatIdImpl(hatId);
 		},
-		[validateHatIdImpl],
+		[validateHatIdImpl]
 	);
 
 	/** Refetch all data with AbortController guards for in-flight calls. */

@@ -98,7 +98,7 @@ describeOrSkip("useJarCreation", () => {
 				React.createElement(
 					QueryClientProvider,
 					{ client: queryClient },
-					children,
+					children
 				),
 		});
 	};
@@ -114,7 +114,7 @@ describeOrSkip("useJarCreation", () => {
 			const { result } = renderHookWithProviders();
 
 			expect(result.current.form.getValues("supportedCurrency")).toBe(
-				ETH_ADDRESS,
+				ETH_ADDRESS
 			);
 		});
 	});
@@ -190,7 +190,7 @@ describeOrSkip("useJarCreation", () => {
 
 			expect(validation.isValid).toBe(false);
 			expect(validation.errors).toContain(
-				"Fixed withdrawal amount must be greater than 0",
+				"Fixed withdrawal amount must be greater than 0"
 			);
 		});
 
@@ -205,7 +205,7 @@ describeOrSkip("useJarCreation", () => {
 
 			expect(validation.isValid).toBe(false);
 			expect(validation.errors).toContain(
-				"Withdrawal interval must be greater than 0 days",
+				"Withdrawal interval must be greater than 0 days"
 			);
 		});
 
@@ -221,7 +221,7 @@ describeOrSkip("useJarCreation", () => {
 
 			expect(validation.isValid).toBe(false);
 			expect(validation.errors).toContain(
-				"Custom fee must be between 0 and 100 percent",
+				"Custom fee must be between 0 and 100 percent"
 			);
 		});
 	});
@@ -240,13 +240,13 @@ describeOrSkip("useJarCreation", () => {
 				result.current.form.setValue("showCustomCurrency", true);
 				result.current.form.setValue(
 					"customCurrencyAddress",
-					"0x1234567890123456789012345678901234567890",
+					"0x1234567890123456789012345678901234567890"
 				);
 			});
 
 			expect(result.current.form.getValues("showCustomCurrency")).toBe(true);
 			expect(result.current.form.getValues("customCurrencyAddress")).toBe(
-				"0x1234567890123456789012345678901234567890",
+				"0x1234567890123456789012345678901234567890"
 			);
 		});
 	});

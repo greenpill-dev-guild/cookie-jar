@@ -72,7 +72,7 @@ function toBigIntStrict(value: unknown): bigint | null {
 
 function protocolValue(
 	protocolConfig: JarCreationFormData["protocolConfig"],
-	keys: string[],
+	keys: string[]
 ): unknown {
 	const raw = protocolConfig as unknown as Record<string, unknown>;
 	for (const key of keys) {
@@ -133,13 +133,13 @@ function resolveAccessConfig(values: JarCreationFormData): {
 	if (values.accessType === AccessType.POAP) {
 		const eventId = toBigIntOr(
 			0n,
-			protocolValue(protocolConfig, ["poapEventId", "eventId"]),
+			protocolValue(protocolConfig, ["poapEventId", "eventId"])
 		);
 		return {
 			accessType: ContractAccessType.ERC721,
 			nftRequirement: {
 				nftContract: toAddressOrZero(
-					protocolValue(protocolConfig, ["poapContractAddress"]),
+					protocolValue(protocolConfig, ["poapContractAddress"])
 				),
 				tokenId: eventId,
 				minBalance: 0n,
@@ -153,7 +153,7 @@ function resolveAccessConfig(values: JarCreationFormData): {
 			accessType: ContractAccessType.ERC721,
 			nftRequirement: {
 				nftContract: toAddressOrZero(
-					protocolValue(protocolConfig, ["unlockAddress"]),
+					protocolValue(protocolConfig, ["unlockAddress"])
 				),
 				tokenId: 0n,
 				minBalance: 0n,
@@ -170,7 +170,7 @@ function resolveAccessConfig(values: JarCreationFormData): {
 					protocolValue(protocolConfig, [
 						"hypercertAddress",
 						"hypercertContract",
-					]),
+					])
 				),
 				tokenId: toBigIntOr(
 					0n,
@@ -178,11 +178,11 @@ function resolveAccessConfig(values: JarCreationFormData): {
 						"hypercertTokenId",
 						"hypercertId",
 						"tokenId",
-					]),
+					])
 				),
 				minBalance: toBigIntOr(
 					1n,
-					protocolValue(protocolConfig, ["hypercertMinBalance"]),
+					protocolValue(protocolConfig, ["hypercertMinBalance"])
 				),
 				isPoapEventGate: false,
 			},
@@ -194,11 +194,11 @@ function resolveAccessConfig(values: JarCreationFormData): {
 		accessType: ContractAccessType.ERC1155,
 		nftRequirement: {
 			nftContract: toAddressOrZero(
-				protocolValue(protocolConfig, ["hatsAddress", "hatsContract"]),
+				protocolValue(protocolConfig, ["hatsAddress", "hatsContract"])
 			),
 			tokenId: toBigIntOr(
 				0n,
-				protocolValue(protocolConfig, ["hatsId", "hatId"]),
+				protocolValue(protocolConfig, ["hatsId", "hatId"])
 			),
 			minBalance: 1n,
 			isPoapEventGate: false,
@@ -207,7 +207,7 @@ function resolveAccessConfig(values: JarCreationFormData): {
 }
 
 export function getAccessConfigValidationError(
-	values: JarCreationFormData,
+	values: JarCreationFormData
 ): string | undefined {
 	const protocolConfig = values.protocolConfig;
 

@@ -217,7 +217,7 @@ export const UnlockMembershipStatus: React.FC<UnlockMembershipStatusProps> = ({
 										onClick={() =>
 											window.open(
 												`https://etherscan.io/address/${lockAddress}`,
-												"_blank",
+												"_blank"
 											)
 										}
 									>

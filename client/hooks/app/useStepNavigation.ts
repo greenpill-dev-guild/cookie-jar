@@ -42,7 +42,7 @@ interface StepNavigationReturn {
  * ```
  */
 export const useStepNavigation = (
-	isV2Contract: boolean,
+	isV2Contract: boolean
 ): StepNavigationReturn => {
 	const [currentStep, setCurrentStep] = useState(1);
 	const totalSteps = isV2Contract ? 4 : 3; // Skip access control for v1

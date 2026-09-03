@@ -1,154 +1,154 @@
 {
-  "$schema": "https://biomejs.dev/schemas/2.2.5/schema.json",
-  "vcs": {
-    "enabled": true,
-    "clientKind": "git",
-    "useIgnoreFile": true
-  },
-  "files": {
-    "ignoreUnknown": false,
-    "experimentalScannerIgnores": [
-      "node_modules",
-      ".next",
-      ".git",
-      "lib",
-      "out",
-      "cache",
-      "broadcast",
-      "coverage",
-      "dist",
-      "build",
-      "playwright-report",
-      "test-results",
-      ".claude"
-    ],
-    "includes": [
-      "client/**",
-      "e2e/**/*.ts",
-      "!**/.next",
-      "!**/node_modules",
-      "!**/dist",
-      "!**/build",
-      "!**/coverage",
-      "!**/.nyc_output",
-      "!client/generated.ts",
-      "!client/config/deployments.auto.ts",
-      "!**/*.auto.ts",
-      "!**/*.generated.ts",
-      "!**/*.generated.tsx",
-      "!**/*.min.js",
-      "!**/*.min.css",
-      "!e2e/playwright-report",
-      "!e2e/test-results"
-    ]
-  },
-  "css": {
-    "formatter": {
-      "enabled": true,
-      "quoteStyle": "double"
-    },
-    "linter": {
-      "enabled": true
-    }
-  },
-  "formatter": {
-    "enabled": true,
-    "formatWithErrors": false,
-    "indentStyle": "space",
-    "indentWidth": 2,
-    "lineWidth": 80,
-    "lineEnding": "lf"
-  },
-  "linter": {
-    "enabled": true,
-    "rules": {
-      "recommended": true,
-      "correctness": {
-        "noUnusedVariables": "error",
-        "useExhaustiveDependencies": "error",
-        "useHookAtTopLevel": "error"
-      },
-      "style": {
-        "useConst": "error"
-      },
-      "suspicious": {
-        "noExplicitAny": "warn",
-        "noUnknownAtRules": "off"
-      },
-      "a11y": {
-        "recommended": true
-      }
-    }
-  },
-  "javascript": {
-    "formatter": {
-      "quoteStyle": "single",
-      "jsxQuoteStyle": "double",
-      "trailingCommas": "es5",
-      "semicolons": "always",
-      "arrowParentheses": "always",
-      "bracketSpacing": true,
-      "quoteProperties": "asNeeded"
-    }
-  },
-  "json": {
-    "formatter": {
-      "enabled": true
-    }
-  },
-  "overrides": [
-    {
-      "includes": [
-        "**/__tests__/**",
-        "**/*.test.ts",
-        "**/*.test.tsx",
-        "**/*.spec.ts",
-        "e2e/**/*.ts"
-      ],
-      "linter": {
-        "rules": {
-          "suspicious": {
-            "noExplicitAny": "off"
-          }
-        }
-      }
-    },
-    {
-      "includes": ["**/generated.ts", "**/deployments.auto.ts", "**/*.auto.ts"],
-      "formatter": {
-        "enabled": false
-      },
-      "linter": {
-        "enabled": false,
-        "rules": {
-          "correctness": {
-            "noUnusedVariables": "off",
-            "useExhaustiveDependencies": "off",
-            "useHookAtTopLevel": "off"
-          },
-          "style": {
-            "useConst": "off"
-          },
-          "suspicious": {
-            "noExplicitAny": "off",
-            "noArrayIndexKey": "off"
-          }
-        }
-      }
-    },
-    {
-      "includes": [
-        "**/generated/**/*",
-        "**/*.generated.ts",
-        "**/*.generated.tsx",
-        "e2e/playwright-report/**"
-      ],
-      "formatter": {
-        "enabled": false
-      },
-      "linter": {
-        "enabled": false
-      }
-    }
-  ]
+	"$schema": "https://biomejs.dev/schemas/2.2.5/schema.json",
+	"vcs": {
+		"enabled": true,
+		"clientKind": "git",
+		"useIgnoreFile": true
+	},
+	"files": {
+		"ignoreUnknown": false,
+		"experimentalScannerIgnores": [
+			"node_modules",
+			".next",
+			".git",
+			"lib",
+			"out",
+			"cache",
+			"broadcast",
+			"coverage",
+			"dist",
+			"build",
+			"playwright-report",
+			"test-results",
+			".claude"
+		],
+		"includes": [
+			"client/**",
+			"e2e/**/*.ts",
+			"!**/.next",
+			"!**/node_modules",
+			"!**/dist",
+			"!**/build",
+			"!**/coverage",
+			"!**/.nyc_output",
+			"!client/generated.ts",
+			"!client/config/deployments.auto.ts",
+			"!**/*.auto.ts",
+			"!**/*.generated.ts",
+			"!**/*.generated.tsx",
+			"!**/*.min.js",
+			"!**/*.min.css",
+			"!e2e/playwright-report",
+			"!e2e/test-results"
+		]
+	},
+	"css": {
+		"formatter": {
+			"enabled": true,
+			"quoteStyle": "double"
+		},
+		"linter": {
+			"enabled": true
+		}
+	},
+	"formatter": {
+		"enabled": true,
+		"formatWithErrors": false,
+		"indentStyle": "tab",
+		"indentWidth": 2,
+		"lineWidth": 80,
+		"lineEnding": "lf"
+	},
+	"linter": {
+		"enabled": true,
+		"rules": {
+			"recommended": true,
+			"correctness": {
+				"noUnusedVariables": "error",
+				"useExhaustiveDependencies": "error",
+				"useHookAtTopLevel": "error"
+			},
+			"style": {
+				"useConst": "error"
+			},
+			"suspicious": {
+				"noExplicitAny": "warn",
+				"noUnknownAtRules": "off"
+			},
+			"a11y": {
+				"recommended": true
+			}
+		}
+	},
+	"javascript": {
+		"formatter": {
+			"quoteStyle": "double",
+			"jsxQuoteStyle": "double",
+			"trailingCommas": "es5",
+			"semicolons": "always",
+			"arrowParentheses": "always",
+			"bracketSpacing": true,
+			"quoteProperties": "asNeeded"
+		}
+	},
+	"json": {
+		"formatter": {
+			"enabled": true
+		}
+	},
+	"overrides": [
+		{
+			"includes": [
+				"**/__tests__/**",
+				"**/*.test.ts",
+				"**/*.test.tsx",
+				"**/*.spec.ts",
+				"e2e/**/*.ts"
+			],
+			"linter": {
+				"rules": {
+					"suspicious": {
+						"noExplicitAny": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": ["**/generated.ts", "**/deployments.auto.ts", "**/*.auto.ts"],
+			"formatter": {
+				"enabled": false
+			},
+			"linter": {
+				"enabled": false,
+				"rules": {
+					"correctness": {
+						"noUnusedVariables": "off",
+						"useExhaustiveDependencies": "off",
+						"useHookAtTopLevel": "off"
+					},
+					"style": {
+						"useConst": "off"
+					},
+					"suspicious": {
+						"noExplicitAny": "off",
+						"noArrayIndexKey": "off"
+					}
+				}
+			}
+		},
+		{
+			"includes": [
+				"**/generated/**/*",
+				"**/*.generated.ts",
+				"**/*.generated.tsx",
+				"e2e/playwright-report/**"
+			],
+			"formatter": {
+				"enabled": false
+			},
+			"linter": {
+				"enabled": false
+			}
+		}
+	]
 }

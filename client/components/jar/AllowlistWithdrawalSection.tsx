@@ -44,7 +44,7 @@ export const AllowlistWithdrawalSection: React.FC<
 }) => {
 	// Get token information using the token utils
 	const { symbol: tokenSymbol, decimals: tokenDecimals } = useTokenInfo(
-		config?.currency || ETH_ADDRESS,
+		config?.currency || ETH_ADDRESS
 	);
 
 	// State for validation errors
@@ -95,7 +95,7 @@ export const AllowlistWithdrawalSection: React.FC<
 									? formatTokenAmount(
 											BigInt(config.fixedAmount),
 											tokenDecimals,
-											tokenSymbol,
+											tokenSymbol
 										)
 									: `0 ${tokenSymbol}`}
 								)
@@ -117,7 +117,7 @@ export const AllowlistWithdrawalSection: React.FC<
 						? formatTokenAmount(
 								BigInt(config.fixedAmount),
 								tokenDecimals,
-								tokenSymbol,
+								tokenSymbol
 							)
 						: `0 ${tokenSymbol}`}{" "}
 					from this jar.
@@ -187,7 +187,7 @@ export const AllowlistWithdrawalSection: React.FC<
 								? formatTokenAmount(
 										BigInt(config.maxWithdrawal),
 										tokenDecimals,
-										tokenSymbol,
+										tokenSymbol
 									)
 								: `0 ${tokenSymbol}`}
 						</p>
@@ -275,7 +275,7 @@ export const AllowlistWithdrawalSection: React.FC<
 								? formatTokenAmount(
 										BigInt(config.maxWithdrawal),
 										tokenDecimals,
-										tokenSymbol,
+										tokenSymbol
 									)
 								: `0 ${tokenSymbol}`}
 						</p>

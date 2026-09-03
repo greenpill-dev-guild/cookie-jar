@@ -62,7 +62,7 @@ export interface JarConfig {
  */
 export const useJarPermissions = (
 	jarAddress: `0x${string}` | undefined,
-	config: JarConfig | undefined,
+	config: JarConfig | undefined
 ): JarPermissions => {
 	const { address: userAddress } = useAccount();
 	const _chainId = useChainId();

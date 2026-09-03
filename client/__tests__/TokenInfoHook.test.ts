@@ -55,7 +55,7 @@ describe("Token Info Hook Logic", () => {
 
 			const result = mockTokenInfo(
 				"0xA0b86a33E6441c0C4CC2E6C7B8B0B2C4B8C4F8E1",
-				mockData,
+				mockData
 			);
 
 			expect(result).toEqual(mockData);

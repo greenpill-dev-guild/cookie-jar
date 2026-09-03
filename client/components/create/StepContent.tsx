@@ -132,7 +132,7 @@ const BasicConfigStep: React.FC = () => {
 				setValue("customCurrencyAddress", "");
 			}
 		},
-		[setValue],
+		[setValue]
 	);
 
 	const handleCustomCurrencySubmit = useCallback(async () => {
@@ -183,19 +183,19 @@ const BasicConfigStep: React.FC = () => {
 
 		setValue(
 			"jarName",
-			randomNames[Math.floor(Math.random() * randomNames.length)],
+			randomNames[Math.floor(Math.random() * randomNames.length)]
 		);
 		setValue(
 			"metadata",
-			randomDescriptions[Math.floor(Math.random() * randomDescriptions.length)],
+			randomDescriptions[Math.floor(Math.random() * randomDescriptions.length)]
 		);
 		setValue(
 			"imageUrl",
-			randomImages[Math.floor(Math.random() * randomImages.length)],
+			randomImages[Math.floor(Math.random() * randomImages.length)]
 		);
 		setValue(
 			"externalLink",
-			randomLinks[Math.floor(Math.random() * randomLinks.length)],
+			randomLinks[Math.floor(Math.random() * randomLinks.length)]
 		);
 
 		if (Math.random() > 0.5) {
@@ -206,7 +206,7 @@ const BasicConfigStep: React.FC = () => {
 		if (Math.random() > 0.7) {
 			setValue(
 				"supportedCurrency",
-				"0x036CbD53842c5426634e7929541eC2318f3dCF7e",
+				"0x036CbD53842c5426634e7929541eC2318f3dCF7e"
 			);
 		}
 
@@ -420,7 +420,7 @@ const WithdrawalSettingsStep: React.FC = () => {
 						onValueChange={(value) =>
 							setValue(
 								"withdrawalOption",
-								parseInt(value, 10) as WithdrawalTypeOptions,
+								parseInt(value, 10) as WithdrawalTypeOptions
 							)
 						}
 					>
@@ -572,12 +572,12 @@ const AccessControlStep: React.FC = () => {
 				if (config.nftTypes) {
 					setValue(
 						"nftTypes",
-						(config.nftTypes as number[]).map((t: number) => t as NFTType),
+						(config.nftTypes as number[]).map((t: number) => t as NFTType)
 					);
 				}
 			}
 		},
-		[setValue],
+		[setValue]
 	);
 
 	const handleAddNFT = useCallback(
@@ -588,7 +588,7 @@ const AccessControlStep: React.FC = () => {
 			const currentAddresses = getValues("nftAddresses");
 			const currentTypes = getValues("nftTypes");
 			const normalizedCurrentAddresses = currentAddresses.map((item) =>
-				item.trim().toLowerCase(),
+				item.trim().toLowerCase()
 			);
 			const existingIndex =
 				normalizedCurrentAddresses.indexOf(normalizedAddress);
@@ -603,7 +603,7 @@ const AccessControlStep: React.FC = () => {
 			setValue("nftAddresses", [...currentAddresses, normalizedAddress]);
 			setValue("nftTypes", [...currentTypes, type as NFTType]);
 		},
-		[getValues, setValue],
+		[getValues, setValue]
 	);
 
 	const handleRemoveNFT = useCallback(
@@ -612,14 +612,14 @@ const AccessControlStep: React.FC = () => {
 			const currentTypes = getValues("nftTypes");
 			setValue(
 				"nftAddresses",
-				currentAddresses.filter((_, i) => i !== index),
+				currentAddresses.filter((_, i) => i !== index)
 			);
 			setValue(
 				"nftTypes",
-				currentTypes.filter((_, i) => i !== index),
+				currentTypes.filter((_, i) => i !== index)
 			);
 		},
-		[getValues, setValue],
+		[getValues, setValue]
 	);
 
 	return (

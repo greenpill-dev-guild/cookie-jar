@@ -25,7 +25,7 @@ export function BackButton({ className = "", children }: BackButtonProps) {
 		<div
 			className={cn(
 				"flex items-center justify-between w-full bg-white rounded-xl py-2 px-4 shadow-sm",
-				className,
+				className
 			)}
 		>
 			<button

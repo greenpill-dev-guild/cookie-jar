@@ -198,7 +198,7 @@ export const useJarCreation = () => {
 		if (accessType === AccessType.NFTGated) {
 			if (nftAddresses.length === 0) {
 				errors.push(
-					"At least one NFT address is required for NFT-gated access",
+					"At least one NFT address is required for NFT-gated access"
 				);
 			}
 
@@ -289,7 +289,7 @@ export const useJarCreation = () => {
 		try {
 			if (!factoryAddress) {
 				throw new Error(
-					`No contract address found for the current network (Chain ID: ${chainId}). Please switch to a supported network.`,
+					`No contract address found for the current network (Chain ID: ${chainId}). Please switch to a supported network.`
 				);
 			}
 

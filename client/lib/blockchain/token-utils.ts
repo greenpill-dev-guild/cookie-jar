@@ -88,7 +88,7 @@ export function formatTokenAmount(
 	amount: bigint | undefined,
 	decimals: number,
 	symbol: string,
-	maxDecimals: number = 4,
+	maxDecimals: number = 4
 ) {
 	if (!amount) return `0 ${symbol}`;
 
@@ -120,7 +120,7 @@ export function parseTokenAmount(amountStr: string, decimals: number) {
  */
 export function checkDecimals(
 	value: string,
-	tokenDecimals: number,
+	tokenDecimals: number
 ): { value: string | null; error: string | null } {
 	if (value === "") {
 		return { value, error: null };

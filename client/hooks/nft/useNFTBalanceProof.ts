@@ -180,7 +180,7 @@ export const useNFTBalanceProof = ({
 
 		if (contractError) {
 			setError(
-				"Failed to validate NFT ownership. Contract may be invalid or network error.",
+				"Failed to validate NFT ownership. Contract may be invalid or network error."
 			);
 			setProof(null);
 			return;
@@ -228,7 +228,7 @@ export const useNFTBalanceProof = ({
 			if (!proofData || !currentBlock) return true;
 			return Number(currentBlock) - proofData.blockNumber > 5; // Max 5 blocks old
 		},
-		[currentBlock],
+		[currentBlock]
 	);
 
 	// Refresh proof by refetching data
@@ -260,7 +260,7 @@ export const useNFTBalanceProof = ({
 export const validateBalanceProof = (
 	proof: BalanceProof | null,
 	currentBlock: number,
-	minRequiredBalance: bigint = 1n,
+	minRequiredBalance: bigint = 1n
 ): {
 	isValid: boolean;
 	reason?: string;
@@ -306,10 +306,10 @@ export const useMultipleNFTBalanceProofs = (
 		tokenId: string;
 		tokenType: "ERC721" | "ERC1155";
 	}>,
-	_userAddress?: string,
+	_userAddress?: string
 ): Map<string, BalanceProof | null> => {
 	const [proofsMap, _setProofsMap] = useState<Map<string, BalanceProof | null>>(
-		new Map(),
+		new Map()
 	);
 
 	// This would be implemented to manage multiple proofs efficiently

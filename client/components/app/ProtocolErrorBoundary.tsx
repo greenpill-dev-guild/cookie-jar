@@ -301,7 +301,7 @@ export function useProtocolErrorBoundary() {
 				}
 			}
 		},
-		[clearError, captureError],
+		[clearError, captureError]
 	);
 
 	return {
@@ -321,7 +321,7 @@ export function withProtocolErrorBoundary<T extends object>(
 		protocolName?: string;
 		maxRetries?: number;
 		showDetails?: boolean;
-	},
+	}
 ) {
 	const WrappedComponent = React.forwardRef<any, T>((props, ref) => (
 		<ProtocolErrorBoundary {...options}>

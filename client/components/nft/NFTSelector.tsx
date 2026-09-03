@@ -147,7 +147,7 @@ const NFTCard = memo<{
 					"cursor-pointer transition-all duration-200 hover:shadow-md",
 					isSelected
 						? "ring-2 ring-[#ff5e14] bg-orange-50"
-						: "hover:border-[#ff5e14]",
+						: "hover:border-[#ff5e14]"
 				)}
 				onClick={handleSelect}
 				onKeyDown={(e) => {
@@ -168,7 +168,7 @@ const NFTCard = memo<{
 									sizes="64px"
 									className={cn(
 										"w-full h-full object-cover transition-opacity duration-200",
-										imageLoaded ? "opacity-100" : "opacity-0",
+										imageLoaded ? "opacity-100" : "opacity-0"
 									)}
 									onLoad={() => setImageLoaded(true)}
 									onError={() => setImageError(true)}
@@ -221,7 +221,7 @@ const NFTCard = memo<{
 				"relative cursor-pointer transition-all duration-200 hover:shadow-md group",
 				isSelected
 					? "ring-2 ring-[#ff5e14] bg-orange-50"
-					: "hover:border-[#ff5e14]",
+					: "hover:border-[#ff5e14]"
 			)}
 			style={{ width, height }}
 			onClick={handleSelect}
@@ -243,7 +243,7 @@ const NFTCard = memo<{
 						sizes="100vw"
 						className={cn(
 							"w-full h-full object-cover rounded transition-opacity duration-200",
-							imageLoaded ? "opacity-100" : "opacity-0",
+							imageLoaded ? "opacity-100" : "opacity-0"
 						)}
 						onLoad={() => setImageLoaded(true)}
 						onError={() => setImageError(true)}
@@ -328,7 +328,7 @@ export const NFTSelector: React.FC<NFTSelectorProps> = ({
 		}
 
 		return nfts.filter((nft) =>
-			contractAddresses.includes(getContractAddress(nft)),
+			contractAddresses.includes(getContractAddress(nft))
 		);
 	}, [nfts, contractAddresses]);
 
@@ -458,7 +458,7 @@ export const NFTSelector: React.FC<NFTSelectorProps> = ({
 							className={cn(
 								activeViewMode === "grid"
 									? "grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
-									: "space-y-3",
+									: "space-y-3"
 							)}
 						>
 							{filteredNfts.map((nft) => {

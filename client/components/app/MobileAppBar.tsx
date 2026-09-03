@@ -57,13 +57,13 @@ function MobileTabButton({
 				"flex flex-col items-center justify-center py-3 transition-all duration-200 flex-1 min-h-[50px]",
 				isActive
 					? "text-[hsl(var(--cj-brand-orange))]"
-					: "text-[hsl(var(--cj-medium-brown))] hover:text-[hsl(var(--cj-brand-orange))]",
+					: "text-[hsl(var(--cj-medium-brown))] hover:text-[hsl(var(--cj-brand-orange))]"
 			)}
 		>
 			<Icon
 				className={cn(
 					"h-5 w-5 mb-1",
-					isActive ? "text-[hsl(var(--cj-brand-orange))]" : "",
+					isActive ? "text-[hsl(var(--cj-brand-orange))]" : ""
 				)}
 			/>
 			<span className="text-xs font-medium">{name}</span>

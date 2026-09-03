@@ -87,7 +87,7 @@ export const jarCreationSchema = z.object({
 				!val ||
 				val === "0x0000000000000000000000000000000000000000" ||
 				isAddress(val),
-			"Must be a valid Ethereum address",
+			"Must be a valid Ethereum address"
 		),
 	supportedCurrency: z.string(),
 	metadata: z.string(),

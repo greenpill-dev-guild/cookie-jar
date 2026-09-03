@@ -32,7 +32,7 @@ export function useDebounce<T>(value: T, delay: number): T {
  */
 export function useDebounceWithLoading<T>(
 	value: T,
-	delay: number,
+	delay: number
 ): {
 	debouncedValue: T;
 	isDebouncing: boolean;

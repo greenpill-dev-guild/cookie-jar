@@ -103,7 +103,7 @@ const nextConfig = {
 				new BundleAnalyzerPlugin({
 					analyzerMode: "static",
 					openAnalyzer: false,
-				}),
+				})
 			);
 		}
 

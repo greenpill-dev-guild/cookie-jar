@@ -44,7 +44,7 @@ export const ProtocolConfigBase: React.FC<ProtocolConfigBaseProps> = ({
 							<div
 								className={cn(
 									"w-8 h-8 rounded-full flex items-center justify-center text-white",
-									color,
+									color
 								)}
 							>
 								{icon}

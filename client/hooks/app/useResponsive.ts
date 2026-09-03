@@ -36,7 +36,7 @@ export interface UseResponsiveReturn {
  * ```
  */
 export function useResponsive(
-	options: UseResponsiveOptions = {},
+	options: UseResponsiveOptions = {}
 ): UseResponsiveReturn {
 	const {
 		breakpoint = 768, // md breakpoint
@@ -72,10 +72,10 @@ export function useResponsive(
 			// Use matchMedia for better performance
 			const mobileQuery = window.matchMedia(`(max-width: ${breakpoint - 1}px)`);
 			const tabletQuery = window.matchMedia(
-				`(min-width: ${breakpoint}px) and (max-width: ${tabletBreakpoint - 1}px)`,
+				`(min-width: ${breakpoint}px) and (max-width: ${tabletBreakpoint - 1}px)`
 			);
 			const desktopQuery = window.matchMedia(
-				`(min-width: ${tabletBreakpoint}px)`,
+				`(min-width: ${tabletBreakpoint}px)`
 			);
 
 			const handleMobileChange = (e: MediaQueryListEvent) => {

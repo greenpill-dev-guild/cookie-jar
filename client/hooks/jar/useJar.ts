@@ -49,7 +49,7 @@ interface CookieJarConfigReturn {
  * ```
  */
 export const useCookieJarConfig = (
-	address: `0x${string}`,
+	address: `0x${string}`
 ): CookieJarConfigReturn => {
 	const { address: userAddress } = useAccount();
 	const chainId = useChainId();

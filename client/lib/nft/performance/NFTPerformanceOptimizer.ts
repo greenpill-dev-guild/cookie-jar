@@ -43,7 +43,7 @@ export class NFTPerformanceOptimizer {
 				"data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgdmlld0JveD0iMCAwIDIwMCAyMDAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PHJlY3Qgd2lkdGg9IjIwMCIgaGVpZ2h0PSIyMDAiIGZpbGw9IiNlNWU1ZTUiLz48dGV4dCB4PSIxMDAiIHk9IjEwMCIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZHk9Ii4zZW0iIGZpbGw9IiM5OTk5OTkiPkVycm9yPC90ZXh0Pjwvc3ZnPg==",
 			preloadStrategy: "viewport",
 			cacheStrategy: "memory",
-		},
+		}
 	): Promise<string> {
 		// Check cache first
 		if (strategy.cacheStrategy !== "none") {
@@ -82,7 +82,7 @@ export class NFTPerformanceOptimizer {
 
 	private async lazyLoadImage(
 		imageUrl: string,
-		strategy: NFTImageLoadingStrategy,
+		strategy: NFTImageLoadingStrategy
 	): Promise<string> {
 		return new Promise((resolve) => {
 			// Return placeholder immediately
@@ -110,7 +110,7 @@ export class NFTPerformanceOptimizer {
 								originalUrl: imageUrl,
 								loadedUrl: URL.createObjectURL(blob),
 							},
-						}),
+						})
 					);
 				} catch {
 					window.dispatchEvent(
@@ -119,7 +119,7 @@ export class NFTPerformanceOptimizer {
 								originalUrl: imageUrl,
 								fallbackUrl: strategy.errorFallback,
 							},
-						}),
+						})
 					);
 				}
 			};
@@ -131,7 +131,7 @@ export class NFTPerformanceOptimizer {
 							originalUrl: imageUrl,
 							fallbackUrl: strategy.errorFallback,
 						},
-					}),
+					})
 				);
 			};
 
@@ -145,7 +145,7 @@ export class NFTPerformanceOptimizer {
 	async optimizeMetadataFetching(
 		contractAddress: string,
 		tokenId: string,
-		provider: any,
+		provider: any
 	): Promise<any> {
 		const cacheKey = `${contractAddress}-${tokenId}`;
 
@@ -171,7 +171,7 @@ export class NFTPerformanceOptimizer {
 				"Failed to fetch NFT metadata:",
 				contractAddress,
 				tokenId,
-				error,
+				error
 			);
 			return null;
 		}
@@ -190,7 +190,7 @@ export class NFTPerformanceOptimizer {
 			batchSize: 5,
 			delayMs: 100,
 			maxConcurrent: 3,
-		},
+		}
 	): Promise<T[]> {
 		const results: T[] = [];
 		const { batchSize, delayMs, maxConcurrent } = options;
@@ -202,7 +202,7 @@ export class NFTPerformanceOptimizer {
 			const limitedBatch = batch.slice(0, maxConcurrent);
 
 			const batchResults = await Promise.allSettled(
-				limitedBatch.map((request) => request()),
+				limitedBatch.map((request) => request())
 			);
 
 			// Process results
@@ -236,7 +236,7 @@ export class NFTPerformanceOptimizer {
 			debounceMs: 300,
 			throttleMs: 1000,
 			minQueryLength: 2,
-		},
+		}
 	) {
 		let debounceTimer: NodeJS.Timeout;
 		let lastSearchTime = 0;
@@ -289,7 +289,7 @@ export class NFTPerformanceOptimizer {
 		options: { maxCacheSize: number; cleanupInterval: number } = {
 			maxCacheSize: 100,
 			cleanupInterval: 5 * 60 * 1000, // 5 minutes
-		},
+		}
 	) {
 		const { maxCacheSize, cleanupInterval } = options;
 
@@ -340,7 +340,7 @@ export class NFTPerformanceOptimizer {
 	 */
 	async preloadCriticalNFTs(
 		nfts: Array<{ contractAddress: string; tokenId: string; imageUrl: string }>,
-		provider: any,
+		provider: any
 	): Promise<void> {
 		const imagePreloads = nfts.map((nft) =>
 			this.optimizeImageLoading(nft.imageUrl, {
@@ -349,11 +349,11 @@ export class NFTPerformanceOptimizer {
 				errorFallback: "",
 				preloadStrategy: "immediate",
 				cacheStrategy: "memory",
-			}),
+			})
 		);
 
 		const metadataPreloads = nfts.map((nft) =>
-			this.optimizeMetadataFetching(nft.contractAddress, nft.tokenId, provider),
+			this.optimizeMetadataFetching(nft.contractAddress, nft.tokenId, provider)
 		);
 
 		// Batch the preloads
@@ -362,7 +362,7 @@ export class NFTPerformanceOptimizer {
 				...imagePreloads.map((p) => () => p),
 				...metadataPreloads.map((p) => () => p),
 			],
-			{ batchSize: 3, delayMs: 50, maxConcurrent: 2 },
+			{ batchSize: 3, delayMs: 50, maxConcurrent: 2 }
 		);
 	}
 
@@ -376,7 +376,7 @@ export class NFTPerformanceOptimizer {
 			memoryUsage: {
 				imageCache: Array.from(this.imageCache.values()).reduce(
 					(total, item) => total + item.blob.size,
-					0,
+					0
 				),
 				metadataCache: JSON.stringify(Array.from(this.metadataCache.values()))
 					.length,
@@ -405,7 +405,7 @@ export class NFTPerformanceOptimizer {
 		options: IntersectionObserverInit = {
 			rootMargin: "100px", // Load images 100px before they come into view
 			threshold: 0.1,
-		},
+		}
 	): IntersectionObserver {
 		return new IntersectionObserver(callback, options);
 	}
@@ -421,7 +421,7 @@ export class NFTPerformanceOptimizer {
 		} = {
 			memoize: true,
 			virtualizeThreshold: 50,
-		},
+		}
 	) {
 		if (options.memoize) {
 			return React.memo(Component, (prevProps, nextProps) => {

@@ -182,7 +182,7 @@ export const contractAddresses: ContractAddresses = {
 			Object.entries(AUTO_FACTORY_ADDRESSES).map(([chainId, address]) => [
 				parseInt(chainId, 10),
 				address as Address,
-			]),
+			])
 		),
 	},
 };
@@ -243,7 +243,7 @@ function getConnectors() {
 					url: "https://cookiejar.greenpill.network",
 					icons: ["https://cookiejar.greenpill.network/logo.png"],
 				},
-			}),
+			})
 		);
 	}
 
@@ -264,7 +264,7 @@ export const wagmiConfig = createConfig({
 				"https://mainnet.base.org",
 				"https://base.blockpi.network/v1/rpc/public",
 				"https://1rpc.io/base",
-			],
+			]
 		),
 		// Optimism Mainnet
 		[optimism.id]: createFallbackTransport(
@@ -276,7 +276,7 @@ export const wagmiConfig = createConfig({
 				"https://mainnet.optimism.io",
 				"https://optimism.blockpi.network/v1/rpc/public",
 				"https://1rpc.io/op",
-			],
+			]
 		),
 		// Arbitrum Mainnet
 		[arbitrum.id]: createFallbackTransport(
@@ -288,7 +288,7 @@ export const wagmiConfig = createConfig({
 				"https://arb1.arbitrum.io/rpc",
 				"https://arbitrum.blockpi.network/v1/rpc/public",
 				"https://1rpc.io/arb",
-			],
+			]
 		),
 		// Gnosis Chain
 		[gnosis.id]: createFallbackTransport(
@@ -297,7 +297,7 @@ export const wagmiConfig = createConfig({
 				"https://rpc.gnosischain.com",
 				"https://gnosis.blockpi.network/v1/rpc/public",
 				"https://1rpc.io/gnosis",
-			],
+			]
 		),
 		// Base Sepolia Testnet - POKT not available, keep as is
 		[baseSepolia.id]: createFallbackTransport(
@@ -305,7 +305,7 @@ export const wagmiConfig = createConfig({
 			[
 				"https://base-sepolia.blockpi.network/v1/rpc/public",
 				"https://1rpc.io/base-sepolia",
-			],
+			]
 		),
 		// Sepolia Testnet - POKT not available, use Alchemy as secondary
 		[sepolia.id]: createFallbackTransport(
@@ -314,7 +314,7 @@ export const wagmiConfig = createConfig({
 				"https://rpc.sepolia.org",
 				"https://sepolia.blockpi.network/v1/rpc/public",
 				"https://1rpc.io/eth-sepolia",
-			],
+			]
 		),
 		// Mainnet (Ethereum)
 		[mainnet.id]: createFallbackTransport(
@@ -326,7 +326,7 @@ export const wagmiConfig = createConfig({
 				"https://eth.llamarpc.com",
 				"https://rpc.ankr.com/eth",
 				"https://ethereum.blockpi.network/v1/rpc/public",
-			],
+			]
 		),
 		// Optimism Sepolia Testnet
 		[optimismSepolia.id]: createFallbackTransport(
@@ -337,17 +337,17 @@ export const wagmiConfig = createConfig({
 			[
 				"https://optimism-sepolia.blockpi.network/v1/rpc/public",
 				"https://1rpc.io/op-sepolia",
-			],
+			]
 		),
 		// Celo Alfajores Testnet - POKT not available, keep as is
 		[celoSepolia.id]: createFallbackTransport(
 			["https://alfajores-forno.celo-testnet.org"],
-			["https://celo-alfajores.blockpi.network/v1/rpc/public"],
+			["https://celo-alfajores.blockpi.network/v1/rpc/public"]
 		),
 		// Celo Mainnet - POKT not available, keep as is
 		[celo.id]: createFallbackTransport(
 			["https://forno.celo.org"],
-			["https://celo.blockpi.network/v1/rpc/public", "https://1rpc.io/celo"],
+			["https://celo.blockpi.network/v1/rpc/public", "https://1rpc.io/celo"]
 		),
 		// Local Anvil network (only in development)
 		...(process.env.NODE_ENV === "development"

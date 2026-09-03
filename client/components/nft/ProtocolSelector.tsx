@@ -214,10 +214,10 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 	recommendedMethod,
 }) => {
 	const [selectedMethod, setSelectedMethod] = useState<AccessMethod>(
-		initialConfig?.method || "Allowlist",
+		initialConfig?.method || "Allowlist"
 	);
 	const [viewMode, setViewMode] = useState<"auto" | "mobile" | "desktop">(
-		"auto",
+		"auto"
 	);
 
 	const { isMobile } = useResponsive();
@@ -227,7 +227,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 			visibleMethods
 				? ACCESS_METHODS.filter((m) => visibleMethods.includes(m.id))
 				: ACCESS_METHODS,
-		[visibleMethods],
+		[visibleMethods]
 	);
 
 	const onConfigChangeRef = useRef(onConfigChange);
@@ -271,7 +271,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 			setSelectedMethod(method);
 			onConfigChange({ ...initialConfig, method });
 		},
-		[onConfigChange, initialConfig],
+		[onConfigChange, initialConfig]
 	);
 
 	const handleConfigUpdate = useCallback(
@@ -281,7 +281,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 				...config,
 			});
 		},
-		[selectedMethod, onConfigChange],
+		[selectedMethod, onConfigChange]
 	);
 
 	const selectedMethodDef = ACCESS_METHODS.find((m) => m.id === selectedMethod);
@@ -326,7 +326,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 								className={cn(
 									"flex flex-col items-center gap-1 h-16 p-2 text-xs transition-all",
 									selectedMethod === method.id &&
-										"bg-[#ff5e14] border-[#ff5e14] text-white hover:bg-[#e5531b]",
+										"bg-[#ff5e14] border-[#ff5e14] text-white hover:bg-[#e5531b]"
 								)}
 							>
 								<span className="text-base">{method.icon}</span>
@@ -350,7 +350,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 												<div
 													className={cn(
 														"w-6 h-6 rounded flex items-center justify-center text-white text-sm",
-														selectedMethodDef.color,
+														selectedMethodDef.color
 													)}
 												>
 													{selectedMethodDef.icon}
@@ -448,7 +448,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 							"cursor-pointer transition-all duration-200 hover:shadow-lg",
 							selectedMethod === method.id
 								? "ring-2 ring-[#ff5e14] bg-orange-50"
-								: "hover:shadow-md",
+								: "hover:shadow-md"
 						)}
 						onClick={() => handleMethodSelect(method.id)}
 						onKeyDown={(e) => {
@@ -512,7 +512,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 					data-testid="config-panel"
 					className={cn(
 						"border-l-4 transition-all duration-200",
-						selectedMethodDef.borderColor,
+						selectedMethodDef.borderColor
 					)}
 				>
 					<CardHeader className="pb-3">
@@ -520,7 +520,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 							<div
 								className={cn(
 									"w-8 h-8 rounded-lg flex items-center justify-center text-white",
-									selectedMethodDef.color,
+									selectedMethodDef.color
 								)}
 							>
 								{selectedMethodDef.icon}

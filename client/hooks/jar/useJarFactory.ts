@@ -178,7 +178,7 @@ function _categorizeError(error: any, jarAddress: Address): JarFetchError {
 // Helper function to fetch jar details
 async function fetchJarDetails(
 	publicClient: any,
-	jarAddress: Address,
+	jarAddress: Address
 ): Promise<CookieJarInfo | null> {
 	try {
 		// Check if we're on local chain (31337) and use individual calls instead of multicall
@@ -459,7 +459,7 @@ export function useCookieJarFactory() {
 						console.warn(`Failed to fetch metadata for index ${index}:`, error);
 						return "Jar Info";
 					}
-				}),
+				})
 			);
 
 			return { addresses, metadatas };
@@ -493,7 +493,7 @@ export function useCookieJarFactory() {
 			for (let i = 0; i < addresses.length; i += batchSize) {
 				const batch = addresses.slice(i, i + batchSize);
 				const batchResults = await Promise.allSettled(
-					batch.map((address) => fetchJarDetails(publicClient, address)),
+					batch.map((address) => fetchJarDetails(publicClient, address))
 				);
 
 				batchResults.forEach((result, batchIndex) => {

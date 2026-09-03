@@ -23,7 +23,7 @@ export function CustomConnectModal({ isOpen, onClose }: ConnectModalProps) {
 	const { isConnected } = useAccount();
 	const { toast } = useToast();
 	const [connectingConnector, setConnectingConnector] = useState<string | null>(
-		null,
+		null
 	);
 
 	// Close modal when connected
@@ -73,7 +73,7 @@ export function CustomConnectModal({ isOpen, onClose }: ConnectModalProps) {
 					<div className="space-y-3 py-4">
 						{connectors.filter(
 							(connector) =>
-								!(connector.id === "injected" && connector.name === "Injected"),
+								!(connector.id === "injected" && connector.name === "Injected")
 						).length === 0 && (
 							<div className="text-center py-8">
 								<AlertCircle className="w-12 h-12 text-gray-400 mx-auto mb-4" />
@@ -89,7 +89,7 @@ export function CustomConnectModal({ isOpen, onClose }: ConnectModalProps) {
 								(connector) =>
 									!(
 										connector.id === "injected" && connector.name === "Injected"
-									),
+									)
 							)
 							.map((connector) => {
 								const isConnecting = connectingConnector === connector.id;

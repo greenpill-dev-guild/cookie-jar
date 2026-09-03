@@ -76,7 +76,7 @@ export function MobileOptimizedForm({
 			return () =>
 				window.visualViewport?.removeEventListener(
 					"resize",
-					handleViewportChange,
+					handleViewportChange
 				);
 		}
 	}, [isMobile]);
@@ -289,7 +289,7 @@ export function useMobileFormOptimizations() {
 	const [isMobile, setIsMobile] = useState(false);
 	const [keyboardVisible, setKeyboardVisible] = useState(false);
 	const [orientation, setOrientation] = useState<"portrait" | "landscape">(
-		"portrait",
+		"portrait"
 	);
 
 	useEffect(() => {
@@ -299,7 +299,7 @@ export function useMobileFormOptimizations() {
 
 			if (mobile) {
 				setOrientation(
-					window.innerWidth > window.innerHeight ? "landscape" : "portrait",
+					window.innerWidth > window.innerHeight ? "landscape" : "portrait"
 				);
 			}
 		};

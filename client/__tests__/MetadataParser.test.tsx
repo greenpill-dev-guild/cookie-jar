@@ -75,17 +75,17 @@ describe("parseMetadata", () => {
 		render(<MetadataTest metadata={metadata} />);
 		expect(screen.getByTestId("name")).toHaveTextContent("My Special Jar");
 		expect(screen.getByTestId("description")).toHaveTextContent(
-			"A detailed description",
+			"A detailed description"
 		);
 		expect(screen.getByTestId("image")).toHaveAttribute(
 			"src",
 			expect.stringContaining(
-				encodeURIComponent("https://example.com/image.png"),
-			),
+				encodeURIComponent("https://example.com/image.png")
+			)
 		);
 		expect(screen.getByTestId("link")).toHaveAttribute(
 			"href",
-			"https://example.com/project",
+			"https://example.com/project"
 		);
 	});
 
@@ -102,8 +102,8 @@ describe("parseMetadata", () => {
 		expect(screen.getByTestId("image")).toHaveAttribute(
 			"src",
 			expect.stringContaining(
-				encodeURIComponent("https://example.com/image.png"),
-			),
+				encodeURIComponent("https://example.com/image.png")
+			)
 		);
 		expect(screen.getByTestId("link")).toHaveAttribute("href", "");
 	});
@@ -117,7 +117,7 @@ describe("parseMetadata", () => {
 		render(<MetadataTest metadata={metadata} />);
 		expect(screen.getByTestId("name")).toHaveTextContent("Cookie Jar"); // fallback to default
 		expect(screen.getByTestId("description")).toHaveTextContent(
-			"Description only",
+			"Description only"
 		);
 	});
 
@@ -126,7 +126,7 @@ describe("parseMetadata", () => {
 
 		render(<MetadataTest metadata={metadata} />);
 		expect(screen.getByTestId("name")).toHaveTextContent(
-			"Legacy string description",
+			"Legacy string description"
 		);
 		expect(screen.getByTestId("description")).toHaveTextContent("");
 		expect(screen.getByTestId("image")).toHaveAttribute("src", "");
@@ -155,17 +155,17 @@ describe("parseMetadata", () => {
 		render(<MetadataTest metadata={metadata} />);
 		expect(screen.getByTestId("name")).toHaveTextContent("Complete Jar");
 		expect(screen.getByTestId("description")).toHaveTextContent(
-			"Full description",
+			"Full description"
 		);
 		expect(screen.getByTestId("image")).toHaveAttribute(
 			"src",
 			expect.stringContaining(
-				encodeURIComponent("https://example.com/complete.png"),
-			),
+				encodeURIComponent("https://example.com/complete.png")
+			)
 		);
 		expect(screen.getByTestId("link")).toHaveAttribute(
 			"href",
-			"https://complete-project.com",
+			"https://complete-project.com"
 		);
 	});
 });

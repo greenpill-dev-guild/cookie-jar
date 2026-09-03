@@ -15,7 +15,7 @@ describeOrSkip("useNFTValidation Hook Logic", () => {
 	// Mock the hook behavior for testing
 	const mockValidationResult = (
 		address: string,
-		_mockContractResponses?: any,
+		_mockContractResponses?: any
 	) => {
 		if (!address) {
 			return {
@@ -125,7 +125,7 @@ describeOrSkip("useNFTValidation Hook Logic", () => {
 
 		it("accepts valid address format", () => {
 			const result = mockValidationResult(
-				"0xERC721000000000000000000000000000000000000",
+				"0xERC721000000000000000000000000000000000000"
 			);
 			expect(result.error).toBeNull();
 			expect(result.isValid).toBe(true);
@@ -135,7 +135,7 @@ describeOrSkip("useNFTValidation Hook Logic", () => {
 	describe("NFT Type Detection", () => {
 		it("detects ERC721 contracts correctly", () => {
 			const result = mockValidationResult(
-				"0xERC721000000000000000000000000000000000000",
+				"0xERC721000000000000000000000000000000000000"
 			);
 			expect(result.isValid).toBe(true);
 			expect(result.detectedType).toBe("ERC721");
@@ -144,7 +144,7 @@ describeOrSkip("useNFTValidation Hook Logic", () => {
 
 		it("detects ERC1155 contracts correctly", () => {
 			const result = mockValidationResult(
-				"0xERC1155000000000000000000000000000000000000",
+				"0xERC1155000000000000000000000000000000000000"
 			);
 			expect(result.isValid).toBe(true);
 			expect(result.detectedType).toBe("ERC1155");
@@ -153,23 +153,23 @@ describeOrSkip("useNFTValidation Hook Logic", () => {
 
 		it("handles contracts without ERC165 support", () => {
 			const result = mockValidationResult(
-				"0xNoERC165000000000000000000000000000000000000",
+				"0xNoERC165000000000000000000000000000000000000"
 			);
 			expect(result.isValid).toBe(false);
 			expect(result.detectedType).toBeNull();
 			expect(result.error).toBe(
-				"Contract does not support ERC165 interface detection",
+				"Contract does not support ERC165 interface detection"
 			);
 		});
 
 		it("handles contracts with ERC165 but no NFT interfaces", () => {
 			const result = mockValidationResult(
-				"0xNotNFT000000000000000000000000000000000000",
+				"0xNotNFT000000000000000000000000000000000000"
 			);
 			expect(result.isValid).toBe(false);
 			expect(result.detectedType).toBeNull();
 			expect(result.error).toBe(
-				"Contract does not support ERC721 or ERC1155 interfaces",
+				"Contract does not support ERC721 or ERC1155 interfaces"
 			);
 		});
 	});
@@ -177,7 +177,7 @@ describeOrSkip("useNFTValidation Hook Logic", () => {
 	describe("Loading States", () => {
 		it("handles loading state correctly", () => {
 			const result = mockValidationResult(
-				"0xLoading0000000000000000000000000000000000",
+				"0xLoading0000000000000000000000000000000000"
 			);
 			expect(result.isLoading).toBe(true);
 			expect(result.error).toBeNull();
@@ -186,12 +186,12 @@ describeOrSkip("useNFTValidation Hook Logic", () => {
 
 		it("handles network errors", () => {
 			const result = mockValidationResult(
-				"0xNetworkError000000000000000000000000000000",
+				"0xNetworkError000000000000000000000000000000"
 			);
 			expect(result.isLoading).toBe(false);
 			expect(result.isValid).toBe(false);
 			expect(result.error).toBe(
-				"Failed to validate contract. Not a valid NFT contract or network error.",
+				"Failed to validate contract. Not a valid NFT contract or network error."
 			);
 		});
 	});

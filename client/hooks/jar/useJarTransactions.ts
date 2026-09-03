@@ -67,7 +67,7 @@ interface TransactionOptions {
 export const useJarTransactions = (
 	config: JarConfig | undefined,
 	addressString: `0x${string}`,
-	options: TransactionOptions = {},
+	options: TransactionOptions = {}
 ) => {
 	const { toast } = useToast();
 	const chainId = useChainId();
@@ -80,7 +80,7 @@ export const useJarTransactions = (
 	const [gateAddress, setGateAddress] = useState<string>("");
 	const [tokenId, setTokenId] = useState<string>("");
 	const [pendingDepositAmount, setPendingDepositAmount] = useState<bigint>(
-		BigInt(0),
+		BigInt(0)
 	);
 	const [approvalCompleted, setApprovalCompleted] = useState(false);
 
@@ -101,7 +101,7 @@ export const useJarTransactions = (
 	const { symbol: tokenSymbol, decimals: tokenDecimals } = useTokenInfo(
 		(isERC20 && config?.currency
 			? config.currency
-			: ETH_ADDRESS) as `0x${string}`,
+			: ETH_ADDRESS) as `0x${string}`
 	);
 
 	const tokenDecimalValue = tokenDecimals || 18;
@@ -230,7 +230,7 @@ export const useJarTransactions = (
 			depositETH,
 			approve,
 			toast,
-		],
+		]
 	);
 
 	// Allowlist withdrawal handlers
@@ -288,7 +288,7 @@ export const useJarTransactions = (
 			abi,
 			withdrawAllowlistFunction,
 			withdrawPurpose,
-		],
+		]
 	);
 
 	// NFT withdrawal handlers
@@ -324,7 +324,7 @@ export const useJarTransactions = (
 			withdrawPurpose,
 			withdrawNFT,
 			abi,
-		],
+		]
 	);
 
 	const handleWithdrawNFTVariable = useCallback(
@@ -364,7 +364,7 @@ export const useJarTransactions = (
 			withdrawPurpose,
 			withdrawNFT,
 			abi,
-		],
+		]
 	);
 
 	// Handle deposit completion

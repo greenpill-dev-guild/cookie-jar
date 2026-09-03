@@ -45,7 +45,7 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
 	const [withdrawalAmount, setWithdrawalAmount] = useState("");
 	const [tokenAddress, setTokenAddress] = useState("");
 	const [tokenToWithdraw, setTokenToWithdraw] = useState<`0x${string}`>(
-		ETH_ADDRESS as `0x${string}`,
+		ETH_ADDRESS as `0x${string}`
 	);
 
 	// Update emergency tokenToWithdraw when tokenAddress changes

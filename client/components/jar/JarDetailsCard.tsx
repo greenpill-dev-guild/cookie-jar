@@ -61,7 +61,7 @@ export function JarDetailsCard({
 		config.balance,
 		tokenDecimals,
 		tokenSymbol,
-		chainId,
+		chainId
 	);
 
 	return (

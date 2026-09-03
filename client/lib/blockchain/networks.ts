@@ -65,7 +65,7 @@ export const getNetworkInfo = (chainId?: number) => {
  */
 export function getExplorerAddressUrl(
 	address: string,
-	chainId: number,
+	chainId: number
 ): string {
 	const explorers: Record<number, string> = {
 		1: "https://etherscan.io",

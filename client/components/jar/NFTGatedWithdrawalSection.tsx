@@ -143,7 +143,7 @@ export const NFTGatedWithdrawalSection: React.FC<
 
 	// Get token information using the token utils
 	const { symbol: tokenSymbol, decimals: tokenDecimals } = useTokenInfo(
-		config?.currency !== ETH_ADDRESS ? config?.currency : undefined,
+		config?.currency !== ETH_ADDRESS ? config?.currency : undefined
 	);
 
 	// Extract NFT gate addresses from config for filtering
@@ -241,7 +241,7 @@ export const NFTGatedWithdrawalSection: React.FC<
 			const validation = validateBalanceProof(
 				balanceProof,
 				Number(currentBlock || 0),
-				1n,
+				1n
 			);
 			setOwnershipVerified(validation.isValid);
 
@@ -264,7 +264,7 @@ export const NFTGatedWithdrawalSection: React.FC<
 				const hasBalance = erc1155Balance && erc1155Balance > BigInt(0);
 				setOwnershipVerified(!!hasBalance);
 				setBalanceError(
-					hasBalance ? null : "You no longer have balance of this NFT",
+					hasBalance ? null : "You no longer have balance of this NFT"
 				);
 			}
 		}
@@ -521,7 +521,7 @@ export const NFTGatedWithdrawalSection: React.FC<
 								? formatTokenAmount(
 										BigInt(config.maxWithdrawal),
 										tokenDecimals,
-										"",
+										""
 									)
 								: undefined
 						}
@@ -532,7 +532,7 @@ export const NFTGatedWithdrawalSection: React.FC<
 							{formatTokenAmount(
 								BigInt(config.maxWithdrawal),
 								tokenDecimals,
-								tokenSymbol,
+								tokenSymbol
 							)}
 						</p>
 					)}
@@ -573,7 +573,7 @@ export const NFTGatedWithdrawalSection: React.FC<
 								? formatTokenAmount(
 										BigInt(config.fixedAmount),
 										tokenDecimals,
-										tokenSymbol,
+										tokenSymbol
 									)
 								: `0 ${tokenSymbol}`}
 						)

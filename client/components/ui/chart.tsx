@@ -21,7 +21,7 @@ export function ChartContainer({
 				acc[`--color-${key}`] = value.color;
 				return acc;
 			},
-			{} as Record<string, string>,
+			{} as Record<string, string>
 		);
 	}, [config]);
 
@@ -57,7 +57,7 @@ export function ChartTooltip<_T>({
 		<div
 			className={cn(
 				"rounded-lg border border-[#4a3520] bg-[#3c2a14] p-2 shadow-sm",
-				className,
+				className
 			)}
 			{...props}
 		/>
@@ -89,7 +89,7 @@ export function ChartTooltipContent<_T>({
 		<div
 			className={cn(
 				"rounded-lg border border-[#4a3520] bg-[#3c2a14] p-2 shadow-sm",
-				className,
+				className
 			)}
 			{...props}
 		>

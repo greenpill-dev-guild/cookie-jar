@@ -53,7 +53,7 @@ export const WithdrawalHistorySection: React.FC<
 												withdrawal.amount,
 												tokenDecimals,
 												tokenSymbol,
-												6,
+												6
 											)}
 										</span>
 									</p>

@@ -38,7 +38,7 @@ const MobileInput = React.forwardRef<HTMLInputElement, MobileInputProps>(
 			value,
 			...props
 		},
-		ref,
+		ref
 	) => {
 		const [showPassword, setShowPassword] = React.useState(false);
 		const [isFocused, setIsFocused] = React.useState(false);
@@ -56,7 +56,7 @@ const MobileInput = React.forwardRef<HTMLInputElement, MobileInputProps>(
 						htmlFor={props.id}
 						className={cn(
 							"text-sm font-medium transition-colors",
-							error ? "text-destructive" : "text-foreground",
+							error ? "text-destructive" : "text-foreground"
 						)}
 					>
 						{label}
@@ -100,7 +100,7 @@ const MobileInput = React.forwardRef<HTMLInputElement, MobileInputProps>(
 							// Disabled state
 							"disabled:cursor-not-allowed disabled:opacity-50",
 
-							className,
+							className
 						)}
 						ref={ref}
 						value={value}
@@ -176,7 +176,7 @@ const MobileInput = React.forwardRef<HTMLInputElement, MobileInputProps>(
 								charCount > maxLength * 0.9
 									? "text-amber-500"
 									: "text-muted-foreground",
-								charCount >= maxLength && "text-destructive",
+								charCount >= maxLength && "text-destructive"
 							)}
 						>
 							{charCount}/{maxLength}
@@ -198,7 +198,7 @@ const MobileInput = React.forwardRef<HTMLInputElement, MobileInputProps>(
 				)}
 			</div>
 		);
-	},
+	}
 );
 
 MobileInput.displayName = "MobileInput";
@@ -232,7 +232,7 @@ const MobileTextarea = React.forwardRef<
 			value,
 			...props
 		},
-		ref,
+		ref
 	) => {
 		const [isFocused, setIsFocused] = React.useState(false);
 		const charCount = String(value || "").length;
@@ -245,7 +245,7 @@ const MobileTextarea = React.forwardRef<
 						htmlFor={props.id}
 						className={cn(
 							"text-sm font-medium transition-colors",
-							error ? "text-destructive" : "text-foreground",
+							error ? "text-destructive" : "text-foreground"
 						)}
 					>
 						{label}
@@ -274,7 +274,7 @@ const MobileTextarea = React.forwardRef<
 						// Disabled state
 						"disabled:cursor-not-allowed disabled:opacity-50",
 
-						className,
+						className
 					)}
 					ref={ref}
 					value={value}
@@ -299,7 +299,7 @@ const MobileTextarea = React.forwardRef<
 								charCount > maxLength * 0.9
 									? "text-amber-500"
 									: "text-muted-foreground",
-								charCount >= maxLength && "text-destructive",
+								charCount >= maxLength && "text-destructive"
 							)}
 						>
 							{charCount}/{maxLength}
@@ -321,7 +321,7 @@ const MobileTextarea = React.forwardRef<
 				)}
 			</div>
 		);
-	},
+	}
 );
 
 MobileTextarea.displayName = "MobileTextarea";

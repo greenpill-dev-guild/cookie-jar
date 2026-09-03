@@ -53,7 +53,7 @@ export function Header() {
 											"flex flex-col items-center justify-center gap-1 w-16 sm:w-20 h-12 sm:h-14 px-1 sm:px-2 py-2 rounded-lg transition-all duration-200",
 											isActive
 												? "bg-[hsl(var(--cj-brand-orange))] text-[hsl(var(--cj-warm-white))] shadow-lg transform scale-105"
-												: "text-[hsl(var(--cj-medium-brown))] hover:bg-[hsl(var(--cj-warm-white))]/10 hover:text-[hsl(var(--cj-dark-brown))] hover:transform hover:scale-105",
+												: "text-[hsl(var(--cj-medium-brown))] hover:bg-[hsl(var(--cj-warm-white))]/10 hover:text-[hsl(var(--cj-dark-brown))] hover:transform hover:scale-105"
 										)}
 									>
 										{item.icon}

@@ -47,13 +47,13 @@ export default function CookieJarPage() {
 	const { config, isLoading, hasError, errors, refetch } = useCookieJarConfig(
 		isValidAddress
 			? addressString
-			: "0x0000000000000000000000000000000000000000",
+			: "0x0000000000000000000000000000000000000000"
 	);
 
 	// Extract hooks
 	const permissions = useJarPermissions(
 		isValidAddress ? addressString : undefined,
-		config,
+		config
 	);
 
 	const metadata = useJarMetadata(config);

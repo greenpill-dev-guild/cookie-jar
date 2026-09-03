@@ -21,8 +21,8 @@ test.describe("🔄 Version Compatibility E2E", () => {
 			});
 			await expect(
 				page.locator(
-					"text=Streaming and token recovery features are available in v2 jars only",
-				),
+					"text=Streaming and token recovery features are available in v2 jars only"
+				)
 			).toBeVisible();
 
 			// Should show upgrade information
@@ -30,7 +30,7 @@ test.describe("🔄 Version Compatibility E2E", () => {
 			await expect(upgradeLink).toBeVisible();
 			await expect(upgradeLink).toHaveAttribute(
 				"href",
-				"https://docs.cookiejar.wtf/migration/v1-to-v2",
+				"https://docs.cookiejar.wtf/migration/v1-to-v2"
 			);
 			await expect(upgradeLink).toHaveAttribute("target", "_blank");
 
@@ -43,19 +43,17 @@ test.describe("🔄 Version Compatibility E2E", () => {
 			// Verify each v2 feature is shown but disabled
 			await expect(page.locator("text=Real-time Streaming")).toBeVisible();
 			await expect(
-				page.locator(
-					"text=Superfluid integration for continuous token streams",
-				),
+				page.locator("text=Superfluid integration for continuous token streams")
 			).toBeVisible();
 
 			await expect(page.locator("text=Multi-token Support")).toBeVisible();
 			await expect(
-				page.locator("text=Automatic token swapping and recovery"),
+				page.locator("text=Automatic token swapping and recovery")
 			).toBeVisible();
 
 			await expect(page.locator("text=Advanced Controls")).toBeVisible();
 			await expect(
-				page.locator("text=Enhanced admin tools and stream management"),
+				page.locator("text=Enhanced admin tools and stream management")
 			).toBeVisible();
 		});
 
@@ -71,7 +69,7 @@ test.describe("🔄 Version Compatibility E2E", () => {
 
 			// Basic navigation should still work
 			const tabs = page.locator(
-				'[role="tab"], .tabs-trigger, text=Get Cookie, text=Jar Deposit',
+				'[role="tab"], .tabs-trigger, text=Get Cookie, text=Jar Deposit'
 			);
 			await expect(tabs.first()).toBeVisible({ timeout: 5000 });
 
@@ -80,7 +78,7 @@ test.describe("🔄 Version Compatibility E2E", () => {
 			if (await depositTab.isVisible()) {
 				await depositTab.click();
 				await expect(
-					page.locator("text=All jar deposits are subject to"),
+					page.locator("text=All jar deposits are subject to")
 				).toBeVisible();
 			}
 
@@ -92,13 +90,13 @@ test.describe("🔄 Version Compatibility E2E", () => {
 				await withdrawTab.click();
 				// Should show withdrawal interface (even for v1)
 				await expect(
-					page.locator('input[placeholder*="amount"], input[type="number"]'),
+					page.locator('input[placeholder*="amount"], input[type="number"]')
 				).toBeVisible();
 			}
 
 			// Streaming tab should NOT exist
 			await expect(
-				page.locator('text=Streaming, [data-testid="streaming-tab"]'),
+				page.locator('text=Streaming, [data-testid="streaming-tab"]')
 			).not.toBeVisible();
 		});
 
@@ -118,7 +116,7 @@ test.describe("🔄 Version Compatibility E2E", () => {
 
 			// Should still show jar details
 			const jarDetails = page.locator(
-				"text=Available Balance, text=Access, text=Status, text=Rules, text=Contract",
+				"text=Available Balance, text=Access, text=Status, text=Rules, text=Contract"
 			);
 			await expect(jarDetails.first()).toBeVisible({ timeout: 10000 });
 
@@ -139,7 +137,7 @@ test.describe("🔄 Version Compatibility E2E", () => {
 					// Purpose field should be available
 					const purposeInput = page
 						.locator(
-							'input[placeholder*="purpose"], textarea[placeholder*="purpose"]',
+							'input[placeholder*="purpose"], textarea[placeholder*="purpose"]'
 						)
 						.first();
 					if (await purposeInput.isVisible()) {
@@ -161,7 +159,7 @@ test.describe("🔄 Version Compatibility E2E", () => {
 			await page.fill(SELECTORS.forms.jarName, "V2 Feature Test Jar");
 			await page.fill(
 				SELECTORS.forms.jarDescription,
-				"Testing complete v2 feature set",
+				"Testing complete v2 feature set"
 			);
 
 			await page.click(SELECTORS.buttons.next);
@@ -190,7 +188,7 @@ test.describe("🔄 Version Compatibility E2E", () => {
 
 			// Should NOT show v1 fallback
 			await expect(
-				page.locator("text=This is a v1 Cookie Jar"),
+				page.locator("text=This is a v1 Cookie Jar")
 			).not.toBeVisible({ timeout: 10000 });
 
 			// Should show streaming tab
@@ -252,12 +250,12 @@ test.describe("🔄 Version Compatibility E2E", () => {
 
 			// Should have traditional admin controls
 			await expect(
-				page.locator("text=Pause Jar, text=Update Settings"),
+				page.locator("text=Pause Jar, text=Update Settings")
 			).toBeVisible();
 
 			// Should have v2-specific admin controls
 			const streamingAdminControls = page.locator(
-				"text=Process Pending, text=Manage Streams, text=Token Recovery",
+				"text=Process Pending, text=Manage Streams, text=Token Recovery"
 			);
 			if (await streamingAdminControls.first().isVisible({ timeout: 10000 })) {
 				console.log("✅ V2 admin streaming controls are available");
@@ -270,7 +268,7 @@ test.describe("🔄 Version Compatibility E2E", () => {
 
 				// Admin should see management interfaces
 				const managementSections = page.locator(
-					"text=Stream Management, text=Token Recovery, text=Pending Tokens",
+					"text=Stream Management, text=Token Recovery, text=Pending Tokens"
 				);
 				await expect(managementSections.first()).toBeVisible({
 					timeout: 10000,
@@ -307,15 +305,15 @@ test.describe("🔄 Version Compatibility E2E", () => {
 				if (testCase.expectStreaming) {
 					// Should show streaming features
 					await expect(
-						page.locator('text=Streaming, [data-testid="streaming-tab"]'),
+						page.locator('text=Streaming, [data-testid="streaming-tab"]')
 					).toBeVisible({ timeout: 15000 });
 				} else {
 					// Should NOT show streaming features
 					await expect(
-						page.locator("text=This is a v1 Cookie Jar"),
+						page.locator("text=This is a v1 Cookie Jar")
 					).toBeVisible({ timeout: 15000 });
 					await expect(
-						page.locator('[data-testid="streaming-tab"]'),
+						page.locator('[data-testid="streaming-tab"]')
 					).not.toBeVisible();
 				}
 
@@ -326,7 +324,7 @@ test.describe("🔄 Version Compatibility E2E", () => {
 						await streamingTab.click();
 						// Should show superfluid-related content
 						await expect(
-							page.locator("text=Real-time, text=Continuous"),
+							page.locator("text=Real-time, text=Continuous")
 						).toBeVisible({ timeout: 10000 });
 					}
 				}
@@ -337,7 +335,7 @@ test.describe("🔄 Version Compatibility E2E", () => {
 					if (await streamingTab.isVisible()) {
 						await streamingTab.click();
 						await expect(
-							page.locator("text=Token Recovery, text=Multi-token"),
+							page.locator("text=Token Recovery, text=Multi-token")
 						).toBeVisible({ timeout: 10000 });
 					}
 				}
@@ -359,7 +357,7 @@ test.describe("🔄 Version Compatibility E2E", () => {
 
 			// Even if version detection fails, basic jar functionality should work
 			await expect(
-				page.locator("text=Available Balance, text=Cookie Jar"),
+				page.locator("text=Available Balance, text=Cookie Jar")
 			).toBeVisible({ timeout: 15000 });
 
 			// Should show some kind of jar interface (either v1 fallback or v2 features)
@@ -428,7 +426,7 @@ test.describe("🔄 Version Compatibility E2E", () => {
 			if (await withdrawTab.isVisible()) {
 				await withdrawTab.click();
 				await expect(
-					page.locator('input[type="number"], input[placeholder*="amount"]'),
+					page.locator('input[type="number"], input[placeholder*="amount"]')
 				).toBeVisible();
 			}
 
@@ -464,11 +462,11 @@ test.describe("🔄 Version Compatibility E2E", () => {
 				// Wait for version-specific content to load
 				if (jar.version === "v1") {
 					await expect(
-						page.locator("text=This is a v1 Cookie Jar"),
+						page.locator("text=This is a v1 Cookie Jar")
 					).toBeVisible({ timeout: 15000 });
 				} else {
 					await expect(
-						page.locator('text=Streaming, [data-testid="streaming-tab"]'),
+						page.locator('text=Streaming, [data-testid="streaming-tab"]')
 					).toBeVisible({ timeout: 15000 });
 				}
 
@@ -484,7 +482,7 @@ test.describe("🔄 Version Compatibility E2E", () => {
 
 				// Color scheme and branding should be consistent
 				const brandingElements = page.locator(
-					'text=Cookie Jar, [class*="orange"], [class*="ff5e14"]',
+					'text=Cookie Jar, [class*="orange"], [class*="ff5e14"]'
 				);
 				await expect(brandingElements.first()).toBeVisible();
 			}
@@ -517,7 +515,7 @@ test.describe("🔄 Version Compatibility E2E", () => {
 
 			// Help links should be available and functional
 			const helpLinks = page.locator(
-				'a[href*="docs"], a[href*="help"], a:has-text("Learn More")',
+				'a[href*="docs"], a[href*="help"], a:has-text("Learn More")'
 			);
 			if (await helpLinks.first().isVisible({ timeout: 5000 })) {
 				await expect(helpLinks.first()).toHaveAttribute("target", "_blank");

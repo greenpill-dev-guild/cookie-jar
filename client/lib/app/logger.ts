@@ -50,7 +50,7 @@ class Logger {
 	private formatMessage(
 		level: LogLevel,
 		message: string,
-		context?: string,
+		context?: string
 	): string {
 		const timestamp = new Date().toISOString();
 		const levelStr = LogLevel[level];
@@ -118,7 +118,7 @@ class Logger {
 		const formattedMessage = this.formatMessage(
 			LogLevel.ERROR,
 			message,
-			context,
+			context
 		);
 
 		if (error) {
@@ -135,7 +135,7 @@ class Logger {
 		if (isSSR || !this.isDevelopment || typeof console === "undefined") return;
 		console.log(
 			`🔧 DEV ${context ? `[${context}]` : ""} ${message}`,
-			data || "",
+			data || ""
 		);
 	}
 }

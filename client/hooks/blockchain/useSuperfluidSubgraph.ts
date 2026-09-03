@@ -46,7 +46,7 @@ export function useSuperfluidSubgraphClient() {
  */
 export function useStreamsByReceiver(
 	receiver: `0x${string}` | undefined,
-	options?: { first?: number; skip?: number },
+	options?: { first?: number; skip?: number }
 ) {
 	const { client, isAvailable } = useSuperfluidSubgraphClient();
 
@@ -62,7 +62,7 @@ export function useStreamsByReceiver(
 						receiver: receiver.toLowerCase(),
 						first: options?.first ?? 100,
 						skip: options?.skip ?? 0,
-					},
+					}
 				);
 
 				return data.streams;
@@ -96,7 +96,7 @@ export function useAccountStreamInfo(account: `0x${string}` | undefined) {
 					GET_ACCOUNT_STREAM_INFO,
 					{
 						account: account.toLowerCase(),
-					},
+					}
 				);
 
 				return data.account;
@@ -122,7 +122,7 @@ export function useAccountStreamInfo(account: `0x${string}` | undefined) {
 export function useStreamByParties(
 	sender: `0x${string}` | undefined,
 	receiver: `0x${string}` | undefined,
-	token: `0x${string}` | undefined,
+	token: `0x${string}` | undefined
 ) {
 	const { client, isAvailable } = useSuperfluidSubgraphClient();
 
@@ -138,7 +138,7 @@ export function useStreamByParties(
 						sender: sender.toLowerCase(),
 						receiver: receiver.toLowerCase(),
 						token: token.toLowerCase(),
-					},
+					}
 				);
 
 				return data.streams[0] || null;
@@ -161,7 +161,7 @@ export function useStreamByParties(
  */
 export function useStreamHistory(
 	receiver: `0x${string}` | undefined,
-	first?: number,
+	first?: number
 ) {
 	const { client, isAvailable } = useSuperfluidSubgraphClient();
 
@@ -176,7 +176,7 @@ export function useStreamHistory(
 					{
 						receiver: receiver.toLowerCase(),
 						first: first ?? 50,
-					},
+					}
 				);
 
 				return data.flowUpdatedEvents;

@@ -53,20 +53,20 @@ export const AllowlistAddressInput: React.FC<AllowlistAddressInputProps> = ({
 	const filterByMode = useCallback(
 		(addrs: `0x${string}`[]) => {
 			const normalizedAllowlist = currentAllowlist.map((addr) =>
-				addr.toLowerCase(),
+				addr.toLowerCase()
 			);
 
 			if (mode === "add") {
 				return addrs.filter(
-					(a) => !normalizedAllowlist.includes(a.toLowerCase()),
+					(a) => !normalizedAllowlist.includes(a.toLowerCase())
 				);
 			} else {
 				return addrs.filter((a) =>
-					normalizedAllowlist.includes(a.toLowerCase()),
+					normalizedAllowlist.includes(a.toLowerCase())
 				);
 			}
 		},
-		[currentAllowlist, mode],
+		[currentAllowlist, mode]
 	);
 
 	const handleSubmit = async () => {
@@ -86,7 +86,7 @@ export const AllowlistAddressInput: React.FC<AllowlistAddressInputProps> = ({
 				setError(
 					mode === "add"
 						? "All addresses are already allowlisted"
-						: "None of the addresses are currently allowlisted",
+						: "None of the addresses are currently allowlisted"
 				);
 				return;
 			}

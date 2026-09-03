@@ -12,7 +12,7 @@ test.describe("🔗 Anvil Integration Tests", () => {
 
 		// Check if Connect Wallet button is present
 		const connectButton = page.locator(
-			'[data-testid="connect-wallet-button"], text=Connect Wallet',
+			'[data-testid="connect-wallet-button"], text=Connect Wallet'
 		);
 		await expect(connectButton.first()).toBeVisible();
 
@@ -31,7 +31,7 @@ test.describe("🔗 Anvil Integration Tests", () => {
 
 		// Count jar cards (should be 4 from your seeding script)
 		const jarCards = page.locator(
-			'.cj-card-primary, [class*="card"]:has([title*="0x"])',
+			'.cj-card-primary, [class*="card"]:has([title*="0x"])'
 		);
 		const jarCount = await jarCards.count();
 
@@ -57,17 +57,17 @@ test.describe("🔗 Anvil Integration Tests", () => {
 		// Wait for form to load
 		await page.waitForSelector(
 			'[data-testid="jar-name-input"], input[placeholder*="Community"]',
-			{ timeout: 15000 },
+			{ timeout: 15000 }
 		);
 
 		// Verify key form elements are present
 		const jarNameInput = page.locator(
-			'[data-testid="jar-name-input"], input[placeholder*="Community"]',
+			'[data-testid="jar-name-input"], input[placeholder*="Community"]'
 		);
 		await expect(jarNameInput.first()).toBeVisible();
 
 		const currencySelector = page.locator(
-			'[data-testid="currency-selector"], [role="combobox"]',
+			'[data-testid="currency-selector"], [role="combobox"]'
 		);
 		await expect(currencySelector.first()).toBeVisible();
 
@@ -113,7 +113,7 @@ test.describe("🔗 Anvil Integration Tests", () => {
 
 		// Look for network indicators (Chain ID 31337 = Anvil Local)
 		const networkIndicators = page.locator(
-			"text=Anvil Local, text=31337, text=Local",
+			"text=Anvil Local, text=31337, text=Local"
 		);
 
 		// If network indicator exists, verify it shows local network
