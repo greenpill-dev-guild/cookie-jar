@@ -10,6 +10,11 @@ import {
 	optimismSepolia,
 	sepolia,
 } from "wagmi/chains";
+import {
+	FEATURED_JAR,
+	SITE_DESCRIPTION,
+	SITE_NAME,
+} from "@/config/featured-jar";
 import { ETH_ADDRESS } from "@/lib/blockchain/constants";
 
 // Import auto-generated deployment configuration
@@ -61,8 +66,10 @@ import type { Address } from "viem";
 import { createConfig, fallback, http } from "wagmi";
 import { injected, walletConnect } from "wagmi/connectors";
 
-// For RainbowKit provider (include local only in dev)
+// For RainbowKit provider (include local only in dev). The first chain is the
+// default when no wallet is connected, so the featured jar's chain leads.
 const chains = [
+	arbitrum,
 	base,
 	celo,
 	gnosis,
@@ -237,11 +244,10 @@ function getConnectors() {
 			walletConnect({
 				projectId,
 				metadata: {
-					name: "Cookie Jar",
-					description:
-						"Decentralized funding jars with flexible access controls",
-					url: "https://cookiejar.greenpill.network",
-					icons: ["https://cookiejar.greenpill.network/logo.png"],
+					name: SITE_NAME,
+					description: SITE_DESCRIPTION,
+					url: FEATURED_JAR.siteUrl,
+					icons: [`${FEATURED_JAR.siteUrl}/icon`],
 				},
 			})
 		);
@@ -332,7 +338,7 @@ export const wagmiConfig = createConfig({
 		[optimismSepolia.id]: createFallbackTransport(
 			[
 				"https://op-sepolia-pokt.nodies.app",
-				"https://opt-sepolia.g.alchemy.com/v2/${alchemyId}",
+				`https://opt-sepolia.g.alchemy.com/v2/${alchemyId}`,
 			],
 			[
 				"https://optimism-sepolia.blockpi.network/v1/rpc/public",

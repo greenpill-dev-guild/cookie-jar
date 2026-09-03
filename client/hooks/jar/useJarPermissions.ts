@@ -1,102 +1,157 @@
 "use client";
 
 import { useMemo } from "react";
-import { keccak256, toHex } from "viem";
-import { useAccount, useChainId } from "wagmi";
-import { useReadCookieJarHasRole } from "@/generated";
+import { erc721Abi, erc1155Abi, keccak256, toHex } from "viem";
+import { useAccount, useChainId, useReadContract } from "wagmi";
+import { cookieJarAbi } from "@/generated";
+import {
+	isAllowlistAccess,
+	isErc1155Access,
+	isNFTAccess,
+} from "@/lib/jar/access-types";
+import type { NftRequirement } from "./useJar";
 
-// Hash the JAR_OWNER role (same across all versions)
 const JAR_OWNER_ROLE = keccak256(toHex("JAR_OWNER")) as `0x${string}`;
 
-/**
- * Permission status for a user interacting with a Cookie Jar
- */
+export type JarEligibility =
+	| "disconnected"
+	| "allowlisted"
+	| "wears-hat"
+	| "holds-nft"
+	| "not-eligible";
+
 export interface JarPermissions {
 	/** Whether the user has admin (JAR_OWNER) privileges */
 	isAdmin: boolean;
 	/** Whether the user is designated as the fee collector */
 	isFeeCollector: boolean;
-	/** Whether to show allowlist-specific withdrawal functions */
+	/** Allowlist jar and the user is on the list */
 	showUserFunctions: boolean;
-	/** Whether to show NFT-gated withdrawal functions */
+	/** NFT-gated jar and the user holds the gate token */
 	showNFTGatedFunctions: boolean;
 	/** Raw role check result for JAR_OWNER */
 	hasJarOwnerRole: boolean | undefined;
+	/** Whether the current wallet can claim from this jar */
+	isEligible: boolean;
+	eligibility: JarEligibility;
+	/** Gate token balance for NFT-gated jars */
+	gateBalance?: bigint;
+	/** Balance the gate requires (max(minBalance, 1)) */
+	requiredBalance: bigint;
+	isNftGated: boolean;
+	isHatGated: boolean;
 }
 
-/**
- * Configuration data for a Cookie Jar
- */
 export interface JarConfig {
-	/** Whether the current user is allowlisted */
 	allowlist?: boolean;
-	/** The access type of the jar ("Allowlist", "NFT-Gated", etc.) */
 	accessType?: string;
-	/** Address of the designated fee collector */
+	accessTypeIndex?: number;
 	feeCollector?: string;
+	nftRequirement?: NftRequirement;
 }
 
 /**
- * Custom hook to handle Cookie Jar permission checking and role validation
- *
- * Provides comprehensive permission checking for Cookie Jar interactions,
- * including admin privileges, fee collector status, and access type validation.
- * Automatically handles version differences between v1 and v2 contracts.
- *
- * @param jarAddress - The Cookie Jar contract address to check permissions for
- * @param config - The jar configuration containing access control data
- * @returns Object containing all permission states and flags
- *
- * @example
- * ```tsx
- * const permissions = useJarPermissions(jarAddress, config);
- *
- * if (permissions.isAdmin) {
- *   // Show admin controls
- * }
- *
- * if (permissions.showUserFunctions) {
- *   // Show allowlist withdrawal options
- * }
- * ```
+ * Permission and eligibility checks for a jar. NFT-gated jars are checked against the
+ * gate contract directly (balanceOf), which is exactly what the jar does on withdraw.
  */
 export const useJarPermissions = (
 	jarAddress: `0x${string}` | undefined,
-	config: JarConfig | undefined
+	config: JarConfig | undefined,
+	chainIdOverride?: number
 ): JarPermissions => {
 	const { address: userAddress } = useAccount();
-	const _chainId = useChainId();
+	const walletChainId = useChainId();
+	const chainId = chainIdOverride ?? walletChainId;
 
-	// Check if current user has the JAR_OWNER role
-	const { data: hasJarOwnerRole } = useReadCookieJarHasRole({
+	const { data: hasJarOwnerRole } = useReadContract({
 		address: jarAddress,
-		args: userAddress
-			? [JAR_OWNER_ROLE, userAddress as `0x${string}`]
-			: undefined,
+		abi: cookieJarAbi,
+		functionName: "hasRole",
+		args: userAddress ? [JAR_OWNER_ROLE, userAddress] : undefined,
+		chainId,
+		query: { enabled: !!jarAddress && !!userAddress },
 	});
 
-	// Calculate permission states with v2 compatibility
-	const permissions = useMemo(() => {
+	const accessType = config?.accessTypeIndex ?? config?.accessType;
+	const isNftGated = accessType !== undefined && isNFTAccess(accessType);
+	const isErc1155 = accessType !== undefined && isErc1155Access(accessType);
+	const gate = config?.nftRequirement;
+	const gateEnabled = isNftGated && !!gate && !!userAddress;
+
+	const { data: erc1155Balance } = useReadContract({
+		address: gate?.nftContract,
+		abi: erc1155Abi,
+		functionName: "balanceOf",
+		args: userAddress && gate ? [userAddress, gate.tokenId] : undefined,
+		chainId,
+		query: { enabled: gateEnabled && isErc1155 },
+	});
+
+	const { data: erc721Balance } = useReadContract({
+		address: gate?.nftContract,
+		abi: erc721Abi,
+		functionName: "balanceOf",
+		args: userAddress ? [userAddress] : undefined,
+		chainId,
+		query: { enabled: gateEnabled && !isErc1155 },
+	});
+
+	return useMemo(() => {
 		const isAdmin = hasJarOwnerRole === true;
+		const isAllowlistJar =
+			accessType !== undefined && isAllowlistAccess(accessType);
+		const isHatGated = config?.accessType === "Hats";
+		const requiredBalance = gate && gate.minBalance > 0n ? gate.minBalance : 1n;
+		const gateBalance = (isErc1155 ? erc1155Balance : erc721Balance) as
+			| bigint
+			| undefined;
 
-		const showUserFunctions =
-			config?.allowlist === true && config?.accessType === "Allowlist";
+		let eligibility: JarEligibility = "not-eligible";
+		if (!userAddress) {
+			eligibility = "disconnected";
+		} else if (isAllowlistJar && config?.allowlist === true) {
+			eligibility = "allowlisted";
+		} else if (
+			isNftGated &&
+			gateBalance !== undefined &&
+			gateBalance >= requiredBalance
+		) {
+			eligibility = isHatGated ? "wears-hat" : "holds-nft";
+		}
 
-		const showNFTGatedFunctions = config?.accessType === "NFT-Gated";
-
+		const isEligible =
+			eligibility === "allowlisted" ||
+			eligibility === "wears-hat" ||
+			eligibility === "holds-nft";
 		const isFeeCollector =
-			userAddress &&
-			config?.feeCollector &&
+			!!userAddress &&
+			!!config?.feeCollector &&
 			userAddress.toLowerCase() === config.feeCollector.toLowerCase();
 
 		return {
 			isAdmin,
-			isFeeCollector: !!isFeeCollector,
-			showUserFunctions,
-			showNFTGatedFunctions,
-			hasJarOwnerRole,
+			isFeeCollector,
+			showUserFunctions: isAllowlistJar && config?.allowlist === true,
+			showNFTGatedFunctions: isNftGated && isEligible,
+			hasJarOwnerRole: hasJarOwnerRole as boolean | undefined,
+			isEligible,
+			eligibility,
+			gateBalance,
+			requiredBalance,
+			isNftGated,
+			isHatGated,
 		};
-	}, [hasJarOwnerRole, config, userAddress]);
-
-	return permissions;
+	}, [
+		hasJarOwnerRole,
+		accessType,
+		config?.accessType,
+		config?.allowlist,
+		config?.feeCollector,
+		gate,
+		isErc1155,
+		isNftGated,
+		erc1155Balance,
+		erc721Balance,
+		userAddress,
+	]);
 };

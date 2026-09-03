@@ -8,6 +8,7 @@ import { cookieJarAbi } from "@/generated";
 import { useTransactionWithRetry } from "@/hooks/app/useTransactionWithRetry";
 import { cookieJarV1Abi } from "@/lib/blockchain/cookie-jar-v1-abi";
 import { ETH_ADDRESS, useTokenInfo } from "@/lib/blockchain/token-utils";
+import { buildDepositCall, withdrawFunctionFor } from "@/lib/jar/deposit-args";
 import { useToast } from "../app/useToast";
 
 /**
@@ -20,6 +21,9 @@ export interface JarConfig {
 	contractAddress?: `0x${string}`;
 	/** Fixed withdrawal amount (if applicable) */
 	fixedAmount?: bigint;
+	/** Access type label or enum value, used to pick the claim function */
+	accessType?: string | number;
+	accessTypeIndex?: number;
 }
 
 interface TransactionOptions {
@@ -29,6 +33,8 @@ interface TransactionOptions {
 	maxRetries?: number;
 	/** Delay between retries in milliseconds */
 	retryDelay?: number;
+	/** Chain the jar lives on (defaults to the wallet's chain) */
+	chainId?: number;
 }
 
 /**
@@ -70,8 +76,14 @@ export const useJarTransactions = (
 	options: TransactionOptions = {}
 ) => {
 	const { toast } = useToast();
-	const chainId = useChainId();
-	const { enableRetry = false, maxRetries = 3, retryDelay = 2000 } = options;
+	const walletChainId = useChainId();
+	const {
+		enableRetry = false,
+		maxRetries = 3,
+		retryDelay = 2000,
+		chainId: chainIdOverride,
+	} = options;
+	const chainId = chainIdOverride ?? walletChainId;
 
 	// Transaction state
 	const [amount, setAmount] = useState("");
@@ -95,6 +107,10 @@ export const useJarTransactions = (
 	const withdrawAllowlistFunction = isV2
 		? "withdrawAllowlistMode"
 		: "withdrawWhitelistMode";
+	const claimFunction = withdrawFunctionFor(
+		config?.accessTypeIndex ?? config?.accessType,
+		isV2
+	);
 
 	// Get token information
 	const isERC20 = !!config?.currency && config.currency !== ETH_ADDRESS;
@@ -143,11 +159,17 @@ export const useJarTransactions = (
 
 			const executeDeposit = async () => {
 				try {
+					const call = buildDepositCall({
+						isV2,
+						currency: config?.currency ?? ETH_ADDRESS,
+						amount: pendingDepositAmount,
+					});
 					await depositCurrency.writeContract({
 						address: addressString,
 						abi,
-						functionName: "depositCurrency",
-						args: [pendingDepositAmount],
+						functionName: call.functionName,
+						args: call.args,
+						chainId,
 					});
 				} catch {
 					setTransactionStep("idle");
@@ -166,6 +188,9 @@ export const useJarTransactions = (
 		addressString,
 		abi,
 		pendingDepositAmount,
+		isV2,
+		config?.currency,
+		chainId,
 	]);
 
 	// Deposit submission handler
@@ -187,11 +212,18 @@ export const useJarTransactions = (
 			try {
 				if (config.currency === ETH_ADDRESS) {
 					setTransactionStep("depositing");
+					const call = buildDepositCall({
+						isV2,
+						currency: ETH_ADDRESS,
+						amount: amountBigInt,
+					});
 					await depositETH.writeContract({
 						address: addressString,
 						abi,
-						functionName: "depositETH",
-						value: amountBigInt,
+						functionName: call.functionName,
+						args: call.args,
+						value: call.value,
+						chainId,
 					});
 				} else {
 					setTransactionStep("approving");
@@ -214,6 +246,7 @@ export const useJarTransactions = (
 						],
 						functionName: "approve",
 						args: [addressString, amountBigInt],
+						chainId,
 					});
 				}
 			} catch {
@@ -230,6 +263,8 @@ export const useJarTransactions = (
 			depositETH,
 			approve,
 			toast,
+			isV2,
+			chainId,
 		]
 	);
 
@@ -242,8 +277,9 @@ export const useJarTransactions = (
 			await withdrawAllowlist.writeContract({
 				address: config.contractAddress,
 				abi,
-				functionName: withdrawAllowlistFunction,
+				functionName: claimFunction,
 				args: [config.fixedAmount, withdrawPurpose],
+				chainId,
 			});
 		} catch {
 			setTransactionStep("idle");
@@ -253,8 +289,9 @@ export const useJarTransactions = (
 		config?.fixedAmount,
 		withdrawAllowlist,
 		abi,
-		withdrawAllowlistFunction,
+		claimFunction,
 		withdrawPurpose,
+		chainId,
 	]);
 
 	const handleWithdrawAllowlistVariable = useCallback(
@@ -272,8 +309,9 @@ export const useJarTransactions = (
 				await withdrawAllowlist.writeContract({
 					address: config.contractAddress,
 					abi,
-					functionName: withdrawAllowlistFunction,
+					functionName: claimFunction,
 					args: [amountToWithdraw, withdrawPurpose],
+					chainId,
 				});
 			} catch {
 				setTransactionStep("idle");
@@ -286,8 +324,9 @@ export const useJarTransactions = (
 			tokenDecimalValue,
 			withdrawAllowlist,
 			abi,
-			withdrawAllowlistFunction,
+			claimFunction,
 			withdrawPurpose,
+			chainId,
 		]
 	);
 
@@ -450,6 +489,8 @@ export const useJarTransactions = (
 		transactionStep,
 
 		// Token info
+		claimFunction,
+		withdrawAllowlistFunction,
 		tokenSymbol,
 		tokenDecimals: tokenDecimalValue,
 

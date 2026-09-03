@@ -443,26 +443,35 @@ export function useCookieJarFactory() {
 				functionName,
 			})) as Address[];
 
-			// Get metadata - now works for both V1 and V2!
-			let metadatas: string[];
-			// Get metadata - now works for both V1 and V2!
-			metadatas = await Promise.all(
-				addresses.map(async (_, index) => {
+			// V2 factories expose getJarInfo(address); V1 factories expose metadatas(index)
+			const creators: (Address | undefined)[] = [];
+			const metadatas: string[] = await Promise.all(
+				addresses.map(async (jarAddress, index) => {
 					try {
+						if (isV2Contract) {
+							const [creator, , metadata] = (await publicClient.readContract({
+								address: factoryAddress,
+								abi: cookieJarFactoryAbi,
+								functionName: "getJarInfo",
+								args: [jarAddress],
+							})) as readonly [Address, bigint, string];
+							creators[index] = creator;
+							return metadata;
+						}
 						return (await publicClient.readContract({
 							address: factoryAddress,
-							abi: factoryAbi,
+							abi: cookieJarFactoryV1Abi,
 							functionName: "metadatas",
 							args: [BigInt(index)],
 						})) as string;
 					} catch (error) {
 						console.warn(`Failed to fetch metadata for index ${index}:`, error);
-						return "Jar Info";
+						return "";
 					}
 				})
 			);
 
-			return { addresses, metadatas };
+			return { addresses, metadatas, creators };
 		},
 		enabled: !addressLoading && !!publicClient && !!factoryAddress,
 		staleTime: 30 * 1000, // 30 seconds
@@ -484,7 +493,7 @@ export function useCookieJarFactory() {
 				return [];
 			}
 
-			const { addresses, metadatas } = factoryData;
+			const { addresses, metadatas, creators } = factoryData;
 
 			// Process jars in batches to avoid overwhelming the network
 			const batchSize = 10;
@@ -499,10 +508,11 @@ export function useCookieJarFactory() {
 				batchResults.forEach((result, batchIndex) => {
 					if (result.status === "fulfilled" && result.value) {
 						const originalIndex = i + batchIndex;
-						const metadata = metadatas[originalIndex] || "Jar Info";
+						const metadata = metadatas[originalIndex] || "";
 
 						validJars.push({
 							...result.value,
+							jarCreator: creators?.[originalIndex],
 							metadata,
 							parsedMetadata: parseJarMetadata(metadata),
 						});
@@ -550,7 +560,9 @@ export function useCookieJarFactory() {
 	// For compatibility with the jars page interface
 	const cookieJarsData = jars.map((jar) => ({
 		...jar,
-		jarCreator: "0x0000000000000000000000000000000000000000" as Address, // placeholder address
+		jarCreator:
+			jar.jarCreator ??
+			("0x0000000000000000000000000000000000000000" as Address),
 	}));
 
 	return {
