@@ -7,16 +7,39 @@
   },
   "files": {
     "ignoreUnknown": false,
-    "includes": ["client/**/*", "e2e/**/*.ts", "client/**/*.css"],
-    "ignores": [
-      "client/.next/**",
-      "client/node_modules/**",
-      "client/dist/**",
-      "client/build/**",
-      "client/coverage/**",
-      "client/.nyc_output/**",
-      "**/*.min.js",
-      "**/*.min.css"
+    "experimentalScannerIgnores": [
+      "node_modules",
+      ".next",
+      ".git",
+      "lib",
+      "out",
+      "cache",
+      "broadcast",
+      "coverage",
+      "dist",
+      "build",
+      "playwright-report",
+      "test-results",
+      ".claude"
+    ],
+    "includes": [
+      "client/**",
+      "e2e/**/*.ts",
+      "!**/.next",
+      "!**/node_modules",
+      "!**/dist",
+      "!**/build",
+      "!**/coverage",
+      "!**/.nyc_output",
+      "!client/generated.ts",
+      "!client/config/deployments.auto.ts",
+      "!**/*.auto.ts",
+      "!**/*.generated.ts",
+      "!**/*.generated.tsx",
+      "!**/*.min.js",
+      "!**/*.min.css",
+      "!e2e/playwright-report",
+      "!e2e/test-results"
     ]
   },
   "css": {
@@ -90,13 +113,8 @@
         }
       }
     },
-    // Auto-generated files - relaxed rules since they're not manually maintained
     {
-      "includes": [
-        "**/generated.ts",
-        "**/deployments.auto.ts",
-        "**/*.auto.ts"
-      ],
+      "includes": ["**/generated.ts", "**/deployments.auto.ts", "**/*.auto.ts"],
       "formatter": {
         "enabled": false
       },
@@ -118,7 +136,6 @@
         }
       }
     },
-    // Additional auto-generated file patterns
     {
       "includes": [
         "**/generated/**/*",
