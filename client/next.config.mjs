@@ -97,9 +97,21 @@ const nextConfig = {
 	reactStrictMode: true,
 	// Removed deprecated swcMinify option - SWC minification is enabled by default in Next.js 13+
 
-	// Configure Turbopack root to avoid multiple lockfile warnings
+	// Configure Turbopack root to avoid multiple lockfile warnings. The resolveAlias entries
+	// mirror the webpack aliases below: @coinbase/cdp-sdk (reached through @wagmi/connectors ->
+	// @base-org/account) lazily imports optional @x402/* peers that are never used here.
 	turbopack: {
 		root: resolve(__dirname, ".."),
+		resolveAlias: {
+			"@x402/core": "./client/lib/app/empty-module.ts",
+			"@x402/core/client": "./client/lib/app/empty-module.ts",
+			"@x402/evm": "./client/lib/app/empty-module.ts",
+			"@x402/evm/exact/client": "./client/lib/app/empty-module.ts",
+			"@x402/evm/upto/client": "./client/lib/app/empty-module.ts",
+			"@x402/svm": "./client/lib/app/empty-module.ts",
+			"@x402/svm/exact/client": "./client/lib/app/empty-module.ts",
+			"@x402/extensions": "./client/lib/app/empty-module.ts",
+		},
 	},
 
 	// ⚡ Minimal bundle optimization (aggressive splitting caused 30x slowdown)
