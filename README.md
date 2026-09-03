@@ -1,522 +1,143 @@
-# 🍪 Cookie Jar Protocol
+# 🍪 Cookie Jar
 
-Decentralized funding pools with smart access control. Create shared ETH/ERC20 pools with allowlist, NFT, POAP, Unlock Protocol, Hypercerts, and Hats Protocol gating plus configurable withdrawal rules.
+Funding pools with on-chain access control. A factory creates jars; allowlisted or token-gated
+members (ERC721, ERC1155, POAP, Unlock, Hats Protocol) withdraw under fixed rules: fixed or
+variable amounts, cooldown intervals, purpose strings and emergency controls.
 
-## 📋 Prerequisites
+The Greenpill Dev Guild runs one live jar for the contributor stipend on Arbitrum One and serves
+it at https://cookies.greengoods.app. The runbook for that jar is
+[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
-**Manual Install**: Node.js 18+, Git  
-**Auto-Install**: bun, Foundry *(installed automatically)*  
-**System**: 4GB+ RAM, 2GB storage  
-**Editor**: VS Code or Cursor *(recommended for inline linting)*
+## Prerequisites
 
-> ⚠️ **Note on Submodules**: This repository uses git submodules for Foundry dependencies. If you encounter SSH errors during `bun install`, see the [Submodule/Foundry Setup Issues](#submodulefoundry-setup-issues) section for quick HTTPS workaround or SSH setup instructions.
+- Node.js 20 (`.nvmrc`), bun 1.3.10 (`.bun-version`), Git
+- Foundry v1.7 (`curl -L https://foundry.paradigm.xyz | bash && foundryup`)
+- The Solidity dependencies are git submodules: `git submodule update --init --recursive`
 
-## 🚀 Quick Start
+## Quick start
 
-Choose your installation method:
-
-### Option 1: Auto-install (npm)
 ```bash
 git clone https://github.com/greenpill-dev-guild/cookie-jar.git
 cd cookie-jar
-npm install  # Auto-installs bun + Foundry (via preinstall hook)
-bun install  # Install project dependencies
-bun dev      # Start development
+bun install --frozen-lockfile
+bun dev
 ```
 
-### Option 2: Direct install (bun)
-```bash
-git clone https://github.com/greenpill-dev-guild/cookie-jar.git
-cd cookie-jar
-bun install  # Auto-installs Foundry + all dependencies
-bun dev      # Start development
-```
+`bun dev` starts Anvil on port 8545, deploys the factory, seeds five demo jars, syncs the client
+registry, generates ABI types and starts Next.js on http://localhost:3000. The home page shows
+the jar at `NEXT_PUBLIC_FEATURED_JAR_INDEX` (4 = the ERC1155-gated demo jar, the closest
+analogue to the Hats-gated stipend jar).
 
-Open http://localhost:3000 and explore 4 pre-seeded demo jars with Cookie Monster NFTs! 🍪
+## Development
 
-> **✨ Auto-setup**: Shell script checks system, installs missing tools (bun/Foundry), then sets up complete dev environment.
-> 
-> **💡 Note**: If you don't have bun installed, Option 1 installs it for you. If you already have bun, use Option 2.
+| Command | What it does |
+| --- | --- |
+| `bun dev` | Full stack: Anvil + seed deploy + registry sync + Next dev |
+| `bun dev:client` | Next dev only |
+| `bun dev:stop` | Stop Anvil and the dev server |
+| `bun check` | oxlint + Next rules + TypeScript |
+| `bun format` / `bun format:check` | Biome (tabs, double quotes) and prettier-plugin-solidity |
+| `cd client && bun run test` | Vitest. Never `bun test`: that runs Bun's own runner and ignores the config |
+| `bun run test:contracts` | Foundry tests (dev profile, solc 0.8.30) |
+| `bun run test:e2e` | Playwright against a running `bun dev` |
+| `bun run build:client` | Production build |
+| `bun generate` | Regenerate `client/generated.ts` from the compiled ABIs |
+| `bun audit --audit-level high` | Dependency advisories, the same gate CI runs |
+| `bun sync:deployment -- --chain <id>` | Merge a Foundry broadcast into `client/config/deployments.json` |
 
-### 🎨 Editor Setup (Recommended)
+Editor: install the Biome extension for formatting and a Solidity extension. ESLint and Prettier
+are not used for TypeScript.
 
-For the best development experience with **inline linting errors** and **auto-fix on save**:
+Agent guidance lives in [AGENTS.md](AGENTS.md) (the repo contract), [CLAUDE.md](CLAUDE.md) and
+`.claude/` (path rules, context, skills and hooks).
 
-1. Open workspace in VS Code or Cursor
-2. Install recommended extensions when prompted (ESLint, Prettier, Solidity)
-3. Reload window to activate linting
-4. Errors now appear inline as you code!
+## Configuration
 
-See [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md#editor-setup) for details.
+Local development needs no configuration. For anything else, copy [example.env](example.env) to
+`.env.local` and fill in what you need:
 
-## 💻 Development
+- `NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID` and `NEXT_PUBLIC_ALCHEMY_API_KEY` for wallets and RPC
+- `NEXT_PUBLIC_FEATURED_JAR_ADDRESS`, `NEXT_PUBLIC_FEATURED_JAR_BLOCK`,
+  `NEXT_PUBLIC_DEFAULT_CHAIN_ID` and `NEXT_PUBLIC_SITE_URL` for the jar shown on the home page
+- the factory and `CreateJar` inputs used by the deployment commands (see the runbook)
 
-```bash
-bun dev                     # Local development (fastest)
-bun dev:ethereum            # Fork Ethereum mainnet  
-bun dev:celo                # Fork Celo network
-bun dev:base                # Fork Base network
-bun dev:base-sepolia        # Fork Base Sepolia testnet
-```
+`.env.local` is ignored by git. Mainnet keys never go in it: deployments sign with a Foundry
+keystore (`cast wallet import deployer --interactive`).
 
-**Auto-included**: Anvil blockchain, contract deployment, demo seeding, hot reload, type generation.
+## Demo jars on Anvil
 
-## 🔧 Configuration
+`contracts/script/DeployLocal.s.sol` seeds five jars that cover every access pattern:
 
-**Local**: Zero config needed  
-**Production**: `cp .example.env .env.local` and edit with your API keys
+1. Community Stipend: allowlist, ETH, fixed amount, periodic
+2. Grants Program: allowlist, ERC20, variable amount, purpose required
+3. Cookie Monster Benefits: ERC721-gated, ETH, variable amount
+4. Cookie Monster Airdrop: ERC721-gated, ERC20, one-time claim
+5. Badge jar: ERC1155-gated (badge #1), variable amount, 28-day interval, purpose required.
+   This is the local stand-in for the Hats-gated stipend jar.
 
-See [`.example.env`](.example.env) for WalletConnect, Alchemy, RPC endpoints, and factory settings.
+### Test accounts
 
-## 🔐 Production Wallet (Foundry Keystore)
+Anvil's well-known accounts, each funded with 1000 ETH. Never use them on a real network.
 
-```bash
-cast wallet import deployer --interactive  # Enter private key + password
-cast wallet list  # Verify keystore created
-```
+| Account | Address |
+| --- | --- |
+| #0 Deployer | `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266` |
+| #1 Cookie Monster (holds the NFTs and badge #1) | `0x70997970C51812dc3A010C7d01b50e0d17dc79C8` |
+| #2 Cookie Fan | `0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC` |
+| #3 Test User (holds nothing) | `0x90F79bf6EB2c4f870365E785982E1f101E93b906` |
 
-**Benefits**: Encrypted keys, no env secrets, industry standard
+The private keys are the standard Anvil keys (`anvil` prints them on start). Add the network to
+your wallet as `http://127.0.0.1:8545`, chain id `31337`.
 
-## 🎭 Pre-Seeded Demo Jars
-
-**4 ready-to-test jars with different patterns:**
-
-1. **🏛️ Community Stipend**: Allowlist + ETH + Fixed amounts + Periodic intervals
-2. **💰 Grants Program**: Allowlist + ERC20 + Variable amounts + Purpose required
-3. **🍪 Cookie Monster Benefits**: NFT-gated + ETH + Variable amounts + NFT rewards
-4. **🎁 Cookie Monster Airdrop**: NFT-gated + ERC20 + One-time claims + Token distribution
-
-> 💡 **Use the pre-funded test accounts below to try different access patterns!**
-
-## 📦 Project Structure
+## Project structure
 
 ```
 cookie-jar/
-├── client/             # Next.js frontend 
-├── contracts/          # Smart contracts (Foundry/Solidity)
-├── docs/               # Documentation
-├── e2e/                # Playwright tests
-└── scripts/            # Development utilities
+├── client/      Next.js 15 App Router (React 18, wagmi 2, viem 2, RainbowKit, shadcn/ui, Tailwind 3)
+├── contracts/   Foundry: factory, jar, libraries, scripts, tests, jar metadata (config/jars)
+├── e2e/         Playwright specs
+├── scripts/     deploy.sh, sync-deployments.ts, dev-start.sh, oz-compat.sh
+├── docs/        DEPLOYMENT.md runbook, RELEASES.md
+├── lib/         Git submodules (forge-std, openzeppelin-contracts, permit2, ...)
+└── .claude/     Agent rules, context, skills and hooks
 ```
 
-**Key docs**: [Access Control](docs/ACCESS_CONTROL.md) • [Development](docs/DEVELOPMENT.md) • [Deployment](docs/DEPLOYMENT.md) • [Architecture](docs/ARCHITECTURE.md) • [Testing](docs/TESTING.md)
+Component notes: [contracts/README.md](contracts/README.md), [client/README.md](client/README.md),
+[e2e/README.md](e2e/README.md).
 
-**Component READMEs**: [contracts](contracts/README.md) • [client](client/README.md) • [e2e](e2e/README.md)
+## Deployment
 
-
-## ✨ Core Features
-
-**Access Control**: Allowlist, NFT-gated, POAP, Unlock Protocol, Hypercerts, Hats Protocol  
-**Distribution**: ETH/ERC20 support, fixed/variable amounts, time controls, purpose tracking  
-**Security**: Smart contract governed, transparent, emergency controls, Foundry deployment  
-
-> 📚 **Detailed Guide**: [docs/PROTOCOL_GUIDE.md](docs/PROTOCOL_GUIDE.md)
-
-## 📋 Development Workflow
-
-**Contracts**: Edit in `contracts/src/` → Auto-recompile → Auto-redeploy → Regen types  
-**Client**: `localhost:3000` with hot reload on Chain ID 31337  
-**Testing**: `bun run test` (both contracts + client)
+Everything on a real network goes through a Foundry keystore and a dry run first. The full
+procedure, parameters and checks for the stipend jar are in
+[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md). In short:
 
 ```bash
-bun run test:contracts  # Smart contract tests
-bun run test:client     # Frontend tests
-bun deploy:local        # Manual deployment
-bun seed:demo           # Refresh demo data
+cast wallet import deployer --interactive     # once, on the machine that signs
+bun deploy:arbitrum                           # factory: Deploy.s.sol, verify, sync the registry
+DRY_RUN=true bun create-jar:arbitrum          # print the resolved jar config, send nothing
+bun create-jar:arbitrum                       # create the jar and assert its config on-chain
 ```
 
-## 🔧 Network Configuration
+The client deploys to Vercel from `main`; pull requests target `dev`.
 
-**Local blockchain**: `http://127.0.0.1:8545` (Chain ID: 31337)  
-**Accounts**: 10 pre-funded (1000 ETH each)  
-**Addresses**: Deterministic CREATE2 (consistent across restarts)  
-**Fork modes**: Ethereum, Celo, Base, Base Sepolia available
+## Troubleshooting
 
-### 🔑 Pre-funded Test Accounts
+- Ports: the client uses 3000 and Anvil 8545. `bun dev:stop` frees both.
+- Contract changes not showing: check `contracts/anvil.log`, rerun `bun dev`, then `bun generate`.
+- Registry out of date on Anvil: `bun sync:deployment -- --chain 31337 --script DeployLocal.s.sol`.
+- Submodule SSH errors on install: either configure a GitHub SSH key or run
+  `git config --global url."https://github.com/".insteadOf git@github.com:` and reinstall.
+- `lib/openzeppelin-contracts` shows untracked files after `bun install`: expected, the
+  `scripts/oz-compat.sh` shims live there.
 
-| Account | Address | Private Key | Balance |
-|---------|---------|-------------|---------|
-| #0 (Deployer) | `0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266` | `0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80` | 1000 ETH |
-| #1 (Cookie Monster) | `0x70997970C51812dc3A010C7d01b50e0d17dc79C8` | `0x59c6995e998f97a5a0044966f0945389dc9e86dae88c7a8412f4603b6b78690d` | 1000 ETH |
-| #2 (Cookie Fan) | `0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC` | `0x5de4111afa1a4b94908f83103eb1f1706367c2e68ca870fc3fb9a804cdab365a` | 1000 ETH |
-| #3 (Test User) | `0x90F79bf6EB2c4f870365E785982E1f101E93b906` | `0x7c852118294e51e653712a81e05800f419141751be58f605c371e15141b007a6` | 1000 ETH |
-| ... | (6 more accounts) | ... | 1000 ETH each |
+## Contributing
 
-> ⚠️ **Security Note**: These are well-known test keys. Never use them on mainnet or testnets!
+1. Branch from `dev` (`git checkout -b feat/short-name`).
+2. Make the change with tests: `bun check`, `cd client && bun run test`, `bun run test:contracts`.
+3. Use conventional commits (`feat:`, `fix:`, `chore:`, `ci:`, `docs:`).
+4. Open a pull request against `dev`. CI runs quality, unit, contract, e2e, accessibility and
+   security checks.
 
-## 🛠️ Available Commands
+## License
 
-**All commands use `bun`:**
-
-```bash
-# Essential
-bun dev                    # Start local development
-bun run test               # Run all tests
-bun build                  # Build contracts + client
-
-# Development variants  
-bun dev:ethereum           # Fork Ethereum mainnet
-bun dev:celo               # Fork Celo network
-bun dev:base               # Fork Base network
-bun dev:base-sepolia       # Fork Base Sepolia testnet
-
-# Deployment
-bun deploy:local           # Deploy to Anvil
-bun deploy:ethereum        # Deploy to mainnet
-bun deploy:celo            # Deploy to celo
-bun deploy:base            # Deploy to base
-bun deploy:base-sepolia    # Deploy to Base Sepolia testnet
-
-bun seed:demo              # Refresh demo data
-bun generate               # Regenerate types
-
-# Utilities
-bun lint                   # Lint all code
-bun format                 # Format all code
-bun clean                  # Clean build artifacts
-bun dev:stop               # Stop all services
-```
-
-## 🚀 Production Deployment Guide
-
-Cookie Jar uses **Foundry** for secure, efficient deployments to any EVM chain with automatic client configuration updates.
-
-### **📋 Prerequisites**
-
-1. **Foundry installed** (`curl -L https://foundry.paradigm.xyz | bash && foundryup`)
-2. **Deployment wallet** with funds for the target chain  
-3. **Environment variables** configured (see [.example.env](.example.env))
-4. **Etherscan API key** (for contract verification)
-
-### **🔧 Environment Setup**
-
-1. **Copy and configure environment variables:**
-   ```bash
-   cp .example.env .env
-   # Edit .env with your actual values - see .example.env for all options
-   ```
-
-2. **Key configuration sections** (see [.example.env](.example.env) for complete list):
-   - **API Keys**: Etherscan verification keys
-   - **RPC URLs**: Network endpoints (Base, Ethereum, Celo, etc.)
-   - **Factory Configuration**: Fee settings, minimum deposits, admin addresses
-
-### **🔐 Secure Deployment Wallet**
-
-**✅ Recommended: Foundry Keystore**
-
-Already covered in the [Secure Wallet Setup](#-secure-wallet-setup-production) section above. This approach:
-- Encrypts private keys with password
-- Keeps secrets out of environment files  
-- Works seamlessly with all deployment commands
-
-### **🌐 Deploy to Any Chain**
-
-**Universal deployment using secure keystore:**
-
-```bash
-# Export environment variables  
-export $(cat .env | xargs)
-
-# Deploy to your target chain (examples):
-cd contracts
-
-# Deploy to Base Sepolia
-forge script script/Deploy.s.sol:Deploy \
-  --rpc-url base-sepolia \
-  --account deployer \
-  --broadcast \
-  --verify
-
-# Deploy to Ethereum Mainnet (requires --verify flag)
-forge script script/Deploy.s.sol:Deploy \
-  --rpc-url mainnet \
-  --account deployer \
-  --broadcast \
-  --verify
-
-# Deploy to any chain using custom RPC
-forge script script/Deploy.s.sol:Deploy \
-  --rpc-url $YOUR_CHAIN_RPC_URL \
-  --account deployer \
-  --broadcast \
-  --verify
-```
-
-> **💡 Security Tip**: The `--account deployer` flag uses your secure keystore. You'll be prompted for your password during deployment.
-
-### **✅ Post-Deployment**
-
-After successful deployment:
-
-1. **Automatic Client Updates**: The client configuration automatically updates when contracts are deployed
-2. **Contract Verification**: Contracts are verified on Etherscan/block explorer automatically  
-3. **V2 Detection**: New deployments are automatically detected as V2 contracts
-4. **Factory Address**: Copy the deployed factory address to your frontend configuration if needed
-
-### **🔍 Deployment Verification**
-
-Verify your deployment was successful:
-
-```bash
-# Check contract size is under limit
-forge build --sizes | grep CookieJarFactory
-
-# Verify on block explorer
-cast call $FACTORY_ADDRESS "owner()" --rpc-url $RPC_URL
-
-# Test factory functionality
-cast call $FACTORY_ADDRESS "getCookieJars()" --rpc-url $RPC_URL
-```
-
-### **🐛 Troubleshooting Deployments**
-
-**Contract size too large:**
-```bash
-# Check sizes
-forge build --sizes
-
-# Solution: Contract has been optimized to fit under 24KB limit
-# If still too large, increase optimizer runs in foundry.toml
-```
-
-**Environment variables not found:**
-```bash
-# Export variables explicitly
-export $(cat .env | xargs)
-
-# Or source the file
-source .env
-```
-
-**Keystore password issues:**
-```bash
-# List available keystores
-cast wallet list
-
-# Re-import if needed (uses secure keystore approach)
-cast wallet import deployer --interactive
-```
-
-## 📁 Generated Files
-
-```
-client/public/contracts/
-├── local-deployment.json    # Contract addresses (auto-generated)
-└── seed-data.json          # Demo environment data
-
-contracts/
-├── anvil.log               # Blockchain logs  
-└── out/                    # Compiled contracts
-```
-
-## 🔍 Troubleshooting
-
-### Common Issues
-
-#### Port Conflicts
-- Client: Port 3000
-- Anvil: Port 8545
-- **Solution**: Kill conflicting processes with `bun dev:stop`
-
-#### Contract Changes Not Reflecting
-1. Check `contracts/anvil.log` for blockchain errors
-2. Manually redeploy: `bun deploy:local`
-3. Regenerate types: `bun generate`
-4. Check deployment sync: `bun sync:check`
-
-#### Client Not Connecting to Local Contracts
-1. Ensure `NODE_ENV=development` 
-2. Check `client/public/contracts/local-deployment.json` exists
-3. Verify Anvil is running on port 8545
-4. Try restarting: `bun seed:reset`
-
-#### Environment Issues
-1. Check Node.js version: `node --version` (should be ≥18.0.0)
-2. Check bun version: `bun --version` (should be ≥1.0.0)
-3. Check Foundry installation: `forge --version`
-4. Reinstall dependencies: `rm -rf node_modules */node_modules && bun install`
-
-#### Enhanced Features Dependencies
-For full functionality of performance monitoring and advanced UX features:
-```bash
-# Install optional enhancement dependencies
-bun add web-vitals lodash date-fns
-bun add -D @types/lodash
-```
-
-#### Submodule/Foundry Setup Issues
-
-**SSH Authentication Errors** (`Permission denied (publickey)` during install):
-
-This happens because Foundry dependencies use SSH URLs but you don't have SSH keys configured with GitHub.
-
-**🚀 Quick Fix (HTTPS Workaround)** - Get running immediately:
-```bash
-# Configure git to use HTTPS instead of SSH globally
-git config --global url."https://github.com/".insteadOf git@github.com:
-git config --global url."https://".insteadOf git://
-
-# Clean and reinstall
-cd cookie-jar
-rm -rf lib contracts/lib
-bun install
-```
-
-**✅ Proper Solution (Recommended)** - Better long-term:
-```bash
-# 1. Generate SSH key (if you don't have one)
-ssh-keygen -t ed25519 -C "your-email@example.com"
-
-# 2. Start ssh-agent and add key
-eval "$(ssh-agent -s)"
-ssh-add ~/.ssh/id_ed25519
-
-# 3. Add public key to GitHub
-cat ~/.ssh/id_ed25519.pub
-# Copy output and add to: GitHub Settings > SSH and GPG keys > New SSH key
-
-# 4. Test connection
-ssh -T git@github.com
-# Should see: "Hi username! You've successfully authenticated..."
-
-# 5. Clean and reinstall
-cd cookie-jar
-rm -rf lib contracts/lib
-bun install
-```
-
-📚 **Full SSH Setup Guide**: [GitHub SSH Documentation](https://docs.github.com/en/authentication/connecting-to-github-with-ssh)
-
-**Other Common Issues**:
-- **Missing forge-std or openzeppelin-contracts**: Run `git submodule update --init --recursive && cd contracts && forge install`
-- **Forge command not found**: Install Foundry: `curl -L https://foundry.paradigm.xyz | bash && foundryup`
-- **Submodule conflicts**: If you have old submodules in `contracts/lib/`, remove them with `rm -rf contracts/lib` before running install
-- **Still having issues?**: Ensure git is properly installed: `git --version`
-
-#### Wallet Connection Issues
-1. Add local network to your Web3 wallet (MetaMask, Rabby, or Coinbase Wallet):
-   - **Network Name**: `Anvil Local`
-   - **RPC URL**: `http://127.0.0.1:8545`
-   - **Chain ID**: `31337`
-   - **Currency Symbol**: `ETH`
-2. Import test account using private key from table above
-3. Ensure you're on the correct network in your wallet
-4. Try switching between wallets if connection issues persist
-
-### Performance Issues
-- **Slow builds**: Increase Node.js memory: `export NODE_OPTIONS="--max_old_space_size=4096"`
-- **Anvil crashes**: Ensure sufficient system memory (8GB+ recommended)
-- **Client slow loading**: Disable browser extensions or use incognito mode
-
-## 📊 Logs & Monitoring
-
-Monitor development services:
-
-```bash
-# View logs in real-time
-tail -f contracts/anvil.log          # Blockchain logs
-tail -f contracts/client-dev.log     # Client development logs  
-tail -f contracts/watch-deploy.log   # Contract watcher logs
-
-# All log files are in contracts/ directory for easy access
-```
-
-## 🔧 Latest Enhancements
-
-**Performance & UX Improvements**:
-- **Error Boundaries**: Global and protocol-specific error handling
-- **Transaction Retry**: Automatic retry logic with exponential backoff
-- **NFT Caching**: Intelligent LRU cache with block-based invalidation
-- **Mobile UX**: Enhanced forms and touch-optimized interactions
-- **Performance Monitoring**: Core Web Vitals tracking and dashboard
-- **Bundle Optimization**: Code-splitting and lazy loading
-
-**Smart Contract Refactoring**:
-- **Modular Libraries**: Extracted complex logic into reusable libraries
-- **Gas Optimization**: Circular buffers and storage packing
-- **Enhanced Security**: Multi-strategy NFT validation and DoS protection
-- **Streaming Support**: Modular streaming functionality architecture
-
-## 🎯 Getting Started Guide
-
-### For Local Development (Fastest Path)
-1. **Install Prerequisites**: Node.js (18+), Git
-2. **Clone & Setup**: 
-   ```bash
-   git clone https://github.com/greenpill-dev-guild/cookie-jar.git
-   cd cookie-jar
-   
-   # If you don't have bun:
-   npm install && bun install
-   
-   # If you have bun:
-   bun install
-   
-   # Start development:
-   bun dev
-   ```
-3. **Open Client**: Navigate to http://localhost:3000  
-4. **Connect Wallet**: Add local network (Chain ID: 31337) to your Web3 wallet
-5. **Import Test Account**: Use any account from the pre-funded test accounts table
-6. **Explore Demo Jars**: 4 pre-seeded jars with different access patterns ready to test
-
-### For Production Deployment
-1. **Environment Setup**: Copy `.example.env` to `.env` and configure
-2. **Secure Wallet**: Set up Foundry keystore with `cast wallet import deployer --interactive` 
-3. **Deploy**: Use the deployment commands in the [Production Deployment Guide](#-production-deployment-guide)
-
-### 🎉 Minimal Configuration for Development
-
-Almost no setup needed for local development! The monorepo approach makes it seamless:
-- **Auto-installs**: bun and Foundry are installed automatically if missing
-- **Auto-deploys**: Contracts deploy automatically on first run
-- **Auto-configures**: Client configuration updates automatically
-
-Just clone, install, and develop!
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Make your changes and test: `bun run test`
-4. Commit with conventional commits: `git commit -m "feat: add amazing feature"`
-5. Push and create a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 📚 Additional Resources
-
-### **📖 Documentation**
-
-All documentation is in [`docs/`](docs/) directory:
-- **[ACCESS_CONTROL.md](docs/ACCESS_CONTROL.md)** - 6 access control methods (Allowlist, NFT, POAP, Unlock, Hypercerts, Hats)
-- **[DEVELOPMENT.md](docs/DEVELOPMENT.md)** - Development workflow, commands, and best practices
-- **[DEPLOYMENT.md](docs/DEPLOYMENT.md)** - Production deployment guide with Foundry
-- **[TESTING.md](docs/TESTING.md)** - Testing strategies (unit, integration, E2E)
-- **[ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System design and technical architecture
-- **[CONTRACTS.md](docs/CONTRACTS.md)** - Smart contract architecture details
-- **[FRONTEND.md](docs/FRONTEND.md)** - Next.js frontend architecture
-- **[INTEGRATIONS.md](docs/INTEGRATIONS.md)** - Protocol integrations (Superfluid, Uniswap, etc.)
-- **[NFT_INTEGRATION.md](docs/NFT_INTEGRATION.md)** - Comprehensive NFT functionality guide
-- **[AI_AGENTS.md](docs/AI_AGENTS.md)** - AI agent configuration for Cursor
-- **[RELEASES.md](docs/RELEASES.md)** - Release history and changelog
-- **[MIGRATIONS.md](docs/MIGRATIONS.md)** - Migration guides between versions
-
-**Component documentation**:
-- **[contracts/README.md](contracts/README.md)** - Smart contract details
-- **[client/README.md](client/README.md)** - Frontend architecture
-- **[e2e/README.md](e2e/README.md)** - E2E testing setup
-- **[.example.env](.example.env)** - Environment configuration template
-
-### **🛠️ Developer Tools**
-- **[Foundry Documentation](https://book.getfoundry.sh/)** - Smart contract development framework
-- **[Next.js Documentation](https://nextjs.org/docs)** - React framework and App Router
-- **[RainbowKit Documentation](https://www.rainbowkit.com/)** - Wallet connection components
-
-### **🌐 Community & Support**
-- **Discord**: [Greenpill Dev Guild](https://discord.gg/greenpill)
-- **Twitter**: [@greenpilldevs](https://twitter.com/greenpilldevs)
-- **GitHub Issues**: For bug reports and feature requests
+MIT, see [LICENSE](LICENSE).
