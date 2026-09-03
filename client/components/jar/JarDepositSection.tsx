@@ -1,35 +1,41 @@
 "use client";
 
-import { useParams } from "next/navigation";
-import { useChainId } from "wagmi";
+import { AlertTriangle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { getNativeCurrency } from "@/config/supported-networks";
-import { useCookieJarConfig } from "@/hooks/jar/useJar";
-import { useJarTransactions } from "@/hooks/jar/useJarTransactions";
-import { ETH_ADDRESS } from "@/lib/blockchain/token-utils";
+import type { CookieJarConfig } from "@/hooks/jar/useJar";
+import { ETH_ADDRESS, formatTokenAmount } from "@/lib/blockchain/token-utils";
+import type { JarTransactions } from "./JarActionsTabs";
 
-export function JarDepositSection() {
-	const params = useParams();
-	const chainId = useChainId();
-	const address = params.address as string;
-	const addressString = address as `0x${string}`;
+interface JarDepositSectionProps {
+	config: CookieJarConfig;
+	transactions: JarTransactions;
+	chainId: number;
+}
+
+export function JarDepositSection({
+	config,
+	transactions,
+	chainId,
+}: JarDepositSectionProps) {
 	const nativeCurrency = getNativeCurrency(chainId);
-
-	const { config } = useCookieJarConfig(addressString);
 	const {
 		amount,
 		setAmount,
 		onSubmit,
 		isApprovalPending,
+		isDepositPending,
 		tokenSymbol,
 		tokenDecimals,
-	} = useJarTransactions(config, addressString);
-
-	if (!config) return null;
+	} = transactions;
 
 	const isNativeCurrency =
 		config.currency?.toLowerCase() === ETH_ADDRESS.toLowerCase();
+	const minimum =
+		config.minDeposit !== undefined && config.minDeposit > 0n
+			? formatTokenAmount(config.minDeposit, tokenDecimals, tokenSymbol || "")
+			: undefined;
 
 	return (
 		<div className="space-y-6">
@@ -37,67 +43,58 @@ export function JarDepositSection() {
 				<div className="md:col-span-2">
 					<label
 						htmlFor="fundAmount"
-						className="block text-[#ff5e14] font-medium mb-2"
+						className="block text-foreground font-medium mb-2"
 					>
-						Amount to Deposit
+						Amount to deposit
 					</label>
-					<div className="bg-yellow-50 border-l-4 border-yellow-400 p-3 mb-3 rounded">
-						<div className="flex items-center">
-							<svg
-								className="h-5 w-5 text-yellow-600 mr-2"
-								fill="currentColor"
-								viewBox="0 0 20 20"
-							>
-								<path
-									fillRule="evenodd"
-									d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-									clipRule="evenodd"
-								/>
-							</svg>
-							<p className="text-sm text-yellow-700">
-								Only deposits made through this interface are recognized.
-								<br />
-								Do not send funds directly to the smart contract.
-							</p>
-						</div>
+					<div className="bg-warning/10 border-l-4 border-warning p-3 mb-3 rounded flex items-start gap-2">
+						<AlertTriangle className="h-5 w-5 text-warning flex-shrink-0 mt-0.5" />
+						<p className="text-sm text-foreground">
+							Only deposits made through this form count towards the jar
+							balance. Never send tokens straight to the contract address.
+						</p>
 					</div>
 					<Input
 						id="fundAmount"
 						type="text"
+						inputMode="decimal"
 						placeholder={
 							isNativeCurrency
 								? `0.1 ${nativeCurrency.symbol}`
-								: `1.${"0".repeat(Math.max(0, tokenDecimals))} ${tokenSymbol || "Tokens"}`
+								: `100 ${tokenSymbol || "tokens"}`
 						}
 						value={amount}
 						onChange={(e) => setAmount(e.target.value)}
-						className="border-[#f0e6d8] bg-white text-[#3c2a14]"
+						className="border-border bg-card text-foreground"
 					/>
+					{minimum && (
+						<p className="text-xs text-muted-foreground mt-2">
+							Minimum deposit: {minimum}
+						</p>
+					)}
 				</div>
 				<div className="flex items-end">
 					<Button
 						onClick={() => onSubmit(amount)}
-						className="w-full bg-[#ff5e14] hover:bg-[#e54d00] text-white h-10"
-						disabled={!amount || Number(amount) <= 0}
+						className="w-full h-10"
+						disabled={!amount || Number(amount) <= 0 || isDepositPending}
 					>
-						Deposit Now
+						{isDepositPending ? "Depositing..." : "Deposit"}
 					</Button>
 				</div>
 			</div>
 
 			{!isNativeCurrency && (
-				<div className="pt-2">
-					<p className="text-sm text-[#8b7355]">
-						Note: For ERC20 tokens, you&apos;ll need to approve the token
-						transfer before depositing.
-					</p>
-				</div>
+				<p className="text-sm text-muted-foreground">
+					Token deposits take two signatures: an approval, then the deposit. A
+					multi-sig can batch both calls (approve, then deposit) in one
+					transaction.
+				</p>
 			)}
 
 			{isApprovalPending && (
-				<div className="mt-4 p-3 bg-[#fff8f0] rounded-lg text-[#4a3520]">
-					Waiting for token approval... Please confirm the transaction in your
-					wallet.
+				<div className="p-3 bg-muted rounded-lg text-foreground text-sm">
+					Waiting for the token approval. Confirm it in your wallet.
 				</div>
 			)}
 		</div>

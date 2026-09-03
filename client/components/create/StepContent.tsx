@@ -265,7 +265,7 @@ const BasicConfigStep: React.FC = () => {
 							type="button"
 							variant="ghost"
 							size="icon"
-							className="absolute right-1 top-1 h-8 w-8 text-gray-500 hover:text-[#ff5e14]"
+							className="absolute right-1 top-1 h-8 w-8 text-gray-500 hover:text-primary"
 							onClick={async () => {
 								try {
 									const text = await navigator.clipboard.readText();
@@ -845,7 +845,7 @@ const FinalSettingsStep: React.FC<{ isV2Contract: boolean }> = ({
 							</div>
 
 							{streamingEnabled && (
-								<div className="ml-6 space-y-4 p-3 bg-white rounded border border-blue-200">
+								<div className="ml-6 space-y-4 p-3 bg-card rounded border border-blue-200">
 									<div className="flex items-center space-x-2">
 										<Checkbox
 											id="requireStreamApproval"

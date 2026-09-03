@@ -54,7 +54,18 @@ export function JarDetailsCard({
 	onEditClick,
 	toast,
 }: JarDetailsCardProps) {
-	const { isAdmin, isFeeCollector, showUserFunctions } = permissions;
+	const { isAdmin, isFeeCollector, isEligible, eligibility } = permissions;
+	const showUserFunctions = isEligible;
+	const statusLabel =
+		eligibility === "disconnected"
+			? "Connect to check"
+			: eligibility === "wears-hat"
+				? "Wears the Team hat"
+				: eligibility === "holds-nft"
+					? "Holds the gate token"
+					: eligibility === "allowlisted"
+						? "Allowlisted"
+						: "Not eligible";
 
 	// Format balance for display
 	const formattedBalance = formatJarBalance(
@@ -65,7 +76,7 @@ export function JarDetailsCard({
 	);
 
 	return (
-		<Card className="shadow-lg bg-white border-none overflow-hidden">
+		<Card className="shadow-lg bg-card border-none overflow-hidden">
 			<CardContent className="p-4">
 				<div className="space-y-4">
 					{/* Jar Title and Description */}
@@ -87,7 +98,7 @@ export function JarDetailsCard({
 									</div>
 								)}
 								<div className="flex items-center gap-2">
-									<h1 className="text-3xl font-bold text-[#1a1a1a]">
+									<h1 className="text-3xl font-bold text-foreground">
 										{metadata.name}
 									</h1>
 									{metadata.link && (
@@ -102,10 +113,10 @@ export function JarDetailsCard({
 									)}
 								</div>
 								{metadata.description && (
-									<p className="text-[#4a3520] mt-1">{metadata.description}</p>
+									<p className="text-foreground mt-1">{metadata.description}</p>
 								)}
 								{!metadata.description && (
-									<p className="text-[#4a3520] mt-1">Shared Token Pool</p>
+									<p className="text-foreground mt-1">Shared token pool</p>
 								)}
 							</div>
 							{isAdmin && (
@@ -113,7 +124,7 @@ export function JarDetailsCard({
 									variant="outline"
 									size="sm"
 									onClick={onEditClick}
-									className="ml-4 border-[#ff5e14] text-[#ff5e14] hover:bg-[#fff0e0]"
+									className="ml-4 border-primary text-primary hover:bg-accent/10"
 								>
 									Edit Info
 								</Button>
@@ -122,11 +133,11 @@ export function JarDetailsCard({
 					</div>
 
 					{/* SIMPLIFIED: Focus on 5 Essential Details Only */}
-					<div className="bg-gradient-to-r from-[#fff8f0] to-white p-6 rounded-lg mb-4">
+					<div className="bg-gradient-to-r from-muted to-white p-6 rounded-lg mb-4">
 						{/* 1. BALANCE - Most Prominent */}
 						<div className="text-center mb-6">
-							<p className="text-[#4a3520] text-sm mb-1">Available Balance</p>
-							<p className="text-[#ff5e14] font-bold text-3xl">
+							<p className="text-foreground text-sm mb-1">Available Balance</p>
+							<p className="text-primary font-bold text-3xl">
 								{formattedBalance}
 							</p>
 						</div>
@@ -135,36 +146,32 @@ export function JarDetailsCard({
 						<div className="grid grid-cols-2 gap-4 text-sm">
 							{/* 2. Access Type */}
 							<div className="flex items-center gap-2">
-								<Users className="h-4 w-4 text-[#ff5e14]" />
+								<Users className="h-4 w-4 text-primary" />
 								<div>
-									<p className="text-[#4a3520] font-medium">Access</p>
-									<p className="text-[#1a1a1a]">{config.accessType}</p>
+									<p className="text-foreground font-medium">Access</p>
+									<p className="text-foreground">{config.accessType}</p>
 								</div>
 							</div>
 
 							{/* 3. Your Status */}
 							<div className="flex items-center gap-2">
-								<ShieldAlert className="h-4 w-4 text-[#ff5e14]" />
+								<ShieldAlert className="h-4 w-4 text-primary" />
 								<div>
-									<p className="text-[#4a3520] font-medium">Status</p>
+									<p className="text-foreground font-medium">Status</p>
 									<p
-										className={`font-medium ${config.denylist ? "text-red-600" : config.allowlist ? "text-green-600" : "text-red-600"}`}
+										className={`font-medium ${isEligible ? "text-success" : eligibility === "disconnected" ? "text-muted-foreground" : "text-destructive"}`}
 									>
-										{config.denylist
-											? "Denied"
-											: config.allowlist
-												? "Authorized"
-												: "Not Authorized"}
+										{statusLabel}
 									</p>
 								</div>
 							</div>
 
 							{/* 4. Withdrawal Rules - Simplified */}
 							<div className="flex items-center gap-2">
-								<Clock className="h-4 w-4 text-[#ff5e14]" />
+								<Clock className="h-4 w-4 text-primary" />
 								<div>
-									<p className="text-[#4a3520] font-medium">Rules</p>
-									<p className="text-[#1a1a1a]">
+									<p className="text-foreground font-medium">Rules</p>
+									<p className="text-foreground">
 										{config.withdrawalOption === "Fixed"
 											? "Fixed Amount"
 											: "Variable Amount"}
@@ -174,18 +181,18 @@ export function JarDetailsCard({
 
 							{/* 5. Contract - Minimized */}
 							<div className="flex items-center gap-2">
-								<ExternalLink className="h-4 w-4 text-[#ff5e14]" />
+								<ExternalLink className="h-4 w-4 text-primary" />
 								<div>
-									<p className="text-[#4a3520] font-medium">Contract</p>
+									<p className="text-foreground font-medium">Contract</p>
 									<div className="flex items-center gap-1">
-										<p className="text-[#1a1a1a] font-mono text-xs">
+										<p className="text-foreground font-mono text-xs">
 											{formatAddress(addressString)}
 										</p>
 										<Button
 											variant="ghost"
 											size="icon"
 											onClick={() => copyToClipboard(addressString, toast)}
-											className="h-5 w-5 text-[#ff5e14] hover:bg-[#fff0e0] p-0"
+											className="h-5 w-5 text-primary hover:bg-accent/10 p-0"
 										>
 											<Copy className="h-3 w-3" />
 										</Button>
@@ -198,14 +205,14 @@ export function JarDetailsCard({
 					{/* User Status */}
 					{(showUserFunctions || isAdmin || isFeeCollector) && (
 						<div className="mt-6">
-							<h3 className="text-base font-semibold text-[#3c2a14] mb-2">
+							<h3 className="text-base font-semibold text-foreground mb-2">
 								Your Status
 							</h3>
 							<div className="flex flex-wrap gap-2">
 								{config.denylist ? (
 									<Badge
 										variant="outline"
-										className="flex items-center gap-1 bg-[#ffebee] text-[#c62828] border-[#c62828] px-3 py-1"
+										className="flex items-center gap-1 bg-destructive/10 text-destructive border-destructive px-3 py-1"
 									>
 										<ShieldAlert className="h-3 w-3 mr-1" />
 										Denylisted
@@ -214,17 +221,17 @@ export function JarDetailsCard({
 									showUserFunctions && (
 										<Badge
 											variant="outline"
-											className="flex items-center gap-1 bg-[#e6f7e6] text-[#2e7d32] border-[#2e7d32] px-3 py-1"
+											className="flex items-center gap-1 bg-success/10 text-success border-success px-3 py-1"
 										>
 											<Users className="h-3 w-3 mr-1" />
-											Allowlisted
+											{statusLabel}
 										</Badge>
 									)
 								)}
 								{isFeeCollector && (
 									<Badge
 										variant="outline"
-										className="flex items-center gap-1 bg-[#e3f2fd] text-[#1976d2] border-[#1976d2] px-3 py-1"
+										className="flex items-center gap-1 bg-info/10 text-info border-info px-3 py-1"
 									>
 										<Coins className="h-3 w-3 mr-1" />
 										Fee Collector
@@ -233,7 +240,7 @@ export function JarDetailsCard({
 								{isAdmin && (
 									<Badge
 										variant="outline"
-										className="flex items-center gap-1 bg-[#fce4ec] text-[#c2185b] border-[#c2185b] px-3 py-1"
+										className="flex items-center gap-1 bg-primary/10 text-primary border-primary px-3 py-1"
 									>
 										<ShieldAlert className="h-3 w-3 mr-1" />
 										Admin

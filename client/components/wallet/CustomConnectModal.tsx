@@ -60,11 +60,11 @@ export function CustomConnectModal({ isOpen, onClose }: ConnectModalProps) {
 		<Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
 			<DialogContent className="sm:max-w-[480px] max-h-[90vh] overflow-hidden">
 				<DialogHeader>
-					<DialogTitle className="flex items-center gap-2 text-[#3c2a14]">
-						<Wallet className="w-5 h-5 text-[#ff5e14]" />
+					<DialogTitle className="flex items-center gap-2 text-foreground">
+						<Wallet className="w-5 h-5 text-primary" />
 						Connect Wallet
 					</DialogTitle>
-					<DialogDescription className="text-[#8b7355]">
+					<DialogDescription className="text-muted-foreground">
 						Choose your preferred wallet to connect to Cookie Jar V3
 					</DialogDescription>
 				</DialogHeader>
@@ -101,7 +101,7 @@ export function CustomConnectModal({ isOpen, onClose }: ConnectModalProps) {
 										onClick={() => handleConnect(connector)}
 										disabled={isDisabled}
 										variant="outline"
-										className="w-full h-auto p-4 justify-start bg-gray-50 hover:bg-gray-100 border-2 border-transparent hover:border-[#ff5e14] transition-all duration-200 flex-shrink-0"
+										className="w-full h-auto p-4 justify-start bg-gray-50 hover:bg-gray-100 border-2 border-transparent hover:border-primary transition-all duration-200 flex-shrink-0"
 									>
 										<div className="flex items-center gap-4 w-full min-w-0">
 											<div className="p-2 rounded-lg flex-shrink-0 bg-gray-50 text-gray-600 relative">
@@ -113,10 +113,10 @@ export function CustomConnectModal({ isOpen, onClose }: ConnectModalProps) {
 											</div>
 
 											<div className="flex-1 text-left min-w-0">
-												<div className="font-medium text-[#3c2a14] truncate">
+												<div className="font-medium text-foreground truncate">
 													{connector.name}
 												</div>
-												<div className="text-sm text-[#8b7355] truncate">
+												<div className="text-sm text-muted-foreground truncate">
 													{isConnecting
 														? "Connecting..."
 														: `Connect using ${connector.name}`}
@@ -124,7 +124,7 @@ export function CustomConnectModal({ isOpen, onClose }: ConnectModalProps) {
 											</div>
 
 											{!isConnecting && (
-												<ExternalLink className="w-4 h-4 text-[#8b7355] flex-shrink-0" />
+												<ExternalLink className="w-4 h-4 text-muted-foreground flex-shrink-0" />
 											)}
 										</div>
 									</Button>

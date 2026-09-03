@@ -360,8 +360,8 @@ export const NFTGatedWithdrawalSection: React.FC<
 				</TabsContent>
 
 				<TabsContent value="manual" className="space-y-4">
-					<div className="space-y-3 rounded-lg border border-dashed border-[#f0e6d8] bg-white/60 p-4">
-						<p className="text-sm text-[#8b7355]">
+					<div className="space-y-3 rounded-lg border border-dashed border-border bg-card/60 p-4">
+						<p className="text-sm text-muted-foreground">
 							Use manual entry if your NFT does not appear in the visual picker.
 							Provide the collection address, the exact token ID, and its token
 							standard so we can verify ownership before withdrawing.
@@ -370,7 +370,7 @@ export const NFTGatedWithdrawalSection: React.FC<
 							<div className="md:col-span-2">
 								<label
 									htmlFor="gateAddressInput"
-									className="text-sm font-medium text-[#3c2a14]"
+									className="text-sm font-medium text-foreground"
 								>
 									NFT Contract Address
 								</label>
@@ -386,7 +386,7 @@ export const NFTGatedWithdrawalSection: React.FC<
 							<div>
 								<label
 									htmlFor="tokenIdInput"
-									className="text-sm font-medium text-[#3c2a14]"
+									className="text-sm font-medium text-foreground"
 								>
 									Token ID
 								</label>
@@ -402,7 +402,7 @@ export const NFTGatedWithdrawalSection: React.FC<
 							<div>
 								<label
 									htmlFor="tokenTypeSelect"
-									className="text-sm font-medium text-[#3c2a14]"
+									className="text-sm font-medium text-foreground"
 								>
 									Token Standard
 								</label>
@@ -430,15 +430,15 @@ export const NFTGatedWithdrawalSection: React.FC<
 
 			{/* Selected NFT Status */}
 			{activeNFT && (
-				<Card className="border-l-4 border-l-[#ff5e14]">
+				<Card className="border-l-4 border-l-primary">
 					<CardContent className="pt-4">
 						<div className="flex items-center justify-between">
 							<div>
-								<h4 className="font-medium text-[#3c2a14]">Selected NFT</h4>
-								<p className="text-sm text-[#8b7355]">
+								<h4 className="font-medium text-foreground">Selected NFT</h4>
+								<p className="text-sm text-muted-foreground">
 									{activeNFT.name || "Manual entry"}
 								</p>
-								<p className="text-xs text-[#8b7355] font-mono">
+								<p className="text-xs text-muted-foreground font-mono">
 									{activeNFT.contractAddress}#{activeNFT.tokenId}
 								</p>
 							</div>
@@ -451,11 +451,11 @@ export const NFTGatedWithdrawalSection: React.FC<
 									{activeNFT.tokenType}
 								</Badge>
 								{isManualMode && (
-									<p className="text-xs text-[#8b7355]">Manual entry</p>
+									<p className="text-xs text-muted-foreground">Manual entry</p>
 								)}
 								<div className="mt-2">
 									{balanceCheckLoading ? (
-										<div className="flex items-center gap-2 text-[#8b7355]">
+										<div className="flex items-center gap-2 text-muted-foreground">
 											<Loader2 className="h-4 w-4 animate-spin" />
 											<span className="text-xs">Verifying...</span>
 										</div>
@@ -505,7 +505,7 @@ export const NFTGatedWithdrawalSection: React.FC<
 			{/* Variable Amount Input (if variable withdrawal) */}
 			{config.withdrawalOption === "VARIABLE" && (
 				<div>
-					<label className="text-sm font-medium text-[#3c2a14]">
+					<label className="text-sm font-medium text-foreground">
 						Withdrawal Amount
 					</label>
 					<Input
@@ -527,7 +527,7 @@ export const NFTGatedWithdrawalSection: React.FC<
 						}
 					/>
 					{config.maxWithdrawal && (
-						<p className="text-xs text-[#8b7355] mt-1">
+						<p className="text-xs text-muted-foreground mt-1">
 							Maximum:{" "}
 							{formatTokenAmount(
 								BigInt(config.maxWithdrawal),
@@ -546,7 +546,7 @@ export const NFTGatedWithdrawalSection: React.FC<
 						? handleEnhancedWithdrawVariable
 						: handleEnhancedWithdraw
 				}
-				className="w-full bg-[#ff5e14] hover:bg-[#e54d00] text-white"
+				className="w-full bg-primary hover:bg-primary-hover text-white"
 				disabled={
 					!isWithdrawalReady ||
 					config.isWithdrawPending ||
@@ -582,7 +582,7 @@ export const NFTGatedWithdrawalSection: React.FC<
 			</Button>
 
 			{/* Help Text */}
-			<div className="text-xs text-[#8b7355] bg-gray-50 p-3 rounded">
+			<div className="text-xs text-muted-foreground bg-gray-50 p-3 rounded">
 				<p className="font-medium mb-1">How it works:</p>
 				<ul className="space-y-1 list-disc list-inside">
 					<li>

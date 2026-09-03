@@ -10,20 +10,45 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import type { CookieJarConfig } from "@/hooks/jar/useJar";
 import type { JarPermissions } from "@/hooks/jar/useJarPermissions";
+import type { useJarTransactions } from "@/hooks/jar/useJarTransactions";
 import { JarDepositSection } from "./JarDepositSection";
 import { JarWithdrawSection } from "./JarWithdrawSection";
 
+export type JarTransactions = ReturnType<typeof useJarTransactions>;
+
 interface JarActionsTabsProps {
 	jarAddress: `0x${string}`;
+	chainId: number;
+	config: CookieJarConfig;
 	permissions: JarPermissions;
+	transactions: JarTransactions;
+	refetch: () => void;
 	onTabChange?: () => void;
 	children?: React.ReactNode;
 }
 
+const TAB_TRIGGER =
+	"data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm text-foreground flex-1";
+
+function depositCopy(feeBps: bigint | undefined): string {
+	if (feeBps === undefined)
+		return "Funds only count when they enter through this form.";
+	if (feeBps === 0n) {
+		return "No deposit fee. Funds only count when they enter through this form, never by a plain transfer.";
+	}
+	const percent = Number(feeBps) / 100;
+	return `Deposits carry a ${percent}% fee. Funds only count when they enter through this form.`;
+}
+
 export function JarActionsTabs({
 	jarAddress,
+	chainId,
+	config,
 	permissions,
+	transactions,
+	refetch,
 	onTabChange,
 	children,
 }: JarActionsTabsProps) {
@@ -31,102 +56,94 @@ export function JarActionsTabs({
 
 	return (
 		<Tabs
-			defaultValue={isAdmin ? "admin" : "withdraw"}
+			defaultValue={isAdmin && !permissions.isEligible ? "admin" : "withdraw"}
 			className="w-full"
 			onValueChange={onTabChange}
 		>
-			<TabsList className="mb-6 bg-[#fff8f0] p-1 w-full">
+			<TabsList className="mb-6 bg-muted p-1 w-full">
+				<TabsTrigger value="withdraw" className={TAB_TRIGGER}>
+					Claim
+				</TabsTrigger>
+				<TabsTrigger value="deposit" className={TAB_TRIGGER}>
+					Deposit
+				</TabsTrigger>
 				{isAdmin && (
-					<TabsTrigger
-						value="admin"
-						className="data-[state=active]:bg-white data-[state=active]:text-[#ff5e14] data-[state=active]:shadow-sm text-[#4a3520] flex-1"
-					>
-						Admin Controls
+					<TabsTrigger value="admin" className={TAB_TRIGGER}>
+						Admin
 					</TabsTrigger>
 				)}
-				<TabsTrigger
-					value="withdraw"
-					className="data-[state=active]:bg-white data-[state=active]:text-[#ff5e14] data-[state=active]:shadow-sm text-[#4a3520] flex-1"
-				>
-					Get Cookie
-				</TabsTrigger>
-				<TabsTrigger
-					value="deposit"
-					className="data-[state=active]:bg-white data-[state=active]:text-[#ff5e14] data-[state=active]:shadow-sm text-[#4a3520] flex-1"
-				>
-					Jar Deposit
-				</TabsTrigger>
-
 				{isFeeCollector && (
-					<TabsTrigger
-						value="feeCollector"
-						className="data-[state=active]:bg-white data-[state=active]:text-[#ff5e14] data-[state=active]:shadow-sm text-[#4a3520] flex-1"
-					>
-						Fee Collector
+					<TabsTrigger value="feeCollector" className={TAB_TRIGGER}>
+						Fee collector
 					</TabsTrigger>
 				)}
 			</TabsList>
 
-			{/* Deposit Tab */}
+			<TabsContent value="withdraw" className="mt-0">
+				<Card className="border-none shadow-md">
+					<CardHeader className="bg-muted rounded-t-lg">
+						<CardTitle className="text-xl text-foreground">Claim</CardTitle>
+						<CardDescription className="text-muted-foreground">
+							Claim your share from this jar
+						</CardDescription>
+					</CardHeader>
+					<CardContent className="p-6 md:p-8 relative min-h-[360px]">
+						<JarWithdrawSection
+							config={config}
+							permissions={permissions}
+							transactions={transactions}
+							refetch={refetch}
+						/>
+					</CardContent>
+				</Card>
+			</TabsContent>
+
 			<TabsContent value="deposit" className="mt-0">
 				<Card className="border-none shadow-md">
-					<CardHeader className="bg-[#fff8f0] rounded-t-lg">
-						<CardTitle className="text-xl text-[#3c2a14]">
-							Jar Deposit
-						</CardTitle>
-						<CardDescription className="text-[#8b7355]">
-							All jar deposits are subject to a 1% fee
+					<CardHeader className="bg-muted rounded-t-lg">
+						<CardTitle className="text-xl text-foreground">Deposit</CardTitle>
+						<CardDescription className="text-muted-foreground">
+							{depositCopy(config.feePercentageOnDeposit)}
 						</CardDescription>
 					</CardHeader>
 					<CardContent className="p-6">
-						<JarDepositSection />
+						<JarDepositSection
+							config={config}
+							transactions={transactions}
+							chainId={chainId}
+						/>
 					</CardContent>
 				</Card>
 			</TabsContent>
 
-			{/* Withdraw Tab */}
-			<TabsContent value="withdraw" className="mt-0">
-				<Card className="border-none shadow-md">
-					<CardHeader className="bg-[#fff8f0] rounded-t-lg">
-						<CardTitle className="text-xl text-[#3c2a14]">Get Cookie</CardTitle>
-						<CardDescription className="text-[#8b7355]">
-							Receive cookies from this jar
-						</CardDescription>
-					</CardHeader>
-					<CardContent className="p-8 relative min-h-[400px]">
-						<JarWithdrawSection />
-					</CardContent>
-				</Card>
-			</TabsContent>
-
-			{/* Admin Tab */}
 			{isAdmin && (
 				<TabsContent value="admin" className="mt-0">
 					<Card className="border-none shadow-md">
-						<CardHeader className="bg-[#fff8f0] rounded-t-lg">
-							<CardTitle className="text-xl text-[#3c2a14]">
-								Admin Controls
-							</CardTitle>
-							<CardDescription className="text-[#8b7355]">
-								Manage jar settings and access controls
+						<CardHeader className="bg-muted rounded-t-lg">
+							<CardTitle className="text-xl text-foreground">Admin</CardTitle>
+							<CardDescription className="text-muted-foreground">
+								Jar owner controls
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="p-6">
-							<AdminFunctions address={jarAddress} />
+							<AdminFunctions
+								address={jarAddress}
+								accessType={config.accessType}
+								currency={config.currency}
+							/>
 						</CardContent>
 					</Card>
 				</TabsContent>
 			)}
 
-			{/* Fee Collector Tab */}
 			{isFeeCollector && (
 				<TabsContent value="feeCollector" className="mt-0">
 					<Card className="border-none shadow-md">
-						<CardHeader className="bg-[#fff8f0] rounded-t-lg">
-							<CardTitle className="text-xl text-[#3c2a14]">
-								Fee Collector Settings
+						<CardHeader className="bg-muted rounded-t-lg">
+							<CardTitle className="text-xl text-foreground">
+								Fee collector settings
 							</CardTitle>
-							<CardDescription className="text-[#8b7355]">
+							<CardDescription className="text-muted-foreground">
 								Manage fee collection settings
 							</CardDescription>
 						</CardHeader>

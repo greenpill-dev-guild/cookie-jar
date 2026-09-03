@@ -24,16 +24,16 @@ export function BackButton({ className = "", children }: BackButtonProps) {
 	return (
 		<div
 			className={cn(
-				"flex items-center justify-between w-full bg-white rounded-xl py-2 px-4 shadow-sm",
+				"flex items-center justify-between w-full bg-card rounded-xl py-2 px-4 shadow-sm",
 				className
 			)}
 		>
 			<button
 				type="button"
 				onClick={() => router.back()}
-				className="flex items-center gap-2 text-[#3c2a14] font-medium"
+				className="flex items-center gap-2 text-foreground font-medium"
 			>
-				<div className="bg-[#ff5e14] rounded-full h-8 w-8 flex items-center justify-center">
+				<div className="bg-primary rounded-full h-8 w-8 flex items-center justify-center">
 					<ArrowLeft className="w-5 h-5 text-white" />
 				</div>
 				<span>Go Back</span>
