@@ -7,7 +7,7 @@
 	"license": "MIT",
 	"scripts": {
 		"preinstall": "./scripts/install-deps.sh",
-		"postinstall": "rm -f package-lock.json && (command -v forge > /dev/null && git submodule update --init --recursive && ./scripts/oz-compat.sh && cd contracts && forge install || echo 'Forge not found, skipping forge operations')",
+		"postinstall": "command -v forge > /dev/null && git submodule update --init --recursive && ./scripts/oz-compat.sh && cd contracts && forge install || echo \"Forge not found, skipping forge operations\"",
 		"dev": "bun run dev:stop && ./scripts/dev-start.sh",
 		"dev:client": "cd client && bun dev",
 		"dev:stop": "pkill -f anvil || true && pkill -f 'forge script.*watch' || true && pkill -f 'next dev' || true && pkill -f 'npm run dev' || true",
@@ -33,7 +33,6 @@
 		"test:e2e:debug": "playwright test --debug",
 		"test:e2e:headed": "playwright test --headed",
 		"test:e2e:report": "playwright show-report",
-		"test:e2e:streaming": "playwright test streaming-features.spec.ts",
 		"test:e2e:mobile": "playwright test mobile-experience.spec.ts",
 		"test:e2e:performance": "playwright test performance-baseline.spec.ts",
 		"test:e2e:compatibility": "playwright test version-compatibility.spec.ts",
@@ -47,8 +46,8 @@
 		"lint:fix": "oxlint --fix client e2e",
 		"lint:contracts": "cd contracts && solhint 'src/**/*.sol' 'test/**/*.sol' 'script/**/*.sol'",
 		"lint:contracts:fix": "cd contracts && solhint --fix 'src/**/*.sol' 'test/**/*.sol' 'script/**/*.sol'",
-		"format": "biome format --write client e2e && bun format:contracts",
-		"format:check": "biome check --formatter-enabled=true --linter-enabled=false client e2e",
+		"format": "biome format --write && bun format:contracts",
+		"format:check": "biome check --formatter-enabled=true --linter-enabled=false",
 		"format:contracts": "cd contracts && prettier --write 'src/**/*.sol' 'test/**/*.sol' 'script/**/*.sol'",
 		"check": "bun lint && bun type-check",
 		"check:fix": "bun format && bun lint:fix && bun type-check",
@@ -68,30 +67,33 @@
 		"deploy:base-sepolia": "./scripts/deploy.sh base-sepolia"
 	},
 	"devDependencies": {
-		"@axe-core/playwright": "^4.10.2",
+		"@axe-core/playwright": "^4.13.0",
 		"@biomejs/biome": "2.2.5",
-		"@playwright/test": "^1.55.0",
+		"@playwright/test": "^1.62.1",
 		"@types/lodash": "^4.17.20",
-		"@types/node": "^20.19.17",
-		"concurrently": "^8.2.2",
-		"msw": "^2.11.3",
-		"oxlint": "^1.19.0",
-		"prettier": "^3.1.0",
+		"@types/node": "^20.19.43",
+		"msw": "^2.15.0",
+		"oxlint": "1.19.0",
+		"prettier": "^3.9.6",
 		"prettier-plugin-solidity": "^1.2.0",
 		"solhint": "^4.1.1"
 	},
 	"engines": {
-		"node": ">=18.0.0",
-		"bun": ">=1.0.0"
+		"node": ">=20",
+		"bun": ">=1.3.0"
 	},
 	"overrides": {
-		"axios": ">=1.12.0",
-		"elliptic": "6.6.1",
-		"form-data": "4.0.4",
-		"happy-dom": "20.9.0",
-		"next": "15.5.7"
+		"axios": ">=1.15.2",
+		"elliptic": ">=6.6.1",
+		"form-data": ">=4.0.6",
+		"lodash": ">=4.18.1",
+		"shell-quote": ">=1.10.0",
+		"tar": ">=7.5.22",
+		"ws": ">=8.21.0",
+		"postcss": ">=8.5.26"
 	},
 	"workspaces": [
 		"client"
-	]
+	],
+	"packageManager": "bun@1.3.10"
 }
