@@ -5,6 +5,7 @@ import {Script, console} from "forge-std/Script.sol";
 import {CookieJarFactory} from "../src/CookieJarFactory.sol";
 import {CookieJar} from "../src/CookieJar.sol";
 import {DummyERC20} from "../src/tokens/TestERC20.sol";
+import {DummyERC1155} from "../src/tokens/TestERC1155.sol";
 import {CookieJarLib} from "../src/libraries/CookieJarLib.sol";
 import {ERC721} from "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
@@ -30,6 +31,7 @@ contract DeployLocalScript is Script {
     CookieJarFactory public factory;
     CookieMonsterNFT public cookieMonsterNft;
     DummyERC20 public demoToken;
+    DummyERC1155 public demoBadge;
 
     function run() external {
         // HARDCODED for local development only - Anvil Account #0
@@ -91,9 +93,16 @@ contract DeployLocalScript is Script {
         demoToken.mint(COOKIE_FAN, 100000 * 10 ** 18); // 100K tokens to Cookie Fan
         console.log("   SUCCESS: DEMO tokens minted to test accounts!");
 
+        // Deploy a demo ERC1155 badge that stands in for a Hats Protocol hat
+        console.log("   Deploying DEMO ERC1155 badge (hat stand-in)...");
+        demoBadge = new DummyERC1155();
+        demoBadge.mint(COOKIE_MONSTER, 1, 1, ""); // Badge #1 to Cookie Monster only
+        console.log("   SUCCESS: Badge #1 minted to Cookie Monster");
+        console.log("      Badge Contract Address:", address(demoBadge));
+
         // === STEP 3: Create Demo Cookie Jars ===
         console.log("");
-        console.log("[STEP 3] Creating 4 demo cookie jars...");
+        console.log("[STEP 3] Creating 5 demo cookie jars...");
 
         // 1. Community Stipend (Allowlist, ETH, Fixed withdrawals)
         _createJar1();
@@ -107,14 +116,18 @@ contract DeployLocalScript is Script {
         // 4. NFT Airdrop (ERC721, ERC20, One-time withdrawals)
         _createJar4();
 
+        // 5. Team Hat Stipend (ERC1155 badge, ETH, Variable withdrawals, strict purpose)
+        _createJar5();
+
         // === SUMMARY ===
         console.log("");
         console.log("COMPLETE: Local development environment ready!");
         console.log("SUMMARY:");
         console.log("   - CookieJarFactory deployed at:", address(factory));
-        console.log("   - 4 Cookie Jars created with different configurations");
+        console.log("   - 5 Cookie Jars created with different configurations");
         console.log("   - Cookie Monster NFT deployed at:", address(cookieMonsterNft));
         console.log("   - DEMO ERC20 token deployed at:", address(demoToken));
+        console.log("   - DEMO ERC1155 badge deployed at:", address(demoBadge));
         console.log("   - NFTs minted to User A (Cookie Monster) and User B (Cookie Fan)");
         console.log("   - Jars funded with ETH and DEMO tokens");
         console.log("");
@@ -125,11 +138,7 @@ contract DeployLocalScript is Script {
         console.log("   - Try withdrawing with/without purpose descriptions");
         console.log("   - Test one-time withdrawal limits on Jar 4");
 
-        // === STEP 4: Update Client Configuration for V2 ===
-        console.log("");
-        console.log("[STEP 4] Updating client configuration for V2 support...");
-        _updateClientConfig(address(factory));
-        console.log("SUCCESS: Client configured for V2 contract flow on chain 31337");
+        console.log("   - Client config: run `bun sync:deployment -- --chain 31337 --script DeployLocal.s.sol`");
 
         vm.stopBroadcast();
     }
@@ -351,111 +360,52 @@ contract DeployLocalScript is Script {
         console.log("   SUCCESS: Jar 4: NFT Airdrop (ERC721, DEMO, One-time 500) - 10K DEMO funded");
     }
 
-    /// @notice Updates the client configuration file with new local deployment
-    /// @param factoryAddress The deployed factory address
-    function _updateClientConfig(address factoryAddress) internal {
-        // Generate TypeScript configuration
-        string memory configContent = _generateLocalConfigFile(factoryAddress);
+    /// @notice Creates the fifth demo jar: Team Hat Stipend (ERC1155 badge, ETH, Variable, strict purpose)
+    /// @dev Mirrors the production stipend jar shape. Hats Protocol hats are ERC1155 tokens, so an
+    ///      ERC1155 gate on badge #1 exercises the same client claim path on Anvil.
+    function _createJar5() internal {
+        CookieJarLib.MultiTokenConfig memory defaultMultiToken5 = CookieJarLib.MultiTokenConfig({
+            enabled: false,
+            maxSlippagePercent: 500, // 5%
+            minSwapAmount: 0.01 ether,
+            defaultFee: 3000 // 0.3%
+        });
 
-        // Write to client config file
-        string memory configPath = "../client/config/deployments.auto.ts";
-        vm.writeFile(configPath, configContent);
-
-        console.log("SUCCESS: Updated client config:", configPath);
-    }
-
-    /// @notice Generates the TypeScript configuration file content for local development
-    /// @param factoryAddress The deployed factory address
-    /// @return The complete TypeScript file content with local chain support
-    function _generateLocalConfigFile(address factoryAddress) internal view returns (string memory) {
-        // Create deployment entry for local chain (31337)
-        string memory localDeploymentEntry = string(
-            abi.encodePacked(
-                "  31337: {\n",
-                "    chainId: 31337,\n",
-                '    factoryAddress: "',
-                vm.toString(factoryAddress),
-                '",\n',
-                "    isV2: true,\n",
-                "    blockNumber: ",
-                vm.toString(block.number),
-                ",\n",
-                "    timestamp: ",
-                vm.toString(block.timestamp),
-                "\n",
-                "  }"
-            )
+        CookieJarLib.JarConfig memory params5 = CookieJarLib.JarConfig(
+            DEPLOYER, // jarOwner
+            CookieJarLib.ETH_ADDRESS, // supportedCurrency
+            DEPLOYER, // feeCollector
+            CookieJarLib.AccessType.ERC1155, // accessType
+            CookieJarLib.WithdrawalTypeOptions.Variable, // withdrawalOption
+            true, // strictPurpose
+            true, // emergencyWithdrawalEnabled
+            false, // oneTimeWithdrawal
+            0, // fixedAmount
+            0.5 ether, // maxWithdrawal
+            28 days, // withdrawalInterval
+            0.01 ether, // minDeposit
+            0, // feePercentageOnDeposit
+            0, // maxWithdrawalPerPeriod
+            '{"name":"Team Hat Stipend (demo)","description":"Local stand-in for the Dev Guild stipend jar. Claims are gated by holding badge #1 of the demo ERC1155 (Hats Protocol hats are ERC1155 tokens). The claim note must carry a Linear link.","image":"https://raw.githubusercontent.com/greenpill-dev-guild/cookie-jar/main/client/public/images/cookie-jar.png","link":"https://github.com/greenpill-dev-guild/.github/blob/main/routines/scoped-work-compensation.md"}', // metadata
+            defaultMultiToken5 // multiTokenConfig
         );
 
-        // Generate complete file content with local development support
-        return
-            string(
-                abi.encodePacked(
-                    "/**\n",
-                    " * AUTO-GENERATED FILE - DO NOT EDIT MANUALLY!\n",
-                    " * \n",
-                    " * This file is automatically updated when contracts are deployed.\n",
-                    " * It contains the latest factory addresses and V2 chain detection.\n",
-                    " * \n",
-                    " * Generated by: contracts/script/DeployLocal.s.sol\n",
-                    " * Last updated: ",
-                    vm.toString(block.timestamp),
-                    "\n",
-                    " * Chain ID: 31337 (Local Development)\n",
-                    " */\n\n",
-                    "export interface DeploymentInfo {\n",
-                    "  chainId: number\n",
-                    "  factoryAddress: string\n",
-                    "  blockNumber?: number\n",
-                    "  timestamp?: number\n",
-                    "  isV2: boolean\n",
-                    "  deploymentHash?: string\n",
-                    "}\n\n",
-                    "// Auto-generated deployment registry\n",
-                    "export const DEPLOYMENTS: Record<number, DeploymentInfo> = {\n",
-                    "  // Local Development (Anvil)\n",
-                    localDeploymentEntry,
-                    ",\n\n",
-                    "  // Legacy V1 deployments (manually maintained)\n",
-                    "  42220: {\n",
-                    "    chainId: 42220,\n",
-                    '    factoryAddress: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9",\n',
-                    "    isV2: false\n",
-                    "  },\n",
-                    "  44787: {\n",
-                    "    chainId: 44787,\n",
-                    '    factoryAddress: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9",\n',
-                    "    isV2: false\n",
-                    "  }\n",
-                    "}\n\n",
-                    "// Auto-generated V2 chain list\n",
-                    "export const V2_CHAINS = Object.entries(DEPLOYMENTS)\n",
-                    "  .filter(([_, info]) => info.isV2)\n",
-                    "  .map(([chainId, _]) => parseInt(chainId))\n\n",
-                    "// Auto-generated factory addresses\n",
-                    "export const FACTORY_ADDRESSES = Object.fromEntries(\n",
-                    "  Object.entries(DEPLOYMENTS).map(([chainId, info]) => [\n",
-                    "    chainId,\n",
-                    "    info.factoryAddress\n",
-                    "  ])\n",
-                    ") as Record<number, string>\n\n",
-                    "// Helper functions\n",
-                    "export function isV2Chain(chainId: number): boolean {\n",
-                    "  return DEPLOYMENTS[chainId]?.isV2 || false\n",
-                    "}\n\n",
-                    "export function getFactoryAddress(chainId: number): string | undefined {\n",
-                    "  return DEPLOYMENTS[chainId]?.factoryAddress\n",
-                    "}\n\n",
-                    "export function getDeploymentInfo(chainId: number): DeploymentInfo | undefined {\n",
-                    "  return DEPLOYMENTS[chainId]\n",
-                    "}\n\n",
-                    "// Generation metadata\n",
-                    'export const GENERATED_AT = "',
-                    vm.toString(block.timestamp),
-                    '"\n',
-                    'export const GENERATOR = "Cookie Jar Local Development System v2.0"\n',
-                    "export const DEPLOYED_CHAIN = 31337\n"
-                )
-            );
+        CookieJarLib.AccessConfig memory accessConfig5 = CookieJarLib.AccessConfig({
+            allowlist: new address[](0),
+            nftRequirement: CookieJarLib.NftRequirement({
+                nftContract: address(demoBadge),
+                tokenId: 1,
+                minBalance: 1,
+                isPoapEventGate: false
+            })
+        });
+
+        factory.createCookieJar(params5, accessConfig5, defaultMultiToken5);
+
+        // Fund the fifth jar with 3 ETH
+        address[] memory allJars5 = factory.getAllJars();
+        address fifthJar = allJars5[4];
+        CookieJar(payable(fifthJar)).deposit{value: 3 ether}(0);
+        console.log("   SUCCESS: Jar 5: Team Hat Stipend (ERC1155 badge #1, ETH, Variable 0.5) - 3 ETH funded");
     }
 }

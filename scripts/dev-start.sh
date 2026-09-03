@@ -108,6 +108,7 @@ fi
 # Copy deployment files to client (from project root)
 echo "📄 Copying deployment files..."
 ./scripts/copy-deployment.sh
+bun scripts/sync-deployments.ts --chain 31337 --script DeployLocal.s.sol
 
 if [ $? -ne 0 ]; then
     echo "❌ Failed to copy deployment files"

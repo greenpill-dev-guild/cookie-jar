@@ -1,9 +1,9 @@
 {
   "../lib/forge-std": {
-    "rev": "77041d2ce690e692d6e03cc812b57d1ddaa4d505"
+    "rev": "17a9b2398a7d629931dc66a168a098d051d53dc6"
   },
   "../lib/openzeppelin-contracts": {
-    "rev": "e4f70216d759d8e6a64144a9e1f7bbeed78e7079"
+    "rev": "5eb047a0c10386b6634db56327a1f74e8a0432c2"
   },
   "../lib/permit2": {
     "rev": "cc56ad0f3439c502c246fc5cfcc3db92bb8b7219"
@@ -13,11 +13,5 @@
   },
   "../lib/universal-router": {
     "rev": "3663f6db6e2fe121753cd2d899699c2dc75dca86"
-  },
-  "lib/forge-std": {
-    "rev": "77041d2ce690e692d6e03cc812b57d1ddaa4d505"
-  },
-  "lib/openzeppelin-contracts": {
-    "rev": "e4f70216d759d8e6a64144a9e1f7bbeed78e7079"
   }
 }

@@ -64,7 +64,10 @@
 		"deploy:arbitrum-sepolia": "./scripts/deploy.sh arbitrum-sepolia",
 		"deploy:ethereum": "./scripts/deploy.sh ethereum",
 		"deploy:ethereum-sepolia": "./scripts/deploy.sh ethereum-sepolia",
-		"deploy:base-sepolia": "./scripts/deploy.sh base-sepolia"
+		"deploy:base-sepolia": "./scripts/deploy.sh base-sepolia",
+		"sync:deployment": "bun scripts/sync-deployments.ts",
+		"create-jar:arbitrum": "./scripts/deploy.sh arbitrum CreateJar.s.sol:CreateJar",
+		"create-jar:arbitrum-sepolia": "./scripts/deploy.sh arbitrum-sepolia CreateJar.s.sol:CreateJar"
 	},
 	"devDependencies": {
 		"@axe-core/playwright": "^4.13.0",
