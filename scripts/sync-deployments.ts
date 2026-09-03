@@ -180,7 +180,12 @@ async function main() {
 		(r) => r.contractAddress?.toLowerCase() === creation.contractAddress?.toLowerCase(),
 	);
 	const blockNumber = receipt?.blockNumber !== undefined ? Number(receipt.blockNumber) : undefined;
-	const timestamp = broadcast.timestamp;
+	// Foundry writes the broadcast timestamp in milliseconds in newer versions; keep seconds.
+	const rawTimestamp = broadcast.timestamp;
+	const timestamp =
+		rawTimestamp !== undefined && rawTimestamp > 1_000_000_000_000
+			? Math.floor(rawTimestamp / 1000)
+			: rawTimestamp;
 
 	const registry = readRegistry();
 	const entry: DeploymentEntry = { chainId: chain, factoryAddress, isV2: true };
