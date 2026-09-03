@@ -53,10 +53,7 @@ describe("CurrencyLabel", () => {
 
 	it("handles different ETH address formats", () => {
 		render(
-			<CurrencyLabel
-				address={ETH_ADDRESS}
-				tokenSymbol="SHOULD_NOT_SHOW"
-			/>,
+			<CurrencyLabel address={ETH_ADDRESS} tokenSymbol="SHOULD_NOT_SHOW" />,
 		);
 		expect(screen.getByText("ETH")).toBeInTheDocument();
 		expect(screen.queryByText("SHOULD_NOT_SHOW")).not.toBeInTheDocument();

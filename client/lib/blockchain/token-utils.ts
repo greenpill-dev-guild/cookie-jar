@@ -97,7 +97,7 @@ export function formatTokenAmount(
 		return `${Number(formatted).toFixed(maxDecimals)} ${symbol}`;
 	} catch (error) {
 		console.error("Error formatting amount:", error);
-		return `${amount || 0} ${symbol}`;
+		return `${amount} ${symbol}`;
 	}
 }
 

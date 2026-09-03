@@ -42,7 +42,6 @@ export const AllowlistWithdrawalSection: React.FC<
 	handleWithdrawAllowlist,
 	handleWithdrawAllowlistVariable,
 }) => {
-
 	// Get token information using the token utils
 	const { symbol: tokenSymbol, decimals: tokenDecimals } = useTokenInfo(
 		config?.currency || ETH_ADDRESS,

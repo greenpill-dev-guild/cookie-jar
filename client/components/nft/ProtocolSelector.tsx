@@ -255,7 +255,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 
 		setSelectedMethod(fallbackMethod);
 		onConfigChangeRef.current({
-			...(initialConfigRef.current ?? {}),
+			...initialConfigRef.current,
 			method: fallbackMethod,
 		});
 	}, [filteredMethods, selectedMethod]);
@@ -284,9 +284,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 		[selectedMethod, onConfigChange],
 	);
 
-	const selectedMethodDef = ACCESS_METHODS.find(
-		(m) => m.id === selectedMethod,
-	);
+	const selectedMethodDef = ACCESS_METHODS.find((m) => m.id === selectedMethod);
 
 	// ── Mobile View ──
 	if (actualViewMode === "mobile") {
@@ -344,9 +342,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 				{selectedMethod && selectedMethodDef && (
 					<Accordion type="single" collapsible defaultValue={selectedMethod}>
 						<AccordionItem value={selectedMethod}>
-							<Card
-								className={cn("border-l-4", selectedMethodDef.borderColor)}
-							>
+							<Card className={cn("border-l-4", selectedMethodDef.borderColor)}>
 								<AccordionTrigger asChild>
 									<CardHeader className="pb-3 cursor-pointer hover:bg-gray-50 transition-colors">
 										<div className="flex items-center justify-between w-full">

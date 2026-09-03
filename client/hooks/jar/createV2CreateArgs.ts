@@ -5,9 +5,13 @@ import {
 	POAP_TOKEN_ADDRESS,
 	ZERO_ADDRESS,
 } from "@/lib/blockchain/constants";
-import { AccessType, NFTType, type JarCreationFormData } from "./schemas/jarCreationSchema";
+import {
+	AccessType,
+	NFTType,
+	type JarCreationFormData,
+} from "./schemas/jarCreationSchema";
 
-export const FACTORY_DEFAULT_FEE_SENTINEL = (2n ** 256n) - 1n;
+export const FACTORY_DEFAULT_FEE_SENTINEL = 2n ** 256n - 1n;
 
 export enum ContractAccessType {
 	Allowlist = 0,
@@ -192,7 +196,10 @@ function resolveAccessConfig(values: JarCreationFormData): {
 			nftContract: toAddressOrZero(
 				protocolValue(protocolConfig, ["hatsAddress", "hatsContract"]),
 			),
-			tokenId: toBigIntOr(0n, protocolValue(protocolConfig, ["hatsId", "hatId"])),
+			tokenId: toBigIntOr(
+				0n,
+				protocolValue(protocolConfig, ["hatsId", "hatId"]),
+			),
 			minBalance: 1n,
 			isPoapEventGate: false,
 		},
@@ -218,7 +225,10 @@ export function getAccessConfigValidationError(
 	}
 
 	if (values.accessType === AccessType.POAP) {
-		const rawEventId = protocolValue(protocolConfig, ["poapEventId", "eventId"]);
+		const rawEventId = protocolValue(protocolConfig, [
+			"poapEventId",
+			"eventId",
+		]);
 		if (isMissingValue(rawEventId)) {
 			return "POAP event is required";
 		}
@@ -229,7 +239,10 @@ export function getAccessConfigValidationError(
 		const poapContractAddress = protocolValue(protocolConfig, [
 			"poapContractAddress",
 		]);
-		if (poapContractAddress !== undefined && !isAddress(String(poapContractAddress))) {
+		if (
+			poapContractAddress !== undefined &&
+			!isAddress(String(poapContractAddress))
+		) {
 			return "POAP contract address must be a valid Ethereum address";
 		}
 		return undefined;
@@ -330,7 +343,10 @@ export function buildV2CreateCookieJarArgs(input: {
 	if (values.accessType === AccessType.POAP) {
 		normalizedNftRequirement.nftContract = poapContractAddress;
 	}
-	if (values.accessType === AccessType.Hats && normalizedNftRequirement.nftContract === ZERO_ADDRESS) {
+	if (
+		values.accessType === AccessType.Hats &&
+		normalizedNftRequirement.nftContract === ZERO_ADDRESS
+	) {
 		normalizedNftRequirement.nftContract = hatsContractAddress;
 	}
 

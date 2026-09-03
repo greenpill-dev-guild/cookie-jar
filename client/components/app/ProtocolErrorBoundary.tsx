@@ -171,7 +171,7 @@ export class ProtocolErrorBoundary extends React.Component<
 	};
 
 	render() {
-		const { hasError, error, retryCount } = this.state;
+		const { hasError, error, errorInfo, retryCount } = this.state;
 		const {
 			children,
 			fallback: CustomFallback,
@@ -222,6 +222,14 @@ export class ProtocolErrorBoundary extends React.Component<
 									<div className="max-h-32 overflow-y-auto">
 										<strong>Stack:</strong>
 										<pre className="whitespace-pre-wrap">{error.stack}</pre>
+									</div>
+								)}
+								{errorInfo?.componentStack && (
+									<div className="max-h-32 overflow-y-auto">
+										<strong>Component stack:</strong>
+										<pre className="whitespace-pre-wrap">
+											{errorInfo.componentStack}
+										</pre>
 									</div>
 								)}
 							</div>

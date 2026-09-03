@@ -403,11 +403,11 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 	} = state;
 
 	// Rate limiting with countdown
-	const { canCall: canMakeApiCall, recordCall: recordApiCall, resetIn } =
-		useRateLimit(
-		VALIDATION_CONSTANTS.MAX_API_CALLS_PER_MINUTE,
-		60 * 1000,
-	);
+	const {
+		canCall: canMakeApiCall,
+		recordCall: recordApiCall,
+		resetIn,
+	} = useRateLimit(VALIDATION_CONSTANTS.MAX_API_CALLS_PER_MINUTE, 60 * 1000);
 
 	// Input validation
 	const validateInputs = useCallback(() => {
@@ -504,7 +504,9 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 				return null;
 
 			if (!recordApiCall()) {
-				throw new Error("Rate limit exceeded. Please wait before trying again.");
+				throw new Error(
+					"Rate limit exceeded. Please wait before trying again.",
+				);
 			}
 
 			try {
@@ -553,17 +555,12 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 					image: sanitizeInput.url(metadata.image),
 					contractType: metadata.tokenType,
 					verified:
-						!validation.isMalicious &&
-						(validation.warnings?.length ?? 0) === 0,
+						!validation.isMalicious && (validation.warnings?.length ?? 0) === 0,
 					isActive: true,
 					warnings: validation.warnings,
 				};
 			} catch (error) {
-				log.error(
-					"Failed to fetch collection preview:",
-					error,
-					"NFTGateInput",
-				);
+				log.error("Failed to fetch collection preview:", error, "NFTGateInput");
 
 				if (error instanceof Error && error.message.includes("rate limit")) {
 					throw new Error(
@@ -773,7 +770,10 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 				{/* NFT Address Input */}
 				<div className="grid grid-cols-1 md:grid-cols-12 gap-3">
 					<div className="md:col-span-6">
-						<Label htmlFor="nft-contract-address" className="text-sm text-[#3c2a14]">
+						<Label
+							htmlFor="nft-contract-address"
+							className="text-sm text-[#3c2a14]"
+						>
 							NFT Contract Address
 						</Label>
 						<div className="relative">
@@ -792,7 +792,9 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 								}}
 								maxLength={VALIDATION_CONSTANTS.MAX_ADDRESS_LENGTH}
 								aria-invalid={inputErrors.length > 0}
-								aria-describedby={inputErrors.length > 0 ? "nft-address-errors" : undefined}
+								aria-describedby={
+									inputErrors.length > 0 ? "nft-address-errors" : undefined
+								}
 							/>
 							<div className="absolute right-2 top-1/2 transform -translate-y-1/2">
 								{getValidationIcon()}
@@ -985,11 +987,7 @@ export const EnhancedNFTGateInput: React.FC<EnhancedNFTGateInputProps> = ({
 							{/* Trait-Based Gating (disabled — coming soon) */}
 							<div className="space-y-4">
 								<div className="flex items-center space-x-2">
-									<Checkbox
-										id="enableTraits"
-										checked={false}
-										disabled={true}
-									/>
+									<Checkbox id="enableTraits" checked={false} disabled={true} />
 									<Label
 										htmlFor="enableTraits"
 										className="text-sm font-medium text-gray-400"
@@ -1053,7 +1051,10 @@ export const EnhancedNFTGatesList: React.FC<{
 			</Label>
 
 			{gates.map((gate, index) => (
-				<Card key={`${gate.address}-${index}`} className="border border-gray-200">
+				<Card
+					key={`${gate.address}-${index}`}
+					className="border border-gray-200"
+				>
 					<CardContent className="p-4">
 						<div className="flex items-start justify-between">
 							<div className="flex items-center gap-3 flex-1">

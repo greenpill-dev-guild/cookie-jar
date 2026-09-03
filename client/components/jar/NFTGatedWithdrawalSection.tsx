@@ -159,7 +159,12 @@ export const NFTGatedWithdrawalSection: React.FC<
 		address: (activeNFT?.contractAddress as `0x${string}`) || undefined,
 		abi: ERC721_ABI,
 		functionName: "ownerOf",
-		args: activeNFT?.tokenId ? (() => { const id = safeBigInt(activeNFT.tokenId); return id !== undefined ? [id] as const : undefined; })() : undefined,
+		args: activeNFT?.tokenId
+			? (() => {
+					const id = safeBigInt(activeNFT.tokenId);
+					return id !== undefined ? ([id] as const) : undefined;
+				})()
+			: undefined,
 		query: {
 			enabled: !!(
 				activeNFT?.contractAddress &&
@@ -181,7 +186,10 @@ export const NFTGatedWithdrawalSection: React.FC<
 		functionName: "balanceOf",
 		args:
 			userAddress && activeNFT?.tokenId
-				? (() => { const id = safeBigInt(activeNFT.tokenId); return id !== undefined ? [userAddress, id] as const : undefined; })()
+				? (() => {
+						const id = safeBigInt(activeNFT.tokenId);
+						return id !== undefined ? ([userAddress, id] as const) : undefined;
+					})()
 				: undefined,
 		query: {
 			enabled: !!(
@@ -360,7 +368,10 @@ export const NFTGatedWithdrawalSection: React.FC<
 						</p>
 						<div className="grid gap-4 md:grid-cols-2">
 							<div className="md:col-span-2">
-								<label htmlFor="gateAddressInput" className="text-sm font-medium text-[#3c2a14]">
+								<label
+									htmlFor="gateAddressInput"
+									className="text-sm font-medium text-[#3c2a14]"
+								>
 									NFT Contract Address
 								</label>
 								<Input
@@ -373,7 +384,10 @@ export const NFTGatedWithdrawalSection: React.FC<
 								/>
 							</div>
 							<div>
-								<label htmlFor="tokenIdInput" className="text-sm font-medium text-[#3c2a14]">
+								<label
+									htmlFor="tokenIdInput"
+									className="text-sm font-medium text-[#3c2a14]"
+								>
 									Token ID
 								</label>
 								<Input
@@ -386,7 +400,10 @@ export const NFTGatedWithdrawalSection: React.FC<
 								/>
 							</div>
 							<div>
-								<label htmlFor="tokenTypeSelect" className="text-sm font-medium text-[#3c2a14]">
+								<label
+									htmlFor="tokenTypeSelect"
+									className="text-sm font-medium text-[#3c2a14]"
+								>
 									Token Standard
 								</label>
 								<Select
@@ -447,12 +464,11 @@ export const NFTGatedWithdrawalSection: React.FC<
 											<CheckCircle2 className="h-4 w-4" />
 											<span className="text-xs">
 												Verified
-												{balanceProof &&
-													activeNFT?.tokenType === "ERC1155" && (
-														<span className="ml-1">
-															({balanceProof.balance.toString()})
-														</span>
-													)}
+												{balanceProof && activeNFT?.tokenType === "ERC1155" && (
+													<span className="ml-1">
+														({balanceProof.balance.toString()})
+													</span>
+												)}
 											</span>
 										</div>
 									) : isProofStale ? (

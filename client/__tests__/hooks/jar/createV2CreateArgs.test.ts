@@ -44,10 +44,14 @@ const NFTType = {
 	ERC1155: 2,
 } as const;
 
-type JarCreationFormData = Parameters<typeof buildV2CreateCookieJarArgs>[0]["values"];
+type JarCreationFormData = Parameters<
+	typeof buildV2CreateCookieJarArgs
+>[0]["values"];
 type ProtocolConfig = JarCreationFormData["protocolConfig"];
 
-type MakeValuesOverrides = Partial<Omit<JarCreationFormData, "protocolConfig">> & {
+type MakeValuesOverrides = Partial<
+	Omit<JarCreationFormData, "protocolConfig">
+> & {
 	protocolConfig?: Partial<ProtocolConfig>;
 };
 
@@ -96,7 +100,8 @@ describe("buildV2CreateCookieJarArgs", () => {
 		const args = buildV2CreateCookieJarArgs({
 			values: makeValues(),
 			metadata: "metadata",
-			parseAmount: (amount) => BigInt(Math.floor(Number.parseFloat(amount) * 1e18)),
+			parseAmount: (amount) =>
+				BigInt(Math.floor(Number.parseFloat(amount) * 1e18)),
 		});
 
 		const data = encodeFunctionData({
@@ -115,7 +120,9 @@ describe("buildV2CreateCookieJarArgs", () => {
 	});
 
 	it("uses default fee sentinel when custom fee is disabled", () => {
-		const fee = getFeePercentageOnDeposit(makeValues({ enableCustomFee: false }));
+		const fee = getFeePercentageOnDeposit(
+			makeValues({ enableCustomFee: false }),
+		);
 		expect(fee).toBe(FACTORY_DEFAULT_FEE_SENTINEL);
 	});
 
@@ -228,7 +235,9 @@ describe("getAccessConfigValidationError", () => {
 				nftTypes: [],
 			}),
 		);
-		expect(error).toBe("At least one NFT address is required for NFT-gated access");
+		expect(error).toBe(
+			"At least one NFT address is required for NFT-gated access",
+		);
 	});
 
 	it("returns an error for NFT-gated access when nftAddresses and nftTypes mismatch", () => {
@@ -298,7 +307,9 @@ describe("getAccessConfigValidationError", () => {
 				},
 			}),
 		);
-		expect(error).toBe("POAP contract address must be a valid Ethereum address");
+		expect(error).toBe(
+			"POAP contract address must be a valid Ethereum address",
+		);
 	});
 
 	it("returns undefined for valid POAP access", () => {
@@ -332,7 +343,9 @@ describe("getAccessConfigValidationError", () => {
 				protocolConfig: { accessType: "Unlock", unlockAddress: "invalid" },
 			}),
 		);
-		expect(error).toBe("Unlock contract address must be a valid Ethereum address");
+		expect(error).toBe(
+			"Unlock contract address must be a valid Ethereum address",
+		);
 	});
 
 	it("returns undefined for valid Unlock access", () => {

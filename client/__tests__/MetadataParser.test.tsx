@@ -18,7 +18,7 @@ const parseMetadata = (metadataString: string | undefined) => {
 	} catch {
 		// If not JSON, treat as legacy description-only metadata
 		return {
-			name: metadataString || "Cookie Jar",
+			name: metadataString,
 			description: "",
 			image: "",
 			link: "",
