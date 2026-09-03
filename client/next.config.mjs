@@ -99,7 +99,8 @@ const nextConfig = {
 
 	// Configure Turbopack root to avoid multiple lockfile warnings. The resolveAlias entries
 	// mirror the webpack aliases below: @coinbase/cdp-sdk (reached through @wagmi/connectors ->
-	// @base-org/account) lazily imports optional @x402/* peers that are never used here.
+	// @base-org/account) lazily imports optional @x402/* peers, @metamask/sdk optionally loads
+	// React Native async storage, and pino optionally loads pino-pretty. None are used here.
 	turbopack: {
 		root: resolve(__dirname, ".."),
 		resolveAlias: {
@@ -111,20 +112,26 @@ const nextConfig = {
 			"@x402/svm": "./client/lib/app/empty-module.ts",
 			"@x402/svm/exact/client": "./client/lib/app/empty-module.ts",
 			"@x402/extensions": "./client/lib/app/empty-module.ts",
+			"@react-native-async-storage/async-storage":
+				"./client/lib/app/empty-module.ts",
+			"pino-pretty": "./client/lib/app/empty-module.ts",
 		},
 	},
 
 	// ⚡ Minimal bundle optimization (aggressive splitting caused 30x slowdown)
 	webpack: (config, { isServer, dev }) => {
 		// Optional, lazily imported peers of @coinbase/cdp-sdk (reached through
-		// @wagmi/connectors -> @base-org/account). The x402 payment path is never
-		// used here, so resolve them to empty modules instead of failing the build.
+		// @wagmi/connectors -> @base-org/account), @metamask/sdk and pino. None of
+		// these code paths run here, so resolve them to empty modules instead of
+		// failing the build or warning on every compile.
 		config.resolve.alias = {
 			...config.resolve.alias,
 			"@x402/core": false,
 			"@x402/evm": false,
 			"@x402/svm": false,
 			"@x402/extensions": false,
+			"@react-native-async-storage/async-storage": false,
+			"pino-pretty": false,
 		};
 
 		// Only basic optimizations to avoid performance regressions
