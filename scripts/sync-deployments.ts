@@ -94,14 +94,21 @@ function sortRegistry(registry: Registry): Registry {
 	return sorted;
 }
 
-function render(registry: Registry, deployedChain: number, generatedAt: number): string {
+/**
+ * The generated file is a pure function of the registry so that local Anvil syncs
+ * (which happen on every `bun dev`) never change it once the local entry exists.
+ */
+function render(registry: Registry): string {
+	const entries = Object.values(registry);
+	const production = entries.filter((e) => e.isV2 && e.chainId !== LOCAL_CHAIN_ID);
+	const deployedChain = (production[0] ?? entries[0])?.chainId ?? 0;
+	const generatedAt = entries.reduce((max, e) => Math.max(max, e.timestamp ?? 0), 0);
 	const lines: string[] = [];
 	lines.push("/**");
 	lines.push(" * AUTO-GENERATED FILE - DO NOT EDIT MANUALLY.");
 	lines.push(" *");
 	lines.push(" * Source of truth: client/config/deployments.json");
 	lines.push(" * Regenerate with: bun sync:deployment -- --chain <chainId> [--script Deploy.s.sol]");
-	lines.push(` * Last synced chain: ${deployedChain}`);
 	lines.push(" */");
 	lines.push("");
 	lines.push("export interface DeploymentInfo {");
@@ -184,7 +191,7 @@ async function main() {
 	}
 	registry[String(chain)] = entry;
 	const sorted = sortRegistry(registry);
-	const generated = render(sorted, chain, timestamp ?? Math.floor(Date.now() / 1000));
+	const generated = render(sorted);
 
 	console.log(`Chain ${chain}: CookieJarFactory ${factoryAddress}` + (blockNumber ? ` (block ${blockNumber})` : ""));
 	if (dryRun) {
