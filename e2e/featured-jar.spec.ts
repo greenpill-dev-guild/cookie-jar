@@ -16,9 +16,12 @@ test.describe("Featured jar home", () => {
 			page.getByRole("button", { name: /connect/i }).first()
 		).toBeVisible();
 
-		// Status card and jar details
-		await expect(page.getByText("In the jar")).toBeVisible({ timeout: 30_000 });
-		await expect(page.getByText("Your status")).toBeVisible();
+		// Status card and jar details. Exact matches: the eligibility pill also contains
+		// "your status", and the history card's empty state also contains "Claim history".
+		await expect(page.getByText("In the jar", { exact: true })).toBeVisible({
+			timeout: 30_000,
+		});
+		await expect(page.getByText("Your status", { exact: true })).toBeVisible();
 		await expect(
 			page.getByText(/connect your wallet to check your status/i)
 		).toBeVisible();
@@ -28,7 +31,9 @@ test.describe("Featured jar home", () => {
 		await expect(page.getByRole("tab", { name: "Deposit" })).toBeVisible();
 
 		// History card
-		await expect(page.getByText("Claim history")).toBeVisible();
+		await expect(
+			page.getByText("Claim history", { exact: true })
+		).toBeVisible();
 
 		// Legacy branding and unknown access types must not appear
 		await expect(page.getByText("Cookie Jar V3")).toHaveCount(0);
