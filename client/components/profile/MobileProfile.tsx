@@ -46,9 +46,9 @@ function ConnectedMobileView({
 							<Check className="w-6 h-6 text-green-600" />
 						</div>
 						<div>
-							<h3 className="font-semibold text-[hsl(var(--cj-dark-brown))]">
+							<h2 className="font-semibold text-[hsl(var(--cj-dark-brown))]">
 								Wallet Connected
-							</h3>
+							</h2>
 							<p className="text-sm text-[hsl(var(--cj-medium-brown))]">
 								Ready to interact with Cookie Jars
 							</p>
@@ -110,9 +110,9 @@ function DisconnectedMobileView() {
 				<div className="w-16 h-16 bg-[hsl(var(--cj-warm-white))] border border-[hsl(var(--border))] rounded-full flex items-center justify-center mx-auto mb-4">
 					<Wallet className="w-8 h-8 text-[hsl(var(--cj-brand-orange))]" />
 				</div>
-				<h3 className="text-xl font-semibold text-[hsl(var(--cj-dark-brown))] mb-2">
+				<h2 className="text-xl font-semibold text-[hsl(var(--cj-dark-brown))] mb-2">
 					Connect Your Wallet
-				</h3>
+				</h2>
 				<p className="text-[hsl(var(--cj-medium-brown))] mb-6">
 					Connect your wallet to create Cookie Jars and interact with the
 					platform
@@ -145,9 +145,9 @@ function DisconnectedMobileView() {
 
 			{/* Features without wallet */}
 			<Card className="cj-card-primary rounded-xl p-6 shadow-lg border-none">
-				<h4 className="font-semibold text-[hsl(var(--cj-dark-brown))] mb-4">
+				<h2 className="font-semibold text-[hsl(var(--cj-dark-brown))] mb-4">
 					What you can do without connecting:
-				</h4>
+				</h2>
 				<div className="space-y-3">
 					<div className="flex items-center gap-3 text-[hsl(var(--cj-medium-brown))]">
 						<Eye className="w-5 h-5 text-green-500" />

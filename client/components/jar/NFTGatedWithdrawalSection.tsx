@@ -434,7 +434,7 @@ export const NFTGatedWithdrawalSection: React.FC<
 					<CardContent className="pt-4">
 						<div className="flex items-center justify-between">
 							<div>
-								<h4 className="font-medium text-foreground">Selected NFT</h4>
+								<h3 className="font-medium text-foreground">Selected NFT</h3>
 								<p className="text-sm text-muted-foreground">
 									{activeNFT.name || "Manual entry"}
 								</p>

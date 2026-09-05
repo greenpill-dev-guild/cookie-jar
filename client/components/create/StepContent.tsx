@@ -265,7 +265,8 @@ const BasicConfigStep: React.FC = () => {
 							type="button"
 							variant="ghost"
 							size="icon"
-							className="absolute right-1 top-1 h-8 w-8 text-gray-500 hover:text-primary"
+							aria-label="Paste owner address"
+							className="absolute right-0 top-0 text-muted-foreground hover:text-primary"
 							onClick={async () => {
 								try {
 									const text = await navigator.clipboard.readText();
@@ -424,7 +425,7 @@ const WithdrawalSettingsStep: React.FC = () => {
 							)
 						}
 					>
-						<SelectTrigger>
+						<SelectTrigger id="withdrawalType">
 							<SelectValue placeholder="Select withdrawal type" />
 						</SelectTrigger>
 						<SelectContent>

@@ -19,7 +19,7 @@ const SelectTrigger = React.forwardRef<
 	<SelectPrimitive.Trigger
 		ref={ref}
 		className={cn(
-			"flex h-10 w-full items-center justify-between rounded-md border border-input bg-input px-3 py-2 text-sm text-[hsl(var(--cj-input-text))] ring-offset-background placeholder:text-[hsl(var(--cj-input-placeholder))] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 [&>span[data-placeholder]]:text-[hsl(var(--cj-input-placeholder))]",
+			"flex min-h-11 h-11 w-full items-center justify-between rounded-md border border-input bg-input px-3 py-2 text-sm text-[hsl(var(--cj-input-text))] ring-offset-background placeholder:text-[hsl(var(--cj-input-placeholder))] focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 [&>span]:line-clamp-1 [&>span[data-placeholder]]:text-[hsl(var(--cj-input-placeholder))]",
 			className
 		)}
 		{...props}
@@ -118,7 +118,7 @@ const SelectItem = React.forwardRef<
 	<SelectPrimitive.Item
 		ref={ref}
 		className={cn(
-			"relative flex w-full cursor-default select-none items-center rounded-md py-1.5 pl-8 pr-2 text-sm text-[hsl(var(--cj-input-text))] outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50 focus:bg-[hsla(var(--cj-brand-orange),0.15)] focus:text-[hsl(var(--cj-input-text))] data-[state=checked]:bg-[hsl(var(--cj-brand-orange))] data-[state=checked]:text-[hsl(var(--primary-foreground))]",
+			"relative flex min-h-11 w-full cursor-default select-none items-center rounded-md py-1.5 pl-8 pr-2 text-sm text-[hsl(var(--cj-input-text))] outline-none transition-colors data-[disabled]:pointer-events-none data-[disabled]:opacity-50 focus:bg-[hsla(var(--cj-brand-orange),0.15)] focus:text-[hsl(var(--cj-input-text))] data-[state=checked]:bg-[hsl(var(--cj-brand-orange))] data-[state=checked]:text-[hsl(var(--primary-foreground))]",
 			className
 		)}
 		{...props}
