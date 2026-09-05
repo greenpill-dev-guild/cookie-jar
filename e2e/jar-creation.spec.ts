@@ -1,187 +1,159 @@
-import { SELECTORS } from "./utils/constants";
-import { expect, test } from "./utils/wallet-utils";
+import { createRequire } from "node:module";
+import { cookieJarAbi } from "../client/generated";
+import { anvilRpc, captureThemes, expect, test } from "./utils/wallet-utils";
 
-test.describe("🏗️ Jar Creation E2E", () => {
-	test.beforeEach(async ({ wallet }) => {
-		// Connect as Deployer (admin account)
-		await wallet.connectWallet(0);
+const { encodeFunctionData } = createRequire(
+	`${__dirname}/../client/package.json`
+)("viem");
+
+test("creates a custom jar directly through the local factory and opens the chain-aware link", async ({
+	page,
+	wallet,
+}, info) => {
+	await wallet.connectWallet(0);
+	await page.getByRole("link", { name: "Create a jar", exact: true }).click();
+	await page.locator("#jarName").fill("QA direct factory jar");
+	await page.getByRole("button", { name: "Next", exact: true }).click();
+	await page.locator("#fixedAmount").fill("0.1");
+	await page.locator("#withdrawalInterval").fill("28");
+	await page.getByRole("button", { name: "Next", exact: true }).click();
+	await page.getByRole("button", { name: "Next", exact: true }).click();
+	await page.getByLabel("Minimum deposit (tokens)").fill("0.01");
+	await page.getByLabel("Set custom deposit fee percentage").check();
+	await page.getByLabel("Custom Fee Percentage", { exact: true }).fill("0");
+	await page.getByRole("button", { name: "Create Jar", exact: true }).click();
+	await wallet.signTransaction();
+	await expect(page).toHaveURL(/\/jar\/0x[0-9a-fA-F]{40}\?chainId=31337/, {
+		timeout: 30000,
 	});
-
-	test("Create basic ETH jar with allowlist access", async ({
-		page,
-		wallet,
-	}) => {
-		console.log("🏗️ Testing basic ETH jar creation...");
-
-		// Navigate to create page
-		await page.click(SELECTORS.navigation.createJar);
-		await expect(page).toHaveURL("/create");
-
-		// Step 1: Basic Configuration
-		console.log("📝 Filling basic configuration...");
-		await page.fill(SELECTORS.forms.jarName, "E2E Test Jar");
-		await page.fill(
-			SELECTORS.forms.jarDescription,
-			"Created by automated E2E test"
-		);
-
-		// Select ETH currency
-		const currencySelect = page.locator(SELECTORS.forms.currency).first();
-		if (await currencySelect.isVisible()) {
-			await currencySelect.selectOption({ label: "ETH" });
-		}
-
-		await page.click(SELECTORS.buttons.next);
-
-		// Step 2: Withdrawal Settings
-		console.log("⚙️ Configuring withdrawal settings...");
-		await page.click("text=Fixed Amount");
-		await page.fill('input:below(:text("Amount"))', "0.1");
-		await page.fill('input:below(:text("Interval"))', "7");
-		await page.click(SELECTORS.buttons.next);
-
-		// Step 3: Access Control (only on v2 contracts)
-		const hasAccessStep = await page.isVisible("text=Access Control");
-		if (hasAccessStep) {
-			console.log("🔒 Configuring access control (v2)...");
-			await page.click(SELECTORS.access.allowlist);
-			await page.click(SELECTORS.buttons.next);
-		} else {
-			console.log("ℹ️ Skipping access control (v1 contract)");
-		}
-
-		// Final step: Create jar
-		console.log("🚀 Creating jar...");
-		await page.click(SELECTORS.buttons.primary);
-
-		// Wait for transaction to be processed
-		await wallet.signTransaction();
-
-		// Verify success message
-		await expect(page.locator(SELECTORS.status.success)).toBeVisible({
-			timeout: 30000,
-		});
-
-		// Should redirect to jar page
-		await page.waitForURL(/\/jar\/0x[a-fA-F0-9]{40}/, { timeout: 30000 });
-
-		// Verify jar was created with correct data
-		await expect(page.locator(SELECTORS.cards.jarTitle)).toContainText(
-			"E2E Test Jar"
-		);
-
-		console.log("✅ Basic jar creation test passed!");
-	});
-
-	test("Create NFT-gated jar (v2 contracts only)", async ({ page, wallet }) => {
-		console.log("🎨 Testing NFT-gated jar creation...");
-
-		await page.goto("/create");
-
-		// Check if NFT gating is available (v2 only)
-		const hasNFTOption = await page.isVisible(SELECTORS.access.nftGated);
-		test.skip(
-			!hasNFTOption,
-			"NFT gating not available - requires v2 contracts"
-		);
-
-		// Basic setup
-		await page.fill(SELECTORS.forms.jarName, "NFT Test Jar");
-		await page.fill(
-			SELECTORS.forms.jarDescription,
-			"NFT-gated jar for testing"
-		);
-
-		// Select DEMO token if available
-		const currencySelect = page.locator(SELECTORS.forms.currency).first();
-		if (await currencySelect.isVisible()) {
-			await currencySelect.selectOption({ label: "DEMO" });
-		}
-
-		await page.click(SELECTORS.buttons.next);
-
-		// Withdrawal settings
-		await page.click("text=Variable Amount");
-		await page.fill('input:below(:text("Maximum"))', "1000");
-		await page.fill('input:below(:text("Interval"))', "14");
-		await page.click(SELECTORS.buttons.next);
-
-		// NFT gating setup
-		console.log("🔒 Configuring NFT gating...");
-		await page.click(SELECTORS.access.nftGated);
-
-		// Use the Cookie Monster NFT from your seeded environment
-		const nftAddress = "0x5FbDB2315678afecb367f032d93F642f64180aa3";
-		await page.fill(SELECTORS.nft.addressInput, nftAddress);
-
-		// Select ERC721 type
-		const typeSelect = page.locator(SELECTORS.nft.typeSelect).first();
-		if (await typeSelect.isVisible()) {
-			await typeSelect.selectOption("ERC721");
-		}
-
-		// Wait for NFT validation
-		await page.waitForSelector(SELECTORS.nft.validation, { timeout: 10000 });
-
-		// Add NFT gate
-		await page.click(SELECTORS.buttons.add);
-
-		// Verify NFT was added to list
-		await expect(page.locator(`text=${nftAddress.slice(0, 8)}`)).toBeVisible();
-
-		await page.click(SELECTORS.buttons.next);
-
-		// Create jar
-		console.log("🚀 Creating NFT-gated jar...");
-		await page.click(SELECTORS.buttons.primary);
-		await wallet.signTransaction();
-
-		await expect(page.locator(SELECTORS.status.success)).toBeVisible({
-			timeout: 30000,
-		});
-		await page.waitForURL(/\/jar\/0x[a-fA-F0-9]{40}/);
-
-		// Verify NFT-gated jar was created
-		await expect(page.locator(SELECTORS.cards.jarTitle)).toContainText(
-			"NFT Test Jar"
-		);
-		await expect(
-			page.locator("text=NFT-Gated, text=NFT Collection")
-		).toBeVisible();
-
-		console.log("✅ NFT-gated jar creation test passed!");
-	});
-
-	test("Form validation prevents invalid jar creation", async ({ page }) => {
-		console.log("🛡️ Testing form validation...");
-
-		await page.goto("/create");
-
-		// Try to proceed without filling required fields
-		await page.click(SELECTORS.buttons.next);
-
-		// Should stay on same step due to validation
-		await expect(page.locator("text=Basic Configuration")).toBeVisible();
-
-		// Fill invalid data
-		await page.fill(SELECTORS.forms.jarName, "ab"); // Too short
-		await page.fill('input:below(:text("Amount"))', "-1"); // Invalid amount
-
-		// Should show validation errors or prevent progression
-		const nextButton = page.locator(SELECTORS.buttons.next);
-		const isDisabled = await nextButton.isDisabled();
-
-		// Either button is disabled or we see error messages
-		if (!isDisabled) {
-			await nextButton.click();
-			await expect(
-				page.locator("text=error, text=invalid, text=required")
-			).toBeVisible();
-		}
-
-		console.log("✅ Form validation test passed!");
-	});
+	const jar = new URL(page.url()).pathname.split("/").pop();
+	const read = (functionName: string) =>
+		anvilRpc("eth_call", [
+			{
+				to: jar,
+				data: encodeFunctionData({ abi: cookieJarAbi, functionName }),
+			},
+			"latest",
+		]);
+	await expect
+		.poll(async () => BigInt(await read("withdrawalInterval")))
+		.toBe(2419200n);
+	expect(BigInt(await read("MIN_DEPOSIT"))).toBe(10000000000000000n);
+	expect(BigInt(await read("FEE_PERCENTAGE_ON_DEPOSIT"))).toBe(0n);
+	await captureThemes(page, info, "before-network-switch");
+	await wallet.switchNetwork(42161);
+	await expect(
+		page.getByRole("heading", { name: "QA direct factory jar", exact: true })
+	).toBeVisible();
+	await expect(
+		page.getByRole("status").filter({ hasText: /Your wallet is on/ })
+	).toBeVisible();
 });
 
-// Re-export expect for convenience
-export { expect };
+test("connecting on the creation network waits for an explicit final submit", async ({
+	page,
+	wallet,
+}) => {
+	await page.goto("/create", { waitUntil: "domcontentloaded" });
+	await expect(
+		page.getByRole("button", { name: "Connect", exact: true })
+	).toBeVisible();
+	await page.locator("#jarName").fill("QA reviewed local jar");
+	await page
+		.locator("#jarOwner")
+		.fill("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
+	await page.getByRole("button", { name: "Next", exact: true }).click();
+	await page.locator("#fixedAmount").fill("0.1");
+	await page.getByRole("button", { name: "Next", exact: true }).click();
+	await page.getByRole("button", { name: "Next", exact: true }).click();
+	await page
+		.getByRole("button", { name: "Connect Wallet to Create", exact: true })
+		.click();
+	await page
+		.getByRole("button", { name: "Choose wallet", exact: true })
+		.click();
+	await page
+		.getByRole("button", {
+			name: /Anvil QA Wallet|Browser Wallet|MetaMask|Injected/,
+		})
+		.first()
+		.click();
+	await expect(
+		page.getByRole("heading", { name: "Deployment review", exact: true })
+	).toBeVisible();
+	await expect(
+		page.getByRole("button", { name: "Create Jar", exact: true })
+	).toBeEnabled();
+	expect(wallet.hashes).toHaveLength(0);
+	await page.getByRole("button", { name: "Create Jar", exact: true }).click();
+	await wallet.signTransaction();
+	await expect(page).toHaveURL(/\/jar\/0x[0-9a-fA-F]{40}\?chainId=31337/, {
+		timeout: 30000,
+	});
+	expect(wallet.hashes).toHaveLength(1);
+});
+
+test("preset stays editable and wallet connection returns to review without a write", async ({
+	page,
+	wallet,
+}, info) => {
+	await page.goto("/create");
+	await captureThemes(page, info, "preset-create-start");
+	await page
+		.getByRole("button", { name: "Use Green Goods stipend preset" })
+		.click();
+	await expect(page.locator("#jarOwner")).toHaveValue(
+		"0xe09315A86ED0A39862158f5631b928145987fE05"
+	);
+	await expect(
+		page.getByRole("combobox", { name: "Network", exact: true })
+	).toHaveText(/Arbitrum/);
+	await expect(
+		page.getByRole("button", { name: "Next", exact: true })
+	).toBeEnabled({ timeout: 30000 });
+	await page.getByRole("button", { name: "Next", exact: true }).click();
+	await expect(page.locator("#maxWithdrawal")).toHaveValue("800");
+	await expect(page.locator("#withdrawalInterval")).toHaveValue("28");
+	for (const control of await page.getByRole("checkbox").all()) {
+		const rect = await control.boundingBox();
+		expect(rect?.width).toBeGreaterThanOrEqual(44);
+		expect(rect?.height).toBeGreaterThanOrEqual(44);
+	}
+
+	await page.locator("#maxWithdrawal").fill("700");
+	await expect(
+		page.getByText("Customized stipend preset", { exact: true })
+	).toBeVisible();
+	await page.getByRole("button", { name: "Next", exact: true }).click();
+	await page.getByRole("button", { name: "Next", exact: true }).click();
+	await expect(page.getByLabel("Minimum deposit (tokens)")).toHaveValue("1");
+	await expect(
+		page.getByText("Deposit fee: 0%", { exact: true })
+	).toBeVisible();
+	await captureThemes(page, info, "preset-review");
+	await page
+		.getByRole("button", { name: "Connect Wallet to Create", exact: true })
+		.click();
+	await page
+		.getByRole("button", { name: "Choose wallet", exact: true })
+		.click();
+	await page
+		.getByRole("button", {
+			name: /Anvil QA Wallet|Browser Wallet|MetaMask|Injected/,
+		})
+		.first()
+		.click();
+	await expect(
+		page.getByRole("heading", { name: "Deployment review", exact: true })
+	).toBeVisible();
+	await expect(
+		page.getByRole("button", { name: "Create Jar", exact: true })
+	).toBeVisible();
+	expect(wallet.hashes).toHaveLength(0);
+	await page.getByRole("button", { name: "Previous", exact: true }).click();
+	await page.getByRole("button", { name: "Previous", exact: true }).click();
+	await page.getByRole("button", { name: "Previous", exact: true }).click();
+	await expect(page.locator("#jarOwner")).toHaveValue(
+		"0xe09315A86ED0A39862158f5631b928145987fE05"
+	);
+});

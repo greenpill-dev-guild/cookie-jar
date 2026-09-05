@@ -1,0 +1,44 @@
+import { chromium } from '/Users/afo/Code/greenpill/cookie-jar/node_modules/@playwright/test/index.mjs';
+import AxeBuilder from '/Users/afo/Code/greenpill/cookie-jar/node_modules/@axe-core/playwright/dist/index.mjs';
+import { readFile, writeFile } from 'node:fs/promises';
+const out='/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence';
+const browser=await chromium.launch();
+const results=process.env.QA_RESUME ? JSON.parse(await readFile(`${out}/actions.json`,'utf8')) : [];
+for(const width of [1440,375])for(const theme of ['light','dark']){
+ if(results.some(x=>x.width===width&&x.theme===theme))continue;
+ const context=await browser.newContext({viewport:{width,height:900},colorScheme:theme});
+ await context.addInitScript(theme=>localStorage.setItem('theme',theme),theme);
+ const page=await context.newPage(); page.setDefaultTimeout(30000);page.setDefaultNavigationTimeout(60000);
+ const item={width,theme,errors:[],console:[]};
+ page.on('pageerror',e=>item.errors.push(e.message));
+ page.on('console',m=>{if(m.type()==='error')item.console.push(m.text());});
+ await page.goto('http://localhost:3000/',{waitUntil:'domcontentloaded'});
+ await page.getByRole('tab',{name:'Deposit',exact:true}).click();
+ await page.getByLabel('Amount to deposit',{exact:true}).waitFor();
+ item.depositText=await page.getByRole('tabpanel').innerText();
+ item.depositControls=await page.getByRole('tabpanel').locator('input,button').evaluateAll(es=>es.map(e=>{const r=e.getBoundingClientRect();return{tag:e.tagName,id:e.id,label:e.getAttribute('aria-label'),text:e.textContent,labels:[...(e.labels||[])].map(l=>l.textContent),width:r.width,height:r.height,disabled:e.disabled};}));
+ await page.screenshot({path:`${out}/deposit-${width}-${theme}.png`,fullPage:true});
+ await page.getByLabel('Amount to deposit',{exact:true}).fill('abc');
+ item.invalidAmountButtonEnabled=await page.getByRole('button',{name:'Deposit',exact:true}).isEnabled();
+ await page.getByRole('button',{name:'Deposit',exact:true}).click();
+ // Await the resulting error event without relying on any transaction or wallet.
+ await page.waitForTimeout(300);
+ item.afterInvalid=await page.getByRole('tabpanel').innerText();
+ await page.screenshot({path:`${out}/deposit-invalid-${width}-${theme}.png`,fullPage:true});
+ await page.getByRole('button',{name:'Connect',exact:true}).click();
+ await page.getByRole('heading',{name:'Connect a Wallet',exact:true}).waitFor();
+ item.walletDialog=await page.getByRole('dialog').innerText().catch(()=>page.locator('body').innerText());
+ await page.screenshot({path:`${out}/wallet-${width}-${theme}.png`,fullPage:true});
+ await page.getByRole('button',{name:'Close',exact:true}).click();
+ await page.goto('http://localhost:3000/jar/0x5ef012c81ABC229Df10037b9001937E55671E36E',{waitUntil:'domcontentloaded'});
+ await page.getByRole('heading',{name:'Team Hat Stipend (demo)',exact:true}).waitFor();
+ item.jarText=await page.locator('body').innerText();
+ await page.screenshot({path:`${out}/jar-${width}-${theme}.png`,fullPage:true});
+ const scan=await new AxeBuilder({page}).analyze();
+ item.jarAxe=scan.violations.map(v=>({id:v.id,impact:v.impact,nodes:v.nodes.map(n=>({target:n.target,failureSummary:n.failureSummary}))}));
+ item.jarWidth=await page.evaluate(()=>({viewport:innerWidth,scrollWidth:document.documentElement.scrollWidth}));
+ results.push(item);await writeFile(`${out}/actions.json`,JSON.stringify(results,null,2));
+ console.log(JSON.stringify({width,theme,invalidAmountButtonEnabled:item.invalidAmountButtonEnabled,errors:item.errors,wallet:item.walletDialog,jarWidth:item.jarWidth}));
+ await context.close();
+}
+await browser.close();

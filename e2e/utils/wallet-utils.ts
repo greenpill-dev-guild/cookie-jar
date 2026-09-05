@@ -1,190 +1,235 @@
-import { type BrowserContext, test as base, type Page } from "@playwright/test";
-import { ANVIL_ACCOUNTS, SELECTORS } from "./constants";
+import {
+	type BrowserContext,
+	test as base,
+	expect,
+	type Page,
+	type TestInfo,
+} from "@playwright/test";
+import { ANVIL_ACCOUNTS } from "./constants";
 
-// Extend Window interface for test wallet state
-declare global {
-	interface Window {
-		__TEST_WALLET_STATE__?: {
-			isConnected: boolean;
-			address: string;
-			chainId: number;
-			balance: string;
-		};
-	}
+const RPC = "http://127.0.0.1:8545";
+export async function anvilRpc(
+	method: string,
+	params: unknown[] = []
+): Promise<any> {
+	const response = await fetch(RPC, {
+		method: "POST",
+		headers: { "content-type": "application/json" },
+		body: JSON.stringify({ jsonrpc: "2.0", id: 1, method, params }),
+	});
+	const result = await response.json();
+	if (result.error)
+		throw Object.assign(new Error(result.error.message), {
+			data: result.error.data,
+		});
+	return result.result;
 }
 
-// Extended test with wallet utilities
-export const test = base.extend<{
-	wallet: WalletTester;
-}>({
+export const test = base.extend<{ wallet: WalletTester }>({
 	wallet: async ({ page, context }, use) => {
+		if ((await anvilRpc("eth_chainId")) !== "0x7a69")
+			throw new Error("Wallet tests require local Anvil chain 31337.");
+		const snapshot = await anvilRpc("evm_snapshot");
 		const wallet = new WalletTester(page, context);
-		await use(wallet);
+		try {
+			await wallet.install();
+			if (test.info().project.name === "Mobile Chrome")
+				await page.setViewportSize({ width: 375, height: 900 });
+			await use(wallet);
+		} finally {
+			try {
+				const receipts = await Promise.all(
+					wallet.hashes.map((hash) =>
+						anvilRpc("eth_getTransactionReceipt", [hash])
+					)
+				);
+				await test.info().attach("local-anvil-receipts", {
+					body: JSON.stringify({ chainId: 31337, receipts }, null, 2),
+					contentType: "application/json",
+				});
+			} finally {
+				expect(await anvilRpc("evm_revert", [snapshot])).toBe(true);
+			}
+		}
 	},
 });
+export { expect };
 
 export class WalletTester {
+	readonly hashes: string[] = [];
 	constructor(
 		private page: Page,
-		_context: BrowserContext
+		private context: BrowserContext
 	) {}
-
-	async connectWallet(accountIndex: number = 0) {
-		const account = ANVIL_ACCOUNTS[accountIndex];
-
-		console.log(`🔗 Connecting wallet as ${account.name} (${account.address})`);
-
-		// Navigate to app if not already there
-		if (!this.page.url().includes("localhost:3000")) {
-			await this.page.goto("/");
-		}
-
-		// Look for connect wallet button using your existing patterns
-		const connectButton = this.page.locator(SELECTORS.wallet.connect).first();
-		const isVisible = await connectButton.isVisible();
-
-		if (isVisible) {
-			await connectButton.click();
-
-			// For E2E testing, we'll inject wallet state to simulate connection
-			// This avoids needing actual MetaMask extension setup
-			await this.page.evaluate((accountData) => {
-				// Mock wallet connection state
-				window.__TEST_WALLET_STATE__ = {
-					isConnected: true,
-					address: accountData.address,
-					chainId: 31337,
-					balance: "1000.0", // Each account has 1000 ETH
-				};
-
-				// Trigger wagmi state update
-				window.dispatchEvent(
-					new CustomEvent("wallet-connected", {
-						detail: accountData,
-					})
-				);
-
-				// Mock localStorage for RainbowKit
-				localStorage.setItem("rainbowkit.connected", "true");
-				localStorage.setItem("rainbowkit.wallet", "injected");
-			}, account);
-
-			// Wait for UI to update
-			await this.page.waitForSelector(SELECTORS.wallet.connected, {
-				timeout: 10000,
-			});
-
-			console.log(`✅ Connected as ${account.name}`);
-		} else {
-			console.log("ℹ️ Already connected or connect button not found");
-		}
-	}
-
-	async switchAccount(accountIndex: number) {
-		const account = ANVIL_ACCOUNTS[accountIndex];
-
-		console.log(`🔄 Switching to ${account.name}`);
-
-		await this.page.evaluate((accountData) => {
-			// Update wallet state
-			if (window.__TEST_WALLET_STATE__) {
-				window.__TEST_WALLET_STATE__.address = accountData.address;
+	async install() {
+		await this.context.exposeBinding(
+			"__anvilRpc",
+			async (_, method: string, params: unknown[]) => {
+				if (!/^(eth_|net_|web3_)/.test(method))
+					throw new Error("Unsupported local wallet method");
+				if (method === "eth_sendTransaction") {
+					const tx = params[0] as { from: string };
+					if (
+						!ANVIL_ACCOUNTS.some(
+							(a) => a.address.toLowerCase() === tx.from.toLowerCase()
+						)
+					)
+						throw new Error("Only seeded local accounts may transact.");
+					if ((await anvilRpc("eth_chainId")) !== "0x7a69")
+						throw new Error("Wrong RPC chain");
+				}
+				const result = await anvilRpc(method, params);
+				if (method === "eth_sendTransaction") this.hashes.push(result);
+				return result;
 			}
-
-			// Trigger account change event
-			window.dispatchEvent(
-				new CustomEvent("wallet-account-changed", {
-					detail: accountData,
-				})
-			);
-		}, account);
-
-		// Wait for UI to reflect change (look for new address)
-		await this.page.waitForFunction(
-			(expectedAddress) => {
-				const elements = document.querySelectorAll(
-					'[title*="0x"], [class*="address"]'
-				);
-				return Array.from(elements).some(
-					(el) =>
-						el.textContent?.includes(expectedAddress.slice(0, 6)) ||
-						el.getAttribute("title")?.includes(expectedAddress)
-				);
-			},
-			account.address,
-			{ timeout: 5000 }
 		);
-
-		console.log(`✅ Switched to ${account.name}`);
-	}
-
-	async signTransaction() {
-		console.log("✍️ Signing transaction...");
-
-		// For E2E testing, simulate transaction confirmation
-		// This avoids needing actual MetaMask extension
-		await this.page.evaluate(() => {
-			// Generate realistic transaction hash
-			const txHash =
-				"0x" +
-				Array.from(crypto.getRandomValues(new Uint8Array(32)))
-					.map((b) => b.toString(16).padStart(2, "0"))
-					.join("");
-
-			// Simulate wagmi transaction confirmation
-			window.dispatchEvent(
-				new CustomEvent("transaction-confirmed", {
-					detail: {
-						hash: txHash,
-						status: "success",
-						blockNumber: Math.floor(Math.random() * 1000000),
+		await this.context.addInitScript(
+			({ accounts }) => {
+				let selected = sessionStorage.getItem("qa-account") || accounts[0];
+				let connected = sessionStorage.getItem("qa-connected") === "true";
+				let chainId = sessionStorage.getItem("qa-chain") || "0x7a69";
+				const listeners = new Map<string, Set<(value: unknown) => void>>();
+				const emit = (event: string, value: unknown) =>
+					listeners.get(event)?.forEach((callback) => callback(value));
+				const provider = {
+					isMetaMask: true,
+					on(event: string, callback: (value: unknown) => void) {
+						if (!listeners.has(event)) listeners.set(event, new Set());
+						listeners.get(event)!.add(callback);
 					},
-				})
-			);
-		});
-
-		// Wait for success message using your existing patterns
-		await this.page.waitForSelector(SELECTORS.status.success, {
-			timeout: 30000,
-		});
-		console.log("✅ Transaction confirmed");
-	}
-
-	async rejectTransaction() {
-		console.log("❌ Rejecting transaction...");
-
-		await this.page.evaluate(() => {
-			window.dispatchEvent(
-				new CustomEvent("transaction-rejected", {
-					detail: { reason: "User rejected transaction" },
-				})
-			);
-		});
-
-		await this.page.waitForSelector(SELECTORS.status.error, { timeout: 5000 });
-		console.log("✅ Transaction rejection handled");
-	}
-
-	async getConnectedAccount() {
-		return await this.page.evaluate(() => {
-			return window.__TEST_WALLET_STATE__?.address;
-		});
-	}
-
-	async waitForTransaction() {
-		// Wait for any pending transaction to complete
-		await this.page.waitForFunction(
-			() => {
-				// Look for loading states to disappear
-				const loadingElements = document.querySelectorAll(
-					'[class*="animate-spin"]'
-				);
-				return loadingElements.length === 0;
+					removeListener(event: string, callback: (value: unknown) => void) {
+						listeners.get(event)?.delete(callback);
+					},
+					async request({
+						method,
+						params = [],
+					}: {
+						method: string;
+						params?: any[];
+					}) {
+						if (method === "eth_chainId") return chainId;
+						if (method === "eth_accounts") return connected ? [selected] : [];
+						if (method === "eth_requestAccounts") {
+							connected = true;
+							sessionStorage.setItem("qa-connected", "true");
+							emit("accountsChanged", [selected]);
+							return [selected];
+						}
+						if (method === "wallet_getPermissions")
+							return connected ? [{ parentCapability: "eth_accounts" }] : [];
+						if (method === "wallet_requestPermissions")
+							return [{ parentCapability: "eth_accounts" }];
+						if (method === "wallet_switchEthereumChain") {
+							chainId = params[0].chainId;
+							emit("chainChanged", chainId);
+							return null;
+						}
+						if (method === "eth_sendTransaction" && chainId !== "0x7a69")
+							throw new Error("Test wallet writes are restricted to Anvil.");
+						return (window as any).__anvilRpc(method, params);
+					},
+				};
+				Object.defineProperty(window, "ethereum", {
+					value: provider,
+					configurable: true,
+				});
+				(window as any).__localWallet = {
+					select(index: number) {
+						selected = accounts[index];
+						sessionStorage.setItem("qa-account", selected);
+						emit("accountsChanged", connected ? [selected] : []);
+					},
+					switchChain(id: number) {
+						chainId = `0x${id.toString(16)}`;
+						sessionStorage.setItem("qa-chain", chainId);
+						emit("chainChanged", chainId);
+					},
+				};
+				const announce = () =>
+					dispatchEvent(
+						new CustomEvent("eip6963:announceProvider", {
+							detail: {
+								info: {
+									uuid: "10c68cf7-61a8-4fe4-93a5-bd9bd00b4824",
+									name: "Anvil QA Wallet",
+									icon: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'/>",
+									rdns: "io.metamask",
+								},
+								provider,
+							},
+						})
+					);
+				addEventListener("eip6963:requestProvider", announce);
+				announce();
 			},
-			{ timeout: 30000 }
+			{ accounts: ANVIL_ACCOUNTS.map((account) => account.address) }
 		);
+	}
+	async connectWallet(index = 0) {
+		await this.page.goto("/", { waitUntil: "domcontentloaded" });
+		await this.switchAccount(index);
+		await this.page
+			.getByRole("button", { name: "Connect", exact: true })
+			.click();
+		await this.page
+			.getByRole("button", {
+				name: /Anvil QA Wallet|Browser Wallet|MetaMask|Injected/,
+			})
+			.first()
+			.click();
+		await expect(
+			this.page.getByRole("button", { name: "Connect", exact: true })
+		).toHaveCount(0);
+	}
+	async switchAccount(index: number) {
+		await this.page.evaluate(
+			(value) => (window as any).__localWallet.select(value),
+			index
+		);
+	}
+	async switchNetwork(chainId: number) {
+		await this.page.evaluate(
+			(value) => (window as any).__localWallet.switchChain(value),
+			chainId
+		);
+	}
+	async signTransaction() {
+		await expect.poll(() => this.hashes.length).toBeGreaterThan(0);
+		const hash = this.hashes[this.hashes.length - 1];
+		await expect
+			.poll(
+				async () =>
+					(await anvilRpc("eth_getTransactionReceipt", [hash]))?.status
+			)
+			.toBe("0x1");
+		return hash;
+	}
+	async disconnectWallet() {
+		await this.page.evaluate(() => {
+			localStorage.clear();
+			sessionStorage.clear();
+		});
+		await this.page.reload();
 	}
 }
 
-// Re-export expect for convenience
-export { expect } from "@playwright/test";
+export async function captureThemes(page: Page, info: TestInfo, name: string) {
+	await expect
+		.poll(() =>
+			page
+				.locator("main > div > div")
+				.first()
+				.evaluate((el) => Number(getComputedStyle(el).opacity))
+		)
+		.toBe(1);
+	for (const theme of ["light", "dark"] as const) {
+		await page.emulateMedia({ colorScheme: theme });
+		await expect(page.locator("html")).toHaveClass(new RegExp(theme));
+		await page.screenshot({
+			path: info.outputPath(`${name}-${theme}.png`),
+			fullPage: true,
+			caret: "initial",
+		});
+	}
+	await page.emulateMedia({ colorScheme: "light" });
+}
