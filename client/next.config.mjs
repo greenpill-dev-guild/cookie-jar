@@ -104,17 +104,16 @@ const nextConfig = {
 	turbopack: {
 		root: resolve(__dirname, ".."),
 		resolveAlias: {
-			"@x402/core": "./client/lib/app/empty-module.ts",
-			"@x402/core/client": "./client/lib/app/empty-module.ts",
-			"@x402/evm": "./client/lib/app/empty-module.ts",
-			"@x402/evm/exact/client": "./client/lib/app/empty-module.ts",
-			"@x402/evm/upto/client": "./client/lib/app/empty-module.ts",
-			"@x402/svm": "./client/lib/app/empty-module.ts",
-			"@x402/svm/exact/client": "./client/lib/app/empty-module.ts",
-			"@x402/extensions": "./client/lib/app/empty-module.ts",
-			"@react-native-async-storage/async-storage":
-				"./client/lib/app/empty-module.ts",
-			"pino-pretty": "./client/lib/app/empty-module.ts",
+			"@x402/core": "./lib/app/empty-module.ts",
+			"@x402/core/client": "./lib/app/empty-module.ts",
+			"@x402/evm": "./lib/app/empty-module.ts",
+			"@x402/evm/exact/client": "./lib/app/empty-module.ts",
+			"@x402/evm/upto/client": "./lib/app/empty-module.ts",
+			"@x402/svm": "./lib/app/empty-module.ts",
+			"@x402/svm/exact/client": "./lib/app/empty-module.ts",
+			"@x402/extensions": "./lib/app/empty-module.ts",
+			"@react-native-async-storage/async-storage": "./lib/app/empty-module.ts",
+			"pino-pretty": "./lib/app/empty-module.ts",
 		},
 	},
 

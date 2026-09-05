@@ -161,7 +161,7 @@ echo "🏠 Featured jar index: $NEXT_PUBLIC_FEATURED_JAR_INDEX"
 
 # Start Next.js dev server directly with Turbo for faster builds
 echo "🚀 Starting Next.js development server (Turbo mode - faster builds & hot reload)..."
-NODE_ENV=development npx next dev --turbo 2>&1 | tee ../contracts/client-dev.log &
+NODE_ENV=development bun run dev -- --turbo 2>&1 | tee ../contracts/client-dev.log &
 CLIENT_PID=$!
 
 # Wait for client to start and check if it's running
