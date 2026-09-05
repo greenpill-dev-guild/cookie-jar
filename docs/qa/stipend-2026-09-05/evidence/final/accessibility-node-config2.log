@@ -1,0 +1,100 @@
+$ playwright test --grep 'accessibility' --config /tmp/stipend-flow-playwright.config.ts --output /tmp/stipend-accessibility-final-results
+
+Running 28 tests using 1 worker
+
+(node:96608) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+♿ Testing homepage accessibility...
+📊 Total violations: 0, Critical: 0
+✅ Accessibility scan completed
+  ✓   1 [Desktop Chrome] › e2e/accessibility-validation.spec.ts:5:6 › ♿ Accessibility Validation › Homepage accessibility compliance (4.1s)
+🔗 Testing wallet button accessibility...
+✅ Connect wallet button accessibility verified
+  ✓   2 [Desktop Chrome] › e2e/accessibility-validation.spec.ts:44:6 › ♿ Accessibility Validation › Connect wallet button accessibility (2.4s)
+📝 Testing form accessibility...
+🔍 Checking 5 form inputs for accessibility...
+✅ Form input accessibility verified
+  ✓   3 [Desktop Chrome] › e2e/accessibility-validation.spec.ts:74:6 › ♿ Accessibility Validation › Form labels and inputs accessibility (3.4s)
+⌨️ Testing keyboard navigation...
+⌨️ Found 10 focusable elements
+✅ Keyboard navigation testing complete
+  ✓   4 [Desktop Chrome] › e2e/accessibility-validation.spec.ts:120:6 › ♿ Accessibility Validation › Keyboard navigation works (2.6s)
+🎨 Testing color contrast...
+✅ No color contrast violations detected
+✅ Color contrast testing complete
+  ✓   5 [Desktop Chrome] › e2e/accessibility-validation.spec.ts:163:6 › ♿ Accessibility Validation › Color contrast check on key elements (2.9s)
+  ✓   6 [Desktop Chrome] › e2e/accessibility.spec.ts:5:6 › ♿ Accessibility Testing › Homepage accessibility compliance (5.1s)
+  ✓   7 [Desktop Chrome] › e2e/accessibility.spec.ts:33:6 › ♿ Accessibility Testing › Create jar form accessibility (3.9s)
+📋 Interactive elements found: [
+  { tagName: 'a', text: 'Green Goods Stipend ' },
+  { tagName: 'button', text: 'Connect' },
+  { tagName: 'a', text: '' },
+  { tagName: 'button', text: '' },
+  { tagName: 'button', text: 'Claim' },
+  { tagName: 'div', text: 'ClaimClaim your shar' },
+  { tagName: 'a', text: 'All jars on this net' },
+  { tagName: 'a', text: 'Create a jar' },
+  { tagName: 'a', text: 'Your profile' },
+  { tagName: 'a', text: 'Stipend playbook' }
+]
+  ✓   8 [Desktop Chrome] › e2e/accessibility.spec.ts:63:6 › ♿ Accessibility Testing › Keyboard navigation support (3.3s)
+🔍 Checking 5 form inputs for accessibility...
+  ✓   9 [Desktop Chrome] › e2e/accessibility.spec.ts:107:6 › ♿ Accessibility Testing › Create jar form labels and accessibility (3.1s)
+  ✓  10 [Desktop Chrome] › e2e/accessibility.spec.ts:171:6 › ♿ Accessibility Testing › Color contrast compliance (3.2s)
+  ✓  11 [Desktop Chrome] › e2e/accessibility.spec.ts:199:6 › ♿ Accessibility Testing › ARIA roles and landmarks (2.7s)
+⚠️ Button 4 size: 32x32px (should be >= 44x44px)
+📱 Touch targets: 4/5 buttons are properly sized
+  ✓  12 [Desktop Chrome] › e2e/accessibility.spec.ts:238:6 › ♿ Accessibility Testing › Mobile accessibility (2.6s)
+🔊 Testing mobile screen reader compatibility...
+  ✓  13 [Desktop Chrome] › e2e/mobile-experience.spec.ts:523:7 › 📱 Mobile Experience E2E › Mobile Accessibility › Mobile screen reader compatibility (2.8s)
+⌨️ Testing mobile keyboard navigation...
+  ✓  14 [Desktop Chrome] › e2e/mobile-experience.spec.ts:554:7 › 📱 Mobile Experience E2E › Mobile Accessibility › Mobile keyboard navigation works correctly (2.8s)
+(node:4447) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+♿ Testing homepage accessibility...
+📊 Total violations: 0, Critical: 0
+✅ Accessibility scan completed
+  ✓  15 [Mobile Chrome] › e2e/accessibility-validation.spec.ts:5:6 › ♿ Accessibility Validation › Homepage accessibility compliance (4.0s)
+🔗 Testing wallet button accessibility...
+✅ Connect wallet button accessibility verified
+  ✓  16 [Mobile Chrome] › e2e/accessibility-validation.spec.ts:44:6 › ♿ Accessibility Validation › Connect wallet button accessibility (2.7s)
+📝 Testing form accessibility...
+🔍 Checking 5 form inputs for accessibility...
+✅ Form input accessibility verified
+  ✓  17 [Mobile Chrome] › e2e/accessibility-validation.spec.ts:74:6 › ♿ Accessibility Validation › Form labels and inputs accessibility (3.3s)
+⌨️ Testing keyboard navigation...
+⌨️ Found 10 focusable elements
+✅ Keyboard navigation testing complete
+  ✓  18 [Mobile Chrome] › e2e/accessibility-validation.spec.ts:120:6 › ♿ Accessibility Validation › Keyboard navigation works (2.8s)
+🎨 Testing color contrast...
+✅ No color contrast violations detected
+✅ Color contrast testing complete
+  ✓  19 [Mobile Chrome] › e2e/accessibility-validation.spec.ts:163:6 › ♿ Accessibility Validation › Color contrast check on key elements (3.1s)
+  ✓  20 [Mobile Chrome] › e2e/accessibility.spec.ts:5:6 › ♿ Accessibility Testing › Homepage accessibility compliance (3.6s)
+  ✓  21 [Mobile Chrome] › e2e/accessibility.spec.ts:33:6 › ♿ Accessibility Testing › Create jar form accessibility (3.4s)
+📋 Interactive elements found: [
+  { tagName: 'a', text: 'Green Goods Stipend ' },
+  { tagName: 'button', text: 'Connect' },
+  { tagName: 'a', text: '' },
+  { tagName: 'button', text: '' },
+  { tagName: 'button', text: 'Claim' },
+  { tagName: 'div', text: 'ClaimClaim your shar' },
+  { tagName: 'a', text: 'All jars on this net' },
+  { tagName: 'a', text: 'Create a jar' },
+  { tagName: 'a', text: 'Your profile' },
+  { tagName: 'a', text: 'Stipend playbook' }
+]
+  ✓  22 [Mobile Chrome] › e2e/accessibility.spec.ts:63:6 › ♿ Accessibility Testing › Keyboard navigation support (3.3s)
+🔍 Checking 5 form inputs for accessibility...
+  ✓  23 [Mobile Chrome] › e2e/accessibility.spec.ts:107:6 › ♿ Accessibility Testing › Create jar form labels and accessibility (3.5s)
+  ✓  24 [Mobile Chrome] › e2e/accessibility.spec.ts:171:6 › ♿ Accessibility Testing › Color contrast compliance (3.1s)
+  ✓  25 [Mobile Chrome] › e2e/accessibility.spec.ts:199:6 › ♿ Accessibility Testing › ARIA roles and landmarks (2.6s)
+⚠️ Button 4 size: 32x32px (should be >= 44x44px)
+📱 Touch targets: 4/5 buttons are properly sized
+  ✓  26 [Mobile Chrome] › e2e/accessibility.spec.ts:238:6 › ♿ Accessibility Testing › Mobile accessibility (2.8s)
+🔊 Testing mobile screen reader compatibility...
+  ✓  27 [Mobile Chrome] › e2e/mobile-experience.spec.ts:523:7 › 📱 Mobile Experience E2E › Mobile Accessibility › Mobile screen reader compatibility (2.7s)
+⌨️ Testing mobile keyboard navigation...
+  ✓  28 [Mobile Chrome] › e2e/mobile-experience.spec.ts:554:7 › 📱 Mobile Experience E2E › Mobile Accessibility › Mobile keyboard navigation works correctly (2.9s)
+
+  28 passed (1.5m)

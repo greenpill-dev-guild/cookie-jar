@@ -1,0 +1,35 @@
+$ vitest run __tests__/hooks/jar/deposit-validation.test.tsx
+
+ RUN  v3.2.7 /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-create/client
+
+ ❯ __tests__/hooks/jar/deposit-validation.test.tsx (7 tests | 1 failed) 83ms
+   ✓ rejects abc without an unhandled error or wallet write 27ms
+   ✓ rejects -1 without an unhandled error or wallet write 4ms
+   ✓ rejects 1.0000001 without an unhandled error or wallet write 9ms
+   ✓ rejects 0 without an unhandled error or wallet write 3ms
+   ✓ rejects 1e3 without an unhandled error or wallet write 5ms
+   ✓ retains a new deposit amount after handling a previous receipt 8ms
+   × surfaces an approval confirmation failure without resubmitting 23ms
+     → the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  __tests__/hooks/jar/deposit-validation.test.tsx > surfaces an approval confirmation failure without resubmitting
+AssertionError: the given combination of arguments (undefined and string) is invalid for this assertion. You can use an array, a map, an object, a set, a string, or a weakset instead of a string
+ ❯ __tests__/hooks/jar/deposit-validation.test.tsx:29:47
+     27|  await act(async () => { await view.result.current.onSubmit("1"); });
+     28|  mocks.hash = "0x1234"; mocks.error = new Error("Transaction reverted"…
+     29|  expect(view.result.current.transactionError).toContain("reverted");
+       |                                               ^
+     30|  expect(view.result.current.isDepositPending).toBe(false);
+     31|  expect(mocks.write).toHaveBeenCalledTimes(1);
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+   Start at  14:47:34
+   Duration  4.30s (transform 657ms, setup 228ms, collect 1.46s, tests 83ms, environment 1.02s, prepare 410ms)
+
+error: script "test" exited with code 1

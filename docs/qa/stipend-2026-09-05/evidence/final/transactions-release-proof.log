@@ -1,0 +1,27 @@
+
+Running 18 tests using 1 worker
+
+(node:18431) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [Desktop Chrome] › e2e/admin-functions.spec.ts:9:5 › owner updates the maximum and interval, pauses, and withdraws emergency funds (5.3s)
+  ✓   2 [Desktop Chrome] › e2e/featured-jar.spec.ts:6:6 › Featured jar home › renders the featured jar with claim, deposit and history (3.6s)
+  ✓   3 [Desktop Chrome] › e2e/featured-jar.spec.ts:44:6 › Featured jar home › keeps the generic routes reachable (1.4s)
+  ✓   4 [Desktop Chrome] › e2e/featured-jar.spec.ts:51:6 › Featured jar home › has no bottom app bar on mobile (523ms)
+  ✓   5 [Desktop Chrome] › e2e/jar-creation.spec.ts:9:5 › creates a custom jar directly through the local factory and opens the chain-aware link (12.3s)
+  ✓   6 [Desktop Chrome] › e2e/jar-creation.spec.ts:56:5 › connecting on the creation network waits for an explicit final submit (6.7s)
+  ✓   7 [Desktop Chrome] › e2e/jar-creation.spec.ts:99:5 › preset stays editable and wallet connection returns to review without a write (5.0s)
+  ✓   8 [Desktop Chrome] › e2e/jar-operations.spec.ts:10:5 › claim and deposit update the seeded stipend jar and enforce the interval (5.0s)
+  ✓   9 [Desktop Chrome] › e2e/jar-operations.spec.ts:86:5 › wrong network disables local jar writes (4.4s)
+(node:23572) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 [Mobile Chrome] › e2e/admin-functions.spec.ts:9:5 › owner updates the maximum and interval, pauses, and withdraws emergency funds (6.4s)
+  ✓  11 [Mobile Chrome] › e2e/featured-jar.spec.ts:6:6 › Featured jar home › renders the featured jar with claim, deposit and history (3.5s)
+  ✓  12 [Mobile Chrome] › e2e/featured-jar.spec.ts:44:6 › Featured jar home › keeps the generic routes reachable (784ms)
+  ✓  13 [Mobile Chrome] › e2e/featured-jar.spec.ts:51:6 › Featured jar home › has no bottom app bar on mobile (430ms)
+  ✓  14 [Mobile Chrome] › e2e/jar-creation.spec.ts:9:5 › creates a custom jar directly through the local factory and opens the chain-aware link (11.3s)
+  ✓  15 [Mobile Chrome] › e2e/jar-creation.spec.ts:56:5 › connecting on the creation network waits for an explicit final submit (7.0s)
+  ✓  16 [Mobile Chrome] › e2e/jar-creation.spec.ts:99:5 › preset stays editable and wallet connection returns to review without a write (5.7s)
+  ✓  17 [Mobile Chrome] › e2e/jar-operations.spec.ts:10:5 › claim and deposit update the seeded stipend jar and enforce the interval (5.5s)
+  ✓  18 [Mobile Chrome] › e2e/jar-operations.spec.ts:86:5 › wrong network disables local jar writes (4.6s)
+
+  18 passed (1.6m)
