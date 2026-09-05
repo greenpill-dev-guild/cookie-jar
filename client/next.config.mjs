@@ -67,6 +67,17 @@ const nextConfig = {
 
 	// ⚡ Minimal bundle optimization (aggressive splitting caused 30x slowdown)
 	webpack: (config, { isServer, dev }) => {
+		// Optional, lazily imported peers of @coinbase/cdp-sdk (reached through
+		// @wagmi/connectors -> @base-org/account). The x402 payment path is never
+		// used here, so resolve them to empty modules instead of failing the build.
+		config.resolve.alias = {
+			...config.resolve.alias,
+			"@x402/core": false,
+			"@x402/evm": false,
+			"@x402/svm": false,
+			"@x402/extensions": false,
+		};
+
 		// Only basic optimizations to avoid performance regressions
 		if (!isServer) {
 			config.resolve.fallback = {
