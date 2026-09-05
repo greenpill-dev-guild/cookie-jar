@@ -2,7 +2,7 @@
 
 **Release decision: BLOCKED. Keep release PR #40 open.**
 
-The implementation is split into draft PRs into `dev`: [UI and accessibility #42](https://github.com/greenpill-dev-guild/cookie-jar/pull/42), [direct factory creation and transactions #43](https://github.com/greenpill-dev-guild/cookie-jar/pull/43), and the E2E/report PR containing this file. No change was pushed to `dev` or `main`, and no PR was merged.
+The implementation is split into draft PRs into `dev`: [UI and accessibility #42](https://github.com/greenpill-dev-guild/cookie-jar/pull/42), [direct factory creation and transactions #43](https://github.com/greenpill-dev-guild/cookie-jar/pull/43), and [E2E repairs and this report #44](https://github.com/greenpill-dev-guild/cookie-jar/pull/44). No change was pushed to `dev` or `main`, and no PR was merged.
 
 This is provisional integration evidence, not the required final QA on `dev`. PR #41 remains open. The combined application was tested at `ed1afa4bb13cd54c1fed927a245019817ebb9f7d` in an isolated worktree incorporating #41, UI head `15e8a6a` and creation head `6e71346`. The original shared checkout and its pre-existing contract shim were preserved. [Baseline observations and reproductions](BASELINE.md) remain available; the original report's statement that no fixes or public reads were made describes that earlier pass only.
 
@@ -40,7 +40,7 @@ Each original defect has a regression test and retained failing-before evidence.
 | Item | Severity | Reproduction or missing evidence | Owner |
 | --- | --- | --- | --- |
 | Final `dev` baseline | Blocker | PR #41 and the accepted fixes are still unmerged. Merge through normal review, then rerun this checklist on the resulting `dev` SHA. | Release maintainer |
-| Real-wallet pass | Blocker | No wallet-capable browser is connected to this session. Repeat the complete account #1/#3/#0 pass with a real wallet on Anvil. The injected EIP-1193 fixture does not satisfy this gate. | Wallet QA operator |
+| Real-wallet pass | Blocker | [The final browser inventory](evidence/final/wallet-availability.json) still exposes only the in-app browser. Repeat the complete account #1/#3/#0 pass with a real wallet on Anvil. The injected EIP-1193 fixture does not satisfy this gate. | Wallet QA operator |
 | Final release acceptance | Blocker | The final report cannot approve #40 until the required baseline, real-wallet pass and current-head CI are accepted. | Release maintainer |
 | Streaming custom-form setting is not encoded | Major | In custom creation, enable token streaming on the review step. The summary says Enabled, but `buildV2CreateCookieJarArgs` has no streaming field or subsequent streaming transaction. This is a pre-existing UI/configuration mismatch confirmed by source inspection; no streaming transaction was attempted. Disable or remove the unsupported choice, or scope its implementation separately. Preset streaming remains disabled. | Client creation maintainer |
 | Public campaign metadata title | Minor | The example public jar stores its title as `title`; the UI falls back to Cookie Jar because it reads `name`. Reproduced in the public simulation screenshot. Add metadata alias support separately or accept this limitation for non-stipend jars. | Client metadata maintainer |
@@ -81,6 +81,8 @@ With `NEXT_PUBLIC_DEFAULT_CHAIN_ID=42161` and an empty featured address, the pro
 The configured-address simulation used factory jar `0x2f8FA6356d69d4A93F8F0944E3a68D65D5Ca2b74`. Its public values rendered as **160.0000 USDC**, **Allowlist**, fixed claims and **30 days**, agreeing with the contract reads. It is an existing campaign jar, not the proposed launch jar. This second configuration was served by Next dev using the same built source, with no wallet. [Observations](evidence/final/production-featured/observations.json), [mobile dark](evidence/final/production-featured/375-dark.png).
 
 The simulation processes were stopped and the QA client restored to chain 31337 with featured index 4. No env file was opened or edited. The normal shared `bun dev` stack remained on port 3000; isolated integration proof used port 3040.
+
+The [#44 check snapshot](evidence/final/pr44-checks.log) records passing lint/types and client unit tests at `9704a79`; other checks were pending. This documentation-only closeout does not claim current-head CI readiness. [Release #40](evidence/final/pr40-closeout.json) and [prerequisite #41](evidence/final/pr41-closeout.json) remain open and unmerged.
 
 ## Scope and tooling notes
 
