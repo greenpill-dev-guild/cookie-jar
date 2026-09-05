@@ -35,7 +35,9 @@ points: `bun dev`, `bun check` (lint + type-check), `bun run test`, `bun run bui
 - `contracts/src/CookieJarFactory.sol` creates jars (`createCookieJar(JarConfig, AccessConfig,
   MultiTokenConfig)`), stores metadata, exposes `getAllJars`, `getJarInfo`, `updateMetadata`.
   Immutables: `DEFAULT_FEE_COLLECTOR`, `DEFAULT_FEE_PERCENTAGE`, `MIN_ETH_DEPOSIT`,
-  `MIN_ERC20_DEPOSIT` (the latter must suit the token decimals; 1e6 for USDC).
+  `MIN_ERC20_DEPOSIT`. The fee and the minimum deposit are defaults behind the sentinel
+  `type(uint256).max`; a caller that passes any other value gets that value on the jar. On
+  Arbitrum the client uses the Green Goods factory `0x294d222eDE6DF6625B43544F1C634322467528Da`.
 - `contracts/src/CookieJar.sol`: `deposit(amount)`, `withdraw`, `withdrawAllowlistMode`,
   `withdrawWithErc721`, `withdrawWithErc1155`, admin functions gated by `JAR_OWNER`,
   `emergencyWithdraw`, `pause`. Access check reads the gate contract at withdraw time.

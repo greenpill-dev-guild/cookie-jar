@@ -19,9 +19,9 @@ irreversible: dry-run first, read the plan, then broadcast.
   24,576 bytes).
 - `cast wallet list` shows the keystore named in `KEYSTORE_ACCOUNT` (default `deployer`).
   **Human**: import it with `cast wallet import deployer --interactive` if missing.
-- `.env.local` carries the inputs listed in `example.env` (`FEE_COLLECTOR`, `FACTORY_OWNER`,
-  `FEE_PERCENTAGE`, `MIN_ETH_DEPOSIT`, `MIN_ERC20_DEPOSIT`, `ETHERSCAN_API_KEY`, and the
-  `CreateJar` variables). Never echo their values.
+- `.env.local` carries the inputs listed in `example.env` (`ETHERSCAN_API_KEY`, the `CreateJar`
+  variables including `FACTORY_ADDRESS` and `MIN_DEPOSIT`, and the factory variables only when a
+  factory is being deployed). Never echo their values.
 - `cast balance <deployer> --ether --rpc-url https://arb1.arbitrum.io/rpc` is above 0.005 ETH.
   **Human**: top up if lower.
 
@@ -35,7 +35,10 @@ wearer and `hatSupply(uint256)(uint32)`.
 
 ## Stage 2: factory (only when the chain has no suitable factory)
 
-`MIN_ERC20_DEPOSIT` must fit the jar currency's decimals (1e6 for USDC). Dry run:
+Arbitrum has one: the Green Goods factory `0x294d222eDE6DF6625B43544F1C634322467528Da`, already
+in the client registry. Do not deploy another there. The minimum deposit is set per jar
+(`MIN_DEPOSIT`); the factory's `MIN_ERC20_DEPOSIT` is only the default behind the sentinel.
+For a new chain, dry run:
 `cd contracts && forge script script/Deploy.s.sol:Deploy --rpc-url <rpc> --account deployer -vvvv`.
 **Human**: `bun deploy:arbitrum` (adds `--broadcast --verify`; password prompt; funds spent).
 Agent check: `cast call <factory> 'MIN_ERC20_DEPOSIT()(uint128)'`, `'DEFAULT_FEE_COLLECTOR()(address)'`,
@@ -47,7 +50,9 @@ and broadcast, `bun check && bun run build:client`.
 ## Stage 3: jar
 
 Set `FACTORY_ADDRESS` and the jar variables in `.env.local` (`ACCESS_TYPE`, `NFT_CONTRACT`,
-`NFT_TOKEN_ID`, `MAX_WITHDRAWAL`, `WITHDRAWAL_INTERVAL`, `STRICT_PURPOSE`, `METADATA_FILE`, ...).
+`NFT_TOKEN_ID`, `MAX_WITHDRAWAL`, `WITHDRAWAL_INTERVAL`, `MIN_DEPOSIT`, `STRICT_PURPOSE`,
+`METADATA_FILE`, ...). A fork rehearsal (`anvil --fork-url`, then the script with an Anvil key
+and `--broadcast` against the fork) runs the same read-back checks without spending anything.
 `DRY_RUN=true bun create-jar:arbitrum` prints the plan; read every line with the user.
 **Human**: `DRY_RUN=false bun create-jar:arbitrum`. The script reverts on any read-back mismatch.
 Agent check: `cast call <factory> 'getAllJars()(address[])'` contains the jar;
@@ -63,8 +68,9 @@ Funds only count through `deposit()`. In the Safe Transaction Builder, batch
 
 ## Stage 5: smoke test (agent, no signature)
 
-`cast call <jar> 'withdraw(uint256,string)' <amount> "<27+ char note with a linear.app link>'
---from <eligible member> --rpc-url <rpc>` succeeds; the same from a non-member reverts
+`cast call <jar> 'withdrawWithErc1155(uint256,string)' <amount> "<27+ char note with a linear.app link>"
+--from <eligible member> --rpc-url <rpc>` succeeds (use `withdrawAllowlistMode` or
+`withdrawWithErc721` for the other access types); the same from a non-member reverts
 (`InsufficientNFTBalance` or `NotAuthorized`).
 
 ## Stage 6: client (human for Vercel, agent for code)

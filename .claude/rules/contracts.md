@@ -16,11 +16,12 @@ paths:
 4. Immutables are the jar's rules: `CURRENCY`, `ACCESS_TYPE`, `WITHDRAWAL_OPTION`,
    `STRICT_PURPOSE`, `ONE_TIME_WITHDRAWAL`, `MIN_DEPOSIT` and `FEE_PERCENTAGE_ON_DEPOSIT` cannot
    change after creation. A jar with the wrong rules is abandoned and re-created, never patched.
-5. The factory overrides `minDeposit` with `MIN_ETH_DEPOSIT` / `MIN_ERC20_DEPOSIT` and
-   `feeCollector` with `DEFAULT_FEE_COLLECTOR`; `feePercentageOnDeposit = type(uint256).max`
-   means "factory default" and `0` means no fee. Keep every `createCookieJar` caller
-   (`script/CreateJar.s.sol`, `script/DeployLocal.s.sol`, tests) aligned with
-   `CookieJarLib.JarConfig`.
+5. The factory always sets `feeCollector` to `DEFAULT_FEE_COLLECTOR`. For `minDeposit` and
+   `feePercentageOnDeposit`, `type(uint256).max` means "factory default" (`MIN_ETH_DEPOSIT` /
+   `MIN_ERC20_DEPOSIT`, `DEFAULT_FEE_PERCENTAGE`) and any other value, including `0`, is used as
+   is. This matches the verified Green Goods factory on Arbitrum byte for byte; do not change it
+   without redeploying. Keep every `createCookieJar` caller (`script/CreateJar.s.sol`,
+   `script/DeployLocal.s.sol`, tests) aligned with `CookieJarLib.JarConfig`.
 6. Scripts read every input from the environment and never write client files; the client
    registry is updated by `bun sync:deployment`. Broadcast only with `--account <keystore>`.
    The Anvil test key appears only in local scripts and CI workflows.

@@ -4,9 +4,9 @@ Funding pools with on-chain access control. A factory creates jars; allowlisted 
 members (ERC721, ERC1155, POAP, Unlock, Hats Protocol) withdraw under fixed rules: fixed or
 variable amounts, cooldown intervals, purpose strings and emergency controls.
 
-The Greenpill Dev Guild runs one live jar for the contributor stipend on Arbitrum One and serves
-it at https://cookies.greengoods.app. The runbook for that jar is
-[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
+The Greenpill Dev Guild runs one live jar for the Green Goods contributor stipend on Arbitrum One,
+created on the Green Goods cookie jar factory, and serves it at https://cookies.greengoods.app.
+The runbook for that jar is [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md).
 
 ## Prerequisites
 
