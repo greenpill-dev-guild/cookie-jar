@@ -106,6 +106,9 @@ test("creation checkboxes have 44 px touch targets", async ({ page }, info) => {
 		.locator("#jarOwner")
 		.fill("0x1111111111111111111111111111111111111111");
 	await page.getByRole("button", { name: "Next", exact: true }).click();
+	await expect(
+		page.getByRole("combobox", { name: /[Cc]laim type|Withdrawal type/ })
+	).toBeVisible();
 	for (const checkbox of await page.getByRole("checkbox").all()) {
 		const rect = await checkbox.boundingBox();
 		expect(rect?.width).toBeGreaterThanOrEqual(44);
