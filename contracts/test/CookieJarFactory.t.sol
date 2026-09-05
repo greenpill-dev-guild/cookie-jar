@@ -162,6 +162,38 @@ contract CookieJarFactoryTest is Test {
         assertEq(cookieJars[0], jarAddress);
     }
 
+    /// @notice Sentinel value should use the factory default minimum deposit for the currency
+    function testCreateCookieJar_UsesFactoryDefaultMinDepositWhenSentinelIsProvided() public {
+        vm.prank(owner);
+        CookieJarLib.JarConfig memory params = createDefaultJarParams(owner, CookieJarLib.ETH_ADDRESS, "Sentinel Min");
+        params.minDeposit = type(uint256).max;
+
+        address jarAddress = factory.createCookieJar(
+            params,
+            createDefaultAccessConfig(),
+            createDefaultMultiTokenConfig()
+        );
+
+        uint256 actual = CookieJar(payable(jarAddress)).MIN_DEPOSIT();
+        assertEq(actual, uint256(factory.MIN_ETH_DEPOSIT()), "Sentinel should resolve to the factory minimum");
+    }
+
+    /// @notice An explicit minimum deposit is preserved, so 6-decimal tokens get a usable floor
+    function testCreateCookieJar_PreservesExplicitMinDeposit() public {
+        vm.prank(owner);
+        CookieJarLib.JarConfig memory params = createDefaultJarParams(owner, address(testToken), "Explicit Min");
+        params.minDeposit = 1e6;
+
+        address jarAddress = factory.createCookieJar(
+            params,
+            createDefaultAccessConfig(),
+            createDefaultMultiTokenConfig()
+        );
+
+        uint256 actual = CookieJar(payable(jarAddress)).MIN_DEPOSIT();
+        assertEq(actual, 1e6, "Explicit minimum deposit should be preserved");
+    }
+
     /// @notice Sentinel value should use factory default fee percentage
     function testCreateCookieJar_UsesFactoryDefaultFeeWhenSentinelIsProvided() public {
         vm.prank(owner);

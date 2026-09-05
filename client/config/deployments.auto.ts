@@ -3,7 +3,7 @@
  *
  * Source of truth: client/config/deployments.json
  * Regenerate with: bun sync:deployment -- --chain <chainId> [--script Deploy.s.sol]
- * Last synced chain: 42161
+ * Last synced chain: 31337
  */
 
 export interface DeploymentInfo {
@@ -23,10 +23,10 @@ export const DEPLOYMENTS: Record<number, DeploymentInfo> = {
 	},
 	42161: {
 		chainId: 42161,
-		factoryAddress: "0xfe367D31d181D305dcF5AAaa345a70A65c345153",
+		factoryAddress: "0x294d222eDE6DF6625B43544F1C634322467528Da",
 		isV2: true,
-		blockNumber: 431219808,
-		timestamp: 1770876044224,
+		blockNumber: 435607756,
+		timestamp: 1771969711,
 	},
 	42220: {
 		chainId: 42220,
@@ -60,6 +60,6 @@ export function getDeploymentInfo(chainId: number): DeploymentInfo | undefined {
 	return DEPLOYMENTS[chainId];
 }
 
-export const GENERATED_AT = "1770876044224";
+export const GENERATED_AT = "1788631265524";
 export const GENERATOR = "scripts/sync-deployments.ts";
-export const DEPLOYED_CHAIN = 42161;
+export const DEPLOYED_CHAIN = 31337;

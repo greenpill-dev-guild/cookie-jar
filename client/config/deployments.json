@@ -6,10 +6,10 @@
 	},
 	"42161": {
 		"chainId": 42161,
-		"factoryAddress": "0xfe367D31d181D305dcF5AAaa345a70A65c345153",
+		"factoryAddress": "0x294d222eDE6DF6625B43544F1C634322467528Da",
 		"isV2": true,
-		"blockNumber": 431219808,
-		"timestamp": 1770876044224
+		"blockNumber": 435607756,
+		"timestamp": 1771969711
 	},
 	"42220": {
 		"chainId": 42220,

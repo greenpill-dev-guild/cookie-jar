@@ -20,6 +20,8 @@ import {CookieJarLib} from "../src/libraries/CookieJarLib.sol";
 ///        FIXED_AMOUNT, MAX_WITHDRAWAL, WITHDRAWAL_INTERVAL, MAX_WITHDRAWAL_PER_PERIOD
 ///        STRICT_PURPOSE, EMERGENCY_WITHDRAWAL_ENABLED, ONE_TIME_WITHDRAWAL (booleans)
 ///        FEE_PERCENTAGE_ON_DEPOSIT  bps; default type(uint256).max = factory default; 0 = no fee
+///        MIN_DEPOSIT                smallest deposit in token units; default type(uint256).max =
+///                                   factory default (MIN_ETH_DEPOSIT / MIN_ERC20_DEPOSIT)
 ///        METADATA_FILE              JSON file relative to contracts/ (see config/jars/README.md)
 ///        DRY_RUN                    true prints the plan and sends nothing
 contract CreateJar is Script {
@@ -48,6 +50,7 @@ contract CreateJar is Script {
         uint256 maxWithdrawal;
         uint256 withdrawalInterval;
         uint256 maxWithdrawalPerPeriod;
+        uint256 minDeposit;
         bool strictPurpose;
         bool emergencyWithdrawalEnabled;
         bool oneTimeWithdrawal;
@@ -93,6 +96,7 @@ contract CreateJar is Script {
         r.maxWithdrawal = vm.envOr("MAX_WITHDRAWAL", uint256(0));
         r.withdrawalInterval = vm.envOr("WITHDRAWAL_INTERVAL", uint256(0));
         r.maxWithdrawalPerPeriod = vm.envOr("MAX_WITHDRAWAL_PER_PERIOD", uint256(0));
+        r.minDeposit = vm.envOr("MIN_DEPOSIT", type(uint256).max);
         r.strictPurpose = vm.envOr("STRICT_PURPOSE", true);
         r.emergencyWithdrawalEnabled = vm.envOr("EMERGENCY_WITHDRAWAL_ENABLED", true);
         r.oneTimeWithdrawal = vm.envOr("ONE_TIME_WITHDRAWAL", false);
@@ -130,7 +134,7 @@ contract CreateJar is Script {
             fixedAmount: r.fixedAmount,
             maxWithdrawal: r.maxWithdrawal,
             withdrawalInterval: r.withdrawalInterval,
-            minDeposit: 0, // the factory enforces MIN_ETH_DEPOSIT / MIN_ERC20_DEPOSIT
+            minDeposit: r.minDeposit, // type(uint256).max = the factory default for the currency
             feePercentageOnDeposit: r.feePercentageOnDeposit,
             maxWithdrawalPerPeriod: r.maxWithdrawalPerPeriod,
             metadata: trim(r.metadata),
@@ -185,9 +189,12 @@ contract CreateJar is Script {
         if (expectedFee > CookieJarLib.PERCENTAGE_BASE) expectedFee = CookieJarLib.PERCENTAGE_BASE;
         if (jar.FEE_PERCENTAGE_ON_DEPOSIT() != expectedFee) revert ConfigMismatch("FEE_PERCENTAGE_ON_DEPOSIT");
 
-        uint256 expectedMinDeposit = plan.config.supportedCurrency == CookieJarLib.ETH_ADDRESS
-            ? uint256(factory.MIN_ETH_DEPOSIT())
-            : uint256(factory.MIN_ERC20_DEPOSIT());
+        uint256 expectedMinDeposit = plan.config.minDeposit;
+        if (expectedMinDeposit == type(uint256).max) {
+            expectedMinDeposit = plan.config.supportedCurrency == CookieJarLib.ETH_ADDRESS
+                ? uint256(factory.MIN_ETH_DEPOSIT())
+                : uint256(factory.MIN_ERC20_DEPOSIT());
+        }
         if (jar.MIN_DEPOSIT() != expectedMinDeposit) revert ConfigMismatch("MIN_DEPOSIT");
 
         if (jar.getAllowlist().length != plan.access.allowlist.length) revert ConfigMismatch("allowlist");
@@ -249,6 +256,11 @@ contract CreateJar is Script {
             console.log("Fee on deposit: factory default");
         } else {
             console.log("Fee on deposit (bps):", plan.config.feePercentageOnDeposit);
+        }
+        if (plan.config.minDeposit == type(uint256).max) {
+            console.log("Minimum deposit: factory default");
+        } else {
+            console.log("Minimum deposit (token units):", plan.config.minDeposit);
         }
         console.log("Allowlist size:", plan.access.allowlist.length);
         console.log("NFT contract:", plan.access.nftRequirement.nftContract);

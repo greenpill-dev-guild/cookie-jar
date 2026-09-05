@@ -386,7 +386,7 @@ contract DeployLocalScript is Script {
             0.01 ether, // minDeposit
             0, // feePercentageOnDeposit
             0, // maxWithdrawalPerPeriod
-            '{"name":"Team Hat Stipend (demo)","description":"Local stand-in for the Dev Guild stipend jar. Claims are gated by holding badge #1 of the demo ERC1155 (Hats Protocol hats are ERC1155 tokens). The claim note must carry a Linear link.","image":"https://raw.githubusercontent.com/greenpill-dev-guild/cookie-jar/main/client/public/images/cookie-jar.png","link":"https://github.com/greenpill-dev-guild/.github/blob/main/routines/scoped-work-compensation.md"}', // metadata
+            '{"name":"Team Hat Stipend (demo)","description":"Local stand-in for the Green Goods stipend jar. Claims are gated by holding badge #1 of the demo ERC1155 (Hats Protocol hats are ERC1155 tokens). The claim note must carry a Linear link.","image":"https://raw.githubusercontent.com/greenpill-dev-guild/cookie-jar/main/client/public/images/cookie-jar.png","link":"https://github.com/greenpill-dev-guild/.github/blob/main/routines/scoped-work-compensation.md"}', // metadata
             defaultMultiToken5 // multiTokenConfig
         );
 
