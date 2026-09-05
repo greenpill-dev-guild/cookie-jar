@@ -17,7 +17,7 @@ export interface DeploymentInfo {
 export const DEPLOYMENTS: Record<number, DeploymentInfo> = {
 	31337: {
 		chainId: 31337,
-		factoryAddress: "0xcb0975928B97C217F73F2866Ef7ED39f85e62B74",
+		factoryAddress: "0x5bD6FdDB18B3dC13370b92f00Eb9b31461474524",
 		isV2: true,
 	},
 	42161: {
