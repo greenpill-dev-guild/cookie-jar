@@ -425,7 +425,7 @@ const WithdrawalSettingsStep: React.FC = () => {
 							)
 						}
 					>
-						<SelectTrigger>
+						<SelectTrigger id="withdrawalType">
 							<SelectValue placeholder="Select withdrawal type" />
 						</SelectTrigger>
 						<SelectContent>
