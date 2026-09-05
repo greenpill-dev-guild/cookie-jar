@@ -101,7 +101,7 @@ export function JarWithdrawSection({
 				/>
 			) : (
 				<div className="flex flex-col items-center justify-center py-16 text-center gap-3">
-					<div className="bg-destructive/10 text-destructive border border-destructive/40 font-medium px-5 py-2 rounded-full">
+					<div className="bg-muted text-foreground border border-border font-medium px-5 py-2 rounded-full">
 						{permissions.eligibility === "disconnected"
 							? "Wallet not connected"
 							: "Not eligible to claim"}

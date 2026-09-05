@@ -49,6 +49,8 @@ export function JarControls({
 				<div className="relative w-full lg:flex-1">
 					<Search className="pointer-events-none absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-[hsl(var(--cj-medium-brown))]" />
 					<Input
+						id="jar-search"
+						aria-label="Search jars"
 						placeholder="Search jars..."
 						value={searchTerm}
 						onChange={(e) => setSearchTerm(e.target.value)}
@@ -64,6 +66,7 @@ export function JarControls({
 				{/* Filter */}
 				<Select value={filterOption} onValueChange={setFilterOption}>
 					<SelectTrigger
+						aria-label="Filter by access"
 						className={`w-full lg:w-52 ${controlFieldClasses} text-left font-medium`}
 					>
 						<SelectValue placeholder="Filter by access" />

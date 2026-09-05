@@ -32,7 +32,7 @@ export function Footer() {
 							<li>
 								<Link
 									href="/jars"
-									className="text-muted-foreground hover:text-primary"
+									className="inline-flex min-h-11 items-center rounded-md text-muted-foreground hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
 								>
 									All jars on this network
 								</Link>
@@ -40,7 +40,7 @@ export function Footer() {
 							<li>
 								<Link
 									href="/create"
-									className="text-muted-foreground hover:text-primary"
+									className="inline-flex min-h-11 items-center rounded-md text-muted-foreground hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
 								>
 									Create a jar
 								</Link>
@@ -48,7 +48,7 @@ export function Footer() {
 							<li>
 								<Link
 									href="/profile"
-									className="text-muted-foreground hover:text-primary"
+									className="inline-flex min-h-11 items-center rounded-md text-muted-foreground hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
 								>
 									Your profile
 								</Link>
@@ -66,7 +66,7 @@ export function Footer() {
 									href="https://github.com/greenpill-dev-guild/.github/blob/main/routines/scoped-work-compensation.md"
 									target="_blank"
 									rel="noopener noreferrer"
-									className="text-muted-foreground hover:text-primary"
+									className="inline-flex min-h-11 items-center rounded-md text-muted-foreground hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
 								>
 									Stipend playbook
 								</a>
@@ -77,7 +77,7 @@ export function Footer() {
 										href={explorerHref}
 										target="_blank"
 										rel="noopener noreferrer"
-										className="text-muted-foreground hover:text-primary"
+										className="inline-flex min-h-11 items-center rounded-md text-muted-foreground hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
 									>
 										Jar contract on the explorer
 									</a>
@@ -88,7 +88,7 @@ export function Footer() {
 									href="https://github.com/greenpill-dev-guild/cookie-jar"
 									target="_blank"
 									rel="noopener noreferrer"
-									className="text-muted-foreground hover:text-primary"
+									className="inline-flex min-h-11 items-center rounded-md text-muted-foreground hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
 								>
 									Source on GitHub
 								</a>
