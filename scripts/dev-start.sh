@@ -155,6 +155,10 @@ else
     echo "⚠️  No deployment file found, client may not connect properly"
 fi
 
+# The home page features the jar at this index; 4 is the ERC1155 demo jar that mirrors the stipend jar.
+export NEXT_PUBLIC_FEATURED_JAR_INDEX="${NEXT_PUBLIC_FEATURED_JAR_INDEX:-4}"
+echo "🏠 Featured jar index: $NEXT_PUBLIC_FEATURED_JAR_INDEX"
+
 # Start Next.js dev server directly with Turbo for faster builds
 echo "🚀 Starting Next.js development server (Turbo mode - faster builds & hot reload)..."
 NODE_ENV=development npx next dev --turbo 2>&1 | tee ../contracts/client-dev.log &
