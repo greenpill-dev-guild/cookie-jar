@@ -84,9 +84,9 @@ export function JarPageContent({
 	if (hasError || config.accessType === undefined) {
 		return (
 			<div className="container max-w-3xl mx-auto mt-8 p-6 bg-destructive/10 border border-destructive/40 rounded-lg">
-				<h2 className="text-xl font-bold text-destructive mb-4">
+				<h1 className="text-xl font-bold text-destructive mb-4">
 					Could not load this jar
-				</h2>
+				</h1>
 				<p className="text-foreground text-sm">
 					The jar at {address} did not answer on this network. Check the address
 					and the network, then try again.

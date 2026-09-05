@@ -11,7 +11,7 @@ import { THEME_COLORS } from "@/lib/app/theme-colors";
 import "@rainbow-me/rainbowkit/styles.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { useTheme } from "next-themes";
-import type { ReactNode } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { WagmiProvider } from "wagmi";
 
 const queryClient = new QueryClient();
@@ -21,8 +21,10 @@ export function RainbowKitProviderWrapper({
 }: {
 	children: ReactNode;
 }) {
-	const { theme } = useTheme();
-	const isDarkMode = theme === "dark";
+	const { resolvedTheme } = useTheme();
+	const [mounted, setMounted] = useState(false);
+	useEffect(() => setMounted(true), []);
+	const isDarkMode = mounted && resolvedTheme === "dark";
 	const colors = isDarkMode ? THEME_COLORS.dark : THEME_COLORS.light;
 
 	const baseTheme = (isDarkMode ? darkTheme : lightTheme)({

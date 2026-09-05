@@ -14,8 +14,11 @@ export default function CookieJarPage() {
 	const { address: userAddress } = useAccount();
 
 	return (
-		<Suspense fallback={<JarGridSkeleton />}>
-			<JarContentLazy userAddress={userAddress} />
-		</Suspense>
+		<>
+			<h1 className="text-2xl font-bold mb-6">All jars</h1>
+			<Suspense fallback={<JarGridSkeleton />}>
+				<JarContentLazy userAddress={userAddress} />
+			</Suspense>
+		</>
 	);
 }

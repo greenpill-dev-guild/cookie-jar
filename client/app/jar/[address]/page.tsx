@@ -13,9 +13,9 @@ export default function CookieJarPage() {
 	if (typeof address !== "string" || !isAddress(address)) {
 		return (
 			<div className="container max-w-3xl mx-auto mt-8 p-6 bg-destructive/10 border border-destructive/40 rounded-lg">
-				<h2 className="text-xl font-bold text-destructive mb-4">
+				<h1 className="text-xl font-bold text-destructive mb-4">
 					Invalid address
-				</h2>
+				</h1>
 				<p className="text-foreground">
 					No valid jar address was provided. Check the URL and try again.
 				</p>
