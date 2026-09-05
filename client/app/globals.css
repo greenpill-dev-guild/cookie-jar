@@ -693,7 +693,7 @@ body {
 	}
 
 	.content-subtitle {
-		@apply text-responsive-base text-gray-600 line-clamp-1 min-w-0;
+		@apply text-responsive-base text-muted-foreground line-clamp-1 min-w-0;
 	}
 
 	.content-body {
@@ -701,7 +701,7 @@ body {
 	}
 
 	.content-caption {
-		@apply text-xs text-gray-500 truncate min-w-0;
+		@apply text-xs text-muted-foreground truncate min-w-0;
 	}
 
 	/* Accessibility-focused button utilities */

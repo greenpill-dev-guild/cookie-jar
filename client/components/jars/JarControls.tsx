@@ -114,7 +114,7 @@ export function JarControls({
 						</span>
 					)}
 				</div>
-				<div className="content-caption flex-shrink-0">
+				<div className="text-xs text-muted-foreground flex-shrink-0">
 					{isConnected ? "Connected" : "Browse Mode"}
 				</div>
 			</div>

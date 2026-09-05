@@ -68,3 +68,27 @@ test("jar search is labelled and jar navigation works with the keyboard", async 
 	await page.keyboard.press("Enter");
 	await expect(page).toHaveURL(/\/jar\/0x/);
 });
+
+for (const route of ["/jars", "/profile", "/create"]) {
+	for (const theme of ["light", "dark"] as const) {
+		test(`route accessibility ${route} ${theme}`, async ({ page }, info) => {
+			await page.setViewportSize({ width: 375, height: 900 });
+			await page.addInitScript(
+				(value) => localStorage.setItem("theme", value),
+				theme
+			);
+			await page.goto(route, { waitUntil: "domcontentloaded" });
+			await expect(page.locator("main h1")).toBeVisible();
+			if (route === "/jars")
+				await expect(
+					page.getByRole("textbox", { name: "Search jars" })
+				).toBeVisible();
+			await page.screenshot({
+				path: info.outputPath("route.png"),
+				fullPage: true,
+			});
+			const result = await new AxeBuilder({ page }).analyze();
+			expect(result.violations).toEqual([]);
+		});
+	}
+}
