@@ -3,6 +3,7 @@
 import { useCallback, useRef, useState } from "react";
 import { useWaitForTransactionReceipt, useWriteContract } from "wagmi";
 import { useToast } from "@/hooks/app/useToast";
+import { log } from "@/lib/app/logger";
 
 export interface RetryConfig {
 	maxRetries?: number;
@@ -25,6 +26,7 @@ interface TransactionWithRetryResult {
 	error: any;
 	isSuccess: boolean;
 	isLoading: boolean;
+	retryConfirmation: () => Promise<void>;
 	retryState: TransactionWithRetryState;
 	retry: () => Promise<void>;
 	reset: () => void;
@@ -82,18 +84,29 @@ export function useTransactionWithRetry(
 	const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
 	const {
-		writeContract: originalWriteContract,
+		writeContractAsync: originalWriteContract,
 		data: hash,
 		isPending,
 		error,
-		isSuccess,
 		reset: originalReset,
 	} = useWriteContract();
 
-	const { isLoading } = useWaitForTransactionReceipt({
+	const [submittedChainId, setSubmittedChainId] = useState<number>();
+	const {
+		isSuccess: receiptSuccess,
+		data: receipt,
+		error: receiptError,
+		refetch: refetchReceipt,
+	} = useWaitForTransactionReceipt({
 		hash,
+		chainId: submittedChainId,
 	});
 
+	const reverted =
+		receipt?.status === "reverted" ||
+		!!receiptError?.message?.toLowerCase().includes("revert");
+	const isLoading = !!hash && !receiptSuccess && !reverted;
+	const isSuccess = receiptSuccess && !reverted;
 	/**
 	 * Executes transaction with retry logic
 	 */
@@ -118,16 +131,17 @@ export function useTransactionWithRetry(
 					isRetrying: isRetry,
 				}));
 
+				setSubmittedChainId(parameters.chainId);
 				await originalWriteContract(parameters);
 			} catch (err) {
 				const error = err as any;
-				console.error(
+				log.error(
 					`Transaction attempt ${retryState.attemptCount + 1} failed:`,
 					error
 				);
 
 				const canRetryError = config.retryCondition(error);
-				const hasRetriesLeft = retryState.attemptCount < config.maxRetries;
+				const hasRetriesLeft = retryState.attemptCount + 1 < config.maxRetries;
 				const shouldRetry = canRetryError && hasRetriesLeft;
 
 				setRetryState((prev) => ({
@@ -205,9 +219,15 @@ export function useTransactionWithRetry(
 		writeContract: executeTransaction,
 		hash,
 		isPending: isPending || retryState.isRetrying,
-		error,
+		error:
+			error ??
+			receiptError ??
+			(reverted ? new Error("Transaction reverted.") : undefined),
 		isSuccess,
 		isLoading,
+		retryConfirmation: async () => {
+			await refetchReceipt();
+		},
 		retryState,
 		retry,
 		reset,
@@ -292,7 +312,7 @@ export function useTransactionPattern(retryConfig?: RetryConfig) {
 				options?.onSuccess?.();
 			} catch (error) {
 				// Error handling is done in useTransactionWithRetry
-				console.error("Transaction pattern error:", error);
+				log.error("Transaction pattern error:", error);
 			}
 		},
 		[transaction, toast]

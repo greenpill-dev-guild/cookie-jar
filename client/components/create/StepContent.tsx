@@ -5,7 +5,7 @@ import type React from "react";
 import { useCallback, useEffect, useMemo } from "react";
 import { useFormContext } from "react-hook-form";
 import { isAddress } from "viem";
-import { useChainId } from "wagmi";
+
 import { NFTSelector, type SelectedNFT } from "@/components/nft/NFTSelector";
 import type {
 	AccessMethod,
@@ -79,7 +79,7 @@ const BasicConfigStep: React.FC = () => {
 		formState: { errors },
 	} = useFormContext<JarCreationFormData>();
 	const { toast } = useToast();
-	const chainId = useChainId();
+	const chainId = useFormContext<JarCreationFormData>().watch("chainId");
 
 	const showCustomCurrency = watch("showCustomCurrency");
 	const supportedCurrency = watch("supportedCurrency");
@@ -155,7 +155,7 @@ const BasicConfigStep: React.FC = () => {
 		if (process.env.NODE_ENV !== "development") return;
 
 		const randomNames = [
-			"Cookie Fund",
+			"Contributor Fund",
 			"Dev Grants",
 			"Community Pool",
 			"Test Jar",
@@ -163,7 +163,7 @@ const BasicConfigStep: React.FC = () => {
 			"Alpha Pool",
 		];
 		const randomDescriptions = [
-			"A fund for supporting cookie development",
+			"A fund for supporting contributor work",
 			"Grants for innovative projects",
 			"Community-driven funding pool",
 			"Testing new jar functionality",
@@ -237,7 +237,7 @@ const BasicConfigStep: React.FC = () => {
 						id="jarName"
 						data-testid="jar-name-input"
 						placeholder="e.g., Community Fund, Dev Grants"
-						aria-label="Enter a name for your cookie jar"
+						aria-label="Jar name"
 						aria-invalid={!!errors.jarName}
 						aria-describedby={errors.jarName ? "jarName-error" : undefined}
 						{...register("jarName")}
@@ -308,6 +308,7 @@ const BasicConfigStep: React.FC = () => {
 						onValueChange={handleCurrencyChange}
 					>
 						<SelectTrigger
+							id="currency"
 							data-testid="currency-selector"
 							aria-label="Select currency type for your jar"
 						>
@@ -411,11 +412,11 @@ const WithdrawalSettingsStep: React.FC = () => {
 
 	return (
 		<div className="space-y-6">
-			<h3 className="text-lg font-semibold">Withdrawal Settings</h3>
+			<h3 className="text-lg font-semibold">Claim settings</h3>
 
 			<div className="grid gap-4">
 				<div>
-					<Label htmlFor="withdrawalType">Withdrawal Type *</Label>
+					<Label htmlFor="withdrawalType">Claim type *</Label>
 					<Select
 						value={withdrawalOption.toString()}
 						onValueChange={(value) =>
@@ -426,7 +427,7 @@ const WithdrawalSettingsStep: React.FC = () => {
 						}
 					>
 						<SelectTrigger>
-							<SelectValue placeholder="Select withdrawal type" />
+							<SelectValue placeholder="Select claim type" />
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem value="0">Fixed - Same amount each time</SelectItem>
@@ -437,7 +438,7 @@ const WithdrawalSettingsStep: React.FC = () => {
 
 				{withdrawalOption === WithdrawalTypeOptions.Fixed && (
 					<div>
-						<Label htmlFor="fixedAmount">Fixed Withdrawal Amount *</Label>
+						<Label htmlFor="fixedAmount">Fixed claim amount *</Label>
 						<Input
 							id="fixedAmount"
 							type="number"
@@ -446,14 +447,14 @@ const WithdrawalSettingsStep: React.FC = () => {
 							{...register("fixedAmount")}
 						/>
 						<p className="text-sm text-muted-foreground mt-1">
-							Amount users can withdraw each time
+							Amount people can claim each time
 						</p>
 					</div>
 				)}
 
 				{withdrawalOption === WithdrawalTypeOptions.Variable && (
 					<div>
-						<Label htmlFor="maxWithdrawal">Maximum Withdrawal Amount *</Label>
+						<Label htmlFor="maxWithdrawal">Maximum claim amount *</Label>
 						<Input
 							id="maxWithdrawal"
 							type="number"
@@ -462,15 +463,13 @@ const WithdrawalSettingsStep: React.FC = () => {
 							{...register("maxWithdrawal")}
 						/>
 						<p className="text-sm text-muted-foreground mt-1">
-							Maximum amount users can withdraw at once
+							Maximum amount people can claim at once
 						</p>
 					</div>
 				)}
 
 				<div>
-					<Label htmlFor="withdrawalInterval">
-						Withdrawal Interval (days) *
-					</Label>
+					<Label htmlFor="withdrawalInterval">Claim interval (days) *</Label>
 					<Input
 						id="withdrawalInterval"
 						type="number"
@@ -479,7 +478,7 @@ const WithdrawalSettingsStep: React.FC = () => {
 						{...register("withdrawalInterval")}
 					/>
 					<p className="text-sm text-muted-foreground mt-1">
-						Time between allowed withdrawals (e.g., 7 = weekly, 30 = monthly)
+						Time between allowed claims (e.g., 7 = weekly, 30 = monthly)
 					</p>
 				</div>
 
@@ -493,7 +492,7 @@ const WithdrawalSettingsStep: React.FC = () => {
 							}
 						/>
 						<Label htmlFor="strictPurpose" className="text-sm">
-							Require purpose description (minimum 27 characters)
+							Require a note (minimum 27 characters)
 						</Label>
 					</div>
 
@@ -519,7 +518,7 @@ const WithdrawalSettingsStep: React.FC = () => {
 							}
 						/>
 						<Label htmlFor="oneTimeWithdrawal" className="text-sm">
-							One-time withdrawal only (users can only claim once)
+							One-time claims only
 						</Label>
 					</div>
 				</div>
@@ -533,7 +532,7 @@ const WithdrawalSettingsStep: React.FC = () => {
 // ─────────────────────────────────────────────
 
 const AccessControlStep: React.FC = () => {
-	const chainId = useChainId();
+	const chainId = useFormContext<JarCreationFormData>().watch("chainId");
 	const { watch, setValue, getValues } = useFormContext<JarCreationFormData>();
 
 	const accessType = watch("accessType");
@@ -768,12 +767,28 @@ const FinalSettingsStep: React.FC<{ isV2Contract: boolean }> = ({
 	const emergencyWithdrawalEnabled = watch("emergencyWithdrawalEnabled");
 	const oneTimeWithdrawal = watch("oneTimeWithdrawal");
 	const customFee = watch("customFee");
+	const minDeposit = watch("minDeposit");
+	const protocolConfig = watch("protocolConfig");
 	const maxStreamRate = watch("maxStreamRate");
 	const minStreamDuration = watch("minStreamDuration");
 
 	return (
 		<div className="space-y-6">
 			<h3 className="text-lg font-semibold">Final Settings & Review</h3>
+			{isV2Contract && (
+				<div>
+					<Label htmlFor="minDeposit">Minimum deposit (tokens)</Label>
+					<Input
+						id="minDeposit"
+						inputMode="decimal"
+						{...register("minDeposit")}
+					/>
+					<p className="text-sm text-muted-foreground mt-1">
+						Enter 0 for no minimum. This value is sent explicitly to the
+						factory.
+					</p>
+				</div>
+			)}
 
 			<div className="space-y-6">
 				{/* Custom Fee Settings */}
@@ -934,7 +949,7 @@ const FinalSettingsStep: React.FC<{ isV2Contract: boolean }> = ({
 			{/* Configuration Summary */}
 			<div className="bg-muted/50 p-4 rounded-lg space-y-2">
 				<h4 className="font-medium">Configuration Summary</h4>
-				<div className="text-sm space-y-1">
+				<div className="text-sm space-y-1 break-words [overflow-wrap:anywhere]">
 					<div>
 						<strong>Name:</strong> {jarName || "Not set"}
 					</div>
@@ -946,21 +961,34 @@ const FinalSettingsStep: React.FC<{ isV2Contract: boolean }> = ({
 						{supportedCurrency === ETH_ADDRESS ? "ETH" : supportedCurrency}
 					</div>
 					<div>
-						<strong>Access Type:</strong> {AccessType[accessType]}
+						<strong>Access:</strong>{" "}
+						{accessType === AccessType.Hats
+							? "Team hat (Hats Protocol)"
+							: AccessType[accessType]}
+						{accessType === AccessType.Hats && (
+							<p className="break-all">
+								Hat ID: {protocolConfig.hatsId}
+								<br />
+								Hats contract:{" "}
+								{protocolConfig.hatsAddress ||
+									"0x3bc1A0Ad72417f2d411118085256fC53CBdDd137"}
+							</p>
+						)}
 					</div>
 					<div>
-						<strong>Withdrawal:</strong>{" "}
-						{WithdrawalTypeOptions[withdrawalOption]}
+						<strong>Claims:</strong> {WithdrawalTypeOptions[withdrawalOption]}
 						{withdrawalOption === WithdrawalTypeOptions.Fixed
-							? ` (${fixedAmount} per withdrawal)`
-							: ` (max ${maxWithdrawal} per withdrawal)`}
+							? ` (${fixedAmount} per claim)`
+							: ` (max ${maxWithdrawal} per claim)`}
 					</div>
 					<div>
 						<strong>Interval:</strong> {withdrawalInterval} day
 						{parseInt(withdrawalInterval, 10) === 1 ? "" : "s"}
 					</div>
 					<div>
-						<strong>Strict Purpose:</strong> {strictPurpose ? "Yes" : "No"}
+						<strong>Minimum deposit:</strong> {minDeposit}
+						<br />
+						<strong>Require a note:</strong> {strictPurpose ? "Yes" : "No"}
 					</div>
 					<div>
 						<strong>Emergency Withdrawal:</strong>{" "}

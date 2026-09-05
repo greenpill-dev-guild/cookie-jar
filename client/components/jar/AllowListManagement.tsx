@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { useState } from "react";
-import { useChainId, useReadContract, useWriteContract } from "wagmi";
+import { useReadContract, useWriteContract } from "wagmi";
 import {
 	Accordion,
 	AccordionContent,
@@ -20,14 +20,15 @@ import { AllowlistAddressInput } from "./AllowListAddressInput";
 
 interface AllowlistManagementProps {
 	cookieJarAddress: `0x${string}`;
+	chainId: number;
 }
 
 export const AllowlistManagement: React.FC<AllowlistManagementProps> = ({
 	cookieJarAddress,
+	chainId,
 }) => {
 	const { toast } = useToast();
 	const [activeSection, setActiveSection] = useState<string>("view-allowlist");
-	const chainId = useChainId();
 	const isV2 = isV2Chain(chainId);
 
 	// Version-aware ABI and function selection
@@ -47,6 +48,7 @@ export const AllowlistManagement: React.FC<AllowlistManagementProps> = ({
 		refetch: _refetchAllowlist,
 	} = useReadContract({
 		address: cookieJarAddress,
+		chainId,
 		abi,
 		functionName: getAllowlistFunction,
 	});
@@ -65,6 +67,7 @@ export const AllowlistManagement: React.FC<AllowlistManagementProps> = ({
 		try {
 			grantAllowlistRole({
 				address: cookieJarAddress,
+				chainId,
 				abi,
 				functionName: grantFunction,
 				args: [addresses],
@@ -91,6 +94,7 @@ export const AllowlistManagement: React.FC<AllowlistManagementProps> = ({
 		try {
 			revokeAllowlistRole({
 				address: cookieJarAddress,
+				chainId,
 				abi,
 				functionName: revokeFunction,
 				args: [addresses],

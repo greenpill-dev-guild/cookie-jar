@@ -77,40 +77,42 @@ export function JarWithdrawSection({
 				</div>
 			)}
 
-			{permissions.isEligible ? (
-				<AllowlistWithdrawalSection
-					config={claimConfig}
-					withdrawPurpose={withdrawPurpose}
-					setWithdrawPurpose={setWithdrawPurpose}
-					withdrawAmount={withdrawAmount}
-					setWithdrawAmount={setWithdrawAmount}
-					handleWithdrawAllowlist={handleWithdrawAllowlist}
-					handleWithdrawAllowlistVariable={handleWithdrawAllowlistVariable}
-				/>
-			) : !isV2 && permissions.isNftGated ? (
-				<NFTGatedWithdrawalSection
-					config={claimConfig}
-					withdrawAmount={withdrawAmount}
-					setWithdrawAmount={setWithdrawAmount}
-					gateAddress={gateAddress}
-					setGateAddress={setGateAddress}
-					tokenId={tokenId}
-					setTokenId={setTokenId}
-					handleWithdrawNFT={handleWithdrawNFT}
-					handleWithdrawNFTVariable={handleWithdrawNFTVariable}
-				/>
-			) : (
-				<div className="flex flex-col items-center justify-center py-16 text-center gap-3">
-					<div className="bg-muted text-foreground border border-border font-medium px-5 py-2 rounded-full">
-						{permissions.eligibility === "disconnected"
-							? "Wallet not connected"
-							: "Not eligible to claim"}
+			<fieldset disabled={isInCooldown} className="min-w-0">
+				{permissions.isEligible ? (
+					<AllowlistWithdrawalSection
+						config={claimConfig}
+						withdrawPurpose={withdrawPurpose}
+						setWithdrawPurpose={setWithdrawPurpose}
+						withdrawAmount={withdrawAmount}
+						setWithdrawAmount={setWithdrawAmount}
+						handleWithdrawAllowlist={handleWithdrawAllowlist}
+						handleWithdrawAllowlistVariable={handleWithdrawAllowlistVariable}
+					/>
+				) : !isV2 && permissions.isNftGated ? (
+					<NFTGatedWithdrawalSection
+						config={claimConfig}
+						withdrawAmount={withdrawAmount}
+						setWithdrawAmount={setWithdrawAmount}
+						gateAddress={gateAddress}
+						setGateAddress={setGateAddress}
+						tokenId={tokenId}
+						setTokenId={setTokenId}
+						handleWithdrawNFT={handleWithdrawNFT}
+						handleWithdrawNFTVariable={handleWithdrawNFTVariable}
+					/>
+				) : (
+					<div className="flex flex-col items-center justify-center py-16 text-center gap-3">
+						<div className="bg-muted text-foreground border border-border font-medium px-5 py-2 rounded-full">
+							{permissions.eligibility === "disconnected"
+								? "Wallet not connected"
+								: "Not eligible to claim"}
+						</div>
+						<p className="text-sm text-muted-foreground max-w-md">
+							{notEligibleCopy(permissions)}
+						</p>
 					</div>
-					<p className="text-sm text-muted-foreground max-w-md">
-						{notEligibleCopy(permissions)}
-					</p>
-				</div>
-			)}
+				)}
+			</fieldset>
 		</div>
 	);
 }

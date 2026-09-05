@@ -1,13 +1,20 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { isAddress } from "viem";
-import { useChainId } from "wagmi";
 import { JarPageContent } from "@/components/jar/JarPageContent";
+import { FEATURED_JAR } from "@/config/featured-jar";
+import { supportedChains } from "@/config/supported-networks";
+import { resolveJarChainId } from "@/lib/jar/jar-location";
 
 export default function CookieJarPage() {
 	const params = useParams();
-	const chainId = useChainId();
+	const query = useSearchParams();
+	const chainId = resolveJarChainId(
+		query.get("chainId"),
+		FEATURED_JAR.chainId,
+		supportedChains.map((chain) => chain.id)
+	);
 	const address = params.address as string;
 
 	if (typeof address !== "string" || !isAddress(address)) {
@@ -23,6 +30,13 @@ export default function CookieJarPage() {
 		);
 	}
 
+	if (chainId === undefined)
+		return (
+			<div className="p-6">
+				<h1 className="text-xl font-bold">Unsupported network</h1>
+				<p>Use a supported network in the jar link.</p>
+			</div>
+		);
 	return (
 		<JarPageContent address={address as `0x${string}`} chainId={chainId} />
 	);

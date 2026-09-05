@@ -11,8 +11,9 @@ export { ETH_ADDRESS };
  * @param tokenAddress The address of the ERC20 token
  * @returns Token information including symbol, decimals, and error states
  */
-export function useTokenInfo(tokenAddress: Address) {
-	const chainId = useChainId();
+export function useTokenInfo(tokenAddress: Address, requestedChainId?: number) {
+	const walletChainId = useChainId();
+	const chainId = requestedChainId ?? walletChainId;
 	const nativeCurrency = getNativeCurrency(chainId);
 	const isERC20 = isAddress(tokenAddress) && tokenAddress !== ETH_ADDRESS;
 
@@ -20,11 +21,13 @@ export function useTokenInfo(tokenAddress: Address) {
 		contracts: [
 			{
 				address: tokenAddress,
+				chainId,
 				abi: erc20Abi,
 				functionName: "symbol",
 			},
 			{
 				address: tokenAddress,
+				chainId,
 				abi: erc20Abi,
 				functionName: "decimals",
 			},

@@ -2,9 +2,9 @@
 
 import { AlertCircle, AlertTriangle, UserPlus } from "lucide-react";
 import type React from "react";
-import { useEffect, useState } from "react";
-import { keccak256, toHex } from "viem";
-import { useAccount, useChainId } from "wagmi";
+import { useEffect, useRef, useState } from "react";
+import { isAddress, keccak256, toHex } from "viem";
+import { useAccount } from "wagmi";
 import { Button } from "@/components/ui/button";
 import {
 	Card,
@@ -17,22 +17,19 @@ import {
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getNativeCurrency } from "@/config/supported-networks";
+import { cookieJarAbi } from "@/generated";
 import { useNavigateToTop } from "@/hooks/app/useNavigateToTop";
 import { useToast } from "@/hooks/app/useToast";
+import { useTransactionWithRetry } from "@/hooks/app/useTransactionWithRetry";
 import { log } from "@/lib/app/logger";
-import {
-	ETH_ADDRESS,
-	parseTokenAmount,
-	useTokenInfo,
-} from "@/lib/blockchain/token-utils";
-import {
-	useReadCookieJarHasRole,
-	useWriteCookieJarEmergencyWithdraw,
-} from "../../generated";
+import { ETH_ADDRESS, useTokenInfo } from "@/lib/blockchain/token-utils";
+import { parseTokenAmount } from "@/lib/jar/creation-values";
+import { useReadCookieJarHasRole } from "../../generated";
 import { AllowlistManagement } from "./AllowListManagement";
 
 interface AdminFunctionsProps {
 	address: `0x${string}`;
+	chainId: number;
 	/** Access type label; allowlist management only applies to Allowlist jars */
 	accessType?: string;
 	/** Jar currency, pre-filled for emergency withdrawals */
@@ -46,8 +43,8 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({
 	address,
 	accessType,
 	currency,
+	chainId,
 }) => {
-	const chainId = useChainId();
 	const nativeCurrency = getNativeCurrency(chainId);
 	const { scrollToTop } = useNavigateToTop();
 	const isAllowlistJar = !accessType || accessType === "Allowlist";
@@ -71,13 +68,21 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({
 	}, [tokenAddress]);
 
 	// Get token info including decimals and symbol
-	const { symbol, decimals } = useTokenInfo(tokenToWithdraw);
+	const {
+		symbol,
+		decimals,
+		error: tokenError,
+	} = useTokenInfo(tokenToWithdraw, chainId);
 	const { toast } = useToast();
-	const { address: currentUserAddress } = useAccount();
+	const account = useAccount();
+	const currentUserAddress = account.address;
+	const [withdrawalError, setWithdrawalError] = useState("");
+	const confirmedHash = useRef<string>();
 
 	// Check if current user has the JAR_OWNER role
 	const { data: _hasJarOwnerRole } = useReadCookieJarHasRole({
 		address,
+		chainId,
 		args: [
 			JAR_OWNER_ROLE,
 			currentUserAddress ||
@@ -86,30 +91,47 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({
 	});
 
 	// Emergency withdraw hook
-	const {
-		writeContract: emergencyWithdraw,
-		isSuccess: isEmergencyWithdrawSuccess,
-	} = useWriteCookieJarEmergencyWithdraw();
+	const emergency = useTransactionWithRetry({ maxRetries: 0 });
+	const isEmergencyWithdrawSuccess = emergency.isSuccess;
 
 	// Show success toasts
 	useEffect(() => {
-		if (isEmergencyWithdrawSuccess) {
+		if (
+			isEmergencyWithdrawSuccess &&
+			emergency.hash &&
+			confirmedHash.current !== emergency.hash
+		) {
+			confirmedHash.current = emergency.hash;
+			setWithdrawalAmount("");
 			toast({
 				title: "Emergency Withdrawal Complete",
 				description: "Funds have been successfully withdrawn.",
 			});
 		}
-	}, [isEmergencyWithdrawSuccess, toast]);
+	}, [isEmergencyWithdrawSuccess, emergency.hash, toast]);
 
 	// Emergency withdraw function
-	const handleEmergencyWithdraw = () => {
+	const handleEmergencyWithdraw = async () => {
 		if (!withdrawalAmount) return;
 		log.info("Emergency withdrawal amount", { withdrawalAmount });
 
 		try {
-			const parsedAmount = parseTokenAmount(withdrawalAmount, decimals);
+			setWithdrawalError("");
+			if (!isAddress(tokenToWithdraw))
+				throw new Error("Enter a valid token address.");
+			if (!account.isConnected || account.chainId !== chainId)
+				throw new Error("Connect on the jar network.");
+			const parsedAmount = parseTokenAmount(
+				withdrawalAmount,
+				tokenError ? undefined : decimals
+			);
+			if (parsedAmount === 0n)
+				throw new Error("Enter an amount greater than zero.");
 
-			emergencyWithdraw({
+			await emergency.writeContract({
+				abi: cookieJarAbi,
+				functionName: "emergencyWithdraw",
+				chainId,
 				address: address,
 				args: [tokenToWithdraw, parsedAmount],
 			});
@@ -119,6 +141,7 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({
 				description: `Attempting to withdraw ${withdrawalAmount} ${symbol || (tokenToWithdraw === ETH_ADDRESS ? "ETH" : "tokens")}.`,
 			});
 		} catch (error) {
+			setWithdrawalError((error as Error).message);
 			log.error("Emergency withdrawal error", { error });
 			toast({
 				title: "Emergency Withdraw Failed",
@@ -169,6 +192,7 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({
 						<CardContent className="p-6">
 							{isAllowlistJar ? (
 								<AllowlistManagement
+									chainId={chainId}
 									cookieJarAddress={address as `0x${string}`}
 								/>
 							) : (
@@ -248,12 +272,25 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({
 								</div>
 							</div>
 						</CardContent>
-						<CardFooter className="bg-muted p-4 rounded-b-lg flex justify-end">
+						<CardFooter className="bg-muted p-4 rounded-b-lg flex flex-col items-end gap-2">
+							{(withdrawalError || emergency.error) && (
+								<p role="alert" className="text-sm">
+									{withdrawalError || emergency.error?.message}
+								</p>
+							)}
+							{(emergency.isPending || emergency.isLoading) && (
+								<p role="status">Waiting for transaction confirmation...</p>
+							)}
 							<Button
 								onClick={handleEmergencyWithdraw}
 								variant="destructive"
 								className="bg-destructive hover:bg-destructive/90"
-								disabled={!withdrawalAmount}
+								disabled={
+									!withdrawalAmount ||
+									tokenError ||
+									emergency.isPending ||
+									emergency.isLoading
+								}
 							>
 								<AlertTriangle className="h-4 w-4 mr-2" />
 								Emergency Withdraw

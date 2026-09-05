@@ -71,6 +71,7 @@ interface EnhancedJarData extends JarData {
 }
 
 interface JarCardProps {
+	chainId: number;
 	jar: EnhancedJarData;
 	nativeCurrency: NativeCurrency;
 	tokenSymbols: Record<string, string>;
@@ -150,6 +151,7 @@ const getUserAccessStatus = (jar: EnhancedJarData) => {
 
 export function JarCard({
 	jar,
+	chainId,
 	nativeCurrency,
 	tokenSymbols,
 	onClick,
@@ -285,7 +287,7 @@ export function JarCard({
 			<CardHeader className="pb-3 px-6 pt-6">
 				<CardTitle className="content-title text-[hsl(var(--cj-dark-brown))] group-hover:text-[hsl(var(--cj-brand-orange))] transition-colors">
 					<Link
-						href={`/jar/${jar.jarAddress}`}
+						href={`/jar/${jar.jarAddress}?chainId=${chainId}`}
 						className="inline-flex min-h-11 items-center rounded-md after:absolute after:inset-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
 						onClick={(event) => {
 							if (

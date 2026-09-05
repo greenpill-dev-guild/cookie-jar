@@ -265,7 +265,9 @@ function DesktopProfile() {
 
 									<CardFooter className="flex justify-end pt-4 border-t border-border">
 										<Button
-											onClick={() => router.push(`/jar/${jar.jarAddress}`)}
+											onClick={() =>
+												router.push(`/jar/${jar.jarAddress}?chainId=${chainId}`)
+											}
 											className="cj-btn-primary hover:bg-card hover:text-[hsl(var(--cj-brand-orange))] hover:border-[hsl(var(--cj-brand-orange))] border transition-all"
 										>
 											<ArrowUpRight className="h-4 w-4 mr-2" /> Manage Jar

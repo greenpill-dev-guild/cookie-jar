@@ -5,6 +5,7 @@ import {
 	POAP_TOKEN_ADDRESS,
 	ZERO_ADDRESS,
 } from "@/lib/blockchain/constants";
+import { daysToSeconds, parseTokenAmount } from "@/lib/jar/creation-values";
 import {
 	AccessType,
 	type JarCreationFormData,
@@ -88,11 +89,12 @@ export function getFeePercentageOnDeposit(values: JarCreationFormData): bigint {
 		return FACTORY_DEFAULT_FEE_SENTINEL;
 	}
 	const customFeePercent = values.customFee?.trim();
-	if (!customFeePercent) {
-		return FACTORY_DEFAULT_FEE_SENTINEL;
-	}
-	const feeBps = Math.round(Number.parseFloat(customFeePercent) * 100);
-	return BigInt(Number.isFinite(feeBps) ? Math.max(0, feeBps) : 0);
+	if (!customFeePercent)
+		throw new Error("Enter a deposit fee, including 0 for no fee.");
+	const feeBps = parseTokenAmount(customFeePercent, 2);
+	if (feeBps > 10000n)
+		throw new Error("Deposit fee must be between 0% and 100%.");
+	return feeBps;
 }
 
 function resolveAccessConfig(values: JarCreationFormData): {
@@ -361,8 +363,8 @@ export function buildV2CreateCookieJarArgs(input: {
 		oneTimeWithdrawal: values.oneTimeWithdrawal,
 		fixedAmount: parseAmount(values.fixedAmount),
 		maxWithdrawal: parseAmount(values.maxWithdrawal),
-		withdrawalInterval: BigInt(values.withdrawalInterval || "0"),
-		minDeposit: 0n,
+		withdrawalInterval: daysToSeconds(values.withdrawalInterval),
+		minDeposit: parseAmount(values.minDeposit),
 		feePercentageOnDeposit,
 		maxWithdrawalPerPeriod: 0n,
 		metadata,
