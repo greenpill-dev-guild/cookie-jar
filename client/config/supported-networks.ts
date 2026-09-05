@@ -62,9 +62,13 @@ export const anvilLocal = {
 } as const;
 
 import type { Chain } from "@rainbow-me/rainbowkit";
+import { connectorsForWallets } from "@rainbow-me/rainbowkit";
+import {
+	injectedWallet,
+	walletConnectWallet,
+} from "@rainbow-me/rainbowkit/wallets";
 import type { Address } from "viem";
 import { createConfig, fallback, http } from "wagmi";
-import { injected, walletConnect } from "wagmi/connectors";
 
 // For RainbowKit provider (include local only in dev). The first chain is the
 // default when no wallet is connected, so the featured jar's chain leads.
@@ -219,41 +223,29 @@ function createFallbackTransport(primary: string[], fallbackUrls: string[]) {
 	return fallback(transports);
 }
 
-// Client-side only connectors to avoid SSR issues
+// RainbowKit's mobile chooser requires its wallet metadata, including for injected wallets.
 function getConnectors() {
-	// Check if we're on the client side
-	if (typeof window === "undefined") {
-		// Server-side: only return injected connector without WalletConnect
-		return [
-			injected({
-				shimDisconnect: true,
-			}),
-		];
-	}
-
-	// Client-side: return all connectors including WalletConnect
-	const connectors: any[] = [
-		injected({
-			shimDisconnect: true,
-		}),
-	];
-
-	// Only add WalletConnect if projectId is available
-	if (projectId) {
-		connectors.push(
-			walletConnect({
-				projectId,
-				metadata: {
-					name: SITE_NAME,
-					description: SITE_DESCRIPTION,
-					url: FEATURED_JAR.siteUrl,
-					icons: [`${FEATURED_JAR.siteUrl}/icon`],
-				},
-			})
-		);
-	}
-
-	return connectors;
+	return connectorsForWallets(
+		[
+			{
+				groupName: "Wallets",
+				wallets: [
+					injectedWallet,
+					...(projectId && typeof window !== "undefined"
+						? [walletConnectWallet]
+						: []),
+				],
+			},
+		],
+		{
+			appName: SITE_NAME,
+			appDescription: SITE_DESCRIPTION,
+			appUrl: FEATURED_JAR.siteUrl,
+			appIcon: `${FEATURED_JAR.siteUrl}/icon`,
+			// No WalletConnect connector is constructed when its project ID is absent.
+			projectId: projectId || "",
+		}
+	);
 }
 
 // Export the Wagmi config

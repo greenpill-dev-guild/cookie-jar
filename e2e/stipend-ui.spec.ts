@@ -92,3 +92,27 @@ for (const route of ["/jars", "/profile", "/create"]) {
 		});
 	}
 }
+
+test("creation checkboxes have 44 px touch targets", async ({ page }, info) => {
+	await page.setViewportSize({ width: 375, height: 900 });
+	await page.goto("/create", { waitUntil: "domcontentloaded" });
+	await expect(
+		page
+			.getByRole("banner")
+			.getByRole("button", { name: "Connect", exact: true })
+	).toBeVisible();
+	await page.locator("#jarName").fill("Touch target QA");
+	await page
+		.locator("#jarOwner")
+		.fill("0x1111111111111111111111111111111111111111");
+	await page.getByRole("button", { name: "Next", exact: true }).click();
+	for (const checkbox of await page.getByRole("checkbox").all()) {
+		const rect = await checkbox.boundingBox();
+		expect(rect?.width).toBeGreaterThanOrEqual(44);
+		expect(rect?.height).toBeGreaterThanOrEqual(44);
+	}
+	await page.screenshot({
+		path: info.outputPath("creation-touch-targets.png"),
+		fullPage: true,
+	});
+});
