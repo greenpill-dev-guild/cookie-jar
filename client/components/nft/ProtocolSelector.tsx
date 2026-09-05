@@ -155,7 +155,7 @@ const ConfigurationPanel: React.FC<{
 		case "Allowlist":
 			return (
 				<div data-testid="allowlist-config" className="py-2">
-					<p className="text-sm text-[#8b7355]">
+					<p className="text-sm text-muted-foreground">
 						No additional configuration needed. Access is determined by a
 						separate allowlist management system after jar creation.
 					</p>
@@ -326,7 +326,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 								className={cn(
 									"flex flex-col items-center gap-1 h-16 p-2 text-xs transition-all",
 									selectedMethod === method.id &&
-										"bg-[#ff5e14] border-[#ff5e14] text-white hover:bg-[#e5531b]"
+										"bg-primary border-primary text-primary-foreground hover:bg-primary/90"
 								)}
 							>
 								<span className="text-base">{method.icon}</span>
@@ -343,39 +343,26 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 					<Accordion type="single" collapsible defaultValue={selectedMethod}>
 						<AccordionItem value={selectedMethod}>
 							<Card className={cn("border-l-4", selectedMethodDef.borderColor)}>
-								<AccordionTrigger asChild>
-									<CardHeader className="pb-3 cursor-pointer hover:bg-gray-50 transition-colors">
-										<div className="flex items-center justify-between w-full">
-											<div className="flex items-center gap-3">
-												<div
-													className={cn(
-														"w-6 h-6 rounded flex items-center justify-center text-white text-sm",
-														selectedMethodDef.color
-													)}
-												>
-													{selectedMethodDef.icon}
-												</div>
-												<div className="text-left flex-1">
-													<h4 className="font-medium text-[#3c2a14] text-sm">
-														Configure {selectedMethodDef.name}
-													</h4>
-													<p className="text-xs text-[#8b7355]">
-														{selectedMethodDef.description}
-													</p>
-												</div>
-												<a
-													href={selectedMethodDef.learnMoreUrl}
-													target="_blank"
-													rel="noopener noreferrer"
-													className="text-xs text-[#ff5e14] hover:text-[#e5531b] underline"
-													onClick={(e) => e.stopPropagation()}
-												>
-													Learn More
-												</a>
-											</div>
-										</div>
-									</CardHeader>
-								</AccordionTrigger>
+								<CardHeader className="pb-3">
+									<AccordionTrigger className="min-h-11 rounded-md text-left focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring">
+										<span className="space-y-1">
+											<span className="block font-medium text-foreground text-sm">
+												Configure {selectedMethodDef.name}
+											</span>
+											<span className="block text-xs text-muted-foreground">
+												{selectedMethodDef.description}
+											</span>
+										</span>
+									</AccordionTrigger>
+									<a
+										href={selectedMethodDef.learnMoreUrl}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="inline-flex min-h-11 min-w-11 items-center text-sm text-primary underline rounded-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+									>
+										Learn More
+									</a>
+								</CardHeader>
 
 								<AccordionContent>
 									<CardContent className="pt-0 border-t">
@@ -402,10 +389,10 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 			{/* Header with optional view toggle */}
 			<div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
 				<div>
-					<h2 className="text-xl font-semibold text-[#3c2a14]">
+					<h2 className="text-xl font-semibold text-foreground">
 						Access Control Method
 					</h2>
-					<p className="text-sm text-[#8b7355] mt-1">
+					<p className="text-sm text-muted-foreground mt-1">
 						Choose how users will prove eligibility to access this jar
 					</p>
 				</div>
@@ -447,7 +434,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 						className={cn(
 							"cursor-pointer transition-all duration-200 hover:shadow-lg",
 							selectedMethod === method.id
-								? "ring-2 ring-[#ff5e14] bg-orange-50"
+								? "ring-2 ring-primary bg-muted"
 								: "hover:shadow-md"
 						)}
 						onClick={() => handleMethodSelect(method.id)}
@@ -465,29 +452,29 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 								</div>
 								<div className="flex items-center gap-2">
 									{recommendedMethod === method.id && (
-										<Badge className="bg-[#ff5e14] text-white text-xs">
+										<Badge className="bg-primary text-primary-foreground text-xs">
 											Recommended
 										</Badge>
 									)}
 									{method.badge}
 								</div>
 							</div>
-							<CardTitle className="text-lg font-semibold mt-2 text-[#3c2a14]">
+							<CardTitle className="text-lg font-semibold mt-2 text-foreground">
 								{method.name}
 							</CardTitle>
 						</CardHeader>
 						<CardContent>
-							<p className="text-sm text-[#8b7355] mb-2">
+							<p className="text-sm text-muted-foreground mb-2">
 								{method.description}
 							</p>
 							<div className="flex justify-between items-center">
 								{selectedMethod === method.id ? (
-									<span className="text-xs text-[#ff5e14] font-medium flex items-center gap-1">
+									<span className="text-xs text-primary font-medium flex items-center gap-1">
 										<ChevronDown className="h-3 w-3" />
 										Configure below
 									</span>
 								) : (
-									<span className="text-xs text-[#8b7355]">
+									<span className="text-xs text-muted-foreground">
 										Click to select
 									</span>
 								)}
@@ -495,7 +482,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 									href={method.learnMoreUrl}
 									target="_blank"
 									rel="noopener noreferrer"
-									className="text-xs text-[#ff5e14] hover:text-[#e5531b] underline"
+									className="text-xs text-primary hover:text-primary/80 underline"
 									onClick={(e) => e.stopPropagation()}
 								>
 									Learn More
@@ -526,10 +513,10 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 								{selectedMethodDef.icon}
 							</div>
 							<div>
-								<CardTitle className="text-lg text-[#3c2a14]">
+								<CardTitle className="text-lg text-foreground">
 									Configure {selectedMethodDef.name}
 								</CardTitle>
-								<p className="text-sm text-[#8b7355]">
+								<p className="text-sm text-muted-foreground">
 									{selectedMethodDef.description}
 								</p>
 							</div>
