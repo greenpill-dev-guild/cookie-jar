@@ -36,9 +36,7 @@ it("refreshes jar data before retrying a failed child render", async () => {
 	expect(
 		screen.getByRole("heading", { name: "Green Goods Stipend Jar Error" })
 	).toBeVisible();
-	fireEvent.click(
-		screen.getByRole("button", { name: "Try Again", exact: true })
-	);
+	fireEvent.click(screen.getByRole("button", { name: "Try Again" }));
 	expect(refetch).toHaveBeenCalledTimes(1);
 	await act(async () => {
 		vi.advanceTimersByTime(1000);
@@ -54,8 +52,6 @@ it("the route error page exposes the failure and invokes reset", () => {
 		screen.getByRole("heading", { level: 1, name: "Something went wrong" })
 	).toBeVisible();
 	expect(screen.getByText("Controlled route failure")).toBeVisible();
-	fireEvent.click(
-		screen.getByRole("button", { name: "Try again", exact: true })
-	);
+	fireEvent.click(screen.getByRole("button", { name: "Try again" }));
 	expect(reset).toHaveBeenCalledTimes(1);
 });
