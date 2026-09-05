@@ -20,7 +20,7 @@ test.describe("🔧 E2E Setup Verification", () => {
 		console.log("🌐 Testing browser automation...");
 
 		await page.goto(
-			'data:text/html,<h1>Test Page</h1><button id="test-btn">Click Me</button>',
+			'data:text/html,<h1>Test Page</h1><button id="test-btn">Click Me</button>'
 		);
 
 		// Test element interaction

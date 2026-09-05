@@ -1,38 +1,50 @@
 "use client";
 
-import { useParams } from "next/navigation";
 import { useMemo } from "react";
 import { AllowlistWithdrawalSection } from "@/components/jar/AllowlistWithdrawalSection";
 import { CountdownTimer } from "@/components/jar/CountdownTimer";
 import { NFTGatedWithdrawalSection } from "@/components/jar/NFTGatedWithdrawalSection";
-import { useCookieJarConfig } from "@/hooks/jar/useJar";
-import { useJarPermissions } from "@/hooks/jar/useJarPermissions";
-import { useJarTransactions } from "@/hooks/jar/useJarTransactions";
+import { isV2Chain } from "@/config/supported-networks";
+import type { CookieJarConfig } from "@/hooks/jar/useJar";
+import type { JarPermissions } from "@/hooks/jar/useJarPermissions";
+import type { JarTransactions } from "./JarActionsTabs";
 
-export function JarWithdrawSection() {
-	const params = useParams();
-	const address = params.address as string;
-	const addressString = address as `0x${string}`;
+interface JarWithdrawSectionProps {
+	config: CookieJarConfig;
+	permissions: JarPermissions;
+	transactions: JarTransactions;
+	refetch: () => void;
+}
 
-	const { config, refetch } = useCookieJarConfig(addressString);
-	const permissions = useJarPermissions(addressString, config);
-	const transactions = useJarTransactions(config, addressString);
+function notEligibleCopy(permissions: JarPermissions): string {
+	if (permissions.eligibility === "disconnected") {
+		return "Connect your wallet to see whether you can claim.";
+	}
+	if (permissions.isHatGated) {
+		return "You don't wear the Team hat. Membership is managed in Hats Protocol; ask the steward if you should be on the roster.";
+	}
+	if (permissions.isNftGated) {
+		return "You don't hold the token this jar is gated on.";
+	}
+	return "You're not on this jar's allowlist.";
+}
 
-	// Check if user is in cooldown period
+export function JarWithdrawSection({
+	config,
+	permissions,
+	transactions,
+	refetch,
+}: JarWithdrawSectionProps) {
 	const isInCooldown = useMemo(() => {
-		if (!config?.lastWithdrawalAllowlist || !config?.withdrawalInterval)
-			return false;
-
+		if (!config.lastWithdrawalTime || !config.withdrawalInterval) return false;
 		const now = Math.floor(Date.now() / 1000);
-		const nextWithdrawalTime =
-			Number(config.lastWithdrawalAllowlist) +
-			Number(config.withdrawalInterval);
-		return nextWithdrawalTime > now;
-	}, [config?.lastWithdrawalAllowlist, config?.withdrawalInterval]);
+		return (
+			Number(config.lastWithdrawalTime) + Number(config.withdrawalInterval) >
+			now
+		);
+	}, [config.lastWithdrawalTime, config.withdrawalInterval]);
 
-	if (!config) return null;
-
-	const { showUserFunctions, showNFTGatedFunctions } = permissions;
+	const isV2 = isV2Chain(config.chainId);
 	const {
 		withdrawPurpose,
 		setWithdrawPurpose,
@@ -46,41 +58,28 @@ export function JarWithdrawSection() {
 		handleWithdrawAllowlistVariable,
 		handleWithdrawNFT,
 		handleWithdrawNFTVariable,
-		isApprovalPending: _isApprovalPending,
 		isWithdrawPending,
 	} = transactions;
 
+	const claimConfig = { ...config, isWithdrawPending };
+
 	return (
 		<div className="relative">
-			{/* Overlay for denylist */}
-			{config.denylist ? (
-				<div className="absolute inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-10 rounded-b-lg">
-					<div className="bg-red-500 text-white font-medium px-6 py-2 rounded-full text-lg">
-						You are Denylisted
-					</div>
-				</div>
-			) : isInCooldown ? (
-				<div className="absolute inset-0 bg-black/30 backdrop-blur-sm flex items-center justify-center z-10 rounded-b-lg">
-					<div className="w-full max-w-xl mx-auto bg-[#f8f5f0]/90 rounded-xl shadow-lg">
+			{isInCooldown && (
+				<div className="absolute inset-0 bg-background/70 backdrop-blur-sm flex items-center justify-center z-10 rounded-b-lg">
+					<div className="w-full max-w-xl mx-auto bg-card/95 rounded-xl shadow-lg">
 						<CountdownTimer
-							lastWithdrawalTimestamp={Number(config.lastWithdrawalAllowlist)}
+							lastWithdrawalTimestamp={Number(config.lastWithdrawalTime)}
 							interval={Number(config.withdrawalInterval)}
-							onComplete={() => {
-								// Refetch jar data when timer completes to update withdrawal availability
-								refetch();
-							}}
+							onComplete={refetch}
 						/>
 					</div>
 				</div>
-			) : null}
+			)}
 
-			{/* Withdrawal content */}
-			{showUserFunctions ? (
+			{permissions.isEligible ? (
 				<AllowlistWithdrawalSection
-					config={{
-						...config,
-						isWithdrawPending: isWithdrawPending,
-					}}
+					config={claimConfig}
 					withdrawPurpose={withdrawPurpose}
 					setWithdrawPurpose={setWithdrawPurpose}
 					withdrawAmount={withdrawAmount}
@@ -88,12 +87,9 @@ export function JarWithdrawSection() {
 					handleWithdrawAllowlist={handleWithdrawAllowlist}
 					handleWithdrawAllowlistVariable={handleWithdrawAllowlistVariable}
 				/>
-			) : showNFTGatedFunctions ? (
+			) : !isV2 && permissions.isNftGated ? (
 				<NFTGatedWithdrawalSection
-					config={{
-						...config,
-						isWithdrawPending: isWithdrawPending,
-					}}
+					config={claimConfig}
 					withdrawAmount={withdrawAmount}
 					setWithdrawAmount={setWithdrawAmount}
 					gateAddress={gateAddress}
@@ -104,10 +100,15 @@ export function JarWithdrawSection() {
 					handleWithdrawNFTVariable={handleWithdrawNFTVariable}
 				/>
 			) : (
-				<div className="flex flex-col items-center justify-center py-16">
-					<div className="bg-red-500 text-white font-medium px-6 py-2 rounded-full text-lg">
-						Not Allowlisted
+				<div className="flex flex-col items-center justify-center py-16 text-center gap-3">
+					<div className="bg-destructive/10 text-destructive border border-destructive/40 font-medium px-5 py-2 rounded-full">
+						{permissions.eligibility === "disconnected"
+							? "Wallet not connected"
+							: "Not eligible to claim"}
 					</div>
+					<p className="text-sm text-muted-foreground max-w-md">
+						{notEligibleCopy(permissions)}
+					</p>
 				</div>
 			)}
 		</div>

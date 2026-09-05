@@ -71,7 +71,7 @@ export class HatsProvider {
 	 */
 	static async getHatById(
 		hatId: string,
-		_contractAddress?: string,
+		_contractAddress?: string
 	): Promise<HatDetails | null> {
 		try {
 			const provider = new HatsProvider();
@@ -148,7 +148,7 @@ export class HatsProvider {
 
 	private async executeGraphQLQuery(
 		query: string,
-		variables: any = {},
+		variables: any = {}
 	): Promise<any> {
 		try {
 			const endpoint = this.getSubgraphEndpoint(this.chainId);
@@ -186,7 +186,7 @@ export class HatsProvider {
 			skip?: number;
 			activeOnly?: boolean;
 			includeSubHats?: boolean;
-		} = {},
+		} = {}
 	): Promise<HatsSearchResult> {
 		try {
 			const { limit = 20, skip = 0, activeOnly = true } = options;
@@ -297,7 +297,7 @@ export class HatsProvider {
 			limit?: number;
 			skip?: number;
 			activeOnly?: boolean;
-		} = {},
+		} = {}
 	): Promise<HatsSearchResult> {
 		try {
 			const { limit = 20, activeOnly = true } = options;
@@ -408,7 +408,7 @@ export class HatsProvider {
 	async userWearsHat(
 		address: string,
 		hatId: string,
-		chainId: number = 1,
+		chainId: number = 1
 	): Promise<boolean> {
 		try {
 			const userHats = await this.getUserHats(address, chainId);
@@ -424,7 +424,7 @@ export class HatsProvider {
 	 */
 	async getHat(
 		hatId: string,
-		_chainId: number = 1,
+		_chainId: number = 1
 	): Promise<HatDetails | null> {
 		try {
 			const graphqlQuery = `
@@ -493,7 +493,7 @@ export class HatsProvider {
 	 */
 	async getTrendingHats(
 		_chainId: number = 1,
-		limit: number = 10,
+		limit: number = 10
 	): Promise<HatDetails[]> {
 		try {
 			const graphqlQuery = `

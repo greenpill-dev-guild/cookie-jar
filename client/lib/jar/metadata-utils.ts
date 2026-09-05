@@ -40,7 +40,7 @@ export interface ParsedJarMetadata {
  * ```
  */
 export function parseJarMetadata(
-	rawMetadata: string | undefined,
+	rawMetadata: string | undefined
 ): ParsedJarMetadata {
 	const defaultMetadata: ParsedJarMetadata = {
 		name: "Cookie Jar",
@@ -125,7 +125,7 @@ export function getJarDescription(rawMetadata: string | undefined): string {
  * @returns JSON string ready for contract storage
  */
 export function createMetadataJson(
-	metadata: Omit<ParsedJarMetadata, "isV2Format">,
+	metadata: Omit<ParsedJarMetadata, "isV2Format">
 ): string {
 	return JSON.stringify({
 		name: metadata.name,

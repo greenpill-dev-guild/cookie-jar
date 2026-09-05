@@ -63,7 +63,7 @@ export function JarContentLazy({ userAddress: _userAddress }: JarContentProps) {
 		(jarAddress: string) => {
 			router.push(`/jar/${jarAddress}`);
 		},
-		[router],
+		[router]
 	);
 
 	// Enhanced refresh function with loading state
@@ -86,7 +86,7 @@ export function JarContentLazy({ userAddress: _userAddress }: JarContentProps) {
 		return cookieJarsData.filter(
 			(jar) =>
 				jar.metadata?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				jar.jarAddress.toLowerCase().includes(searchTerm.toLowerCase()),
+				jar.jarAddress.toLowerCase().includes(searchTerm.toLowerCase())
 		);
 	}, [cookieJarsData, searchTerm]);
 

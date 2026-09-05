@@ -15,7 +15,7 @@ test.describe("🎨 NFT Gating Integration (v2 Contracts)", () => {
 
 		// Look for jars that mention NFT gating
 		const nftGatedJars = page.locator(
-			"text=NFT-Gated, text=Cookie Monster, text=NFT",
+			"text=NFT-Gated, text=Cookie Monster, text=NFT"
 		);
 		const nftJarCount = await nftGatedJars.count();
 
@@ -27,7 +27,7 @@ test.describe("🎨 NFT Gating Integration (v2 Contracts)", () => {
 			console.log("✅ NFT-gated jar indicators found");
 		} else {
 			console.log(
-				"📝 No explicit NFT-gated indicators found (checking jar details)",
+				"📝 No explicit NFT-gated indicators found (checking jar details)"
 			);
 		}
 	});
@@ -42,7 +42,7 @@ test.describe("🎨 NFT Gating Integration (v2 Contracts)", () => {
 
 		// Click on each jar to find NFT-gated ones
 		const jarCards = page.locator(
-			'.cj-card-primary, [class*="card"]:has([title*="0x"])',
+			'.cj-card-primary, [class*="card"]:has([title*="0x"])'
 		);
 		const jarCount = await jarCards.count();
 
@@ -55,7 +55,7 @@ test.describe("🎨 NFT Gating Integration (v2 Contracts)", () => {
 
 			// Check if this jar shows NFT-related content
 			const nftContent = page.locator(
-				"text=NFT-Gated, text=Cookie Monster, text=NFT Collection",
+				"text=NFT-Gated, text=Cookie Monster, text=NFT Collection"
 			);
 			const hasNFTContent = (await nftContent.count()) > 0;
 
@@ -97,13 +97,13 @@ test.describe("🎨 NFT Gating Integration (v2 Contracts)", () => {
 		// Wait for form to load
 		await page.waitForSelector(
 			'[data-testid="jar-name-input"], input[placeholder*="Community"]',
-			{ timeout: 15000 },
+			{ timeout: 15000 }
 		);
 
 		// Fill basic info to get to access control step
 		await page.fill(
 			'[data-testid="jar-name-input"], input[placeholder*="Community"]',
-			"NFT Test Jar",
+			"NFT Test Jar"
 		);
 
 		// Try to navigate to next step
@@ -118,10 +118,10 @@ test.describe("🎨 NFT Gating Integration (v2 Contracts)", () => {
 
 			// Fill withdrawal settings to get to access control (if on v2)
 			const amountInput = page.locator(
-				'input[placeholder*="amount"], input[type="number"]',
+				'input[placeholder*="amount"], input[type="number"]'
 			);
 			const intervalInput = page.locator(
-				'input[placeholder*="days"], input[placeholder*="interval"]',
+				'input[placeholder*="days"], input[placeholder*="interval"]'
 			);
 
 			if ((await amountInput.count()) > 0) {
@@ -141,7 +141,7 @@ test.describe("🎨 NFT Gating Integration (v2 Contracts)", () => {
 
 				// Check if we're on access control step (v2 feature)
 				const accessControlSection = page.locator(
-					"text=Access Control, text=NFT Collection, text=Allowlist",
+					"text=Access Control, text=NFT Collection, text=Allowlist"
 				);
 				const hasAccessControl = (await accessControlSection.count()) > 0;
 
@@ -150,7 +150,7 @@ test.describe("🎨 NFT Gating Integration (v2 Contracts)", () => {
 
 					// Look for NFT input fields
 					const nftInputs = page.locator(
-						'input[placeholder*="0x"], input:below(:text("NFT"))',
+						'input[placeholder*="0x"], input:below(:text("NFT"))'
 					);
 					if ((await nftInputs.count()) > 0) {
 						console.log("🎨 NFT input fields found");
@@ -161,7 +161,7 @@ test.describe("🎨 NFT Gating Integration (v2 Contracts)", () => {
 
 						// Should show validation error
 						const errorIndicators = page.locator(
-							'text=Invalid, text=Error, .error, [class*="error"]',
+							'text=Invalid, text=Error, .error, [class*="error"]'
 						);
 						if ((await errorIndicators.count()) > 0) {
 							console.log("✅ NFT address validation working");
@@ -186,7 +186,7 @@ test.describe("🎨 NFT Gating Integration (v2 Contracts)", () => {
 
 		// Look for Cookie Monster themed content
 		const cookieContent = page.locator(
-			'text=Cookie Monster, text=Cookie, [alt*="Cookie"]',
+			'text=Cookie Monster, text=Cookie, [alt*="Cookie"]'
 		);
 		const cookieCount = await cookieContent.count();
 
@@ -195,7 +195,7 @@ test.describe("🎨 NFT Gating Integration (v2 Contracts)", () => {
 		if (cookieCount > 0) {
 			// Click on jar with Cookie Monster content
 			const jarCards = page.locator(
-				'.cj-card-primary, [class*="card"]:has([title*="0x"])',
+				'.cj-card-primary, [class*="card"]:has([title*="0x"])'
 			);
 			const jarCount = await jarCards.count();
 
@@ -205,14 +205,14 @@ test.describe("🎨 NFT Gating Integration (v2 Contracts)", () => {
 
 				// Check if this jar mentions Cookie Monster or NFT
 				const cookieJarContent = page.locator(
-					"text=Cookie Monster, text=NFT-Gated, text=NFT",
+					"text=Cookie Monster, text=NFT-Gated, text=NFT"
 				);
 				if ((await cookieJarContent.count()) > 0) {
 					console.log(`✅ Found Cookie Monster jar ${i + 1}`);
 
 					// Verify NFT-related UI elements
 					const nftElements = page.locator(
-						"text=NFT, text=Token ID, text=Contract",
+						"text=NFT, text=Token ID, text=Contract"
 					);
 					if ((await nftElements.count()) > 0) {
 						console.log("🎨 NFT UI elements present");
@@ -262,7 +262,7 @@ test.describe("🎨 NFT Gating Integration (v2 Contracts)", () => {
 					"text=Access Denied",
 					"text=Cooldown",
 					"text=Purpose Required",
-				].join(", "),
+				].join(", ")
 			);
 
 			const hasRequirements = (await requirements.count()) > 0;
@@ -272,7 +272,7 @@ test.describe("🎨 NFT Gating Integration (v2 Contracts)", () => {
 				await expect(requirements.first()).toBeVisible();
 			} else {
 				console.log(
-					"📝 No explicit withdrawal requirements shown (user may be authorized)",
+					"📝 No explicit withdrawal requirements shown (user may be authorized)"
 				);
 			}
 		}

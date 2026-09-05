@@ -17,23 +17,23 @@ test.describe("📱 Mobile Experience E2E", () => {
 
 			// Mobile navigation menu should be accessible
 			const mobileMenuButton = page.locator(
-				'button[aria-label*="menu"], button:has([data-icon="menu"])',
+				'button[aria-label*="menu"], button:has([data-icon="menu"])'
 			);
 			if (await mobileMenuButton.isVisible()) {
 				await mobileMenuButton.click();
 
 				// Should show navigation options
 				await expect(
-					page.locator('a[href="/create"], text=Create Jar'),
+					page.locator('a[href="/create"], text=Create Jar')
 				).toBeVisible();
 				await expect(
-					page.locator('a[href="/browse"], text=Browse Jars'),
+					page.locator('a[href="/browse"], text=Browse Jars')
 				).toBeVisible();
 			}
 
 			// Create button should be prominent on mobile
 			const createButton = page.locator(
-				'a[href="/create"], button:has-text("Create")',
+				'a[href="/create"], button:has-text("Create")'
 			);
 			await expect(createButton.first()).toBeVisible();
 
@@ -70,7 +70,7 @@ test.describe("📱 Mobile Experience E2E", () => {
 
 			// Connected state should show properly on mobile
 			await expect(
-				page.locator("text=/0x[a-fA-F0-9]{4}/", 'button[title*="0x"]'),
+				page.locator("text=/0x[a-fA-F0-9]{4}/", 'button[title*="0x"]')
 			).toBeVisible({ timeout: 10000 });
 		});
 	});
@@ -84,7 +84,7 @@ test.describe("📱 Mobile Experience E2E", () => {
 
 			// Form should be mobile-optimized
 			const nameInput = page.locator(
-				'input[placeholder*="name"], input[name="name"]',
+				'input[placeholder*="name"], input[name="name"]'
 			);
 			await expect(nameInput).toBeVisible();
 
@@ -96,7 +96,7 @@ test.describe("📱 Mobile Experience E2E", () => {
 
 			// Description textarea should be mobile-friendly
 			const descInput = page.locator(
-				'textarea[placeholder*="description"], textarea[name="description"]',
+				'textarea[placeholder*="description"], textarea[name="description"]'
 			);
 			if (await descInput.isVisible()) {
 				await descInput.fill("A jar created and tested on mobile device");
@@ -116,7 +116,7 @@ test.describe("📱 Mobile Experience E2E", () => {
 
 			// Withdrawal settings should be mobile-friendly
 			const withdrawalOptions = page.locator(
-				'button:has-text("Fixed Amount"), button:has-text("Variable Amount")',
+				'button:has-text("Fixed Amount"), button:has-text("Variable Amount")'
 			);
 			await expect(withdrawalOptions.first()).toBeVisible();
 
@@ -124,7 +124,7 @@ test.describe("📱 Mobile Experience E2E", () => {
 
 			// Amount input should be optimized for mobile
 			const amountInput = page.locator(
-				'input[type="number"], input[placeholder*="amount"]',
+				'input[type="number"], input[placeholder*="amount"]'
 			);
 			if (await amountInput.isVisible()) {
 				await amountInput.fill("0.5");
@@ -138,7 +138,7 @@ test.describe("📱 Mobile Experience E2E", () => {
 
 			// Protocol selection should be mobile-optimized
 			await expect(
-				page.locator("text=Choose Access Method, text=Access Control"),
+				page.locator("text=Choose Access Method, text=Access Control")
 			).toBeVisible();
 		});
 
@@ -163,7 +163,7 @@ test.describe("📱 Mobile Experience E2E", () => {
 
 			// Protocol options should be in mobile grid (3 columns)
 			const protocolCards = page.locator(
-				'button:has-text("Allowlist"), button:has-text("NFT Collection"), button:has-text("POAP")',
+				'button:has-text("Allowlist"), button:has-text("NFT Collection"), button:has-text("POAP")'
 			);
 			await expect(protocolCards.first()).toBeVisible();
 
@@ -178,12 +178,12 @@ test.describe("📱 Mobile Experience E2E", () => {
 
 			// Should show mobile-optimized NFT configuration
 			const nftConfig = page.locator(
-				"text=NFT Configuration, text=Select NFT Collections",
+				"text=NFT Configuration, text=Select NFT Collections"
 			);
 			if (await nftConfig.first().isVisible({ timeout: 10000 })) {
 				// NFT search should be mobile-friendly
 				const searchInput = page.locator(
-					'input[placeholder*="search"], input[placeholder*="NFT"]',
+					'input[placeholder*="search"], input[placeholder*="NFT"]'
 				);
 				if (await searchInput.isVisible()) {
 					const searchBox = await searchInput.boundingBox();
@@ -207,7 +207,7 @@ test.describe("📱 Mobile Experience E2E", () => {
 
 			// Should show mobile-friendly error messages
 			const errorMessages = page.locator(
-				"text=required, text=field is required, .error-message",
+				"text=required, text=field is required, .error-message"
 			);
 			if (await errorMessages.first().isVisible({ timeout: 5000 })) {
 				// Error messages should be clearly visible on mobile
@@ -223,7 +223,7 @@ test.describe("📱 Mobile Experience E2E", () => {
 
 			// Should show validation feedback
 			const validationFeedback = page.locator(
-				"text=too short, text=minimum, .validation-error",
+				"text=too short, text=minimum, .validation-error"
 			);
 			if (await validationFeedback.first().isVisible({ timeout: 5000 })) {
 				console.log("✅ Mobile validation feedback is working");
@@ -248,12 +248,12 @@ test.describe("📱 Mobile Experience E2E", () => {
 
 			// Wait for content to load
 			await expect(
-				page.locator("text=Available Balance, text=Cookie Jar"),
+				page.locator("text=Available Balance, text=Cookie Jar")
 			).toBeVisible({ timeout: 15000 });
 
 			// Jar details cards should stack on mobile
 			const detailsCards = page.locator(
-				'[data-testid="jar-details"], .jar-detail-card',
+				'[data-testid="jar-details"], .jar-detail-card'
 			);
 			if (await detailsCards.first().isVisible()) {
 				const cardCount = await detailsCards.count();
@@ -300,7 +300,7 @@ test.describe("📱 Mobile Experience E2E", () => {
 
 				// Amount input should be mobile-optimized
 				const amountInput = page.locator(
-					'input[type="number"], input[placeholder*="amount"]',
+					'input[type="number"], input[placeholder*="amount"]'
 				);
 				if (await amountInput.isVisible()) {
 					await amountInput.fill("1.5");
@@ -315,7 +315,7 @@ test.describe("📱 Mobile Experience E2E", () => {
 
 				// Purpose field should be mobile-friendly
 				const purposeInput = page.locator(
-					'input[placeholder*="purpose"], textarea[placeholder*="purpose"]',
+					'input[placeholder*="purpose"], textarea[placeholder*="purpose"]'
 				);
 				if (await purposeInput.isVisible()) {
 					await purposeInput.fill("Mobile withdrawal test");
@@ -326,7 +326,7 @@ test.describe("📱 Mobile Experience E2E", () => {
 
 				// Withdraw button should be prominent
 				const withdrawButton = page.locator(
-					'button:has-text("Withdraw"), button:has-text("Get Cookie")',
+					'button:has-text("Withdraw"), button:has-text("Get Cookie")'
 				);
 				if (await withdrawButton.isVisible()) {
 					const buttonBox = await withdrawButton.boundingBox();
@@ -357,7 +357,7 @@ test.describe("📱 Mobile Experience E2E", () => {
 
 				// Streaming interface should be mobile-optimized
 				await expect(
-					page.locator("text=Token Recovery, text=Stream Management"),
+					page.locator("text=Token Recovery, text=Stream Management")
 				).toBeVisible();
 
 				// Streaming tabs should work on mobile
@@ -370,7 +370,7 @@ test.describe("📱 Mobile Experience E2E", () => {
 
 					// Process buttons should be touch-friendly
 					const processButtons = page.locator(
-						'button:has-text("Process"), button:has-text("Swap")',
+						'button:has-text("Process"), button:has-text("Swap")'
 					);
 					if (await processButtons.first().isVisible()) {
 						const buttonBox = await processButtons.first().boundingBox();
@@ -397,7 +397,7 @@ test.describe("📱 Mobile Experience E2E", () => {
 
 			// All interactive elements should meet minimum touch target size (44px)
 			const interactiveElements = page.locator(
-				'button, a, input[type="checkbox"], input[type="radio"]',
+				'button, a, input[type="checkbox"], input[type="radio"]'
 			);
 			const elementCount = await interactiveElements.count();
 
@@ -435,12 +435,12 @@ test.describe("📱 Mobile Experience E2E", () => {
 					// Simulate swipe gesture (touchstart -> touchmove -> touchend)
 					await page.mouse.move(
 						containerBox.x + containerBox.width - 50,
-						containerBox.y + containerBox.height / 2,
+						containerBox.y + containerBox.height / 2
 					);
 					await page.mouse.down();
 					await page.mouse.move(
 						containerBox.x + 50,
-						containerBox.y + containerBox.height / 2,
+						containerBox.y + containerBox.height / 2
 					);
 					await page.mouse.up();
 
@@ -574,7 +574,7 @@ test.describe("📱 Mobile Experience E2E", () => {
 			const activeElement = await page.locator(":focus").first();
 			if (await activeElement.isVisible()) {
 				const tagName = await activeElement.evaluate((el) =>
-					el.tagName.toLowerCase(),
+					el.tagName.toLowerCase()
 				);
 				if (tagName === "button") {
 					// Should be able to activate button with Enter

@@ -18,7 +18,7 @@ test.describe("🍪 Complete Cookie Jar Workflow E2E", () => {
 		await page.fill(SELECTORS.forms.jarName, "Complete Lifecycle Test Jar");
 		await page.fill(
 			SELECTORS.forms.jarDescription,
-			"End-to-end test for complete jar lifecycle",
+			"End-to-end test for complete jar lifecycle"
 		);
 
 		// Select ETH currency
@@ -60,7 +60,7 @@ test.describe("🍪 Complete Cookie Jar Workflow E2E", () => {
 		// Add Cookie Monster to allowlist
 		const allowlistSection = page.locator("text=Allowlist").locator("..");
 		const addInput = allowlistSection.locator(
-			'input[placeholder*="0x"], input:below(:text("Add"))',
+			'input[placeholder*="0x"], input:below(:text("Add"))'
 		);
 
 		await addInput.fill(ANVIL_ACCOUNTS[1].address); // Cookie Monster
@@ -136,7 +136,7 @@ test.describe("🍪 Complete Cookie Jar Workflow E2E", () => {
 			.isVisible();
 		if (hasHistory) {
 			await expect(
-				page.locator("text=End-to-end test withdrawal"),
+				page.locator("text=End-to-end test withdrawal")
 			).toBeVisible();
 			console.log("✅ Withdrawal recorded in history");
 		}
@@ -149,7 +149,7 @@ test.describe("🍪 Complete Cookie Jar Workflow E2E", () => {
 
 		// 6️⃣ TEST ACCESS CONTROL
 		console.log(
-			"🔒 Step 6: Testing access control with non-allowlisted user...",
+			"🔒 Step 6: Testing access control with non-allowlisted user..."
 		);
 		await wallet.switchAccount(3); // Switch to Test User (not allowlisted)
 
@@ -158,7 +158,7 @@ test.describe("🍪 Complete Cookie Jar Workflow E2E", () => {
 
 		// Should see access denied
 		await expect(
-			page.locator("text=Not Allowlisted, text=access denied"),
+			page.locator("text=Not Allowlisted, text=access denied")
 		).toBeVisible();
 		console.log("✅ Access control properly enforced");
 
@@ -176,7 +176,7 @@ test.describe("🍪 Complete Cookie Jar Workflow E2E", () => {
 		const hasNFTOption = await page.isVisible(SELECTORS.access.nftGated);
 		test.skip(
 			!hasNFTOption,
-			"NFT gating not available - requires v2 contracts",
+			"NFT gating not available - requires v2 contracts"
 		);
 
 		// Create NFT-gated jar
@@ -194,7 +194,7 @@ test.describe("🍪 Complete Cookie Jar Workflow E2E", () => {
 		await page.click(SELECTORS.access.nftGated);
 		await page.fill(
 			SELECTORS.nft.addressInput,
-			"0x5FbDB2315678afecb367f032d93F642f64180aa3",
+			"0x5FbDB2315678afecb367f032d93F642f64180aa3"
 		);
 
 		const typeSelect = page.locator(SELECTORS.nft.typeSelect).first();
@@ -229,7 +229,7 @@ test.describe("🍪 Complete Cookie Jar Workflow E2E", () => {
 		await page.click(SELECTORS.tabs.withdraw);
 		await page.fill(
 			SELECTORS.nft.addressInput,
-			"0x5FbDB2315678afecb367f032d93F642f64180aa3",
+			"0x5FbDB2315678afecb367f032d93F642f64180aa3"
 		);
 		await page.fill(SELECTORS.nft.tokenIdInput, "0");
 		await page.fill(SELECTORS.forms.amount, "0.1");

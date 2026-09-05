@@ -25,11 +25,11 @@ import {
 } from "./createV2CreateArgs";
 import {
 	AccessType,
-	NFTType,
-	WithdrawalTypeOptions,
-	jarCreationSchema,
 	type JarCreationFormData,
+	jarCreationSchema,
+	NFTType,
 	type ProtocolConfig,
+	WithdrawalTypeOptions,
 } from "./schemas/jarCreationSchema";
 
 // Re-export for backward compatibility (used by StepContent, page, etc.)
@@ -198,7 +198,7 @@ export const useJarCreation = () => {
 		if (accessType === AccessType.NFTGated) {
 			if (nftAddresses.length === 0) {
 				errors.push(
-					"At least one NFT address is required for NFT-gated access",
+					"At least one NFT address is required for NFT-gated access"
 				);
 			}
 
@@ -289,28 +289,28 @@ export const useJarCreation = () => {
 		try {
 			if (!factoryAddress) {
 				throw new Error(
-					`No contract address found for the current network (Chain ID: ${chainId}). Please switch to a supported network.`,
+					`No contract address found for the current network (Chain ID: ${chainId}). Please switch to a supported network.`
 				);
 			}
 
-				if (isV2Contract) {
-					const args = buildV2CreateCookieJarArgs({
-						values: {
-							...values,
-							nftAddresses: effectiveNftAddresses,
-							nftTypes: effectiveNftTypes,
-						},
-						metadata: finalMetadata,
-						parseAmount,
-					});
+			if (isV2Contract) {
+				const args = buildV2CreateCookieJarArgs({
+					values: {
+						...values,
+						nftAddresses: effectiveNftAddresses,
+						nftTypes: effectiveNftTypes,
+					},
+					metadata: finalMetadata,
+					parseAmount,
+				});
 
-					writeContract({
-						address: factoryAddress,
-						abi: cookieJarFactoryAbi,
-						functionName: "createCookieJar",
-						args,
-					});
-				} else {
+				writeContract({
+					address: factoryAddress,
+					abi: cookieJarFactoryAbi,
+					functionName: "createCookieJar",
+					args,
+				});
+			} else {
 				writeContract({
 					address: factoryAddress,
 					abi: cookieJarFactoryV1Abi,
@@ -340,9 +340,7 @@ export const useJarCreation = () => {
 			toast({
 				title: "Transaction Failed",
 				description:
-					error instanceof Error
-						? error.message
-						: "An unknown error occurred",
+					error instanceof Error ? error.message : "An unknown error occurred",
 				variant: "destructive",
 			});
 		}
@@ -394,34 +392,32 @@ export const useJarCreation = () => {
 				let jarAddress: string | null = null;
 
 				if (receipt.logs && receipt.logs.length > 0) {
-						for (const log of receipt.logs) {
-							try {
-								const eventName = isV2Contract
-									? ("JarCreated" as const)
-									: ("CookieJarCreated" as const);
-								const decodedLog = decodeEventLog({
-									abi: isV2Contract
-										? cookieJarFactoryAbi
-										: cookieJarFactoryV1Abi,
-									data: log.data,
-									topics: log.topics,
-									eventName,
-								});
+					for (const log of receipt.logs) {
+						try {
+							const eventName = isV2Contract
+								? ("JarCreated" as const)
+								: ("CookieJarCreated" as const);
+							const decodedLog = decodeEventLog({
+								abi: isV2Contract ? cookieJarFactoryAbi : cookieJarFactoryV1Abi,
+								data: log.data,
+								topics: log.topics,
+								eventName,
+							});
 
-								if (decodedLog.eventName === "JarCreated") {
-									jarAddress = (decodedLog.args as any)?.jarAddress;
-									break;
-								}
-
-								if (decodedLog.eventName === "CookieJarCreated") {
-									jarAddress = (decodedLog.args as any)?.cookieJarAddress;
-									break;
-								}
-							} catch {
-								// Log is not the expected jar-created event, checking next
+							if (decodedLog.eventName === "JarCreated") {
+								jarAddress = (decodedLog.args as any)?.jarAddress;
+								break;
 							}
+
+							if (decodedLog.eventName === "CookieJarCreated") {
+								jarAddress = (decodedLog.args as any)?.cookieJarAddress;
+								break;
+							}
+						} catch {
+							// Log is not the expected jar-created event, checking next
 						}
 					}
+				}
 
 				if (jarAddress && isAddress(jarAddress)) {
 					setNewJarPreview({

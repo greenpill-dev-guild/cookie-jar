@@ -48,7 +48,7 @@ export function useNFTSearch(
 		userCollectionOnly?: boolean;
 		contractAddresses?: string[];
 		filters?: Partial<NFTSearchFilters>;
-	} = {},
+	} = {}
 ): NFTSearchResult {
 	const { address: _address } = useAccount();
 	const _chainId = useChainId();
@@ -88,7 +88,7 @@ export function useNFTSearch(
 		// Apply search filter
 		if (debouncedQuery) {
 			searchableNfts = searchableNfts.filter(
-				(nft) => nft.matchScore && nft.matchScore > 0,
+				(nft) => nft.matchScore && nft.matchScore > 0
 			);
 		}
 
@@ -96,15 +96,15 @@ export function useNFTSearch(
 		if (mergedFilters.tokenTypes && mergedFilters.tokenTypes.length > 0) {
 			searchableNfts = searchableNfts.filter((nft) =>
 				mergedFilters.tokenTypes?.includes(
-					nft.contract.tokenType as "ERC721" | "ERC1155",
-				),
+					nft.contract.tokenType as "ERC721" | "ERC1155"
+				)
 			);
 		}
 
 		// Filter by contract addresses if specified
 		if (contractAddresses && contractAddresses.length > 0) {
 			searchableNfts = searchableNfts.filter((nft) =>
-				contractAddresses.includes(nft.contract.address),
+				contractAddresses.includes(nft.contract.address)
 			);
 		}
 

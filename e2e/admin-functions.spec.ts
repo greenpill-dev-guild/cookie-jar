@@ -33,7 +33,7 @@ test.describe("🔧 Admin Functions E2E", () => {
 		// Add user to allowlist
 		console.log("➕ Adding user to allowlist...");
 		const addInput = allowlistSection.locator(
-			'input[placeholder*="0x"], input:below(:text("Add"))',
+			'input[placeholder*="0x"], input:below(:text("Add"))'
 		);
 		await addInput.fill(testUserAddress);
 
@@ -45,7 +45,7 @@ test.describe("🔧 Admin Functions E2E", () => {
 
 		// Verify user appears in allowlist
 		await expect(
-			page.locator(`text=${testUserAddress.slice(0, 8)}`),
+			page.locator(`text=${testUserAddress.slice(0, 8)}`)
 		).toBeVisible();
 		console.log("✅ User added to allowlist");
 
@@ -55,7 +55,7 @@ test.describe("🔧 Admin Functions E2E", () => {
 			.locator(SELECTORS.buttons.remove)
 			.filter({ hasText: "Remove" })
 			.locator(
-				`xpath=.//ancestor::*[contains(text(), '${testUserAddress.slice(0, 8)}')]//button`,
+				`xpath=.//ancestor::*[contains(text(), '${testUserAddress.slice(0, 8)}')]//button`
 			);
 
 		await removeButton.click();
@@ -71,7 +71,7 @@ test.describe("🔧 Admin Functions E2E", () => {
 
 		// Verify user is removed
 		await expect(
-			page.locator(`text=${testUserAddress.slice(0, 8)}`),
+			page.locator(`text=${testUserAddress.slice(0, 8)}`)
 		).not.toBeVisible();
 		console.log("✅ User removed from allowlist");
 	});
@@ -81,11 +81,11 @@ test.describe("🔧 Admin Functions E2E", () => {
 
 		// Check if NFT gate management is available
 		const hasNFTSection = await page.isVisible(
-			"text=NFT Gate, text=NFT Collection",
+			"text=NFT Gate, text=NFT Collection"
 		);
 		test.skip(
 			!hasNFTSection,
-			"NFT gate management not available - requires v2 contracts and NFT-gated jar",
+			"NFT gate management not available - requires v2 contracts and NFT-gated jar"
 		);
 
 		// Add new NFT gate
@@ -109,7 +109,7 @@ test.describe("🔧 Admin Functions E2E", () => {
 
 		// Verify NFT gate was added
 		await expect(
-			page.locator(`text=${newNFTAddress.slice(0, 8)}`),
+			page.locator(`text=${newNFTAddress.slice(0, 8)}`)
 		).toBeVisible();
 		console.log("✅ NFT gate added successfully");
 
@@ -119,7 +119,7 @@ test.describe("🔧 Admin Functions E2E", () => {
 			.locator(SELECTORS.buttons.remove)
 			.filter({ hasText: "Remove" })
 			.locator(
-				`xpath=.//ancestor::*[contains(text(), '${newNFTAddress.slice(0, 8)}')]//button`,
+				`xpath=.//ancestor::*[contains(text(), '${newNFTAddress.slice(0, 8)}')]//button`
 			);
 
 		await removeButton.click();
@@ -135,7 +135,7 @@ test.describe("🔧 Admin Functions E2E", () => {
 
 		// Verify NFT gate was removed
 		await expect(
-			page.locator(`text=${newNFTAddress.slice(0, 8)}`),
+			page.locator(`text=${newNFTAddress.slice(0, 8)}`)
 		).not.toBeVisible();
 		console.log("✅ NFT gate removed successfully");
 	});
@@ -154,7 +154,7 @@ test.describe("🔧 Admin Functions E2E", () => {
 		// Update jar information
 		const nameInput = page.locator('input:below(:text("Name"))');
 		const descInput = page.locator(
-			'textarea:below(:text("Description")), input:below(:text("Description"))',
+			'textarea:below(:text("Description")), input:below(:text("Description"))'
 		);
 		const imageInput = page.locator('input:below(:text("Image"))');
 
@@ -178,7 +178,7 @@ test.describe("🔧 Admin Functions E2E", () => {
 
 		// Verify updates are reflected
 		await expect(page.locator('h1, [class*="title"]')).toContainText(
-			"Updated Jar Name E2E",
+			"Updated Jar Name E2E"
 		);
 
 		console.log("✅ Metadata update test passed!");

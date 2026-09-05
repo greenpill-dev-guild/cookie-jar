@@ -1,13 +1,17 @@
+import { type ContractFunctionArgs, isAddress } from "viem";
 import type { cookieJarFactoryAbi } from "@/generated";
-import { isAddress, type ContractFunctionArgs } from "viem";
 import {
 	HATS_PROTOCOL_ADDRESS,
 	POAP_TOKEN_ADDRESS,
 	ZERO_ADDRESS,
 } from "@/lib/blockchain/constants";
-import { AccessType, NFTType, type JarCreationFormData } from "./schemas/jarCreationSchema";
+import {
+	AccessType,
+	type JarCreationFormData,
+	NFTType,
+} from "./schemas/jarCreationSchema";
 
-export const FACTORY_DEFAULT_FEE_SENTINEL = (2n ** 256n) - 1n;
+export const FACTORY_DEFAULT_FEE_SENTINEL = 2n ** 256n - 1n;
 
 export enum ContractAccessType {
 	Allowlist = 0,
@@ -68,7 +72,7 @@ function toBigIntStrict(value: unknown): bigint | null {
 
 function protocolValue(
 	protocolConfig: JarCreationFormData["protocolConfig"],
-	keys: string[],
+	keys: string[]
 ): unknown {
 	const raw = protocolConfig as unknown as Record<string, unknown>;
 	for (const key of keys) {
@@ -129,13 +133,13 @@ function resolveAccessConfig(values: JarCreationFormData): {
 	if (values.accessType === AccessType.POAP) {
 		const eventId = toBigIntOr(
 			0n,
-			protocolValue(protocolConfig, ["poapEventId", "eventId"]),
+			protocolValue(protocolConfig, ["poapEventId", "eventId"])
 		);
 		return {
 			accessType: ContractAccessType.ERC721,
 			nftRequirement: {
 				nftContract: toAddressOrZero(
-					protocolValue(protocolConfig, ["poapContractAddress"]),
+					protocolValue(protocolConfig, ["poapContractAddress"])
 				),
 				tokenId: eventId,
 				minBalance: 0n,
@@ -149,7 +153,7 @@ function resolveAccessConfig(values: JarCreationFormData): {
 			accessType: ContractAccessType.ERC721,
 			nftRequirement: {
 				nftContract: toAddressOrZero(
-					protocolValue(protocolConfig, ["unlockAddress"]),
+					protocolValue(protocolConfig, ["unlockAddress"])
 				),
 				tokenId: 0n,
 				minBalance: 0n,
@@ -166,7 +170,7 @@ function resolveAccessConfig(values: JarCreationFormData): {
 					protocolValue(protocolConfig, [
 						"hypercertAddress",
 						"hypercertContract",
-					]),
+					])
 				),
 				tokenId: toBigIntOr(
 					0n,
@@ -174,11 +178,11 @@ function resolveAccessConfig(values: JarCreationFormData): {
 						"hypercertTokenId",
 						"hypercertId",
 						"tokenId",
-					]),
+					])
 				),
 				minBalance: toBigIntOr(
 					1n,
-					protocolValue(protocolConfig, ["hypercertMinBalance"]),
+					protocolValue(protocolConfig, ["hypercertMinBalance"])
 				),
 				isPoapEventGate: false,
 			},
@@ -190,9 +194,12 @@ function resolveAccessConfig(values: JarCreationFormData): {
 		accessType: ContractAccessType.ERC1155,
 		nftRequirement: {
 			nftContract: toAddressOrZero(
-				protocolValue(protocolConfig, ["hatsAddress", "hatsContract"]),
+				protocolValue(protocolConfig, ["hatsAddress", "hatsContract"])
 			),
-			tokenId: toBigIntOr(0n, protocolValue(protocolConfig, ["hatsId", "hatId"])),
+			tokenId: toBigIntOr(
+				0n,
+				protocolValue(protocolConfig, ["hatsId", "hatId"])
+			),
 			minBalance: 1n,
 			isPoapEventGate: false,
 		},
@@ -200,7 +207,7 @@ function resolveAccessConfig(values: JarCreationFormData): {
 }
 
 export function getAccessConfigValidationError(
-	values: JarCreationFormData,
+	values: JarCreationFormData
 ): string | undefined {
 	const protocolConfig = values.protocolConfig;
 
@@ -218,7 +225,10 @@ export function getAccessConfigValidationError(
 	}
 
 	if (values.accessType === AccessType.POAP) {
-		const rawEventId = protocolValue(protocolConfig, ["poapEventId", "eventId"]);
+		const rawEventId = protocolValue(protocolConfig, [
+			"poapEventId",
+			"eventId",
+		]);
 		if (isMissingValue(rawEventId)) {
 			return "POAP event is required";
 		}
@@ -229,7 +239,10 @@ export function getAccessConfigValidationError(
 		const poapContractAddress = protocolValue(protocolConfig, [
 			"poapContractAddress",
 		]);
-		if (poapContractAddress !== undefined && !isAddress(String(poapContractAddress))) {
+		if (
+			poapContractAddress !== undefined &&
+			!isAddress(String(poapContractAddress))
+		) {
 			return "POAP contract address must be a valid Ethereum address";
 		}
 		return undefined;
@@ -330,7 +343,10 @@ export function buildV2CreateCookieJarArgs(input: {
 	if (values.accessType === AccessType.POAP) {
 		normalizedNftRequirement.nftContract = poapContractAddress;
 	}
-	if (values.accessType === AccessType.Hats && normalizedNftRequirement.nftContract === ZERO_ADDRESS) {
+	if (
+		values.accessType === AccessType.Hats &&
+		normalizedNftRequirement.nftContract === ZERO_ADDRESS
+	) {
 		normalizedNftRequirement.nftContract = hatsContractAddress;
 	}
 

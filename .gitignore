@@ -34,10 +34,6 @@ watch-deploy.log
 *.tsbuildinfo
 next-env.d.ts
 
-# docs
-/docs/
-docs/
-frontend/docs/
 
 # Foundry/Forge artifacts
 out/
@@ -71,3 +67,9 @@ e2e/test-results/
 .Trashes
 ehthumbs.db
 Thumbs.db
+# Claude Code agent worktrees (local only)
+.claude/worktrees/
+.claude/settings.local.json
+
+# Next.js build output inside the client workspace (Biome reads only the root ignore file)
+client/.next/

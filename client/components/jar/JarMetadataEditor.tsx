@@ -100,7 +100,7 @@ export function JarMetadataEditor({
 					<Button
 						onClick={onSave}
 						disabled={isUpdatingMetadata}
-						className="bg-[#ff5e14] hover:bg-[#e54d00] text-white"
+						className="bg-primary hover:bg-primary-hover text-white"
 					>
 						{isUpdatingMetadata && (
 							<Loader2 className="mr-2 h-4 w-4 animate-spin" />

@@ -18,7 +18,7 @@ export type JarData = CookieJarInfo;
  */
 export function getCurrencyAmount(
 	jar: JarData,
-	tokenDecimals?: Record<string, number>,
+	tokenDecimals?: Record<string, number>
 ) {
 	const amount = jar.currencyHeldByJar || BigInt(0);
 
@@ -42,7 +42,7 @@ export function getCurrencyAmount(
 export function getCurrencySymbol(
 	jar: JarData,
 	nativeCurrency: NativeCurrency,
-	tokenSymbols: Record<string, string>,
+	tokenSymbols: Record<string, string>
 ) {
 	// Handle cases where currency might be undefined
 	if (!jar.currency) {
@@ -70,7 +70,7 @@ export function getWithdrawalAmountDisplay(
 	jar: JarData,
 	nativeCurrency: NativeCurrency,
 	tokenSymbols: Record<string, string>,
-	tokenDecimals?: Record<string, number>,
+	tokenDecimals?: Record<string, number>
 ) {
 	const symbol = getCurrencySymbol(jar, nativeCurrency, tokenSymbols);
 

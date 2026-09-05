@@ -91,7 +91,7 @@ export const useJarMetadata = (config: JarConfig | undefined) => {
 				link: parsed.link,
 			};
 		},
-		[],
+		[]
 	);
 
 	const metadata = parseMetadata(config?.metadata);
@@ -208,7 +208,7 @@ export const useJarMetadata = (config: JarConfig | undefined) => {
 			editLink,
 			updateMetadata,
 			toast,
-		],
+		]
 	);
 
 	// Handle metadata update success/error

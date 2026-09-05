@@ -22,7 +22,7 @@ test.describe("🏗️ Jar Creation E2E", () => {
 		await page.fill(SELECTORS.forms.jarName, "E2E Test Jar");
 		await page.fill(
 			SELECTORS.forms.jarDescription,
-			"Created by automated E2E test",
+			"Created by automated E2E test"
 		);
 
 		// Select ETH currency
@@ -67,7 +67,7 @@ test.describe("🏗️ Jar Creation E2E", () => {
 
 		// Verify jar was created with correct data
 		await expect(page.locator(SELECTORS.cards.jarTitle)).toContainText(
-			"E2E Test Jar",
+			"E2E Test Jar"
 		);
 
 		console.log("✅ Basic jar creation test passed!");
@@ -82,14 +82,14 @@ test.describe("🏗️ Jar Creation E2E", () => {
 		const hasNFTOption = await page.isVisible(SELECTORS.access.nftGated);
 		test.skip(
 			!hasNFTOption,
-			"NFT gating not available - requires v2 contracts",
+			"NFT gating not available - requires v2 contracts"
 		);
 
 		// Basic setup
 		await page.fill(SELECTORS.forms.jarName, "NFT Test Jar");
 		await page.fill(
 			SELECTORS.forms.jarDescription,
-			"NFT-gated jar for testing",
+			"NFT-gated jar for testing"
 		);
 
 		// Select DEMO token if available
@@ -143,10 +143,10 @@ test.describe("🏗️ Jar Creation E2E", () => {
 
 		// Verify NFT-gated jar was created
 		await expect(page.locator(SELECTORS.cards.jarTitle)).toContainText(
-			"NFT Test Jar",
+			"NFT Test Jar"
 		);
 		await expect(
-			page.locator("text=NFT-Gated, text=NFT Collection"),
+			page.locator("text=NFT-Gated, text=NFT Collection")
 		).toBeVisible();
 
 		console.log("✅ NFT-gated jar creation test passed!");
@@ -175,7 +175,7 @@ test.describe("🏗️ Jar Creation E2E", () => {
 		if (!isDisabled) {
 			await nextButton.click();
 			await expect(
-				page.locator("text=error, text=invalid, text=required"),
+				page.locator("text=error, text=invalid, text=required")
 			).toBeVisible();
 		}
 

@@ -96,7 +96,7 @@ test.describe("💰 Jar Operations E2E", () => {
 			await expect(
 				page
 					.locator("text=Not Allowlisted")
-					.or(page.locator("text=access denied")),
+					.or(page.locator("text=access denied"))
 			).toBeVisible();
 		}
 	});
@@ -127,7 +127,7 @@ test.describe("💰 Jar Operations E2E", () => {
 		// Fill NFT-specific fields
 		await page.fill(
 			SELECTORS.nft.addressInput,
-			"0x5FbDB2315678afecb367f032d93F642f64180aa3",
+			"0x5FbDB2315678afecb367f032d93F642f64180aa3"
 		);
 		await page.fill(SELECTORS.nft.tokenIdInput, "0");
 
@@ -168,7 +168,7 @@ test.describe("💰 Jar Operations E2E", () => {
 		await expect(
 			page
 				.locator("text=Not Allowlisted")
-				.or(page.locator("text=access denied").or(page.locator("text=cannot"))),
+				.or(page.locator("text=access denied").or(page.locator("text=cannot")))
 		).toBeVisible();
 
 		// Withdrawal button should either be disabled or not visible

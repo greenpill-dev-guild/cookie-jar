@@ -14,12 +14,12 @@ import { useJarCreation } from "@/hooks/jar/useJarCreation";
 const StatusCards = lazy(() =>
 	import("@/components/create/StatusCards").then((module) => ({
 		default: module.StatusCards,
-	})),
+	}))
 );
 const CreateJarModals = lazy(() =>
 	import("@/components/create/CreateJarModals").then((module) => ({
 		default: module.CreateJarModals,
-	})),
+	}))
 );
 
 export default function CreateCookieJarForm() {

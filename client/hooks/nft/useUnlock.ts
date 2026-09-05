@@ -290,7 +290,7 @@ export function useUnlock(options: useUnlockOptions = {}): useUnlockResult {
 			const key = await web3Service.getKeyByLockForOwner(
 				lockAddress,
 				userAddress,
-				chainId,
+				chainId
 			);
 
 			if (key && key.expiration > Date.now() / 1000) {
@@ -316,7 +316,7 @@ export function useUnlock(options: useUnlockOptions = {}): useUnlockResult {
 
 	// Validate lock address using real Unlock SDK
 	const validateLockAddress = async (
-		address: string,
+		address: string
 	): Promise<LockInfo | null> => {
 		if (!isAddress(address)) {
 			throw new Error("Invalid contract address format");
@@ -362,7 +362,7 @@ export function useUnlock(options: useUnlockOptions = {}): useUnlockResult {
 
 	// Check user key validity using real Unlock SDK
 	const checkUserKeyValidity = async (
-		lockAddress: string,
+		lockAddress: string
 	): Promise<boolean> => {
 		if (!userAddress || !isAddress(lockAddress)) {
 			return false;
@@ -375,7 +375,7 @@ export function useUnlock(options: useUnlockOptions = {}): useUnlockResult {
 			const key = await web3Service.getKeyByLockForOwner(
 				lockAddress,
 				userAddress,
-				chainId,
+				chainId
 			);
 			const isValid = key && key.expiration > Date.now() / 1000;
 			return Boolean(isValid);

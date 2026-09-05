@@ -12,7 +12,7 @@ test.describe("♿ Accessibility Testing", () => {
 
 		// Only check for critical violations for now (serious ones need UI fixes)
 		const criticalViolations = accessibilityScanResults.violations.filter(
-			(violation) => violation.impact === "critical",
+			(violation) => violation.impact === "critical"
 		);
 
 		expect(criticalViolations).toEqual([]);
@@ -25,7 +25,7 @@ test.describe("♿ Accessibility Testing", () => {
 					impact: v.impact,
 					description: v.description,
 					nodes: v.nodes.length,
-				})),
+				}))
 			);
 		}
 	});
@@ -44,16 +44,16 @@ test.describe("♿ Accessibility Testing", () => {
 				violation.id.includes("label") ||
 				violation.id.includes("form") ||
 				violation.id.includes("input") ||
-				(violation.impact === "critical" && violation.id !== "button-name"), // Exclude button-name for now (likely icon buttons)
+				(violation.impact === "critical" && violation.id !== "button-name") // Exclude button-name for now (likely icon buttons)
 		);
 
 		// Log button-name violations for information but don't fail
 		const buttonNameViolations = accessibilityScanResults.violations.filter(
-			(violation) => violation.id === "button-name",
+			(violation) => violation.id === "button-name"
 		);
 		if (buttonNameViolations.length > 0) {
 			console.log(
-				"📝 Note: Found buttons without accessible names (likely icon buttons need aria-label)",
+				"📝 Note: Found buttons without accessible names (likely icon buttons need aria-label)"
 			);
 		}
 
@@ -76,7 +76,7 @@ test.describe("♿ Accessibility Testing", () => {
 
 			if (isVisible) {
 				const tagName = await focusedElement.evaluate((el) =>
-					el.tagName.toLowerCase(),
+					el.tagName.toLowerCase()
 				);
 				const text = await focusedElement.textContent();
 				interactiveElements.push({ tagName, text: text?.slice(0, 20) || "" });
@@ -142,7 +142,7 @@ test.describe("♿ Accessibility Testing", () => {
 				const inputType = await input.getAttribute("type");
 				const inputClass = await input.getAttribute("class");
 				console.warn(
-					`⚠️ Input ${i} (type: ${inputType}, class: ${inputClass}) lacks accessible name`,
+					`⚠️ Input ${i} (type: ${inputType}, class: ${inputClass}) lacks accessible name`
 				);
 			}
 
@@ -162,7 +162,7 @@ test.describe("♿ Accessibility Testing", () => {
 			if (isCritical) {
 				expect(
 					hasAccessibleName,
-					`Critical input ${i} must have accessible name`,
+					`Critical input ${i} must have accessible name`
 				).toBe(true);
 			}
 		}
@@ -178,17 +178,17 @@ test.describe("♿ Accessibility Testing", () => {
 			.analyze();
 
 		const contrastViolations = contrastResults.violations.filter(
-			(violation) => violation.id === "color-contrast",
+			(violation) => violation.id === "color-contrast"
 		);
 
 		// For now, just log violations instead of failing
 		if (contrastViolations.length > 0) {
 			console.log(
 				"⚠️ Color contrast violations that need UI fixes:",
-				contrastViolations.length,
+				contrastViolations.length
 			);
 			console.log(
-				"📝 These violations indicate colors that need adjustment in the design system",
+				"📝 These violations indicate colors that need adjustment in the design system"
 			);
 		}
 
@@ -203,7 +203,7 @@ test.describe("♿ Accessibility Testing", () => {
 		// Check for proper page structure
 		const landmarks = await page
 			.locator(
-				'[role="main"], [role="banner"], [role="navigation"], main, nav, header',
+				'[role="main"], [role="banner"], [role="navigation"], main, nav, header'
 			)
 			.count();
 		expect(landmarks).toBeGreaterThan(0);
@@ -229,7 +229,7 @@ test.describe("♿ Accessibility Testing", () => {
 
 				expect(
 					accessibleName,
-					`Button ${i} should have accessible name`,
+					`Button ${i} should have accessible name`
 				).toBeTruthy();
 			}
 		}
@@ -267,7 +267,7 @@ test.describe("♿ Accessibility Testing", () => {
 						compliantButtons++;
 					} else {
 						console.log(
-							`⚠️ Button ${i} size: ${boundingBox.width}x${boundingBox.height}px (should be >= 44x44px)`,
+							`⚠️ Button ${i} size: ${boundingBox.width}x${boundingBox.height}px (should be >= 44x44px)`
 						);
 					}
 				}
@@ -276,7 +276,7 @@ test.describe("♿ Accessibility Testing", () => {
 
 		// At least some buttons should be compliant, but don't fail if some aren't
 		console.log(
-			`📱 Touch targets: ${compliantButtons}/${totalChecked} buttons are properly sized`,
+			`📱 Touch targets: ${compliantButtons}/${totalChecked} buttons are properly sized`
 		);
 
 		// TODO: Re-enable strict checking after button sizes are fixed

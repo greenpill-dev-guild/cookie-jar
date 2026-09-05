@@ -28,27 +28,29 @@ export enum NFTType {
 }
 
 /** Protocol-specific configuration for access control */
-export const protocolConfigSchema = z.object({
-	accessType: z.enum([
-		"Allowlist",
-		"NFT",
-		"POAP",
-		"Unlock",
-		"Hypercert",
-		"Hats",
-	]),
-	nftAddresses: z.array(z.string()).optional(),
-	nftTypes: z.array(z.number()).optional(),
-	poapEventId: z.number().optional(),
-	poapContractAddress: z.string().optional(),
-	unlockAddress: z.string().optional(),
-	hypercertAddress: z.string().optional(),
-	hypercertTokenId: z.string().optional(),
-	hypercertMinBalance: z.number().optional(),
-	hypercertMaxBalance: z.number().optional(),
-	hatsId: z.string().optional(),
-	hatsAddress: z.string().optional(),
-}).passthrough();
+export const protocolConfigSchema = z
+	.object({
+		accessType: z.enum([
+			"Allowlist",
+			"NFT",
+			"POAP",
+			"Unlock",
+			"Hypercert",
+			"Hats",
+		]),
+		nftAddresses: z.array(z.string()).optional(),
+		nftTypes: z.array(z.number()).optional(),
+		poapEventId: z.number().optional(),
+		poapContractAddress: z.string().optional(),
+		unlockAddress: z.string().optional(),
+		hypercertAddress: z.string().optional(),
+		hypercertTokenId: z.string().optional(),
+		hypercertMinBalance: z.number().optional(),
+		hypercertMaxBalance: z.number().optional(),
+		hatsId: z.string().optional(),
+		hatsAddress: z.string().optional(),
+	})
+	.passthrough();
 
 export type ProtocolConfig = z.infer<typeof protocolConfigSchema>;
 
@@ -78,13 +80,15 @@ export const METHOD_TO_ACCESS_TYPE: Record<string, AccessType> = {
 export const jarCreationSchema = z.object({
 	// ── Step 1: Basic Config ──
 	jarName: z.string().min(1, "Jar name is required"),
-	jarOwnerAddress: z.string().refine(
-		(val) =>
-			!val ||
-			val === "0x0000000000000000000000000000000000000000" ||
-			isAddress(val),
-		"Must be a valid Ethereum address",
-	),
+	jarOwnerAddress: z
+		.string()
+		.refine(
+			(val) =>
+				!val ||
+				val === "0x0000000000000000000000000000000000000000" ||
+				isAddress(val),
+			"Must be a valid Ethereum address"
+		),
 	supportedCurrency: z.string(),
 	metadata: z.string(),
 	imageUrl: z.string(),
@@ -128,12 +132,7 @@ export const STEP_FIELDS: Record<number, (keyof JarCreationFormData)[]> = {
 		"showCustomCurrency",
 		"customCurrencyAddress",
 	],
-	2: [
-		"withdrawalOption",
-		"fixedAmount",
-		"maxWithdrawal",
-		"withdrawalInterval",
-	],
+	2: ["withdrawalOption", "fixedAmount", "maxWithdrawal", "withdrawalInterval"],
 	3: ["accessType", "nftAddresses", "nftTypes"],
 	4: ["enableCustomFee", "customFee"],
 };

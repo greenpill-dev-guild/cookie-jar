@@ -75,10 +75,7 @@ export function CreateJarForm({
 						</div>
 					}
 				>
-					<StepContent
-						step={currentStep}
-						isV2Contract={isV2Contract}
-					/>
+					<StepContent step={currentStep} isV2Contract={isV2Contract} />
 				</Suspense>
 			</CardContent>
 

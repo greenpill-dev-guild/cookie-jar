@@ -32,7 +32,7 @@ export const UnlockMembershipStatus = withProtocolErrorBoundary(
 		protocolName: "Unlock Protocol Status",
 		maxRetries: 3,
 		showDetails: process.env.NODE_ENV === "development",
-	},
+	}
 );
 
 export const HypercertConfig = withProtocolErrorBoundary(_HypercertConfig, {

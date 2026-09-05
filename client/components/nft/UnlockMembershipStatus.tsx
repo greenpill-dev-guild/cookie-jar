@@ -173,15 +173,8 @@ export const UnlockMembershipStatus: React.FC<UnlockMembershipStatusProps> = ({
 								</p>
 							</div>
 						</div>
-						<Button
-							variant="ghost"
-							size="sm"
-							onClick={handleRefresh}
-							disabled={isLoading}
-						>
-							<RefreshCw
-								className={`h-4 w-4 ${isLoading ? "animate-spin" : ""}`}
-							/>
+						<Button variant="ghost" size="sm" onClick={handleRefresh}>
+							<RefreshCw className="h-4 w-4" />
 						</Button>
 					</div>
 
@@ -224,7 +217,7 @@ export const UnlockMembershipStatus: React.FC<UnlockMembershipStatusProps> = ({
 										onClick={() =>
 											window.open(
 												`https://etherscan.io/address/${lockAddress}`,
-												"_blank",
+												"_blank"
 											)
 										}
 									>

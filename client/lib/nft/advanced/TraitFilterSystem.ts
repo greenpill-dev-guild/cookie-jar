@@ -93,7 +93,7 @@ export class TraitFilterSystem {
 	 */
 	applyFilters(
 		nfts: NFTWithTraits[],
-		filters: AdvancedNFTFilters,
+		filters: AdvancedNFTFilters
 	): NFTWithTraits[] {
 		let filtered = nfts;
 
@@ -146,7 +146,7 @@ export class TraitFilterSystem {
 				if (!nft.attributes) return false;
 				const nftTraitTypes = nft.attributes.map((attr) => attr.trait_type);
 				return filters.has_traits?.every((requiredTrait) =>
-					nftTraitTypes.includes(requiredTrait),
+					nftTraitTypes.includes(requiredTrait)
 				);
 			});
 		}
@@ -157,7 +157,7 @@ export class TraitFilterSystem {
 				if (!nft.attributes) return true;
 				const nftTraitTypes = nft.attributes.map((attr) => attr.trait_type);
 				return !filters.exclude_traits?.some((excludedTrait) =>
-					nftTraitTypes.includes(excludedTrait),
+					nftTraitTypes.includes(excludedTrait)
 				);
 			});
 		}
@@ -193,7 +193,7 @@ export class TraitFilterSystem {
 			filtered = this.sortNFTs(
 				filtered,
 				filters.sort_by,
-				filters.sort_direction || "asc",
+				filters.sort_direction || "asc"
 			);
 		}
 
@@ -205,13 +205,13 @@ export class TraitFilterSystem {
 	 */
 	private applyTraitFilter(
 		nfts: NFTWithTraits[],
-		filter: TraitFilter,
+		filter: TraitFilter
 	): NFTWithTraits[] {
 		return nfts.filter((nft) => {
 			if (!nft.attributes) return false;
 
 			const attribute = nft.attributes.find(
-				(attr) => attr.trait_type === filter.trait_type,
+				(attr) => attr.trait_type === filter.trait_type
 			);
 
 			switch (filter.operator) {
@@ -266,7 +266,7 @@ export class TraitFilterSystem {
 	private sortNFTs(
 		nfts: NFTWithTraits[],
 		sortBy: AdvancedNFTFilters["sort_by"],
-		direction: "asc" | "desc",
+		direction: "asc" | "desc"
 	): NFTWithTraits[] {
 		const sortedNfts = [...nfts].sort((a, b) => {
 			let compareA: number | undefined;
@@ -362,7 +362,7 @@ export class TraitFilterSystem {
 		for (const [trait_type, traitData] of traitMap) {
 			const total_count = Array.from(traitData.values.values()).reduce(
 				(sum, count) => sum + count,
-				0,
+				0
 			);
 			const unique_values = traitData.values.size;
 
@@ -404,7 +404,7 @@ export class TraitFilterSystem {
 	getTraitSuggestions(
 		nfts: NFTWithTraits[],
 		currentFilters: AdvancedNFTFilters,
-		limit: number = 10,
+		limit: number = 10
 	): Array<{
 		trait_type: string;
 		suggested_values: Array<{
@@ -432,7 +432,7 @@ export class TraitFilterSystem {
 
 				const wouldRemain = this.applyTraitFilter(
 					baseFiltered,
-					testFilter,
+					testFilter
 				).length;
 
 				return {
@@ -448,7 +448,7 @@ export class TraitFilterSystem {
 	 */
 	calculateRarityScore(
 		nft: NFTWithTraits,
-		collectionStats: TraitStatistics[],
+		collectionStats: TraitStatistics[]
 	): number {
 		if (!nft.attributes || !nft.attributes.length) return 0;
 
@@ -457,12 +457,12 @@ export class TraitFilterSystem {
 
 		for (const attribute of nft.attributes) {
 			const traitStat = collectionStats.find(
-				(stat) => stat.trait_type === attribute.trait_type,
+				(stat) => stat.trait_type === attribute.trait_type
 			);
 			if (!traitStat) continue;
 
 			const valueData = traitStat.values.find(
-				(v) => v.value === attribute.value,
+				(v) => v.value === attribute.value
 			);
 			if (!valueData) continue;
 
@@ -481,7 +481,7 @@ export class TraitFilterSystem {
 	 */
 	buildSmartFilters(
 		nfts: NFTWithTraits[],
-		intent: "rarest" | "cheapest" | "balanced" | "trending",
+		intent: "rarest" | "cheapest" | "balanced" | "trending"
 	): AdvancedNFTFilters {
 		const _statistics = this.generateTraitStatistics(nfts);
 
@@ -500,7 +500,7 @@ export class TraitFilterSystem {
 					price_range: {
 						max: this.calculatePercentile(
 							nfts.map((n) => n.floor_price || 0),
-							25,
+							25
 						),
 					},
 					sort_by: "price",
@@ -517,11 +517,11 @@ export class TraitFilterSystem {
 					price_range: {
 						min: this.calculatePercentile(
 							nfts.map((n) => n.floor_price || 0),
-							25,
+							25
 						),
 						max: this.calculatePercentile(
 							nfts.map((n) => n.floor_price || 0),
-							75,
+							75
 						),
 					},
 					sort_by: "rarity_score",

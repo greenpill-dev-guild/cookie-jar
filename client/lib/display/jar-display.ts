@@ -12,7 +12,7 @@ export const formatJarBalance = (
 	balance: bigint | undefined,
 	tokenDecimals: number,
 	tokenSymbol: string | undefined,
-	chainId: number,
+	chainId: number
 ) => {
 	if (!balance) return "0";
 
@@ -21,7 +21,7 @@ export const formatJarBalance = (
 	return formatTokenAmount(
 		balance,
 		tokenDecimals,
-		tokenSymbol || nativeCurrency.symbol,
+		tokenSymbol || nativeCurrency.symbol
 	);
 };
 

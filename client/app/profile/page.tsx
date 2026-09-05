@@ -79,7 +79,7 @@ function DesktopProfile() {
 		(jar: CookieJarInfo) =>
 			jar.jarCreator &&
 			address &&
-			jar.jarCreator.toLowerCase() === address.toLowerCase(),
+			jar.jarCreator.toLowerCase() === address.toLowerCase()
 	);
 
 	const copyToClipboard = (text: string) => {
