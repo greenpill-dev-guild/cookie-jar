@@ -10,7 +10,7 @@ test.describe("Featured jar home", () => {
 
 		// Header brand and connect button
 		await expect(page.getByRole("banner")).toContainText(
-			"Dev Guild Stipend Jar"
+			"Green Goods Stipend Jar"
 		);
 		await expect(
 			page.getByRole("button", { name: /connect/i }).first()

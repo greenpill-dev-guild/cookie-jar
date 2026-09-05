@@ -18,7 +18,7 @@ export function Header() {
 							{SITE_NAME}
 						</span>
 						<span className="text-xs text-muted-foreground hidden sm:block">
-							Greenpill Dev Guild
+							Monthly contributor stipend
 						</span>
 					</span>
 				</Link>

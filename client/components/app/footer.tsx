@@ -19,8 +19,8 @@ export function Footer() {
 							{SITE_NAME}
 						</h2>
 						<p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
-							The Greenpill Dev Guild contributor stipend, paid from a Cookie
-							Jar on Arbitrum and backed by work tracked and accepted on Linear.
+							The Green Goods contributor stipend, paid from a Cookie Jar on
+							Arbitrum and backed by work tracked and accepted on Linear.
 						</p>
 					</div>
 

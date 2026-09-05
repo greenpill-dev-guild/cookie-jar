@@ -42,7 +42,7 @@ function results(
 		[HATS_PROTOCOL_ADDRESS, HAT_ID, 1n, false], // nftRequirement
 		0n, // FEE_PERCENTAGE_ON_DEPOSIT
 		1_000_000n, // MIN_DEPOSIT
-		[OWNER, 1_770_000_000n, '{"name":"Dev Guild Stipend"}'], // getJarInfo
+		[OWNER, 1_770_000_000n, '{"name":"Green Goods Stipend"}'], // getJarInfo
 	];
 	return base.map((result, index) => ({
 		result: index in overrides ? overrides[index] : result,
@@ -73,7 +73,7 @@ describe("parseJarConfigResults", () => {
 		});
 		expect(config.feePercentageOnDeposit).toBe(0n);
 		expect(config.minDeposit).toBe(1_000_000n);
-		expect(config.metadata).toBe('{"name":"Dev Guild Stipend"}');
+		expect(config.metadata).toBe('{"name":"Green Goods Stipend"}');
 		expect(config.creator).toBe(OWNER);
 		expect(config.denylist).toBe(false);
 		expect(config.lastWithdrawalTime).toBe(0n);
