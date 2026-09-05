@@ -10,6 +10,7 @@ import {
 	Users,
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -70,6 +71,7 @@ interface EnhancedJarData extends JarData {
 }
 
 interface JarCardProps {
+	chainId: number;
 	jar: EnhancedJarData;
 	nativeCurrency: NativeCurrency;
 	tokenSymbols: Record<string, string>;
@@ -149,6 +151,7 @@ const getUserAccessStatus = (jar: EnhancedJarData) => {
 
 export function JarCard({
 	jar,
+	chainId,
 	nativeCurrency,
 	tokenSymbols,
 	onClick,
@@ -278,13 +281,27 @@ export function JarCard({
 	return (
 		<Card
 			className={`cj-card-primary hover:shadow-lg transition-all duration-200 cursor-pointer group transform hover:-translate-y-1 overflow-hidden p-0 ${className || ""}`}
-			onClick={() => onClick(jar.jarAddress)}
 		>
 			<JarImage metadata={jar.metadata} jarName={jarName} />
 
 			<CardHeader className="pb-3 px-6 pt-6">
 				<CardTitle className="content-title text-[hsl(var(--cj-dark-brown))] group-hover:text-[hsl(var(--cj-brand-orange))] transition-colors">
-					{jarName}
+					<Link
+						href={`/jar/${jar.jarAddress}?chainId=${chainId}`}
+						onClick={(event) => {
+							if (
+								event.metaKey ||
+								event.ctrlKey ||
+								event.shiftKey ||
+								event.altKey
+							)
+								return;
+							event.preventDefault();
+							onClick(jar.jarAddress);
+						}}
+					>
+						{jarName}
+					</Link>
 				</CardTitle>
 
 				<div className="flex items-center justify-between mt-1">

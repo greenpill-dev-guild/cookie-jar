@@ -69,9 +69,13 @@ export interface JarConfig {
  * handleMetadataUpdate(jarAddress, refetchJarData);
  * ```
  */
-export const useJarMetadata = (config: JarConfig | undefined) => {
+export const useJarMetadata = (
+	config: JarConfig | undefined,
+	requestedChainId?: number
+) => {
 	const { toast } = useToast();
-	const chainId = useChainId();
+	const walletChainId = useChainId();
+	const chainId = requestedChainId ?? walletChainId;
 
 	// Metadata editing state
 	const [isEditingMetadata, setIsEditingMetadata] = useState(false);
@@ -156,6 +160,7 @@ export const useJarMetadata = (config: JarConfig | undefined) => {
 	const { isLoading: isWaitingForUpdate, isSuccess: isMetadataUpdateSuccess } =
 		useWaitForTransactionReceipt({
 			hash: updateTxHash,
+			chainId,
 			query: { enabled: !!updateTxHash },
 		});
 
@@ -194,6 +199,7 @@ export const useJarMetadata = (config: JarConfig | undefined) => {
 
 			updateMetadata({
 				address: factoryAddress,
+				chainId,
 				abi: cookieJarFactoryAbi,
 				functionName: "updateMetadata",
 				args: [addressString, metadataJson],
@@ -202,6 +208,7 @@ export const useJarMetadata = (config: JarConfig | undefined) => {
 		[
 			validateMetadataEdit,
 			factoryAddress,
+			chainId,
 			editName,
 			editDescription,
 			editImage,

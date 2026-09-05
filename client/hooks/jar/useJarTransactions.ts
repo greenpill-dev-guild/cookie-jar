@@ -1,13 +1,14 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import { parseEther, parseUnits } from "viem";
-import { useChainId } from "wagmi";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { erc20Abi } from "viem";
+import { useAccount, useChainId } from "wagmi";
 import { isV2Chain } from "@/config/supported-networks";
 import { cookieJarAbi } from "@/generated";
 import { useTransactionWithRetry } from "@/hooks/app/useTransactionWithRetry";
 import { cookieJarV1Abi } from "@/lib/blockchain/cookie-jar-v1-abi";
 import { ETH_ADDRESS, useTokenInfo } from "@/lib/blockchain/token-utils";
+import { parseTokenAmount } from "@/lib/jar/creation-values";
 import { buildDepositCall, withdrawFunctionFor } from "@/lib/jar/deposit-args";
 import { useToast } from "../app/useToast";
 
@@ -77,6 +78,7 @@ export const useJarTransactions = (
 ) => {
 	const { toast } = useToast();
 	const walletChainId = useChainId();
+	const account = useAccount();
 	const {
 		enableRetry = false,
 		maxRetries = 3,
@@ -114,13 +116,30 @@ export const useJarTransactions = (
 
 	// Get token information
 	const isERC20 = !!config?.currency && config.currency !== ETH_ADDRESS;
-	const { symbol: tokenSymbol, decimals: tokenDecimals } = useTokenInfo(
+	const {
+		symbol: tokenSymbol,
+		decimals: tokenDecimals,
+		error: tokenError,
+	} = useTokenInfo(
 		(isERC20 && config?.currency
 			? config.currency
-			: ETH_ADDRESS) as `0x${string}`
+			: ETH_ADDRESS) as `0x${string}`,
+		chainId
 	);
 
-	const tokenDecimalValue = tokenDecimals || 18;
+	const tokenDecimalValue = isERC20 ? tokenDecimals : 18;
+	const verifiedDecimals =
+		isERC20 && tokenError ? undefined : tokenDecimalValue;
+	let depositError = "";
+	try {
+		if (amount && parseTokenAmount(amount, verifiedDecimals) === 0n)
+			depositError = "Enter an amount greater than zero.";
+	} catch (error) {
+		depositError = (error as Error).message;
+	}
+	if (!account.isConnected) depositError = "Connect your wallet to deposit.";
+	else if (account.chainId !== chainId)
+		depositError = "Switch to the jar network to deposit.";
 
 	// Enhanced transaction hooks with retry logic
 	const depositETH = useTransactionWithRetry({
@@ -148,6 +167,35 @@ export const useJarTransactions = (
 		retryDelay: enableRetry ? retryDelay : 0,
 	});
 
+	const transactionError = [
+		approve.error,
+		depositETH.error,
+		depositCurrency.error,
+		withdrawAllowlist.error,
+		withdrawNFT.error,
+	].find(Boolean)?.message as string | undefined;
+	useEffect(() => {
+		if (
+			approve.error?.message?.toLowerCase().includes("revert") &&
+			transactionStep === "approving"
+		) {
+			setTransactionStep("idle");
+			setApprovalCompleted(false);
+			setPendingDepositAmount(0n);
+		}
+	}, [approve.error, transactionStep]);
+	const retryConfirmation = async () => {
+		for (const transaction of [
+			approve,
+			depositETH,
+			depositCurrency,
+			withdrawAllowlist,
+			withdrawNFT,
+		]) {
+			if (transaction.hash && transaction.error)
+				await transaction.retryConfirmation();
+		}
+	};
 	// Handle approval completion for ERC20 deposits
 	useEffect(() => {
 		if (
@@ -198,18 +246,13 @@ export const useJarTransactions = (
 		async (value: string) => {
 			if (!config?.currency) return;
 
-			const amountBigInt = parseUnits(value || "0", tokenDecimalValue);
-
-			if (amountBigInt <= 0) {
-				toast({
-					title: "Invalid Amount",
-					description: "Please enter a valid amount greater than 0",
-					variant: "destructive",
-				});
-				return;
-			}
-
 			try {
+				const amountBigInt = parseTokenAmount(value, verifiedDecimals);
+				if (amountBigInt <= 0n)
+					throw new Error("Enter an amount greater than zero.");
+				if (!account.isConnected || account.chainId !== chainId)
+					throw new Error("Connect your wallet on the jar network to deposit.");
+
 				if (config.currency === ETH_ADDRESS) {
 					setTransactionStep("depositing");
 					const call = buildDepositCall({
@@ -232,24 +275,18 @@ export const useJarTransactions = (
 
 					await approve.writeContract({
 						address: config.currency as `0x${string}`,
-						abi: [
-							{
-								name: "approve",
-								type: "function",
-								stateMutability: "nonpayable",
-								inputs: [
-									{ name: "spender", type: "address" },
-									{ name: "amount", type: "uint256" },
-								],
-								outputs: [{ name: "", type: "bool" }],
-							},
-						],
+						abi: erc20Abi,
 						functionName: "approve",
 						args: [addressString, amountBigInt],
 						chainId,
 					});
 				}
-			} catch {
+			} catch (error) {
+				toast({
+					title: "Deposit failed",
+					description: (error as Error).message,
+					variant: "destructive",
+				});
 				setTransactionStep("idle");
 				setApprovalCompleted(false);
 				setPendingDepositAmount(BigInt(0));
@@ -257,7 +294,9 @@ export const useJarTransactions = (
 		},
 		[
 			config?.currency,
-			tokenDecimalValue,
+			verifiedDecimals,
+			account.isConnected,
+			account.chainId,
 			addressString,
 			abi,
 			depositETH,
@@ -298,13 +337,11 @@ export const useJarTransactions = (
 		async (variableAmount?: bigint) => {
 			if (!config?.contractAddress) return;
 
-			const amountToWithdraw =
-				variableAmount ||
-				(config.currency === ETH_ADDRESS
-					? parseEther(withdrawAmount || "0")
-					: parseUnits(withdrawAmount || "0", tokenDecimalValue));
-
 			try {
+				const amountToWithdraw =
+					variableAmount ?? parseTokenAmount(withdrawAmount, verifiedDecimals);
+				if (amountToWithdraw <= 0n)
+					throw new Error("Enter an amount greater than zero.");
 				setTransactionStep("withdrawing");
 				await withdrawAllowlist.writeContract({
 					address: config.contractAddress,
@@ -321,7 +358,7 @@ export const useJarTransactions = (
 			config?.contractAddress,
 			config?.currency,
 			withdrawAmount,
-			tokenDecimalValue,
+			verifiedDecimals,
 			withdrawAllowlist,
 			abi,
 			claimFunction,
@@ -343,6 +380,7 @@ export const useJarTransactions = (
 				await withdrawNFT.writeContract({
 					address: config.contractAddress,
 					abi,
+					chainId,
 					functionName: "withdrawNFTMode",
 					args: [
 						amountToWithdraw,
@@ -362,6 +400,7 @@ export const useJarTransactions = (
 			tokenId,
 			withdrawPurpose,
 			withdrawNFT,
+			chainId,
 			abi,
 		]
 	);
@@ -370,17 +409,16 @@ export const useJarTransactions = (
 		async (variableAmount?: bigint) => {
 			if (!config?.contractAddress || !gateAddress) return;
 
-			const amountToWithdraw =
-				variableAmount ||
-				(config?.currency === ETH_ADDRESS
-					? parseEther(withdrawAmount || "0")
-					: parseUnits(withdrawAmount || "0", tokenDecimalValue));
-
 			try {
+				const amountToWithdraw =
+					variableAmount ?? parseTokenAmount(withdrawAmount, verifiedDecimals);
+				if (amountToWithdraw <= 0n)
+					throw new Error("Enter an amount greater than zero.");
 				setTransactionStep("withdrawing");
 				await withdrawNFT.writeContract({
 					address: config.contractAddress,
 					abi,
+					chainId,
 					functionName: "withdrawNFTMode",
 					args: [
 						amountToWithdraw,
@@ -397,18 +435,27 @@ export const useJarTransactions = (
 			config?.contractAddress,
 			config?.currency,
 			withdrawAmount,
-			tokenDecimalValue,
+			verifiedDecimals,
 			gateAddress,
 			tokenId,
 			withdrawPurpose,
 			withdrawNFT,
+			chainId,
 			abi,
 		]
 	);
 
+	const handledDeposit = useRef<string>();
+	const handledWithdrawal = useRef<string>();
 	// Handle deposit completion
 	useEffect(() => {
-		if (depositETH.isSuccess || depositCurrency.isSuccess) {
+		const confirmed = depositETH.isSuccess
+			? depositETH.hash
+			: depositCurrency.isSuccess
+				? depositCurrency.hash
+				: undefined;
+		if (confirmed && handledDeposit.current !== confirmed) {
+			handledDeposit.current = confirmed;
 			toast({
 				title: "Deposit Successful",
 				description: `Successfully deposited ${amount} ${tokenSymbol}`,
@@ -420,6 +467,8 @@ export const useJarTransactions = (
 			setPendingDepositAmount(BigInt(0));
 		}
 	}, [
+		depositETH.hash,
+		depositCurrency.hash,
 		depositETH.isSuccess,
 		depositCurrency.isSuccess,
 		amount,
@@ -429,7 +478,13 @@ export const useJarTransactions = (
 
 	// Handle withdrawal completion
 	useEffect(() => {
-		if (withdrawAllowlist.isSuccess || withdrawNFT.isSuccess) {
+		const confirmed = withdrawAllowlist.isSuccess
+			? withdrawAllowlist.hash
+			: withdrawNFT.isSuccess
+				? withdrawNFT.hash
+				: undefined;
+		if (confirmed && handledWithdrawal.current !== confirmed) {
+			handledWithdrawal.current = confirmed;
 			toast({
 				title: "Withdrawal Successful",
 				description: withdrawPurpose
@@ -442,6 +497,8 @@ export const useJarTransactions = (
 			setTransactionStep("idle");
 		}
 	}, [
+		withdrawAllowlist.hash,
+		withdrawNFT.hash,
 		withdrawAllowlist.isSuccess,
 		withdrawNFT.isSuccess,
 		withdrawPurpose,
@@ -476,7 +533,10 @@ export const useJarTransactions = (
 
 	return {
 		// State
+		transactionError,
+		retryConfirmation,
 		amount,
+		depositError,
 		setAmount,
 		withdrawAmount,
 		setWithdrawAmount,
@@ -493,6 +553,7 @@ export const useJarTransactions = (
 		withdrawAllowlistFunction,
 		tokenSymbol,
 		tokenDecimals: tokenDecimalValue,
+		verifiedDecimals,
 
 		// Transaction handlers
 		onSubmit,

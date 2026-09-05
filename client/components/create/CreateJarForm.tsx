@@ -41,7 +41,7 @@ export function CreateJarForm({
 			case 1:
 				return "Basic Configuration";
 			case 2:
-				return "Withdrawal Settings";
+				return "Claim settings";
 			case 3:
 				return isV2Contract ? "Access Control" : "";
 			case 4:

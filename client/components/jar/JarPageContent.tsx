@@ -51,7 +51,7 @@ export function JarPageContent({
 		chainId
 	);
 	const permissions = useJarPermissions(address, config, chainId);
-	const metadata = useJarMetadata(config);
+	const metadata = useJarMetadata(config, chainId);
 	const transactions = useJarTransactions(config, address, { chainId });
 	const history = useJarWithdrawalHistory({
 		jarAddress: address,

@@ -7,6 +7,7 @@ import type { JarData } from "@/lib/jar/utils";
 import { JarCard } from "./JarCard";
 
 interface JarGridProps {
+	chainId: number;
 	jars: (JarData & { accessType?: number })[];
 	nativeCurrency: NativeCurrency;
 	tokenSymbols: Record<string, string>;
@@ -17,6 +18,7 @@ interface JarGridProps {
 }
 
 export function JarGrid({
+	chainId,
 	jars,
 	nativeCurrency,
 	tokenSymbols,
@@ -40,6 +42,7 @@ export function JarGrid({
 			<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
 				{jars.map((jar) => (
 					<JarCard
+						chainId={chainId}
 						key={jar.jarAddress}
 						jar={jar}
 						nativeCurrency={nativeCurrency}

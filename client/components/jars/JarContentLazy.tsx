@@ -61,9 +61,9 @@ export function JarContentLazy({ userAddress: _userAddress }: JarContentProps) {
 	// Handle jar card click
 	const handleJarClick = useCallback(
 		(jarAddress: string) => {
-			router.push(`/jar/${jarAddress}`);
+			router.push(`/jar/${jarAddress}?chainId=${chainId}`);
 		},
-		[router]
+		[router, chainId]
 	);
 
 	// Enhanced refresh function with loading state
@@ -209,6 +209,7 @@ export function JarContentLazy({ userAddress: _userAddress }: JarContentProps) {
 			/>
 
 			<JarGrid
+				chainId={chainId}
 				jars={currentJars}
 				nativeCurrency={nativeCurrency}
 				tokenSymbols={tokenSymbols}
