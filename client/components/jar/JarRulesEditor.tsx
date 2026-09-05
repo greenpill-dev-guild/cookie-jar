@@ -94,56 +94,67 @@ export function JarRulesEditor({
 		}
 	}
 	return (
-		<fieldset
-			disabled={transaction.isPending || transaction.isLoading}
-			className="min-w-0 space-y-4 rounded-lg border border-border bg-card p-4"
-		>
-			<legend className="px-2 font-semibold">Claim rules</legend>
-			<div>
-				<Label htmlFor="admin-maximum">
-					{fixed ? "Amount per claim" : "Maximum per claim"}
-				</Label>
-				<Input
-					id="admin-maximum"
-					inputMode="decimal"
-					value={maximum}
-					onChange={(event) => setMaximum(event.target.value)}
-				/>
+		<>
+			<fieldset
+				disabled={transaction.isPending || transaction.isLoading}
+				className="min-w-0 space-y-4 rounded-lg border border-border bg-card p-4"
+			>
+				<legend className="px-2 font-semibold">Claim rules</legend>
+				<div>
+					<Label htmlFor="admin-maximum">
+						{fixed ? "Amount per claim" : "Maximum per claim"}
+					</Label>
+					<Input
+						id="admin-maximum"
+						inputMode="decimal"
+						value={maximum}
+						onChange={(event) => setMaximum(event.target.value)}
+					/>
+					<Button
+						className="mt-2"
+						disabled={decimals === undefined || !withdrawalOption}
+						onClick={() => update("maximum")}
+					>
+						{fixed ? "Update amount" : "Update maximum"}
+					</Button>
+				</div>
+				<div>
+					<Label htmlFor="admin-interval">Claim interval (days)</Label>
+					<Input
+						id="admin-interval"
+						inputMode="numeric"
+						value={interval}
+						onChange={(event) => setInterval(event.target.value)}
+					/>
+					<Button className="mt-2" onClick={() => update("interval")}>
+						Update interval
+					</Button>
+				</div>
+				<Button
+					variant="outline"
+					disabled={data?.[2]?.result === undefined}
+					onClick={() => update("pause")}
+				>
+					{data?.[2]?.result ? "Unpause jar" : "Pause jar"}
+				</Button>
+				{(transaction.isPending || transaction.isLoading) && (
+					<p role="status">Waiting for transaction confirmation...</p>
+				)}
+				{(transaction.error || message) && (
+					<p role="status" className="text-sm text-foreground">
+						{transaction.error?.message || message}
+					</p>
+				)}
+			</fieldset>
+			{transaction.error && (
 				<Button
 					className="mt-2"
-					disabled={decimals === undefined || !withdrawalOption}
-					onClick={() => update("maximum")}
+					variant="outline"
+					onClick={transaction.retryConfirmation}
 				>
-					{fixed ? "Update amount" : "Update maximum"}
+					Retry confirmation check
 				</Button>
-			</div>
-			<div>
-				<Label htmlFor="admin-interval">Claim interval (days)</Label>
-				<Input
-					id="admin-interval"
-					inputMode="numeric"
-					value={interval}
-					onChange={(event) => setInterval(event.target.value)}
-				/>
-				<Button className="mt-2" onClick={() => update("interval")}>
-					Update interval
-				</Button>
-			</div>
-			<Button
-				variant="outline"
-				disabled={data?.[2]?.result === undefined}
-				onClick={() => update("pause")}
-			>
-				{data?.[2]?.result ? "Unpause jar" : "Pause jar"}
-			</Button>
-			{(transaction.isPending || transaction.isLoading) && (
-				<p role="status">Waiting for transaction confirmation...</p>
 			)}
-			{(transaction.error || message) && (
-				<p role="status" className="text-sm text-foreground">
-					{transaction.error?.message || message}
-				</p>
-			)}
-		</fieldset>
+		</>
 	);
 }

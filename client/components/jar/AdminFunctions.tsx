@@ -273,6 +273,11 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({
 							</div>
 						</CardContent>
 						<CardFooter className="bg-muted p-4 rounded-b-lg flex flex-col items-end gap-2">
+							{emergency.error && (
+								<Button variant="outline" onClick={emergency.retryConfirmation}>
+									Retry confirmation check
+								</Button>
+							)}
 							{(withdrawalError || emergency.error) && (
 								<p role="alert" className="text-sm">
 									{withdrawalError || emergency.error?.message}
