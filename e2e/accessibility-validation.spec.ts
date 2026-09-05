@@ -17,7 +17,7 @@ test.describe("♿ Accessibility Validation", () => {
 
 		// Check for critical violations only (be lenient for initial testing)
 		const criticalViolations = accessibilityScanResults.violations.filter(
-			(violation) => violation.impact === "critical",
+			(violation) => violation.impact === "critical"
 		);
 
 		if (criticalViolations.length > 0) {
@@ -28,14 +28,14 @@ test.describe("♿ Accessibility Validation", () => {
 					impact: v.impact,
 					description: v.description,
 					nodes: v.nodes.length,
-				})),
+				}))
 			);
 		}
 
 		// For now, just log violations but don't fail the test
 		// In production, you'd want: expect(criticalViolations).toEqual([])
 		console.log(
-			`📊 Total violations: ${accessibilityScanResults.violations.length}, Critical: ${criticalViolations.length}`,
+			`📊 Total violations: ${accessibilityScanResults.violations.length}, Critical: ${criticalViolations.length}`
 		);
 
 		console.log("✅ Accessibility scan completed");
@@ -169,20 +169,20 @@ test.describe("♿ Accessibility Validation", () => {
 		// Run focused accessibility scan on key interactive elements
 		const contrastResults = await new AxeBuilder({ page })
 			.include(
-				'button, .cj-btn-primary, .cj-btn-secondary, [data-testid*="button"]',
+				'button, .cj-btn-primary, .cj-btn-secondary, [data-testid*="button"]'
 			)
 			.withTags(["wcag2aa"])
 			.analyze();
 
 		// Check specifically for color contrast violations
 		const contrastViolations = contrastResults.violations.filter(
-			(violation) => violation.id === "color-contrast",
+			(violation) => violation.id === "color-contrast"
 		);
 
 		if (contrastViolations.length > 0) {
 			console.log(
 				"⚠️ Color contrast violations found:",
-				contrastViolations.length,
+				contrastViolations.length
 			);
 			// Log but don't fail for now - these need UI fixes
 			console.log("📝 Note: These need to be fixed in the UI components");

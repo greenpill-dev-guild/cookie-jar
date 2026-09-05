@@ -83,12 +83,12 @@ describeOrSkip("useSuperfluidSubgraph", () => {
 				() =>
 					({
 						request: mockRequest,
-					}) as any,
+					}) as any
 			);
 
 			const { result } = renderHook(
 				() => useStreamsByReceiver("0xreceiver" as `0x${string}`),
-				{ wrapper: createWrapper() },
+				{ wrapper: createWrapper() }
 			);
 
 			await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -99,7 +99,7 @@ describeOrSkip("useSuperfluidSubgraph", () => {
 					receiver: "0xreceiver",
 					first: 100,
 					skip: 0,
-				}),
+				})
 			);
 		});
 
@@ -109,7 +109,7 @@ describeOrSkip("useSuperfluidSubgraph", () => {
 				() =>
 					({
 						request: mockRequest,
-					}) as any,
+					}) as any
 			);
 
 			const { result } = renderHook(
@@ -118,7 +118,7 @@ describeOrSkip("useSuperfluidSubgraph", () => {
 						first: 50,
 						skip: 10,
 					}),
-				{ wrapper: createWrapper() },
+				{ wrapper: createWrapper() }
 			);
 
 			await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -127,7 +127,7 @@ describeOrSkip("useSuperfluidSubgraph", () => {
 				expect.objectContaining({
 					first: 50,
 					skip: 10,
-				}),
+				})
 			);
 		});
 
@@ -138,12 +138,12 @@ describeOrSkip("useSuperfluidSubgraph", () => {
 				() =>
 					({
 						request: mockRequest,
-					}) as any,
+					}) as any
 			);
 
 			const { result } = renderHook(
 				() => useStreamsByReceiver("0xreceiver" as `0x${string}`),
-				{ wrapper: createWrapper() },
+				{ wrapper: createWrapper() }
 			);
 
 			await waitFor(() => expect(result.current.isError).toBe(true));
@@ -158,12 +158,12 @@ describeOrSkip("useSuperfluidSubgraph", () => {
 				() =>
 					({
 						request: mockRequest,
-					}) as any,
+					}) as any
 			);
 
 			const { result } = renderHook(
 				() => useStreamsByReceiver("0xreceiver" as `0x${string}`),
-				{ wrapper: createWrapper() },
+				{ wrapper: createWrapper() }
 			);
 
 			await waitFor(() => expect(result.current.isFetching).toBe(false));
@@ -214,12 +214,12 @@ describeOrSkip("useSuperfluidSubgraph", () => {
 				() =>
 					({
 						request: mockRequest,
-					}) as any,
+					}) as any
 			);
 
 			const { result } = renderHook(
 				() => useAccountStreamInfo("0xaccount" as `0x${string}`),
-				{ wrapper: createWrapper() },
+				{ wrapper: createWrapper() }
 			);
 
 			await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -234,9 +234,9 @@ describeOrSkip("useSuperfluidSubgraph", () => {
 					useStreamByParties(
 						undefined,
 						"0xreceiver" as `0x${string}`,
-						"0xtoken" as `0x${string}`,
+						"0xtoken" as `0x${string}`
 					),
-				{ wrapper: createWrapper() },
+				{ wrapper: createWrapper() }
 			);
 
 			await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -265,7 +265,7 @@ describeOrSkip("useSuperfluidSubgraph", () => {
 				() =>
 					({
 						request: mockRequest,
-					}) as any,
+					}) as any
 			);
 
 			const { result } = renderHook(
@@ -273,9 +273,9 @@ describeOrSkip("useSuperfluidSubgraph", () => {
 					useStreamByParties(
 						"0xsender" as `0x${string}`,
 						"0xreceiver" as `0x${string}`,
-						"0xtoken" as `0x${string}`,
+						"0xtoken" as `0x${string}`
 					),
-				{ wrapper: createWrapper() },
+				{ wrapper: createWrapper() }
 			);
 
 			await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -323,12 +323,12 @@ describeOrSkip("useSuperfluidSubgraph", () => {
 				() =>
 					({
 						request: mockRequest,
-					}) as any,
+					}) as any
 			);
 
 			const { result } = renderHook(
 				() => useStreamHistory("0xreceiver" as `0x${string}`, 25),
-				{ wrapper: createWrapper() },
+				{ wrapper: createWrapper() }
 			);
 
 			await waitFor(() => expect(result.current.isSuccess).toBe(true));
@@ -338,7 +338,7 @@ describeOrSkip("useSuperfluidSubgraph", () => {
 				expect.objectContaining({
 					receiver: "0xreceiver",
 					first: 25,
-				}),
+				})
 			);
 		});
 	});

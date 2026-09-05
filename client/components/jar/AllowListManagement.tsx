@@ -148,7 +148,7 @@ export const AllowlistManagement: React.FC<AllowlistManagementProps> = ({
 													<p key={index} className="font-mono text-sm">
 														{address}
 													</p>
-												),
+												)
 											)}
 										</div>
 									</ScrollArea>

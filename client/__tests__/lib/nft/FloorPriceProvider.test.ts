@@ -92,7 +92,7 @@ describe("FloorPriceProvider", () => {
 				"https://api.opensea.io/api/v2/collections/0x123/stats",
 				expect.objectContaining({
 					headers: { "X-API-KEY": "test-opensea-key" },
-				}),
+				})
 			);
 		});
 
@@ -186,7 +186,7 @@ describe("FloorPriceProvider", () => {
 
 			expect(mockFetch).toHaveBeenCalledWith(
 				"https://api-polygon.reservoir.tools/collections/v7?contract=0x123",
-				expect.any(Object),
+				expect.any(Object)
 			);
 		});
 	});
@@ -228,7 +228,7 @@ describe("FloorPriceProvider", () => {
 				expect.objectContaining({
 					method: "GET",
 					headers: { accept: "application/json" },
-				}),
+				})
 			);
 		});
 	});
@@ -273,7 +273,7 @@ describe("FloorPriceProvider", () => {
 				"https://deep-index.moralis.io/api/v2.2/nft/0x123/stats?chain=eth",
 				expect.objectContaining({
 					headers: { "X-API-Key": "test-moralis-key" },
-				}),
+				})
 			);
 		});
 	});

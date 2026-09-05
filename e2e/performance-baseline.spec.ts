@@ -69,10 +69,10 @@ test.describe("⚡ Performance Baseline E2E", () => {
 			const coverage = await page.coverage.stopJSCoverage();
 			const totalBytes = coverage.reduce(
 				(total, entry) => total + entry.text.length,
-				0,
+				0
 			);
 			console.log(
-				`Total JS bytes loaded: ${(totalBytes / 1024).toFixed(2)} KB`,
+				`Total JS bytes loaded: ${(totalBytes / 1024).toFixed(2)} KB`
 			);
 		});
 
@@ -138,7 +138,7 @@ test.describe("⚡ Performance Baseline E2E", () => {
 			await page.fill('input[placeholder*="name"]', "Performance Test Jar");
 			await page.fill(
 				'textarea, input[placeholder*="description"]',
-				"Testing performance of jar creation",
+				"Testing performance of jar creation"
 			);
 
 			const formFillTime = Date.now() - formInteractionStart;
@@ -150,7 +150,7 @@ test.describe("⚡ Performance Baseline E2E", () => {
 			await page.click('button:has-text("Next")');
 
 			await expect(
-				page.locator("text=Withdrawal Settings, text=Amount"),
+				page.locator("text=Withdrawal Settings, text=Amount")
 			).toBeVisible({ timeout: 3000 });
 
 			const stepNavigationTime = Date.now() - stepNavigationStart;
@@ -183,7 +183,7 @@ test.describe("⚡ Performance Baseline E2E", () => {
 			}, 0);
 
 			console.log(
-				`Total JS bundle size: ${(totalJSSize / 1024).toFixed(2)} KB`,
+				`Total JS bundle size: ${(totalJSSize / 1024).toFixed(2)} KB`
 			);
 			console.log(`JS files loaded: ${responses.length}`);
 
@@ -223,7 +223,7 @@ test.describe("⚡ Performance Baseline E2E", () => {
 				if (contentLength) {
 					const size = parseInt(contentLength, 10);
 					console.log(
-						`Image ${imageResponse.url()} size: ${(size / 1024).toFixed(2)} KB`,
+						`Image ${imageResponse.url()} size: ${(size / 1024).toFixed(2)} KB`
 					);
 					expect(size).toBeLessThan(100 * 1024); // 100KB per image max
 				}
@@ -281,7 +281,7 @@ test.describe("⚡ Performance Baseline E2E", () => {
 
 			if (initialMemory) {
 				console.log(
-					`Initial memory: ${(initialMemory.used / 1024 / 1024).toFixed(2)} MB`,
+					`Initial memory: ${(initialMemory.used / 1024 / 1024).toFixed(2)} MB`
 				);
 			}
 
@@ -304,7 +304,7 @@ test.describe("⚡ Performance Baseline E2E", () => {
 			if (initialMemory && finalMemory) {
 				const memoryIncrease = finalMemory.used - initialMemory.used;
 				console.log(
-					`Memory increase: ${(memoryIncrease / 1024 / 1024).toFixed(2)} MB`,
+					`Memory increase: ${(memoryIncrease / 1024 / 1024).toFixed(2)} MB`
 				);
 
 				// Memory increase should be reasonable (under 50MB)
@@ -330,7 +330,7 @@ test.describe("⚡ Performance Baseline E2E", () => {
 
 			const initialMemory = await getMemoryUsage();
 			console.log(
-				`Initial memory: ${(initialMemory / 1024 / 1024).toFixed(2)} MB`,
+				`Initial memory: ${(initialMemory / 1024 / 1024).toFixed(2)} MB`
 			);
 
 			// Perform repeated actions that might cause memory leaks
@@ -357,7 +357,7 @@ test.describe("⚡ Performance Baseline E2E", () => {
 
 			const memoryIncrease = finalMemory - initialMemory;
 			console.log(
-				`Memory increase after 5 cycles: ${(memoryIncrease / 1024 / 1024).toFixed(2)} MB`,
+				`Memory increase after 5 cycles: ${(memoryIncrease / 1024 / 1024).toFixed(2)} MB`
 			);
 
 			// Memory increase should be minimal (under 20MB for 5 cycles)
@@ -573,7 +573,7 @@ test.describe("⚡ Performance Baseline E2E", () => {
 			let loadTime = Date.now() - startTime;
 
 			console.log(
-				`Homepage load: ${loadTime}ms (budget: ${performanceBudgets.homepageLoadTime}ms)`,
+				`Homepage load: ${loadTime}ms (budget: ${performanceBudgets.homepageLoadTime}ms)`
 			);
 			expect(loadTime).toBeLessThan(performanceBudgets.homepageLoadTime);
 
@@ -584,7 +584,7 @@ test.describe("⚡ Performance Baseline E2E", () => {
 			loadTime = Date.now() - startTime;
 
 			console.log(
-				`Jar page load: ${loadTime}ms (budget: ${performanceBudgets.jarPageLoadTime}ms)`,
+				`Jar page load: ${loadTime}ms (budget: ${performanceBudgets.jarPageLoadTime}ms)`
 			);
 			expect(loadTime).toBeLessThan(performanceBudgets.jarPageLoadTime);
 
@@ -595,7 +595,7 @@ test.describe("⚡ Performance Baseline E2E", () => {
 			loadTime = Date.now() - startTime;
 
 			console.log(
-				`Create page load: ${loadTime}ms (budget: ${performanceBudgets.createPageLoadTime}ms)`,
+				`Create page load: ${loadTime}ms (budget: ${performanceBudgets.createPageLoadTime}ms)`
 			);
 			expect(loadTime).toBeLessThan(performanceBudgets.createPageLoadTime);
 

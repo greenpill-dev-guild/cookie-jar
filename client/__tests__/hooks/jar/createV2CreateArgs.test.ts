@@ -2,10 +2,10 @@ import { decodeFunctionData, encodeFunctionData } from "viem";
 import { describe, expect, it, vi } from "vitest";
 import { cookieJarFactoryAbi } from "@/generated";
 import {
-	FACTORY_DEFAULT_FEE_SENTINEL,
 	buildV2CreateCookieJarArgs,
-	getFeePercentageOnDeposit,
+	FACTORY_DEFAULT_FEE_SENTINEL,
 	getAccessConfigValidationError,
+	getFeePercentageOnDeposit,
 } from "@/hooks/jar/createV2CreateArgs";
 import {
 	ETH_ADDRESS,
@@ -44,10 +44,14 @@ const NFTType = {
 	ERC1155: 2,
 } as const;
 
-type JarCreationFormData = Parameters<typeof buildV2CreateCookieJarArgs>[0]["values"];
+type JarCreationFormData = Parameters<
+	typeof buildV2CreateCookieJarArgs
+>[0]["values"];
 type ProtocolConfig = JarCreationFormData["protocolConfig"];
 
-type MakeValuesOverrides = Partial<Omit<JarCreationFormData, "protocolConfig">> & {
+type MakeValuesOverrides = Partial<
+	Omit<JarCreationFormData, "protocolConfig">
+> & {
 	protocolConfig?: Partial<ProtocolConfig>;
 };
 
@@ -96,7 +100,8 @@ describe("buildV2CreateCookieJarArgs", () => {
 		const args = buildV2CreateCookieJarArgs({
 			values: makeValues(),
 			metadata: "metadata",
-			parseAmount: (amount) => BigInt(Math.floor(Number.parseFloat(amount) * 1e18)),
+			parseAmount: (amount) =>
+				BigInt(Math.floor(Number.parseFloat(amount) * 1e18)),
 		});
 
 		const data = encodeFunctionData({
@@ -115,20 +120,22 @@ describe("buildV2CreateCookieJarArgs", () => {
 	});
 
 	it("uses default fee sentinel when custom fee is disabled", () => {
-		const fee = getFeePercentageOnDeposit(makeValues({ enableCustomFee: false }));
+		const fee = getFeePercentageOnDeposit(
+			makeValues({ enableCustomFee: false })
+		);
 		expect(fee).toBe(FACTORY_DEFAULT_FEE_SENTINEL);
 	});
 
 	it("uses explicit custom fee when provided", () => {
 		const fee = getFeePercentageOnDeposit(
-			makeValues({ enableCustomFee: true, customFee: "2.5" }),
+			makeValues({ enableCustomFee: true, customFee: "2.5" })
 		);
 		expect(fee).toBe(250n);
 	});
 
 	it("supports explicit zero-percent fee", () => {
 		const fee = getFeePercentageOnDeposit(
-			makeValues({ enableCustomFee: true, customFee: "0" }),
+			makeValues({ enableCustomFee: true, customFee: "0" })
 		);
 		expect(fee).toBe(0n);
 	});
@@ -145,7 +152,7 @@ describe("buildV2CreateCookieJarArgs", () => {
 		});
 		expect(jarConfig.accessType).toBe(1);
 		expect(accessConfig.nftRequirement.nftContract).toBe(
-			"0x1111111111111111111111111111111111111111",
+			"0x1111111111111111111111111111111111111111"
 		);
 	});
 
@@ -226,9 +233,11 @@ describe("getAccessConfigValidationError", () => {
 				accessType: AccessType.NFTGated,
 				nftAddresses: [],
 				nftTypes: [],
-			}),
+			})
 		);
-		expect(error).toBe("At least one NFT address is required for NFT-gated access");
+		expect(error).toBe(
+			"At least one NFT address is required for NFT-gated access"
+		);
 	});
 
 	it("returns an error for NFT-gated access when nftAddresses and nftTypes mismatch", () => {
@@ -240,7 +249,7 @@ describe("getAccessConfigValidationError", () => {
 					"0x2222222222222222222222222222222222222222",
 				],
 				nftTypes: [NFTType.ERC721],
-			}),
+			})
 		);
 		expect(error).toBe("NFT addresses and NFT types must have the same length");
 	});
@@ -251,7 +260,7 @@ describe("getAccessConfigValidationError", () => {
 				accessType: AccessType.NFTGated,
 				nftAddresses: ["not-an-address"],
 				nftTypes: [NFTType.ERC721],
-			}),
+			})
 		);
 		expect(error).toBe("NFT address must be a valid Ethereum address");
 	});
@@ -262,7 +271,7 @@ describe("getAccessConfigValidationError", () => {
 				accessType: AccessType.NFTGated,
 				nftAddresses: ["0x1111111111111111111111111111111111111111"],
 				nftTypes: [NFTType.ERC1155],
-			}),
+			})
 		);
 		expect(error).toBeUndefined();
 	});
@@ -272,7 +281,7 @@ describe("getAccessConfigValidationError", () => {
 			makeValues({
 				accessType: AccessType.POAP,
 				protocolConfig: { accessType: "POAP" },
-			}),
+			})
 		);
 		expect(error).toBe("POAP event is required");
 	});
@@ -282,7 +291,7 @@ describe("getAccessConfigValidationError", () => {
 			makeValues({
 				accessType: AccessType.POAP,
 				protocolConfig: { accessType: "POAP", eventId: "abc" },
-			}),
+			})
 		);
 		expect(error).toBe("POAP event must be a valid number");
 	});
@@ -296,9 +305,11 @@ describe("getAccessConfigValidationError", () => {
 					eventId: "1234",
 					poapContractAddress: "invalid-contract",
 				},
-			}),
+			})
 		);
-		expect(error).toBe("POAP contract address must be a valid Ethereum address");
+		expect(error).toBe(
+			"POAP contract address must be a valid Ethereum address"
+		);
 	});
 
 	it("returns undefined for valid POAP access", () => {
@@ -310,7 +321,7 @@ describe("getAccessConfigValidationError", () => {
 					eventId: "1234",
 					poapContractAddress: POAP_TOKEN_ADDRESS,
 				},
-			}),
+			})
 		);
 		expect(error).toBeUndefined();
 	});
@@ -320,7 +331,7 @@ describe("getAccessConfigValidationError", () => {
 			makeValues({
 				accessType: AccessType.Unlock,
 				protocolConfig: { accessType: "Unlock" },
-			}),
+			})
 		);
 		expect(error).toBe("Unlock contract address is required");
 	});
@@ -330,9 +341,11 @@ describe("getAccessConfigValidationError", () => {
 			makeValues({
 				accessType: AccessType.Unlock,
 				protocolConfig: { accessType: "Unlock", unlockAddress: "invalid" },
-			}),
+			})
 		);
-		expect(error).toBe("Unlock contract address must be a valid Ethereum address");
+		expect(error).toBe(
+			"Unlock contract address must be a valid Ethereum address"
+		);
 	});
 
 	it("returns undefined for valid Unlock access", () => {
@@ -343,7 +356,7 @@ describe("getAccessConfigValidationError", () => {
 					accessType: "Unlock",
 					unlockAddress: "0x2222222222222222222222222222222222222222",
 				},
-			}),
+			})
 		);
 		expect(error).toBeUndefined();
 	});
@@ -356,7 +369,7 @@ describe("getAccessConfigValidationError", () => {
 					accessType: "Hypercert",
 					hypercertTokenId: "1",
 				},
-			}),
+			})
 		);
 		expect(error).toBe("Hypercert contract address is required");
 	});
@@ -369,7 +382,7 @@ describe("getAccessConfigValidationError", () => {
 					accessType: "Hypercert",
 					hypercertAddress: "0x3333333333333333333333333333333333333333",
 				},
-			}),
+			})
 		);
 		expect(error).toBe("Hypercert token ID is required");
 	});
@@ -383,7 +396,7 @@ describe("getAccessConfigValidationError", () => {
 					hypercertAddress: "0x3333333333333333333333333333333333333333",
 					hypercertTokenId: "abc",
 				},
-			}),
+			})
 		);
 		expect(error).toBe("Hypercert token ID must be a valid number");
 	});
@@ -398,7 +411,7 @@ describe("getAccessConfigValidationError", () => {
 					hypercertTokenId: "1",
 					hypercertMinBalance: Number.NaN,
 				},
-			}),
+			})
 		);
 		expect(error).toBe("Hypercert minimum balance must be a valid number");
 	});
@@ -413,7 +426,7 @@ describe("getAccessConfigValidationError", () => {
 					hypercertTokenId: "42",
 					hypercertMinBalance: 1,
 				},
-			}),
+			})
 		);
 		expect(error).toBeUndefined();
 	});
@@ -423,7 +436,7 @@ describe("getAccessConfigValidationError", () => {
 			makeValues({
 				accessType: AccessType.Hats,
 				protocolConfig: { accessType: "Hats" },
-			}),
+			})
 		);
 		expect(error).toBe("Hat ID is required");
 	});
@@ -433,7 +446,7 @@ describe("getAccessConfigValidationError", () => {
 			makeValues({
 				accessType: AccessType.Hats,
 				protocolConfig: { accessType: "Hats", hatsId: "abc" },
-			}),
+			})
 		);
 		expect(error).toBe("Hat ID must be a valid number");
 	});
@@ -443,7 +456,7 @@ describe("getAccessConfigValidationError", () => {
 			makeValues({
 				accessType: AccessType.Hats,
 				protocolConfig: { accessType: "Hats", hatsId: "99" },
-			}),
+			})
 		);
 		expect(error).toBeUndefined();
 	});

@@ -26,7 +26,7 @@ export const test = base.extend<{
 export class WalletTester {
 	constructor(
 		private page: Page,
-		_context: BrowserContext,
+		_context: BrowserContext
 	) {}
 
 	async connectWallet(accountIndex: number = 0) {
@@ -61,7 +61,7 @@ export class WalletTester {
 				window.dispatchEvent(
 					new CustomEvent("wallet-connected", {
 						detail: accountData,
-					}),
+					})
 				);
 
 				// Mock localStorage for RainbowKit
@@ -95,7 +95,7 @@ export class WalletTester {
 			window.dispatchEvent(
 				new CustomEvent("wallet-account-changed", {
 					detail: accountData,
-				}),
+				})
 			);
 		}, account);
 
@@ -103,16 +103,16 @@ export class WalletTester {
 		await this.page.waitForFunction(
 			(expectedAddress) => {
 				const elements = document.querySelectorAll(
-					'[title*="0x"], [class*="address"]',
+					'[title*="0x"], [class*="address"]'
 				);
 				return Array.from(elements).some(
 					(el) =>
 						el.textContent?.includes(expectedAddress.slice(0, 6)) ||
-						el.getAttribute("title")?.includes(expectedAddress),
+						el.getAttribute("title")?.includes(expectedAddress)
 				);
 			},
 			account.address,
-			{ timeout: 5000 },
+			{ timeout: 5000 }
 		);
 
 		console.log(`✅ Switched to ${account.name}`);
@@ -139,7 +139,7 @@ export class WalletTester {
 						status: "success",
 						blockNumber: Math.floor(Math.random() * 1000000),
 					},
-				}),
+				})
 			);
 		});
 
@@ -157,7 +157,7 @@ export class WalletTester {
 			window.dispatchEvent(
 				new CustomEvent("transaction-rejected", {
 					detail: { reason: "User rejected transaction" },
-				}),
+				})
 			);
 		});
 
@@ -177,11 +177,11 @@ export class WalletTester {
 			() => {
 				// Look for loading states to disappear
 				const loadingElements = document.querySelectorAll(
-					'[class*="animate-spin"]',
+					'[class*="animate-spin"]'
 				);
 				return loadingElements.length === 0;
 			},
-			{ timeout: 30000 },
+			{ timeout: 30000 }
 		);
 	}
 }

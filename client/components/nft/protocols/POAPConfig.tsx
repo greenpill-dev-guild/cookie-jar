@@ -240,7 +240,9 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
 							onChange={handleEventIdChange}
 							className="flex-1"
 							aria-invalid={!!validationError}
-							aria-describedby={validationError ? "poap-event-error" : undefined}
+							aria-describedby={
+								validationError ? "poap-event-error" : undefined
+							}
 						/>
 						<Button
 							onClick={handleValidateEventId}

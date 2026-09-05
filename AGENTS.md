@@ -1,305 +1,92 @@
-# Cookie Jar - AI Agent Guide
+# Cookie Jar: agent guide
 
-> Comprehensive guidelines for AI agents working on Cookie Jar protocol
+The repository contract for any coding agent (Claude Code, Codex, Cursor). Claude-specific entry
+points live in `CLAUDE.md`; path-scoped rules in `.claude/rules/`; deep references in
+`.claude/context/`; the deployment runbook in `docs/DEPLOYMENT.md`.
 
-## 🎯 Quick Reference
+## What this repo is
 
-Cookie Jar uses **modular `.mdc` rules** that automatically apply based on file context:
+Cookie Jar is a funding-pool protocol: a factory creates jars that allowlisted or token-gated
+members withdraw from under fixed rules. The guild runs one live jar for the contributor stipend
+on Arbitrum One (USDC, gated by the Green Goods "Team" hat, owned by the Working Capital multi-sig)
+and serves it at `cookies.greengoods.app`. Everything else in the client is secondary to that jar
+working correctly.
 
-- **Root Standards**: `.cursor/rules/root-standards.mdc` - Always active
-- **Web3 Patterns**: `.cursor/rules/web3-patterns.mdc` - For Web3 code
-- **Testing Patterns**: `.cursor/rules/testing-patterns.mdc` - For test files
-- **Deployment**: `.cursor/rules/deployment.mdc` - For deployment scripts
+## Repository map
 
-**Subdirectory Rules** (auto-attached when working in specific areas):
-- **Frontend**: `client/.cursor/rules/frontend-standards.mdc`
-- **Contracts**: `contracts/.cursor/rules/solidity-standards.mdc`
-- **E2E**: `e2e/.cursor/rules/e2e-standards.mdc`
+| Path | Role |
+| --- | --- |
+| `client/` | Next.js 15 App Router (React 18, wagmi 2, viem 2, RainbowKit, shadcn/ui, Tailwind 3, Vitest) |
+| `contracts/` | Foundry: `CookieJarFactory.sol`, `CookieJar.sol`, libraries, scripts (`Deploy`, `CreateJar`, `DeployLocal`), tests |
+| `e2e/` | Playwright specs run against `bun dev` (Anvil + seeded jars) |
+| `scripts/` | `deploy.sh`, `sync-deployments.ts`, `dev-start.sh`, `oz-compat.sh`, `install-deps.sh` |
+| `lib/` | Git submodules: forge-std, openzeppelin-contracts (v5), permit2, protocol-monorepo, universal-router |
+| `.github/` | Workflows (quality, unit, contract, integration, e2e, accessibility, security) and Dependabot |
+| `docs/` | `DEPLOYMENT.md` runbook, `RELEASES.md` |
 
-## 📚 Documentation Structure
-
-All documentation is in flat structure in `/docs/`:
-
-```
-docs/
-├── ACCESS_CONTROL.md           # 6 access control methods
-├── DEVELOPMENT.md              # Dev workflow & commands
-├── DEPLOYMENT.md               # Production deployment
-├── TESTING.md                  # Testing strategies
-├── ARCHITECTURE.md             # High-level system architecture
-├── CONTRACTS.md                # Smart contract design
-├── FRONTEND.md                 # Frontend architecture
-├── INTEGRATIONS.md             # Protocol integrations (Superfluid, Uniswap, etc.)
-├── NFT_INTEGRATION.md          # Comprehensive NFT functionality
-├── FOUNDRY_SETUP.md            # Foundry configuration
-├── AI_AGENTS.md                # AI agent configuration (this doc's details)
-├── RELEASES.md                 # Release history
-├── MIGRATIONS.md               # Migration guides
-└── SUBMODULE_MIGRATION.md      # Submodule migration (historical)
-```
-
-## 🚀 Development Workflow
-
-### 1. Environment Setup
+## Commands
 
 ```bash
-# Zero-configuration start
-git clone https://github.com/greenpill-dev-guild/cookie-jar.git
-cd cookie-jar
-npm install  # Auto-installs Foundry
-bun install  # Install dependencies
-bun dev      # Starts everything
+bun install --frozen-lockfile   # the lockfile is the source of truth
+bun dev                         # Anvil + seed deploy + registry sync + Next dev on :3000
+bun check                       # oxlint + Next rules + tsc
+bun format:check                # Biome (tabs, double quotes); bun format to fix
+cd client && bun run test       # vitest (never `bun test`: Bun's runner ignores the config)
+bun run test:contracts          # forge test, dev profile (solc 0.8.30)
+bun run test:e2e                # Playwright against a running bun dev
+cd client && bun run build:skip-lint   # production build
+bun audit --audit-level high    # dependency gate used by CI
+bun sync:deployment -- --chain 42161   # merge a broadcast into client/config/deployments.json
+bun deploy:arbitrum             # factory deploy (keystore, human only)
+bun create-jar:arbitrum         # jar creation from .env.local inputs (keystore, human only)
 ```
 
-### 2. Code Quality Commands
+## Global invariants
 
-```bash
-# Fast TypeScript checking (use this first!)
-bun type-check
+- viem and wagmi only; no ethers. ABIs come from `client/generated.ts` (`bun generate`).
+- Every jar read and write carries the jar's `chainId`; the wallet chain is not the jar chain.
+- Access types are the contract enum (Allowlist, ERC721, ERC1155); Hats and POAP are labels.
+- Funds enter jars only through `deposit()`; the UI never suggests a plain transfer.
+- Solidity never writes client files; `scripts/sync-deployments.ts` owns the registry.
+- Immutable jar rules are never "patched": a wrong jar is abandoned and re-created.
+- Secrets never enter files, workflows or chat; mainnet transactions are signed by a human from a
+  Foundry keystore after a dry run.
+- Semantic Tailwind tokens only (no raw hex classes); `log` from `@/lib/app/logger`, no `console`.
+- Conventional commits; PRs target `dev`; `main` only receives release merges and deploys to Vercel.
 
-# Full testing suite
-bun test                # All tests
-bun test:client         # Frontend only
-bun test:contracts      # Contracts only
-bun test:e2e           # End-to-end
+## Workflow
 
-# Code quality
-bun lint               # ESLint + Solhint
-bun format             # Prettier
-```
+1. Research before changing anything non-trivial: read the rule file for the path, the context
+   map, and the tests that already cover the area.
+2. Plan in small verifiable steps; each step ends in a command that proves it.
+3. Implement test-first where a seam exists (`.claude/skills/tdd`).
+4. Verify: `bun check`, the touched test files, the full suite for the package, a production build
+   when routes, config or dependencies changed, `forge build --sizes` when contracts changed.
+5. Review along Standards and Spec axes before shipping (`.claude/skills/review`).
+6. Ship with fresh evidence and current-head CI (`.claude/skills/ship`).
 
-### 3. Rule Application
+## Change criticality
 
-Rules automatically apply based on context:
+Critical: `contracts/**`, `client/hooks/jar/**`, `client/lib/jar/**`, `client/config/**`,
+anything touching addresses, chain ids, amounts or gates. Sensitive: `client/components/jar/**`,
+`.github/**`, `scripts/**`, dependency manifests. Routine: the rest. See
+`.claude/context/values.md` for what each level requires.
 
-| Working On | Active Rules |
-|-----------|--------------|
-| **Any file** | `root-standards.mdc` |
-| **React/TypeScript** | `+ frontend-standards.mdc` + `web3-patterns.mdc` |
-| **Solidity** | `+ solidity-standards.mdc` |
-| **Test files** | `+ testing-patterns.mdc` |
-| **Deploy scripts** | `+ deployment.mdc` |
+## Multi-agent and repo safety
 
-## 🎨 Core Patterns
+- Stay on the current branch; never reset or rewrite shared history; do not run bulk destructive
+  git operations without a fresh, explicit instruction.
+- `lib/openzeppelin-contracts` shows untracked content after installs (ERC777 shims); leave it.
+- Agent worktrees live under `.claude/worktrees/` (ignored); remove yours when done.
 
-### Frontend Development
+## Verify before claiming success
 
-**Use these hooks**:
-- `useQuery` from TanStack Query for blockchain state
-- `useWriteContract` from wagmi for transactions
-- `useChainId` to validate network
-- Custom hooks in `hooks/` for domain logic
+"Should work", "probably fixed" and unrun commands are not evidence. Quote the command and its last
+lines. For chain code, add a read from Anvil or the live contract (`cast call`). For UI, a
+screenshot or a Playwright assertion.
 
-**Component pattern**:
-```typescript
-export function JarCard({ address }: JarCardProps) {
-  const { data, isLoading, error } = useJarData({ address })
-  
-  if (isLoading) return <Skeleton />
-  if (error) return <ErrorCard error={error} />
-  
-  return <Card>{/* content */}</Card>
-}
-```
+## Writing for humans
 
-### Smart Contract Development
-
-**Contract structure**:
-1. Imports
-2. Type declarations  
-3. State variables
-4. Events
-5. Custom errors
-6. Modifiers
-7. Constructor
-8. External functions
-9. Public functions
-10. Internal functions
-11. Private functions
-
-**Security checklist**:
-- ✅ ReentrancyGuard on external calls
-- ✅ Access control modifiers
-- ✅ Input validation with custom errors
-- ✅ Checks-Effects-Interactions pattern
-- ✅ NatSpec documentation
-
-### Testing
-
-**Coverage requirements**:
-- New code: 90%+
-- Critical paths: 100%
-- Error scenarios: 80%+
-
-**Test types**:
-- **Unit**: Component/function logic
-- **Integration**: Multi-component flows
-- **E2E**: Complete user journeys
-- **Contract**: Foundry tests with fuzzing
-
-## 🔐 Security Standards
-
-### Web3 Security
-- **ALWAYS validate chain ID** before transactions
-- **NEVER use ethers.js** - use viem + wagmi only
-- **Default to testnets** - require explicit mainnet acknowledgment
-- **Gas limits** - include to prevent griefing
-
-### Contract Security
-- **ReentrancyGuard**: All external value transfers
-- **Access control**: OpenZeppelin patterns only
-- **Input validation**: Custom errors, no require strings
-- **Emergency functions**: Pausable for critical contracts
-
-## 📊 Quality Gates
-
-All PRs must pass:
-- ✅ `bun test` - All tests passing
-- ✅ `bun type-check` - No TypeScript errors
-- ✅ `bun lint` - Clean linting
-- ✅ `bun test:coverage` - Coverage maintained
-- ✅ `bun build` - Successful build
-
-## 🚨 Critical Patterns
-
-### DO Use
-- ✅ viem + wagmi for Web3
-- ✅ TanStack Query for async state
-- ✅ OpenZeppelin for contracts
-- ✅ TypeScript strict mode
-- ✅ Functional React components
-- ✅ Mobile-first responsive design
-
-### DON'T Use
-- ❌ ethers.js (use viem instead)
-- ❌ Class components (use functional)
-- ❌ `any` types (use explicit types)
-- ❌ Inline styles (use Tailwind)
-- ❌ require() in Solidity (use custom errors)
-
-## 📝 Commit Standards
-
-Use conventional commits:
-- `feat:` - New features
-- `fix:` - Bug fixes
-- `chore:` - Maintenance
-- `docs:` - Documentation
-- `test:` - Test updates
-- `refactor:` - Code refactoring
-
-## 🧭 Navigation Guide
-
-### Working on Frontend?
-1. Read: `client/.cursor/rules/frontend-standards.mdc`
-2. Reference: [docs/ACCESS_CONTROL.md](docs/ACCESS_CONTROL.md) and [docs/FRONTEND.md](docs/FRONTEND.md)
-3. Check: Existing components in `client/components/`
-
-### Working on Contracts?
-1. Read: `contracts/.cursor/rules/solidity-standards.mdc`
-2. Reference: [docs/CONTRACTS.md](docs/CONTRACTS.md)
-3. Check: Existing contracts in `contracts/src/`
-
-### Writing Tests?
-1. Read: `.cursor/rules/testing-patterns.mdc`
-2. Reference: [docs/TESTING.md](docs/TESTING.md)
-3. Ensure: 90%+ coverage maintained
-
-### Deploying?
-1. Read: `.cursor/rules/deployment.mdc`
-2. Reference: [docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)
-3. Follow: Security checklist completely
-
-## 🎯 Common Tasks
-
-### Task: Add new protocol integration
-
-1. **Contract**: Create interface in `contracts/src/interfaces/`
-2. **Library**: Add validation in `contracts/src/libraries/AccessControl.sol`
-3. **Frontend**: Create hook in `client/hooks/nft/`
-4. **Component**: Add selector in `client/components/nft/`
-5. **Tests**: Add coverage in `__tests__/hooks/` and `contracts/test/`
-6. **Docs**: Update [docs/guides/PROTOCOLS.md](docs/guides/PROTOCOLS.md)
-
-### Task: Fix a bug
-
-1. **Reproduce**: Write failing test first
-2. **Fix**: Implement fix following patterns
-3. **Test**: Ensure test passes + no regressions
-4. **Document**: Update docs if behavior changed
-
-### Task: Optimize performance
-
-1. **Measure**: Use profiler/gas reporter
-2. **Optimize**: Apply relevant patterns
-3. **Verify**: Confirm improvement with metrics
-4. **Document**: Add notes about optimization
-
-## 🔗 Key Resources
-
-### Documentation
-- [Main README](README.md) - Get running in 5 minutes
-- [Development Guide](docs/DEVELOPMENT.md) - Development workflow
-- [Architecture Overview](docs/ARCHITECTURE.md) - System design
-- [Access Control](docs/ACCESS_CONTROL.md) - 6 access control methods
-- [Deployment Guide](docs/DEPLOYMENT.md) - Production deployment
-
-### Code References
-- [Example Components](client/components/jar/) - Well-tested components
-- [Example Hooks](client/hooks/jar/) - Reusable hooks
-- [Contract Tests](contracts/test/) - Comprehensive test examples
-- [E2E Tests](e2e/) - User flow examples
-
-### External Docs
-- [viem](https://viem.sh) - Web3 library docs
-- [wagmi](https://wagmi.sh) - React hooks docs
-- [Foundry](https://book.getfoundry.sh/) - Contract framework
-- [Next.js](https://nextjs.org/docs) - Frontend framework
-
-## 💡 Pro Tips
-
-1. **Use `bun type-check`** instead of full builds for TypeScript validation - it's 10x faster
-2. **Start with `bun dev`** from project root - it handles everything
-3. **Check existing patterns** before creating new ones
-4. **Write tests first** for complex logic
-5. **Reference rule files** when unsure about patterns
-6. **Mobile-first** - design for mobile, then scale up
-7. **Security first** - especially for contract changes
-
-## 🆘 Troubleshooting
-
-### "Can't find module" errors
-```bash
-bun install  # Reinstall dependencies
-bun generate # Regenerate contract types
-```
-
-### "Port already in use"
-```bash
-bun dev:stop  # Stop all services
-bun dev       # Restart
-```
-
-### "Contract not found"
-```bash
-bun deploy:local  # Redeploy contracts
-bun generate      # Regenerate types
-```
-
-### "Tests failing"
-```bash
-bun test:coverage  # See what's not covered
-bun test:watch     # Debug in watch mode
-```
-
----
-
-## 📣 Remember
-
-- **Follow the rules** - They're optimized for consistency
-- **Write tests** - 90%+ coverage is mandatory
-- **Document changes** - Future you will thank present you
-- **Security first** - Especially for Web3 code
-- **Mobile-first** - Design for smallest screen first
-- **Ask questions** - Better to clarify than assume
-
-*These guidelines ensure high-quality, consistent, and secure code across the Cookie Jar protocol.*
+Lead with the outcome, then evidence, then the next step. Short sentences, no em dashes, no
+marketing tone. Linear issues and PR bodies: problem or outcome first, one topic per issue, never
+raw agent output.

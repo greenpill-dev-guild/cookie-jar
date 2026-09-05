@@ -63,23 +63,37 @@ export const getNetworkInfo = (chainId?: number) => {
 /**
  * Get block explorer URL for an address
  */
+const EXPLORERS: Record<number, string> = {
+	1: "https://etherscan.io",
+	8453: "https://basescan.org",
+	84532: "https://sepolia.basescan.org",
+	10: "https://optimistic.etherscan.io",
+	11155420: "https://sepolia-optimism.etherscan.io",
+	42161: "https://arbiscan.io",
+	421614: "https://sepolia.arbiscan.io",
+	100: "https://gnosisscan.io",
+	137: "https://polygonscan.com",
+	11155111: "https://sepolia.etherscan.io",
+	42220: "https://celoscan.io",
+};
+
+/** Whether a public block explorer is known for the chain (Anvil has none). */
+export function hasExplorer(chainId: number): boolean {
+	return chainId in EXPLORERS;
+}
+
 export function getExplorerAddressUrl(
 	address: string,
-	chainId: number,
+	chainId: number
 ): string {
-	const explorers: Record<number, string> = {
-		1: "https://etherscan.io",
-		8453: "https://basescan.org",
-		84532: "https://sepolia.basescan.org",
-		10: "https://optimistic.etherscan.io",
-		11155420: "https://sepolia-optimism.etherscan.io",
-		42161: "https://arbiscan.io",
-		421614: "https://sepolia.arbiscan.io",
-		100: "https://gnosisscan.io",
-		137: "https://polygonscan.com",
-		11155111: "https://sepolia.etherscan.io",
-	};
-
-	const baseUrl = explorers[chainId] || "https://etherscan.io";
+	const baseUrl = EXPLORERS[chainId] || "https://etherscan.io";
 	return `${baseUrl}/address/${address}`;
+}
+
+/**
+ * Get block explorer URL for a transaction
+ */
+export function getExplorerTxUrl(hash: string, chainId: number): string {
+	const baseUrl = EXPLORERS[chainId] || "https://etherscan.io";
+	return `${baseUrl}/tx/${hash}`;
 }

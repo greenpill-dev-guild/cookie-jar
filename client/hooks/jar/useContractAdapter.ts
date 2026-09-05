@@ -68,7 +68,7 @@ export interface ContractAdapter {
  * ```
  */
 export const useContractAdapter = (
-	chainIdOverride?: number,
+	chainIdOverride?: number
 ): ContractAdapter => {
 	const chainId = chainIdOverride ?? useChainId();
 	const isV2 = isV2Chain(chainId);

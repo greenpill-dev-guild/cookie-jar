@@ -157,7 +157,7 @@ export interface useUserNFTsOptions {
  * ```
  */
 export function useUserNFTs(
-	options: useUserNFTsOptions = {},
+	options: useUserNFTsOptions = {}
 ): useUserNFTsResult {
 	const {
 		contractAddresses,
@@ -187,7 +187,7 @@ export function useUserNFTs(
 						? "Wallet not connected"
 						: !alchemyId
 							? "Alchemy API key not configured"
-							: "Network not supported by Alchemy",
+							: "Network not supported by Alchemy"
 				);
 				return;
 			}
@@ -221,7 +221,7 @@ export function useUserNFTs(
 
 				if (!response.ok) {
 					throw new Error(
-						`Alchemy API error: ${response.status} ${response.statusText}`,
+						`Alchemy API error: ${response.status} ${response.statusText}`
 					);
 				}
 
@@ -296,7 +296,7 @@ export function useUserNFTs(
 			pageSize,
 			pageKey,
 			nfts,
-		],
+		]
 	);
 
 	const loadMore = useCallback(() => {

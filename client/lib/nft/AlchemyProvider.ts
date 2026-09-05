@@ -16,7 +16,7 @@ const isValidTokenType = (type: any): type is "ERC721" | "ERC1155" => {
 const sanitizeString = (
 	value: any,
 	maxLength: number = 200,
-	fallback: string = "",
+	fallback: string = ""
 ): string => {
 	if (typeof value !== "string") return fallback;
 	return value.slice(0, maxLength).trim();
@@ -28,7 +28,7 @@ const sanitizeNumber = (value: any, fallback: number = 0): number => {
 };
 
 const sanitizeAttributes = (
-	attributes: any,
+	attributes: any
 ): Array<{ trait_type: string; value: any }> => {
 	if (!Array.isArray(attributes)) return [];
 
@@ -130,11 +130,11 @@ export interface EnhancedNFTMetadata {
 export interface NFTProvider {
 	getUserNFTs(
 		ownerAddress: string,
-		contractAddresses?: string[],
+		contractAddresses?: string[]
 	): Promise<EnhancedNFT[]>;
 	getNFTMetadata(
 		contractAddress: string,
-		tokenId: string,
+		tokenId: string
 	): Promise<EnhancedNFTMetadata>;
 	validateContract(contractAddress: string): Promise<{
 		isValid: boolean;
@@ -185,7 +185,7 @@ export class AlchemyNFTProvider implements NFTProvider {
 
 	async getUserNFTs(
 		ownerAddress: string,
-		contractAddresses?: string[],
+		contractAddresses?: string[]
 	): Promise<EnhancedNFT[]> {
 		try {
 			// Input validation
@@ -203,7 +203,7 @@ export class AlchemyNFTProvider implements NFTProvider {
 
 			const response = await this.alchemy.nft.getNftsForOwner(
 				ownerAddress,
-				options,
+				options
 			);
 
 			if (!response?.ownedNfts || !Array.isArray(response.ownedNfts)) {
@@ -213,7 +213,7 @@ export class AlchemyNFTProvider implements NFTProvider {
 			// Safe mapping with proper type checking
 			const enhancedNFTs: EnhancedNFT[] = response.ownedNfts
 				.filter((nft): nft is OwnedNft =>
-					Boolean(nft?.contract?.address && nft.tokenId),
+					Boolean(nft?.contract?.address && nft.tokenId)
 				)
 				.map((nft) => {
 					// Safe type conversion with fallbacks
@@ -234,12 +234,12 @@ export class AlchemyNFTProvider implements NFTProvider {
 						name: sanitizeString(
 							(nft as any).title || nft.contract.name,
 							100,
-							`Token #${tokenId}`,
+							`Token #${tokenId}`
 						),
 						description: sanitizeString((nft as any).description, 500),
 						image: sanitizeString(
 							nft.image?.originalUrl || nft.image?.thumbnailUrl,
-							500,
+							500
 						),
 						traits: sanitizeAttributes((nft as any).rawMetadata?.attributes),
 						collection: {
@@ -259,7 +259,7 @@ export class AlchemyNFTProvider implements NFTProvider {
 		} catch (error) {
 			console.error("AlchemyNFTProvider: Failed to fetch user NFTs:", error);
 			throw new Error(
-				`Failed to fetch NFTs: ${error instanceof Error ? error.message : "Unknown error"}`,
+				`Failed to fetch NFTs: ${error instanceof Error ? error.message : "Unknown error"}`
 			);
 		}
 	}
@@ -277,7 +277,7 @@ export class AlchemyNFTProvider implements NFTProvider {
 
 	async getNFTMetadata(
 		contractAddress: string,
-		tokenId: string,
+		tokenId: string
 	): Promise<EnhancedNFTMetadata> {
 		try {
 			// Input validation
@@ -287,7 +287,7 @@ export class AlchemyNFTProvider implements NFTProvider {
 
 			const metadata = await this.alchemy.nft.getNftMetadata(
 				contractAddress,
-				tokenId,
+				tokenId
 			);
 
 			if (!metadata) {
@@ -302,10 +302,10 @@ export class AlchemyNFTProvider implements NFTProvider {
 				description: sanitizeString((safeMetadata as any).description, 1000),
 				image: sanitizeString(
 					safeMetadata.image?.originalUrl || safeMetadata.image?.thumbnailUrl,
-					500,
+					500
 				),
 				traits: sanitizeAttributes(
-					(safeMetadata as any).rawMetadata?.attributes,
+					(safeMetadata as any).rawMetadata?.attributes
 				),
 				collection: sanitizeString(safeMetadata.contract?.name, 100),
 				tokenType: isValidTokenType(safeMetadata.tokenType)
@@ -313,17 +313,17 @@ export class AlchemyNFTProvider implements NFTProvider {
 					: "ERC721",
 				externalUrl: sanitizeString(
 					(safeMetadata as any).rawMetadata?.external_url,
-					500,
+					500
 				),
 				animationUrl: sanitizeString(
 					(safeMetadata as any).rawMetadata?.animation_url,
-					500,
+					500
 				),
 			};
 		} catch (error) {
 			console.error("AlchemyNFTProvider: Failed to fetch NFT metadata:", error);
 			throw new Error(
-				`Failed to fetch metadata: ${error instanceof Error ? error.message : "Unknown error"}`,
+				`Failed to fetch metadata: ${error instanceof Error ? error.message : "Unknown error"}`
 			);
 		}
 	}
@@ -358,7 +358,7 @@ export class AlchemyNFTProvider implements NFTProvider {
 			// Try to get contract metadata to validate it's an NFT contract
 			const metadata = await this.alchemy.nft.getNftMetadata(
 				contractAddress,
-				"1",
+				"1"
 			);
 
 			if (!metadata) {
@@ -418,7 +418,7 @@ export class AlchemyNFTProvider implements NFTProvider {
 			];
 
 			const isMalicious = suspiciousPatterns.some((pattern) =>
-				errorMessage.toLowerCase().includes(pattern),
+				errorMessage.toLowerCase().includes(pattern)
 			);
 
 			return {
@@ -446,7 +446,7 @@ export class AlchemyNFTProvider implements NFTProvider {
 		} catch (error) {
 			console.warn(
 				"Failed to fetch floor price:",
-				error instanceof Error ? error.message : "Unknown error",
+				error instanceof Error ? error.message : "Unknown error"
 			);
 			return 0;
 		}
@@ -475,7 +475,7 @@ export class AlchemyNFTProvider implements NFTProvider {
 
 	async searchNFTs(
 		query: string,
-		ownerAddress?: string,
+		ownerAddress?: string
 	): Promise<EnhancedNFT[]> {
 		try {
 			// This would use Alchemy's search capabilities
@@ -486,7 +486,7 @@ export class AlchemyNFTProvider implements NFTProvider {
 					(nft) =>
 						nft.name?.toLowerCase().includes(query.toLowerCase()) ||
 						nft.collection.name?.toLowerCase().includes(query.toLowerCase()) ||
-						nft.contractAddress.toLowerCase().includes(query.toLowerCase()),
+						nft.contractAddress.toLowerCase().includes(query.toLowerCase())
 				);
 			}
 

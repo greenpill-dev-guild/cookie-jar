@@ -98,7 +98,7 @@ describeOrSkip("useJarCreation", () => {
 				React.createElement(
 					QueryClientProvider,
 					{ client: queryClient },
-					children,
+					children
 				),
 		});
 	};
@@ -114,7 +114,7 @@ describeOrSkip("useJarCreation", () => {
 			const { result } = renderHookWithProviders();
 
 			expect(result.current.form.getValues("supportedCurrency")).toBe(
-				ETH_ADDRESS,
+				ETH_ADDRESS
 			);
 		});
 	});
@@ -133,8 +133,7 @@ describeOrSkip("useJarCreation", () => {
 				DEPLOYMENTS: {
 					31337: {
 						chainId: 31337,
-						factoryAddress:
-							"0xa2Cc1f3479E194B1aa16BeCc975aA25618f8d3AD",
+						factoryAddress: "0xa2Cc1f3479E194B1aa16BeCc975aA25618f8d3AD",
 						isV2: true,
 						blockNumber: 0,
 						timestamp: 1759019328,
@@ -154,9 +153,7 @@ describeOrSkip("useJarCreation", () => {
 			});
 
 			// v1 effect should reset to false
-			expect(result.current.form.getValues("enableCustomFee")).toBe(
-				false,
-			);
+			expect(result.current.form.getValues("enableCustomFee")).toBe(false);
 		});
 
 		it("should force allowlist access type for v1 contracts", () => {
@@ -193,7 +190,7 @@ describeOrSkip("useJarCreation", () => {
 
 			expect(validation.isValid).toBe(false);
 			expect(validation.errors).toContain(
-				"Fixed withdrawal amount must be greater than 0",
+				"Fixed withdrawal amount must be greater than 0"
 			);
 		});
 
@@ -208,7 +205,7 @@ describeOrSkip("useJarCreation", () => {
 
 			expect(validation.isValid).toBe(false);
 			expect(validation.errors).toContain(
-				"Withdrawal interval must be greater than 0 days",
+				"Withdrawal interval must be greater than 0 days"
 			);
 		});
 
@@ -224,7 +221,7 @@ describeOrSkip("useJarCreation", () => {
 
 			expect(validation.isValid).toBe(false);
 			expect(validation.errors).toContain(
-				"Custom fee must be between 0 and 100 percent",
+				"Custom fee must be between 0 and 100 percent"
 			);
 		});
 	});
@@ -233,9 +230,7 @@ describeOrSkip("useJarCreation", () => {
 		it("should initialize with custom currency hidden", () => {
 			const { result } = renderHookWithProviders();
 
-			expect(result.current.form.getValues("showCustomCurrency")).toBe(
-				false,
-			);
+			expect(result.current.form.getValues("showCustomCurrency")).toBe(false);
 		});
 
 		it("should allow setting custom currency via form", () => {
@@ -245,16 +240,14 @@ describeOrSkip("useJarCreation", () => {
 				result.current.form.setValue("showCustomCurrency", true);
 				result.current.form.setValue(
 					"customCurrencyAddress",
-					"0x1234567890123456789012345678901234567890",
+					"0x1234567890123456789012345678901234567890"
 				);
 			});
 
-			expect(result.current.form.getValues("showCustomCurrency")).toBe(
-				true,
+			expect(result.current.form.getValues("showCustomCurrency")).toBe(true);
+			expect(result.current.form.getValues("customCurrencyAddress")).toBe(
+				"0x1234567890123456789012345678901234567890"
 			);
-			expect(
-				result.current.form.getValues("customCurrencyAddress"),
-			).toBe("0x1234567890123456789012345678901234567890");
 		});
 	});
 
@@ -282,9 +275,7 @@ describeOrSkip("useJarCreation", () => {
 			// Verify values are reset
 			expect(result.current.form.getValues("jarName")).toBe("");
 			expect(result.current.form.getValues("fixedAmount")).toBe("0");
-			expect(result.current.form.getValues("enableCustomFee")).toBe(
-				false,
-			);
+			expect(result.current.form.getValues("enableCustomFee")).toBe(false);
 		});
 	});
 });

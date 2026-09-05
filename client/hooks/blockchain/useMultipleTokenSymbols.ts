@@ -22,7 +22,7 @@ import { useReadContracts } from "wagmi";
  * ```
  */
 export function useMultipleTokenSymbols(
-	currencies: string[],
+	currencies: string[]
 ): Record<string, string> {
 	const { data: symbolsData } = useReadContracts({
 		contracts: currencies.map((currency) => ({

@@ -103,7 +103,7 @@ export interface ChainCapabilities {
  * Check if Universal Router is available on a given chain
  */
 export function isUniversalRouterAvailable(
-	chainId: number,
+	chainId: number
 ): chainId is SupportedChain {
 	return chainId in UNIVERSAL_ROUTER_ADDRESSES;
 }
@@ -133,7 +133,7 @@ export function getWrappedNative(chainId: number): Address | null {
  * Get default multi-token configuration for Universal Router
  */
 export function getDefaultMultiTokenConfig(
-	chainId: number,
+	chainId: number
 ): UniversalMultiTokenConfig {
 	return {
 		enabled: isUniversalRouterAvailable(chainId), // Enable if Universal Router available
@@ -165,7 +165,7 @@ export function getChainCapabilities(chainId: number): ChainCapabilities {
 export function getRecommendedFeeTier(
 	_tokenA: Address,
 	_tokenB: Address,
-	isStablecoin = false,
+	isStablecoin = false
 ): number {
 	// Use lower fees for stablecoin pairs
 	if (isStablecoin) {
@@ -207,7 +207,7 @@ export function isLikelyStablePair(tokenA: Address, tokenB: Address): boolean {
  */
 export function calculateMinOutput(
 	amountOut: bigint,
-	slippagePercent: number,
+	slippagePercent: number
 ): bigint {
 	return (amountOut * BigInt(10000 - slippagePercent)) / BigInt(10000);
 }

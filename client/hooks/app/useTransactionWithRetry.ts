@@ -65,7 +65,7 @@ const defaultRetryConfig: Required<RetryConfig> = {
  * @returns Enhanced transaction interface with retry capabilities
  */
 export function useTransactionWithRetry(
-	retryConfig: RetryConfig = {},
+	retryConfig: RetryConfig = {}
 ): TransactionWithRetryResult {
 	const config = { ...defaultRetryConfig, ...retryConfig };
 	const { toast } = useToast();
@@ -123,7 +123,7 @@ export function useTransactionWithRetry(
 				const error = err as any;
 				console.error(
 					`Transaction attempt ${retryState.attemptCount + 1} failed:`,
-					error,
+					error
 				);
 
 				const canRetryError = config.retryCondition(error);
@@ -169,7 +169,7 @@ export function useTransactionWithRetry(
 				}
 			}
 		},
-		[originalWriteContract, config, retryState.attemptCount, toast],
+		[originalWriteContract, config, retryState.attemptCount, toast]
 	);
 
 	/**
@@ -275,7 +275,7 @@ export function useTransactionPattern(retryConfig?: RetryConfig) {
 				successTitle?: string;
 				successDescription?: string;
 				onSuccess?: () => void;
-			},
+			}
 		) => {
 			try {
 				await transaction.writeContract(parameters);
@@ -295,7 +295,7 @@ export function useTransactionPattern(retryConfig?: RetryConfig) {
 				console.error("Transaction pattern error:", error);
 			}
 		},
-		[transaction, toast],
+		[transaction, toast]
 	);
 
 	return {

@@ -80,7 +80,7 @@ describe("Form Validation Utils", () => {
 	describe("validateMetadata", () => {
 		it("passes valid metadata", () => {
 			const result = validateMetadata(
-				"This is a valid description with enough characters",
+				"This is a valid description with enough characters"
 			);
 			expect(result.isValid).toBe(true);
 			expect(result.errors).toEqual({});
@@ -96,7 +96,7 @@ describe("Form Validation Utils", () => {
 			const result = validateMetadata("short");
 			expect(result.isValid).toBe(false);
 			expect(result.errors.metadata).toBe(
-				"Description must be at least 10 characters (5/10)",
+				"Description must be at least 10 characters (5/10)"
 			);
 		});
 
@@ -124,7 +124,7 @@ describe("Form Validation Utils", () => {
 			const result = validateJarName("Hi");
 			expect(result.isValid).toBe(false);
 			expect(result.errors.jarName).toBe(
-				"Jar name must be at least 3 characters (2/3)",
+				"Jar name must be at least 3 characters (2/3)"
 			);
 		});
 
@@ -152,7 +152,7 @@ describe("Form Validation Utils", () => {
 			const result = validateCustomFee("", true);
 			expect(result.isValid).toBe(false);
 			expect(result.errors.customFee).toBe(
-				"Please enter a custom fee percentage",
+				"Please enter a custom fee percentage"
 			);
 		});
 
@@ -185,7 +185,7 @@ describe("Form Validation Utils", () => {
 			const metadataResult = validateMetadata(formData.metadata);
 			const feeResult = validateCustomFee(
 				formData.customFee,
-				formData.enableCustomFee,
+				formData.enableCustomFee
 			);
 			const imageValid = !formData.imageUrl || isValidUrl(formData.imageUrl);
 			const linkValid =
@@ -212,7 +212,7 @@ describe("Form Validation Utils", () => {
 			const metadataResult = validateMetadata(formData.metadata);
 			const feeResult = validateCustomFee(
 				formData.customFee,
-				formData.enableCustomFee,
+				formData.enableCustomFee
 			);
 			const imageValid = !formData.imageUrl || isValidUrl(formData.imageUrl);
 			const linkValid =

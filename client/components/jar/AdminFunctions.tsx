@@ -33,19 +33,32 @@ import { AllowlistManagement } from "./AllowListManagement";
 
 interface AdminFunctionsProps {
 	address: `0x${string}`;
+	/** Access type label; allowlist management only applies to Allowlist jars */
+	accessType?: string;
+	/** Jar currency, pre-filled for emergency withdrawals */
+	currency?: `0x${string}`;
 }
 
 // Hash the JAR_OWNER role
 const JAR_OWNER_ROLE = keccak256(toHex("JAR_OWNER")) as `0x${string}`;
 
-export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
+export const AdminFunctions: React.FC<AdminFunctionsProps> = ({
+	address,
+	accessType,
+	currency,
+}) => {
 	const chainId = useChainId();
 	const nativeCurrency = getNativeCurrency(chainId);
 	const { scrollToTop } = useNavigateToTop();
+	const isAllowlistJar = !accessType || accessType === "Allowlist";
 	const [withdrawalAmount, setWithdrawalAmount] = useState("");
-	const [tokenAddress, setTokenAddress] = useState("");
+	const [tokenAddress, setTokenAddress] = useState(
+		currency && currency.toLowerCase() !== ETH_ADDRESS.toLowerCase()
+			? currency
+			: ""
+	);
 	const [tokenToWithdraw, setTokenToWithdraw] = useState<`0x${string}`>(
-		ETH_ADDRESS as `0x${string}`,
+		(currency ?? ETH_ADDRESS) as `0x${string}`
 	);
 
 	// Update emergency tokenToWithdraw when tokenAddress changes
@@ -116,7 +129,7 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
 	};
 
 	return (
-		<div className="space-y-6 bg-[#2b1d0e] p-4 rounded-lg">
+		<div className="space-y-6 bg-muted p-4 rounded-lg">
 			<Tabs
 				defaultValue="access"
 				className="w-full"
@@ -125,17 +138,17 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
 					scrollToTop();
 				}}
 			>
-				<TabsList className="mb-6 bg-[#fff8f0] p-1">
+				<TabsList className="mb-6 bg-muted p-1">
 					<TabsTrigger
 						value="access"
-						className="data-[state=active]:bg-white data-[state=active]:text-[#ff5e14] data-[state=active]:shadow-sm text-[#4a3520]"
+						className="data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm text-foreground"
 					>
 						<UserPlus className="h-4 w-4 mr-2" />
 						Access Control
 					</TabsTrigger>
 					<TabsTrigger
 						value="emergency"
-						className="data-[state=active]:bg-white data-[state=active]:text-[#ff5e14] data-[state=active]:shadow-sm text-[#4a3520]"
+						className="data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-sm text-foreground"
 					>
 						<AlertTriangle className="h-4 w-4 mr-2" />
 						Emergency
@@ -144,43 +157,54 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
 
 				<TabsContent value="access" className="mt-0">
 					<Card className="border-none shadow-sm">
-						<CardHeader className="bg-[#fff8f0] rounded-t-lg">
-							<CardTitle className="text-xl text-[#3c2a14] flex items-center">
-								<UserPlus className="h-5 w-5 mr-2 text-[#ff5e14]" />
+						<CardHeader className="bg-muted rounded-t-lg">
+							<CardTitle className="text-xl text-foreground flex items-center">
+								<UserPlus className="h-5 w-5 mr-2 text-primary" />
 								Allowlist Management
 							</CardTitle>
-							<CardDescription className="text-[#8b7355]">
+							<CardDescription className="text-muted-foreground">
 								Control who can access and withdraw from this jar
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="p-6">
-							<AllowlistManagement
-								cookieJarAddress={address as `0x${string}`}
-							/>
+							{isAllowlistJar ? (
+								<AllowlistManagement
+									cookieJarAddress={address as `0x${string}`}
+								/>
+							) : (
+								<p className="text-sm text-muted-foreground">
+									This jar is gated by{" "}
+									{accessType === "Hats" ? "a Hats Protocol hat" : "a token"}.
+									Membership is managed on the gate contract, not on the jar:
+									mint or revoke the {accessType === "Hats" ? "hat" : "token"}{" "}
+									to change who can claim.
+								</p>
+							)}
 						</CardContent>
 					</Card>
 				</TabsContent>
 
 				<TabsContent value="emergency" className="mt-0">
 					<Card className="border-none shadow-sm">
-						<CardHeader className="bg-[#fff8f0] rounded-t-lg">
-							<CardTitle className="text-xl text-[#3c2a14] flex items-center">
-								<AlertTriangle className="h-5 w-5 mr-2 text-[#ff5e14]" />
+						<CardHeader className="bg-muted rounded-t-lg">
+							<CardTitle className="text-xl text-foreground flex items-center">
+								<AlertTriangle className="h-5 w-5 mr-2 text-primary" />
 								Emergency Withdrawal
 							</CardTitle>
-							<CardDescription className="text-[#8b7355]">
+							<CardDescription className="text-muted-foreground">
 								Withdraw funds in case of emergency
 							</CardDescription>
 						</CardHeader>
 						<CardContent className="p-6">
 							<div className="space-y-4">
-								<div className="bg-[#fff0e0] border border-[#ffcc80] rounded-lg p-4 text-[#e65100] flex items-start">
+								<div className="bg-warning/10 border border-warning/40 rounded-lg p-4 text-warning flex items-start">
 									<AlertCircle className="h-5 w-5 mr-2 mt-0.5 flex-shrink-0" />
 									<div>
 										<p className="font-medium">Warning: Emergency Use Only</p>
 										<p className="text-sm mt-1">
-											This function should only be used in emergency situations.
-											It will withdraw all funds from the jar.
+											Sends the entered amount of the chosen token from the jar
+											to the caller (normally the jar's multi-sig). Use it to
+											recover funds, not for regular claims.
 										</p>
 									</div>
 								</div>
@@ -189,7 +213,7 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
 									<div className="space-y-2">
 										<label
 											htmlFor="withdrawalAmount"
-											className="text-[#ff5e14] font-medium"
+											className="text-primary font-medium"
 										>
 											Amount to Withdraw
 										</label>
@@ -198,14 +222,14 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
 											placeholder="Amount"
 											value={withdrawalAmount}
 											onChange={(e) => setWithdrawalAmount(e.target.value)}
-											className="border-[#f0e6d8] bg-white text-[#3c2a14]"
+											className="border-border bg-card text-foreground"
 										/>
 									</div>
 
 									<div className="space-y-2">
 										<label
 											htmlFor="tokenAddress"
-											className="text-[#ff5e14] font-medium"
+											className="text-primary font-medium"
 										>
 											Token Address
 										</label>
@@ -214,9 +238,9 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
 											placeholder="0x... (leave empty for ETH)"
 											value={tokenAddress}
 											onChange={(e) => setTokenAddress(e.target.value)}
-											className="border-[#f0e6d8] bg-white text-[#3c2a14]"
+											className="border-border bg-card text-foreground"
 										/>
-										<p className="text-sm text-[#8b7355]">
+										<p className="text-sm text-muted-foreground">
 											Leave blank if withdrawing {nativeCurrency.symbol}/native
 											currency.
 										</p>
@@ -224,11 +248,11 @@ export const AdminFunctions: React.FC<AdminFunctionsProps> = ({ address }) => {
 								</div>
 							</div>
 						</CardContent>
-						<CardFooter className="bg-[#fff8f0] p-4 rounded-b-lg flex justify-end">
+						<CardFooter className="bg-muted p-4 rounded-b-lg flex justify-end">
 							<Button
 								onClick={handleEmergencyWithdraw}
 								variant="destructive"
-								className="bg-[#d32f2f] hover:bg-[#b71c1c]"
+								className="bg-destructive hover:bg-destructive/90"
 								disabled={!withdrawalAmount}
 							>
 								<AlertTriangle className="h-4 w-4 mr-2" />

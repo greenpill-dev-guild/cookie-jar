@@ -35,7 +35,7 @@ export const HypercertConfig: React.FC<HypercertConfigProps> = ({
 	className,
 }) => {
 	const [hypercertId, setHypercertId] = useState(
-		initialConfig?.hypercertId || "",
+		initialConfig?.hypercertId || ""
 	);
 	const [selectedHypercert, setSelectedHypercert] =
 		useState<HypercertDetails | null>(null);
@@ -54,7 +54,7 @@ export const HypercertConfig: React.FC<HypercertConfigProps> = ({
 
 			try {
 				const hypercertDetails = await HypercertsProvider.getHypercertById(
-					hypercertIdToValidate,
+					hypercertIdToValidate
 				);
 
 				if (hypercertDetails) {
@@ -66,7 +66,7 @@ export const HypercertConfig: React.FC<HypercertConfigProps> = ({
 					});
 				} else {
 					setValidationError(
-						"Hypercert not found. Please check the Hypercert ID.",
+						"Hypercert not found. Please check the Hypercert ID."
 					);
 					setSelectedHypercert(null);
 				}
@@ -78,7 +78,7 @@ export const HypercertConfig: React.FC<HypercertConfigProps> = ({
 				setIsValidating(false);
 			}
 		},
-		[],
+		[]
 	);
 
 	// Load initial hypercert if provided

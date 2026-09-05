@@ -4,26 +4,23 @@
 
 @layer base {
 	:root {
-		/* Cookie Jar Brand Colors - Improved accessibility */
-		--cj-brand-orange: 20 85% 42%; /* Darker orange for better contrast */
-		--cj-brand-orange-light: 20 85% 52%;
-		--cj-brand-orange-dark: 20 85% 32%;
+		/* Warm Earth palette (shared with Green Goods). Values are HSL triples. */
+		--cj-brand-orange: 148 63% 28%; /* #1A7544 action green (kept name for compatibility) */
+		--cj-brand-orange-light: 148 72% 44%; /* #1FC16B accent green */
+		--cj-brand-orange-dark: 148 64% 24%; /* #16643B hover */
 
-		/* Cookie Jar Semantic Light Mode Colors */
-		--cj-creme-bg: 30 25% 95%; /* #fff8f0 - Main background */
-		--cj-warm-white: 30 20% 98%; /* Card backgrounds */
-		--cj-nav-bg: 30 20% 88%; /* Light brown for navigation */
-		--cj-dark-brown: 25 40% 10%; /* Darker, more solid brown text */
-		--cj-medium-brown: 25 35% 25%; /* More solid medium text */
-		--cj-light-brown: 25 25% 60%; /* More solid light text */
+		--cj-creme-bg: 36 33% 97%; /* #FAF8F5 canvas */
+		--cj-warm-white: 0 0% 100%; /* cards */
+		--cj-nav-bg: 60 5% 96%; /* #F5F5F4 header */
+		--cj-dark-brown: 12 6% 15%; /* #292524 ink */
+		--cj-medium-brown: 30 5% 32%; /* #57534E */
+		--cj-light-brown: 25 5% 45%; /* #78716C stone */
 
-		/* Form & Input Colors - Light Mode */
-		--cj-input-bg: 25 35% 15%; /* More solid dark input backgrounds */
-		--cj-input-text: 30 25% 98%; /* Pure white text in inputs */
-		--cj-input-placeholder: 30 15% 75%; /* More solid placeholder */
-		--cj-input-border: 25 30% 35%; /* More solid input borders */
+		--cj-input-bg: 0 0% 100%;
+		--cj-input-text: 12 6% 15%;
+		--cj-input-placeholder: 25 5% 55%;
+		--cj-input-border: 20 6% 82%;
 
-		/* Standard Shadcn Variables - Light Mode */
 		--background: var(--cj-creme-bg);
 		--foreground: var(--cj-dark-brown);
 		--card: var(--cj-warm-white);
@@ -31,67 +28,70 @@
 		--popover: var(--cj-warm-white);
 		--popover-foreground: var(--cj-dark-brown);
 		--primary: var(--cj-brand-orange);
-		--primary-foreground: 30 20% 98%;
-		--secondary: 30 30% 92%;
+		--primary-hover: var(--cj-brand-orange-dark);
+		--primary-foreground: 0 0% 100%;
+		--secondary: 60 5% 96%;
 		--secondary-foreground: var(--cj-dark-brown);
-		--muted: 30 20% 90%;
-		--muted-foreground: var(--cj-medium-brown);
+		--muted: 60 5% 96%;
+		--muted-foreground: var(--cj-light-brown);
 		--accent: var(--cj-brand-orange-light);
-		--accent-foreground: var(--cj-dark-brown);
-		--destructive: 0 85% 60%;
-		--destructive-foreground: 30 20% 98%;
-		--border: 30 30% 85%;
-		--input: var(--cj-input-bg);
-		--ring: var(--cj-brand-orange);
-		--radius: 0.75rem;
+		--accent-foreground: 148 73% 16%; /* #0B4627 */
+		--success: 148 63% 28%;
+		--warning: 32 95% 44%; /* #D97706 */
+		--info: 217 91% 60%; /* #3B82F6 */
+		--destructive: 0 72% 51%;
+		--destructive-foreground: 0 0% 100%;
+		--border: 20 6% 90%; /* #E7E5E4 */
+		--input: var(--cj-input-border);
+		--ring: var(--cj-brand-orange-light);
+		--radius: 0.5rem;
 	}
 
 	.dark {
-		/* Cookie Jar Dark Mode Button Colors - Desaturated */
-		--cj-brand-orange-dark-mode: 20 55% 45%; /* Desaturated orange for buttons */
-		--cj-brand-orange-light-dark-mode: 20 50% 55%;
-		--cj-brand-orange-dark-dark-mode: 20 60% 35%;
+		--cj-brand-orange-dark-mode: 148 72% 44%; /* #1FC16B reads better on dark */
+		--cj-brand-orange-light-dark-mode: 148 72% 50%;
+		--cj-brand-orange-dark-dark-mode: 148 63% 36%;
 
-		/* Cookie Jar Semantic Dark Mode Colors */
-		--cj-creme-bg: 25 40% 5%; /* Darker, more solid background */
-		--cj-warm-white: 25 35% 8%; /* More solid dark card backgrounds */
-		--cj-nav-bg: 25 35% 12%; /* Light brown for navigation in dark mode */
-		--cj-dark-brown: 30 25% 95%; /* Pure light text in dark mode */
-		--cj-medium-brown: 30 20% 80%; /* More solid medium text */
-		--cj-light-brown: 30 15% 65%; /* More solid light text */
+		--cj-creme-bg: 20 8% 10%; /* #1C1917 */
+		--cj-warm-white: 12 6% 15%; /* #292524 */
+		--cj-nav-bg: 12 6% 15%;
+		--cj-dark-brown: 60 9% 96%; /* #F5F5F4 */
+		--cj-medium-brown: 24 5% 78%;
+		--cj-light-brown: 24 5% 64%; /* #A8A29E */
 
-		/* Form & Input Colors - Dark Mode */
-		--cj-input-bg: 25 40% 12%; /* More solid dark inputs */
-		--cj-input-text: 30 25% 98%; /* Pure white text in inputs */
-		--cj-input-placeholder: 30 20% 70%; /* More solid placeholder */
-		--cj-input-border: 25 30% 25%; /* More solid borders */
+		--cj-input-bg: 12 6% 15%;
+		--cj-input-text: 60 9% 96%;
+		--cj-input-placeholder: 24 5% 55%;
+		--cj-input-border: 24 6% 25%;
 
-		/* Standard Shadcn Variables - Dark Mode */
 		--background: var(--cj-creme-bg);
 		--foreground: var(--cj-dark-brown);
 		--card: var(--cj-warm-white);
 		--card-foreground: var(--cj-dark-brown);
 		--popover: var(--cj-warm-white);
 		--popover-foreground: var(--cj-dark-brown);
-		--primary: var(--cj-brand-orange-dark-mode); /* Use desaturated orange */
-		--primary-foreground: 30 20% 98%;
-		--secondary: 25 30% 20%;
+		--primary: var(--cj-brand-orange-dark-mode);
+		--primary-hover: var(--cj-brand-orange-light-dark-mode);
+		--primary-foreground: 148 73% 10%;
+		--secondary: 12 6% 20%;
 		--secondary-foreground: var(--cj-dark-brown);
-		--muted: 25 30% 20%;
-		--muted-foreground: var(--cj-medium-brown);
-		--accent: var(
-			--cj-brand-orange-light-dark-mode
-		); /* Use desaturated orange */
-		--accent-foreground: var(--cj-dark-brown);
-		--destructive: 0 70% 45%;
-		--destructive-foreground: var(--cj-dark-brown);
-		--border: 25 30% 25%;
-		--input: var(--cj-input-bg);
-		--ring: var(--cj-brand-orange-dark-mode); /* Use desaturated orange */
+		--muted: 12 6% 18%;
+		--muted-foreground: var(--cj-light-brown);
+		--accent: var(--cj-brand-orange-light-dark-mode);
+		--accent-foreground: 148 73% 10%;
+		--success: 148 72% 44%;
+		--warning: 38 92% 50%;
+		--info: 213 94% 68%;
+		--destructive: 0 70% 55%;
+		--destructive-foreground: 0 0% 100%;
+		--border: 24 6% 25%; /* #44403C */
+		--input: var(--cj-input-border);
+		--ring: var(--cj-brand-orange-dark-mode);
 	}
 
 	html {
-		font-family: var(--font-clash-display), sans-serif;
+		font-family:
+			var(--font-inter), system-ui, -apple-system, "Segoe UI", sans-serif;
 		/* Use theme-aware creme background */
 		background-color: hsl(var(--background));
 		height: 100%;
@@ -131,29 +131,19 @@
 	}
 
 	h1 {
-		@apply text-5xl md:text-7xl lg:text-8xl font-bold tracking-tight;
+		@apply text-2xl md:text-3xl font-semibold tracking-tight;
 	}
 
 	h2 {
-		@apply text-3xl md:text-5xl lg:text-6xl font-bold;
+		@apply text-xl md:text-2xl font-semibold;
 	}
 
 	h3 {
-		@apply text-2xl md:text-3xl lg:text-4xl font-semibold;
+		@apply text-lg md:text-xl font-semibold;
 	}
 }
 
 @layer components {
-	/* Cookie Jar Typography Classes */
-	.mega-text {
-		@apply text-4xl md:text-6xl lg:text-8xl xl:text-9xl font-black tracking-tight uppercase;
-		color: hsl(var(--cj-dark-brown));
-		/* Prevent text from overflowing on mobile */
-		word-wrap: break-word;
-		overflow-wrap: break-word;
-		hyphens: auto;
-	}
-
 	.cj-heading-page {
 		@apply text-2xl md:text-3xl lg:text-4xl font-bold;
 		color: hsl(var(--cj-dark-brown));
@@ -228,10 +218,6 @@
 	.button-3d:active {
 		@apply shadow-3d-pressed;
 		transform: translateZ(2px);
-	}
-
-	.cookie-gradient {
-		background: linear-gradient(135deg, #ff5e14 0%, #ff8e14 100%);
 	}
 
 	.page-section {
@@ -645,27 +631,6 @@ body {
 
 .safe-area-pr {
 	padding-right: env(safe-area-inset-right);
-}
-
-/* Ensure app bar is always fixed */
-.mobile-app-bar {
-	position: fixed;
-	bottom: 0;
-	left: 0;
-	right: 0;
-	z-index: 9999;
-}
-
-/* Mobile app bar specific styles */
-@media (max-width: 767px) {
-	body {
-		padding-bottom: calc(80px + env(safe-area-inset-bottom));
-	}
-
-	main {
-		min-height: calc(100vh - 80px);
-		background-color: inherit;
-	}
 }
 
 /* =================================================================

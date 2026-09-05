@@ -17,18 +17,18 @@ test.describe("⚡ Performance Testing", () => {
 
 		// Check for performance metrics
 		const navigationEntries = await page.evaluate(() =>
-			performance.getEntriesByType("navigation"),
+			performance.getEntriesByType("navigation")
 		);
 
 		if (navigationEntries.length > 0) {
 			const entry = navigationEntries[0] as PerformanceNavigationTiming;
 			console.log("📊 Performance metrics:", {
 				domContentLoaded: Math.round(
-					entry.domContentLoadedEventEnd - entry.fetchStart,
+					entry.domContentLoadedEventEnd - entry.fetchStart
 				),
 				loadComplete: Math.round(entry.loadEventEnd - entry.fetchStart),
 				firstPaint: Math.round(
-					(entry as any).firstPaint - entry.fetchStart || 0,
+					(entry as any).firstPaint - entry.fetchStart || 0
 				),
 			});
 		}
@@ -57,10 +57,10 @@ test.describe("⚡ Performance Testing", () => {
 			return (performance as any).memory
 				? {
 						usedJSHeapSize: Math.round(
-							(performance as any).memory.usedJSHeapSize / 1024 / 1024,
+							(performance as any).memory.usedJSHeapSize / 1024 / 1024
 						),
 						totalJSHeapSize: Math.round(
-							(performance as any).memory.totalJSHeapSize / 1024 / 1024,
+							(performance as any).memory.totalJSHeapSize / 1024 / 1024
 						),
 					}
 				: null;
@@ -68,7 +68,7 @@ test.describe("⚡ Performance Testing", () => {
 
 		if (memoryInfo) {
 			console.log(
-				`🧠 Memory usage: ${memoryInfo.usedJSHeapSize}MB / ${memoryInfo.totalJSHeapSize}MB`,
+				`🧠 Memory usage: ${memoryInfo.usedJSHeapSize}MB / ${memoryInfo.totalJSHeapSize}MB`
 			);
 			expect(memoryInfo.usedJSHeapSize).toBeLessThan(50); // Should use less than 50MB
 		}

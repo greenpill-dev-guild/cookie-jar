@@ -1,6 +1,6 @@
 // Helper function to format seconds to human-readable format
 export const formatTimeComponents = (
-	totalSeconds: number,
+	totalSeconds: number
 ): { days: number; hours: number; minutes: number; seconds: number } => {
 	const days = Math.floor(totalSeconds / (24 * 60 * 60));
 	const hours = Math.floor((totalSeconds % (24 * 60 * 60)) / (60 * 60));
@@ -15,7 +15,7 @@ export const formatTimeString = (
 	days: number,
 	hours: number,
 	minutes: number,
-	seconds: number,
+	seconds: number
 ): string => {
 	const parts = [];
 
@@ -47,7 +47,7 @@ export const calculateTotalSeconds = (
 	days: number,
 	hours: number,
 	minutes: number,
-	seconds: number,
+	seconds: number
 ): number => {
 	return days * 24 * 60 * 60 + hours * 60 * 60 + minutes * 60 + seconds;
 };

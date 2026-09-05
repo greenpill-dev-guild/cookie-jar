@@ -51,7 +51,7 @@ export function useContractAddresses(): ContractAddresses {
 				dev(
 					"Loading local deployment for anvil chain",
 					undefined,
-					"useContractAddresses",
+					"useContractAddresses"
 				);
 
 				try {
@@ -64,7 +64,7 @@ export function useContractAddresses(): ContractAddresses {
 						dev(
 							"HTTP fetch failed",
 							{ status: response.status, statusText: response.statusText },
-							"useContractAddresses",
+							"useContractAddresses"
 						);
 						throw new Error("HTTP fetch failed");
 					}
@@ -84,7 +84,7 @@ export function useContractAddresses(): ContractAddresses {
 								deploymentTime,
 								lastDeploymentTime,
 							},
-							"useContractAddresses",
+							"useContractAddresses"
 						);
 
 						setLocalFactory(deployment.CookieJarFactory);
@@ -96,7 +96,7 @@ export function useContractAddresses(): ContractAddresses {
 								address: deployment.CookieJarFactory,
 								deploymentTime: new Date(deploymentTime).toLocaleString(),
 							},
-							"useContractAddresses",
+							"useContractAddresses"
 						);
 					} else {
 						dev(
@@ -106,14 +106,14 @@ export function useContractAddresses(): ContractAddresses {
 								lastDeploymentTime,
 								hasLocalFactory: !!localFactory,
 							},
-							"useContractAddresses",
+							"useContractAddresses"
 						);
 					}
 				} catch (error) {
 					logError(
 						"Error loading local deployment",
 						error,
-						"useContractAddresses",
+						"useContractAddresses"
 					);
 
 					// Fallback to static addresses for local development
@@ -121,7 +121,7 @@ export function useContractAddresses(): ContractAddresses {
 					dev(
 						"Falling back to static address",
 						{ fallbackAddress },
-						"useContractAddresses",
+						"useContractAddresses"
 					);
 
 					if (fallbackAddress) {
@@ -159,7 +159,7 @@ export function useContractAddresses(): ContractAddresses {
 			isLoading,
 			staticFactoryForChain: staticAddresses.cookieJarFactory[chainId],
 		},
-		"useContractAddresses",
+		"useContractAddresses"
 	);
 
 	return {

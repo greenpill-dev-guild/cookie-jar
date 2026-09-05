@@ -70,7 +70,7 @@ export class HypercertsProvider {
 	 * Get a single hypercert by ID (static method for protocol configs)
 	 */
 	static async getHypercertById(
-		hypercertId: string,
+		hypercertId: string
 	): Promise<HypercertClaim | null> {
 		try {
 			const provider = new HypercertsProvider();
@@ -152,7 +152,7 @@ export class HypercertsProvider {
 
 	private async executeGraphQLQuery(
 		query: string,
-		variables: any = {},
+		variables: any = {}
 	): Promise<any> {
 		try {
 			const response = await fetch(this.baseUrl, {
@@ -194,7 +194,7 @@ export class HypercertsProvider {
 			workScope?: string[];
 			impactScope?: string[];
 			contributors?: string[];
-		} = {},
+		} = {}
 	): Promise<HypercertSearchResult> {
 		try {
 			const {
@@ -283,7 +283,7 @@ export class HypercertsProvider {
 						},
 						metadata,
 					};
-				}),
+				})
 			);
 
 			// Filter by query text if metadata is available
@@ -325,7 +325,7 @@ export class HypercertsProvider {
 		options: {
 			limit?: number;
 			offset?: number;
-		} = {},
+		} = {}
 	): Promise<HypercertSearchResult> {
 		try {
 			const { limit = 20, offset = 0 } = options;
@@ -390,7 +390,7 @@ export class HypercertsProvider {
 						claim: claimToken.claim,
 						metadata,
 					};
-				}),
+				})
 			);
 
 			return {
@@ -415,13 +415,13 @@ export class HypercertsProvider {
 	 */
 	async userOwnsHypercert(
 		address: string,
-		hypercertId: string,
+		hypercertId: string
 	): Promise<boolean> {
 		try {
 			const userHypercerts = await this.getUserHypercerts(address);
 			return userHypercerts.claims.some(
 				(claim) =>
-					claim.id === hypercertId || claim.claim.hypercert_id === hypercertId,
+					claim.id === hypercertId || claim.claim.hypercert_id === hypercertId
 			);
 		} catch (error) {
 			log.error("Error checking if user owns hypercert", {
@@ -524,7 +524,7 @@ export class HypercertsProvider {
 		options: {
 			limit?: number;
 			offset?: number;
-		} = {},
+		} = {}
 	): Promise<HypercertSearchResult> {
 		return this.searchHypercerts("", {
 			...options,
@@ -540,7 +540,7 @@ export class HypercertsProvider {
 		options: {
 			limit?: number;
 			offset?: number;
-		} = {},
+		} = {}
 	): Promise<HypercertSearchResult> {
 		return this.searchHypercerts("", {
 			...options,
@@ -566,11 +566,11 @@ export class HypercertsProvider {
 	async createHypercert(
 		metadata: HypercertMetadata,
 		totalUnits: bigint,
-		transferRestriction: number = 0, // 0 = AllowAll, 1 = DisallowAll, 2 = FromCreatorOnly
+		transferRestriction: number = 0 // 0 = AllowAll, 1 = DisallowAll, 2 = FromCreatorOnly
 	): Promise<string | null> {
 		log.warn(
 			"Hypercert creation requires full SDK integration with wallet support",
-			{ metadata, totalUnits, transferRestriction },
+			{ metadata, totalUnits, transferRestriction }
 		);
 		return null;
 	}

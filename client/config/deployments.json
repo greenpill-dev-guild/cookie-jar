@@ -1,0 +1,24 @@
+{
+	"31337": {
+		"chainId": 31337,
+		"factoryAddress": "0x5bD6FdDB18B3dC13370b92f00Eb9b31461474524",
+		"isV2": true
+	},
+	"42161": {
+		"chainId": 42161,
+		"factoryAddress": "0x294d222eDE6DF6625B43544F1C634322467528Da",
+		"isV2": true,
+		"blockNumber": 435607756,
+		"timestamp": 1771969711
+	},
+	"42220": {
+		"chainId": 42220,
+		"factoryAddress": "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9",
+		"isV2": false
+	},
+	"44787": {
+		"chainId": 44787,
+		"factoryAddress": "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9",
+		"isV2": false
+	}
+}

@@ -20,7 +20,7 @@ export function ProgressIndicator({
 
 	const progressPercentage = Math.min(
 		100,
-		Math.round((normalizedStep / totalSteps) * 100),
+		Math.round((normalizedStep / totalSteps) * 100)
 	);
 
 	return (

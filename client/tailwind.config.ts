@@ -30,8 +30,12 @@ const config = {
 				foreground: "hsl(var(--foreground))",
 				primary: {
 					DEFAULT: "hsl(var(--primary))",
+					hover: "hsl(var(--primary-hover))",
 					foreground: "hsl(var(--primary-foreground))",
 				},
+				success: "hsl(var(--success))",
+				warning: "hsl(var(--warning))",
+				info: "hsl(var(--info))",
 				secondary: {
 					DEFAULT: "hsl(var(--secondary))",
 					foreground: "hsl(var(--secondary-foreground))",
@@ -97,7 +101,8 @@ const config = {
 					"0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04), 0 -2px 0 0 rgba(255, 255, 255, 0.1) inset, 0 2px 0 0 rgba(0, 0, 0, 0.05) inset",
 			},
 			fontFamily: {
-				clash: ["var(--font-clash-display)", "sans-serif"],
+				sans: ["var(--font-inter)", "system-ui", "sans-serif"],
+				clash: ["var(--font-inter)", "system-ui", "sans-serif"],
 			},
 			zIndex: {
 				"100": "100",

@@ -23,7 +23,7 @@ describe("usePOAPs Hook Logic", () => {
 	// Mock hook behavior
 	const mockusePOAPs = (
 		userAddress?: string,
-		options: { eventId?: string; fetchUserPOAPs?: boolean } = {},
+		options: { eventId?: string; fetchUserPOAPs?: boolean } = {}
 	) => {
 		const mockUserPOAPs: UserPOAP[] = userAddress
 			? [
@@ -112,7 +112,7 @@ describe("usePOAPs Hook Logic", () => {
 		it("returns user POAPs when address provided", () => {
 			const result = mockusePOAPs(
 				"0x1234567890123456789012345678901234567890",
-				{ fetchUserPOAPs: true },
+				{ fetchUserPOAPs: true }
 			);
 
 			expect(result.userPOAPs).toHaveLength(2);
@@ -124,7 +124,7 @@ describe("usePOAPs Hook Logic", () => {
 		it("does not fetch user POAPs when option is disabled", () => {
 			const result = mockusePOAPs(
 				"0x1234567890123456789012345678901234567890",
-				{ fetchUserPOAPs: false },
+				{ fetchUserPOAPs: false }
 			);
 			expect(result.userPOAPs).toEqual([]);
 		});
@@ -134,7 +134,7 @@ describe("usePOAPs Hook Logic", () => {
 		it("fetches event info when eventId provided", () => {
 			const result = mockusePOAPs(
 				"0x1234567890123456789012345678901234567890",
-				{ eventId: "12345" },
+				{ eventId: "12345" }
 			);
 
 			expect(result.eventInfo).not.toBeNull();
@@ -199,7 +199,7 @@ describe("usePOAPs Hook Logic", () => {
 		it("correctly identifies if user has POAP from event", () => {
 			const result = mockusePOAPs(
 				"0x1234567890123456789012345678901234567890",
-				{ fetchUserPOAPs: true },
+				{ fetchUserPOAPs: true }
 			);
 
 			// User has POAPs from events 12345 and 12346
@@ -213,7 +213,7 @@ describe("usePOAPs Hook Logic", () => {
 		it("returns false when user has no POAPs", () => {
 			const result = mockusePOAPs(
 				"0x1234567890123456789012345678901234567890",
-				{ fetchUserPOAPs: false },
+				{ fetchUserPOAPs: false }
 			);
 
 			expect(result.checkUserHasPOAP("12345")).toBe(false);
@@ -252,10 +252,10 @@ describe("usePOAPs Hook Logic", () => {
 			};
 
 			expect(mockErrorResult.userPOAPsError).toBe(
-				"Failed to fetch your POAP collection",
+				"Failed to fetch your POAP collection"
 			);
 			expect(mockErrorResult.error).toBe(
-				"Failed to fetch your POAP collection",
+				"Failed to fetch your POAP collection"
 			);
 		});
 
@@ -286,7 +286,7 @@ describe("usePOAPs Hook Logic", () => {
 		it("returns proper POAP data structure", () => {
 			const result = mockusePOAPs(
 				"0x1234567890123456789012345678901234567890",
-				{ fetchUserPOAPs: true },
+				{ fetchUserPOAPs: true }
 			);
 
 			const userPoap = result.userPOAPs[0];
@@ -302,7 +302,7 @@ describe("usePOAPs Hook Logic", () => {
 		it("handles optional fields properly", () => {
 			const result = mockusePOAPs(
 				"0x1234567890123456789012345678901234567890",
-				{ fetchUserPOAPs: true },
+				{ fetchUserPOAPs: true }
 			);
 
 			const event = result.userPOAPs[0].event;

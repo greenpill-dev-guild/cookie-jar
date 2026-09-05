@@ -44,7 +44,7 @@ export const ProtocolConfigBase: React.FC<ProtocolConfigBaseProps> = ({
 							<div
 								className={cn(
 									"w-8 h-8 rounded-full flex items-center justify-center text-white",
-									color,
+									color
 								)}
 							>
 								{icon}
@@ -79,7 +79,12 @@ export const ProtocolConfigBase: React.FC<ProtocolConfigBaseProps> = ({
 				) : (
 					<>
 						{validationError && (
-							<Alert variant="destructive" className="mb-4" id={errorId} role="alert">
+							<Alert
+								variant="destructive"
+								className="mb-4"
+								id={errorId}
+								role="alert"
+							>
 								<AlertCircle className="h-4 w-4" />
 								<AlertDescription>{validationError}</AlertDescription>
 							</Alert>

@@ -47,7 +47,7 @@ test.describe("💰 Basic Cookie Jar Functionality", () => {
 		// Wait for form to load
 		await page.waitForSelector(
 			'[data-testid="jar-name-input"], input[placeholder*="Community"]',
-			{ timeout: 15000 },
+			{ timeout: 15000 }
 		);
 
 		// Try to proceed without filling required fields
@@ -60,7 +60,7 @@ test.describe("💰 Basic Cookie Jar Functionality", () => {
 
 		// Fill in jar name
 		const jarNameInput = page.locator(
-			'[data-testid="jar-name-input"], input[placeholder*="Community"]',
+			'[data-testid="jar-name-input"], input[placeholder*="Community"]'
 		);
 		await jarNameInput.first().fill("Test Jar E2E");
 
@@ -77,7 +77,7 @@ test.describe("💰 Basic Cookie Jar Functionality", () => {
 
 		// Check for wallet connection elements
 		const connectWallet = page.locator(
-			'[data-testid="connect-wallet-button"], text=Connect Wallet',
+			'[data-testid="connect-wallet-button"], text=Connect Wallet'
 		);
 		await expect(connectWallet.first()).toBeVisible();
 
@@ -112,7 +112,7 @@ test.describe("💰 Basic Cookie Jar Functionality", () => {
 
 		// Look for balance information
 		const balanceElements = page.locator(
-			'text=/\\d+(\\.\\d+)? (ETH|DEMO)/, [class*="balance"]',
+			'text=/\\d+(\\.\\d+)? (ETH|DEMO)/, [class*="balance"]'
 		);
 
 		// Should find at least one balance display
@@ -122,7 +122,7 @@ test.describe("💰 Basic Cookie Jar Functionality", () => {
 			console.log("💰 Balance display found and working");
 		} else {
 			console.log(
-				"📝 No explicit balance display found (this might be OK depending on jar state)",
+				"📝 No explicit balance display found (this might be OK depending on jar state)"
 			);
 		}
 
@@ -155,10 +155,10 @@ test.describe("💰 Basic Cookie Jar Functionality", () => {
 
 		// Look for access type indicators
 		const accessTypes = page.locator(
-			"text=Allowlist, text=NFT-Gated, text=Whitelist",
+			"text=Allowlist, text=NFT-Gated, text=Whitelist"
 		);
 		const statusBadges = page.locator(
-			"text=Allowlisted, text=Not Allowlisted, text=Denylisted",
+			"text=Allowlisted, text=Not Allowlisted, text=Denylisted"
 		);
 
 		// Should find access type information

@@ -89,7 +89,7 @@ test.describe("🔧 Basic Setup Verification", () => {
 		console.log(
 			hasMobileNavigation
 				? "✅ Mobile navigation present"
-				: "ℹ️ No mobile-specific navigation",
+				: "ℹ️ No mobile-specific navigation"
 		);
 	});
 });

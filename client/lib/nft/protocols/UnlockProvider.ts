@@ -153,7 +153,7 @@ export class UnlockProvider {
 
 	private async executeGraphQLQuery(
 		query: string,
-		variables: any = {},
+		variables: any = {}
 	): Promise<any> {
 		try {
 			const response = await fetch(this.subgraphUrl, {
@@ -190,7 +190,7 @@ export class UnlockProvider {
 			orderBy?: "createdAtBlock" | "totalSupply" | "price";
 			orderDirection?: "asc" | "desc";
 			activeOnly?: boolean;
-		} = {},
+		} = {}
 	): Promise<UnlockSearchResult> {
 		try {
 			const {
@@ -277,7 +277,7 @@ export class UnlockProvider {
 						maxKeysPerAddress: lock.maxKeysPerAddress || "1",
 						metadata,
 					};
-				}),
+				})
 			);
 
 			return {
@@ -308,7 +308,7 @@ export class UnlockProvider {
 			limit?: number;
 			skip?: number;
 			activeOnly?: boolean;
-		} = {},
+		} = {}
 	): Promise<UnlockSearchResult> {
 		try {
 			const { limit = 20, skip = 0, activeOnly = true } = options;
@@ -409,7 +409,7 @@ export class UnlockProvider {
 						createdAtBlock: key.createdAtBlock,
 						transactionsHash: key.transactionsHash || [],
 					};
-				}),
+				})
 			);
 
 			// Extract unique locks
@@ -446,7 +446,7 @@ export class UnlockProvider {
 	 */
 	async userHasValidKey(
 		address: string,
-		lockAddress: string,
+		lockAddress: string
 	): Promise<boolean> {
 		try {
 			const userKeys = await this.getUserKeys(address, { limit: 100 });
@@ -454,7 +454,7 @@ export class UnlockProvider {
 				(key) =>
 					key.lock.address.toLowerCase() === lockAddress.toLowerCase() &&
 					!key.cancelled &&
-					parseInt(key.expiration, 10) > Math.floor(Date.now() / 1000),
+					parseInt(key.expiration, 10) > Math.floor(Date.now() / 1000)
 			);
 		} catch (error) {
 			log.error("Error checking if user has valid key", {
@@ -544,7 +544,7 @@ export class UnlockProvider {
 	private async getLockMetadata(lockAddress: string): Promise<any> {
 		try {
 			const metadataResponse = await fetch(
-				`https://locksmith.unlock-protocol.com/api/key/${lockAddress}/1`,
+				`https://locksmith.unlock-protocol.com/api/key/${lockAddress}/1`
 			);
 
 			if (metadataResponse.ok) {
@@ -593,7 +593,7 @@ export class UnlockProvider {
 		options: {
 			limit?: number;
 			skip?: number;
-		} = {},
+		} = {}
 	): Promise<UnlockSearchResult> {
 		try {
 			const { limit = 20, skip = 0 } = options;
@@ -645,7 +645,7 @@ export class UnlockProvider {
 	async purchaseKey(
 		lockAddress: string,
 		_keyPrice: string,
-		recipient?: string,
+		recipient?: string
 	): Promise<string | null> {
 		log.warn("Key purchase requires full web3 integration", {
 			lockAddress,
@@ -659,7 +659,7 @@ export class UnlockProvider {
 	 */
 	async getKeyExpiration(
 		lockAddress: string,
-		tokenId: string,
+		tokenId: string
 	): Promise<Date | null> {
 		try {
 			const graphqlQuery = `

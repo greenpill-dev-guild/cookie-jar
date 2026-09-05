@@ -1,7 +1,6 @@
 "use client";
 
 import { ArrowUpToLine } from "lucide-react";
-// AllowlistWithdrawalSection.tsx
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,15 +13,43 @@ import {
 } from "@/lib/blockchain/token-utils";
 
 const PURPOSE_MIN_LENGTH = 27;
+const PURPOSE_HINT =
+	"At least 27 characters. Paste the Linear ledger or issue link plus a short note.";
+const PURPOSE_PLACEHOLDER =
+	"July 2026 stipend: https://linear.app/greenpill-dev-guild/... plus a short note";
 
 /** Count Unicode code points to match Solidity's countUnicodeCodePoints().
  *  Uses the string iterator which yields one value per code point (handles surrogate pairs). */
-function unicodeCodePointLength(str: string): number {
+export function unicodeCodePointLength(str: string): number {
 	return [...str].length;
 }
 
+function PurposeHelp({ purpose }: { purpose: string }) {
+	const length = unicodeCodePointLength(purpose);
+	const missingLink = purpose.length > 0 && !/linear\.app/i.test(purpose);
+	return (
+		<div className="flex flex-col gap-1 text-sm">
+			<p className="text-muted-foreground">{PURPOSE_HINT}</p>
+			<p
+				className={
+					length < PURPOSE_MIN_LENGTH ? "text-muted-foreground" : "text-success"
+				}
+				aria-live="polite"
+			>
+				{length}/{PURPOSE_MIN_LENGTH} characters
+			</p>
+			{missingLink && (
+				<p className="text-warning">
+					No Linear link yet. Claims without one are flagged in the steward
+					review.
+				</p>
+			)}
+		</div>
+	);
+}
+
 interface AllowlistWithdrawalSectionProps {
-	config: any; // Ideally this would be more specifically typed
+	config: any; // jar config plus isWithdrawPending
 	withdrawPurpose: string;
 	setWithdrawPurpose: (value: string) => void;
 	withdrawAmount: string;
@@ -31,6 +58,10 @@ interface AllowlistWithdrawalSectionProps {
 	handleWithdrawAllowlistVariable: () => void;
 }
 
+/**
+ * Claim form for eligible members (allowlist or token gate). The transaction hook picks
+ * the right jar function; this component only collects amount and note.
+ */
 export const AllowlistWithdrawalSection: React.FC<
 	AllowlistWithdrawalSectionProps
 > = ({
@@ -42,108 +73,75 @@ export const AllowlistWithdrawalSection: React.FC<
 	handleWithdrawAllowlist,
 	handleWithdrawAllowlistVariable,
 }) => {
-
-	// Get token information using the token utils
 	const { symbol: tokenSymbol, decimals: tokenDecimals } = useTokenInfo(
-		config?.currency || ETH_ADDRESS,
+		config?.currency || ETH_ADDRESS
+	);
+	const [amountError, setAmountError] = React.useState<string | null>(null);
+
+	const purposeOk =
+		!config.strictPurpose ||
+		(!!withdrawPurpose &&
+			unicodeCodePointLength(withdrawPurpose) >= PURPOSE_MIN_LENGTH);
+	const fixedLabel = config.fixedAmount
+		? formatTokenAmount(BigInt(config.fixedAmount), tokenDecimals, tokenSymbol)
+		: `0 ${tokenSymbol}`;
+	const maxLabel = config.maxWithdrawal
+		? formatTokenAmount(
+				BigInt(config.maxWithdrawal),
+				tokenDecimals,
+				tokenSymbol
+			)
+		: `0 ${tokenSymbol}`;
+	const pendingButton = (
+		<>
+			<span className="animate-spin mr-2">⟳</span>
+			Sending...
+		</>
 	);
 
-	// State for validation errors
-	const [amountError, setAmountError] = React.useState<string | null>(null);
-	// Fixed amount withdrawal with purpose
-	if (config.strictPurpose && config.withdrawalOption === "Fixed") {
+	if (config.withdrawalOption === "Fixed") {
 		return (
 			<div className="space-y-6 py-4">
-				<div className="space-y-3">
-					<label
-						htmlFor="withdrawPurpose"
-						className="block text-[#ff5e14] font-medium text-lg"
-					>
-						Withdrawal Purpose
-					</label>
-					<Textarea
-						id="withdrawPurpose"
-						placeholder="Enter the purpose of your withdrawal (required)"
-						value={withdrawPurpose}
-						onChange={(e) => setWithdrawPurpose(e.target.value)}
-						className="min-h-32 border-[#f0e6d8] bg-white text-[#3c2a14]"
-					/>
-					<p className="text-sm text-[#8b7355]">
-						Please provide a detailed explanation for this withdrawal
-					</p>
-				</div>
-
-				<div className="pt-4">
-					<Button
-						onClick={handleWithdrawAllowlist}
-						className="w-full bg-[#ff5e14] hover:bg-[#e54d00] text-white py-6 text-lg"
-						disabled={
-							!withdrawPurpose ||
-							unicodeCodePointLength(withdrawPurpose) < PURPOSE_MIN_LENGTH ||
-							config.isWithdrawPending
-						}
-					>
-						{config.isWithdrawPending ? (
-							<>
-								<span className="animate-spin mr-2">⟳</span>
-								Processing...
-							</>
-						) : (
-							<>
-								<ArrowUpToLine className="h-5 w-5 mr-2" />
-								Get Fixed Cookie (
-								{config.fixedAmount
-									? formatTokenAmount(
-											BigInt(config.fixedAmount),
-											tokenDecimals,
-											tokenSymbol,
-										)
-									: `0 ${tokenSymbol}`}
-								)
-							</>
-						)}
-					</Button>
-				</div>
-			</div>
-		);
-	}
-
-	// Fixed amount withdrawal without purpose
-	if (!config.strictPurpose && config.withdrawalOption === "Fixed") {
-		return (
-			<div className="space-y-6 py-8">
-				<p className="text-[#ff5e14] font-medium text-xl text-center">
-					You can get a fixed cookie of{" "}
-					{config.fixedAmount
-						? formatTokenAmount(
-								BigInt(config.fixedAmount),
-								tokenDecimals,
-								tokenSymbol,
-							)
-						: `0 ${tokenSymbol}`}{" "}
-					from this jar.
+				<p className="text-foreground font-medium text-lg text-center">
+					You can claim a fixed amount of {fixedLabel} from this jar.
 				</p>
-				{Number(config.lastWithdrawalAllowlist) > 0 && (
-					<p className="text-sm text-[#8b7355] text-center">
-						Note: After withdrawal, a cooldown period will be applied before you
-						can withdraw again.
+				{Number(config.lastWithdrawalTime ?? 0) > 0 && (
+					<p className="text-sm text-muted-foreground text-center">
+						After a claim, a waiting period applies before you can claim again.
 					</p>
 				)}
-				<div className="pt-4 flex justify-center">
+
+				{config.strictPurpose && (
+					<div className="space-y-3">
+						<label
+							htmlFor="withdrawPurpose"
+							className="block text-foreground font-medium"
+						>
+							Claim note
+						</label>
+						<Textarea
+							id="withdrawPurpose"
+							placeholder={PURPOSE_PLACEHOLDER}
+							value={withdrawPurpose}
+							onChange={(e) => setWithdrawPurpose(e.target.value)}
+							className="min-h-28 border-border bg-card text-foreground"
+						/>
+						<PurposeHelp purpose={withdrawPurpose} />
+					</div>
+				)}
+
+				<div className="pt-2 flex justify-center">
 					<Button
 						onClick={handleWithdrawAllowlist}
-						className="px-8 py-6 bg-[#ff5e14] hover:bg-[#e54d00] text-white text-lg"
-						disabled={config.isWithdrawPending}
+						className="px-8 py-6 text-lg"
+						disabled={!purposeOk || config.isWithdrawPending}
 					>
 						{config.isWithdrawPending ? (
-							<>
-								<span className="animate-spin mr-2">⟳</span>
-								Processing...
-							</>
+							pendingButton
 						) : (
 							<>
 								<ArrowUpToLine className="h-5 w-5 mr-2" />
-								Get Fixed Cookie
+								Claim {fixedLabel}
 							</>
 						)}
 					</Button>
@@ -152,164 +150,80 @@ export const AllowlistWithdrawalSection: React.FC<
 		);
 	}
 
-	// Variable amount withdrawal with purpose
-	if (config.strictPurpose && config.withdrawalOption === "Variable") {
-		return (
-			<div className="space-y-4">
-				<div className="space-y-2">
-					<label
-						htmlFor="withdrawAmount"
-						className="block text-[#ff5e14] font-medium"
-					>
-						Withdrawal Amount
-					</label>
-					<Input
-						id="withdrawAmount"
-						type="text"
-						placeholder="Enter amount"
-						value={withdrawAmount}
-						onChange={(e) => {
-							// Only allow numbers and decimal points with validation based on decimal precision
-							const value = e.target.value;
-							const result = checkDecimals(value, tokenDecimals);
-							setAmountError(result.error);
-							if (result.value !== null) {
-								setWithdrawAmount(result.value);
-							}
-						}}
-						className={`border-[#f0e6d8] bg-white text-[#3c2a14] ${amountError ? "border-red-500" : ""}`}
-					/>
-					{amountError ? (
-						<p className="text-sm text-red-500">{amountError}</p>
-					) : (
-						<p className="text-sm text-[#8b7355]">
-							Maximum withdrawal:{" "}
-							{config.maxWithdrawal
-								? formatTokenAmount(
-										BigInt(config.maxWithdrawal),
-										tokenDecimals,
-										tokenSymbol,
-									)
-								: `0 ${tokenSymbol}`}
-						</p>
-					)}
-				</div>
+	return (
+		<div className="space-y-4">
+			<div className="space-y-2">
+				<label
+					htmlFor="withdrawAmount"
+					className="block text-foreground font-medium"
+				>
+					Claim amount
+				</label>
+				<Input
+					id="withdrawAmount"
+					type="text"
+					inputMode="decimal"
+					placeholder={`Up to ${maxLabel}`}
+					value={withdrawAmount}
+					onChange={(e) => {
+						const result = checkDecimals(e.target.value, tokenDecimals);
+						setAmountError(result.error);
+						if (result.value !== null) {
+							setWithdrawAmount(result.value);
+						}
+					}}
+					className={`border-border bg-card text-foreground ${amountError ? "border-destructive" : ""}`}
+				/>
+				{amountError ? (
+					<p className="text-sm text-destructive">{amountError}</p>
+				) : (
+					<p className="text-sm text-muted-foreground">
+						Up to {maxLabel} per claim
+					</p>
+				)}
+			</div>
 
+			{config.strictPurpose && (
 				<div className="space-y-2">
 					<label
 						htmlFor="withdrawPurpose"
-						className="block text-[#ff5e14] font-medium"
+						className="block text-foreground font-medium"
 					>
-						Withdrawal Purpose
+						Claim note
 					</label>
 					<Textarea
 						id="withdrawPurpose"
-						placeholder="Enter the purpose of your withdrawal (required)"
+						placeholder={PURPOSE_PLACEHOLDER}
 						value={withdrawPurpose}
 						onChange={(e) => setWithdrawPurpose(e.target.value)}
-						className="min-h-24 border-[#f0e6d8] bg-white text-[#3c2a14]"
+						className="min-h-28 border-border bg-card text-foreground"
 					/>
+					<PurposeHelp purpose={withdrawPurpose} />
 				</div>
+			)}
 
-				<div className="pt-2">
-					<Button
-						onClick={handleWithdrawAllowlistVariable}
-						className="w-full bg-[#ff5e14] hover:bg-[#e54d00] text-white"
-						disabled={
-							!withdrawAmount ||
-							Number(withdrawAmount) <= 0 ||
-							!withdrawPurpose ||
-							unicodeCodePointLength(withdrawPurpose) < PURPOSE_MIN_LENGTH ||
-							config.isWithdrawPending
-						}
-					>
-						{config.isWithdrawPending ? (
-							<>
-								<span className="animate-spin mr-2">⟳</span>
-								Processing...
-							</>
-						) : (
-							<>
-								<ArrowUpToLine className="h-4 w-4 mr-2" />
-								Get Cookie ({withdrawAmount || "0"} {tokenSymbol})
-							</>
-						)}
-					</Button>
-				</div>
-			</div>
-		);
-	}
-
-	// Variable amount withdrawal without purpose
-	if (!config.strictPurpose && config.withdrawalOption === "Variable") {
-		return (
-			<div className="space-y-4">
-				<div className="space-y-2">
-					<label
-						htmlFor="withdrawAmount"
-						className="block text-[#ff5e14] font-medium"
-					>
-						Withdrawal Amount
-					</label>
-					<Input
-						id="withdrawAmount"
-						type="text"
-						placeholder="Enter amount"
-						value={withdrawAmount}
-						onChange={(e) => {
-							// Only allow numbers and decimal points with validation based on decimal precision
-							const value = e.target.value;
-							const result = checkDecimals(value, tokenDecimals);
-							setAmountError(result.error);
-							if (result.value !== null) {
-								setWithdrawAmount(result.value);
-							}
-						}}
-						className={`border-[#f0e6d8] bg-white text-[#3c2a14] ${amountError ? "border-red-500" : ""}`}
-					/>
-					{amountError ? (
-						<p className="text-sm text-red-500">{amountError}</p>
+			<div className="pt-2">
+				<Button
+					onClick={handleWithdrawAllowlistVariable}
+					className="w-full"
+					disabled={
+						!withdrawAmount ||
+						Number(withdrawAmount) <= 0 ||
+						!!amountError ||
+						!purposeOk ||
+						config.isWithdrawPending
+					}
+				>
+					{config.isWithdrawPending ? (
+						pendingButton
 					) : (
-						<p className="text-sm text-[#8b7355]">
-							Maximum withdrawal:{" "}
-							{config.maxWithdrawal
-								? formatTokenAmount(
-										BigInt(config.maxWithdrawal),
-										tokenDecimals,
-										tokenSymbol,
-									)
-								: `0 ${tokenSymbol}`}
-						</p>
+						<>
+							<ArrowUpToLine className="h-4 w-4 mr-2" />
+							Claim {withdrawAmount || "0"} {tokenSymbol}
+						</>
 					)}
-				</div>
-
-				<div className="pt-2">
-					<Button
-						onClick={handleWithdrawAllowlistVariable}
-						className="w-full bg-[#ff5e14] hover:bg-[#e54d00] text-white"
-						disabled={
-							!withdrawAmount ||
-							Number(withdrawAmount) <= 0 ||
-							!!amountError ||
-							config.isWithdrawPending
-						}
-					>
-						{config.isWithdrawPending ? (
-							<>
-								<span className="animate-spin mr-2">⟳</span>
-								Processing...
-							</>
-						) : (
-							<>
-								<ArrowUpToLine className="h-4 w-4 mr-2" />
-								Get Cookie ({withdrawAmount || "0"} {tokenSymbol})
-							</>
-						)}
-					</Button>
-				</div>
+				</Button>
 			</div>
-		);
-	}
-
-	return null;
+		</div>
+	);
 };
