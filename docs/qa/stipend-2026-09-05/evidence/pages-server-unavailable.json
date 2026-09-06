@@ -1,0 +1,506 @@
+[
+  {
+    "name": "home",
+    "path": "/",
+    "width": 1440,
+    "theme": "light",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "jar",
+    "path": "/jar/0x5ef012c81ABC229Df10037b9001937E55671E36E",
+    "width": 1440,
+    "theme": "light",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/jar/0x5ef012c81ABC229Df10037b9001937E55671E36E",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/jar/0x5ef012c81ABC229Df10037b9001937E55671E36E\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/jar/0x5ef012c81ABC229Df10037b9001937E55671E36E\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "jars",
+    "path": "/jars",
+    "width": 1440,
+    "theme": "light",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/jars",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/jars\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/jars\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "create",
+    "path": "/create",
+    "width": 1440,
+    "theme": "light",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/create",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/create\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/create\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "profile",
+    "path": "/profile",
+    "width": 1440,
+    "theme": "light",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/profile",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/profile\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/profile\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "bad-address",
+    "path": "/jar/not-an-address",
+    "width": 1440,
+    "theme": "light",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/jar/not-an-address",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/jar/not-an-address\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/jar/not-an-address\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "not-found",
+    "path": "/qa-no-such-page",
+    "width": 1440,
+    "theme": "light",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/qa-no-such-page",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/qa-no-such-page\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/qa-no-such-page\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "home",
+    "path": "/",
+    "width": 1440,
+    "theme": "dark",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "jar",
+    "path": "/jar/0x5ef012c81ABC229Df10037b9001937E55671E36E",
+    "width": 1440,
+    "theme": "dark",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/jar/0x5ef012c81ABC229Df10037b9001937E55671E36E",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/jar/0x5ef012c81ABC229Df10037b9001937E55671E36E\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/jar/0x5ef012c81ABC229Df10037b9001937E55671E36E\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "jars",
+    "path": "/jars",
+    "width": 1440,
+    "theme": "dark",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/jars",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/jars\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/jars\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "create",
+    "path": "/create",
+    "width": 1440,
+    "theme": "dark",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/create",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/create\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/create\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "profile",
+    "path": "/profile",
+    "width": 1440,
+    "theme": "dark",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/profile",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/profile\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/profile\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "bad-address",
+    "path": "/jar/not-an-address",
+    "width": 1440,
+    "theme": "dark",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/jar/not-an-address",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/jar/not-an-address\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/jar/not-an-address\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "not-found",
+    "path": "/qa-no-such-page",
+    "width": 1440,
+    "theme": "dark",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/qa-no-such-page",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/qa-no-such-page\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/qa-no-such-page\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "home",
+    "path": "/",
+    "width": 375,
+    "theme": "light",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "jar",
+    "path": "/jar/0x5ef012c81ABC229Df10037b9001937E55671E36E",
+    "width": 375,
+    "theme": "light",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/jar/0x5ef012c81ABC229Df10037b9001937E55671E36E",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/jar/0x5ef012c81ABC229Df10037b9001937E55671E36E\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/jar/0x5ef012c81ABC229Df10037b9001937E55671E36E\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "jars",
+    "path": "/jars",
+    "width": 375,
+    "theme": "light",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/jars",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/jars\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/jars\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "create",
+    "path": "/create",
+    "width": 375,
+    "theme": "light",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/create",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/create\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/create\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "profile",
+    "path": "/profile",
+    "width": 375,
+    "theme": "light",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/profile",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/profile\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/profile\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "bad-address",
+    "path": "/jar/not-an-address",
+    "width": 375,
+    "theme": "light",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/jar/not-an-address",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/jar/not-an-address\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/jar/not-an-address\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "not-found",
+    "path": "/qa-no-such-page",
+    "width": 375,
+    "theme": "light",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/qa-no-such-page",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/qa-no-such-page\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/qa-no-such-page\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "home",
+    "path": "/",
+    "width": 375,
+    "theme": "dark",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "jar",
+    "path": "/jar/0x5ef012c81ABC229Df10037b9001937E55671E36E",
+    "width": 375,
+    "theme": "dark",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/jar/0x5ef012c81ABC229Df10037b9001937E55671E36E",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/jar/0x5ef012c81ABC229Df10037b9001937E55671E36E\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/jar/0x5ef012c81ABC229Df10037b9001937E55671E36E\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "jars",
+    "path": "/jars",
+    "width": 375,
+    "theme": "dark",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/jars",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/jars\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/jars\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "create",
+    "path": "/create",
+    "width": 375,
+    "theme": "dark",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/create",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/create\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/create\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "profile",
+    "path": "/profile",
+    "width": 375,
+    "theme": "dark",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/profile",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/profile\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/profile\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "bad-address",
+    "path": "/jar/not-an-address",
+    "width": 375,
+    "theme": "dark",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/jar/not-an-address",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/jar/not-an-address\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/jar/not-an-address\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  },
+  {
+    "name": "not-found",
+    "path": "/qa-no-such-page",
+    "width": 375,
+    "theme": "dark",
+    "console": [],
+    "pageErrors": [
+      "Failed to read the 'localStorage' property from 'Window': Access is denied for this document."
+    ],
+    "failedRequests": [
+      {
+        "url": "http://localhost:3000/qa-no-such-page",
+        "error": "net::ERR_CONNECTION_REFUSED"
+      }
+    ],
+    "httpErrors": [],
+    "error": "page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/qa-no-such-page\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/qa-no-such-page\", waiting until \"domcontentloaded\"\u001b[22m\n"
+  }
+]

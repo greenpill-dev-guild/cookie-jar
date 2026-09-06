@@ -1,5 +1,7 @@
 # Deployment runbook: the Green Goods stipend jar on Arbitrum One
 
+The Green Goods stipend uses the separate `stipend/` React/Vite app. Follow [STIPEND-APP.md](STIPEND-APP.md) for its Vercel project, domains and `VITE_*` configuration. The `client/` Next.js app remains the generic Cookie Jar UI. Existing `NEXT_PUBLIC_*` examples below refer only to that generic app.
+
 The procedure for putting the Green Goods contributor stipend jar live at
 https://cookies.greengoods.app, written so the next jar can follow the same path. Steps marked
 **(human)** need a person with keys, funds or dashboard access. An agent prepares, dry-runs and

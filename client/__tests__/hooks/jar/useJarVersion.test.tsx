@@ -1,11 +1,11 @@
-import { renderHook, waitFor } from "@testing-library/react";
-import type { Address } from "viem";
-import { beforeEach, describe, expect, it, vi } from "vitest";
 import {
 	useIsV2Jar,
 	useJarFeatures,
 	useJarVersion,
-} from "@/hooks/jar/useJarVersion";
+} from "@jar-core/hooks/jar/useJarVersion";
+import { renderHook, waitFor } from "@testing-library/react";
+import type { Address } from "viem";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock wagmi
 const mockReadContract = vi.fn();

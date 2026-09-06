@@ -1,0 +1,254 @@
+$ playwright test --config=playwright.stipend.config.ts "e2e/featured-jar.spec.ts" "e2e/jar-creation.spec.ts" "e2e/jar-operations.spec.ts" "e2e/admin-functions.spec.ts"
+
+Running 20 tests using 1 worker
+
+(node:10443) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › e2e/admin-functions.spec.ts:9:5 › owner updates the maximum and interval, pauses, and withdraws emergency funds (7.3s)
+  ✓   2 [desktop] › e2e/featured-jar.spec.ts:6:6 › Featured jar home › renders the featured jar with claim, deposit and history (1.1s)
+  ✓   3 [desktop] › e2e/featured-jar.spec.ts:44:6 › Featured jar home › keeps the generic routes reachable (1.6s)
+  ✓   4 [desktop] › e2e/featured-jar.spec.ts:51:6 › Featured jar home › has no bottom app bar on mobile (1.1s)
+  ✓   5 [desktop] › e2e/jar-creation.spec.ts:10:5 › creates a custom jar directly through the local factory and opens the chain-aware link (3.2s)
+  ✓   6 [desktop] › e2e/jar-creation.spec.ts:54:5 › connecting on the creation network waits for an explicit final submit (3.4s)
+  ✓   7 [desktop] › e2e/jar-creation.spec.ts:97:5 › preset stays editable and wallet connection returns to review without a write (4.9s)
+  ✘   8 [desktop] › e2e/jar-creation.spec.ts:162:5 › custom creation review has no unsupported streaming controls and passes accessibility (3.6s)
+(node:13506) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   9 [desktop] › e2e/jar-operations.spec.ts:10:5 › claim and deposit update the seeded stipend jar and enforce the interval (10.5s)
+  ✓  10 [desktop] › e2e/jar-operations.spec.ts:86:5 › wrong network disables local jar writes (8.9s)
+(node:14448) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  11 [mobile] › e2e/admin-functions.spec.ts:9:5 › owner updates the maximum and interval, pauses, and withdraws emergency funds (6.7s)
+  ✓  12 [mobile] › e2e/featured-jar.spec.ts:6:6 › Featured jar home › renders the featured jar with claim, deposit and history (1.4s)
+  ✓  13 [mobile] › e2e/featured-jar.spec.ts:44:6 › Featured jar home › keeps the generic routes reachable (2.3s)
+  ✓  14 [mobile] › e2e/featured-jar.spec.ts:51:6 › Featured jar home › has no bottom app bar on mobile (1.5s)
+  ✓  15 [mobile] › e2e/jar-creation.spec.ts:10:5 › creates a custom jar directly through the local factory and opens the chain-aware link (8.4s)
+  ✓  16 [mobile] › e2e/jar-creation.spec.ts:54:5 › connecting on the creation network waits for an explicit final submit (6.2s)
+  ✓  17 [mobile] › e2e/jar-creation.spec.ts:97:5 › preset stays editable and wallet connection returns to review without a write (5.6s)
+  ✘  18 [mobile] › e2e/jar-creation.spec.ts:162:5 › custom creation review has no unsupported streaming controls and passes accessibility (3.9s)
+(node:17110) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  19 [mobile] › e2e/jar-operations.spec.ts:10:5 › claim and deposit update the seeded stipend jar and enforce the interval (9.8s)
+  ✓  20 [mobile] › e2e/jar-operations.spec.ts:86:5 › wrong network disables local jar writes (4.6s)
+
+
+  1) [desktop] › e2e/jar-creation.spec.ts:162:5 › custom creation review has no unsupported streaming controls and passes accessibility
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 93
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#1fbb68",
+    +               "contrastRatio": 3.52,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#1d5437",
+    +               "fontSize": "12.0pt (16px)",
+    +               "fontWeight": "bold",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.52 (foreground color: #1d5437, background color: #1fbb68, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<button class=\"iekbcc0 iekbcc9 ju367v78 ju367v7t ju367v9i ju367vn ju367vei ju367vf3 ju367v16 ju367v1h ju367v2g ju367v8u _12cbo8i3 ju367v8r _12cbo8i4 _12cbo8i6\" type=\"button\" data-testid=\"rk-connect-button\">Connect</button>",
+    +                 "target": Array [
+    +                   ".iekbcc9",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.52 (foreground color: #1d5437, background color: #1fbb68, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +         "html": "<button class=\"iekbcc0 iekbcc9 ju367v78 ju367v7t ju367v9i ju367vn ju367vei ju367vf3 ju367v16 ju367v1h ju367v2g ju367v8u _12cbo8i3 ju367v8r _12cbo8i4 _12cbo8i6\" type=\"button\" data-testid=\"rk-connect-button\">Connect</button>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".iekbcc9",
+    +         ],
+    +       },
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#1fb565",
+    +               "contrastRatio": 3.44,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#2f4e3e",
+    +               "fontSize": "10.5pt (14px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.44 (foreground color: #2f4e3e, background color: #1fb565, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<button class=\"min-h-11 min-w-11 wh...\">",
+    +                 "target": Array [
+    +                   ".hover\\:bg-primary\\/90",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.44 (foreground color: #2f4e3e, background color: #1fb565, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<button class=\"min-h-11 min-w-11 wh...\">",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".hover\\:bg-primary\\/90",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      187 | 			.withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+      188 | 			.analyze();
+    > 189 | 		expect(results.violations).toEqual([]);
+          | 		                           ^
+      190 | 		expect(
+      191 | 			await page.evaluate(
+      192 | 				() => document.documentElement.scrollWidth <= innerWidth
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/jar-creation.spec.ts:189:30
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    stipend/test-results/jar-creation-custom-creati-87476-ls-and-passes-accessibility-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: stipend/test-results/jar-creation-custom-creati-87476-ls-and-passes-accessibility-desktop/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    stipend/test-results/jar-creation-custom-creati-87476-ls-and-passes-accessibility-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace stipend/test-results/jar-creation-custom-creati-87476-ls-and-passes-accessibility-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [mobile] › e2e/jar-creation.spec.ts:162:5 › custom creation review has no unsupported streaming controls and passes accessibility
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 58
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#1fbf6a",
+    +               "contrastRatio": 4.27,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#114a2c",
+    +               "fontSize": "12.0pt (16px)",
+    +               "fontWeight": "bold",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 4.27 (foreground color: #114a2c, background color: #1fbf6a, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<button class=\"iekbcc0 iekbcc9 ju367v78 ju367v7t ju367v9i ju367vn ju367vei ju367vf3 ju367v16 ju367v1h ju367v2g ju367v8u _12cbo8i3 ju367v8r _12cbo8i4 _12cbo8i6\" type=\"button\" data-testid=\"rk-connect-button\">Connect</button>",
+    +                 "target": Array [
+    +                   ".iekbcc9",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 4.27 (foreground color: #114a2c, background color: #1fbf6a, font size: 12.0pt (16px), font weight: bold). Expected contrast ratio of 4.5:1",
+    +         "html": "<button class=\"iekbcc0 iekbcc9 ju367v78 ju367v7t ju367v9i ju367vn ju367vei ju367vf3 ju367v16 ju367v1h ju367v2g ju367v8u _12cbo8i3 ju367v8r _12cbo8i4 _12cbo8i6\" type=\"button\" data-testid=\"rk-connect-button\">Connect</button>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".iekbcc9",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      187 | 			.withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+      188 | 			.analyze();
+    > 189 | 		expect(results.violations).toEqual([]);
+          | 		                           ^
+      190 | 		expect(
+      191 | 			await page.evaluate(
+      192 | 				() => document.documentElement.scrollWidth <= innerWidth
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/jar-creation.spec.ts:189:30
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    stipend/test-results/jar-creation-custom-creati-87476-ls-and-passes-accessibility-mobile/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: stipend/test-results/jar-creation-custom-creati-87476-ls-and-passes-accessibility-mobile/error-context.md
+
+    attachment #3: trace (application/zip) ─────────────────────────────────────────────────────────
+    stipend/test-results/jar-creation-custom-creati-87476-ls-and-passes-accessibility-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace stipend/test-results/jar-creation-custom-creati-87476-ls-and-passes-accessibility-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [desktop] › e2e/jar-creation.spec.ts:162:5 › custom creation review has no unsupported streaming controls and passes accessibility
+    [mobile] › e2e/jar-creation.spec.ts:162:5 › custom creation review has no unsupported streaming controls and passes accessibility
+  18 passed (1.9m)
+error: script "test:e2e:stipend" exited with code 1

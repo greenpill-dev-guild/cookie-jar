@@ -1,8 +1,7 @@
-import { describe, expect, it } from "vitest";
 import {
 	HATS_PROTOCOL_ADDRESS,
 	POAP_TOKEN_ADDRESS,
-} from "@/lib/blockchain/constants";
+} from "@jar-core/lib/blockchain/constants";
 import {
 	ACCESS_TYPES,
 	getAccessTypeLabel,
@@ -11,7 +10,8 @@ import {
 	isErc1155Access,
 	isNFTAccess,
 	isProtocolAccess,
-} from "@/lib/jar/access-types";
+} from "@jar-core/lib/jar/access-types";
+import { describe, expect, it } from "vitest";
 
 describe("access types", () => {
 	it("mirrors the contract enum", () => {

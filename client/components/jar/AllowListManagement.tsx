@@ -1,8 +1,10 @@
 "use client";
 
+import { useToast } from "@jar-core/hooks/app/useToast";
+import { cookieJarV1Abi } from "@jar-core/lib/blockchain/cookie-jar-v1-abi";
 import type React from "react";
 import { useState } from "react";
-import { useChainId, useReadContract, useWriteContract } from "wagmi";
+import { useReadContract, useWriteContract } from "wagmi";
 import {
 	Accordion,
 	AccordionContent,
@@ -14,20 +16,19 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isV2Chain } from "@/config/supported-networks";
 import { cookieJarAbi } from "@/generated";
-import { useToast } from "@/hooks/app/useToast";
-import { cookieJarV1Abi } from "@/lib/blockchain/cookie-jar-v1-abi";
 import { AllowlistAddressInput } from "./AllowListAddressInput";
 
 interface AllowlistManagementProps {
 	cookieJarAddress: `0x${string}`;
+	chainId: number;
 }
 
 export const AllowlistManagement: React.FC<AllowlistManagementProps> = ({
 	cookieJarAddress,
+	chainId,
 }) => {
 	const { toast } = useToast();
 	const [activeSection, setActiveSection] = useState<string>("view-allowlist");
-	const chainId = useChainId();
 	const isV2 = isV2Chain(chainId);
 
 	// Version-aware ABI and function selection
@@ -47,6 +48,7 @@ export const AllowlistManagement: React.FC<AllowlistManagementProps> = ({
 		refetch: _refetchAllowlist,
 	} = useReadContract({
 		address: cookieJarAddress,
+		chainId,
 		abi,
 		functionName: getAllowlistFunction,
 	});
@@ -65,6 +67,7 @@ export const AllowlistManagement: React.FC<AllowlistManagementProps> = ({
 		try {
 			grantAllowlistRole({
 				address: cookieJarAddress,
+				chainId,
 				abi,
 				functionName: grantFunction,
 				args: [addresses],
@@ -91,6 +94,7 @@ export const AllowlistManagement: React.FC<AllowlistManagementProps> = ({
 		try {
 			revokeAllowlistRole({
 				address: cookieJarAddress,
+				chainId,
 				abi,
 				functionName: revokeFunction,
 				args: [addresses],

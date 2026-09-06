@@ -1,11 +1,20 @@
 "use client";
 
+import { useToast } from "@jar-core/hooks/app/useToast";
+import {
+	AccessType,
+	type JarCreationFormData,
+	METHOD_TO_ACCESS_TYPE,
+	NFTType,
+	WithdrawalTypeOptions,
+} from "@jar-core/hooks/jar/schemas/jarCreationSchema";
+import { shortenAddress } from "@jar-core/lib/app/utils";
+import { ETH_ADDRESS } from "@jar-core/lib/blockchain/token-utils";
 import { Trash2 } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useMemo } from "react";
 import { useFormContext } from "react-hook-form";
 import { isAddress } from "viem";
-import { useChainId } from "wagmi";
 import { NFTSelector, type SelectedNFT } from "@/components/nft/NFTSelector";
 import type {
 	AccessMethod,
@@ -25,16 +34,6 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { isPoapSupportedChain } from "@/config/supported-networks";
-import { useToast } from "@/hooks/app/useToast";
-import {
-	AccessType,
-	type JarCreationFormData,
-	METHOD_TO_ACCESS_TYPE,
-	NFTType,
-	WithdrawalTypeOptions,
-} from "@/hooks/jar/schemas/jarCreationSchema";
-import { shortenAddress } from "@/lib/app/utils";
-import { ETH_ADDRESS } from "@/lib/blockchain/token-utils";
 
 interface StepContentProps {
 	step: number;
@@ -79,7 +78,7 @@ const BasicConfigStep: React.FC = () => {
 		formState: { errors },
 	} = useFormContext<JarCreationFormData>();
 	const { toast } = useToast();
-	const chainId = useChainId();
+	const chainId = useFormContext<JarCreationFormData>().watch("chainId");
 
 	const showCustomCurrency = watch("showCustomCurrency");
 	const supportedCurrency = watch("supportedCurrency");
@@ -155,7 +154,7 @@ const BasicConfigStep: React.FC = () => {
 		if (process.env.NODE_ENV !== "development") return;
 
 		const randomNames = [
-			"Cookie Fund",
+			"Contributor Fund",
 			"Dev Grants",
 			"Community Pool",
 			"Test Jar",
@@ -163,7 +162,7 @@ const BasicConfigStep: React.FC = () => {
 			"Alpha Pool",
 		];
 		const randomDescriptions = [
-			"A fund for supporting cookie development",
+			"A fund for supporting contributor work",
 			"Grants for innovative projects",
 			"Community-driven funding pool",
 			"Testing new jar functionality",
@@ -237,7 +236,7 @@ const BasicConfigStep: React.FC = () => {
 						id="jarName"
 						data-testid="jar-name-input"
 						placeholder="e.g., Community Fund, Dev Grants"
-						aria-label="Enter a name for your cookie jar"
+						aria-label="Jar name"
 						aria-invalid={!!errors.jarName}
 						aria-describedby={errors.jarName ? "jarName-error" : undefined}
 						{...register("jarName")}
@@ -265,7 +264,8 @@ const BasicConfigStep: React.FC = () => {
 							type="button"
 							variant="ghost"
 							size="icon"
-							className="absolute right-1 top-1 h-8 w-8 text-gray-500 hover:text-primary"
+							aria-label="Paste owner address"
+							className="absolute right-0 top-0 text-muted-foreground hover:text-primary"
 							onClick={async () => {
 								try {
 									const text = await navigator.clipboard.readText();
@@ -307,6 +307,7 @@ const BasicConfigStep: React.FC = () => {
 						onValueChange={handleCurrencyChange}
 					>
 						<SelectTrigger
+							id="currency"
 							data-testid="currency-selector"
 							aria-label="Select currency type for your jar"
 						>
@@ -410,11 +411,11 @@ const WithdrawalSettingsStep: React.FC = () => {
 
 	return (
 		<div className="space-y-6">
-			<h3 className="text-lg font-semibold">Withdrawal Settings</h3>
+			<h3 className="text-lg font-semibold">Claim settings</h3>
 
 			<div className="grid gap-4">
 				<div>
-					<Label htmlFor="withdrawalType">Withdrawal Type *</Label>
+					<Label htmlFor="withdrawalType">Claim type *</Label>
 					<Select
 						value={withdrawalOption.toString()}
 						onValueChange={(value) =>
@@ -424,8 +425,8 @@ const WithdrawalSettingsStep: React.FC = () => {
 							)
 						}
 					>
-						<SelectTrigger>
-							<SelectValue placeholder="Select withdrawal type" />
+						<SelectTrigger id="withdrawalType">
+							<SelectValue placeholder="Select claim type" />
 						</SelectTrigger>
 						<SelectContent>
 							<SelectItem value="0">Fixed - Same amount each time</SelectItem>
@@ -436,7 +437,7 @@ const WithdrawalSettingsStep: React.FC = () => {
 
 				{withdrawalOption === WithdrawalTypeOptions.Fixed && (
 					<div>
-						<Label htmlFor="fixedAmount">Fixed Withdrawal Amount *</Label>
+						<Label htmlFor="fixedAmount">Fixed claim amount *</Label>
 						<Input
 							id="fixedAmount"
 							type="number"
@@ -445,14 +446,14 @@ const WithdrawalSettingsStep: React.FC = () => {
 							{...register("fixedAmount")}
 						/>
 						<p className="text-sm text-muted-foreground mt-1">
-							Amount users can withdraw each time
+							Amount people can claim each time
 						</p>
 					</div>
 				)}
 
 				{withdrawalOption === WithdrawalTypeOptions.Variable && (
 					<div>
-						<Label htmlFor="maxWithdrawal">Maximum Withdrawal Amount *</Label>
+						<Label htmlFor="maxWithdrawal">Maximum claim amount *</Label>
 						<Input
 							id="maxWithdrawal"
 							type="number"
@@ -461,15 +462,13 @@ const WithdrawalSettingsStep: React.FC = () => {
 							{...register("maxWithdrawal")}
 						/>
 						<p className="text-sm text-muted-foreground mt-1">
-							Maximum amount users can withdraw at once
+							Maximum amount people can claim at once
 						</p>
 					</div>
 				)}
 
 				<div>
-					<Label htmlFor="withdrawalInterval">
-						Withdrawal Interval (days) *
-					</Label>
+					<Label htmlFor="withdrawalInterval">Claim interval (days) *</Label>
 					<Input
 						id="withdrawalInterval"
 						type="number"
@@ -478,7 +477,7 @@ const WithdrawalSettingsStep: React.FC = () => {
 						{...register("withdrawalInterval")}
 					/>
 					<p className="text-sm text-muted-foreground mt-1">
-						Time between allowed withdrawals (e.g., 7 = weekly, 30 = monthly)
+						Time between allowed claims (e.g., 7 = weekly, 30 = monthly)
 					</p>
 				</div>
 
@@ -492,7 +491,7 @@ const WithdrawalSettingsStep: React.FC = () => {
 							}
 						/>
 						<Label htmlFor="strictPurpose" className="text-sm">
-							Require purpose description (minimum 27 characters)
+							Require a note (minimum 27 characters)
 						</Label>
 					</div>
 
@@ -518,7 +517,7 @@ const WithdrawalSettingsStep: React.FC = () => {
 							}
 						/>
 						<Label htmlFor="oneTimeWithdrawal" className="text-sm">
-							One-time withdrawal only (users can only claim once)
+							One-time claims only
 						</Label>
 					</div>
 				</div>
@@ -532,7 +531,7 @@ const WithdrawalSettingsStep: React.FC = () => {
 // ─────────────────────────────────────────────
 
 const AccessControlStep: React.FC = () => {
-	const chainId = useChainId();
+	const chainId = useFormContext<JarCreationFormData>().watch("chainId");
 	const { watch, setValue, getValues } = useFormContext<JarCreationFormData>();
 
 	const accessType = watch("accessType");
@@ -750,8 +749,6 @@ const FinalSettingsStep: React.FC<{ isV2Contract: boolean }> = ({
 	const { register, watch, setValue } = useFormContext<JarCreationFormData>();
 
 	const enableCustomFee = watch("enableCustomFee");
-	const streamingEnabled = watch("streamingEnabled");
-	const requireStreamApproval = watch("requireStreamApproval");
 	const autoSwapEnabled = watch("autoSwapEnabled");
 
 	// Summary values
@@ -767,12 +764,26 @@ const FinalSettingsStep: React.FC<{ isV2Contract: boolean }> = ({
 	const emergencyWithdrawalEnabled = watch("emergencyWithdrawalEnabled");
 	const oneTimeWithdrawal = watch("oneTimeWithdrawal");
 	const customFee = watch("customFee");
-	const maxStreamRate = watch("maxStreamRate");
-	const minStreamDuration = watch("minStreamDuration");
+	const minDeposit = watch("minDeposit");
+	const protocolConfig = watch("protocolConfig");
 
 	return (
 		<div className="space-y-6">
 			<h3 className="text-lg font-semibold">Final Settings & Review</h3>
+			{isV2Contract && (
+				<div>
+					<Label htmlFor="minDeposit">Minimum deposit (tokens)</Label>
+					<Input
+						id="minDeposit"
+						inputMode="decimal"
+						{...register("minDeposit")}
+					/>
+					<p className="text-sm text-muted-foreground mt-1">
+						Enter 0 for no minimum. This value is sent explicitly to the
+						factory.
+					</p>
+				</div>
+			)}
 
 			<div className="space-y-6">
 				{/* Custom Fee Settings */}
@@ -819,82 +830,21 @@ const FinalSettingsStep: React.FC<{ isV2Contract: boolean }> = ({
 					)}
 				</div>
 
-				{/* Streaming & Multi-Token Settings */}
+				{/* Multi-Token Settings */}
 				{isV2Contract && (
-					<div className="space-y-4 p-4 border rounded-lg bg-blue-50/50">
+					<div className="space-y-4 p-4 border rounded-lg bg-card text-card-foreground">
 						<h4 className="font-medium text-base flex items-center gap-2">
-							<span className="w-2 h-2 bg-blue-500 rounded-full" />
+							<span className="w-2 h-2 bg-info rounded-full" />
 							Advanced Features
-							<span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+							<span className="text-xs bg-muted text-foreground px-2 py-1 rounded">
 								v2 Enhanced
 							</span>
 						</h4>
 
 						<div className="space-y-4">
-							<div className="flex items-center space-x-2">
-								<Checkbox
-									id="enableStreaming"
-									checked={streamingEnabled}
-									onCheckedChange={(checked) =>
-										setValue("streamingEnabled", checked === true)
-									}
-								/>
-								<Label htmlFor="enableStreaming" className="text-sm">
-									Enable token streaming
-								</Label>
-							</div>
-
-							{streamingEnabled && (
-								<div className="ml-6 space-y-4 p-3 bg-card rounded border border-blue-200">
-									<div className="flex items-center space-x-2">
-										<Checkbox
-											id="requireStreamApproval"
-											checked={requireStreamApproval}
-											onCheckedChange={(checked) =>
-												setValue("requireStreamApproval", checked === true)
-											}
-										/>
-										<Label htmlFor="requireStreamApproval" className="text-sm">
-											Require manual approval for new streams
-										</Label>
-									</div>
-
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-										<div>
-											<Label htmlFor="maxStreamRate">
-												Max Stream Rate (tokens/second)
-											</Label>
-											<Input
-												id="maxStreamRate"
-												type="number"
-												placeholder="1.0"
-												step="0.001"
-												min="0"
-												{...register("maxStreamRate")}
-											/>
-											<p className="text-xs text-muted-foreground mt-1">
-												Maximum allowed streaming rate
-											</p>
-										</div>
-
-										<div>
-											<Label htmlFor="minStreamDuration">
-												Min Stream Duration (hours)
-											</Label>
-											<Input
-												id="minStreamDuration"
-												type="number"
-												placeholder="1"
-												min="1"
-												{...register("minStreamDuration")}
-											/>
-											<p className="text-xs text-muted-foreground mt-1">
-												Minimum time for streams
-											</p>
-										</div>
-									</div>
-								</div>
-							)}
+							<p className="text-sm text-muted-foreground">
+								Token streaming cannot be configured during jar creation.
+							</p>
 
 							<div className="flex items-center space-x-2">
 								<Checkbox
@@ -909,12 +859,9 @@ const FinalSettingsStep: React.FC<{ isV2Contract: boolean }> = ({
 								</Label>
 							</div>
 
-							<div className="text-xs text-blue-700 bg-blue-50 p-2 rounded border">
+							<div className="text-xs text-muted-foreground bg-muted p-2 rounded border">
 								<strong>Advanced Features:</strong>
 								<ul className="mt-1 ml-4 list-disc space-y-1">
-									<li>
-										Streaming allows continuous funding from external sources
-									</li>
 									<li>
 										Auto-swap converts ETH deposits to your jar&apos;s token
 										automatically
@@ -933,7 +880,7 @@ const FinalSettingsStep: React.FC<{ isV2Contract: boolean }> = ({
 			{/* Configuration Summary */}
 			<div className="bg-muted/50 p-4 rounded-lg space-y-2">
 				<h4 className="font-medium">Configuration Summary</h4>
-				<div className="text-sm space-y-1">
+				<div className="text-sm space-y-1 break-words [overflow-wrap:anywhere]">
 					<div>
 						<strong>Name:</strong> {jarName || "Not set"}
 					</div>
@@ -945,21 +892,34 @@ const FinalSettingsStep: React.FC<{ isV2Contract: boolean }> = ({
 						{supportedCurrency === ETH_ADDRESS ? "ETH" : supportedCurrency}
 					</div>
 					<div>
-						<strong>Access Type:</strong> {AccessType[accessType]}
+						<strong>Access:</strong>{" "}
+						{accessType === AccessType.Hats
+							? "Team hat (Hats Protocol)"
+							: AccessType[accessType]}
+						{accessType === AccessType.Hats && (
+							<p className="break-all">
+								Hat ID: {protocolConfig.hatsId}
+								<br />
+								Hats contract:{" "}
+								{protocolConfig.hatsAddress ||
+									"0x3bc1A0Ad72417f2d411118085256fC53CBdDd137"}
+							</p>
+						)}
 					</div>
 					<div>
-						<strong>Withdrawal:</strong>{" "}
-						{WithdrawalTypeOptions[withdrawalOption]}
+						<strong>Claims:</strong> {WithdrawalTypeOptions[withdrawalOption]}
 						{withdrawalOption === WithdrawalTypeOptions.Fixed
-							? ` (${fixedAmount} per withdrawal)`
-							: ` (max ${maxWithdrawal} per withdrawal)`}
+							? ` (${fixedAmount} per claim)`
+							: ` (max ${maxWithdrawal} per claim)`}
 					</div>
 					<div>
 						<strong>Interval:</strong> {withdrawalInterval} day
 						{parseInt(withdrawalInterval, 10) === 1 ? "" : "s"}
 					</div>
 					<div>
-						<strong>Strict Purpose:</strong> {strictPurpose ? "Yes" : "No"}
+						<strong>Minimum deposit:</strong> {minDeposit}
+						<br />
+						<strong>Require a note:</strong> {strictPurpose ? "Yes" : "No"}
 					</div>
 					<div>
 						<strong>Emergency Withdrawal:</strong>{" "}
@@ -976,23 +936,8 @@ const FinalSettingsStep: React.FC<{ isV2Contract: boolean }> = ({
 					{isV2Contract && (
 						<>
 							<div>
-								<strong>Streaming:</strong>{" "}
-								{streamingEnabled ? "Enabled" : "Disabled"}
-								{streamingEnabled &&
-									requireStreamApproval &&
-									" (Manual Approval)"}
+								<strong>Streaming:</strong> Not configured during creation
 							</div>
-							{streamingEnabled && (
-								<>
-									<div>
-										<strong>Max Stream Rate:</strong> {maxStreamRate} tokens/sec
-									</div>
-									<div>
-										<strong>Min Stream Duration:</strong> {minStreamDuration}{" "}
-										hours
-									</div>
-								</>
-							)}
 							<div>
 								<strong>Auto-Swap ETH:</strong>{" "}
 								{autoSwapEnabled ? "Enabled" : "Disabled"}

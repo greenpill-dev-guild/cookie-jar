@@ -42,7 +42,7 @@
 		"test:performance": "bun run test:e2e:performance",
 		"test:ci": "bun run test && bun run test:e2e",
 		"test:accessibility": "playwright test --grep 'accessibility'",
-		"lint": "oxlint --deny-warnings client e2e && ./scripts/check-next-rules.sh",
+		"lint": "oxlint --deny-warnings client stipend/src shared/src e2e && ./scripts/check-next-rules.sh",
 		"lint:fix": "oxlint --fix client e2e",
 		"lint:contracts": "cd contracts && solhint 'src/**/*.sol' 'test/**/*.sol' 'script/**/*.sol'",
 		"lint:contracts:fix": "cd contracts && solhint --fix 'src/**/*.sol' 'test/**/*.sol' 'script/**/*.sol'",
@@ -51,7 +51,7 @@
 		"format:contracts": "cd contracts && prettier --write 'src/**/*.sol' 'test/**/*.sol' 'script/**/*.sol'",
 		"check": "bun lint && bun type-check",
 		"check:fix": "bun format && bun lint:fix && bun type-check",
-		"type-check": "cd client && bun type-check",
+		"type-check": "bun run --cwd client type-check && bun run --cwd stipend type-check",
 		"clean": "bun run clean:contracts && bun run clean:client",
 		"clean:client": "rm -rf client/build client/.next client/dist",
 		"clean:contracts": "cd contracts && forge clean",
@@ -67,7 +67,11 @@
 		"deploy:base-sepolia": "./scripts/deploy.sh base-sepolia",
 		"sync:deployment": "bun scripts/sync-deployments.ts",
 		"create-jar:arbitrum": "./scripts/deploy.sh arbitrum CreateJar.s.sol:CreateJar",
-		"create-jar:arbitrum-sepolia": "./scripts/deploy.sh arbitrum-sepolia CreateJar.s.sol:CreateJar"
+		"create-jar:arbitrum-sepolia": "./scripts/deploy.sh arbitrum-sepolia CreateJar.s.sol:CreateJar",
+		"dev:stipend": "bun run --cwd stipend dev",
+		"build:stipend": "bun run --cwd stipend build",
+		"test:stipend": "bun run --cwd stipend test",
+		"test:e2e:stipend": "playwright test --config=playwright.stipend.config.ts"
 	},
 	"devDependencies": {
 		"@axe-core/playwright": "^4.13.0",
@@ -96,7 +100,9 @@
 		"postcss": ">=8.5.26"
 	},
 	"workspaces": [
-		"client"
+		"client",
+		"stipend",
+		"shared"
 	],
 	"packageManager": "bun@1.3.10"
 }

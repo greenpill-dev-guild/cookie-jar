@@ -24,6 +24,8 @@
 		],
 		"includes": [
 			"client/**",
+			"stipend/**",
+			"shared/**",
 			"e2e/**/*.ts",
 			"!**/.next",
 			"!**/node_modules",

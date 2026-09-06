@@ -1,0 +1,13 @@
+{
+  "observedAt": "2026-09-05T23:14:53.729982+00:00",
+  "source": "CUA getState",
+  "apps": [],
+  "browsers": [
+    {
+      "name": "Codex In-app Browser",
+      "type": "iab",
+      "tabs": []
+    }
+  ],
+  "conclusion": "No wallet-capable browser is connected to this session."
+}

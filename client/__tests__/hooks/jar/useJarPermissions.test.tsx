@@ -30,7 +30,7 @@ vi.mock("wagmi", () => ({
 
 vi.mock("@/generated", () => ({ cookieJarAbi: [] }));
 
-import { useJarPermissions } from "@/hooks/jar/useJarPermissions";
+import { useJarPermissions } from "@jar-core/hooks/jar/useJarPermissions";
 
 const hatsJar = {
 	accessType: "Hats",

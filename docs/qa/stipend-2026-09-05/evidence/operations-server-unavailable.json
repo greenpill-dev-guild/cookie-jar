@@ -1,0 +1,1621 @@
+{
+  "config": {
+    "argv": [
+      "/Users/afo/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/Users/afo/Code/greenpill/cookie-jar/node_modules/.bin/playwright",
+      "test",
+      "e2e/jar-operations.spec.ts",
+      "e2e/admin-functions.spec.ts",
+      "--reporter=list,json",
+      "--output=docs/qa/stipend-2026-09-05/evidence/operations-artifacts"
+    ],
+    "configFile": "/Users/afo/Code/greenpill/cookie-jar/playwright.config.ts",
+    "rootDir": "/Users/afo/Code/greenpill/cookie-jar/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "Desktop Chrome",
+        "name": "Desktop Chrome",
+        "testDir": "/Users/afo/Code/greenpill/cookie-jar/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.{test,spec}.{js,ts}"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "Mobile Chrome",
+        "name": "Mobile Chrome",
+        "testDir": "/Users/afo/Code/greenpill/cookie-jar/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.{test,spec}.{js,ts}"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "admin-functions.spec.ts",
+      "file": "admin-functions.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "🔧 Admin Functions E2E",
+          "file": "admin-functions.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Allowlist management - add and remove users",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 532,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:16",
+                        "location": {
+                          "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                          "column": 20,
+                          "line": 39
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mutils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                            "column": 20,
+                            "line": 39
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n\n   at utils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🔗 Connecting wallet as Deployer (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:13:52.536Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-30e5d-ment---add-and-remove-users-Desktop-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-30e5d-ment---add-and-remove-users-Desktop-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-30e5d-ment---add-and-remove-users-Desktop-Chrome/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-30e5d-ment---add-and-remove-users-Desktop-Chrome/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                        "column": 20,
+                        "line": 39
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "553b7d8a4293873028cb-6333008533d3a3d7dcc6",
+              "file": "admin-functions.spec.ts",
+              "line": 21,
+              "column": 6
+            },
+            {
+              "title": "NFT gate management (v2 contracts only)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 443,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:16",
+                        "location": {
+                          "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                          "column": 20,
+                          "line": 39
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mutils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                            "column": 20,
+                            "line": 39
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n\n   at utils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🔗 Connecting wallet as Deployer (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:13:54.338Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-35876-nagement-v2-contracts-only--Desktop-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-35876-nagement-v2-contracts-only--Desktop-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-35876-nagement-v2-contracts-only--Desktop-Chrome/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-35876-nagement-v2-contracts-only--Desktop-Chrome/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                        "column": 20,
+                        "line": 39
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "553b7d8a4293873028cb-0d50534e3c8324a2fe2e",
+              "file": "admin-functions.spec.ts",
+              "line": 79,
+              "column": 6
+            },
+            {
+              "title": "Jar metadata updates",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 378,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:16",
+                        "location": {
+                          "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                          "column": 20,
+                          "line": 39
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mutils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                            "column": 20,
+                            "line": 39
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n\n   at utils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🔗 Connecting wallet as Deployer (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:13:55.674Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-Functions-E2E-Jar-metadata-updates-Desktop-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-Functions-E2E-Jar-metadata-updates-Desktop-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-Functions-E2E-Jar-metadata-updates-Desktop-Chrome/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-Functions-E2E-Jar-metadata-updates-Desktop-Chrome/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                        "column": 20,
+                        "line": 39
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "553b7d8a4293873028cb-6d1b1ca9e83292abf037",
+              "file": "admin-functions.spec.ts",
+              "line": 143,
+              "column": 6
+            },
+            {
+              "title": "Emergency withdrawal (if enabled)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 384,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:16",
+                        "location": {
+                          "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                          "column": 20,
+                          "line": 39
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mutils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                            "column": 20,
+                            "line": 39
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n\n   at utils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🔗 Connecting wallet as Deployer (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:13:56.855Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-d5a0f-ency-withdrawal-if-enabled--Desktop-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-d5a0f-ency-withdrawal-if-enabled--Desktop-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-d5a0f-ency-withdrawal-if-enabled--Desktop-Chrome/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-d5a0f-ency-withdrawal-if-enabled--Desktop-Chrome/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                        "column": 20,
+                        "line": 39
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "553b7d8a4293873028cb-a8e79dd40e63e8afd63d",
+              "file": "admin-functions.spec.ts",
+              "line": 187,
+              "column": 6
+            },
+            {
+              "title": "Admin access control validation",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 4,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 417,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:16",
+                        "location": {
+                          "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                          "column": 20,
+                          "line": 39
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mutils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                            "column": 20,
+                            "line": 39
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n\n   at utils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🔗 Connecting wallet as Deployer (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:13:58.065Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-afa34-n-access-control-validation-Desktop-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-afa34-n-access-control-validation-Desktop-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-afa34-n-access-control-validation-Desktop-Chrome/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-afa34-n-access-control-validation-Desktop-Chrome/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                        "column": 20,
+                        "line": 39
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "553b7d8a4293873028cb-ade508fbfa93d438c376",
+              "file": "admin-functions.spec.ts",
+              "line": 225,
+              "column": 6
+            },
+            {
+              "title": "Allowlist management - add and remove users",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 9,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 541,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:16",
+                        "location": {
+                          "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                          "column": 20,
+                          "line": 39
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mutils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                            "column": 20,
+                            "line": 39
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n\n   at utils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🔗 Connecting wallet as Deployer (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:14:04.326Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-30e5d-ment---add-and-remove-users-Mobile-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-30e5d-ment---add-and-remove-users-Mobile-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-30e5d-ment---add-and-remove-users-Mobile-Chrome/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-30e5d-ment---add-and-remove-users-Mobile-Chrome/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                        "column": 20,
+                        "line": 39
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "553b7d8a4293873028cb-92b0bea48eabd1f83780",
+              "file": "admin-functions.spec.ts",
+              "line": 21,
+              "column": 6
+            },
+            {
+              "title": "NFT gate management (v2 contracts only)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 10,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 374,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:16",
+                        "location": {
+                          "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                          "column": 20,
+                          "line": 39
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mutils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                            "column": 20,
+                            "line": 39
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n\n   at utils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🔗 Connecting wallet as Deployer (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:14:05.857Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-35876-nagement-v2-contracts-only--Mobile-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-35876-nagement-v2-contracts-only--Mobile-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-35876-nagement-v2-contracts-only--Mobile-Chrome/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-35876-nagement-v2-contracts-only--Mobile-Chrome/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                        "column": 20,
+                        "line": 39
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "553b7d8a4293873028cb-0f48939e5d368d83c2b9",
+              "file": "admin-functions.spec.ts",
+              "line": 79,
+              "column": 6
+            },
+            {
+              "title": "Jar metadata updates",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 11,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 311,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:16",
+                        "location": {
+                          "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                          "column": 20,
+                          "line": 39
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mutils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                            "column": 20,
+                            "line": 39
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n\n   at utils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🔗 Connecting wallet as Deployer (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:14:06.898Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-Functions-E2E-Jar-metadata-updates-Mobile-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-Functions-E2E-Jar-metadata-updates-Mobile-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-Functions-E2E-Jar-metadata-updates-Mobile-Chrome/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-Functions-E2E-Jar-metadata-updates-Mobile-Chrome/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                        "column": 20,
+                        "line": 39
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "553b7d8a4293873028cb-4068286cd78626311ff5",
+              "file": "admin-functions.spec.ts",
+              "line": 143,
+              "column": 6
+            },
+            {
+              "title": "Emergency withdrawal (if enabled)",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 12,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 354,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:16",
+                        "location": {
+                          "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                          "column": 20,
+                          "line": 39
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mutils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                            "column": 20,
+                            "line": 39
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n\n   at utils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🔗 Connecting wallet as Deployer (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:14:07.812Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-d5a0f-ency-withdrawal-if-enabled--Mobile-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-d5a0f-ency-withdrawal-if-enabled--Mobile-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-d5a0f-ency-withdrawal-if-enabled--Mobile-Chrome/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-d5a0f-ency-withdrawal-if-enabled--Mobile-Chrome/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                        "column": 20,
+                        "line": 39
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "553b7d8a4293873028cb-b039561280dc12caff81",
+              "file": "admin-functions.spec.ts",
+              "line": 187,
+              "column": 6
+            },
+            {
+              "title": "Admin access control validation",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 13,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 457,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:16",
+                        "location": {
+                          "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                          "column": 20,
+                          "line": 39
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mutils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                            "column": 20,
+                            "line": 39
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n\n   at utils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🔗 Connecting wallet as Deployer (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:14:08.800Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-afa34-n-access-control-validation-Mobile-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-afa34-n-access-control-validation-Mobile-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-afa34-n-access-control-validation-Mobile-Chrome/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/admin-functions-🔧-Admin-F-afa34-n-access-control-validation-Mobile-Chrome/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                        "column": 20,
+                        "line": 39
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "553b7d8a4293873028cb-3287cfea080d391d4d36",
+              "file": "admin-functions.spec.ts",
+              "line": 225,
+              "column": 6
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "jar-operations.spec.ts",
+      "file": "jar-operations.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "💰 Jar Operations E2E",
+          "file": "jar-operations.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Complete deposit and withdrawal flow",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 370,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/jar-operations.spec.ts:7:16",
+                        "location": {
+                          "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                          "column": 20,
+                          "line": 39
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mutils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                            "column": 20,
+                            "line": 39
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n\n   at utils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/jar-operations.spec.ts:7:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🔗 Connecting wallet as Cookie Monster (0x70997970C51812dc3A010C7d01b50e0d17dc79C8)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:13:59.305Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-a5dbc-deposit-and-withdrawal-flow-Desktop-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-a5dbc-deposit-and-withdrawal-flow-Desktop-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-a5dbc-deposit-and-withdrawal-flow-Desktop-Chrome/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-a5dbc-deposit-and-withdrawal-flow-Desktop-Chrome/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                        "column": 20,
+                        "line": 39
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ed53a4df529e08e046f0-53dcbe32b710b3b61f2a",
+              "file": "jar-operations.spec.ts",
+              "line": 10,
+              "column": 6
+            },
+            {
+              "title": "NFT-gated withdrawal flow",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 392,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/jar-operations.spec.ts:7:16",
+                        "location": {
+                          "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                          "column": 20,
+                          "line": 39
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mutils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                            "column": 20,
+                            "line": 39
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n\n   at utils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/jar-operations.spec.ts:7:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🔗 Connecting wallet as Cookie Monster (0x70997970C51812dc3A010C7d01b50e0d17dc79C8)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:14:00.502Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-ff0da-E-NFT-gated-withdrawal-flow-Desktop-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-ff0da-E-NFT-gated-withdrawal-flow-Desktop-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-ff0da-E-NFT-gated-withdrawal-flow-Desktop-Chrome/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-ff0da-E-NFT-gated-withdrawal-flow-Desktop-Chrome/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                        "column": 20,
+                        "line": 39
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ed53a4df529e08e046f0-a0204dee29ae72f92a11",
+              "file": "jar-operations.spec.ts",
+              "line": 104,
+              "column": 6
+            },
+            {
+              "title": "Access control enforcement",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 357,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/jar-operations.spec.ts:7:16",
+                        "location": {
+                          "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                          "column": 20,
+                          "line": 39
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mutils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                            "column": 20,
+                            "line": 39
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n\n   at utils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/jar-operations.spec.ts:7:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🔗 Connecting wallet as Cookie Monster (0x70997970C51812dc3A010C7d01b50e0d17dc79C8)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:14:01.666Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-34f6c--Access-control-enforcement-Desktop-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-34f6c--Access-control-enforcement-Desktop-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-34f6c--Access-control-enforcement-Desktop-Chrome/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-34f6c--Access-control-enforcement-Desktop-Chrome/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                        "column": 20,
+                        "line": 39
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ed53a4df529e08e046f0-9d4f7cf1e3d236d26655",
+              "file": "jar-operations.spec.ts",
+              "line": 155,
+              "column": 6
+            },
+            {
+              "title": "Cooldown period enforcement",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 8,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 484,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/jar-operations.spec.ts:7:16",
+                        "location": {
+                          "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                          "column": 20,
+                          "line": 39
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mutils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                            "column": 20,
+                            "line": 39
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n\n   at utils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/jar-operations.spec.ts:7:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🔗 Connecting wallet as Cookie Monster (0x70997970C51812dc3A010C7d01b50e0d17dc79C8)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:14:02.971Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-89149-Cooldown-period-enforcement-Desktop-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-89149-Cooldown-period-enforcement-Desktop-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-89149-Cooldown-period-enforcement-Desktop-Chrome/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-89149-Cooldown-period-enforcement-Desktop-Chrome/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                        "column": 20,
+                        "line": 39
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ed53a4df529e08e046f0-8c877d95370fbc26dc9f",
+              "file": "jar-operations.spec.ts",
+              "line": 184,
+              "column": 6
+            },
+            {
+              "title": "Complete deposit and withdrawal flow",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 14,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 518,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/jar-operations.spec.ts:7:16",
+                        "location": {
+                          "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                          "column": 20,
+                          "line": 39
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mutils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                            "column": 20,
+                            "line": 39
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n\n   at utils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/jar-operations.spec.ts:7:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🔗 Connecting wallet as Cookie Monster (0x70997970C51812dc3A010C7d01b50e0d17dc79C8)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:14:10.316Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-a5dbc-deposit-and-withdrawal-flow-Mobile-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-a5dbc-deposit-and-withdrawal-flow-Mobile-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-a5dbc-deposit-and-withdrawal-flow-Mobile-Chrome/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-a5dbc-deposit-and-withdrawal-flow-Mobile-Chrome/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                        "column": 20,
+                        "line": 39
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ed53a4df529e08e046f0-b10944d16136fc34914e",
+              "file": "jar-operations.spec.ts",
+              "line": 10,
+              "column": 6
+            },
+            {
+              "title": "NFT-gated withdrawal flow",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 15,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 410,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/jar-operations.spec.ts:7:16",
+                        "location": {
+                          "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                          "column": 20,
+                          "line": 39
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mutils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                            "column": 20,
+                            "line": 39
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n\n   at utils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/jar-operations.spec.ts:7:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🔗 Connecting wallet as Cookie Monster (0x70997970C51812dc3A010C7d01b50e0d17dc79C8)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:14:11.795Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-ff0da-E-NFT-gated-withdrawal-flow-Mobile-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-ff0da-E-NFT-gated-withdrawal-flow-Mobile-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-ff0da-E-NFT-gated-withdrawal-flow-Mobile-Chrome/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-ff0da-E-NFT-gated-withdrawal-flow-Mobile-Chrome/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                        "column": 20,
+                        "line": 39
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ed53a4df529e08e046f0-f636630470333241f732",
+              "file": "jar-operations.spec.ts",
+              "line": 104,
+              "column": 6
+            },
+            {
+              "title": "Access control enforcement",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 16,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 360,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/jar-operations.spec.ts:7:16",
+                        "location": {
+                          "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                          "column": 20,
+                          "line": 39
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mutils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                            "column": 20,
+                            "line": 39
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n\n   at utils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/jar-operations.spec.ts:7:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🔗 Connecting wallet as Cookie Monster (0x70997970C51812dc3A010C7d01b50e0d17dc79C8)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:14:12.975Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-34f6c--Access-control-enforcement-Mobile-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-34f6c--Access-control-enforcement-Mobile-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-34f6c--Access-control-enforcement-Mobile-Chrome/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-34f6c--Access-control-enforcement-Mobile-Chrome/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                        "column": 20,
+                        "line": 39
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ed53a4df529e08e046f0-f2efad39a0ef48088318",
+              "file": "jar-operations.spec.ts",
+              "line": 155,
+              "column": 6
+            },
+            {
+              "title": "Cooldown period enforcement",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 17,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 372,
+                      "error": {
+                        "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/jar-operations.spec.ts:7:16",
+                        "location": {
+                          "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                          "column": 20,
+                          "line": 39
+                        },
+                        "snippet": "\u001b[90m   at \u001b[39mutils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                            "column": 20,
+                            "line": 39
+                          },
+                          "message": "Error: page.goto: net::ERR_CONNECTION_REFUSED at http://localhost:3000/\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/\", waiting until \"load\"\u001b[22m\n\n\n   at utils/wallet-utils.ts:39\n\n  37 | \t\t// Navigate to app if not already there\n  38 | \t\tif (!this.page.url().includes(\"localhost:3000\")) {\n> 39 | \t\t\tawait this.page.goto(\"/\");\n     | \t\t\t                ^\n  40 | \t\t}\n  41 |\n  42 | \t\t// Look for connect wallet button using your existing patterns\n    at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:39:20)\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/jar-operations.spec.ts:7:16"
+                        }
+                      ],
+                      "stdout": [
+                        {
+                          "text": "🔗 Connecting wallet as Cookie Monster (0x70997970C51812dc3A010C7d01b50e0d17dc79C8)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:14:13.964Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-89149-Cooldown-period-enforcement-Mobile-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-89149-Cooldown-period-enforcement-Mobile-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-89149-Cooldown-period-enforcement-Mobile-Chrome/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/operations-artifacts/jar-operations-💰-Jar-Oper-89149-Cooldown-period-enforcement-Mobile-Chrome/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts",
+                        "column": 20,
+                        "line": 39
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ed53a4df529e08e046f0-be58e62bf2ae5ff1cea8",
+              "file": "jar-operations.spec.ts",
+              "line": 184,
+              "column": 6
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-05T20:13:51.509Z",
+    "duration": 23063.502999999997,
+    "expected": 0,
+    "skipped": 0,
+    "unexpected": 18,
+    "flaky": 0
+  }
+}

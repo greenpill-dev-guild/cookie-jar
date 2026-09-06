@@ -1,0 +1,13 @@
+Slither (advisory)	fail	1m57s	https://github.com/greenpill-dev-guild/cookie-jar/actions/runs/33996989785/job/101389143011	
+Client integration tests against Anvil	pass	2m42s	https://github.com/greenpill-dev-guild/cookie-jar/actions/runs/33996989786/job/101389142801	
+Client unit tests	pass	41s	https://github.com/greenpill-dev-guild/cookie-jar/actions/runs/33996989788/job/101389142868	
+CodeQL	pass	1m13s	https://github.com/greenpill-dev-guild/cookie-jar/actions/runs/33996989785/job/101389143012	
+CodeRabbit	pass	0		Review skipped: draft pull request
+Contract size and lint	pass	2m1s	https://github.com/greenpill-dev-guild/cookie-jar/actions/runs/33996989785/job/101389142917	
+Dependency audit	pass	20s	https://github.com/greenpill-dev-guild/cookie-jar/actions/runs/33996989785/job/101389142973	
+Vercel Preview Comments	pass	0	https://vercel.com/github	
+Playwright against Anvil	pending	0	https://github.com/greenpill-dev-guild/cookie-jar/actions/runs/33996989779/job/101389142823	
+Lint, format and types	pass	36s	https://github.com/greenpill-dev-guild/cookie-jar/actions/runs/33996989787/job/101389142835	
+WCAG checks with Playwright and axe	pass	9m5s	https://github.com/greenpill-dev-guild/cookie-jar/actions/runs/33996989783/job/101389142755	
+CodeQL	skipping	2s	https://github.com/greenpill-dev-guild/cookie-jar/runs/101389272350	
+Vercel	pass	0	https://vercel.com/greenpilldevguild/cookie-jar/1qPd4jtRcAVoV39bKWFocdHamFT7	Deployment has completed

@@ -1,0 +1,224 @@
+$ playwright test "--config=/tmp/stipend-flow-playwright.config.ts" "e2e/jar-creation.spec.ts" --grep "custom creation review"
+
+Running 2 tests using 1 worker
+
+(node:79894) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [Desktop Chrome] › e2e/jar-creation.spec.ts:162:5 › custom creation review has no unsupported streaming controls and passes accessibility (2.8s)
+(node:79902) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [Mobile Chrome] › e2e/jar-creation.spec.ts:162:5 › custom creation review has no unsupported streaming controls and passes accessibility (1.8s)
+
+
+  1) [Desktop Chrome] › e2e/jar-creation.spec.ts:162:5 › custom creation review has no unsupported streaming controls and passes accessibility 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 64
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#ecf3fe",
+    +               "contrastRatio": 3.26,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#3c83f6",
+    +               "fontSize": "9.0pt (12px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.26 (foreground color: #3c83f6, background color: #ecf3fe, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<span class=\"text-xs bg-info/10 text-info px-2 py-1 rounded\">v2 Enhanced</span>",
+    +                 "target": Array [
+    +                   ".bg-info\\/10",
+    +                 ],
+    +               },
+    +               Object {
+    +                 "html": "<div class=\"space-y-4 p-4 border rounded-lg bg-card text-card-foreground\">",
+    +                 "target": Array [
+    +                   ".text-card-foreground.bg-card.space-y-4",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.26 (foreground color: #3c83f6, background color: #ecf3fe, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<span class=\"text-xs bg-info/10 text-info px-2 py-1 rounded\">v2 Enhanced</span>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".bg-info\\/10",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      187 | 			.withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+      188 | 			.analyze();
+    > 189 | 		expect(results.violations).toEqual([]);
+          | 		                           ^
+      190 | 		expect(
+      191 | 			await page.evaluate(
+      192 | 				() => document.documentElement.scrollWidth <= innerWidth
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-e2e/e2e/jar-creation.spec.ts:189:30
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../../../tmp/stipend-flow-browser-results/jar-creation-custom-creati-87476-ls-and-passes-accessibility-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../../../tmp/stipend-flow-browser-results/jar-creation-custom-creati-87476-ls-and-passes-accessibility-Desktop-Chrome/video-1.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../../../tmp/stipend-flow-browser-results/jar-creation-custom-creati-87476-ls-and-passes-accessibility-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../../../tmp/stipend-flow-browser-results/jar-creation-custom-creati-87476-ls-and-passes-accessibility-Desktop-Chrome/error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../../../tmp/stipend-flow-browser-results/jar-creation-custom-creati-87476-ls-and-passes-accessibility-Desktop-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../../../../../tmp/stipend-flow-browser-results/jar-creation-custom-creati-87476-ls-and-passes-accessibility-Desktop-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [Mobile Chrome] › e2e/jar-creation.spec.ts:162:5 › custom creation review has no unsupported streaming controls and passes accessibility 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 64
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+    +     "help": "Elements must meet minimum color contrast ratio thresholds",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+    +     "id": "color-contrast",
+    +     "impact": "serious",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": Object {
+    +               "bgColor": "#ecf3fe",
+    +               "contrastRatio": 3.26,
+    +               "expectedContrastRatio": "4.5:1",
+    +               "fgColor": "#3c83f6",
+    +               "fontSize": "9.0pt (12px)",
+    +               "fontWeight": "normal",
+    +               "messageKey": null,
+    +             },
+    +             "id": "color-contrast",
+    +             "impact": "serious",
+    +             "message": "Element has insufficient color contrast of 3.26 (foreground color: #3c83f6, background color: #ecf3fe, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +             "relatedNodes": Array [
+    +               Object {
+    +                 "html": "<span class=\"text-xs bg-info/10 text-info px-2 py-1 rounded\">v2 Enhanced</span>",
+    +                 "target": Array [
+    +                   ".bg-info\\/10",
+    +                 ],
+    +               },
+    +               Object {
+    +                 "html": "<div class=\"space-y-4 p-4 border rounded-lg bg-card text-card-foreground\">",
+    +                 "target": Array [
+    +                   ".text-card-foreground.bg-card.space-y-4",
+    +                 ],
+    +               },
+    +             ],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element has insufficient color contrast of 3.26 (foreground color: #3c83f6, background color: #ecf3fe, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1",
+    +         "html": "<span class=\"text-xs bg-info/10 text-info px-2 py-1 rounded\">v2 Enhanced</span>",
+    +         "impact": "serious",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".bg-info\\/10",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.color",
+    +       "wcag2aa",
+    +       "wcag143",
+    +       "TTv5",
+    +       "TT13.c",
+    +       "EN-301-549",
+    +       "EN-9.1.4.3",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-3.2.1",
+    +     ],
+    +   },
+    + ]
+
+      187 | 			.withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+      188 | 			.analyze();
+    > 189 | 		expect(results.violations).toEqual([]);
+          | 		                           ^
+      190 | 		expect(
+      191 | 			await page.evaluate(
+      192 | 				() => document.documentElement.scrollWidth <= innerWidth
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-e2e/e2e/jar-creation.spec.ts:189:30
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../../../tmp/stipend-flow-browser-results/jar-creation-custom-creati-87476-ls-and-passes-accessibility-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../../../tmp/stipend-flow-browser-results/jar-creation-custom-creati-87476-ls-and-passes-accessibility-Mobile-Chrome/video-1.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../../../tmp/stipend-flow-browser-results/jar-creation-custom-creati-87476-ls-and-passes-accessibility-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../../../tmp/stipend-flow-browser-results/jar-creation-custom-creati-87476-ls-and-passes-accessibility-Mobile-Chrome/error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../../../tmp/stipend-flow-browser-results/jar-creation-custom-creati-87476-ls-and-passes-accessibility-Mobile-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../../../../../tmp/stipend-flow-browser-results/jar-creation-custom-creati-87476-ls-and-passes-accessibility-Mobile-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [Desktop Chrome] › e2e/jar-creation.spec.ts:162:5 › custom creation review has no unsupported streaming controls and passes accessibility 
+    [Mobile Chrome] › e2e/jar-creation.spec.ts:162:5 › custom creation review has no unsupported streaming controls and passes accessibility 
+error: script "test:e2e" exited with code 1

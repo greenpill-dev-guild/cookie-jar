@@ -1,5 +1,6 @@
 "use client";
 
+import { log } from "@jar-core/lib/app/logger";
 import { AlertTriangle, Bug, Home, RefreshCw } from "lucide-react";
 import React from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -11,7 +12,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { log } from "@/lib/app/logger";
 
 interface NFTErrorBoundaryState {
 	hasError: boolean;

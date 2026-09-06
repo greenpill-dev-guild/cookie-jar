@@ -1,5 +1,7 @@
 # 🍪 Cookie Jar
 
+The generic Next.js UI is in `client/`. The separate Green Goods Stipend Jar React/Vite app is in `stipend/`; see [app boundaries and Vercel settings](docs/STIPEND-APP.md).
+
 Funding pools with on-chain access control. A factory creates jars; allowlisted or token-gated
 members (ERC721, ERC1155, POAP, Unlock, Hats Protocol) withdraw under fixed rules: fixed or
 variable amounts, cooldown intervals, purpose strings and emergency controls.

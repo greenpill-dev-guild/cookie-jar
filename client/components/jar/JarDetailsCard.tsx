@@ -1,5 +1,12 @@
 "use client";
 
+import type { JarMetadata } from "@jar-core/hooks/jar/useJarMetadata";
+import type { JarPermissions } from "@jar-core/hooks/jar/useJarPermissions";
+import { formatAddress } from "@jar-core/lib/app/utils";
+import {
+	copyToClipboard,
+	formatJarBalance,
+} from "@jar-core/lib/display/jar-display";
 import {
 	Clock,
 	Coins,
@@ -12,10 +19,6 @@ import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import type { JarMetadata } from "@/hooks/jar/useJarMetadata";
-import type { JarPermissions } from "@/hooks/jar/useJarPermissions";
-import { formatAddress } from "@/lib/app/utils";
-import { copyToClipboard, formatJarBalance } from "@/lib/display/jar-display";
 
 interface JarConfig {
 	accessType?: string;
@@ -106,7 +109,8 @@ export function JarDetailsCard({
 											href={metadata.link}
 											target="_blank"
 											rel="noopener noreferrer"
-											className="text-blue-600 hover:text-blue-800"
+											aria-label="Open jar playbook"
+											className="inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
 										>
 											<ExternalLink className="w-5 h-5" />
 										</a>
@@ -133,7 +137,7 @@ export function JarDetailsCard({
 					</div>
 
 					{/* SIMPLIFIED: Focus on 5 Essential Details Only */}
-					<div className="bg-gradient-to-r from-muted to-white p-6 rounded-lg mb-4">
+					<div className="bg-muted border border-border p-4 sm:p-6 rounded-lg mb-4">
 						{/* 1. BALANCE - Most Prominent */}
 						<div className="text-center mb-6">
 							<p className="text-foreground text-sm mb-1">Available Balance</p>
@@ -143,7 +147,7 @@ export function JarDetailsCard({
 						</div>
 
 						{/* 2-5. Key Details Grid */}
-						<div className="grid grid-cols-2 gap-4 text-sm">
+						<div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
 							{/* 2. Access Type */}
 							<div className="flex items-center gap-2">
 								<Users className="h-4 w-4 text-primary" />
@@ -191,8 +195,9 @@ export function JarDetailsCard({
 										<Button
 											variant="ghost"
 											size="icon"
+											aria-label="Copy jar address"
 											onClick={() => copyToClipboard(addressString, toast)}
-											className="h-5 w-5 text-primary hover:bg-accent/10 p-0"
+											className="shrink-0 text-primary hover:bg-accent/10 p-0"
 										>
 											<Copy className="h-3 w-3" />
 										</Button>
@@ -205,9 +210,9 @@ export function JarDetailsCard({
 					{/* User Status */}
 					{(showUserFunctions || isAdmin || isFeeCollector) && (
 						<div className="mt-6">
-							<h3 className="text-base font-semibold text-foreground mb-2">
+							<h2 className="text-base font-semibold text-foreground mb-2">
 								Your Status
-							</h3>
+							</h2>
 							<div className="flex flex-wrap gap-2">
 								{config.denylist ? (
 									<Badge

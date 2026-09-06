@@ -46,7 +46,7 @@ export default function OpenGraphImage() {
 						<circle cx="16" cy="19" r="4" fill="#fff" />
 					</svg>
 				</div>
-				<div style={{ fontSize: 34, color: c.stone }}>Green Goods</div>
+				<div style={{ fontSize: 34, color: c.stone }}>Cookie Jar</div>
 			</div>
 			<div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
 				<div style={{ fontSize: 84, fontWeight: 700, letterSpacing: -2 }}>

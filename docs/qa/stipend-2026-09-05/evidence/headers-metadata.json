@@ -1,0 +1,39 @@
+{
+  "timestamp": "2026-09-05T20:16:15.504Z",
+  "status": 200,
+  "headers": {
+    "cache-control": "no-store, must-revalidate",
+    "connection": "keep-alive",
+    "content-encoding": "gzip",
+    "content-security-policy-report-only": "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self' https://app.safe.global; frame-src https://verify.walletconnect.com https://verify.walletconnect.org https://secure.walletconnect.com https://secure.walletconnect.org; connect-src 'self' https://*.nodies.app https://*.g.alchemy.com https://arb1.arbitrum.io https://*.blockpi.network https://1rpc.io https://mainnet.base.org https://mainnet.optimism.io https://rpc.gnosischain.com https://forno.celo.org https://sepolia.base.org https://eth.llamarpc.com https://rpc.ankr.com https://*.walletconnect.com https://*.walletconnect.org wss://*.walletconnect.com wss://*.walletconnect.org https://*.reown.com https://api.web3modal.org https://enhanced-provider.rainbow.me https://raw.githubusercontent.com https://gateway.pinata.cloud https://ipfs.io http://127.0.0.1:8545 http://localhost:8545 ws://localhost:*",
+    "content-type": "text/html; charset=utf-8",
+    "date": "Sat, 05 Sep 2026 20:16:15 GMT",
+    "keep-alive": "timeout=5",
+    "link": "</_next/static/media/83afe278b6a6bb3c-s.p.3a6ba036.woff2>; rel=preload; as=\"font\"; crossorigin=\"\"; type=\"font/woff2\"",
+    "permissions-policy": "camera=(), microphone=(), geolocation=()",
+    "referrer-policy": "strict-origin-when-cross-origin",
+    "transfer-encoding": "chunked",
+    "vary": "rsc, next-router-state-tree, next-router-prefetch, next-router-segment-prefetch, Accept-Encoding",
+    "x-content-type-options": "nosniff"
+  },
+  "tags": [
+    "<meta property=\"og:title\" content=\"Green Goods Stipend Jar\"/>",
+    "<meta property=\"og:description\" content=\"Claim the monthly Green Goods contributor stipend from the team cookie jar on Arbitrum.\"/>",
+    "<meta property=\"og:url\" content=\"http://localhost:3000\"/>",
+    "<meta property=\"og:site_name\" content=\"Green Goods Stipend Jar\"/>",
+    "<meta property=\"og:image:alt\" content=\"Green Goods Stipend Jar\"/>",
+    "<meta property=\"og:image:type\" content=\"image/png\"/>",
+    "<meta property=\"og:image\" content=\"http://localhost:3000/opengraph-image?783f7d7028129b58\"/>",
+    "<meta property=\"og:image:width\" content=\"1200\"/>",
+    "<meta property=\"og:image:height\" content=\"630\"/>",
+    "<meta property=\"og:type\" content=\"website\"/>",
+    "<meta name=\"twitter:card\" content=\"summary_large_image\"/>",
+    "<meta name=\"twitter:title\" content=\"Green Goods Stipend Jar\"/>",
+    "<meta name=\"twitter:description\" content=\"Claim the monthly Green Goods contributor stipend from the team cookie jar on Arbitrum.\"/>",
+    "<meta name=\"twitter:image:alt\" content=\"Green Goods Stipend Jar\"/>",
+    "<meta name=\"twitter:image:type\" content=\"image/png\"/>",
+    "<meta name=\"twitter:image\" content=\"http://localhost:3000/opengraph-image?783f7d7028129b58\"/>",
+    "<meta name=\"twitter:image:width\" content=\"1200\"/>",
+    "<meta name=\"twitter:image:height\" content=\"630\"/>"
+  ]
+}

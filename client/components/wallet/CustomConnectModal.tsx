@@ -1,5 +1,6 @@
 "use client";
 
+import { useToast } from "@jar-core/hooks/app/useToast";
 import { AlertCircle, ExternalLink, Loader2, Wallet } from "lucide-react";
 import { useEffect, useState } from "react";
 import { type Connector, useAccount, useConnect } from "wagmi";
@@ -11,7 +12,6 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/app/useToast";
 
 interface ConnectModalProps {
 	isOpen: boolean;

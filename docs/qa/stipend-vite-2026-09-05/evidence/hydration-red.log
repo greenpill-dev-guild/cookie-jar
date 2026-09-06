@@ -1,0 +1,1017 @@
+$ playwright test --config=playwright.stipend.config.ts
+
+Running 32 tests using 1 worker
+
+(node:25532) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [desktop] › e2e/admin-functions.spec.ts:9:5 › owner updates the maximum and interval, pauses, and withdraws emergency funds (11.8s)
+  ✓   2 [desktop] › e2e/featured-jar.spec.ts:6:6 › Featured jar home › renders the featured jar with claim, deposit and history (1.5s)
+  ✓   3 [desktop] › e2e/featured-jar.spec.ts:44:6 › Featured jar home › keeps the generic routes reachable (2.2s)
+  ✓   4 [desktop] › e2e/featured-jar.spec.ts:51:6 › Featured jar home › has no bottom app bar on mobile (1.5s)
+  ✓   5 [desktop] › e2e/jar-creation.spec.ts:10:5 › creates a custom jar directly through the local factory and opens the chain-aware link (3.7s)
+  ✓   6 [desktop] › e2e/jar-creation.spec.ts:54:5 › connecting on the creation network waits for an explicit final submit (2.8s)
+  ✓   7 [desktop] › e2e/jar-creation.spec.ts:97:5 › preset stays editable and wallet connection returns to review without a write (4.1s)
+  ✓   8 [desktop] › e2e/jar-creation.spec.ts:162:5 › custom creation review has no unsupported streaming controls and passes accessibility (3.2s)
+  ✓   9 [desktop] › e2e/jar-operations.spec.ts:10:5 › claim and deposit update the seeded stipend jar and enforce the interval (4.7s)
+  ✓  10 [desktop] › e2e/jar-operations.spec.ts:86:5 › wrong network disables local jar writes (2.9s)
+  ✘  11 [desktop] › e2e/stipend-release-qa.spec.ts:18:7 › route evidence 375 light (11.7s)
+(node:30549) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  12 [desktop] › e2e/stipend-release-qa.spec.ts:18:7 › route evidence 375 dark (11.5s)
+(node:32823) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  13 [desktop] › e2e/stipend-release-qa.spec.ts:18:7 › route evidence 1440 light (12.9s)
+(node:35114) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  14 [desktop] › e2e/stipend-release-qa.spec.ts:18:7 › route evidence 1440 dark (11.8s)
+(node:37517) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  15 [desktop] › e2e/stipend-release-qa.spec.ts:132:5 › security headers and social image metadata (108ms)
+  ✓  16 [desktop] › e2e/stipend-release-qa.spec.ts:151:5 › error boundary catches a controlled render failure and recovers (5.3s)
+(node:38297) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  17 [mobile] › e2e/admin-functions.spec.ts:9:5 › owner updates the maximum and interval, pauses, and withdraws emergency funds (4.2s)
+  ✓  18 [mobile] › e2e/featured-jar.spec.ts:6:6 › Featured jar home › renders the featured jar with claim, deposit and history (1.3s)
+  ✓  19 [mobile] › e2e/featured-jar.spec.ts:44:6 › Featured jar home › keeps the generic routes reachable (1.8s)
+  ✓  20 [mobile] › e2e/featured-jar.spec.ts:51:6 › Featured jar home › has no bottom app bar on mobile (1.1s)
+  ✓  21 [mobile] › e2e/jar-creation.spec.ts:10:5 › creates a custom jar directly through the local factory and opens the chain-aware link (3.4s)
+  ✓  22 [mobile] › e2e/jar-creation.spec.ts:54:5 › connecting on the creation network waits for an explicit final submit (2.6s)
+  ✓  23 [mobile] › e2e/jar-creation.spec.ts:97:5 › preset stays editable and wallet connection returns to review without a write (4.7s)
+  ✓  24 [mobile] › e2e/jar-creation.spec.ts:162:5 › custom creation review has no unsupported streaming controls and passes accessibility (3.9s)
+  ✓  25 [mobile] › e2e/jar-operations.spec.ts:10:5 › claim and deposit update the seeded stipend jar and enforce the interval (6.0s)
+  ✓  26 [mobile] › e2e/jar-operations.spec.ts:86:5 › wrong network disables local jar writes (3.5s)
+  ✓  27 [mobile] › e2e/stipend-release-qa.spec.ts:18:7 › route evidence 375 light (13.0s)
+  ✓  28 [mobile] › e2e/stipend-release-qa.spec.ts:18:7 › route evidence 375 dark (12.2s)
+  ✓  29 [mobile] › e2e/stipend-release-qa.spec.ts:18:7 › route evidence 1440 light (17.0s)
+  ✓  30 [mobile] › e2e/stipend-release-qa.spec.ts:18:7 › route evidence 1440 dark (14.5s)
+  ✓  31 [mobile] › e2e/stipend-release-qa.spec.ts:132:5 › security headers and social image metadata (45ms)
+  ✓  32 [mobile] › e2e/stipend-release-qa.spec.ts:151:5 › error boundary catches a controlled render failure and recovers (3.1s)
+
+
+  1) [desktop] › e2e/stipend-release-qa.spec.ts:18:7 › route evidence 375 light ────────────────────
+
+    Error: home console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: jars console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: jar console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: create console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: profile console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: bad-address console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: bad-chain console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: 404 console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    attachment #10: screenshot (image/png) ─────────────────────────────────────────────────────────
+    stipend/test-results/stipend-release-qa-route-evidence-375-light-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: stipend/test-results/stipend-release-qa-route-evidence-375-light-desktop/error-context.md
+
+    attachment #12: trace (application/zip) ────────────────────────────────────────────────────────
+    stipend/test-results/stipend-release-qa-route-evidence-375-light-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace stipend/test-results/stipend-release-qa-route-evidence-375-light-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [desktop] › e2e/stipend-release-qa.spec.ts:18:7 › route evidence 375 dark ─────────────────────
+
+    Error: home console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: jars console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: jar console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: create console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: profile console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: bad-address console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: bad-chain console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: 404 console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    attachment #10: screenshot (image/png) ─────────────────────────────────────────────────────────
+    stipend/test-results/stipend-release-qa-route-evidence-375-dark-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: stipend/test-results/stipend-release-qa-route-evidence-375-dark-desktop/error-context.md
+
+    attachment #12: trace (application/zip) ────────────────────────────────────────────────────────
+    stipend/test-results/stipend-release-qa-route-evidence-375-dark-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace stipend/test-results/stipend-release-qa-route-evidence-375-dark-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [desktop] › e2e/stipend-release-qa.spec.ts:18:7 › route evidence 1440 light ───────────────────
+
+    Error: home console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: jars console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: jar console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: create console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: profile console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: bad-address console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: bad-chain console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: 404 console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    attachment #10: screenshot (image/png) ─────────────────────────────────────────────────────────
+    stipend/test-results/stipend-release-qa-route-evidence-1440-light-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: stipend/test-results/stipend-release-qa-route-evidence-1440-light-desktop/error-context.md
+
+    attachment #12: trace (application/zip) ────────────────────────────────────────────────────────
+    stipend/test-results/stipend-release-qa-route-evidence-1440-light-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace stipend/test-results/stipend-release-qa-route-evidence-1440-light-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [desktop] › e2e/stipend-release-qa.spec.ts:18:7 › route evidence 1440 dark ────────────────────
+
+    Error: home console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: jars console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: jar console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: create console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: profile console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: bad-address console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: bad-chain console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    Error: 404 console errors
+
+    expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 10
+
+    - Array []
+    + Array [
+    +   "Warning: Cannot update a component (`%s`) while rendering a different component (`%s`). To locate the bad setState() call inside `%s`, follow the stack trace as described in https://reactjs.org/link/setstate-in-render%s ConnectModal Hydrate Hydrate
+    +     at Hydrate (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3367:11)
+    +     at WagmiProvider (http://127.0.0.1:3041/node_modules/.vite/deps/chunk-BJ5KJB53.js?v=a9a739a2:3392:11)
+    +     at RainbowKitProviderWrapper (http://127.0.0.1:3041/src/components/wallet/RainbowKitProviderWrapper.tsx:19:3)
+    +     at f (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:22:25)
+    +     at $ (http://127.0.0.1:3041/node_modules/.vite/deps/next-themes.js?v=a9a739a2:20:45)
+    +     at ThemeProvider (http://127.0.0.1:3041/src/components/app/ThemeProvider.tsx:4:33)
+    +     at App (http://127.0.0.1:3041/src/App.tsx:23:16)",
+    + ]
+
+      113 | 						!(name === "jars" && message.includes("net::ERR_BLOCKED_BY_ORB"))
+      114 | 				);
+    > 115 | 				expect.soft(unexpectedErrors, `${name} console errors`).toEqual([]);
+          | 				                                                        ^
+      116 | 				await info.attach(`${name}-observations`, {
+      117 | 					body: JSON.stringify(observations[observations.length - 1], null, 2),
+      118 | 					contentType: "application/json",
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:115:61
+
+    attachment #10: screenshot (image/png) ─────────────────────────────────────────────────────────
+    stipend/test-results/stipend-release-qa-route-evidence-1440-dark-desktop/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: stipend/test-results/stipend-release-qa-route-evidence-1440-dark-desktop/error-context.md
+
+    attachment #12: trace (application/zip) ────────────────────────────────────────────────────────
+    stipend/test-results/stipend-release-qa-route-evidence-1440-dark-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace stipend/test-results/stipend-release-qa-route-evidence-1440-dark-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4 failed
+    [desktop] › e2e/stipend-release-qa.spec.ts:18:7 › route evidence 375 light ─────────────────────
+    [desktop] › e2e/stipend-release-qa.spec.ts:18:7 › route evidence 375 dark ──────────────────────
+    [desktop] › e2e/stipend-release-qa.spec.ts:18:7 › route evidence 1440 light ────────────────────
+    [desktop] › e2e/stipend-release-qa.spec.ts:18:7 › route evidence 1440 dark ─────────────────────
+  28 passed (3.4m)
+error: script "test:e2e:stipend" exited with code 1

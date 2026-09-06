@@ -1,10 +1,10 @@
 "use client";
 
+import { cn } from "@jar-core/lib/app/utils";
 import { Check, Eye, EyeOff, X } from "lucide-react";
 import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/app/utils";
 
 export interface MobileInputProps
 	extends React.InputHTMLAttributes<HTMLInputElement> {
