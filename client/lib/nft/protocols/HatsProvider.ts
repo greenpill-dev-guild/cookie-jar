@@ -1,8 +1,9 @@
 // Note: Using simplified Hats integration until proper SDK types are available
 // import { HatsSubgraphClient, Hat, Tree, Wearer } from '@hatsprotocol/sdk-v1-subgraph';
+
+import { log } from "@jar-core/lib/app/logger";
 import type { Chain } from "viem";
 import { arbitrum, gnosis, mainnet, optimism, polygon } from "viem/chains";
-import { log } from "@jar-core/lib/app/logger";
 
 export interface HatDetails {
 	id: string;

@@ -1,9 +1,9 @@
-import { describe, expect, it } from "vitest";
 import { ETH_ADDRESS } from "@jar-core/lib/blockchain/constants";
 import {
 	buildDepositCall,
 	withdrawFunctionFor,
 } from "@jar-core/lib/jar/deposit-args";
+import { describe, expect, it } from "vitest";
 
 const USDC = "0xaf88d065e77c8cC2239327C5EDb3A432268e5831";
 

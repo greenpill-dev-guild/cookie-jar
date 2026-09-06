@@ -1,8 +1,5 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from "react";
-import { erc20Abi } from "viem";
-import { useAccount, useChainId } from "wagmi";
 import { isV2Chain } from "@jar-core/config/networks";
 import { cookieJarAbi } from "@jar-core/generated";
 import { useTransactionWithRetry } from "@jar-core/hooks/app/useTransactionWithRetry";
@@ -16,6 +13,9 @@ import {
 	buildDepositCall,
 	withdrawFunctionFor,
 } from "@jar-core/lib/jar/deposit-args";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { erc20Abi } from "viem";
+import { useAccount, useChainId } from "wagmi";
 import { useToast } from "../app/useToast";
 
 /**

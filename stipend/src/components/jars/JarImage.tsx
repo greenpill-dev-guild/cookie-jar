@@ -1,8 +1,8 @@
 "use client";
 
 import { Image as ImageIcon } from "lucide-react";
-import Image from "@/components/app/AppImage";
 import { useEffect, useState } from "react";
+import Image from "@/components/app/AppImage";
 
 interface JarImageProps {
 	metadata?: string;

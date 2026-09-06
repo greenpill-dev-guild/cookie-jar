@@ -1,12 +1,13 @@
+import { anvilLocal } from "@jar-core/config/networks";
 import { connectorsForWallets } from "@rainbow-me/rainbowkit";
 import {
 	injectedWallet,
 	walletConnectWallet,
 } from "@rainbow-me/rainbowkit/wallets";
-import { createConfig, http, fallback } from "wagmi";
+import { createConfig, fallback, http } from "wagmi";
 import { arbitrum } from "wagmi/chains";
-import { anvilLocal } from "@jar-core/config/networks";
-import { FEATURED_JAR, SITE_NAME, SITE_DESCRIPTION } from "./featured-jar";
+import { FEATURED_JAR, SITE_DESCRIPTION, SITE_NAME } from "./featured-jar";
+
 export * from "@jar-core/config/networks";
 export const supportedChains =
 	FEATURED_JAR.chainId === 31337

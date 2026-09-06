@@ -1,11 +1,12 @@
 import { lazy, Suspense } from "react";
-import { usePathname } from "./navigation/router";
 import Home from "./app/page";
 import { Header } from "./components/app/header";
-import { ThemeProvider } from "./components/app/ThemeProvider";
-import { RainbowKitProviderWrapper } from "./components/wallet/RainbowKitProviderWrapper";
-import { Toaster } from "./components/ui/toaster";
 import { ProtocolErrorBoundary } from "./components/app/ProtocolErrorBoundary";
+import { ThemeProvider } from "./components/app/ThemeProvider";
+import { Toaster } from "./components/ui/toaster";
+import { RainbowKitProviderWrapper } from "./components/wallet/RainbowKitProviderWrapper";
+import { usePathname } from "./navigation/router";
+
 const Create = lazy(() => import("./app/create/page"));
 const Jars = lazy(() => import("./app/jars/page"));
 const Jar = lazy(() => import("./app/jar/[address]/page"));

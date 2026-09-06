@@ -1,6 +1,19 @@
 "use client";
 
 import {
+	ACCESS_TYPES,
+	getAccessTypeName,
+	isNFTAccess,
+	isProtocolAccess,
+} from "@jar-core/lib/jar/access-types";
+import {
+	getCurrencyAmount,
+	getCurrencySymbol,
+	getJarName,
+	getWithdrawalAmountDisplay,
+	type JarData,
+} from "@jar-core/lib/jar/utils";
+import {
 	Award,
 	CheckCircle2,
 	Crown,
@@ -20,19 +33,6 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { NativeCurrency } from "@/config/supported-networks";
-import {
-	ACCESS_TYPES,
-	getAccessTypeName,
-	isNFTAccess,
-	isProtocolAccess,
-} from "@jar-core/lib/jar/access-types";
-import {
-	getCurrencyAmount,
-	getCurrencySymbol,
-	getJarName,
-	getWithdrawalAmountDisplay,
-	type JarData,
-} from "@jar-core/lib/jar/utils";
 import { JarImage } from "./JarImage";
 import { JarStatusBadge } from "./JarStatusBadge";
 

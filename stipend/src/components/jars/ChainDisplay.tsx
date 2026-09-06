@@ -1,7 +1,7 @@
 "use client";
 
-import { Globe2 } from "lucide-react";
 import { getNetworkName } from "@jar-core/lib/blockchain/networks";
+import { Globe2 } from "lucide-react";
 
 interface ChainDisplayProps {
 	chainId: number;

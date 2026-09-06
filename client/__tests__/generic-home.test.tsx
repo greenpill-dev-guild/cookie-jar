@@ -2,6 +2,7 @@ import "@testing-library/jest-dom";
 import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
 import Home from "@/app/page";
+
 vi.mock("@/hooks/jar/useFeaturedJar", () => ({
 	useFeaturedJar: () => ({ chainId: 42161 }),
 }));

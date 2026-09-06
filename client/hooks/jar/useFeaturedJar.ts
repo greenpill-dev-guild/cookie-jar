@@ -1,14 +1,14 @@
 "use client";
 
-import { useReadContract } from "wagmi";
-import { FEATURED_JAR } from "@/config/featured-jar";
-import { contractAddresses } from "@/config/supported-networks";
-import { cookieJarFactoryAbi } from "@/generated";
 import {
 	type FeaturedJarSource,
 	factoryFallbackApplies,
 	pickFeaturedJar,
 } from "@jar-core/lib/jar/pick-featured-jar";
+import { useReadContract } from "wagmi";
+import { FEATURED_JAR } from "@/config/featured-jar";
+import { contractAddresses } from "@/config/supported-networks";
+import { cookieJarFactoryAbi } from "@/generated";
 
 export interface FeaturedJar {
 	address?: `0x${string}`;

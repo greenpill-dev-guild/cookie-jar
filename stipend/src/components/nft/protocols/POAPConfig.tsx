@@ -1,12 +1,12 @@
+import { POAP_TOKEN_ADDRESS } from "@jar-core/lib/blockchain/constants";
 import { CheckCircle2, Loader2, Search } from "lucide-react";
-import Image from "@/components/app/AppImage";
 import type React from "react";
 import { useEffect, useState } from "react";
+import Image from "@/components/app/AppImage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useDebounce } from "@/hooks/app/useDebounce";
-import { POAP_TOKEN_ADDRESS } from "@jar-core/lib/blockchain/constants";
 import { POAPProvider } from "@/lib/nft/protocols/POAPProvider";
 import { ACCESS_CONTROL_DOC_LINKS } from "../doc-links";
 import { ProtocolConfigBase } from "../ProtocolConfigBase";

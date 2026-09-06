@@ -1,5 +1,10 @@
 "use client";
 
+import {
+	ETH_ADDRESS,
+	formatTokenAmount,
+	useTokenInfo,
+} from "@jar-core/lib/blockchain/token-utils";
 import { AlertCircle, CheckCircle2, Eye, EyeOff, Loader2 } from "lucide-react";
 // NFTGatedWithdrawalSection.tsx
 import type React from "react";
@@ -23,11 +28,6 @@ import {
 	useNFTBalanceProof,
 	validateBalanceProof,
 } from "@/hooks/nft/useNFTBalanceProof";
-import {
-	ETH_ADDRESS,
-	formatTokenAmount,
-	useTokenInfo,
-} from "@jar-core/lib/blockchain/token-utils";
 
 /** Safely convert a string to BigInt, returning undefined for invalid values */
 function safeBigInt(value: string): bigint | undefined {

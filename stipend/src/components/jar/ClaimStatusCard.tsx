@@ -1,12 +1,12 @@
 "use client";
 
-import { BadgeCheck, Clock, ShieldAlert, Wallet } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent } from "@/components/ui/card";
 import type { CookieJarConfig } from "@jar-core/hooks/jar/useJar";
 import type { JarPermissions } from "@jar-core/hooks/jar/useJarPermissions";
 import { formatTokenAmount } from "@jar-core/lib/blockchain/token-utils";
 import { formatJarBalance } from "@jar-core/lib/display/jar-display";
+import { BadgeCheck, Clock, ShieldAlert, Wallet } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent } from "@/components/ui/card";
 import { CountdownTimer } from "./CountdownTimer";
 
 interface ClaimStatusCardProps {

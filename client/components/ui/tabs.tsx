@@ -1,9 +1,8 @@
 "use client";
 
+import { cn } from "@jar-core/lib/app/utils";
 import * as TabsPrimitive from "@radix-ui/react-tabs";
 import * as React from "react";
-
-import { cn } from "@jar-core/lib/app/utils";
 
 const Tabs = TabsPrimitive.Root;
 

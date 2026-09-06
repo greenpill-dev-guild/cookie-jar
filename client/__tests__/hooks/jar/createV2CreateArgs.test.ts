@@ -1,6 +1,3 @@
-import { decodeFunctionData, encodeFunctionData } from "viem";
-import { describe, expect, it, vi } from "vitest";
-import { cookieJarFactoryAbi } from "@/generated";
 import {
 	buildV2CreateCookieJarArgs,
 	FACTORY_DEFAULT_FEE_SENTINEL,
@@ -12,6 +9,9 @@ import {
 	HATS_PROTOCOL_ADDRESS,
 	POAP_TOKEN_ADDRESS,
 } from "@jar-core/lib/blockchain/constants";
+import { decodeFunctionData, encodeFunctionData } from "viem";
+import { describe, expect, it, vi } from "vitest";
+import { cookieJarFactoryAbi } from "@/generated";
 
 vi.mock("@jar-core/hooks/jar/schemas/jarCreationSchema", () => ({
 	AccessType: {

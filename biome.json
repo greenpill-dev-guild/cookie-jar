@@ -116,11 +116,7 @@
 			}
 		},
 		{
-			"includes": [
-				"**/generated.ts",
-				"**/deployments.auto.ts",
-				"**/*.auto.ts"
-			],
+			"includes": ["**/generated.ts", "**/deployments.auto.ts", "**/*.auto.ts"],
 			"formatter": {
 				"enabled": false
 			},

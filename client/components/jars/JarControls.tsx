@@ -1,5 +1,6 @@
 "use client";
 
+import { getNetworkName } from "@jar-core/lib/blockchain/networks";
 import { RefreshCw, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,7 +11,6 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from "@/components/ui/select";
-import { getNetworkName } from "@jar-core/lib/blockchain/networks";
 import { ChainDisplay } from "./ChainDisplay";
 
 const controlFieldClasses =

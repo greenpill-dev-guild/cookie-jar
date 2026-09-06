@@ -1,11 +1,11 @@
 "use client";
 
-import Link from "next/link";
-import { FEATURED_JAR, SITE_NAME } from "@/config/featured-jar";
 import {
 	getExplorerAddressUrl,
 	hasExplorer,
 } from "@jar-core/lib/blockchain/networks";
+import Link from "next/link";
+import { FEATURED_JAR, SITE_NAME } from "@/config/featured-jar";
 
 export function Footer() {
 	const explorerHref =

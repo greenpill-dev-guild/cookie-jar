@@ -1,8 +1,5 @@
 "use client";
 
-import { ExternalLink } from "lucide-react";
-import type React from "react";
-import type { Address } from "viem";
 import type { JarWithdrawalRecord } from "@jar-core/hooks/jar/useJarWithdrawalHistory";
 import { formatAddress } from "@jar-core/lib/app/utils";
 import {
@@ -15,6 +12,9 @@ import {
 	formatTokenAmount,
 	useTokenInfo,
 } from "@jar-core/lib/blockchain/token-utils";
+import { ExternalLink } from "lucide-react";
+import type React from "react";
+import type { Address } from "viem";
 
 /** Kept for callers that still pass simple records */
 export interface Withdrawal {

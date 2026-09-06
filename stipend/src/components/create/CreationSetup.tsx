@@ -1,5 +1,7 @@
 "use client";
 
+import type { JarCreationFormData } from "@jar-core/hooks/jar/schemas/jarCreationSchema";
+import { ETH_ADDRESS } from "@jar-core/lib/blockchain/constants";
 import { useFormContext } from "react-hook-form";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -14,9 +16,7 @@ import {
 	contractAddresses,
 	supportedChains,
 } from "@/config/supported-networks";
-import type { JarCreationFormData } from "@jar-core/hooks/jar/schemas/jarCreationSchema";
 import type { useJarCreation } from "@/hooks/jar/useJarCreation";
-import { ETH_ADDRESS } from "@jar-core/lib/blockchain/constants";
 
 type Creation = ReturnType<typeof useJarCreation>;
 export function CreationSetup({ creation }: { creation: Creation }) {

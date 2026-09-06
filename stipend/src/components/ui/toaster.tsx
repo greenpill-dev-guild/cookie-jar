@@ -1,5 +1,6 @@
 "use client";
 
+import { useToast } from "@jar-core/hooks/app/useToast";
 import {
 	Toast,
 	ToastClose,
@@ -8,7 +9,6 @@ import {
 	ToastTitle,
 	ToastViewport,
 } from "@/components/ui/toast";
-import { useToast } from "@jar-core/hooks/app/useToast";
 
 export function Toaster() {
 	const { toasts } = useToast();

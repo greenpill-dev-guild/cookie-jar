@@ -1,26 +1,6 @@
 "use client";
 
 import {
-	Award,
-	CheckCircle2,
-	Crown,
-	ImageIcon,
-	Key,
-	Shield,
-	Users,
-} from "lucide-react";
-import Image from "@/components/app/AppImage";
-import Link from "@/navigation/AppLink";
-import { Badge } from "@/components/ui/badge";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import {
-	Tooltip,
-	TooltipContent,
-	TooltipProvider,
-	TooltipTrigger,
-} from "@/components/ui/tooltip";
-import type { NativeCurrency } from "@/config/supported-networks";
-import {
 	ACCESS_TYPES,
 	getAccessTypeName,
 	isNFTAccess,
@@ -33,6 +13,26 @@ import {
 	getWithdrawalAmountDisplay,
 	type JarData,
 } from "@jar-core/lib/jar/utils";
+import {
+	Award,
+	CheckCircle2,
+	Crown,
+	ImageIcon,
+	Key,
+	Shield,
+	Users,
+} from "lucide-react";
+import Image from "@/components/app/AppImage";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+	Tooltip,
+	TooltipContent,
+	TooltipProvider,
+	TooltipTrigger,
+} from "@/components/ui/tooltip";
+import type { NativeCurrency } from "@/config/supported-networks";
+import Link from "@/navigation/AppLink";
 import { JarImage } from "./JarImage";
 import { JarStatusBadge } from "./JarStatusBadge";
 

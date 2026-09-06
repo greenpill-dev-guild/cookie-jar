@@ -1,5 +1,12 @@
 "use client";
 
+import type { JarMetadata } from "@jar-core/hooks/jar/useJarMetadata";
+import type { JarPermissions } from "@jar-core/hooks/jar/useJarPermissions";
+import { formatAddress } from "@jar-core/lib/app/utils";
+import {
+	copyToClipboard,
+	formatJarBalance,
+} from "@jar-core/lib/display/jar-display";
 import {
 	Clock,
 	Coins,
@@ -12,13 +19,6 @@ import Image from "@/components/app/AppImage";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import type { JarMetadata } from "@jar-core/hooks/jar/useJarMetadata";
-import type { JarPermissions } from "@jar-core/hooks/jar/useJarPermissions";
-import { formatAddress } from "@jar-core/lib/app/utils";
-import {
-	copyToClipboard,
-	formatJarBalance,
-} from "@jar-core/lib/display/jar-display";
 
 interface JarConfig {
 	accessType?: string;

@@ -1,10 +1,10 @@
 "use client";
 
-import Link from "@/navigation/AppLink";
 import { Footer } from "@/components/app/footer";
 import { JarPageContent } from "@/components/jar/JarPageContent";
 import { Button } from "@/components/ui/button";
 import { useFeaturedJar } from "@/hooks/jar/useFeaturedJar";
+import Link from "@/navigation/AppLink";
 
 export default function Home() {
 	const featured = useFeaturedJar();

@@ -1,4 +1,3 @@
-import { type ContractFunctionArgs, isAddress } from "viem";
 import type { cookieJarFactoryAbi } from "@jar-core/generated";
 import {
 	HATS_PROTOCOL_ADDRESS,
@@ -9,6 +8,7 @@ import {
 	daysToSeconds,
 	parseTokenAmount,
 } from "@jar-core/lib/jar/creation-values";
+import { type ContractFunctionArgs, isAddress } from "viem";
 import {
 	AccessType,
 	type JarCreationFormData,

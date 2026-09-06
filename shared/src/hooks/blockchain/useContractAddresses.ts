@@ -1,11 +1,10 @@
 "use client";
 
+import { contractAddresses as staticAddresses } from "@jar-core/config/networks";
+import { dev, error as logError } from "@jar-core/lib/app/logger";
 import { useEffect, useState } from "react";
 import type { Address } from "viem";
 import { useChainId } from "wagmi";
-
-import { contractAddresses as staticAddresses } from "@jar-core/config/networks";
-import { dev, error as logError } from "@jar-core/lib/app/logger";
 
 /**
  * Return type for useContractAddresses hook

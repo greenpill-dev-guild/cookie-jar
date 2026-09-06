@@ -90,9 +90,7 @@
 	}
 
 	html {
-		font-family:
-			Inter, system-ui, sans-serif, system-ui, -apple-system, "Segoe UI",
-			sans-serif;
+		font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
 		/* Use theme-aware creme background */
 		background-color: hsl(var(--background));
 		height: 100%;

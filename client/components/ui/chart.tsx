@@ -1,7 +1,7 @@
 "use client";
 
-import * as React from "react";
 import { cn } from "@jar-core/lib/app/utils";
+import * as React from "react";
 
 // Chart container with CSS variables for colors
 export function ChartContainer({

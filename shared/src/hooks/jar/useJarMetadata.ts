@@ -1,11 +1,5 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
-import {
-	useChainId,
-	useWaitForTransactionReceipt,
-	useWriteContract,
-} from "wagmi";
 import { contractAddresses } from "@jar-core/config/networks";
 import { cookieJarFactoryAbi } from "@jar-core/generated";
 import {
@@ -14,6 +8,12 @@ import {
 	parseJarMetadata as parseMetadataUtil,
 	validateMetadataSize,
 } from "@jar-core/lib/jar/metadata-utils";
+import { useCallback, useEffect, useState } from "react";
+import {
+	useChainId,
+	useWaitForTransactionReceipt,
+	useWriteContract,
+} from "wagmi";
 import { useToast } from "../app/useToast";
 
 /**

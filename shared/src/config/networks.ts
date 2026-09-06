@@ -1,3 +1,4 @@
+import { ETH_ADDRESS } from "@jar-core/lib/blockchain/constants";
 import {
 	arbitrum,
 	base,
@@ -10,7 +11,6 @@ import {
 	optimismSepolia,
 	sepolia,
 } from "wagmi/chains";
-import { ETH_ADDRESS } from "@jar-core/lib/blockchain/constants";
 
 // Import auto-generated deployment configuration
 // This file is automatically updated when contracts are deployed

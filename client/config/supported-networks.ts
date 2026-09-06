@@ -1,3 +1,10 @@
+import { anvilLocal, supportedChains } from "@jar-core/config/networks";
+import { connectorsForWallets } from "@rainbow-me/rainbowkit";
+import {
+	injectedWallet,
+	walletConnectWallet,
+} from "@rainbow-me/rainbowkit/wallets";
+import { createConfig, fallback, http } from "wagmi";
 import {
 	arbitrum,
 	base,
@@ -10,15 +17,10 @@ import {
 	optimismSepolia,
 	sepolia,
 } from "wagmi/chains";
-import { connectorsForWallets } from "@rainbow-me/rainbowkit";
-import {
-	injectedWallet,
-	walletConnectWallet,
-} from "@rainbow-me/rainbowkit/wallets";
-import { createConfig, fallback, http } from "wagmi";
-import { FEATURED_JAR, SITE_NAME, SITE_DESCRIPTION } from "./featured-jar";
-import { supportedChains, anvilLocal } from "@jar-core/config/networks";
+import { FEATURED_JAR, SITE_DESCRIPTION, SITE_NAME } from "./featured-jar";
+
 export * from "@jar-core/config/networks";
+
 // Get environment variables
 const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || "";
 const alchemyId = process.env.NEXT_PUBLIC_ALCHEMY_API_KEY || "";

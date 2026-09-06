@@ -1,10 +1,10 @@
 "use client";
 
-import { type ContractFunctionParameters, keccak256, toHex } from "viem";
-import { useAccount, useChainId, useReadContracts } from "wagmi";
 import { contractAddresses, isV2Chain } from "@jar-core/config/networks";
 import { cookieJarAbi, cookieJarFactoryAbi } from "@jar-core/generated";
 import { getAccessTypeLabel } from "@jar-core/lib/jar/access-types";
+import { type ContractFunctionParameters, keccak256, toHex } from "viem";
+import { useAccount, useChainId, useReadContracts } from "wagmi";
 
 export interface NftRequirement {
 	nftContract: `0x${string}`;

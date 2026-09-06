@@ -1,10 +1,10 @@
+import { cn } from "@jar-core/lib/app/utils";
 import { AlertCircle, ExternalLink } from "lucide-react";
 import type React from "react";
 import type { ReactNode } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { cn } from "@jar-core/lib/app/utils";
 
 export interface ProtocolConfigBaseProps {
 	title: string;

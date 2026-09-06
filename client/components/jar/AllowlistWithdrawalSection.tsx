@@ -1,16 +1,16 @@
 "use client";
 
-import { ArrowUpToLine } from "lucide-react";
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
 	checkDecimals,
 	ETH_ADDRESS,
 	formatTokenAmount,
 	useTokenInfo,
 } from "@jar-core/lib/blockchain/token-utils";
+import { ArrowUpToLine } from "lucide-react";
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 const PURPOSE_MIN_LENGTH = 27;
 const PURPOSE_HINT =

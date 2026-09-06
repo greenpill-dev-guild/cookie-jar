@@ -1,11 +1,20 @@
 "use client";
 
+import { useToast } from "@jar-core/hooks/app/useToast";
+import {
+	AccessType,
+	type JarCreationFormData,
+	METHOD_TO_ACCESS_TYPE,
+	NFTType,
+	WithdrawalTypeOptions,
+} from "@jar-core/hooks/jar/schemas/jarCreationSchema";
+import { shortenAddress } from "@jar-core/lib/app/utils";
+import { ETH_ADDRESS } from "@jar-core/lib/blockchain/token-utils";
 import { Trash2 } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useMemo } from "react";
 import { useFormContext } from "react-hook-form";
 import { isAddress } from "viem";
-
 import { NFTSelector, type SelectedNFT } from "@/components/nft/NFTSelector";
 import type {
 	AccessMethod,
@@ -25,16 +34,6 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { isPoapSupportedChain } from "@/config/supported-networks";
-import { useToast } from "@jar-core/hooks/app/useToast";
-import {
-	AccessType,
-	type JarCreationFormData,
-	METHOD_TO_ACCESS_TYPE,
-	NFTType,
-	WithdrawalTypeOptions,
-} from "@jar-core/hooks/jar/schemas/jarCreationSchema";
-import { shortenAddress } from "@jar-core/lib/app/utils";
-import { ETH_ADDRESS } from "@jar-core/lib/blockchain/token-utils";
 
 interface StepContentProps {
 	step: number;

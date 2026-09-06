@@ -1,10 +1,10 @@
 "use client";
 
+import { log } from "@jar-core/lib/app/logger";
 import { AlertTriangle, ArrowLeft, RefreshCw } from "lucide-react";
 import React from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { log } from "@jar-core/lib/app/logger";
 
 interface ProtocolErrorBoundaryState {
 	hasError: boolean;

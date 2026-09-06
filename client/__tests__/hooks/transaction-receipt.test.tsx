@@ -1,6 +1,6 @@
+import { useTransactionWithRetry } from "@jar-core/hooks/app/useTransactionWithRetry";
 import { act, cleanup, renderHook } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
-import { useTransactionWithRetry } from "@jar-core/hooks/app/useTransactionWithRetry";
 
 const state = vi.hoisted(() => ({
 	confirmed: false,

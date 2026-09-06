@@ -1,8 +1,8 @@
+import type { JarCreationFormData } from "@jar-core/hooks/jar/schemas/jarCreationSchema";
+import { DEFAULT_CREATION_VALUES } from "@jar-core/lib/jar/creation-values";
 import { render, screen } from "@testing-library/react";
 import { FormProvider, useForm } from "react-hook-form";
 import { StepContent } from "@/components/create/StepContent";
-import type { JarCreationFormData } from "@jar-core/hooks/jar/schemas/jarCreationSchema";
-import { DEFAULT_CREATION_VALUES } from "@jar-core/lib/jar/creation-values";
 
 vi.mock("@/components/nft/NFTSelector", () => ({ NFTSelector: () => null }));
 vi.mock("@/components/nft/ProtocolSelector", () => ({

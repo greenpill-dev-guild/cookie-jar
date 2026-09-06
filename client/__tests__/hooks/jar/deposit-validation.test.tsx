@@ -1,6 +1,6 @@
+import { useJarTransactions } from "@jar-core/hooks/jar/useJarTransactions";
 import { act, cleanup, renderHook } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
-import { useJarTransactions } from "@jar-core/hooks/jar/useJarTransactions";
 
 const mocks = vi.hoisted(() => ({
 	write: vi.fn(),

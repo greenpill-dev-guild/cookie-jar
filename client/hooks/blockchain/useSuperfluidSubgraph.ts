@@ -1,8 +1,5 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { GraphQLClient } from "graphql-request";
-import { useChainId } from "wagmi";
 import {
 	type AccountData,
 	type FlowUpdatedEvent,
@@ -20,6 +17,9 @@ import {
 	getSuperfluidSubgraphUrl,
 	isSubgraphAvailable,
 } from "@jar-core/lib/blockchain/superfluid-subgraph";
+import { useQuery } from "@tanstack/react-query";
+import { GraphQLClient } from "graphql-request";
+import { useChainId } from "wagmi";
 
 /**
  * Hook to get GraphQL client for current chain

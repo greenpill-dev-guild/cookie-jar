@@ -1,11 +1,11 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
-import { decodeFunctionData, parseAbiItem } from "viem";
-import { usePublicClient } from "wagmi";
 import { cookieJarAbi } from "@jar-core/generated";
 import { ETH_ADDRESS } from "@jar-core/lib/blockchain/constants";
 import { getLogsChunked } from "@jar-core/lib/blockchain/get-logs-chunked";
+import { useQuery } from "@tanstack/react-query";
+import { decodeFunctionData, parseAbiItem } from "viem";
+import { usePublicClient } from "wagmi";
 
 export interface JarWithdrawalRecord {
 	amount: bigint;

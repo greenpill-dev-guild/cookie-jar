@@ -1,10 +1,10 @@
-import { STIPEND_PRESET } from "@/config/stipend-preset";
-import { describe, expect, it } from "vitest";
 import { buildV2CreateCookieJarArgs } from "@jar-core/hooks/jar/createV2CreateArgs";
 import {
 	daysToSeconds,
 	parseTokenAmount,
 } from "@jar-core/lib/jar/creation-values";
+import { describe, expect, it } from "vitest";
+import { STIPEND_PRESET } from "@/config/stipend-preset";
 
 describe("reviewed creation values", () => {
 	it("encodes the documented USDC stipend without factory defaults", () => {

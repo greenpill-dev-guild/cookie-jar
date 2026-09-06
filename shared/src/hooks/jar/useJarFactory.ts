@@ -1,11 +1,11 @@
 "use client";
 
-import { useQuery, useQueryClient } from "@tanstack/react-query";
-import type { Address } from "viem";
-import { useChainId, usePublicClient, useWatchContractEvent } from "wagmi";
 import { isV2Chain } from "@jar-core/config/networks";
 import { cookieJarAbi, cookieJarFactoryAbi } from "@jar-core/generated";
 import { cookieJarFactoryV1Abi } from "@jar-core/lib/blockchain/cookie-jar-v1-abi";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import type { Address } from "viem";
+import { useChainId, usePublicClient, useWatchContractEvent } from "wagmi";
 import { useToast } from "../app/useToast";
 import { useContractAddresses } from "../blockchain/useContractAddresses";
 

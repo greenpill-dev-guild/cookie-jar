@@ -1,5 +1,10 @@
 "use client";
 
+import { useTransactionWithRetry } from "@jar-core/hooks/app/useTransactionWithRetry";
+import {
+	daysToSeconds,
+	parseTokenAmount,
+} from "@jar-core/lib/jar/creation-values";
 import { useEffect, useRef, useState } from "react";
 import { type Address, formatUnits } from "viem";
 import { useReadContracts } from "wagmi";
@@ -7,11 +12,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cookieJarAbi } from "@/generated";
-import { useTransactionWithRetry } from "@jar-core/hooks/app/useTransactionWithRetry";
-import {
-	daysToSeconds,
-	parseTokenAmount,
-} from "@jar-core/lib/jar/creation-values";
 
 export function JarRulesEditor({
 	address,

@@ -1,5 +1,7 @@
 // Note: Using simplified Unlock integration until proper SDK types are available
 // import { Web3Service, SubGraph } from '@unlock-protocol/unlock-js';
+
+import { log } from "@jar-core/lib/app/logger";
 import type { Chain } from "viem";
 import {
 	arbitrum,
@@ -9,7 +11,6 @@ import {
 	optimism,
 	polygon,
 } from "viem/chains";
-import { log } from "@jar-core/lib/app/logger";
 
 export interface UnlockLock {
 	id: string;

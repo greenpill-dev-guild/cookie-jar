@@ -1,9 +1,9 @@
 "use client";
 
+import type { JarData } from "@jar-core/lib/jar/utils";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { NativeCurrency } from "@/config/supported-networks";
-import type { JarData } from "@jar-core/lib/jar/utils";
 import { JarCard } from "./JarCard";
 
 interface JarGridProps {

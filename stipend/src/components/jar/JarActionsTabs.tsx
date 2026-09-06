@@ -1,5 +1,8 @@
 "use client";
 
+import type { CookieJarConfig } from "@jar-core/hooks/jar/useJar";
+import type { JarPermissions } from "@jar-core/hooks/jar/useJarPermissions";
+import type { useJarTransactions } from "@jar-core/hooks/jar/useJarTransactions";
 import { useAccount } from "wagmi";
 import DefaultFeeCollector from "@/components/create/DefaultFeeCollector";
 import { AdminFunctions } from "@/components/jar/AdminFunctions";
@@ -14,9 +17,6 @@ import {
 } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { isV2Chain } from "@/config/supported-networks";
-import type { CookieJarConfig } from "@jar-core/hooks/jar/useJar";
-import type { JarPermissions } from "@jar-core/hooks/jar/useJarPermissions";
-import type { useJarTransactions } from "@jar-core/hooks/jar/useJarTransactions";
 import { JarDepositSection } from "./JarDepositSection";
 import { JarWithdrawSection } from "./JarWithdrawSection";
 

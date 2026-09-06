@@ -1,12 +1,12 @@
 "use client";
 
+import { cn } from "@jar-core/lib/app/utils";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import type React from "react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@jar-core/lib/app/utils";
 
 interface BackButtonProps {
 	className?: string;

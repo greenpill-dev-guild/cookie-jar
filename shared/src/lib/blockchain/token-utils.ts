@@ -1,7 +1,7 @@
+import { getNativeCurrency } from "@jar-core/config/networks";
 import type { Address } from "viem";
 import { erc20Abi, formatUnits, isAddress, parseUnits } from "viem";
 import { useChainId, useReadContracts } from "wagmi";
-import { getNativeCurrency } from "@jar-core/config/networks";
 import { ETH_ADDRESS } from "./constants";
 
 export { ETH_ADDRESS };

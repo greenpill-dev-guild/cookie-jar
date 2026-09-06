@@ -1,11 +1,11 @@
 "use client";
 
+import { useWriteCookieJarUpdateFeeCollector } from "@jar-core/generated";
 import { AlertCircle, CheckCircle } from "lucide-react";
 import React, { useState } from "react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useWriteCookieJarUpdateFeeCollector } from "@jar-core/generated";
 
 const DefaultFeeCollector = ({
 	contractAddress,

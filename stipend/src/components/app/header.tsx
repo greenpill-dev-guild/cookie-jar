@@ -1,9 +1,9 @@
 "use client";
 
 import { ConnectButton } from "@rainbow-me/rainbowkit";
-import Link from "@/navigation/AppLink";
 import { BrandMark } from "@/components/app/BrandMark";
 import { SITE_NAME } from "@/config/featured-jar";
+import Link from "@/navigation/AppLink";
 
 export function Header() {
 	return (

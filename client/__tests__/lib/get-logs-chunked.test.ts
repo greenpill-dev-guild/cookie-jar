@@ -1,9 +1,9 @@
-import { describe, expect, it, vi } from "vitest";
 import {
 	getLogsChunked,
 	isRangeError,
 	planChunks,
 } from "@jar-core/lib/blockchain/get-logs-chunked";
+import { describe, expect, it, vi } from "vitest";
 
 describe("planChunks", () => {
 	it("splits an inclusive range into fixed-size chunks", () => {

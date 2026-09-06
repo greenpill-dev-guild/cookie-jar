@@ -1,14 +1,14 @@
 "use client";
 
-import { useMemo } from "react";
-import { erc721Abi, erc1155Abi, keccak256, toHex } from "viem";
-import { useAccount, useChainId, useReadContract } from "wagmi";
 import { cookieJarAbi } from "@jar-core/generated";
 import {
 	isAllowlistAccess,
 	isErc1155Access,
 	isNFTAccess,
 } from "@jar-core/lib/jar/access-types";
+import { useMemo } from "react";
+import { erc721Abi, erc1155Abi, keccak256, toHex } from "viem";
+import { useAccount, useChainId, useReadContract } from "wagmi";
 import type { NftRequirement } from "./useJar";
 
 const JAR_OWNER_ROLE = keccak256(toHex("JAR_OWNER")) as `0x${string}`;

@@ -1,14 +1,14 @@
 "use client";
 
-import { AlertTriangle } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { getNativeCurrency } from "@/config/supported-networks";
 import type { CookieJarConfig } from "@jar-core/hooks/jar/useJar";
 import {
 	ETH_ADDRESS,
 	formatTokenAmount,
 } from "@jar-core/lib/blockchain/token-utils";
+import { AlertTriangle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { getNativeCurrency } from "@/config/supported-networks";
 import type { JarTransactions } from "./JarActionsTabs";
 
 interface JarDepositSectionProps {

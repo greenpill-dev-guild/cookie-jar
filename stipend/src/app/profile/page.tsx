@@ -1,6 +1,17 @@
 "use client";
 
 import {
+	type CookieJarInfo,
+	useCookieJarFactory,
+} from "@jar-core/hooks/jar/useJarFactory";
+import { shortenAddress } from "@jar-core/lib/app/utils";
+import {
+	getExplorerAddressUrl,
+	getNetworkName,
+} from "@jar-core/lib/blockchain/networks";
+import { ETH_ADDRESS } from "@jar-core/lib/blockchain/token-utils";
+import { getAccessTypeName } from "@jar-core/lib/jar/access-types";
+import {
 	ArrowUpRight,
 	Clock,
 	Cookie,
@@ -8,7 +19,6 @@ import {
 	ExternalLink,
 	User,
 } from "lucide-react";
-import { useRouter } from "@/navigation/router";
 import { useEffect, useState } from "react";
 import { useAccount, useChainId } from "wagmi";
 import { BackButton } from "@/components/app/BackButton";
@@ -29,17 +39,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getNativeCurrency } from "@/config/supported-networks";
 import { useIsMobile } from "@/hooks/app/useMobile";
 import { useNavigateToTop } from "@/hooks/app/useNavigateToTop";
-import {
-	type CookieJarInfo,
-	useCookieJarFactory,
-} from "@jar-core/hooks/jar/useJarFactory";
-import { shortenAddress } from "@jar-core/lib/app/utils";
-import {
-	getExplorerAddressUrl,
-	getNetworkName,
-} from "@jar-core/lib/blockchain/networks";
-import { ETH_ADDRESS } from "@jar-core/lib/blockchain/token-utils";
-import { getAccessTypeName } from "@jar-core/lib/jar/access-types";
+import { useRouter } from "@/navigation/router";
 
 export default function ProfilePage() {
 	const isMobile = useIsMobile();

@@ -1,4 +1,3 @@
-import { describe, expect, it } from "vitest";
 import {
 	HATS_PROTOCOL_ADDRESS,
 	POAP_TOKEN_ADDRESS,
@@ -12,6 +11,7 @@ import {
 	isNFTAccess,
 	isProtocolAccess,
 } from "@jar-core/lib/jar/access-types";
+import { describe, expect, it } from "vitest";
 
 describe("access types", () => {
 	it("mirrors the contract enum", () => {

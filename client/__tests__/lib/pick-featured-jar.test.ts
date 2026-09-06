@@ -1,8 +1,8 @@
-import { describe, expect, it } from "vitest";
 import {
 	factoryFallbackApplies,
 	pickFeaturedJar,
 } from "@jar-core/lib/jar/pick-featured-jar";
+import { describe, expect, it } from "vitest";
 
 const ENV_JAR = "0x1111111111111111111111111111111111111111" as const;
 const SEEDED = [

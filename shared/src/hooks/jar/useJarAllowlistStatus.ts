@@ -1,10 +1,10 @@
 "use client";
 
+import { isV2Chain } from "@jar-core/config/networks";
+import { useReadCookieJarHasRole } from "@jar-core/generated";
 import { useEffect, useState } from "react";
 import { keccak256, toHex } from "viem";
 import { useAccount, useChainId } from "wagmi";
-import { isV2Chain } from "@jar-core/config/networks";
-import { useReadCookieJarHasRole } from "@jar-core/generated";
 
 /**
  * Custom hook to check user's allowlist status for a Cookie Jar

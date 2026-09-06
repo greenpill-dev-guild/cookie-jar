@@ -1,12 +1,12 @@
 "use client";
 
-import { useChainId } from "wagmi";
 import { isV2Chain } from "@jar-core/config/networks";
 import { cookieJarAbi, cookieJarFactoryAbi } from "@jar-core/generated";
 import {
 	cookieJarFactoryV1Abi,
 	cookieJarV1Abi,
 } from "@jar-core/lib/blockchain/cookie-jar-v1-abi";
+import { useChainId } from "wagmi";
 
 /**
  * Contract configuration adapter for handling v1/v2 differences

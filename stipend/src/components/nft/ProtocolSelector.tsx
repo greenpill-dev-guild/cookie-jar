@@ -1,3 +1,4 @@
+import { cn } from "@jar-core/lib/app/utils";
 import { ChevronDown, Monitor, Smartphone, Users } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -12,7 +13,6 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useResponsive } from "@/hooks/app/useResponsive";
-import { cn } from "@jar-core/lib/app/utils";
 import { ACCESS_CONTROL_DOC_LINKS } from "./doc-links";
 import { NFTSelector } from "./NFTSelector";
 import { HatsConfig } from "./protocols/HatsConfig";

@@ -1,5 +1,7 @@
 "use client";
 
+import { shortenAddress } from "@jar-core/lib/app/utils";
+import { getExplorerAddressUrl } from "@jar-core/lib/blockchain/networks";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import {
 	Check,
@@ -15,8 +17,6 @@ import { useState } from "react";
 import { useAccount, useChainId, useDisconnect } from "wagmi";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { shortenAddress } from "@jar-core/lib/app/utils";
-import { getExplorerAddressUrl } from "@jar-core/lib/blockchain/networks";
 
 interface ConnectedMobileViewProps {
 	address: string;

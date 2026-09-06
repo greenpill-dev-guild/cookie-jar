@@ -1,5 +1,14 @@
 "use client";
 
+import { cookieJarAbi, useReadCookieJarHasRole } from "@jar-core/generated";
+import { useToast } from "@jar-core/hooks/app/useToast";
+import { useTransactionWithRetry } from "@jar-core/hooks/app/useTransactionWithRetry";
+import { log } from "@jar-core/lib/app/logger";
+import {
+	ETH_ADDRESS,
+	useTokenInfo,
+} from "@jar-core/lib/blockchain/token-utils";
+import { parseTokenAmount } from "@jar-core/lib/jar/creation-values";
 import { AlertCircle, AlertTriangle, UserPlus } from "lucide-react";
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
@@ -17,17 +26,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getNativeCurrency } from "@/config/supported-networks";
-import { cookieJarAbi } from "@jar-core/generated";
 import { useNavigateToTop } from "@/hooks/app/useNavigateToTop";
-import { useToast } from "@jar-core/hooks/app/useToast";
-import { useTransactionWithRetry } from "@jar-core/hooks/app/useTransactionWithRetry";
-import { log } from "@jar-core/lib/app/logger";
-import {
-	ETH_ADDRESS,
-	useTokenInfo,
-} from "@jar-core/lib/blockchain/token-utils";
-import { parseTokenAmount } from "@jar-core/lib/jar/creation-values";
-import { useReadCookieJarHasRole } from "@jar-core/generated";
 import { AllowlistManagement } from "./AllowListManagement";
 
 interface AdminFunctionsProps {

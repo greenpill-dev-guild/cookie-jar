@@ -1,5 +1,5 @@
-import type React from "react";
 import { cn } from "@jar-core/lib/app/utils";
+import type React from "react";
 
 function Skeleton({
 	className,

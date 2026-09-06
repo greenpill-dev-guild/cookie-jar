@@ -1,11 +1,11 @@
 "use client";
 
-import { useParams, useSearchParams } from "@/navigation/router";
+import { resolveJarChainId } from "@jar-core/lib/jar/jar-location";
 import { isAddress } from "viem";
 import { JarPageContent } from "@/components/jar/JarPageContent";
 import { FEATURED_JAR } from "@/config/featured-jar";
 import { supportedChains } from "@/config/supported-networks";
-import { resolveJarChainId } from "@jar-core/lib/jar/jar-location";
+import { useParams, useSearchParams } from "@/navigation/router";
 
 export default function CookieJarPage() {
 	const params = useParams();

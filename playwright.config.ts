@@ -1,3 +1,4 @@
+import stipendConfig from "./playwright.stipend.config"
 import { defineConfig, devices } from '@playwright/test'
 
 export default defineConfig({
@@ -14,7 +15,7 @@ export default defineConfig({
   ].concat(process.env.CI ? [['github']] : []) as any[],
   
   use: {
-    baseURL: 'http://localhost:3000',
+    baseURL: process.env.COOKIE_JAR_QA_URL || 'http://localhost:3000',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
     video: 'retain-on-failure',
@@ -26,12 +27,15 @@ export default defineConfig({
   projects: [
     {
       name: 'Desktop Chrome',
+      testIgnore: stipendConfig.testMatch,
       use: { ...devices['Desktop Chrome'] },
     },
     {
       name: 'Mobile Chrome',
+      testIgnore: stipendConfig.testMatch,
       use: { ...devices['Pixel 5'] },
-    }
+    },
+    ...stipendConfig.projects!.map(project => ({...project, name: `Stipend ${project.name}`, testMatch: stipendConfig.testMatch, use: {...stipendConfig.use,...project.use}})),
   ],
 
   // Global setup for blockchain - uses your existing dev setup
@@ -41,7 +45,7 @@ export default defineConfig({
 
   // Start services before tests - leverages your existing infrastructure
   // Only start webServer if explicitly requested via E2E_START_SERVER env var
-  webServer: process.env.E2E_START_SERVER ? [
+  webServer: [ ...(process.env.E2E_START_SERVER ? [
     {
       // Use your existing dev command that starts Anvil + Next.js
       command: 'bun dev',
@@ -52,7 +56,7 @@ export default defineConfig({
         NODE_ENV: 'test'
       }
     }
-  ] : [],
+  ] : []), {command: 'VITE_DEFAULT_CHAIN_ID=31337 bun run --cwd stipend dev', url: 'http://127.0.0.1:3041', reuseExistingServer: !process.env.CI, timeout: 120000}],
 
   // Test output configuration
   outputDir: 'e2e/test-results',

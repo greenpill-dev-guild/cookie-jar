@@ -1,5 +1,7 @@
 "use client";
 
+import { useToast } from "@jar-core/hooks/app/useToast";
+import { cookieJarV1Abi } from "@jar-core/lib/blockchain/cookie-jar-v1-abi";
 import type React from "react";
 import { useState } from "react";
 import { useReadContract, useWriteContract } from "wagmi";
@@ -14,8 +16,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isV2Chain } from "@/config/supported-networks";
 import { cookieJarAbi } from "@/generated";
-import { useToast } from "@jar-core/hooks/app/useToast";
-import { cookieJarV1Abi } from "@jar-core/lib/blockchain/cookie-jar-v1-abi";
 import { AllowlistAddressInput } from "./AllowListAddressInput";
 
 interface AllowlistManagementProps {

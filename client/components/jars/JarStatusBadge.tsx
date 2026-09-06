@@ -1,8 +1,8 @@
 "use client";
 
+import { useAllowlistStatus } from "@jar-core/hooks/jar/useJarAllowlistStatus";
 import { Check, Crown } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { useAllowlistStatus } from "@jar-core/hooks/jar/useJarAllowlistStatus";
 
 interface JarStatusBadgeProps {
 	jarAddress: string;

@@ -1,6 +1,7 @@
-import { readFileSync, readdirSync } from "node:fs";
+import { readdirSync, readFileSync } from "node:fs";
 import { join, resolve } from "node:path";
 import { expect, it } from "vitest";
+
 const root = resolve(process.cwd(), "..");
 function sources(dir: string): string[] {
 	return readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>

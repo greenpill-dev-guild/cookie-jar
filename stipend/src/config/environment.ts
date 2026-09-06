@@ -1,5 +1,5 @@
-import { getDeploymentInfo } from "../../../shared/src/config/deployments.auto";
 import { isAddress } from "viem";
+import { getDeploymentInfo } from "../../../shared/src/config/deployments.auto";
 export interface StipendEnv {
 	[key: `VITE_${string}`]: string | undefined;
 }

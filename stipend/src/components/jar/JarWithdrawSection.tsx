@@ -1,12 +1,12 @@
 "use client";
 
+import type { CookieJarConfig } from "@jar-core/hooks/jar/useJar";
+import type { JarPermissions } from "@jar-core/hooks/jar/useJarPermissions";
 import { useMemo } from "react";
 import { AllowlistWithdrawalSection } from "@/components/jar/AllowlistWithdrawalSection";
 import { CountdownTimer } from "@/components/jar/CountdownTimer";
 import { NFTGatedWithdrawalSection } from "@/components/jar/NFTGatedWithdrawalSection";
 import { isV2Chain } from "@/config/supported-networks";
-import type { CookieJarConfig } from "@jar-core/hooks/jar/useJar";
-import type { JarPermissions } from "@jar-core/hooks/jar/useJarPermissions";
 import type { JarTransactions } from "./JarActionsTabs";
 
 interface JarWithdrawSectionProps {

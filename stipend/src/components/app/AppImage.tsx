@@ -1,4 +1,5 @@
 import type { ImgHTMLAttributes } from "react";
+
 type Props = Omit<ImgHTMLAttributes<HTMLImageElement>, "src"> & {
 	src: string;
 	fill?: boolean;

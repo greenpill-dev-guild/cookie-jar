@@ -1,7 +1,7 @@
-import { formatEther, formatUnits } from "viem";
 import type { NativeCurrency } from "@jar-core/config/networks";
 import type { CookieJarInfo } from "@jar-core/hooks/jar/useJarFactory";
 import { ETH_ADDRESS } from "@jar-core/lib/blockchain/token-utils";
+import { formatEther, formatUnits } from "viem";
 
 /**
  * Utility functions for jar data formatting and processing

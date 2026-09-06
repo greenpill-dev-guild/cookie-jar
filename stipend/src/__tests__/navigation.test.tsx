@@ -9,6 +9,7 @@ import {
 import { afterEach, expect, it, vi } from "vitest";
 import AppLink from "@/navigation/AppLink";
 import { navigate, useLocation } from "@/navigation/router";
+
 afterEach(cleanup);
 function Location() {
 	return <output>{useLocation()}</output>;

@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+
 test("standalone links survive refresh and browser back navigation", async ({
 	page,
 }, info) => {

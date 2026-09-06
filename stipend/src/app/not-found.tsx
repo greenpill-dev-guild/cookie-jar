@@ -1,5 +1,5 @@
-import Link from "@/navigation/AppLink";
 import { Button } from "@/components/ui/button";
+import Link from "@/navigation/AppLink";
 
 export default function NotFound() {
 	return (

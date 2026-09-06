@@ -1,5 +1,6 @@
 "use client";
 
+import { cookieJarAbi } from "@jar-core/generated";
 import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { isAddress } from "viem";
@@ -8,7 +9,6 @@ import {
 	useWaitForTransactionReceipt,
 	useWriteContract,
 } from "wagmi";
-import { cookieJarAbi } from "@jar-core/generated";
 import { useToast } from "../app/useToast";
 
 /**

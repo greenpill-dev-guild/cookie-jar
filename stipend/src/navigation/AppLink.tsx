@@ -1,4 +1,4 @@
-import { forwardRef, type AnchorHTMLAttributes } from "react";
+import { type AnchorHTMLAttributes, forwardRef } from "react";
 import { navigate } from "./router";
 export default forwardRef<
 	HTMLAnchorElement,

@@ -1,8 +1,8 @@
-import deployment from "./vercel.json";
-import { defineConfig } from "vite";
-import react from "@vitejs/plugin-react";
 import { fileURLToPath } from "node:url";
+import react from "@vitejs/plugin-react";
+import { defineConfig } from "vite";
 import { parseStipendEnv } from "./src/config/environment";
+import deployment from "./vercel.json";
 export default defineConfig(() => {
 	const config = parseStipendEnv(process.env);
 	return {

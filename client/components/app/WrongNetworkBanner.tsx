@@ -1,8 +1,8 @@
 "use client";
 
+import { getNetworkName } from "@jar-core/lib/blockchain/networks";
 import { useAccount, useSwitchChain } from "wagmi";
 import { Button } from "@/components/ui/button";
-import { getNetworkName } from "@jar-core/lib/blockchain/networks";
 
 /**
  * Shown when the wallet is connected to a different chain than the jar lives on.

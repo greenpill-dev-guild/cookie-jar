@@ -1,7 +1,7 @@
 import { CheckCircle2, Loader2 } from "lucide-react";
-import Image from "@/components/app/AppImage";
 import type React from "react";
 import { useCallback, useEffect, useState } from "react";
+import Image from "@/components/app/AppImage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";

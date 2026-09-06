@@ -1,6 +1,6 @@
-import { parseUnits } from "viem";
 import type { JarCreationFormData } from "@jar-core/hooks/jar/schemas/jarCreationSchema";
 import { ETH_ADDRESS } from "@jar-core/lib/blockchain/constants";
+import { parseUnits } from "viem";
 
 /** Decimal text is checked before parseUnits, which otherwise rounds excess precision. */
 export function parseTokenAmount(

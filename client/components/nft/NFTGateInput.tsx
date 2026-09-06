@@ -1,3 +1,4 @@
+import { log } from "@jar-core/lib/app/logger";
 import { useQuery } from "@tanstack/react-query";
 import {
 	AlertCircle,
@@ -33,7 +34,6 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Slider } from "@/components/ui/slider";
 import { useEnhancedNFTValidation } from "@/hooks/nft/useEnhancedNFTValidation";
-import { log } from "@jar-core/lib/app/logger";
 import { AlchemyNFTProvider } from "@/lib/nft/AlchemyProvider";
 import { getAlchemyApiKey } from "@/lib/nft/config";
 
