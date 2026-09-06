@@ -1,0 +1,15 @@
+{
+  "address": "0x2f8FA6356d69d4A93F8F0944E3a68D65D5Ca2b74",
+  "currency": "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+  "accessType": 0,
+  "maxWithdrawal": "160000000",
+  "interval": "2592000",
+  "gate": [
+    "0x0000000000000000000000000000000000000000",
+    "0",
+    "0",
+    "false"
+  ],
+  "decimals": 6,
+  "block": "502234587"
+}

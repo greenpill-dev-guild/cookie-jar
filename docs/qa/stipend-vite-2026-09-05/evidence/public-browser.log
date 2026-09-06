@@ -1,0 +1,10 @@
+$ playwright test "--config=/var/folders/f6/qmrlnln151nbsqrc8v3d_4cc0000gn/T/stipend-public-qa-32x02ic2/playwright.config.ts"
+
+Running 2 tests using 1 worker
+
+(node:14791) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 ../../../../../../../../private/var/folders/f6/qmrlnln151nbsqrc8v3d_4cc0000gn/T/stipend-public-qa-32x02ic2/public.spec.ts:2:5 › Arbitrum without a featured address remains empty (3.6s)
+  ✓  2 ../../../../../../../../private/var/folders/f6/qmrlnln151nbsqrc8v3d_4cc0000gn/T/stipend-public-qa-32x02ic2/public.spec.ts:8:5 › public factory jar reads six-decimal USDC and its allowlist without a wallet (3.8s)
+
+  2 passed (8.5s)

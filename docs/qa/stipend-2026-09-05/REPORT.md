@@ -1,5 +1,7 @@
 # Green Goods Stipend Jar QA
 
+**Architecture update:** The stipend UI is now a separate React/Vite app in the same repository. Use the [migration QA report](../stipend-vite-2026-09-05/REPORT.md) and [new Vercel settings](../../STIPEND-APP.md). Earlier combined-Next-UI deployment guidance is superseded. Final merged-dev and authenticated passkey QA remain pending.
+
 **Release decision: BLOCKED. Keep release PR #40 open.**
 
 The implementation is split into draft PRs into `dev`: [UI and accessibility #42](https://github.com/greenpill-dev-guild/cookie-jar/pull/42), [direct factory creation and transactions #43](https://github.com/greenpill-dev-guild/cookie-jar/pull/43), and [E2E repairs and this report #44](https://github.com/greenpill-dev-guild/cookie-jar/pull/44). No change was pushed to `dev` or `main`, and no PR was merged.

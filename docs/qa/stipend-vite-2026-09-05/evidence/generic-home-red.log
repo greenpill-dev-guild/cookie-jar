@@ -1,0 +1,141 @@
+$ vitest run __tests__/generic-home.test.tsx
+
+ RUN  v3.2.7 /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/client
+
+ ❯ __tests__/generic-home.test.tsx (1 test | 1 failed) 88ms
+   × opens the generic factory UI without a featured stipend configuration 86ms
+     → Unable to find an accessible element with the role "heading" and name "Cookie Jar"
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "No featured jar configured":
+  [36m<h1 />[39m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-muted-foreground"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  link:
+
+  Name "Browse all jars":
+  [36m<a[39m
+    [33mclass[39m=[32m"inline-flex min-h-11 min-w-11 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-4 py-2"[39m
+    [33mhref[39m=[32m"/jars"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex min-h-screen flex-col"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container max-w-2xl mx-auto mt-12 p-8 rounded-2xl bg-card border border-border text-center space-y-4"[39m
+      [36m>[39m
+        [36m<h1>[39m
+          [0mNo featured jar configured[0m
+        [36m</h1>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"text-muted-foreground"[39m
+        [36m>[39m
+          [0mSet NEXT_PUBLIC_FEATURED_JAR_ADDRESS (and NEXT_PUBLIC_DEFAULT_CHAIN_ID) to point this page at a jar, or browse every jar on the network.[0m
+        [36m</p>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"inline-flex min-h-11 min-w-11 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-4 py-2"[39m
+          [33mhref[39m=[32m"/jars"[39m
+        [36m>[39m
+          [0mBrowse all jars[0m
+        [36m</a>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  __tests__/generic-home.test.tsx > opens the generic factory UI without a featured stipend configuration
+TestingLibraryElementError: Unable to find an accessible element with the role "heading" and name "Cookie Jar"
+
+Here are the accessible roles:
+
+  heading:
+
+  Name "No featured jar configured":
+  [36m<h1 />[39m
+
+  --------------------------------------------------
+  paragraph:
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-muted-foreground"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  link:
+
+  Name "Browse all jars":
+  [36m<a[39m
+    [33mclass[39m=[32m"inline-flex min-h-11 min-w-11 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-4 py-2"[39m
+    [33mhref[39m=[32m"/jars"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<div[39m
+      [33mclass[39m=[32m"flex min-h-screen flex-col"[39m
+    [36m>[39m
+      [36m<div[39m
+        [33mclass[39m=[32m"container max-w-2xl mx-auto mt-12 p-8 rounded-2xl bg-card border border-border text-center space-y-4"[39m
+      [36m>[39m
+        [36m<h1>[39m
+          [0mNo featured jar configured[0m
+        [36m</h1>[39m
+        [36m<p[39m
+          [33mclass[39m=[32m"text-muted-foreground"[39m
+        [36m>[39m
+          [0mSet NEXT_PUBLIC_FEATURED_JAR_ADDRESS (and NEXT_PUBLIC_DEFAULT_CHAIN_ID) to point this page at a jar, or browse every jar on the network.[0m
+        [36m</p>[39m
+        [36m<a[39m
+          [33mclass[39m=[32m"inline-flex min-h-11 min-w-11 items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-11 px-4 py-2"[39m
+          [33mhref[39m=[32m"/jars"[39m
+        [36m>[39m
+          [0mBrowse all jars[0m
+        [36m</a>[39m
+      [36m</div>[39m
+    [36m</div>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError ../../../../node_modules/.bun/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../../../node_modules/.bun/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../../../node_modules/.bun/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../../../node_modules/.bun/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ __tests__/generic-home.test.tsx:11:16
+      9| it("opens the generic factory UI without a featured stipend configurat…
+     10|  render(<Home/>);
+     11|  expect(screen.getByRole("heading",{level:1,name:"Cookie Jar"})).toBeV…
+       |                ^
+     12|  expect(screen.getByRole("link",{name:"Browse jars"})).toHaveAttribute…
+     13|  expect(screen.getByRole("link",{name:"Create a jar"})).toHaveAttribut…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  21:47:06
+   Duration  3.97s (transform 207ms, setup 508ms, collect 468ms, tests 88ms, environment 1.15s, prepare 392ms)
+
+error: script "test" exited with code 1

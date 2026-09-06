@@ -1,0 +1,68 @@
+$ playwright test --config=playwright.stipend.config.ts --grep "security headers"
+
+Running 2 tests using 1 worker
+
+(node:40851) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [desktop] › e2e/stipend-release-qa.spec.ts:132:5 › security headers and social image metadata (154ms)
+(node:40957) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  2 [mobile] › e2e/stipend-release-qa.spec.ts:132:5 › security headers and social image metadata (143ms)
+
+
+  1) [desktop] › e2e/stipend-release-qa.spec.ts:132:5 › security headers and social image metadata ─
+
+    Error: expect(received).toMatch(expected)
+
+    Expected pattern: /^image\//
+    Received string:  "text/html"
+
+      145 | 		const image = await request.get(path);
+      146 | 		expect(image.ok()).toBe(true);
+    > 147 | 		expect(image.headers()["content-type"]).toMatch(/^image\//);
+          | 		                                        ^
+      148 | 	}
+      149 | });
+      150 |
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:147:43
+
+    Error Context: stipend/test-results/stipend-release-qa-securit-9c1aa-s-and-social-image-metadata-desktop/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    stipend/test-results/stipend-release-qa-securit-9c1aa-s-and-social-image-metadata-desktop/trace.zip
+    Usage:
+
+        npx playwright show-trace stipend/test-results/stipend-release-qa-securit-9c1aa-s-and-social-image-metadata-desktop/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [mobile] › e2e/stipend-release-qa.spec.ts:132:5 › security headers and social image metadata ──
+
+    Error: expect(received).toMatch(expected)
+
+    Expected pattern: /^image\//
+    Received string:  "text/html"
+
+      145 | 		const image = await request.get(path);
+      146 | 		expect(image.ok()).toBe(true);
+    > 147 | 		expect(image.headers()["content-type"]).toMatch(/^image\//);
+          | 		                                        ^
+      148 | 	}
+      149 | });
+      150 |
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/e2e/stipend-release-qa.spec.ts:147:43
+
+    Error Context: stipend/test-results/stipend-release-qa-securit-9c1aa-s-and-social-image-metadata-mobile/error-context.md
+
+    attachment #2: trace (application/zip) ─────────────────────────────────────────────────────────
+    stipend/test-results/stipend-release-qa-securit-9c1aa-s-and-social-image-metadata-mobile/trace.zip
+    Usage:
+
+        npx playwright show-trace stipend/test-results/stipend-release-qa-securit-9c1aa-s-and-social-image-metadata-mobile/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2 failed
+    [desktop] › e2e/stipend-release-qa.spec.ts:132:5 › security headers and social image metadata ──
+    [mobile] › e2e/stipend-release-qa.spec.ts:132:5 › security headers and social image metadata ───
+error: script "test:e2e:stipend" exited with code 1

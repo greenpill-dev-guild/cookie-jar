@@ -1,0 +1,41 @@
+$ vitest run src/__tests__/config.test.ts
+
+ RUN  v3.2.7 /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/stipend
+
+ ❯ src/__tests__/config.test.ts (6 tests | 1 failed) 13ms
+   × standalone stipend environment > defaults to Arbitrum with no implicitly selected production jar 8ms
+     → expected undefined to be 435607756n // Object.is equality
+   ✓ standalone stipend environment > accepts its own Vite configuration for local Anvil 1ms
+   ✓ standalone stipend environment > rejects invalid explicit configuration {"VITE_DEFAULT_CHAIN_ID":"oops"} 1ms
+   ✓ standalone stipend environment > rejects invalid explicit configuration {"VITE_FEATURED_JAR_ADDRESS":"0x123"} 1ms
+   ✓ standalone stipend environment > rejects invalid explicit configuration {"VITE_FEATURED_JAR_BLOCK":"-1"} 0ms
+   ✓ standalone stipend environment > rejects invalid explicit configuration {"VITE_SITE_URL":"javascript:alert(1)"} 0ms
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/__tests__/config.test.ts > standalone stipend environment > defaults to Arbitrum with no implicitly selected production jar
+AssertionError: expected undefined to be 435607756n // Object.is equality
+
+- Expected:
+435607756n
+
++ Received:
+undefined
+
+ ❯ src/__tests__/config.test.ts:9:27
+      7|   expect(config.chainId).toBe(42161);
+      8|   expect(config.address).toBeUndefined();
+      9|  expect(config.fromBlock).toBe(435607756n);
+       |                           ^
+     10|   expect(config.siteUrl).toBe("https://cookies.greengoods.app");
+     11|  });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 5 passed (6)
+   Start at  21:58:18
+   Duration  2.87s (transform 69ms, setup 0ms, collect 575ms, tests 13ms, environment 622ms, prepare 122ms)
+
+error: script "test" exited with code 1

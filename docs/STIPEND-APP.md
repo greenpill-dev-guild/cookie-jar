@@ -62,6 +62,6 @@ bun run --cwd client build:skip-lint
 bun run test:e2e:stipend
 ```
 
-Use the installed supported Node runtime on `PATH`. The stipend browser suite uses the existing local-only EIP-1193 fixture, checks actual transaction receipts and restores Anvil snapshots. `STIPEND_QA_URL` can select another local instance. It does not replace the required real-wallet QA pass.
+Use the installed supported Node runtime on `PATH`. The root Playwright configuration routes stipend specs to Vite and starts that local server when needed, so the existing workflows continue to check both apps without workflow edits. Set `COOKIE_JAR_QA_URL` when the generic app runs somewhere other than localhost:3000. The stipend browser suite uses the existing local-only EIP-1193 fixture, checks actual transaction receipts and restores Anvil snapshots. `STIPEND_QA_URL` can select another local instance. It does not replace the required real-wallet QA pass.
 
 Do not merge the release PR until the migration and accepted fixes are on `dev`, the final report is passing, and the release is approved.

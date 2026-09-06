@@ -1,0 +1,63 @@
+$ vitest run src/__tests__/jar-image.test.tsx
+
+ RUN  v3.2.7 /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/stipend
+
+ ❯ src/__tests__/jar-image.test.tsx (2 tests | 2 failed) 59ms
+   × uses an app-owned fallback when metadata has no image 45ms
+     → expect(element).toHaveAttribute("src", "/icon.svg") // element.getAttribute("src") === "/icon.svg"
+
+Expected the element to have attribute:
+  src="/icon.svg"
+Received:
+  src="/images/cookie-jar.png"
+   × recovers from failed images and does not retain an image removed from metadata 13ms
+     → expect(element).toHaveAttribute("src", "/icon.svg") // element.getAttribute("src") === "/icon.svg"
+
+Expected the element to have attribute:
+  src="/icon.svg"
+Received:
+  src="/images/cookie-jar.png"
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  src/__tests__/jar-image.test.tsx > uses an app-owned fallback when metadata has no image
+Error: expect(element).toHaveAttribute("src", "/icon.svg") // element.getAttribute("src") === "/icon.svg"
+
+Expected the element to have attribute:
+  src="/icon.svg"
+Received:
+  src="/images/cookie-jar.png"
+ ❯ src/__tests__/jar-image.test.tsx:8:34
+      6| it("uses an app-owned fallback when metadata has no image",()=>{
+      7|  render(<JarImage jarName="Stipend"/>);
+      8|  expect(screen.getByRole("img")).toHaveAttribute("src","/icon.svg");
+       |                                  ^
+      9| });
+     10| it("recovers from failed images and does not retain an image removed f…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  src/__tests__/jar-image.test.tsx > recovers from failed images and does not retain an image removed from metadata
+Error: expect(element).toHaveAttribute("src", "/icon.svg") // element.getAttribute("src") === "/icon.svg"
+
+Expected the element to have attribute:
+  src="/icon.svg"
+Received:
+  src="/images/cookie-jar.png"
+ ❯ src/__tests__/jar-image.test.tsx:13:34
+     11|  const view=render(<JarImage jarName="Stipend" metadata='{"image":"htt…
+     12|  fireEvent.error(screen.getByRole("img",{name:"Stipend"}));
+     13|  expect(screen.getByRole("img")).toHaveAttribute("src","/icon.svg");
+       |                                  ^
+     14|  view.rerender(<JarImage jarName="Stipend" metadata='{"image":"https:/…
+     15|  expect(screen.getByRole("img")).toHaveAttribute("src","https://exampl…
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  22:15:24
+   Duration  1.76s (transform 70ms, setup 0ms, collect 337ms, tests 59ms, environment 405ms, prepare 106ms)
+
+error: script "test" exited with code 1
