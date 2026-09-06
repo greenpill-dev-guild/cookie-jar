@@ -1,0 +1,301 @@
+$ vitest run __tests__/JarRulesEditor.test.tsx
+
+ RUN  v3.2.7 /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-create/client
+
+ ❯ __tests__/JarRulesEditor.test.tsx (3 tests | 1 failed) 90ms
+   ✓ updates the maximum in token units and the interval in seconds on the jar chain 60ms
+   ✓ uses the fixed-amount setter for a fixed jar 10ms
+   × lets the owner retry a confirmation read while writes remain locked 18ms
+     → Unable to find an accessible element with the role "button" and name "Retry confirmation check"
+
+Here are the accessible roles:
+
+  group:
+
+  Name "Claim rules":
+  [36m<fieldset[39m
+    [33mclass[39m=[32m"min-w-0 space-y-4 rounded-lg border border-border bg-card p-4"[39m
+    [33mdisabled[39m=[32m""[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  textbox:
+
+  Name "Maximum per claim":
+  [36m<input[39m
+    [33mclass[39m=[32m"flex h-10 w-full rounded-md border border-input bg-input px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium text-[hsl(var(--cj-input-text))] placeholder:text-[hsl(var(--cj-input-placeholder))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"[39m
+    [33mid[39m=[32m"admin-maximum"[39m
+    [33minputmode[39m=[32m"decimal"[39m
+    [33mvalue[39m=[32m"0.5"[39m
+  [36m/>[39m
+
+  Name "Claim interval (days)":
+  [36m<input[39m
+    [33mclass[39m=[32m"flex h-10 w-full rounded-md border border-input bg-input px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium text-[hsl(var(--cj-input-text))] placeholder:text-[hsl(var(--cj-input-placeholder))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"[39m
+    [33mid[39m=[32m"admin-interval"[39m
+    [33minputmode[39m=[32m"numeric"[39m
+    [33mvalue[39m=[32m"28"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "Update maximum":
+  [36m<button[39m
+    [33mclass[39m=[32m"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 mt-2"[39m
+  [36m/>[39m
+
+  Name "Update interval":
+  [36m<button[39m
+    [33mclass[39m=[32m"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 mt-2"[39m
+  [36m/>[39m
+
+  Name "Pause jar":
+  [36m<button[39m
+    [33mclass[39m=[32m"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  status:
+
+  Name "":
+  [36m<p[39m
+    [33mrole[39m=[32m"status"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-sm text-foreground"[39m
+    [33mrole[39m=[32m"status"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<fieldset[39m
+      [33mclass[39m=[32m"min-w-0 space-y-4 rounded-lg border border-border bg-card p-4"[39m
+      [33mdisabled[39m=[32m""[39m
+    [36m>[39m
+      [36m<legend[39m
+        [33mclass[39m=[32m"px-2 font-semibold"[39m
+      [36m>[39m
+        [0mClaim rules[0m
+      [36m</legend>[39m
+      [36m<div>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"[39m
+          [33mfor[39m=[32m"admin-maximum"[39m
+        [36m>[39m
+          [0mMaximum per claim[0m
+        [36m</label>[39m
+        [36m<input[39m
+          [33mclass[39m=[32m"flex h-10 w-full rounded-md border border-input bg-input px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium text-[hsl(var(--cj-input-text))] placeholder:text-[hsl(var(--cj-input-placeholder))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"[39m
+          [33mid[39m=[32m"admin-maximum"[39m
+          [33minputmode[39m=[32m"decimal"[39m
+          [33mvalue[39m=[32m"0.5"[39m
+        [36m/>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 mt-2"[39m
+        [36m>[39m
+          [0mUpdate maximum[0m
+        [36m</button>[39m
+      [36m</div>[39m
+      [36m<div>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"[39m
+          [33mfor[39m=[32m"admin-interval"[39m
+        [36m>[39m
+          [0mClaim interval (days)[0m
+        [36m</label>[39m
+        [36m<input[39m
+          [33mclass[39m=[32m"flex h-10 w-full rounded-md border border-input bg-input px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium text-[hsl(var(--cj-input-text))] placeholder:text-[hsl(var(--cj-input-placeholder))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"[39m
+          [33mid[39m=[32m"admin-interval"[39m
+          [33minputmode[39m=[32m"numeric"[39m
+          [33mvalue[39m=[32m"28"[39m
+        [36m/>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 mt-2"[39m
+        [36m>[39m
+          [0mUpdate interval[0m
+        [36m</button>[39m
+      [36m</div>[39m
+      [36m<button[39m
+        [33mclass[39m=[32m"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"[39m
+      [36m>[39m
+        [0mPause jar[0m
+      [36m</button>[39m
+      [36m<p[39m
+        [33mrole[39m=[32m"status"[39m
+      [36m>[39m
+        [0mWaiting for transaction confirmation...[0m
+      [36m</p>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"text-sm text-foreground"[39m
+        [33mrole[39m=[32m"status"[39m
+      [36m>[39m
+        [0mRPC unavailable[0m
+      [36m</p>[39m
+    [36m</fieldset>[39m
+  [36m</div>[39m
+[36m</body>[39m
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  __tests__/JarRulesEditor.test.tsx > lets the owner retry a confirmation read while writes remain locked
+TestingLibraryElementError: Unable to find an accessible element with the role "button" and name "Retry confirmation check"
+
+Here are the accessible roles:
+
+  group:
+
+  Name "Claim rules":
+  [36m<fieldset[39m
+    [33mclass[39m=[32m"min-w-0 space-y-4 rounded-lg border border-border bg-card p-4"[39m
+    [33mdisabled[39m=[32m""[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  textbox:
+
+  Name "Maximum per claim":
+  [36m<input[39m
+    [33mclass[39m=[32m"flex h-10 w-full rounded-md border border-input bg-input px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium text-[hsl(var(--cj-input-text))] placeholder:text-[hsl(var(--cj-input-placeholder))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"[39m
+    [33mid[39m=[32m"admin-maximum"[39m
+    [33minputmode[39m=[32m"decimal"[39m
+    [33mvalue[39m=[32m"0.5"[39m
+  [36m/>[39m
+
+  Name "Claim interval (days)":
+  [36m<input[39m
+    [33mclass[39m=[32m"flex h-10 w-full rounded-md border border-input bg-input px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium text-[hsl(var(--cj-input-text))] placeholder:text-[hsl(var(--cj-input-placeholder))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"[39m
+    [33mid[39m=[32m"admin-interval"[39m
+    [33minputmode[39m=[32m"numeric"[39m
+    [33mvalue[39m=[32m"28"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  button:
+
+  Name "Update maximum":
+  [36m<button[39m
+    [33mclass[39m=[32m"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 mt-2"[39m
+  [36m/>[39m
+
+  Name "Update interval":
+  [36m<button[39m
+    [33mclass[39m=[32m"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 mt-2"[39m
+  [36m/>[39m
+
+  Name "Pause jar":
+  [36m<button[39m
+    [33mclass[39m=[32m"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+  status:
+
+  Name "":
+  [36m<p[39m
+    [33mrole[39m=[32m"status"[39m
+  [36m/>[39m
+
+  Name "":
+  [36m<p[39m
+    [33mclass[39m=[32m"text-sm text-foreground"[39m
+    [33mrole[39m=[32m"status"[39m
+  [36m/>[39m
+
+  --------------------------------------------------
+
+Ignored nodes: comments, script, style
+[36m<body>[39m
+  [36m<div>[39m
+    [36m<fieldset[39m
+      [33mclass[39m=[32m"min-w-0 space-y-4 rounded-lg border border-border bg-card p-4"[39m
+      [33mdisabled[39m=[32m""[39m
+    [36m>[39m
+      [36m<legend[39m
+        [33mclass[39m=[32m"px-2 font-semibold"[39m
+      [36m>[39m
+        [0mClaim rules[0m
+      [36m</legend>[39m
+      [36m<div>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"[39m
+          [33mfor[39m=[32m"admin-maximum"[39m
+        [36m>[39m
+          [0mMaximum per claim[0m
+        [36m</label>[39m
+        [36m<input[39m
+          [33mclass[39m=[32m"flex h-10 w-full rounded-md border border-input bg-input px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium text-[hsl(var(--cj-input-text))] placeholder:text-[hsl(var(--cj-input-placeholder))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"[39m
+          [33mid[39m=[32m"admin-maximum"[39m
+          [33minputmode[39m=[32m"decimal"[39m
+          [33mvalue[39m=[32m"0.5"[39m
+        [36m/>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 mt-2"[39m
+        [36m>[39m
+          [0mUpdate maximum[0m
+        [36m</button>[39m
+      [36m</div>[39m
+      [36m<div>[39m
+        [36m<label[39m
+          [33mclass[39m=[32m"text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"[39m
+          [33mfor[39m=[32m"admin-interval"[39m
+        [36m>[39m
+          [0mClaim interval (days)[0m
+        [36m</label>[39m
+        [36m<input[39m
+          [33mclass[39m=[32m"flex h-10 w-full rounded-md border border-input bg-input px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium text-[hsl(var(--cj-input-text))] placeholder:text-[hsl(var(--cj-input-placeholder))] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"[39m
+          [33mid[39m=[32m"admin-interval"[39m
+          [33minputmode[39m=[32m"numeric"[39m
+          [33mvalue[39m=[32m"28"[39m
+        [36m/>[39m
+        [36m<button[39m
+          [33mclass[39m=[32m"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 bg-primary text-primary-foreground hover:bg-primary/90 h-10 px-4 py-2 mt-2"[39m
+        [36m>[39m
+          [0mUpdate interval[0m
+        [36m</button>[39m
+      [36m</div>[39m
+      [36m<button[39m
+        [33mclass[39m=[32m"inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-10 px-4 py-2"[39m
+      [36m>[39m
+        [0mPause jar[0m
+      [36m</button>[39m
+      [36m<p[39m
+        [33mrole[39m=[32m"status"[39m
+      [36m>[39m
+        [0mWaiting for transaction confirmation...[0m
+      [36m</p>[39m
+      [36m<p[39m
+        [33mclass[39m=[32m"text-sm text-foreground"[39m
+        [33mrole[39m=[32m"status"[39m
+      [36m>[39m
+        [0mRPC unavailable[0m
+      [36m</p>[39m
+    [36m</fieldset>[39m
+  [36m</div>[39m
+[36m</body>[39m
+ ❯ Object.getElementError ../../../../node_modules/.bun/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/config.js:37:19
+ ❯ ../../../../node_modules/.bun/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:76:38
+ ❯ ../../../../node_modules/.bun/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:52:17
+ ❯ ../../../../node_modules/.bun/@testing-library+dom@10.4.1/node_modules/@testing-library/dom/dist/query-helpers.js:95:19
+ ❯ __tests__/JarRulesEditor.test.tsx:90:23
+     88|  render(<JarRulesEditor address="0x11111111111111111111111111111111111…
+     89|  expect(screen.getByRole("button", {name:"Update maximum"})).toBeDisab…
+     90|  const retry = screen.getByRole("button", {name:"Retry confirmation ch…
+       |                       ^
+     91|  expect(retry).toBeEnabled(); fireEvent.click(retry); expect(recovery.…
+     92| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 2 passed (3)
+   Start at  14:57:54
+   Duration  1.96s (transform 164ms, setup 143ms, collect 612ms, tests 90ms, environment 409ms, prepare 126ms)
+
+error: script "test" exited with code 1

@@ -1,0 +1,11 @@
+import {chromium} from '/Users/afo/Code/greenpill/cookie-jar/node_modules/@playwright/test/index.mjs';
+import {writeFile} from 'node:fs/promises';
+const out='/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence';
+const browser=await chromium.launch();const page=await browser.newPage();
+const requests=new Set();page.on('request',r=>{if(r.method()==='POST')requests.add(new URL(r.url()).origin);});
+await page.goto('http://localhost:3000/',{waitUntil:'domcontentloaded',timeout:60000});
+await page.getByRole('heading',{name:'Team Hat Stipend (demo)',exact:true}).waitFor({timeout:45000});
+await page.getByText('In the jar',{exact:true}).waitFor();
+const result={timestamp:new Date().toISOString(),url:page.url(),text:await page.locator('body').innerText(),noFeaturedStateCount:await page.getByText('No featured jar configured',{exact:true}).count(),postOrigins:[...requests]};
+await page.screenshot({path:`${out}/restored-local.png`,fullPage:true});
+await writeFile(`${out}/restored-local.json`,JSON.stringify(result,null,2));console.log(JSON.stringify(result));await browser.close();

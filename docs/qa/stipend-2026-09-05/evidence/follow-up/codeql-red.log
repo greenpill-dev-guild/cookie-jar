@@ -1,0 +1,54 @@
+✖ redacts Alchemy paths and query strings without treating lookalike hosts as Alchemy (1.513208ms)
+✖ each capture gets a private directory that cannot collide with another run (0.355875ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 0
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 55.628583
+
+✖ failing tests:
+
+test at docs/qa/stipend-2026-09-05/evidence/capture-safety.test.cjs:6:1
+✖ redacts Alchemy paths and query strings without treating lookalike hosts as Alchemy (1.513208ms)
+  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:
+  + actual - expected
+  
+  + 'https://notalchemy.com/[redacted]'
+  - 'https://notalchemy.com/public'
+                            ^
+  
+      at TestContext.<anonymous> (/Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-e2e/docs/qa/stipend-2026-09-05/evidence/capture-safety.test.cjs:9:9)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.start (node:internal/test_runner/test:1242:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: 'https://notalchemy.com/[redacted]',
+    expected: 'https://notalchemy.com/public',
+    operator: 'strictEqual',
+    diff: 'simple'
+  }
+
+test at docs/qa/stipend-2026-09-05/evidence/capture-safety.test.cjs:14:1
+✖ each capture gets a private directory that cannot collide with another run (0.355875ms)
+  AssertionError [ERR_ASSERTION]: Expected "actual" to be strictly unequal to:
+  
+  '/var/folders/f6/qmrlnln151nbsqrc8v3d_4cc0000gn/T/stipend-production-regression'
+      at TestContext.<anonymous> (/Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-e2e/docs/qa/stipend-2026-09-05/evidence/capture-safety.test.cjs:18:10)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1382:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:960:18)
+      at Test.postRun (node:internal/test_runner/test:1522:19)
+      at Test.run (node:internal/test_runner/test:1447:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    generatedMessage: true,
+    code: 'ERR_ASSERTION',
+    actual: '/var/folders/f6/qmrlnln151nbsqrc8v3d_4cc0000gn/T/stipend-production-regression',
+    expected: '/var/folders/f6/qmrlnln151nbsqrc8v3d_4cc0000gn/T/stipend-production-regression',
+    operator: 'notStrictEqual',
+    diff: 'simple'
+  }

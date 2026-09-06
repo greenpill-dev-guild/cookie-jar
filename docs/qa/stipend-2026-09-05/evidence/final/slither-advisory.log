@@ -1,0 +1,264 @@
+Slither (advisory)	Run Slither	﻿2026-09-05T22:12:08.0088160Z ##[group]Run crytic/slither-action@v0.4.1
+Slither (advisory)	Run Slither	2026-09-05T22:12:08.0088485Z with:
+Slither (advisory)	Run Slither	2026-09-05T22:12:08.0088761Z   target: contracts/
+Slither (advisory)	Run Slither	2026-09-05T22:12:08.0089231Z   sarif: results.sarif
+Slither (advisory)	Run Slither	2026-09-05T22:12:08.0089511Z   fail-on: none
+Slither (advisory)	Run Slither	2026-09-05T22:12:08.0089775Z   ignore-compile: false
+Slither (advisory)	Run Slither	2026-09-05T22:12:08.0090094Z   internal-github-workspace: "/home/runner/work/cookie-jar/cookie-jar"
+Slither (advisory)	Run Slither	2026-09-05T22:12:08.0090449Z ##[endgroup]
+Slither (advisory)	Run Slither	2026-09-05T22:12:08.0179285Z ##[command]/usr/bin/docker run --name a1e4a4d066334b43b4a906b706c817fd56_445fa4 --label 9009a1 --workdir /github/workspace --rm -e "INPUT_TARGET" -e "INPUT_SARIF" -e "INPUT_FAIL-ON" -e "INPUT_SOLC-VERSION" -e "INPUT_NODE-VERSION" -e "INPUT_SLITHER-ARGS" -e "INPUT_SLITHER-CONFIG" -e "INPUT_SLITHER-VERSION" -e "INPUT_SLITHER-PLUGINS" -e "INPUT_IGNORE-COMPILE" -e "INPUT_INTERNAL-GITHUB-WORKSPACE" -e "HOME" -e "GITHUB_JOB" -e "GITHUB_REF" -e "GITHUB_SHA" -e "GITHUB_REPOSITORY" -e "GITHUB_REPOSITORY_OWNER" -e "GITHUB_REPOSITORY_OWNER_ID" -e "GITHUB_RUN_ID" -e "GITHUB_RUN_NUMBER" -e "GITHUB_RETENTION_DAYS" -e "GITHUB_RUN_ATTEMPT" -e "GITHUB_ACTOR_ID" -e "GITHUB_ACTOR" -e "GITHUB_WORKFLOW" -e "GITHUB_HEAD_REF" -e "GITHUB_BASE_REF" -e "GITHUB_EVENT_NAME" -e "GITHUB_SERVER_URL" -e "GITHUB_API_URL" -e "GITHUB_GRAPHQL_URL" -e "GITHUB_REF_NAME" -e "GITHUB_REF_PROTECTED" -e "GITHUB_REF_TYPE" -e "GITHUB_WORKFLOW_REF" -e "GITHUB_WORKFLOW_SHA" -e "GITHUB_REPOSITORY_ID" -e "GITHUB_TRIGGERING_ACTOR" -e "GITHUB_WORKSPACE" -e "GITHUB_ACTION" -e "GITHUB_EVENT_PATH" -e "GITHUB_ACTION_REPOSITORY" -e "GITHUB_ACTION_REF" -e "GITHUB_PATH" -e "GITHUB_ENV" -e "GITHUB_STEP_SUMMARY" -e "GITHUB_STATE" -e "GITHUB_OUTPUT" -e "GITHUB_ARTIFACTS" -e "GITHUB_ARTIFACTS_LIST" -e "RUNNER_OS" -e "RUNNER_ARCH" -e "RUNNER_NAME" -e "RUNNER_ENVIRONMENT" -e "RUNNER_TOOL_CACHE" -e "RUNNER_TEMP" -e "RUNNER_WORKSPACE" -e "ACTIONS_RUNTIME_URL" -e "ACTIONS_RUNTIME_TOKEN" -e "ACTIONS_CACHE_URL" -e "ACTIONS_RESULTS_URL" -e "ACTIONS_ORCHESTRATION_ID" -e GITHUB_ACTIONS=true -e CI=true -v "/var/run/docker.sock":"/var/run/docker.sock" -v "/home/runner/work/_temp":"/github/runner_temp" -v "/home/runner/work/_temp/_github_home":"/github/home" -v "/home/runner/work/_temp/_github_workflow":"/github/workflow" -v "/home/runner/work/_temp/_runner_file_commands":"/github/file_commands" -v "/home/runner/work/cookie-jar/cookie-jar":"/github/workspace" 9009a1:e4a4d066334b43b4a906b706c817fd56  "contracts/" "" "" "results.sarif" ""
+Slither (advisory)	Run Slither	2026-09-05T22:12:09.4366120Z [-] Applied compatibility link: /home/runner/work/cookie-jar/cookie-jar -> /github/workspace
+Slither (advisory)	Run Slither	2026-09-05T22:12:11.9961333Z Collecting wheel
+Slither (advisory)	Run Slither	2026-09-05T22:12:12.0606866Z   Downloading wheel-0.48.0-py3-none-any.whl (33 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:12.1014631Z Collecting packaging>=24.0
+Slither (advisory)	Run Slither	2026-09-05T22:12:12.1116348Z   Downloading packaging-26.3-py3-none-any.whl (129 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:12.1247310Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 130.0/130.0 kB 11.0 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:12.1539067Z Installing collected packages: packaging, wheel
+Slither (advisory)	Run Slither	2026-09-05T22:12:12.4157912Z Successfully installed packaging-26.3 wheel-0.48.0
+Slither (advisory)	Run Slither	2026-09-05T22:12:12.7232478Z Collecting slither-analyzer
+Slither (advisory)	Run Slither	2026-09-05T22:12:12.7779561Z   Downloading slither_analyzer-0.11.4-py3-none-any.whl (753 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:12.8487318Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 753.6/753.6 kB 10.8 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:12.9326387Z Collecting web3<8,>=7.10
+Slither (advisory)	Run Slither	2026-09-05T22:12:12.9457714Z   Downloading web3-7.16.0-py3-none-any.whl (1.4 MB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:12.9750586Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.4/1.4 MB 49.8 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.0012092Z Collecting eth-typing>=5.0.0
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.0143853Z   Downloading eth_typing-5.2.1-py3-none-any.whl (19 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.0375754Z Collecting eth-abi>=5.0.1
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.0505446Z   Downloading eth_abi-5.2.0-py3-none-any.whl (28 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.1025506Z Collecting importlib-metadata>=3.6
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.1156871Z   Downloading importlib_metadata-8.7.1-py3-none-any.whl (27 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.1493544Z Collecting eth-utils>=5.0.0
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.1624785Z   Downloading eth_utils-5.3.1-py3-none-any.whl (102 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.1644389Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 102.5/102.5 kB 488.8 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.1880009Z Collecting crytic-compile<0.4.0,>=0.3.9
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.2008039Z   Downloading crytic_compile-0.3.11-py3-none-any.whl (99 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.2027590Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 99.2/99.2 kB 516.3 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.2041454Z Requirement already satisfied: packaging in /opt/slither/lib/python3.9/site-packages (from slither-analyzer) (26.3)
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.2270210Z Collecting prettytable>=3.10.2
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.2398843Z   Downloading prettytable-3.16.0-py3-none-any.whl (33 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.3856306Z Collecting pycryptodome>=3.4.6
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.3989141Z   Downloading pycryptodome-3.23.0-cp37-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.3 MB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.4148851Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.3/2.3 MB 158.1 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.4424098Z Collecting solc-select>=v1.0.4
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.4555921Z   Downloading solc_select-1.2.0-py3-none-any.whl (36 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.5626600Z Collecting cbor2
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.5755403Z   Downloading cbor2-5.9.0-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (254 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.5777924Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 254.5/254.5 kB 544.4 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.6130627Z Collecting parsimonious<0.11.0,>=0.10.0
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.6257940Z   Downloading parsimonious-0.10.0-py3-none-any.whl (48 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.6274966Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 48.4/48.4 kB 432.2 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.6641374Z Collecting typing_extensions>=4.5.0
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.6769952Z   Downloading typing_extensions-4.16.0-py3-none-any.whl (45 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.6787833Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 45.6/45.6 kB 403.3 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.7291841Z Collecting eth-hash>=0.3.1
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.7421537Z   Downloading eth_hash-0.7.1-py3-none-any.whl (8.0 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.9453719Z Collecting pydantic<3,>=2.0.0
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.9601252Z   Downloading pydantic-2.13.5-py3-none-any.whl (472 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:13.9627143Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 472.6/472.6 kB 583.8 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:14.0719593Z Collecting cytoolz>=0.10.1
+Slither (advisory)	Run Slither	2026-09-05T22:12:14.0853624Z   Downloading cytoolz-1.1.0-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (2.7 MB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:14.0987323Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.7/2.7 MB 228.5 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:14.1400922Z Collecting zipp>=3.20
+Slither (advisory)	Run Slither	2026-09-05T22:12:14.1528351Z   Downloading zipp-3.23.1-py3-none-any.whl (10 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:14.1781763Z Collecting wcwidth
+Slither (advisory)	Run Slither	2026-09-05T22:12:14.1911794Z   Downloading wcwidth-0.8.3-py3-none-any.whl (331 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:14.1933521Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 331.7/331.7 kB 526.8 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:14.2369371Z Collecting hexbytes>=1.2.0
+Slither (advisory)	Run Slither	2026-09-05T22:12:14.2498414Z   Downloading hexbytes-1.3.1-py3-none-any.whl (5.1 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:14.4473087Z Collecting websockets<16.0.0,>=10.0.0
+Slither (advisory)	Run Slither	2026-09-05T22:12:14.4621774Z   Downloading websockets-15.0.1-cp39-cp39-manylinux_2_5_x86_64.manylinux1_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl (181 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:14.4642776Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 181.4/181.4 kB 526.3 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:14.5062794Z Collecting types-requests>=2.0.0
+Slither (advisory)	Run Slither	2026-09-05T22:12:14.5195034Z   Downloading types_requests-2.32.4.20260107-py3-none-any.whl (20 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:14.5914100Z Collecting requests>=2.23.0
+Slither (advisory)	Run Slither	2026-09-05T22:12:14.6043653Z   Downloading requests-2.32.5-py3-none-any.whl (64 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:14.6061958Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 64.7/64.7 kB 399.1 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:14.6247065Z Collecting pyunormalize>=15.0.0
+Slither (advisory)	Run Slither	2026-09-05T22:12:14.6376592Z   Downloading pyunormalize-17.0.0-py3-none-any.whl (51 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:14.6391313Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 51.4/51.4 kB 389.1 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:15.5574463Z Collecting aiohttp>=3.7.4.post0
+Slither (advisory)	Run Slither	2026-09-05T22:12:15.5712298Z   Downloading aiohttp-3.13.5-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (1.7 MB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:15.5759699Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 1.7/1.7 MB 517.7 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:15.6055765Z Collecting eth-account>=0.13.6
+Slither (advisory)	Run Slither	2026-09-05T22:12:15.6185576Z   Downloading eth_account-0.13.7-py3-none-any.whl (587 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:15.6211564Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 587.5/587.5 kB 592.5 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:16.0240921Z Collecting multidict<7.0,>=4.5
+Slither (advisory)	Run Slither	2026-09-05T22:12:16.0371559Z   Downloading multidict-6.7.1-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (240 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:16.0396385Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 240.3/240.3 kB 456.6 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:16.1547793Z Collecting frozenlist>=1.1.1
+Slither (advisory)	Run Slither	2026-09-05T22:12:16.1687425Z   Downloading frozenlist-1.8.0-cp39-cp39-manylinux1_x86_64.manylinux_2_28_x86_64.manylinux_2_5_x86_64.whl (219 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:16.1707468Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 219.5/219.5 kB 561.7 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:16.2738045Z Collecting propcache>=0.2.0
+Slither (advisory)	Run Slither	2026-09-05T22:12:16.2874198Z   Downloading propcache-0.4.1-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (197 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:16.2895551Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 197.2/197.2 kB 493.2 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:16.3071167Z Collecting aiosignal>=1.4.0
+Slither (advisory)	Run Slither	2026-09-05T22:12:16.3201366Z   Downloading aiosignal-1.4.0-py3-none-any.whl (7.5 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:16.3439198Z Collecting attrs>=17.3.0
+Slither (advisory)	Run Slither	2026-09-05T22:12:16.3567871Z   Downloading attrs-26.1.0-py3-none-any.whl (67 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:16.3586311Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 67.5/67.5 kB 405.4 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:16.8478940Z Collecting yarl<2.0,>=1.17.0
+Slither (advisory)	Run Slither	2026-09-05T22:12:16.8630619Z   Downloading yarl-1.22.0-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (346 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:16.8655629Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 346.5/346.5 kB 555.0 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:16.8951159Z Collecting aiohappyeyeballs>=2.5.0
+Slither (advisory)	Run Slither	2026-09-05T22:12:16.9081555Z   Downloading aiohappyeyeballs-2.6.1-py3-none-any.whl (15 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:16.9281052Z Collecting async-timeout<6.0,>=4.0
+Slither (advisory)	Run Slither	2026-09-05T22:12:16.9410824Z   Downloading async_timeout-5.0.1-py3-none-any.whl (6.2 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:16.9623839Z Collecting toolz>=0.8.0
+Slither (advisory)	Run Slither	2026-09-05T22:12:16.9751253Z   Downloading toolz-1.1.0-py3-none-any.whl (58 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:16.9769586Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 58.1/58.1 kB 455.3 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:17.0140030Z Collecting rlp>=1.0.0
+Slither (advisory)	Run Slither	2026-09-05T22:12:17.0271345Z   Downloading rlp-4.1.0-py3-none-any.whl (19 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:17.0469585Z Collecting eth-keys>=0.4.0
+Slither (advisory)	Run Slither	2026-09-05T22:12:17.0596800Z   Downloading eth_keys-0.7.0-py3-none-any.whl (20 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:17.6076009Z Collecting bitarray>=2.4.0
+Slither (advisory)	Run Slither	2026-09-05T22:12:17.6213743Z   Downloading bitarray-3.11.0-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (372 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:17.6238805Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 372.4/372.4 kB 601.3 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:17.6456613Z Collecting eth-keyfile<0.9.0,>=0.7.0
+Slither (advisory)	Run Slither	2026-09-05T22:12:17.6587141Z   Downloading eth_keyfile-0.8.1-py3-none-any.whl (7.5 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:17.7887738Z Collecting ckzg>=2.0.0
+Slither (advisory)	Run Slither	2026-09-05T22:12:17.8032438Z   Downloading ckzg-2.1.8-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (175 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:17.8054367Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 175.4/175.4 kB 502.6 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:17.8242232Z Collecting eth-rlp>=2.1.0
+Slither (advisory)	Run Slither	2026-09-05T22:12:17.8370000Z   Downloading eth_rlp-2.2.0-py3-none-any.whl (4.4 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:18.6559744Z Collecting regex>=2022.3.15
+Slither (advisory)	Run Slither	2026-09-05T22:12:18.6696841Z   Downloading regex-2026.1.15-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (791 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:18.6730697Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 791.3/791.3 kB 594.5 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:18.6991816Z Collecting annotated-types>=0.6.0
+Slither (advisory)	Run Slither	2026-09-05T22:12:18.7121142Z   Downloading annotated_types-0.7.0-py3-none-any.whl (13 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:19.9722027Z Collecting pydantic-core==2.46.5
+Slither (advisory)	Run Slither	2026-09-05T22:12:19.9861297Z   Downloading pydantic_core-2.46.5-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl (2.1 MB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:19.9933219Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 2.1/2.1 MB 432.3 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:20.0165419Z Collecting typing-inspection>=0.4.2
+Slither (advisory)	Run Slither	2026-09-05T22:12:20.0295030Z   Downloading typing_inspection-0.4.2-py3-none-any.whl (14 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:20.0677481Z Collecting certifi>=2017.4.17
+Slither (advisory)	Run Slither	2026-09-05T22:12:20.0806501Z   Downloading certifi-2026.7.22-py3-none-any.whl (136 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:20.0826358Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 137.0/137.0 kB 534.7 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:20.1058352Z Collecting idna<4,>=2.5
+Slither (advisory)	Run Slither	2026-09-05T22:12:20.1191347Z   Downloading idna-3.19-py3-none-any.whl (68 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:20.1209488Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 68.5/68.5 kB 434.2 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:20.1646943Z Collecting urllib3<3,>=1.21.1
+Slither (advisory)	Run Slither	2026-09-05T22:12:20.1775146Z   Downloading urllib3-2.6.3-py3-none-any.whl (131 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:20.1793316Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 131.6/131.6 kB 492.4 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:20.3910953Z Collecting charset_normalizer<4,>=2
+Slither (advisory)	Run Slither	2026-09-05T22:12:20.4043685Z   Downloading charset_normalizer-3.5.1-cp39-cp39-manylinux2014_x86_64.manylinux_2_17_x86_64.manylinux_2_28_x86_64.whl (262 kB)
+Slither (advisory)	Run Slither	2026-09-05T22:12:20.4064836Z      ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 262.7/262.7 kB 551.1 MB/s eta 0:00:00
+Slither (advisory)	Run Slither	2026-09-05T22:12:20.8291966Z Installing collected packages: ckzg, zipp, websockets, wcwidth, urllib3, typing_extensions, toolz, regex, pyunormalize, pycryptodome, propcache, idna, hexbytes, frozenlist, eth-hash, charset_normalizer, certifi, cbor2, bitarray, attrs, async-timeout, annotated-types, aiohappyeyeballs, typing-inspection, types-requests, requests, pydantic-core, prettytable, parsimonious, multidict, importlib-metadata, eth-typing, cytoolz, aiosignal, yarl, solc-select, pydantic, eth-utils, crytic-compile, aiohttp, rlp, eth-keys, eth-abi, eth-rlp, eth-keyfile, eth-account, web3, slither-analyzer
+Slither (advisory)	Run Slither	2026-09-05T22:12:24.3052428Z Successfully installed aiohappyeyeballs-2.6.1 aiohttp-3.13.5 aiosignal-1.4.0 annotated-types-0.7.0 async-timeout-5.0.1 attrs-26.1.0 bitarray-3.11.0 cbor2-5.9.0 certifi-2026.7.22 charset_normalizer-3.5.1 ckzg-2.1.8 crytic-compile-0.3.11 cytoolz-1.1.0 eth-abi-5.2.0 eth-account-0.13.7 eth-hash-0.7.1 eth-keyfile-0.8.1 eth-keys-0.7.0 eth-rlp-2.2.0 eth-typing-5.2.1 eth-utils-5.3.1 frozenlist-1.8.0 hexbytes-1.3.1 idna-3.19 importlib-metadata-8.7.1 multidict-6.7.1 parsimonious-0.10.0 prettytable-3.16.0 propcache-0.4.1 pycryptodome-3.23.0 pydantic-2.13.5 pydantic-core-2.46.5 pyunormalize-17.0.0 regex-2026.1.15 requests-2.32.5 rlp-4.1.0 slither-analyzer-0.11.4 solc-select-1.2.0 toolz-1.1.0 types-requests-2.32.4.20260107 typing-inspection-0.4.2 typing_extensions-4.16.0 urllib3-2.6.3 wcwidth-0.8.3 web3-7.16.0 websockets-15.0.1 yarl-1.22.0 zipp-3.23.1
+Slither (advisory)	Run Slither	2026-09-05T22:12:24.7288435Z [-] SOLCVER was not set; guessing.
+Slither (advisory)	Run Slither	2026-09-05T22:12:24.7334936Z [-] Guessed 0.8.24.
+Slither (advisory)	Run Slither	2026-09-05T22:12:25.7135122Z Installing solc '0.8.24'...
+Slither (advisory)	Run Slither	2026-09-05T22:12:25.7135711Z Version '0.8.24' installed.
+Slither (advisory)	Run Slither	2026-09-05T22:12:25.8116259Z Switched global version to 0.8.24
+Slither (advisory)	Run Slither	2026-09-05T22:12:25.8231818Z [-] NODEVER was not set, using the latest version.
+Slither (advisory)	Run Slither	2026-09-05T22:12:25.8946626Z => Downloading nvm from git to '/github/home/.nvm'
+Slither (advisory)	Run Slither	2026-09-05T22:12:25.8946955Z 
+Slither (advisory)	Run Slither	2026-09-05T22:12:25.8980987Z Cloning into '/github/home/.nvm'...
+Slither (advisory)	Run Slither	2026-09-05T22:12:26.8246701Z => * (HEAD detached at FETCH_HEAD)
+Slither (advisory)	Run Slither	2026-09-05T22:12:26.8247163Z   master
+Slither (advisory)	Run Slither	2026-09-05T22:12:26.8259538Z => Compressing and cleaning up git repository
+Slither (advisory)	Run Slither	2026-09-05T22:12:26.8284559Z 
+Slither (advisory)	Run Slither	2026-09-05T22:12:26.8316825Z => Profile not found. Tried ~/.bashrc, ~/.bash_profile, ~/.zshrc, and ~/.profile.
+Slither (advisory)	Run Slither	2026-09-05T22:12:26.8317428Z => Create one of them and run this script again
+Slither (advisory)	Run Slither	2026-09-05T22:12:26.8318101Z    OR
+Slither (advisory)	Run Slither	2026-09-05T22:12:26.8318406Z => Append the following lines to the correct file yourself:
+Slither (advisory)	Run Slither	2026-09-05T22:12:26.8318801Z 
+Slither (advisory)	Run Slither	2026-09-05T22:12:26.8319115Z export NVM_DIR="$HOME/.nvm"
+Slither (advisory)	Run Slither	2026-09-05T22:12:26.8319482Z [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+Slither (advisory)	Run Slither	2026-09-05T22:12:26.8319776Z 
+Slither (advisory)	Run Slither	2026-09-05T22:12:26.8859732Z => Close and reopen your terminal to start using nvm or run the following to use it now:
+Slither (advisory)	Run Slither	2026-09-05T22:12:26.8860580Z 
+Slither (advisory)	Run Slither	2026-09-05T22:12:26.8860889Z export NVM_DIR="$HOME/.nvm"
+Slither (advisory)	Run Slither	2026-09-05T22:12:26.8861751Z [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+Slither (advisory)	Run Slither	2026-09-05T22:12:27.7951778Z Downloading and installing node v26.8.1...
+Slither (advisory)	Run Slither	2026-09-05T22:12:27.9050280Z Downloading https://nodejs.org/dist/v26.8.1/node-v26.8.1-linux-x64.tar.xz...
+Slither (advisory)	Run Slither	2026-09-05T22:12:28.0240124Z 
+Slither (advisory)	Run Slither	2026-09-05T22:12:28.1240481Z                                                                            0.8%
+Slither (advisory)	Run Slither	2026-09-05T22:12:28.2151167Z ############                                                              17.6%
+Slither (advisory)	Run Slither	2026-09-05T22:12:28.2151539Z ######################################################################## 100.0%
+Slither (advisory)	Run Slither	2026-09-05T22:12:28.2306907Z Computing checksum with sha256sum
+Slither (advisory)	Run Slither	2026-09-05T22:12:28.2540318Z Checksums matched!
+Slither (advisory)	Run Slither	2026-09-05T22:12:29.6516123Z Now using node v26.8.1 (npm v11.19.0)
+Slither (advisory)	Run Slither	2026-09-05T22:12:29.7628819Z Creating default alias: default -> node (-> v26.8.1 *)
+Slither (advisory)	Run Slither	2026-09-05T22:12:29.7635969Z [-] Foundry target detected, installing foundry stable
+Slither (advisory)	Run Slither	2026-09-05T22:12:29.8871460Z 
+Slither (advisory)	Run Slither	2026-09-05T22:12:29.8871543Z 
+Slither (advisory)	Run Slither	2026-09-05T22:12:29.8872196Z .xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx
+Slither (advisory)	Run Slither	2026-09-05T22:12:29.8872765Z 
+Slither (advisory)	Run Slither	2026-09-05T22:12:29.8873198Z  ╔═╗ ╔═╗ ╦ ╦ ╔╗╔ ╔╦╗ ╦═╗ ╦ ╦         Portable and modular toolkit
+Slither (advisory)	Run Slither	2026-09-05T22:12:29.8873637Z  ╠╣  ║ ║ ║ ║ ║║║  ║║ ╠╦╝ ╚╦╝    for Ethereum Application Development
+Slither (advisory)	Run Slither	2026-09-05T22:12:29.8873993Z  ╚   ╚═╝ ╚═╝ ╝╚╝ ═╩╝ ╩╚═  ╩                 written in Rust.
+Slither (advisory)	Run Slither	2026-09-05T22:12:29.8874173Z 
+Slither (advisory)	Run Slither	2026-09-05T22:12:29.8874345Z .xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx
+Slither (advisory)	Run Slither	2026-09-05T22:12:29.8874594Z 
+Slither (advisory)	Run Slither	2026-09-05T22:12:29.8874750Z Repo       : https://github.com/foundry-rs/foundry
+Slither (advisory)	Run Slither	2026-09-05T22:12:29.8875047Z Book       : https://book.getfoundry.sh/
+Slither (advisory)	Run Slither	2026-09-05T22:12:29.8875297Z Chat       : https://t.me/foundry_rs/
+Slither (advisory)	Run Slither	2026-09-05T22:12:29.8875553Z Support    : https://t.me/foundry_support/
+Slither (advisory)	Run Slither	2026-09-05T22:12:29.8875874Z Contribute : https://github.com/foundry-rs/foundry/blob/master/CONTRIBUTING.md
+Slither (advisory)	Run Slither	2026-09-05T22:12:29.8876116Z 
+Slither (advisory)	Run Slither	2026-09-05T22:12:29.8876280Z .xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx.xOx
+Slither (advisory)	Run Slither	2026-09-05T22:12:29.8876534Z 
+Slither (advisory)	Run Slither	2026-09-05T22:12:29.8924097Z foundryup: installing foundry (version stable, tag stable)
+Slither (advisory)	Run Slither	2026-09-05T22:12:29.8980508Z foundryup: downloading forge, cast, anvil, and chisel for stable version
+Slither (advisory)	Run Slither	2026-09-05T22:12:30.0467981Z 
+Slither (advisory)	Run Slither	2026-09-05T22:12:30.1481689Z #=#=#                                                                          
+Slither (advisory)	Run Slither	2026-09-05T22:12:30.2508342Z                                                                            0.6%
+Slither (advisory)	Run Slither	2026-09-05T22:12:30.3505038Z #######                                                                   10.0%
+Slither (advisory)	Run Slither	2026-09-05T22:12:30.4103468Z #################################################                         68.5%
+Slither (advisory)	Run Slither	2026-09-05T22:12:30.4104109Z ######################################################################## 100.0%
+Slither (advisory)	Run Slither	2026-09-05T22:12:31.5447901Z forge
+Slither (advisory)	Run Slither	2026-09-05T22:12:31.9936752Z cast
+Slither (advisory)	Run Slither	2026-09-05T22:12:32.2933199Z anvil
+Slither (advisory)	Run Slither	2026-09-05T22:12:32.4848631Z chisel
+Slither (advisory)	Run Slither	2026-09-05T22:12:32.6899176Z foundryup: downloading manpages
+Slither (advisory)	Run Slither	2026-09-05T22:12:32.8532105Z 
+Slither (advisory)	Run Slither	2026-09-05T22:12:32.9276153Z #=#=#                                                                          
+Slither (advisory)	Run Slither	2026-09-05T22:12:32.9276724Z ######################################################################## 100.0%
+Slither (advisory)	Run Slither	2026-09-05T22:12:32.9615350Z foundryup: use - forge 1.5.1-stable (b0a9dd9ced 2025-12-22T11:39:01.425730780Z)
+Slither (advisory)	Run Slither	2026-09-05T22:12:32.9814904Z foundryup: use - cast 1.5.1-stable (b0a9dd9ced 2025-12-22T11:39:01.425730780Z)
+Slither (advisory)	Run Slither	2026-09-05T22:12:32.9948323Z foundryup: use - anvil 1.5.1-stable (b0a9dd9ced 2025-12-22T11:39:01.425730780Z)
+Slither (advisory)	Run Slither	2026-09-05T22:12:33.0085243Z foundryup: use - chisel 1.5.1-stable (b0a9dd9ced 2025-12-22T11:39:01.425730780Z)
+Slither (advisory)	Run Slither	2026-09-05T22:12:33.0101481Z [-] Did not find a package.json, proceeding without installing JS dependencies.
+Slither (advisory)	Run Slither	2026-09-05T22:12:33.0101948Z [-] Did not find a requirements.txt, proceeding without installing Python dependencies.
+Slither (advisory)	Run Slither	2026-09-05T22:12:33.0102290Z [-] Installing dependencies from foundry.toml
+Slither (advisory)	Run Slither	2026-09-05T22:12:33.1331730Z Updating dependencies in /github/workspace/lib
+Slither (advisory)	Run Slither	2026-09-05T22:12:33.2177260Z [-] SARIF output enabled, writing to results.sarif.
+Slither (advisory)	Run Slither	2026-09-05T22:12:33.7029615Z 'forge clean' running (wd: /github/workspace/contracts)
+Slither (advisory)	Run Slither	2026-09-05T22:12:34.1458142Z 'forge config --json' running
+Slither (advisory)	Run Slither	2026-09-05T22:12:34.1665727Z 'forge build --build-info --skip ./test/** ./script/** --force' running (wd: /github/workspace/contracts)
+Slither (advisory)	Run Slither	2026-09-05T22:12:37.7402816Z crytic-compile returned an empty AST. If you are trying to analyze a contract from etherscan or similar make sure it has source code available.
+Slither (advisory)	Run Slither	2026-09-05T22:12:37.7405139Z crytic-compile returned an empty AST. If you are trying to analyze a contract from etherscan or similar make sure it has source code available.
+Slither (advisory)	Run Slither	2026-09-05T22:12:37.7411467Z crytic-compile returned an empty AST. If you are trying to analyze a contract from etherscan or similar make sure it has source code available.
+Slither (advisory)	Run Slither	2026-09-05T22:12:37.7412349Z crytic-compile returned an empty AST. If you are trying to analyze a contract from etherscan or similar make sure it has source code available.
+Slither (advisory)	Run Slither	2026-09-05T22:12:37.7421418Z Traceback (most recent call last):
+Slither (advisory)	Run Slither	2026-09-05T22:12:37.7421813Z   File "/opt/slither/bin/slither", line 8, in <module>
+Slither (advisory)	Run Slither	2026-09-05T22:12:37.7430933Z     sys.exit(main())
+Slither (advisory)	Run Slither	2026-09-05T22:12:37.7431430Z   File "/opt/slither/lib/python3.9/site-packages/slither/__main__.py", line 761, in main
+Slither (advisory)	Run Slither	2026-09-05T22:12:37.7431867Z     main_impl(all_detector_classes=detectors, all_printer_classes=printers)
+Slither (advisory)	Run Slither	2026-09-05T22:12:37.7432334Z   File "/opt/slither/lib/python3.9/site-packages/slither/__main__.py", line 866, in main_impl
+Slither (advisory)	Run Slither	2026-09-05T22:12:37.7432802Z     ) = process_all(filename, args, detector_classes, printer_classes)
+Slither (advisory)	Run Slither	2026-09-05T22:12:37.7433238Z   File "/opt/slither/lib/python3.9/site-packages/slither/__main__.py", line 107, in process_all
+Slither (advisory)	Run Slither	2026-09-05T22:12:37.7433676Z     ) = process_single(compilation, args, detector_classes, printer_classes)
+Slither (advisory)	Run Slither	2026-09-05T22:12:37.7434106Z   File "/opt/slither/lib/python3.9/site-packages/slither/__main__.py", line 80, in process_single
+Slither (advisory)	Run Slither	2026-09-05T22:12:37.7434534Z     slither = Slither(target, ast_format=ast, **vars(args))
+Slither (advisory)	Run Slither	2026-09-05T22:12:37.7434932Z   File "/opt/slither/lib/python3.9/site-packages/slither/slither.py", line 152, in __init__
+Slither (advisory)	Run Slither	2026-09-05T22:12:37.7435365Z     sol_parser.parse_top_level_items(ast, path)
+Slither (advisory)	Run Slither	2026-09-05T22:12:37.7435898Z   File "/opt/slither/lib/python3.9/site-packages/slither/solc_parsing/slither_compilation_unit_solc.py", line 322, in parse_top_level_items
+Slither (advisory)	Run Slither	2026-09-05T22:12:37.7436600Z     get_imported_scope = self.compilation_unit.get_scope(import_directive.filename)
+Slither (advisory)	Run Slither	2026-09-05T22:12:37.7437109Z   File "/opt/slither/lib/python3.9/site-packages/slither/core/compilation_unit.py", line 282, in get_scope
+Slither (advisory)	Run Slither	2026-09-05T22:12:37.7437576Z     filename = self._crytic_compile_compilation_unit.crytic_compile.filename_lookup(
+Slither (advisory)	Run Slither	2026-09-05T22:12:37.7438051Z   File "/opt/slither/lib/python3.9/site-packages/crytic_compile/crytic_compile.py", line 283, in filename_lookup
+Slither (advisory)	Run Slither	2026-09-05T22:12:37.7438484Z     raise ValueError(f"{filename} does not exist")
+Slither (advisory)	Run Slither	2026-09-05T22:12:37.7438894Z ValueError: ../lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol does not exist
+Slither (advisory)	Upload SARIF	﻿2026-09-05T22:12:42.1695279Z Node 20 is being deprecated. This workflow is running with Node 24 by default. If you need to temporarily use Node 20, you can set the ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION=true environment variable. For more information see: https://github.blog/changelog/2025-09-19-deprecation-of-node-20-on-github-actions-runners/
+Slither (advisory)	Upload SARIF	2026-09-05T22:12:42.1696606Z ##[group]Run github/codeql-action/upload-sarif@v3
+Slither (advisory)	Upload SARIF	2026-09-05T22:12:42.1696917Z with:
+Slither (advisory)	Upload SARIF	2026-09-05T22:12:42.1697166Z   sarif_file: results.sarif
+Slither (advisory)	Upload SARIF	2026-09-05T22:12:42.1697487Z   checkout_path: /home/runner/work/cookie-jar/cookie-jar
+Slither (advisory)	Upload SARIF	2026-09-05T22:12:42.1699640Z   token: ***
+Slither (advisory)	Upload SARIF	2026-09-05T22:12:42.1699878Z   matrix: null
+Slither (advisory)	Upload SARIF	2026-09-05T22:12:42.1700120Z   wait-for-processing: true
+Slither (advisory)	Upload SARIF	2026-09-05T22:12:42.1700379Z ##[endgroup]
+Slither (advisory)	Upload SARIF	2026-09-05T22:12:42.3320506Z Job run UUID is e7f9c73f-8c88-4225-848b-0fd7aa7fde04.
+Slither (advisory)	Upload SARIF	2026-09-05T22:12:42.3361824Z ##[warning]CodeQL Action v3 will be deprecated in December 2026. Please update all occurrences of the CodeQL Action in your workflow files to v4. For more information, see https://github.blog/changelog/2025-10-28-upcoming-deprecation-of-codeql-action-v3/
+Slither (advisory)	Upload SARIF	2026-09-05T22:12:42.8038436Z ##[error]Path does not exist: results.sarif

@@ -1,0 +1,19 @@
+{"width":1440,"theme":"light","invalidAmountButtonEnabled":true,"errors":["Value `abc` is not a valid decimal number."],"wallet":"Connect a Wallet\nWhat is a Wallet?\nA Home for your Digital Assets\nWallets are used to send, receive, store, and display digital assets like Ethereum and NFTs.\nA New Way to Log In\nInstead of creating new accounts and passwords on every website, just connect your wallet.\nGet a Wallet\nLearn More","jarWidth":{"viewport":1440,"scrollWidth":1440}}
+{"width":1440,"theme":"dark","invalidAmountButtonEnabled":true,"errors":["Value `abc` is not a valid decimal number."],"wallet":"Connect a Wallet\nWhat is a Wallet?\nA Home for your Digital Assets\nWallets are used to send, receive, store, and display digital assets like Ethereum and NFTs.\nA New Way to Log In\nInstead of creating new accounts and passwords on every website, just connect your wallet.\nGet a Wallet\nLearn More","jarWidth":{"viewport":1440,"scrollWidth":1440}}
+{"width":375,"theme":"light","invalidAmountButtonEnabled":true,"errors":["Value `abc` is not a valid decimal number."],"wallet":"Connect a Wallet\nNew to Ethereum wallets?\nLearn More","jarWidth":{"viewport":375,"scrollWidth":375}}
+node:internal/modules/run_main:107
+    triggerUncaughtException(
+    ^
+
+page.goto: Timeout 12000ms exceeded.
+Call log:
+[2m  - navigating to "http://localhost:3000/jar/0x5ef012c81ABC229Df10037b9001937E55671E36E", waiting until "domcontentloaded"[22m
+
+    at /private/tmp/cookie-qa-actions.mjs:32:13 {
+  log: [
+    '  - navigating to "http://localhost:3000/jar/0x5ef012c81ABC229Df10037b9001937E55671E36E", waiting until "domcontentloaded"'
+  ],
+  name: 'TimeoutError'
+}
+
+Node.js v24.19.0
