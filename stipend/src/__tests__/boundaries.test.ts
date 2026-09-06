@@ -3,6 +3,16 @@ import { join, resolve } from "node:path";
 import { expect, it } from "vitest";
 
 const root = resolve(process.cwd(), "..");
+it("declares React types in each workspace that compiles React source", () => {
+	for (const workspace of ["client", "stipend", "shared"]) {
+		const manifest = JSON.parse(
+			readFileSync(join(root, workspace, "package.json"), "utf8")
+		);
+		// Isolated installs cannot resolve a sibling workspace's development types.
+		expect(manifest.dependencies.react, workspace).toBeTruthy();
+		expect(manifest.devDependencies?.["@types/react"], workspace).toBeTruthy();
+	}
+});
 function sources(dir: string): string[] {
 	return readdirSync(dir, { withFileTypes: true }).flatMap((entry) =>
 		entry.isDirectory()

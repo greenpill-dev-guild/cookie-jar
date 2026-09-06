@@ -13,6 +13,8 @@ The repository has two independently built and deployed web apps:
 
 Create a **separate Vercel project** for the stipend app, importing this same GitHub repository. Keep the existing Cookie Jar project pointed at `client/`.
 
+The existing Cookie Jar project also needs **Include source files outside Root Directory** enabled and Install Command `cd .. && bun install --frozen-lockfile --ignore-scripts`, because its contract operations now live in the `shared/` workspace. Keep its Framework Preset at Next.js and its existing build command. Without access to the repository root and sibling workspaces, installation fails with `Workspace dependency "@cookie-jar/core" not found`.
+
 | Setting | Stipend project value |
 | --- | --- |
 | Root Directory | `stipend` |

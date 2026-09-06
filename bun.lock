@@ -110,6 +110,9 @@
         "wagmi": "^2.19.5",
         "zod": "^3.22.4",
       },
+      "devDependencies": {
+        "@types/react": "^18.2.37",
+      },
     },
     "stipend": {
       "name": "@cookie-jar/stipend",
