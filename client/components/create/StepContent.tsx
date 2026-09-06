@@ -749,8 +749,6 @@ const FinalSettingsStep: React.FC<{ isV2Contract: boolean }> = ({
 	const { register, watch, setValue } = useFormContext<JarCreationFormData>();
 
 	const enableCustomFee = watch("enableCustomFee");
-	const streamingEnabled = watch("streamingEnabled");
-	const requireStreamApproval = watch("requireStreamApproval");
 	const autoSwapEnabled = watch("autoSwapEnabled");
 
 	// Summary values
@@ -768,8 +766,6 @@ const FinalSettingsStep: React.FC<{ isV2Contract: boolean }> = ({
 	const customFee = watch("customFee");
 	const minDeposit = watch("minDeposit");
 	const protocolConfig = watch("protocolConfig");
-	const maxStreamRate = watch("maxStreamRate");
-	const minStreamDuration = watch("minStreamDuration");
 
 	return (
 		<div className="space-y-6">
@@ -834,82 +830,21 @@ const FinalSettingsStep: React.FC<{ isV2Contract: boolean }> = ({
 					)}
 				</div>
 
-				{/* Streaming & Multi-Token Settings */}
+				{/* Multi-Token Settings */}
 				{isV2Contract && (
-					<div className="space-y-4 p-4 border rounded-lg bg-blue-50/50">
+					<div className="space-y-4 p-4 border rounded-lg bg-card text-card-foreground">
 						<h4 className="font-medium text-base flex items-center gap-2">
-							<span className="w-2 h-2 bg-blue-500 rounded-full" />
+							<span className="w-2 h-2 bg-info rounded-full" />
 							Advanced Features
-							<span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+							<span className="text-xs bg-muted text-foreground px-2 py-1 rounded">
 								v2 Enhanced
 							</span>
 						</h4>
 
 						<div className="space-y-4">
-							<div className="flex items-center space-x-2">
-								<Checkbox
-									id="enableStreaming"
-									checked={streamingEnabled}
-									onCheckedChange={(checked) =>
-										setValue("streamingEnabled", checked === true)
-									}
-								/>
-								<Label htmlFor="enableStreaming" className="text-sm">
-									Enable token streaming
-								</Label>
-							</div>
-
-							{streamingEnabled && (
-								<div className="ml-6 space-y-4 p-3 bg-card rounded border border-blue-200">
-									<div className="flex items-center space-x-2">
-										<Checkbox
-											id="requireStreamApproval"
-											checked={requireStreamApproval}
-											onCheckedChange={(checked) =>
-												setValue("requireStreamApproval", checked === true)
-											}
-										/>
-										<Label htmlFor="requireStreamApproval" className="text-sm">
-											Require manual approval for new streams
-										</Label>
-									</div>
-
-									<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-										<div>
-											<Label htmlFor="maxStreamRate">
-												Max Stream Rate (tokens/second)
-											</Label>
-											<Input
-												id="maxStreamRate"
-												type="number"
-												placeholder="1.0"
-												step="0.001"
-												min="0"
-												{...register("maxStreamRate")}
-											/>
-											<p className="text-xs text-muted-foreground mt-1">
-												Maximum allowed streaming rate
-											</p>
-										</div>
-
-										<div>
-											<Label htmlFor="minStreamDuration">
-												Min Stream Duration (hours)
-											</Label>
-											<Input
-												id="minStreamDuration"
-												type="number"
-												placeholder="1"
-												min="1"
-												{...register("minStreamDuration")}
-											/>
-											<p className="text-xs text-muted-foreground mt-1">
-												Minimum time for streams
-											</p>
-										</div>
-									</div>
-								</div>
-							)}
+							<p className="text-sm text-muted-foreground">
+								Token streaming cannot be configured during jar creation.
+							</p>
 
 							<div className="flex items-center space-x-2">
 								<Checkbox
@@ -924,12 +859,9 @@ const FinalSettingsStep: React.FC<{ isV2Contract: boolean }> = ({
 								</Label>
 							</div>
 
-							<div className="text-xs text-blue-700 bg-blue-50 p-2 rounded border">
+							<div className="text-xs text-muted-foreground bg-muted p-2 rounded border">
 								<strong>Advanced Features:</strong>
 								<ul className="mt-1 ml-4 list-disc space-y-1">
-									<li>
-										Streaming allows continuous funding from external sources
-									</li>
 									<li>
 										Auto-swap converts ETH deposits to your jar&apos;s token
 										automatically
@@ -1004,23 +936,8 @@ const FinalSettingsStep: React.FC<{ isV2Contract: boolean }> = ({
 					{isV2Contract && (
 						<>
 							<div>
-								<strong>Streaming:</strong>{" "}
-								{streamingEnabled ? "Enabled" : "Disabled"}
-								{streamingEnabled &&
-									requireStreamApproval &&
-									" (Manual Approval)"}
+								<strong>Streaming:</strong> Not configured during creation
 							</div>
-							{streamingEnabled && (
-								<>
-									<div>
-										<strong>Max Stream Rate:</strong> {maxStreamRate} tokens/sec
-									</div>
-									<div>
-										<strong>Min Stream Duration:</strong> {minStreamDuration}{" "}
-										hours
-									</div>
-								</>
-							)}
 							<div>
 								<strong>Auto-Swap ETH:</strong>{" "}
 								{autoSwapEnabled ? "Enabled" : "Disabled"}
