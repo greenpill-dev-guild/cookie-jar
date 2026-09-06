@@ -2,8 +2,8 @@ const { createRequire } = require('node:module');
 const fs = require('node:fs');
 const { chromium, expect } = createRequire('/Users/afo/Code/greenpill/cookie-jar/package.json')('@playwright/test');
 const mode = process.argv[2];
-const output = `/tmp/stipend-production-${mode}`;
-fs.mkdirSync(output, { recursive: true });
+const { createCaptureDirectory } = require('../capture-safety.cjs');
+const output = createCaptureDirectory();
 (async () => {
  const browser = await chromium.launch();
  const observations = [];
@@ -46,5 +46,6 @@ fs.mkdirSync(output, { recursive: true });
   fs.writeFileSync(`${output}/observations.json`,JSON.stringify(observations,null,2));
   await browser.close();
  }
+ console.log(`Evidence: ${output}`);
  console.log(`${mode}: ${observations.length} desktop/mobile light/dark checks passed, no wallet or transaction`);
 })().catch(error=>{console.error(error);process.exitCode=1});

@@ -1,4 +1,5 @@
 import { createRequire } from "node:module";
+import AxeBuilder from "@axe-core/playwright";
 import { cookieJarAbi } from "../client/generated";
 import { anvilRpc, captureThemes, expect, test } from "./utils/wallet-utils";
 
@@ -156,4 +157,46 @@ test("preset stays editable and wallet connection returns to review without a wr
 	await expect(page.locator("#jarOwner")).toHaveValue(
 		"0xe09315A86ED0A39862158f5631b928145987fE05"
 	);
+});
+
+test("custom creation review has no unsupported streaming controls and passes accessibility", async ({
+	page,
+}, info) => {
+	await page.goto("/create");
+	await page.locator("#jarName").fill("QA streaming unavailable");
+	await page
+		.locator("#jarOwner")
+		.fill("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
+	await page.getByRole("button", { name: "Next", exact: true }).click();
+	await page.locator("#fixedAmount").fill("0.1");
+	await page.getByRole("button", { name: "Next", exact: true }).click();
+	await page.getByRole("button", { name: "Next", exact: true }).click();
+	await expect(
+		page.getByRole("checkbox", { name: "Enable token streaming" })
+	).toHaveCount(0);
+	await expect(
+		page.getByText("Streaming: Not configured during creation", { exact: true })
+	).toBeVisible();
+	await expect(
+		page.getByText("Token streaming cannot be configured during jar creation.")
+	).toBeVisible();
+	for (const theme of ["light", "dark"] as const) {
+		await page.emulateMedia({ colorScheme: theme });
+		await expect(page.locator("html")).toHaveClass(new RegExp(theme));
+		const results = await new AxeBuilder({ page })
+			.withTags(["wcag2a", "wcag2aa", "wcag21aa"])
+			.analyze();
+		expect(results.violations).toEqual([]);
+		expect(
+			await page.evaluate(
+				() => document.documentElement.scrollWidth <= innerWidth
+			)
+		).toBe(true);
+		await page.evaluate(() => window.scrollTo(0, 0));
+		await page.screenshot({
+			path: info.outputPath(`custom-review-${theme}.png`),
+			fullPage: true,
+			animations: "disabled",
+		});
+	}
 });

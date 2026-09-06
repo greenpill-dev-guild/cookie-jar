@@ -1,0 +1,18 @@
+$ playwright test "--config=/tmp/stipend-flow-playwright.config.ts" "e2e/jar-creation.spec.ts"
+
+Running 8 tests using 1 worker
+
+(node:80140) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [Desktop Chrome] › e2e/jar-creation.spec.ts:10:5 › creates a custom jar directly through the local factory and opens the chain-aware link (18.0s)
+  ✓  2 [Desktop Chrome] › e2e/jar-creation.spec.ts:54:5 › connecting on the creation network waits for an explicit final submit (6.2s)
+  ✓  3 [Desktop Chrome] › e2e/jar-creation.spec.ts:97:5 › preset stays editable and wallet connection returns to review without a write (4.7s)
+  ✓  4 [Desktop Chrome] › e2e/jar-creation.spec.ts:162:5 › custom creation review has no unsupported streaming controls and passes accessibility (4.8s)
+(node:80877) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  5 [Mobile Chrome] › e2e/jar-creation.spec.ts:10:5 › creates a custom jar directly through the local factory and opens the chain-aware link (7.9s)
+  ✓  6 [Mobile Chrome] › e2e/jar-creation.spec.ts:54:5 › connecting on the creation network waits for an explicit final submit (4.3s)
+  ✓  7 [Mobile Chrome] › e2e/jar-creation.spec.ts:97:5 › preset stays editable and wallet connection returns to review without a write (5.2s)
+  ✓  8 [Mobile Chrome] › e2e/jar-creation.spec.ts:162:5 › custom creation review has no unsupported streaming controls and passes accessibility (4.4s)
+
+  8 passed (57.7s)
