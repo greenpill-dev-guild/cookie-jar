@@ -1,4 +1,5 @@
 import { getNativeCurrency } from "@jar-core/config/networks";
+import { log } from "@jar-core/lib/app/logger";
 import type { Address } from "viem";
 import { erc20Abi, formatUnits, isAddress, parseUnits } from "viem";
 import { useChainId, useReadContracts } from "wagmi";
@@ -99,7 +100,7 @@ export function formatTokenAmount(
 		const formatted = formatUnits(amount, decimals);
 		return `${Number(formatted).toFixed(maxDecimals)} ${symbol}`;
 	} catch (error) {
-		console.error("Error formatting amount:", error);
+		log.error("Error formatting amount:", error);
 		return `${amount} ${symbol}`;
 	}
 }

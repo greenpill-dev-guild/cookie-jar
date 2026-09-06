@@ -2,6 +2,7 @@
 
 import { isV2Chain } from "@jar-core/config/networks";
 import { cookieJarAbi, cookieJarFactoryAbi } from "@jar-core/generated";
+import { log } from "@jar-core/lib/app/logger";
 import { cookieJarFactoryV1Abi } from "@jar-core/lib/blockchain/cookie-jar-v1-abi";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import type { Address } from "viem";
@@ -366,7 +367,7 @@ async function fetchJarDetails(
 			supportsProtocols,
 		};
 	} catch (err) {
-		console.error(`❌ Error fetching details for jar ${jarAddress}:`, err);
+		log.error(`❌ Error fetching details for jar ${jarAddress}:`, err);
 		return null;
 	}
 }
@@ -465,7 +466,7 @@ export function useCookieJarFactory() {
 							args: [BigInt(index)],
 						})) as string;
 					} catch (error) {
-						console.warn(`Failed to fetch metadata for index ${index}:`, error);
+						log.warn(`Failed to fetch metadata for index ${index}:`, error);
 						return "";
 					}
 				})
@@ -535,7 +536,7 @@ export function useCookieJarFactory() {
 		abi: cookieJarFactoryAbi,
 		eventName: "JarCreated",
 		onLogs: (logs) => {
-			console.log("🎉 New jar created, triggering refresh:", logs);
+			log.debug("🎉 New jar created, triggering refresh:", logs);
 			toast({
 				title: "🎉 New jar detected",
 				description: "Refreshing jar list...",
@@ -554,7 +555,7 @@ export function useCookieJarFactory() {
 
 	// Determine loading state and error messages
 	if (error) {
-		console.error("❌ Error in cookie jar factory:", error);
+		log.error("❌ Error in cookie jar factory:", error);
 	}
 
 	// For compatibility with the jars page interface
@@ -580,7 +581,7 @@ export function useCookieJarFactory() {
 		retryFailedJars: () => refetchJars(), // Simple retry function
 		// Add manual refresh functions
 		refresh: () => {
-			console.log("🔄 Manual refresh triggered");
+			log.debug("🔄 Manual refresh triggered");
 			queryClient.invalidateQueries({
 				queryKey: ["cookie-jar-factory", chainId, factoryAddress],
 			});

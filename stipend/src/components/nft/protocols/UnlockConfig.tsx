@@ -1,3 +1,4 @@
+import { log } from "@jar-core/lib/app/logger";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useState } from "react";
@@ -65,7 +66,7 @@ export const UnlockConfig: React.FC<UnlockConfigProps> = ({
 				setSelectedLock(null);
 			}
 		} catch (err) {
-			console.error("Error validating Unlock lock:", err);
+			log.error("Error validating Unlock lock:", err);
 			setValidationError("Error validating lock. Please try again.");
 			setSelectedLock(null);
 		} finally {

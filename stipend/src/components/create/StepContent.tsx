@@ -8,6 +8,7 @@ import {
 	NFTType,
 	WithdrawalTypeOptions,
 } from "@jar-core/hooks/jar/schemas/jarCreationSchema";
+import { log } from "@jar-core/lib/app/logger";
 import { shortenAddress } from "@jar-core/lib/app/utils";
 import { ETH_ADDRESS } from "@jar-core/lib/blockchain/token-utils";
 import { Trash2 } from "lucide-react";
@@ -273,7 +274,7 @@ const BasicConfigStep: React.FC = () => {
 										setValue("jarOwnerAddress", text);
 									}
 								} catch (err) {
-									console.error("Failed to read clipboard:", err);
+									log.error("Failed to read clipboard:", err);
 								}
 							}}
 						>

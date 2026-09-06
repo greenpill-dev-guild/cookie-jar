@@ -42,3 +42,12 @@ it("allows only generated contract data to cross from the canonical registry", (
 		)
 	).not.toContain("stipend preset");
 });
+it("routes application diagnostics through the shared logger", () => {
+	for (const dir of ["stipend/src", "shared/src"]) {
+		for (const file of sources(join(root, dir))) {
+			if (file.includes("/__tests__/") || file.endsWith("/logger.ts")) continue;
+			const code = readFileSync(file, "utf8").replace(/\/\*[\s\S]*?\*\//g, "");
+			expect(code, file).not.toMatch(/\bconsole\.(?:log|error|warn|info)\(/);
+		}
+	}
+});

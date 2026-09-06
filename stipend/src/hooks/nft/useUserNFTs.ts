@@ -1,3 +1,4 @@
+import { log } from "@jar-core/lib/app/logger";
 import { useCallback, useEffect, useState } from "react";
 import { useAccount, useChainId } from "wagmi";
 
@@ -281,7 +282,7 @@ export function useUserNFTs(
 
 				setCollections(Array.from(collectionsMap.values()));
 			} catch (err) {
-				console.error("Error fetching NFTs:", err);
+				log.error("Error fetching NFTs:", err);
 				setError(err instanceof Error ? err.message : "Failed to fetch NFTs");
 			} finally {
 				setIsLoading(false);

@@ -1,3 +1,4 @@
+import { log } from "@jar-core/lib/app/logger";
 import { useEffect, useState } from "react";
 import type { Address } from "viem";
 import { usePublicClient } from "wagmi";
@@ -152,7 +153,7 @@ export function useJarVersion(jarAddress: Address): JarVersionResult {
 					}
 				}
 			} catch (err) {
-				console.error("Error detecting jar version:", err);
+				log.error("Error detecting jar version:", err);
 				setError(err as Error);
 				setVersion("unknown");
 			} finally {

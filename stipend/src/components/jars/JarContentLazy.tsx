@@ -1,8 +1,15 @@
 "use client";
+
 import { useCookieJarFactory } from "@jar-core/hooks/jar/useJarFactory";
+import { log } from "@jar-core/lib/app/logger";
 import { getNetworkName } from "@jar-core/lib/blockchain/networks";
 import { ETH_ADDRESS } from "@jar-core/lib/blockchain/token-utils";
-import { Loader2, RotateCcw, ShieldAlert } from "lucide-react";
+import {
+	CircleDollarSign,
+	Loader2,
+	RotateCcw,
+	ShieldAlert,
+} from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { useAccount, useChainId } from "wagmi";
 import { JarGridSkeleton } from "@/components/jars/JarSkeleton";
@@ -69,14 +76,14 @@ export function JarContentLazy({ userAddress: _userAddress }: JarContentProps) {
 	// Enhanced refresh function with loading state
 	const handleRefresh = useCallback(async () => {
 		setIsRefreshing(true);
-		console.log("🔄 Manual refresh triggered by user");
+		log.debug("🔄 Manual refresh triggered by user");
 
 		try {
 			await refresh();
 			// Small delay to show the refresh animation
 			setTimeout(() => setIsRefreshing(false), 500);
 		} catch (error) {
-			console.error("❌ Refresh failed:", error);
+			log.error("❌ Refresh failed:", error);
 			setIsRefreshing(false);
 		}
 	}, [refresh]);
@@ -101,7 +108,7 @@ export function JarContentLazy({ userAddress: _userAddress }: JarContentProps) {
 
 	// Progress indicator during loading
 	if (isLoading && fetchProgress) {
-		console.log("📊 JarContentLazy: Rendering progress state");
+		log.debug("📊 JarContentLazy: Rendering progress state");
 		return (
 			<div className="space-y-6">
 				<Card>
@@ -136,20 +143,20 @@ export function JarContentLazy({ userAddress: _userAddress }: JarContentProps) {
 
 	// Loading state
 	if (isLoading) {
-		console.log("⏳ JarContentLazy: Rendering loading state");
+		log.debug("⏳ JarContentLazy: Rendering loading state");
 		return <JarGridSkeleton />;
 	}
 
 	// Error state
 	if (error) {
-		console.error("❌ JarContentLazy: Rendering error state:", error);
+		log.error("❌ JarContentLazy: Rendering error state:", error);
 		return (
 			<div className="flex flex-col items-center justify-center min-h-[400px] cj-card-primary rounded-lg p-8">
 				<div className="text-center space-y-4">
 					<ShieldAlert className="h-16 w-16 text-red-500 mx-auto" />
-					<h3 className="text-xl font-semibold text-[hsl(var(--cj-dark-brown))]">
-						Failed to Load Cookie Jars
-					</h3>
+					<h2 className="text-xl font-semibold text-[hsl(var(--cj-dark-brown))]">
+						Could not load jars
+					</h2>
 					<p className="text-[hsl(var(--cj-medium-brown))] max-w-md">
 						{error.message}
 					</p>
@@ -170,23 +177,26 @@ export function JarContentLazy({ userAddress: _userAddress }: JarContentProps) {
 
 	// Empty state
 	if (cookieJarsData.length === 0) {
-		console.log("📭 JarContentLazy: Rendering empty state");
+		log.debug("📭 JarContentLazy: Rendering empty state");
 		return (
 			<div className="flex flex-col items-center justify-center min-h-[400px] cj-card-primary rounded-lg p-8">
 				<div className="text-center space-y-4">
-					<div className="text-6xl mb-4">🍪</div>
-					<h3 className="text-xl font-semibold text-[hsl(var(--cj-dark-brown))]">
-						No Cookie Jars Found
-					</h3>
+					<CircleDollarSign
+						aria-hidden="true"
+						className="h-12 w-12 mx-auto text-primary"
+					/>
+					<h2 className="text-xl font-semibold text-[hsl(var(--cj-dark-brown))]">
+						No jars yet
+					</h2>
 					<p className="text-[hsl(var(--cj-medium-brown))] max-w-md">
-						There are no cookie jars on {getNetworkName(chainId)} yet. Create
-						the first one to get started!
+						There are no jars on {getNetworkName(chainId)} yet. Create a jar to
+						set up shared funding.
 					</p>
 					<Button
 						onClick={() => router.push("/create")}
 						className="cj-btn-primary"
 					>
-						Create First Cookie Jar
+						Create a jar
 					</Button>
 				</div>
 			</div>

@@ -1,3 +1,4 @@
+import { log } from "@jar-core/lib/app/logger";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useState } from "react";
@@ -71,7 +72,7 @@ export const HypercertConfig: React.FC<HypercertConfigProps> = ({
 					setSelectedHypercert(null);
 				}
 			} catch (err) {
-				console.error("Error validating Hypercert:", err);
+				log.error("Error validating Hypercert:", err);
 				setValidationError("Error validating Hypercert. Please try again.");
 				setSelectedHypercert(null);
 			} finally {

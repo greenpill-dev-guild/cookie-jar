@@ -1,3 +1,4 @@
+import { log } from "@jar-core/lib/app/logger";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import type React from "react";
 import { useCallback, useEffect, useState } from "react";
@@ -84,7 +85,7 @@ export const HatsConfig: React.FC<HatsConfigProps> = ({
 					setSelectedHat(null);
 				}
 			} catch (err) {
-				console.error("Error validating Hat:", err);
+				log.error("Error validating Hat:", err);
 				setValidationError("Error validating Hat. Please try again.");
 				setSelectedHat(null);
 			} finally {

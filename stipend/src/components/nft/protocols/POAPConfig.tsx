@@ -1,3 +1,4 @@
+import { log } from "@jar-core/lib/app/logger";
 import { POAP_TOKEN_ADDRESS } from "@jar-core/lib/blockchain/constants";
 import { CheckCircle2, Loader2, Search } from "lucide-react";
 import type React from "react";
@@ -80,7 +81,7 @@ export const POAPConfig: React.FC<POAPConfigProps> = ({
 					setSearchResults(events.slice(0, 10)); // Limit to 10 results
 				})
 				.catch((err) => {
-					console.error("Error searching POAP events:", err);
+					log.error("Error searching POAP events:", err);
 					setSearchResults([]);
 				})
 				.finally(() => {

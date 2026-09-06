@@ -141,9 +141,14 @@ test("security headers and social image metadata", async ({ request }) => {
 	const html = await response.text();
 	for (const name of ["og:title", "og:image", "twitter:card"])
 		expect(html).toContain(name);
-	for (const path of new URL(response.url()).port === "3000"
-		? ["/opengraph-image", "/icon", "/apple-icon"]
-		: ["/opengraph-image.png", "/icon.svg", "/apple-icon.png"]) {
+	for (const path of [
+		"/opengraph-image",
+		"/icon",
+		"/apple-icon",
+		"/opengraph-image.png",
+		"/icon.svg",
+		"/apple-icon.png",
+	]) {
 		const image = await request.get(path);
 		expect(image.ok()).toBe(true);
 		expect(image.headers()["content-type"]).toMatch(/^image\//);
