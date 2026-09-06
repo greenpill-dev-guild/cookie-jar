@@ -1,7 +1,7 @@
 import { render, screen } from "@testing-library/react";
 import type React from "react";
 import { vi } from "vitest";
-import { ETH_ADDRESS } from "@/lib/blockchain/constants";
+import { ETH_ADDRESS } from "@jar-core/lib/blockchain/constants";
 
 // CurrencyLabel component logic for testing
 const CurrencyLabel: React.FC<{

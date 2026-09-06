@@ -47,7 +47,7 @@ export default function CreateCookieJarForm() {
 		ETH_ADDRESS,
 	} = creation;
 
-	const { currentStep, totalSteps, nextStep, prevStep, setCurrentStep } =
+	const { currentStep, totalSteps, nextStep, prevStep } =
 		useStepNavigation(isV2Contract);
 
 	const [showWalletModal, setShowWalletModal] = useState(false);
@@ -91,10 +91,6 @@ export default function CreateCookieJarForm() {
 						<CreationSetup
 							creation={{
 								...creation,
-								applyStipendPreset: () => {
-									creation.applyStipendPreset();
-									setCurrentStep(1);
-								},
 							}}
 						/>
 						<CreateJarHeader isV2Contract={isV2Contract} />

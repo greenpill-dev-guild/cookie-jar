@@ -14,7 +14,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/app/useToast";
+import { useToast } from "@jar-core/hooks/app/useToast";
 import { CustomConnectModal } from "./CustomConnectModal";
 
 // Terms and conditions message that users will sign

@@ -25,14 +25,14 @@ import {
 	getAccessTypeName,
 	isNFTAccess,
 	isProtocolAccess,
-} from "@/lib/jar/access-types";
+} from "@jar-core/lib/jar/access-types";
 import {
 	getCurrencyAmount,
 	getCurrencySymbol,
 	getJarName,
 	getWithdrawalAmountDisplay,
 	type JarData,
-} from "@/lib/jar/utils";
+} from "@jar-core/lib/jar/utils";
 import { JarImage } from "./JarImage";
 import { JarStatusBadge } from "./JarStatusBadge";
 

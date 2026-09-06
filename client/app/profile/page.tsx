@@ -32,14 +32,14 @@ import { useNavigateToTop } from "@/hooks/app/useNavigateToTop";
 import {
 	type CookieJarInfo,
 	useCookieJarFactory,
-} from "@/hooks/jar/useJarFactory";
-import { shortenAddress } from "@/lib/app/utils";
+} from "@jar-core/hooks/jar/useJarFactory";
+import { shortenAddress } from "@jar-core/lib/app/utils";
 import {
 	getExplorerAddressUrl,
 	getNetworkName,
-} from "@/lib/blockchain/networks";
-import { ETH_ADDRESS } from "@/lib/blockchain/token-utils";
-import { getAccessTypeName } from "@/lib/jar/access-types";
+} from "@jar-core/lib/blockchain/networks";
+import { ETH_ADDRESS } from "@jar-core/lib/blockchain/token-utils";
+import { getAccessTypeName } from "@jar-core/lib/jar/access-types";
 
 export default function ProfilePage() {
 	const isMobile = useIsMobile();

@@ -21,7 +21,7 @@ export function Header() {
 							{SITE_NAME}
 						</span>
 						<span className="text-xs text-muted-foreground hidden sm:block">
-							Monthly contributor stipend
+							Shared funding pools
 						</span>
 					</span>
 				</Link>

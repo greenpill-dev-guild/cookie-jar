@@ -10,13 +10,13 @@ import {
 	ETH_ADDRESS,
 	formatTokenAmount,
 	useTokenInfo,
-} from "@/lib/blockchain/token-utils";
+} from "@jar-core/lib/blockchain/token-utils";
 
 const PURPOSE_MIN_LENGTH = 27;
 const PURPOSE_HINT =
 	"At least 27 characters. Paste the Linear ledger or issue link plus a short note.";
 const PURPOSE_PLACEHOLDER =
-	"July 2026 stipend: https://linear.app/greenpill-dev-guild/... plus a short note";
+	"Work completed: https://linear.app/greenpill-dev-guild/... plus a short note";
 
 /** Count Unicode code points to match Solidity's countUnicodeCodePoints().
  *  Uses the string iterator which yields one value per code point (handles surrogate pairs). */

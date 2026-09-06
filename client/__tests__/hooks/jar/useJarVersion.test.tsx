@@ -5,7 +5,7 @@ import {
 	useIsV2Jar,
 	useJarFeatures,
 	useJarVersion,
-} from "@/hooks/jar/useJarVersion";
+} from "@jar-core/hooks/jar/useJarVersion";
 
 // Mock wagmi
 const mockReadContract = vi.fn();

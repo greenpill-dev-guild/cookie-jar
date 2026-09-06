@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
 	factoryFallbackApplies,
 	pickFeaturedJar,
-} from "@/lib/jar/pick-featured-jar";
+} from "@jar-core/lib/jar/pick-featured-jar";
 
 const ENV_JAR = "0x1111111111111111111111111111111111111111" as const;
 const SEEDED = [

@@ -5,7 +5,7 @@ import { isAddress } from "viem";
 import { JarPageContent } from "@/components/jar/JarPageContent";
 import { FEATURED_JAR } from "@/config/featured-jar";
 import { supportedChains } from "@/config/supported-networks";
-import { resolveJarChainId } from "@/lib/jar/jar-location";
+import { resolveJarChainId } from "@jar-core/lib/jar/jar-location";
 
 export default function CookieJarPage() {
 	const params = useParams();

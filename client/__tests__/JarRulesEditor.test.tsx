@@ -19,7 +19,7 @@ vi.mock("wagmi", () => ({
 		refetch: vi.fn(),
 	}),
 }));
-vi.mock("@/hooks/app/useTransactionWithRetry", () => ({
+vi.mock("@jar-core/hooks/app/useTransactionWithRetry", () => ({
 	useTransactionWithRetry: () => ({
 		writeContract: write,
 		isSuccess: false,

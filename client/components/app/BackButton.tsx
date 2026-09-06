@@ -6,7 +6,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import type React from "react";
 import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/app/utils";
+import { cn } from "@jar-core/lib/app/utils";
 
 interface BackButtonProps {
 	className?: string;

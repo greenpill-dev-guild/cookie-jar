@@ -69,6 +69,6 @@ export const FEATURED_JAR: FeaturedJarConfig = parseFeaturedJarEnv({
 	nodeEnv: process.env.NODE_ENV,
 });
 
-export const SITE_NAME = "Green Goods Stipend Jar";
+export const SITE_NAME = "Cookie Jar";
 export const SITE_DESCRIPTION =
-	"Claim the monthly Green Goods contributor stipend from the team cookie jar on Arbitrum.";
+	"Create and manage shared funding pools with clear rules for claims and deposits.";

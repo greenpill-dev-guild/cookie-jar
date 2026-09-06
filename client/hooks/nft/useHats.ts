@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { isAddress } from "viem";
 import { useAccount, useChainId, useReadContract } from "wagmi";
-import { log } from "@/lib/app/logger";
+import { log } from "@jar-core/lib/app/logger";
 import {
 	hatsProvider,
 	type HatDetails as ProviderHatDetails,

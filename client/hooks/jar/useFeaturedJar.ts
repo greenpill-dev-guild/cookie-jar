@@ -8,7 +8,7 @@ import {
 	type FeaturedJarSource,
 	factoryFallbackApplies,
 	pickFeaturedJar,
-} from "@/lib/jar/pick-featured-jar";
+} from "@jar-core/lib/jar/pick-featured-jar";
 
 export interface FeaturedJar {
 	address?: `0x${string}`;

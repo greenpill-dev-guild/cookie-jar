@@ -7,8 +7,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { cookieJarAbi } from "@/generated";
-import { useTransactionWithRetry } from "@/hooks/app/useTransactionWithRetry";
-import { daysToSeconds, parseTokenAmount } from "@/lib/jar/creation-values";
+import { useTransactionWithRetry } from "@jar-core/hooks/app/useTransactionWithRetry";
+import {
+	daysToSeconds,
+	parseTokenAmount,
+} from "@jar-core/lib/jar/creation-values";
 
 export function JarRulesEditor({
 	address,

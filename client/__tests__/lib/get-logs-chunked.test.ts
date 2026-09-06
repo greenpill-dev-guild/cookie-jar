@@ -3,7 +3,7 @@ import {
 	getLogsChunked,
 	isRangeError,
 	planChunks,
-} from "@/lib/blockchain/get-logs-chunked";
+} from "@jar-core/lib/blockchain/get-logs-chunked";
 
 describe("planChunks", () => {
 	it("splits an inclusive range into fixed-size chunks", () => {

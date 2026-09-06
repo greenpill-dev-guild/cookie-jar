@@ -11,7 +11,7 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/app/useToast";
+import { useToast } from "@jar-core/hooks/app/useToast";
 
 interface ConnectModalProps {
 	isOpen: boolean;

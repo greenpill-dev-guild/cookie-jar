@@ -21,7 +21,8 @@
 			}
 		],
 		"paths": {
-			"@/*": ["./*"]
+			"@/*": ["./*"],
+			"@jar-core/*": ["../shared/src/*"]
 		},
 		"forceConsistentCasingInFileNames": true,
 		"verbatimModuleSyntax": false

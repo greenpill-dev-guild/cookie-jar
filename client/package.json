@@ -71,7 +71,8 @@
 		"viem": "^2.56.3",
 		"wagmi": "^2.19.5",
 		"web-vitals": "^5.1.0",
-		"zod": "^3.22.4"
+		"zod": "^3.22.4",
+		"@cookie-jar/core": "workspace:*"
 	},
 	"devDependencies": {
 		"@testing-library/dom": "^10.4.1",

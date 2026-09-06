@@ -8,9 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { getNativeCurrency } from "@/config/supported-networks";
 import { useMultipleTokenSymbols } from "@/hooks/blockchain/useMultipleTokenSymbols";
-import { useCookieJarFactory } from "@/hooks/jar/useJarFactory";
-import { getNetworkName } from "@/lib/blockchain/networks";
-import { ETH_ADDRESS } from "@/lib/blockchain/token-utils";
+import { useCookieJarFactory } from "@jar-core/hooks/jar/useJarFactory";
+import { getNetworkName } from "@jar-core/lib/blockchain/networks";
+import { ETH_ADDRESS } from "@jar-core/lib/blockchain/token-utils";
 import { JarControls } from "./JarControls";
 import { JarGrid } from "./JarGrid";
 

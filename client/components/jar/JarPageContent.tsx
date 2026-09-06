@@ -16,13 +16,13 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { useNavigateToTop } from "@/hooks/app/useNavigateToTop";
-import { useToast } from "@/hooks/app/useToast";
-import { useCookieJarConfig } from "@/hooks/jar/useJar";
-import { useJarMetadata } from "@/hooks/jar/useJarMetadata";
-import { useJarPermissions } from "@/hooks/jar/useJarPermissions";
-import { useJarTransactions } from "@/hooks/jar/useJarTransactions";
-import { useJarWithdrawalHistory } from "@/hooks/jar/useJarWithdrawalHistory";
-import { ETH_ADDRESS } from "@/lib/blockchain/token-utils";
+import { useToast } from "@jar-core/hooks/app/useToast";
+import { useCookieJarConfig } from "@jar-core/hooks/jar/useJar";
+import { useJarMetadata } from "@jar-core/hooks/jar/useJarMetadata";
+import { useJarPermissions } from "@jar-core/hooks/jar/useJarPermissions";
+import { useJarTransactions } from "@jar-core/hooks/jar/useJarTransactions";
+import { useJarWithdrawalHistory } from "@jar-core/hooks/jar/useJarWithdrawalHistory";
+import { ETH_ADDRESS } from "@jar-core/lib/blockchain/token-utils";
 
 interface JarPageContentProps {
 	address: `0x${string}`;
@@ -108,7 +108,7 @@ export function JarPageContent({
 
 	return (
 		<ProtocolErrorBoundary
-			protocolName="Green Goods Stipend Jar"
+			protocolName="Cookie Jar"
 			maxRetries={2}
 			onRetry={refetch}
 		>

@@ -1,7 +1,6 @@
 "use client";
 
 import { useFormContext } from "react-hook-form";
-import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
 	Select,
@@ -14,31 +13,15 @@ import {
 	contractAddresses,
 	supportedChains,
 } from "@/config/supported-networks";
-import type { JarCreationFormData } from "@/hooks/jar/schemas/jarCreationSchema";
+import type { JarCreationFormData } from "@jar-core/hooks/jar/schemas/jarCreationSchema";
 import type { useJarCreation } from "@/hooks/jar/useJarCreation";
-import { ETH_ADDRESS } from "@/lib/blockchain/constants";
+import { ETH_ADDRESS } from "@jar-core/lib/blockchain/constants";
 
 type Creation = ReturnType<typeof useJarCreation>;
 export function CreationSetup({ creation }: { creation: Creation }) {
 	const { setValue } = useFormContext<JarCreationFormData>();
 	return (
 		<div className="space-y-4 mb-6 rounded-lg border border-border bg-card p-4">
-			<div className="flex flex-wrap items-center gap-3">
-				<Button
-					type="button"
-					variant="outline"
-					onClick={creation.applyStipendPreset}
-				>
-					Use Green Goods stipend preset
-				</Button>
-				{creation.presetApplied && (
-					<p role="status" className="text-sm text-foreground">
-						{creation.presetCustomized
-							? "Customized stipend preset"
-							: "Green Goods stipend preset"}
-					</p>
-				)}
-			</div>
 			<p className="text-sm text-muted-foreground">
 				Create a jar directly through the factory. Review the owner, claim rules
 				and deposit fee before signing.

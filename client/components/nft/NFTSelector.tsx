@@ -19,7 +19,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useResponsive } from "@/hooks/app/useResponsive";
 import { useNFTSearch } from "@/hooks/nft/useNFTSearch";
-import { cn } from "@/lib/app/utils";
+import { cn } from "@jar-core/lib/app/utils";
 
 // Unified NFT interface that handles all NFT types
 export interface SelectedNFT {

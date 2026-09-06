@@ -1,6 +1,6 @@
 import { act, cleanup, renderHook } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
-import { useJarTransactions } from "@/hooks/jar/useJarTransactions";
+import { useJarTransactions } from "@jar-core/hooks/jar/useJarTransactions";
 
 const mocks = vi.hoisted(() => ({
 	write: vi.fn(),
@@ -17,11 +17,11 @@ vi.mock("wagmi", () => ({
 		chainId: 31337,
 	}),
 }));
-vi.mock("@/config/supported-networks", () => ({ isV2Chain: () => true }));
-vi.mock("@/hooks/app/useToast", () => ({
+vi.mock("@jar-core/config/networks", () => ({ isV2Chain: () => true }));
+vi.mock("@jar-core/hooks/app/useToast", () => ({
 	useToast: () => ({ toast: mocks.toast }),
 }));
-vi.mock("@/lib/blockchain/token-utils", () => ({
+vi.mock("@jar-core/lib/blockchain/token-utils", () => ({
 	ETH_ADDRESS: "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
 	useTokenInfo: () => ({
 		symbol: "USDC",
@@ -30,7 +30,7 @@ vi.mock("@/lib/blockchain/token-utils", () => ({
 		isLoading: false,
 	}),
 }));
-vi.mock("@/hooks/app/useTransactionWithRetry", () => ({
+vi.mock("@jar-core/hooks/app/useTransactionWithRetry", () => ({
 	useTransactionWithRetry: () => ({
 		writeContract: mocks.write,
 		error: mocks.error,

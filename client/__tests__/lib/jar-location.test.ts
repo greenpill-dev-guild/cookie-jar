@@ -1,5 +1,5 @@
 import { expect, it } from "vitest";
-import { resolveJarChainId } from "@/lib/jar/jar-location";
+import { resolveJarChainId } from "@jar-core/lib/jar/jar-location";
 
 it("uses a validated URL network, or the configured default for bare links", () => {
 	expect(resolveJarChainId(null, 31337, [31337, 42161])).toBe(31337);

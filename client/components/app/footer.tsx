@@ -2,7 +2,10 @@
 
 import Link from "next/link";
 import { FEATURED_JAR, SITE_NAME } from "@/config/featured-jar";
-import { getExplorerAddressUrl, hasExplorer } from "@/lib/blockchain/networks";
+import {
+	getExplorerAddressUrl,
+	hasExplorer,
+} from "@jar-core/lib/blockchain/networks";
 
 export function Footer() {
 	const explorerHref =
@@ -19,8 +22,8 @@ export function Footer() {
 							{SITE_NAME}
 						</h2>
 						<p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
-							The Green Goods contributor stipend, paid from a Cookie Jar on
-							Arbitrum and backed by work tracked and accepted on Linear.
+							Shared funding pools with clear rules for claims, deposits and
+							access.
 						</p>
 					</div>
 
@@ -63,12 +66,12 @@ export function Footer() {
 						<ul className="space-y-2 text-sm">
 							<li>
 								<a
-									href="https://github.com/greenpill-dev-guild/.github/blob/main/routines/scoped-work-compensation.md"
+									href="https://github.com/greenpill-dev-guild/cookie-jar#readme"
 									target="_blank"
 									rel="noopener noreferrer"
 									className="inline-flex min-h-11 items-center rounded-md text-muted-foreground hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
 								>
-									Stipend playbook
+									Documentation
 								</a>
 							</li>
 							{explorerHref && (
@@ -102,7 +105,7 @@ export function Footer() {
 						{new Date().getFullYear()} Greenpill Dev Guild. Built on the Cookie
 						Jar protocol.
 					</p>
-					<p>Claims require a Linear link in the note.</p>
+					<p>Funding managed by each jar’s owner.</p>
 				</div>
 			</div>
 		</footer>

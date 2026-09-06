@@ -1,0 +1,48 @@
+{
+	"$schema": "https://openapi.vercel.sh/vercel.json",
+	"framework": "vite",
+	"installCommand": "cd .. && bun install --frozen-lockfile --ignore-scripts",
+	"buildCommand": "bun run build",
+	"outputDirectory": "dist",
+	"headers": [
+		{
+			"source": "/(.*)",
+			"headers": [
+				{
+					"key": "Content-Security-Policy-Report-Only",
+					"value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; font-src 'self' data:; img-src 'self' data: blob: https:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self' https://app.safe.global; frame-src https://verify.walletconnect.com https://verify.walletconnect.org https://secure.walletconnect.com https://secure.walletconnect.org; connect-src 'self' https://arb1.arbitrum.io https://*.g.alchemy.com https://*.walletconnect.com https://*.walletconnect.org wss://*.walletconnect.com wss://*.walletconnect.org https://*.reown.com https://api.web3modal.org https://enhanced-provider.rainbow.me https://raw.githubusercontent.com https://gateway.pinata.cloud https://ipfs.io http://127.0.0.1:8545 http://localhost:8545 ws://localhost:* ws://127.0.0.1:*"
+				},
+				{
+					"key": "X-Content-Type-Options",
+					"value": "nosniff"
+				},
+				{
+					"key": "Referrer-Policy",
+					"value": "strict-origin-when-cross-origin"
+				},
+				{
+					"key": "Permissions-Policy",
+					"value": "camera=(), microphone=(), geolocation=()"
+				}
+			]
+		}
+	],
+	"rewrites": [
+		{
+			"source": "/opengraph-image",
+			"destination": "/opengraph-image.png"
+		},
+		{
+			"source": "/icon",
+			"destination": "/icon.svg"
+		},
+		{
+			"source": "/apple-icon",
+			"destination": "/apple-icon.png"
+		},
+		{
+			"source": "/((?!assets/|.*\\.[^/]+$).*)",
+			"destination": "/index.html"
+		}
+	]
+}

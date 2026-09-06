@@ -15,11 +15,11 @@ import {
 	type GetStreamHistoryResponse,
 	type GetStreamsByReceiverResponse,
 	type StreamData,
-} from "@/lib/blockchain/superfluid-queries";
+} from "@jar-core/lib/blockchain/superfluid-queries";
 import {
 	getSuperfluidSubgraphUrl,
 	isSubgraphAvailable,
-} from "@/lib/blockchain/superfluid-subgraph";
+} from "@jar-core/lib/blockchain/superfluid-subgraph";
 
 /**
  * Hook to get GraphQL client for current chain

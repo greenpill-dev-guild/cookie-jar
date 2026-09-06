@@ -1,6 +1,6 @@
 import { act, cleanup, renderHook } from "@testing-library/react";
 import { afterEach, expect, it, vi } from "vitest";
-import { useTransactionWithRetry } from "@/hooks/app/useTransactionWithRetry";
+import { useTransactionWithRetry } from "@jar-core/hooks/app/useTransactionWithRetry";
 
 const state = vi.hoisted(() => ({
 	confirmed: false,
@@ -28,7 +28,7 @@ vi.mock("wagmi", () => ({
 		};
 	},
 }));
-vi.mock("@/hooks/app/useToast", () => ({
+vi.mock("@jar-core/hooks/app/useToast", () => ({
 	useToast: () => ({ toast: vi.fn() }),
 }));
 afterEach(cleanup);

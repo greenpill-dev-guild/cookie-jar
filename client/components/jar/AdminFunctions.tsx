@@ -19,11 +19,14 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getNativeCurrency } from "@/config/supported-networks";
 import { cookieJarAbi } from "@/generated";
 import { useNavigateToTop } from "@/hooks/app/useNavigateToTop";
-import { useToast } from "@/hooks/app/useToast";
-import { useTransactionWithRetry } from "@/hooks/app/useTransactionWithRetry";
-import { log } from "@/lib/app/logger";
-import { ETH_ADDRESS, useTokenInfo } from "@/lib/blockchain/token-utils";
-import { parseTokenAmount } from "@/lib/jar/creation-values";
+import { useToast } from "@jar-core/hooks/app/useToast";
+import { useTransactionWithRetry } from "@jar-core/hooks/app/useTransactionWithRetry";
+import { log } from "@jar-core/lib/app/logger";
+import {
+	ETH_ADDRESS,
+	useTokenInfo,
+} from "@jar-core/lib/blockchain/token-utils";
+import { parseTokenAmount } from "@jar-core/lib/jar/creation-values";
 import { useReadCookieJarHasRole } from "../../generated";
 import { AllowlistManagement } from "./AllowListManagement";
 

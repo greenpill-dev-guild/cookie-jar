@@ -11,7 +11,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { log } from "@/lib/app/logger";
+import { log } from "@jar-core/lib/app/logger";
 
 interface NFTErrorBoundaryState {
 	hasError: boolean;

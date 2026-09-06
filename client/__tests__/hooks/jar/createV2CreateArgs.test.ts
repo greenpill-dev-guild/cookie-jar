@@ -6,14 +6,14 @@ import {
 	FACTORY_DEFAULT_FEE_SENTINEL,
 	getAccessConfigValidationError,
 	getFeePercentageOnDeposit,
-} from "@/hooks/jar/createV2CreateArgs";
+} from "@jar-core/hooks/jar/createV2CreateArgs";
 import {
 	ETH_ADDRESS,
 	HATS_PROTOCOL_ADDRESS,
 	POAP_TOKEN_ADDRESS,
-} from "@/lib/blockchain/constants";
+} from "@jar-core/lib/blockchain/constants";
 
-vi.mock("@/hooks/jar/schemas/jarCreationSchema", () => ({
+vi.mock("@jar-core/hooks/jar/schemas/jarCreationSchema", () => ({
 	AccessType: {
 		Allowlist: 0,
 		NFTGated: 1,
