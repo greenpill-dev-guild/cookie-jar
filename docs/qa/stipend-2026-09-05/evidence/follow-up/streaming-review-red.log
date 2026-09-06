@@ -1,0 +1,47 @@
+$ vitest run __tests__/FinalSettingsStep.test.tsx
+
+ RUN  v3.2.7 /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-create/client
+
+ ❯ __tests__/FinalSettingsStep.test.tsx (2 tests | 2 failed) 37ms
+   × does not offer or promise unsupported streaming (stored value false) 30ms
+     → expect(element).toHaveTextContent()
+
+Expected element to have text content:
+  Streaming: Not configured during creation
+Received:
+  Streaming: Disabled
+   × does not offer or promise unsupported streaming (stored value true) 6ms
+     → expect(element).toHaveTextContent()
+
+Expected element to have text content:
+  Streaming: Not configured during creation
+Received:
+  Streaming: Disabled
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  __tests__/FinalSettingsStep.test.tsx > does not offer or promise unsupported streaming (stored value false)
+ FAIL  __tests__/FinalSettingsStep.test.tsx > does not offer or promise unsupported streaming (stored value true)
+Error: expect(element).toHaveTextContent()
+
+Expected element to have text content:
+  Streaming: Not configured during creation
+Received:
+  Streaming: Disabled
+ ❯ __tests__/FinalSettingsStep.test.tsx:35:56
+     33|    )
+     34|   ).not.toBeInTheDocument();
+     35|   expect(screen.getByText("Streaming:").parentElement).toHaveTextConte…
+       |                                                        ^
+     36|    "Streaming: Not configured during creation"
+     37|   );
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  2 failed (2)
+   Start at  20:06:14
+   Duration  1.39s (transform 128ms, setup 72ms, collect 852ms, tests 37ms, environment 190ms, prepare 53ms)
+
+error: script "test" exited with code 1

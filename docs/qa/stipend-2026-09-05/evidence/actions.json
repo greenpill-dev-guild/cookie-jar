@@ -1,0 +1,414 @@
+[
+  {
+    "width": 1440,
+    "theme": "light",
+    "errors": [
+      "Value `abc` is not a valid decimal number."
+    ],
+    "console": [],
+    "depositText": "Deposit\n\nNo deposit fee. Funds only count when they enter through this form, never by a plain transfer.\n\nAmount to deposit\n\nOnly deposits made through this form count towards the jar balance. Never send tokens straight to the contract address.\n\nMinimum deposit: 0.0100 ETH\n\nDeposit",
+    "depositControls": [
+      {
+        "tag": "INPUT",
+        "id": "fundAmount",
+        "label": null,
+        "text": "",
+        "labels": [
+          "Amount to deposit"
+        ],
+        "width": 357.0625,
+        "height": 40,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "id": "",
+        "label": null,
+        "text": "Deposit",
+        "labels": [],
+        "width": 170.53125,
+        "height": 40,
+        "disabled": true
+      }
+    ],
+    "invalidAmountButtonEnabled": true,
+    "afterInvalid": "Deposit\n\nNo deposit fee. Funds only count when they enter through this form, never by a plain transfer.\n\nAmount to deposit\n\nOnly deposits made through this form count towards the jar balance. Never send tokens straight to the contract address.\n\nMinimum deposit: 0.0100 ETH\n\nDeposit",
+    "walletDialog": "Connect a Wallet\nWhat is a Wallet?\nA Home for your Digital Assets\nWallets are used to send, receive, store, and display digital assets like Ethereum and NFTs.\nA New Way to Log In\nInstead of creating new accounts and passwords on every website, just connect your wallet.\nGet a Wallet\nLearn More",
+    "jarText": "Green Goods Stipend Jar\nMonthly contributor stipend\nConnect\nTeam Hat Stipend (demo)\n\nLocal stand-in for the Green Goods stipend jar. Claims are gated by holding badge #1 of the demo ERC1155 (Hats Protocol hats are ERC1155 tokens). The claim note must carry a Linear link.\n\nAvailable Balance\n\n3.0000 ETH\n\nAccess\n\nERC1155\n\nStatus\n\nConnect to check\n\nRules\n\nVariable Amount\n\nContract\n\n0x5ef0...E36E\n\nClaim\nDeposit\nClaim\n\nClaim your share from this jar\n\nWallet not connected\n\nConnect your wallet to see whether you can claim.\n\nClaim history\n\nEvery claim from this jar, with the note that backed it\n\nClaim history is only reconstructed for token jars. Check the local chain logs instead.",
+    "jarAxe": [
+      {
+        "id": "button-name",
+        "impact": "critical",
+        "nodes": [
+          {
+            "target": [
+              ".transition-colors"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+          }
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".hidden"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.34 (foreground color: #78726d, background color: #f5f5f4, font size: 9.0pt (12px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              "#radix-_r_0_-content-withdraw > .shadow-md.bg-card.text-card-foreground > .space-y-1\\.5.rounded-t-lg.flex-col > .text-muted-foreground.text-sm"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.34 (foreground color: #78726d, background color: #f5f5f4, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-destructive\\/10"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.13 (foreground color: #dc2828, background color: #fceaea, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".mt-8 > .shadow-md.bg-card.text-card-foreground > .space-y-1\\.5.rounded-t-lg.flex-col > .text-muted-foreground.text-sm"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.34 (foreground color: #78726d, background color: #f5f5f4, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-8"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.34 (foreground color: #78726d, background color: #f5f5f4, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      },
+      {
+        "id": "heading-order",
+        "impact": "moderate",
+        "nodes": [
+          {
+            "target": [
+              "#radix-_r_0_-content-withdraw > .shadow-md.bg-card.text-card-foreground > .space-y-1\\.5.rounded-t-lg.flex-col > h3"
+            ],
+            "failureSummary": "Fix any of the following:\n  Heading order invalid"
+          }
+        ]
+      },
+      {
+        "id": "link-name",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".text-blue-600"
+            ],
+            "failureSummary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute"
+          }
+        ]
+      }
+    ],
+    "jarWidth": {
+      "viewport": 1440,
+      "scrollWidth": 1440
+    }
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "errors": [
+      "Value `abc` is not a valid decimal number."
+    ],
+    "console": [
+      "A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:\n\n- A server/client branch `if (typeof window !== 'undefined')`.\n- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.\n- Date formatting in a user's locale which doesn't match the server.\n- External changing data without sending a snapshot of it along with the HTML.\n- Invalid HTML tag nesting.\n\nIt can also happen if the client has a browser extension installed which messes with the HTML before React loaded.\n\n%s%s https://react.dev/link/hydration-mismatch \n\n  ...\n    <ModalSizeProvider modalSize=\"wide\">\n      <TransactionStoreProvider>\n        <ShowBalanceProvider>\n          <ModalProvider>\n            <div data-rk=\"\">\n              <style\n                dangerouslySetInnerHTML={{\n+                 __html: \"[data-rk]{--rk-blurs-modalOverlay:blur(4px);--rk-fonts-body:-apple-system, BlinkMacSystemFo...\"\n-                 __html: \"[data-rk]{--rk-blurs-modalOverlay:blur(4px);--rk-fonts-body:-apple-system, BlinkMacSystemFo...\"\n                }}\n              >\n              ...\n            ...\n",
+      "A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:\n\n- A server/client branch `if (typeof window !== 'undefined')`.\n- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.\n- Date formatting in a user's locale which doesn't match the server.\n- External changing data without sending a snapshot of it along with the HTML.\n- Invalid HTML tag nesting.\n\nIt can also happen if the client has a browser extension installed which messes with the HTML before React loaded.\n\n%s%s https://react.dev/link/hydration-mismatch \n\n  ...\n    <ModalSizeProvider modalSize=\"wide\">\n      <TransactionStoreProvider>\n        <ShowBalanceProvider>\n          <ModalProvider>\n            <div data-rk=\"\">\n              <style\n                dangerouslySetInnerHTML={{\n+                 __html: \"[data-rk]{--rk-blurs-modalOverlay:blur(4px);--rk-fonts-body:-apple-system, BlinkMacSystemFo...\"\n-                 __html: \"[data-rk]{--rk-blurs-modalOverlay:blur(4px);--rk-fonts-body:-apple-system, BlinkMacSystemFo...\"\n                }}\n              >\n              ...\n            ...\n"
+    ],
+    "depositText": "Deposit\n\nNo deposit fee. Funds only count when they enter through this form, never by a plain transfer.\n\nAmount to deposit\n\nOnly deposits made through this form count towards the jar balance. Never send tokens straight to the contract address.\n\nMinimum deposit: 0.0100 ETH\n\nDeposit",
+    "depositControls": [
+      {
+        "tag": "INPUT",
+        "id": "fundAmount",
+        "label": null,
+        "text": "",
+        "labels": [
+          "Amount to deposit"
+        ],
+        "width": 357.0625,
+        "height": 40,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "id": "",
+        "label": null,
+        "text": "Deposit",
+        "labels": [],
+        "width": 170.53125,
+        "height": 40,
+        "disabled": true
+      }
+    ],
+    "invalidAmountButtonEnabled": true,
+    "afterInvalid": "Deposit\n\nNo deposit fee. Funds only count when they enter through this form, never by a plain transfer.\n\nAmount to deposit\n\nOnly deposits made through this form count towards the jar balance. Never send tokens straight to the contract address.\n\nMinimum deposit: 0.0100 ETH\n\nDeposit",
+    "walletDialog": "Connect a Wallet\nWhat is a Wallet?\nA Home for your Digital Assets\nWallets are used to send, receive, store, and display digital assets like Ethereum and NFTs.\nA New Way to Log In\nInstead of creating new accounts and passwords on every website, just connect your wallet.\nGet a Wallet\nLearn More",
+    "jarText": "Green Goods Stipend Jar\nMonthly contributor stipend\nConnect\nTeam Hat Stipend (demo)\n\nLocal stand-in for the Green Goods stipend jar. Claims are gated by holding badge #1 of the demo ERC1155 (Hats Protocol hats are ERC1155 tokens). The claim note must carry a Linear link.\n\nAvailable Balance\n\n3.0000 ETH\n\nAccess\n\nERC1155\n\nStatus\n\nConnect to check\n\nRules\n\nVariable Amount\n\nContract\n\n0x5ef0...E36E\n\nClaim\nDeposit\nClaim\n\nClaim your share from this jar\n\nWallet not connected\n\nConnect your wallet to see whether you can claim.\n\nClaim history\n\nEvery claim from this jar, with the note that backed it\n\nClaim history is only reconstructed for token jars. Check the local chain logs instead.",
+    "jarAxe": [
+      {
+        "id": "button-name",
+        "impact": "critical",
+        "nodes": [
+          {
+            "target": [
+              ".transition-colors"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+          }
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".bg-destructive\\/10"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.18 (foreground color: #dd3c3c, background color: #3b2726, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      },
+      {
+        "id": "heading-order",
+        "impact": "moderate",
+        "nodes": [
+          {
+            "target": [
+              "#radix-_r_0_-content-withdraw > .shadow-md.bg-card.text-card-foreground > .space-y-1\\.5.rounded-t-lg.flex-col > h3"
+            ],
+            "failureSummary": "Fix any of the following:\n  Heading order invalid"
+          }
+        ]
+      },
+      {
+        "id": "link-name",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".text-blue-600"
+            ],
+            "failureSummary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute"
+          }
+        ]
+      }
+    ],
+    "jarWidth": {
+      "viewport": 1440,
+      "scrollWidth": 1440
+    }
+  },
+  {
+    "width": 375,
+    "theme": "light",
+    "errors": [
+      "Value `abc` is not a valid decimal number."
+    ],
+    "console": [],
+    "depositText": "Deposit\n\nNo deposit fee. Funds only count when they enter through this form, never by a plain transfer.\n\nAmount to deposit\n\nOnly deposits made through this form count towards the jar balance. Never send tokens straight to the contract address.\n\nMinimum deposit: 0.0100 ETH\n\nDeposit",
+    "depositControls": [
+      {
+        "tag": "INPUT",
+        "id": "fundAmount",
+        "label": null,
+        "text": "",
+        "labels": [
+          "Amount to deposit"
+        ],
+        "width": 295,
+        "height": 40,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "id": "",
+        "label": null,
+        "text": "Deposit",
+        "labels": [],
+        "width": 295,
+        "height": 40,
+        "disabled": true
+      }
+    ],
+    "invalidAmountButtonEnabled": true,
+    "afterInvalid": "Deposit\n\nNo deposit fee. Funds only count when they enter through this form, never by a plain transfer.\n\nAmount to deposit\n\nOnly deposits made through this form count towards the jar balance. Never send tokens straight to the contract address.\n\nMinimum deposit: 0.0100 ETH\n\nDeposit",
+    "walletDialog": "Connect a Wallet\nNew to Ethereum wallets?\nLearn More",
+    "jarText": "Green Goods Stipend Jar\nConnect\nTeam Hat Stipend (demo)\n\nLocal stand-in for the Green Goods stipend jar. Claims are gated by holding badge #1 of the demo ERC1155 (Hats Protocol hats are ERC1155 tokens). The claim note must carry a Linear link.\n\nAvailable Balance\n\n3.0000 ETH\n\nAccess\n\nERC1155\n\nStatus\n\nConnect to check\n\nRules\n\nVariable Amount\n\nContract\n\n0x5ef0...E36E\n\nClaim\nDeposit\nClaim\n\nClaim your share from this jar\n\nWallet not connected\n\nConnect your wallet to see whether you can claim.\n\nClaim history\n\nEvery claim from this jar, with the note that backed it\n\nClaim history is only reconstructed for token jars. Check the local chain logs instead.",
+    "jarAxe": [
+      {
+        "id": "button-name",
+        "impact": "critical",
+        "nodes": [
+          {
+            "target": [
+              ".transition-colors"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+          }
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              "#radix-_r_0_-content-withdraw > .shadow-md.bg-card.text-card-foreground > .space-y-1\\.5.rounded-t-lg.flex-col > .text-muted-foreground.text-sm"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.34 (foreground color: #78726d, background color: #f5f5f4, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".bg-destructive\\/10"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.13 (foreground color: #dc2828, background color: #fceaea, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".mt-8 > .shadow-md.bg-card.text-card-foreground > .space-y-1\\.5.rounded-t-lg.flex-col > .text-muted-foreground.text-sm"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.34 (foreground color: #78726d, background color: #f5f5f4, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          },
+          {
+            "target": [
+              ".py-8"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 4.34 (foreground color: #78726d, background color: #f5f5f4, font size: 10.5pt (14px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      },
+      {
+        "id": "heading-order",
+        "impact": "moderate",
+        "nodes": [
+          {
+            "target": [
+              "#radix-_r_0_-content-withdraw > .shadow-md.bg-card.text-card-foreground > .space-y-1\\.5.rounded-t-lg.flex-col > h3"
+            ],
+            "failureSummary": "Fix any of the following:\n  Heading order invalid"
+          }
+        ]
+      },
+      {
+        "id": "link-name",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".text-blue-600"
+            ],
+            "failureSummary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute"
+          }
+        ]
+      }
+    ],
+    "jarWidth": {
+      "viewport": 375,
+      "scrollWidth": 375
+    }
+  },
+  {
+    "width": 375,
+    "theme": "dark",
+    "errors": [
+      "Value `abc` is not a valid decimal number."
+    ],
+    "console": [
+      "A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:\n\n- A server/client branch `if (typeof window !== 'undefined')`.\n- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.\n- Date formatting in a user's locale which doesn't match the server.\n- External changing data without sending a snapshot of it along with the HTML.\n- Invalid HTML tag nesting.\n\nIt can also happen if the client has a browser extension installed which messes with the HTML before React loaded.\n\n%s%s https://react.dev/link/hydration-mismatch \n\n  ...\n    <ModalSizeProvider modalSize=\"wide\">\n      <TransactionStoreProvider>\n        <ShowBalanceProvider>\n          <ModalProvider>\n            <div data-rk=\"\">\n              <style\n                dangerouslySetInnerHTML={{\n+                 __html: \"[data-rk]{--rk-blurs-modalOverlay:blur(4px);--rk-fonts-body:-apple-system, BlinkMacSystemFo...\"\n-                 __html: \"[data-rk]{--rk-blurs-modalOverlay:blur(4px);--rk-fonts-body:-apple-system, BlinkMacSystemFo...\"\n                }}\n              >\n              ...\n            ...\n",
+      "A tree hydrated but some attributes of the server rendered HTML didn't match the client properties. This won't be patched up. This can happen if a SSR-ed Client Component used:\n\n- A server/client branch `if (typeof window !== 'undefined')`.\n- Variable input such as `Date.now()` or `Math.random()` which changes each time it's called.\n- Date formatting in a user's locale which doesn't match the server.\n- External changing data without sending a snapshot of it along with the HTML.\n- Invalid HTML tag nesting.\n\nIt can also happen if the client has a browser extension installed which messes with the HTML before React loaded.\n\n%s%s https://react.dev/link/hydration-mismatch \n\n  ...\n    <ModalSizeProvider modalSize=\"wide\">\n      <TransactionStoreProvider>\n        <ShowBalanceProvider>\n          <ModalProvider>\n            <div data-rk=\"\">\n              <style\n                dangerouslySetInnerHTML={{\n+                 __html: \"[data-rk]{--rk-blurs-modalOverlay:blur(4px);--rk-fonts-body:-apple-system, BlinkMacSystemFo...\"\n-                 __html: \"[data-rk]{--rk-blurs-modalOverlay:blur(4px);--rk-fonts-body:-apple-system, BlinkMacSystemFo...\"\n                }}\n              >\n              ...\n            ...\n"
+    ],
+    "depositText": "Deposit\n\nNo deposit fee. Funds only count when they enter through this form, never by a plain transfer.\n\nAmount to deposit\n\nOnly deposits made through this form count towards the jar balance. Never send tokens straight to the contract address.\n\nMinimum deposit: 0.0100 ETH\n\nDeposit",
+    "depositControls": [
+      {
+        "tag": "INPUT",
+        "id": "fundAmount",
+        "label": null,
+        "text": "",
+        "labels": [
+          "Amount to deposit"
+        ],
+        "width": 295,
+        "height": 40,
+        "disabled": false
+      },
+      {
+        "tag": "BUTTON",
+        "id": "",
+        "label": null,
+        "text": "Deposit",
+        "labels": [],
+        "width": 295,
+        "height": 40,
+        "disabled": true
+      }
+    ],
+    "invalidAmountButtonEnabled": true,
+    "afterInvalid": "Deposit\n\nNo deposit fee. Funds only count when they enter through this form, never by a plain transfer.\n\nAmount to deposit\n\nOnly deposits made through this form count towards the jar balance. Never send tokens straight to the contract address.\n\nMinimum deposit: 0.0100 ETH\n\nDeposit",
+    "walletDialog": "Connect a Wallet\nNew to Ethereum wallets?\nLearn More",
+    "jarText": "Green Goods Stipend Jar\nConnect\nTeam Hat Stipend (demo)\n\nLocal stand-in for the Green Goods stipend jar. Claims are gated by holding badge #1 of the demo ERC1155 (Hats Protocol hats are ERC1155 tokens). The claim note must carry a Linear link.\n\nAvailable Balance\n\n3.0000 ETH\n\nAccess\n\nERC1155\n\nStatus\n\nConnect to check\n\nRules\n\nVariable Amount\n\nContract\n\n0x5ef0...E36E\n\nClaim\nDeposit\nClaim\n\nClaim your share from this jar\n\nWallet not connected\n\nConnect your wallet to see whether you can claim.\n\nClaim history\n\nEvery claim from this jar, with the note that backed it\n\nClaim history is only reconstructed for token jars. Check the local chain logs instead.",
+    "jarAxe": [
+      {
+        "id": "button-name",
+        "impact": "critical",
+        "nodes": [
+          {
+            "target": [
+              ".transition-colors"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element does not have inner text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute\n  Element does not have an implicit (wrapped) <label>\n  Element does not have an explicit <label>\n  Element's default semantics were not overridden with role=\"none\" or role=\"presentation\""
+          }
+        ]
+      },
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".bg-destructive\\/10"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element has insufficient color contrast of 3.18 (foreground color: #dd3c3c, background color: #3b2726, font size: 12.0pt (16px), font weight: normal). Expected contrast ratio of 4.5:1"
+          }
+        ]
+      },
+      {
+        "id": "heading-order",
+        "impact": "moderate",
+        "nodes": [
+          {
+            "target": [
+              "#radix-_r_0_-content-withdraw > .shadow-md.bg-card.text-card-foreground > .space-y-1\\.5.rounded-t-lg.flex-col > h3"
+            ],
+            "failureSummary": "Fix any of the following:\n  Heading order invalid"
+          }
+        ]
+      },
+      {
+        "id": "link-name",
+        "impact": "serious",
+        "nodes": [
+          {
+            "target": [
+              ".text-blue-600"
+            ],
+            "failureSummary": "Fix all of the following:\n  Element is in tab order and does not have accessible text\n\nFix any of the following:\n  Element does not have text that is visible to screen readers\n  aria-label attribute does not exist or is empty\n  aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\n  Element has no title attribute"
+          }
+        ]
+      }
+    ],
+    "jarWidth": {
+      "viewport": 375,
+      "scrollWidth": 375
+    }
+  }
+]

@@ -1,0 +1,13 @@
+Client unit tests	pass	38s	https://github.com/greenpill-dev-guild/cookie-jar/actions/runs/33998039505/job/101391880530	
+CodeRabbit	pass	0		Review skipped: draft pull request
+Dependency audit	pass	18s	https://github.com/greenpill-dev-guild/cookie-jar/actions/runs/33998039487/job/101391880326	
+Lint, format and types	pass	31s	https://github.com/greenpill-dev-guild/cookie-jar/actions/runs/33998039516/job/101391880402	
+Vercel Preview Comments	pass	0	https://vercel.com/github	
+Client integration tests against Anvil	pending	0	https://github.com/greenpill-dev-guild/cookie-jar/actions/runs/33998039514/job/101391880409	
+CodeQL	pending	0	https://github.com/greenpill-dev-guild/cookie-jar/actions/runs/33998039487/job/101391880526	
+CodeQL	pending	0	https://github.com/greenpill-dev-guild/cookie-jar/runs/101392011071	
+Contract size and lint	pending	0	https://github.com/greenpill-dev-guild/cookie-jar/actions/runs/33998039487/job/101391880529	
+Playwright against Anvil	pending	0	https://github.com/greenpill-dev-guild/cookie-jar/actions/runs/33998039506/job/101391880333	
+Slither (advisory)	pending	0	https://github.com/greenpill-dev-guild/cookie-jar/actions/runs/33998039487/job/101391880477	
+Vercel	pending	0	https://vercel.com/greenpilldevguild/cookie-jar/3ZKeXZpPHPQgkCk1EFS16gsnbt7q	Vercel is deploying your app
+WCAG checks with Playwright and axe	pending	0	https://github.com/greenpill-dev-guild/cookie-jar/actions/runs/33998039530/job/101391880514	

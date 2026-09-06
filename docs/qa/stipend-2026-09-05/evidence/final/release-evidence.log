@@ -1,0 +1,13 @@
+
+Running 6 tests using 1 worker
+
+(node:76919) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [Desktop Chrome] › e2e/stipend-release-qa.spec.ts:18:7 › route evidence 375 light (1.5m)
+  ✓  2 [Desktop Chrome] › e2e/stipend-release-qa.spec.ts:18:7 › route evidence 375 dark (25.0s)
+  ✓  3 [Desktop Chrome] › e2e/stipend-release-qa.spec.ts:18:7 › route evidence 1440 light (28.4s)
+  ✓  4 [Desktop Chrome] › e2e/stipend-release-qa.spec.ts:18:7 › route evidence 1440 dark (33.9s)
+  ✓  5 [Desktop Chrome] › e2e/stipend-release-qa.spec.ts:132:5 › security headers and social image metadata (18.9s)
+  ✓  6 [Desktop Chrome] › e2e/stipend-release-qa.spec.ts:151:5 › error boundary catches a controlled render failure and recovers (5.1s)
+
+  6 passed (3.4m)

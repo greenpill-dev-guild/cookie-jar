@@ -1,0 +1,188 @@
+$ bun run dev:stop && ./scripts/dev-start.sh
+$ pkill -f anvil || true && pkill -f 'forge script.*watch' || true && pkill -f 'next dev' || true && pkill -f 'bun run dev' || true
+🚀 Starting Cookie Jar Full Stack Development Environment...
+📁 Project root: /Users/afo/Code/greenpill/cookie-jar
+🔍 Checking prerequisites...
+✅ All prerequisites found!
+🔧 Starting Anvil...
+🔧 Starting Anvil (PURE local development mode - no forking)...
+💡 This setup avoids fork-related transaction and query issues
+Anvil started with PID: 34643
+⏳ Waiting for Anvil to be ready...
+Waiting... (1/30)
+✅ Anvil is ready!
+🚀 Deploying contracts + seeding demo environment (dev profile for faster builds)...
+Compiling 91 files with Solc 0.8.30
+Solc 0.8.30 finished in 10.14s
+Compiler run successful!
+2026-09-05T20:14:58.762472Z  WARN foundry_evm_traces::debug::sources: failed to parse contract definitions for ../lib/forge-std/src/Test.sol
+2026-09-05T20:14:58.762822Z  WARN foundry_evm_traces::debug::sources: failed to parse contract definitions for ../lib/forge-std/src/console.sol
+2026-09-05T20:14:58.763274Z  WARN foundry_evm_traces::debug::sources: failed to parse contract definitions for ../lib/openzeppelin-contracts/contracts/mocks/token/ERC20Mock.sol
+2026-09-05T20:14:58.763787Z  WARN foundry_evm_traces::debug::sources: failed to parse contract definitions for ../lib/openzeppelin-contracts/contracts/token/ERC1155/utils/ERC1155Holder.sol
+2026-09-05T20:14:58.764239Z  WARN foundry_evm_traces::debug::sources: failed to parse contract definitions for /Users/afo/Code/greenpill/cookie-jar/lib/forge-std/src/StdAssertions.sol
+2026-09-05T20:14:58.764683Z  WARN foundry_evm_traces::debug::sources: failed to parse contract definitions for /Users/afo/Code/greenpill/cookie-jar/lib/forge-std/src/StdError.sol
+2026-09-05T20:14:58.765428Z  WARN foundry_evm_traces::debug::sources: failed to parse contract definitions for /Users/afo/Code/greenpill/cookie-jar/lib/forge-std/src/StdInvariant.sol
+2026-09-05T20:14:58.765834Z  WARN foundry_evm_traces::debug::sources: failed to parse contract definitions for /Users/afo/Code/greenpill/cookie-jar/lib/forge-std/src/StdToml.sol
+2026-09-05T20:14:58.766554Z  WARN foundry_evm_traces::debug::sources: failed to parse contract definitions for script/ComputeCreate2Address.s.sol
+2026-09-05T20:14:58.766789Z  WARN foundry_evm_traces::debug::sources: failed to parse contract definitions for script/CreateJar.s.sol
+2026-09-05T20:14:58.767218Z  WARN foundry_evm_traces::debug::sources: failed to parse contract definitions for script/Deploy.s.sol
+2026-09-05T20:14:58.767569Z  WARN foundry_evm_traces::debug::sources: failed to parse contract definitions for script/HelperConfig.s.sol
+2026-09-05T20:14:58.768128Z  WARN foundry_evm_traces::debug::sources: failed to parse contract definitions for test/CookieJar.t.sol
+2026-09-05T20:14:58.768569Z  WARN foundry_evm_traces::debug::sources: failed to parse contract definitions for test/CookieJarFactory.t.sol
+2026-09-05T20:14:58.769003Z  WARN foundry_evm_traces::debug::sources: failed to parse contract definitions for test/CookieJarProtocols.t.sol
+2026-09-05T20:14:58.769244Z  WARN foundry_evm_traces::debug::sources: failed to parse contract definitions for test/SuperfluidIntegration.t.sol
+2026-09-05T20:14:58.769632Z  WARN foundry_evm_traces::debug::sources: failed to parse contract definitions for test/UniswapV4Integration.t.sol
+2026-09-05T20:14:58.770038Z  WARN foundry_evm_traces::debug::sources: failed to parse contract definitions for test/script/CreateJar.t.sol
+2026-09-05T20:14:58.825004Z  WARN evm::traces::external: failed to get etherscan config err=Unresolved(UnresolvedEnvVarError { unresolved: "${ETHERSCAN_API_KEY}", var: "ETHERSCAN_API_KEY", source: NotPresent })
+Script ran successfully.
+
+== Logs ==
+  Starting comprehensive local deployment...
+  Using Anvil Account #0 for deployment
+  Deployer address: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+  [STEP 1] Deploying CookieJarFactory...
+  SUCCESS: CookieJarFactory deployed to: 0x5bD6FdDB18B3dC13370b92f00Eb9b31461474524
+     Factory funded by account with 1000 ETH
+     CREATE2 Address is deterministic - same on every Anvil restart!
+  [STEP 2] Deploying demo assets...
+     Deploying Cookie Monster NFT collection...
+     SUCCESS: Cookie Monster NFTs minted to special accounts!
+        NFT Contract Address: 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
+        NOTE: NFT address will change on Anvil restart. Use 'bun nft:address' to get current address.
+     Deploying DEMO ERC20 token...
+     SUCCESS: DEMO tokens minted to test accounts!
+     Deploying DEMO ERC1155 badge (hat stand-in)...
+     SUCCESS: Badge #1 minted to Cookie Monster
+        Badge Contract Address: 0x8A791620dd6260079BF849Dc5567aDC3F2FdC318
+  [STEP 3] Creating 5 demo cookie jars...
+     SUCCESS: Jar 1: Community Stipend (Allowlist, ETH, Fixed 0.1) - 5 ETH funded
+     SUCCESS: Jar 2: Development Grants (Allowlist, DEMO, Variable 1000) - 50K DEMO funded
+     SUCCESS: Jar 3: NFT Holder Rewards (ERC721, ETH, Fixed 0.05) - 2 ETH funded
+     SUCCESS: Jar 4: NFT Airdrop (ERC721, DEMO, One-time 500) - 10K DEMO funded
+     SUCCESS: Jar 5: Team Hat Stipend (ERC1155 badge #1, ETH, Variable 0.5) - 3 ETH funded
+  COMPLETE: Local development environment ready!
+  SUMMARY:
+     - CookieJarFactory deployed at: 0x5bD6FdDB18B3dC13370b92f00Eb9b31461474524
+     - 5 Cookie Jars created with different configurations
+     - Cookie Monster NFT deployed at: 0x9fE46736679d2D9a65F0992F2272dE9f3c7fa6e0
+     - DEMO ERC20 token deployed at: 0x5FC8d32690cc91D4c39d9d3abcBD16989F875707
+     - DEMO ERC1155 badge deployed at: 0x8A791620dd6260079BF849Dc5567aDC3F2FdC318
+     - NFTs minted to User A (Cookie Monster) and User B (Cookie Fan)
+     - Jars funded with ETH and DEMO tokens
+  TEST different scenarios:
+     - Connect as Cookie Monster (0x70997...dc79C8) to access all jars
+     - Connect as Cookie Fan (0x3C44Cd...4293BC) to access allowlist + NFT jars
+     - Connect as other address to see access restrictions
+     - Try withdrawing with/without purpose descriptions
+     - Test one-time withdrawal limits on Jar 4
+     - Client config: run `bun sync:deployment -- --chain 31337 --script DeployLocal.s.sol`
+
+## Setting up 1 EVM.
+
+==========================
+
+Chain 31337
+
+Estimated gas price: 2.000000001 gwei
+
+Estimated total gas used for script: 39354268
+
+Estimated amount required: 0.078708536039354268 ETH
+
+==========================
+
+
+==========================
+
+ONCHAIN EXECUTION COMPLETE & SUCCESSFUL.
+
+Transactions saved to: /Users/afo/Code/greenpill/cookie-jar/contracts/broadcast/DeployLocal.s.sol/31337/run-latest.json
+
+Sensitive values saved to: /Users/afo/Code/greenpill/cookie-jar/contracts/cache/DeployLocal.s.sol/31337/run-latest.json
+
+✅ Deployment + seeding completed successfully!
+📄 Creating deployment file from broadcast data...
+📄 Creating deployment file from broadcast data...
+🔍 Extracting CookieJarFactory address from broadcast data...
+✅ Found CookieJarFactory at: 0x5bd6fddb18b3dc13370b92f00eb9b31461474524
+✅ Created /Users/afo/Code/greenpill/cookie-jar/contracts/local-deployment.json
+📄 Contents: {"CookieJarFactory":"0x5bd6fddb18b3dc13370b92f00eb9b31461474524"}
+🎉 Deployment file ready for client integration!
+📄 Copying deployment files...
+[0;32m📄 Copying deployment files to client public directory...[0m
+[0;32m✅ Copied local-deployment.json[0m
+[0;32m📄 Deployment files ready for client access[0m
+Chain 31337: CookieJarFactory 0x5bD6FdDB18B3dC13370b92f00Eb9b31461474524
+Updated /Users/afo/Code/greenpill/cookie-jar/client/config/deployments.json
+Regenerated /Users/afo/Code/greenpill/cookie-jar/client/config/deployments.auto.ts
+👀 Starting contract file watcher...
+⚙️  Generating client types...
+$ wagmi generate --config config/wagmi.config.ts
+- Validating plugins
+✔ Validating plugins
+- Resolving contracts
+✔ Resolving contracts
+- Running plugins
+✔ Running plugins
+- Writing to generated.ts
+✔ Writing to generated.ts
+🌐 Starting client development server...
+📝 Client logs will be shown below. Watch for startup confirmation...
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+/Users/afo/Code/greenpill/cookie-jar/scripts/dev-start.sh: line 141: cd: client: No such file or directory
+🔧 Preparing client environment...
+✅ Deployment files ready for client
+🏠 Featured jar index: 4
+🚀 Starting Next.js development server (Turbo mode - faster builds & hot reload)...
+⏳ Waiting for client to start...
+Waiting for client... (1/30)
+$ next dev --turbo
+   ▲ Next.js 15.5.25 (Turbopack)
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.50.30:3000
+   - Experiments (use with caution):
+     ✓ scrollRestoration
+     ✓ webpackBuildWorker
+     ✓ parallelServerCompiles
+     · ...
+
+ ✓ Starting...
+ ✓ Ready in 1130ms
+ ○ Compiling / ...
+ ✓ Compiled / in 24.3s
+
+✅ Client is ready and responding on port 3000!
+ GET / 200 in 24858ms
+
+🎉 Development environment is ready!
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 DEVELOPMENT ENDPOINTS:
+  🌐 Client:          http://localhost:3000 ✅ READY (Turbo Mode)
+  ⛓️  Local Blockchain: http://127.0.0.1:8545 (Chain ID: 31337) [PURE LOCAL - NO FORK]
+  📄 Logs:
+    - Anvil:          contracts/anvil.log
+    - Contract Watch: contracts/watch-deploy.log
+    - Client:         contracts/client-dev.log (also shown above)
+
+🛠️  WORKFLOW:
+  • Edit contracts in contracts/src/
+  • Contracts auto-recompile and redeploy on changes
+  • Client types auto-regenerate
+  • Client hot-reloads automatically (⚡ Turbo mode)
+  • ✨ Optimized: Single script deployment (60% faster startup!)
+
+🔗 TEST ACCOUNTS:
+  • Address: 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266
+  • Private Key: [redacted key or hash]
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🔍 Monitoring client logs... (Press Ctrl+C to stop all services)
+ GET / 200 in 136ms
+ ○ Compiling /opengraph-image ...
+ ✓ Compiled /opengraph-image in 642ms
+ GET /opengraph-image 200 in 1302ms
+ ✓ Compiled /icon in 211ms
+ GET /icon 200 in 529ms
+ ✓ Compiled /apple-icon in 189ms
+ GET /apple-icon 200 in 471ms
+ GET / 200 in 944ms

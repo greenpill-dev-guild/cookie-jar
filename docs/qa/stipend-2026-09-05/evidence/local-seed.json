@@ -1,0 +1,35 @@
+{
+  "timestamp": "2026-09-05T20:15:50.435Z",
+  "chainId": 31337,
+  "factory": "0x5bD6FdDB18B3dC13370b92f00Eb9b31461474524",
+  "jars": [
+    "0xb9755a4bE23E24a8599f02a8C87C324938da959b",
+    "0x04F5daa1Be7918e28B865eC243b55AeC3Dbd35a3",
+    "0x209aE7F0188B827Ee82177149923Ae05EddaC28e",
+    "0xE57e8C4963505Ab92a837C9835C02A4EfE140c6e",
+    "0x5ef012c81ABC229Df10037b9001937E55671E36E"
+  ],
+  "jar": "0x5ef012c81ABC229Df10037b9001937E55671E36E",
+  "values": {
+    "ACCESS_TYPE": 2,
+    "WITHDRAWAL_OPTION": 1,
+    "CURRENCY": "0xEeeeeEeeeEeEeeEeEeEeeEEEeeeeEeeeeeeeEEeE",
+    "maxWithdrawal": "500000000000000000",
+    "withdrawalInterval": "2419200",
+    "STRICT_PURPOSE": true,
+    "currencyHeldByJar": "3000000000000000000",
+    "nftRequirement": [
+      "0x8A791620dd6260079BF849Dc5567aDC3F2FdC318",
+      "1",
+      "1",
+      false
+    ],
+    "paused": false,
+    "MIN_DEPOSIT": "10000000000000000",
+    "FEE_PERCENTAGE_ON_DEPOSIT": "0"
+  },
+  "badgeBalances": {
+    "0x70997970C51812dc3A010C7d01b50e0d17dc79C8": "1",
+    "0x90F79bf6EB2c4f870365E785982E1f101E93b906": "0"
+  }
+}
