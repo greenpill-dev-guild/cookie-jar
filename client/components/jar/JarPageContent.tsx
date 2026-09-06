@@ -51,7 +51,7 @@ export function JarPageContent({
 		chainId
 	);
 	const permissions = useJarPermissions(address, config, chainId);
-	const metadata = useJarMetadata(config);
+	const metadata = useJarMetadata(config, chainId);
 	const transactions = useJarTransactions(config, address, { chainId });
 	const history = useJarWithdrawalHistory({
 		jarAddress: address,
@@ -107,7 +107,11 @@ export function JarPageContent({
 	const isERC20 = !!config.currency && config.currency !== ETH_ADDRESS;
 
 	return (
-		<ProtocolErrorBoundary protocolName="Cookie Jar" maxRetries={2}>
+		<ProtocolErrorBoundary
+			protocolName="Green Goods Stipend Jar"
+			maxRetries={2}
+			onRetry={refetch}
+		>
 			<div className="container max-w-full px-0 md:px-4 py-4" ref={pageRef}>
 				<WrongNetworkBanner chainId={chainId} />
 

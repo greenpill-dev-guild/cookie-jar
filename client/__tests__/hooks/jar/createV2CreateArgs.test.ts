@@ -57,6 +57,8 @@ type MakeValuesOverrides = Partial<
 
 function makeValues(overrides: MakeValuesOverrides = {}): JarCreationFormData {
 	const baseValues: JarCreationFormData = {
+		chainId: 31337,
+		minDeposit: "0",
 		jarName: "Test Jar",
 		jarOwnerAddress: "0x1234567890123456789012345678901234567890",
 		supportedCurrency: ETH_ADDRESS,
@@ -131,6 +133,15 @@ describe("buildV2CreateCookieJarArgs", () => {
 			makeValues({ enableCustomFee: true, customFee: "2.5" })
 		);
 		expect(fee).toBe(250n);
+	});
+
+	it("rejects an empty explicit fee instead of selecting the factory default", () => {
+		expect(() =>
+			getFeePercentageOnDeposit({
+				enableCustomFee: true,
+				customFee: "",
+			} as JarCreationFormData)
+		).toThrow();
 	});
 
 	it("supports explicit zero-percent fee", () => {

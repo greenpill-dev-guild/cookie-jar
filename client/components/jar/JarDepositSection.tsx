@@ -22,6 +22,7 @@ export function JarDepositSection({
 	const nativeCurrency = getNativeCurrency(chainId);
 	const {
 		amount,
+		depositError,
 		setAmount,
 		onSubmit,
 		isApprovalPending,
@@ -56,6 +57,8 @@ export function JarDepositSection({
 					</div>
 					<Input
 						id="fundAmount"
+						aria-invalid={!!amount && !!depositError}
+						aria-describedby={depositError ? "deposit-error" : undefined}
 						type="text"
 						inputMode="decimal"
 						placeholder={
@@ -67,6 +70,15 @@ export function JarDepositSection({
 						onChange={(e) => setAmount(e.target.value)}
 						className="border-border bg-card text-foreground"
 					/>
+					{depositError && (
+						<p
+							id="deposit-error"
+							role="status"
+							className="text-sm text-foreground mt-2"
+						>
+							{depositError}
+						</p>
+					)}
 					{minimum && (
 						<p className="text-xs text-muted-foreground mt-2">
 							Minimum deposit: {minimum}
@@ -77,7 +89,7 @@ export function JarDepositSection({
 					<Button
 						onClick={() => onSubmit(amount)}
 						className="w-full h-10"
-						disabled={!amount || Number(amount) <= 0 || isDepositPending}
+						disabled={!amount || !!depositError || isDepositPending}
 					>
 						{isDepositPending ? "Depositing..." : "Deposit"}
 					</Button>

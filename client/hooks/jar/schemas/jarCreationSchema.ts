@@ -79,6 +79,7 @@ export const METHOD_TO_ACCESS_TYPE: Record<string, AccessType> = {
  */
 export const jarCreationSchema = z.object({
 	// ── Step 1: Basic Config ──
+	chainId: z.number().int().positive(),
 	jarName: z.string().min(1, "Jar name is required"),
 	jarOwnerAddress: z
 		.string()
@@ -112,6 +113,7 @@ export const jarCreationSchema = z.object({
 	protocolConfig: protocolConfigSchema,
 
 	// ── Step 4: Advanced Settings ──
+	minDeposit: z.string(),
 	enableCustomFee: z.boolean(),
 	customFee: z.string(),
 	streamingEnabled: z.boolean(),

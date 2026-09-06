@@ -74,7 +74,8 @@ export const AllowlistWithdrawalSection: React.FC<
 	handleWithdrawAllowlistVariable,
 }) => {
 	const { symbol: tokenSymbol, decimals: tokenDecimals } = useTokenInfo(
-		config?.currency || ETH_ADDRESS
+		config?.currency || ETH_ADDRESS,
+		config.chainId
 	);
 	const [amountError, setAmountError] = React.useState<string | null>(null);
 
@@ -132,7 +133,7 @@ export const AllowlistWithdrawalSection: React.FC<
 
 				<div className="pt-2 flex justify-center">
 					<Button
-						onClick={handleWithdrawAllowlist}
+						onClick={() => handleWithdrawAllowlist()}
 						className="px-8 py-6 text-lg"
 						disabled={!purposeOk || config.isWithdrawPending}
 					>
@@ -204,7 +205,7 @@ export const AllowlistWithdrawalSection: React.FC<
 
 			<div className="pt-2">
 				<Button
-					onClick={handleWithdrawAllowlistVariable}
+					onClick={() => handleWithdrawAllowlistVariable()}
 					className="w-full"
 					disabled={
 						!withdrawAmount ||

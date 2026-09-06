@@ -1,15 +1,19 @@
 "use client";
 
+import { useConnectModal } from "@rainbow-me/rainbowkit";
 import type React from "react";
-import { LoadingOverlay } from "@/components/app/LoadingOverlay";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { MemoizedCustomConnectButton } from "@/components/wallet/CustomConnectButton";
+import {
+	Dialog,
+	DialogContent,
+	DialogDescription,
+	DialogHeader,
+	DialogTitle,
+} from "@/components/ui/dialog";
 
 interface CreateJarModalsProps {
 	showWalletModal: boolean;
 	setShowWalletModal: (_show: boolean) => void;
-	setPendingSubmission: (_pending: boolean) => void;
 	isCreating: boolean;
 	isWaitingForTx: boolean;
 }
@@ -17,52 +21,41 @@ interface CreateJarModalsProps {
 export const CreateJarModals: React.FC<CreateJarModalsProps> = ({
 	showWalletModal,
 	setShowWalletModal,
-	setPendingSubmission,
 	isCreating,
 	isWaitingForTx,
 }) => {
+	const { openConnectModal } = useConnectModal();
 	return (
 		<>
-			{/* Wallet Connection Modal */}
-			{showWalletModal && (
-				<div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-					<Card className="w-full max-w-md">
-						<CardHeader className="text-center">
-							<CardTitle className="text-2xl text-[hsl(var(--cj-dark-brown))]">
-								Connect Your Wallet
-							</CardTitle>
-							<p className="text-[hsl(var(--cj-medium-brown))]">
-								You&apos;re all set! Now connect your wallet to create this
-								Cookie Jar on the blockchain.
-							</p>
-						</CardHeader>
-						<CardContent className="text-center space-y-4">
-							<MemoizedCustomConnectButton className="w-full" />
-							<Button
-								variant="outline"
-								onClick={() => {
-									setShowWalletModal(false);
-									setPendingSubmission(false);
-								}}
-								className="w-full"
-							>
-								Cancel
-							</Button>
-						</CardContent>
-					</Card>
-				</div>
-			)}
+			<Dialog open={showWalletModal} onOpenChange={setShowWalletModal}>
+				<DialogContent>
+					<DialogHeader>
+						<DialogTitle>Connect your wallet</DialogTitle>
+						<DialogDescription>
+							After connecting, review your settings and select Create Jar to
+							continue.
+						</DialogDescription>
+					</DialogHeader>
+					<Button
+						onClick={() => {
+							setShowWalletModal(false);
+							openConnectModal?.();
+						}}
+					>
+						Choose wallet
+					</Button>
+					<Button variant="outline" onClick={() => setShowWalletModal(false)}>
+						Cancel
+					</Button>
+				</DialogContent>
+			</Dialog>
 
-			{/* Loading Overlay */}
 			{(isCreating || isWaitingForTx) && (
-				<LoadingOverlay
-					isOpen={isCreating || isWaitingForTx}
-					message={
-						isWaitingForTx
-							? "Waiting for transaction confirmation..."
-							: "Creating your cookie jar..."
-					}
-				/>
+				<p role="status" className="mt-4 text-foreground">
+					{isWaitingForTx
+						? "Waiting for transaction confirmation..."
+						: "Confirm creation in your wallet..."}
+				</p>
 			)}
 		</>
 	);

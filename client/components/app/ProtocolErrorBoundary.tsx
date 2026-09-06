@@ -21,6 +21,7 @@ interface ProtocolErrorBoundaryProps {
 		goBack: () => void;
 	}>;
 	maxRetries?: number;
+	onRetry?: () => void;
 	protocolName?: string;
 	showDetails?: boolean;
 }
@@ -118,6 +119,8 @@ export class ProtocolErrorBoundary extends React.Component<
 		if (this.retryTimeoutId) {
 			clearTimeout(this.retryTimeoutId);
 		}
+
+		this.props.onRetry?.();
 
 		// Exponential backoff: 1s, 2s, 4s
 		const delay = 2 ** retryCount * 1000;
@@ -320,6 +323,7 @@ export function withProtocolErrorBoundary<T extends object>(
 	options?: {
 		protocolName?: string;
 		maxRetries?: number;
+		onRetry?: () => void;
 		showDetails?: boolean;
 	}
 ) {
