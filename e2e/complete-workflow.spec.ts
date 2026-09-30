@@ -12,7 +12,7 @@ test("browse a jar and inspect both actions before connecting", async ({
 		.first()
 		.click();
 	await expect(
-		page.getByText(/connect your wallet to check your status/i)
+		page.getByText(/connect your wallet to see whether you can claim/i)
 	).toBeVisible();
 	await expect(
 		page.getByRole("tab", { name: "Admin", exact: true })

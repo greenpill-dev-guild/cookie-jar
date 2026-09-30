@@ -33,7 +33,7 @@ test("opening a seeded jar displays contract-backed rules", async ({
 		page.getByRole("button", { name: "Copy jar address" })
 	).toBeVisible();
 	await expect(
-		page.getByText("0.5 ETH", { exact: true }).first()
+		page.getByText("Variable Amount", { exact: true }).first()
 	).toBeVisible();
 	await expect(
 		page.getByRole("tab", { name: "Claim", exact: true })
