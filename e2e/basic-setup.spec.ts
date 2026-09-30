@@ -3,7 +3,7 @@ import { expect, test } from "@playwright/test";
 test("generic home links to browsing and custom creation", async ({ page }) => {
 	await page.goto("/");
 	await expect(
-		page.getByRole("heading", { name: "Cookie Jar", exact: true })
+		page.getByRole("heading", { name: "Cookie Jar", exact: true, level: 1 })
 	).toBeVisible();
 	await page.getByRole("link", { name: "Browse jars", exact: true }).click();
 	await expect(page).toHaveURL(/\/jars$/);
@@ -29,6 +29,6 @@ test("unknown routes offer recovery", async ({ page }) => {
 		.getByRole("link", { name: "Back to the jar", exact: true })
 		.click();
 	await expect(
-		page.getByRole("heading", { name: "Cookie Jar", exact: true })
+		page.getByRole("heading", { name: "Cookie Jar", exact: true, level: 1 })
 	).toBeVisible();
 });

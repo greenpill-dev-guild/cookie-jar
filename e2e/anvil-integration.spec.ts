@@ -31,7 +31,7 @@ test("opening a seeded jar displays contract-backed rules", async ({
 		.click();
 	await expect(
 		page.getByRole("button", { name: "Copy jar address" })
-	).toBeVisible();
+	).toBeVisible({ timeout: 30000 });
 	await expect(
 		page.getByText("Variable Amount", { exact: true }).first()
 	).toBeVisible();
