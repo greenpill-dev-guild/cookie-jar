@@ -15,19 +15,15 @@ Use the existing `cookie-jar` Vercel project for the stipend app. The generic Ne
 
 | Setting | Existing `cookie-jar` project value |
 | --- | --- |
-| Root Directory | `stipend` |
-| Include source files outside Root Directory | Enabled (required for `shared/` and generated contract data) |
-| Framework Preset | Vite |
-| Install Command | `cd .. && bun install --frozen-lockfile --ignore-scripts` |
-| Build Command | `bun run build` |
-| Output Directory | `dist` |
+| Root Directory | Repository root (clear the existing `stipend` or `client` value once) |
+| Framework, install, build and output | Defined in the root `vercel.json` |
 | Node.js version | 24.x |
 | Production Branch | `main` |
 | Production domain | `cookies.greengoods.app` |
 
 There is no beta environment or beta domain. Unassigned PR preview URLs can be used for build and route QA before a production release.
 
-The checked-in `stipend/vercel.json` supplies the build settings, security headers, SPA rewrites and image aliases. `stipend/bunfig.toml` makes build tools use Node, as Vite requires. No contracts or deployment scripts run in a Vercel build. Unknown client routes render the app's not-found page; as a static SPA, the HTTP fallback response is 200.
+The checked-in root `vercel.json` installs from the workspace lockfile, runs `bun run build:stipend`, serves `stipend/dist`, and supplies the security headers, SPA rewrites and image aliases. Root Directory, production branch, domain, Node version and environment variables are Vercel project settings; set them once, then keep build commands in Git. `stipend/bunfig.toml` makes build tools use Node, as Vite requires. No contracts or deployment scripts run in a Vercel build. Unknown client routes render the app's not-found page; as a static SPA, the HTTP fallback response is 200.
 
 Set these **public build-time** environment variables for Production in the `cookie-jar` project. Vite does not use `NEXT_PUBLIC_*` values. Save changes and rebuild the deployment.
 

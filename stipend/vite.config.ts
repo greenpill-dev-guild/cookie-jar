@@ -3,8 +3,8 @@ import { fileURLToPath } from "node:url";
 import react from "@vitejs/plugin-react";
 import { defineConfig, type PreviewServer, type ViteDevServer } from "vite";
 import { getDeploymentInfo } from "../shared/src/config/deployments.auto";
+import deployment from "../vercel.json";
 import { parseStipendEnv } from "./src/config/environment";
-import deployment from "./vercel.json";
 
 // Mirror Vercel's public image aliases in local dev and built previews.
 function imageAliases(server: ViteDevServer | PreviewServer) {
