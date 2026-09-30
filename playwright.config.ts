@@ -5,7 +5,7 @@ export default defineConfig({
   testDir: './e2e',
   fullyParallel: false, // Sequential for blockchain state consistency
   forbidOnly: !!process.env.CI,
-  retries: process.env.CI ? 2 : 0,
+  retries: 0, // Do not spend the release gate retrying deterministic contract/UI failures.
   workers: 1, // Single worker for blockchain state consistency
   
   reporter: [

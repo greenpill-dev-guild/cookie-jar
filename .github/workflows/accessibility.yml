@@ -36,7 +36,7 @@ jobs:
         run: ./scripts/oz-compat.sh
 
       - name: Install Playwright browsers
-        run: bunx playwright install --with-deps
+        run: bunx playwright install --with-deps chromium
 
       - name: Start Anvil and deploy
         run: |
@@ -56,6 +56,7 @@ jobs:
           cd ..
           ./scripts/create-deployment-file.sh
           ./scripts/copy-deployment.sh
+          bun run sync:deployment -- --chain 31337 --script DeployLocal.s.sol
 
       - name: Start the client
         run: |
@@ -64,7 +65,7 @@ jobs:
           NODE_ENV=development bun run dev > ../dev.log 2>&1 &
           cd ..
           for i in $(seq 1 60); do
-            curl -s http://localhost:3000 > /dev/null 2>&1 && { echo "Next.js ready"; exit 0; }
+            curl -fsS http://localhost:3000 > /dev/null 2>&1 && { echo "Next.js ready"; exit 0; }
             sleep 2
           done
           echo "Next.js failed to start"; cat dev.log; exit 1
