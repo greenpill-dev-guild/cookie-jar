@@ -80,21 +80,34 @@ beforeEach(() => {
 });
 
 describe("direct factory creation", () => {
-	it("keeps the preset owner and edits when the wallet changes", () => {
+	it("requires an explicit stipend owner and keeps edits when the wallet changes", async () => {
 		const view = renderHook(useJarCreation);
 		act(() => view.result.current.applyStipendPreset());
-		expect(view.result.current.form.getValues("jarOwnerAddress")).toBe(
-			"0xe09315A86ED0A39862158f5631b928145987fE05"
+		expect(view.result.current.form.getValues("jarOwnerAddress")).toBe("");
+		await act(async () => {
+			await view.result.current.confirmSubmit();
+		});
+		expect(view.result.current.formErrors.join(" ")).toContain("owner address");
+		expect(state.write).not.toHaveBeenCalled();
+		state.address = "0x2222222222222222222222222222222222222222";
+		view.rerender();
+		expect(view.result.current.form.getValues("jarOwnerAddress")).toBe("");
+		act(() =>
+			view.result.current.form.setValue(
+				"jarOwnerAddress",
+				"0x3333333333333333333333333333333333333333",
+				{ shouldDirty: true }
+			)
 		);
 		act(() =>
 			view.result.current.form.setValue("maxWithdrawal", "400", {
 				shouldDirty: true,
 			})
 		);
-		state.address = "0x2222222222222222222222222222222222222222";
+		state.address = "0x4444444444444444444444444444444444444444";
 		view.rerender();
 		expect(view.result.current.form.getValues("jarOwnerAddress")).toBe(
-			"0xe09315A86ED0A39862158f5631b928145987fE05"
+			"0x3333333333333333333333333333333333333333"
 		);
 		expect(view.result.current.form.getValues("maxWithdrawal")).toBe("400");
 		expect(state.write).not.toHaveBeenCalled();
@@ -104,6 +117,13 @@ describe("direct factory creation", () => {
 		async (reason) => {
 			const view = renderHook(useJarCreation);
 			act(() => view.result.current.applyStipendPreset());
+			act(() =>
+				view.result.current.form.setValue(
+					"jarOwnerAddress",
+					"0x3333333333333333333333333333333333333333",
+					{ shouldDirty: true }
+				)
+			);
 			if (reason === "wrong network") state.chainId = 1;
 			else state.decimals = undefined;
 			view.rerender();
@@ -125,6 +145,13 @@ describe("direct factory creation", () => {
 		);
 		const view = renderHook(useJarCreation);
 		act(() => view.result.current.applyStipendPreset());
+		act(() =>
+			view.result.current.form.setValue(
+				"jarOwnerAddress",
+				"0x3333333333333333333333333333333333333333",
+				{ shouldDirty: true }
+			)
+		);
 		let pending!: Promise<void>;
 		act(() => {
 			pending = view.result.current.confirmSubmit();
@@ -156,6 +183,13 @@ describe("direct factory creation", () => {
 		state.write.mockRejectedValue(new Error("User rejected the request"));
 		const view = renderHook(useJarCreation);
 		act(() => view.result.current.applyStipendPreset());
+		act(() =>
+			view.result.current.form.setValue(
+				"jarOwnerAddress",
+				"0x3333333333333333333333333333333333333333",
+				{ shouldDirty: true }
+			)
+		);
 		await act(async () => {
 			await view.result.current.confirmSubmit();
 		});
@@ -168,6 +202,13 @@ describe("direct factory creation", () => {
 it("keeps a submitted configuration locked when confirmation reads fail", async () => {
 	const view = renderHook(useJarCreation);
 	act(() => view.result.current.applyStipendPreset());
+	act(() =>
+		view.result.current.form.setValue(
+			"jarOwnerAddress",
+			"0x3333333333333333333333333333333333333333",
+			{ shouldDirty: true }
+		)
+	);
 	await act(async () => {
 		await view.result.current.confirmSubmit();
 	});
@@ -185,6 +226,13 @@ it("keeps a submitted configuration locked when confirmation reads fail", async 
 it("unlocks review after a confirmed creation revert", async () => {
 	const view = renderHook(useJarCreation);
 	act(() => view.result.current.applyStipendPreset());
+	act(() =>
+		view.result.current.form.setValue(
+			"jarOwnerAddress",
+			"0x3333333333333333333333333333333333333333",
+			{ shouldDirty: true }
+		)
+	);
 	await act(async () => {
 		await view.result.current.confirmSubmit();
 	});

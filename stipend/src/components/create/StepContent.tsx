@@ -255,7 +255,7 @@ const BasicConfigStep: React.FC = () => {
 						<Input
 							id="jarOwner"
 							data-testid="jar-owner-input"
-							placeholder="0x... (defaults to your connected wallet)"
+							placeholder="0x... (enter the owner Safe address)"
 							className="pr-12"
 							aria-label="Enter the Ethereum address that will own this jar"
 							aria-invalid={!!errors.jarOwnerAddress}
@@ -297,7 +297,7 @@ const BasicConfigStep: React.FC = () => {
 						{jarOwnerAddress &&
 						jarOwnerAddress !== "0x0000000000000000000000000000000000000000"
 							? `Currently set to: ${shortenAddress(jarOwnerAddress, 10)}`
-							: "The address that will own and manage this jar"}
+							: "Enter the Safe that will own and administer this jar. Connecting a wallet will not choose it for you."}
 					</p>
 				</div>
 

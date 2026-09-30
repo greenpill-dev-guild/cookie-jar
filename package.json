@@ -18,7 +18,7 @@
 		"build:contracts:dev": "cd contracts && FOUNDRY_PROFILE=dev forge build",
 		"copy:deployment": "./scripts/copy-deployment.sh && bun generate",
 		"test": "bun run test:contracts && bun run test:client",
-		"test:client": "cd client && bun run test",
+		"test:client": "bash -c 'cd client && PATH=\"${PATH#*:}\" node node_modules/.bin/vitest run'",
 		"test:client:coverage": "cd client && bun test:coverage",
 		"test:client:version": "cd client && bun test:version-detection",
 		"test:client:lazy": "cd client && bun test:lazy-loading",
@@ -70,7 +70,7 @@
 		"create-jar:arbitrum-sepolia": "./scripts/deploy.sh arbitrum-sepolia CreateJar.s.sol:CreateJar",
 		"dev:stipend": "bun run --cwd stipend dev",
 		"build:stipend": "bun run --cwd stipend build",
-		"test:stipend": "bun run --cwd stipend test",
+		"test:stipend": "bash -c 'cd stipend && PATH=\"${PATH#*:}\" node node_modules/.bin/vitest run'",
 		"test:e2e:stipend": "playwright test --config=playwright.stipend.config.ts"
 	},
 	"devDependencies": {

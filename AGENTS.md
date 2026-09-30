@@ -8,7 +8,7 @@ points live in `CLAUDE.md`; path-scoped rules in `.claude/rules/`; deep referenc
 
 Cookie Jar is a funding-pool protocol: a factory creates jars that allowlisted or token-gated
 members withdraw from under fixed rules. The guild runs one live jar for the contributor stipend
-on Arbitrum One (USDC, gated by the Green Goods "Team" hat, owned by the Working Capital multi-sig)
+on Arbitrum One (USDC, gated by the Green Goods "Team" hat, owned by a confirmed Green Goods Safe)
 and serves it at `cookies.greengoods.app`. Everything else in the client is secondary to that jar
 working correctly.
 

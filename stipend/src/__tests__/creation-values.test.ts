@@ -8,8 +8,12 @@ import { STIPEND_PRESET } from "@/config/stipend-preset";
 
 describe("reviewed creation values", () => {
 	it("encodes the documented USDC stipend without factory defaults", () => {
+		const reviewedPreset = {
+			...STIPEND_PRESET,
+			jarOwnerAddress: "0x3333333333333333333333333333333333333333",
+		};
 		const [config, access] = buildV2CreateCookieJarArgs({
-			values: STIPEND_PRESET,
+			values: reviewedPreset,
 			metadata: "stipend",
 			parseAmount: (amount) => parseTokenAmount(amount, 6),
 		});
@@ -17,7 +21,8 @@ describe("reviewed creation values", () => {
 		expect(config.minDeposit).toBe(1000000n);
 		expect(config.withdrawalInterval).toBe(2419200n);
 		expect(config.feePercentageOnDeposit).toBe(0n);
-		expect(config.jarOwner).toBe("0xe09315A86ED0A39862158f5631b928145987fE05");
+		expect(STIPEND_PRESET.jarOwnerAddress).toBe("");
+		expect(config.jarOwner).toBe(reviewedPreset.jarOwnerAddress);
 		expect(access.nftRequirement).toEqual({
 			nftContract: "0x3bc1A0Ad72417f2d411118085256fC53CBdDd137",
 			tokenId: BigInt(

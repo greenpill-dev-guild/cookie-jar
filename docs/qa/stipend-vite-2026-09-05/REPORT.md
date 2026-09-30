@@ -12,10 +12,10 @@ Validation used the installed Node 24 runtime. `bun check` and `bun format:check
 | --- | --- | --- |
 | PASS | Generic home displays Cookie Jar and browse/create actions without a featured stipend; creation has no stipend preset | `generic-home-red.log`, `generic-unit.log`, `e2e.log`, generic screenshots |
 | PASS | Stipend has its own Vite entry, router, environment, branding, wallet config, assets and Vercel project configuration | `vite-build.log`, boundary tests, `docs/STIPEND-APP.md` |
-| PASS | Deployment runbook names the separate Vite project, direct factory creation, build-time variables and both domain assignments | `docs/DEPLOYMENT.md` and `docs/STIPEND-APP.md` source review |
+| PASS | Deployment runbook names the Vite app in the existing `cookie-jar` Vercel project, direct factory creation, build-time variables and the production domain | `docs/DEPLOYMENT.md` and `docs/STIPEND-APP.md` source review |
 | PASS | Shared transaction logic has no Next dependency; only generated ABI/registry data is imported from the canonical client paths | Boundary tests and independent production builds |
 | PASS | Jar-details surface uses a solid semantic background and readable text in both themes | Route screenshots, axe assertions and `stipend-ui.spec.ts` |
-| PASS | Preset encodes 800 USDC as 800000000, 1 USDC as 1000000, 28 days as 2419200; explicit zero fee, Safe owner and Team hat match the runbook | `stipend-unit.log`; preset/review screenshots |
+| PASS | Preset encodes 800 USDC as 800000000, 1 USDC as 1000000, 28 days as 2419200; explicit zero fee and Team hat match the runbook. Owner entry is required before creation. | `stipend-unit.log`; owner-entry regression; preset/review screenshots |
 | PASS | Owner and deliberate edits survive wallet changes; preset is opt-in/customizable; connection returns to review without submission | Unit and creation E2E tests |
 | PASS | Invalid amounts/missing token metadata/wrong chain/rejection/duplicate submissions are guarded; submitted configuration survives receipt retries | Unit tests and local receipt assertions |
 | PASS | Local factory creation produces a real receipt, reads the emitted address, opens a chain-aware URL and retains local reads after a wallet network change | `e2e.log`, creation screenshots |
@@ -34,7 +34,8 @@ Validation used the installed Node 24 runtime. `bun check` and `bun format:check
 | PASS | Each React workspace declares its own React types for isolated installs | `workspace-types-red.log`, `workspace-types-unit.log`, `workspace-types-check.log`; 35 stipend tests pass |
 | PASS | Specification and standards reviews | Both review axes approved after the three recorded findings were fixed |
 | BLOCKED | User's existing passkey session / real-wallet test | The already-open Brave Green Goods tab is controlled by another Codex task. Rabby was not used after the user clarified their preference. Anvil injected-provider tests do not satisfy this gate. Owner: Afo / frontend QA |
-| BLOCKED | Existing Vercel project workspace access | Automatic preview installation cannot resolve `@cookie-jar/core`. Enable source outside `client/` and run installation from the repository root. Owner: Afo / Vercel project maintainer |
+| BLOCKED | Existing Vercel project build and route verification | The prior preview could not resolve `@cookie-jar/core`. The user has updated Vercel settings; a fresh deployment must confirm the `stipend/` build and routes. Owner: Afo / frontend QA |
+| BLOCKED | Mainnet jar owner | The preset no longer preselects the Working Capital Safe. Confirm the Green Goods Safe address on Arbitrum One and enter it explicitly before human-signed creation. Owner: Afo / Safe owners |
 | BLOCKED | Final QA on `dev`, current-head CI and Vercel preview verification | Required after PR #41 and the accepted migration/fixes merge. The current-head accessibility rerun is pending. Owner: release maintainer |
 | BLOCKED | Release PR #40 and production deployment | Remain open/held until the final report passes and Afo approves |
 
@@ -44,7 +45,13 @@ Validation used the installed Node 24 runtime. `bun check` and `bun format:check
 
 The local `bun check` and `bun format:check` passed after the keyboard-spec fix. A fresh generic production build could not finish in this environment because the sandbox blocked Next.js from fetching the configured Inter font from `fonts.googleapis.com`; the pre-fix migration build passed and no application build files changed in this follow-up. The browser runner also could not launch local Chromium because macOS denied its bootstrap service. Neither local attempt is counted as passing proof.
 
-The existing Vercel project's automatic preview failed during installation with `Workspace dependency "@cookie-jar/core" not found`. This is a **major deployment configuration blocker**, owned by Afo / the Vercel project maintainer. Reproduce by building the migration with the current client-only project source/install settings. The settings above and in `STIPEND-APP.md` must be applied before retrying. No Vercel project settings or production deployments were changed by this task.
+The existing Vercel project's previous automatic preview failed during installation with `Workspace dependency "@cookie-jar/core" not found`. Reproduce with the prior client-only project source/install settings. Afo reports that the project settings are now updated; a successful new build is still needed to close this **major deployment blocker**. No Vercel project settings or production deployments were changed by this task.
+
+## 2026-09-30 follow-up
+
+The user chose one production deployment at `cookies.greengoods.app`, using the existing `cookie-jar` Vercel project, and indicated that the jar should probably be owned by the Green Goods Safe. The production owner address remains unconfirmed, so the stipend preset now requires an explicit owner entry and does not fill it from the connected wallet. The existing factory and jar parameters are unchanged. No mainnet jar was created or funded.
+
+The owner-entry regression failed first, then passed. `bun check`, `bun format:check`, `bun run test:stipend` (35 passing), `bun run test:client` (278 passing, 65 skipped), and `bun run build:stipend` passed locally on Node 24. The root test wrappers were adjusted to invoke Vitest under Node instead of Bun's temporary `node` shim; this affects test execution only. Vercel preview, current-head CI, the real-wallet pass and final QA on merged `dev` remain pending. Production release PR #40 remains held.
 
 Slither's separate advisory job failed because its compiler could not resolve `../lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol`, then had no `results.sarif` to upload ([job log](https://github.com/greenpill-dev-guild/cookie-jar/actions/runs/34014473625/job/101435769320)). This is an out-of-scope contract-analysis/CI note, owned by the CI maintainer, not a CodeQL analysis failure. No workflow or contract changes were made.
 

@@ -18,7 +18,7 @@ which honours the minimum deposit a caller passes, so the USDC jar is created th
 | Currency | USDC `0xaf88d065e77c8cC2239327C5EDb3A432268e5831` (6 decimals) |
 | Factory | Green Goods cookie jar factory `0x294d222eDE6DF6625B43544F1C634322467528Da`. Verified on Sourcify; this repo's code plus the minimum-deposit sentinel. Fee collector is the multi-sig, default fee 1% (not applied to this jar), owner `0x49fa954B6C2Cd14B4b3604EF1Cc17cED20a9E42C` (only gates `setAdmin`). Hosts the 33 Green Goods garden and campaign jars and is indexed by the Green Goods indexer. |
 | Retired factory | `0xfe367D31d181D305dcF5AAaa345a70A65c345153`. Forces a 1e18 minimum on every ERC20 jar, so it can never host USDC. Its two jars keep working; it is no longer in the client registry. |
-| Jar owner | Working Capital multi-sig (Safe) `0xe09315A86ED0A39862158f5631b928145987fE05` |
+| Jar owner | Green Goods Safe on Arbitrum One; exact address must be confirmed by the Safe owners before creation |
 | Deployer keystore `deployer` | `0xFBAf2A9734eAe75497e1695706CC45ddfA346ad6` (also wears the Green Goods top hat and owns the Green Goods `CookieJarModule`) |
 | Hats Protocol | `0x3bc1A0Ad72417f2d411118085256fC53CBdDd137` |
 | Team hat (tree 92, hat 92.1) | `0x0000005c00010000000000000000000000000000000000000000000000000000` |
@@ -115,8 +115,9 @@ before the human signs.
 
 ### 4. Create the jar **(human, signer: authorized wallet)**
 
-The stipend app's `/create` page offers a Green Goods stipend preset. Select it, review the
-editable owner, USDC amounts, Team hat gate, interval, zero deposit fee and 1 USDC minimum, then
+The stipend app's `/create` page offers a Green Goods stipend preset. Select it, enter the
+confirmed Green Goods Safe owner address, review USDC amounts, Team hat gate, interval, zero
+deposit fee and 1 USDC minimum, then
 connect an authorized wallet on Arbitrum One and submit. The app calls the existing factory at
 `0x294d222eDE6DF6625B43544F1C634322467528Da` directly. It does not use a Green Goods
 protocol workflow or deploy another factory. Record the created jar address `<J>` and its
@@ -127,7 +128,8 @@ The script below is an alternative for a human signer who prefers the keystore w
 align that metadata before using the script for this release. Do not create the jar twice.
 
 `.env.local` has `FACTORY_ADDRESS=0x294d222eDE6DF6625B43544F1C634322467528Da`,
-`MIN_DEPOSIT=1000000` and the other values from `example.env`. Keep `DRY_RUN=true` and review
+`MIN_DEPOSIT=1000000`, the confirmed Green Goods Safe as `JAR_OWNER`, and the other values from
+`example.env`. Keep `DRY_RUN=true` and review
 the plan:
 
 ```bash
@@ -141,7 +143,7 @@ script's read-back assertions must pass. Record the jar address `<J>` and its cr
 Checks: `cast call $F "getAllJars()(address[])" --rpc-url $RPC` ends with `<J>`;
 `cast call <J> "MIN_DEPOSIT()(uint256)" --rpc-url $RPC` returns 1000000;
 `cast call <J> "FEE_PERCENTAGE_ON_DEPOSIT()(uint256)" --rpc-url $RPC` returns 0;
-`cast call <J> "hasRole(bytes32,address)(bool)" $(cast keccak "JAR_OWNER") 0xe09315A86ED0A39862158f5631b928145987fE05 --rpc-url $RPC`
+`cast call <J> "hasRole(bytes32,address)(bool)" $(cast keccak "JAR_OWNER") <GREEN_GOODS_SAFE> --rpc-url $RPC`
 is true; the jar is verified on Arbiscan (fallback:
 `forge verify-contract --chain 42161 <J> src/CookieJar.sol:CookieJar --guess-constructor-args --watch`).
 
@@ -168,14 +170,13 @@ no wearer burns their 28-day interval before launch.
 
 ### 7. Stipend app release **(human: Vercel)**
 
-Create a separate Vercel project from this repository in team `greenpilldevguild`. Set Root
+Use the existing `cookie-jar` Vercel project in team `greenpilldevguild`. Set Root
 Directory to `stipend`, enable source files outside that directory, use the Vite framework,
 install with `cd .. && bun install --frozen-lockfile --ignore-scripts`, build with
-`bun run build`, output `dist`, and use Node 24. Keep the existing `cookie-jar` project rooted
-at `client/` for the generic UI; it also needs source outside its root and the same root install
-command for the shared workspace. [STIPEND-APP.md](STIPEND-APP.md) has the full project settings.
+`bun run build`, output `dist`, and use Node 24. The generic `client/` remains in the repository.
+[STIPEND-APP.md](STIPEND-APP.md) has the full project settings.
 
-Set these public build-time variables on the **stipend** project for the `main` production branch:
+Set these public build-time variables on the **cookie-jar** project for the `main` production branch:
 
 | Variable | Value |
 | --- | --- |
@@ -186,8 +187,7 @@ Set these public build-time variables on the **stipend** project for the `main` 
 | `VITE_WALLET_CONNECT_PROJECT_ID` | Public WalletConnect project ID from its dashboard |
 | `VITE_ALCHEMY_API_KEY` | Optional public Arbitrum RPC key restricted to the site origin |
 
-Use a beta jar address and `VITE_SITE_URL=https://beta.cookies.greengoods.app` for the `dev`
-preview branch. These Vite variables are bundled at build time, so rebuild after changing them.
+There is no beta environment or beta domain. These Vite variables are bundled at build time, so rebuild after changing them.
 Without a featured jar address, the page intentionally shows “No featured jar configured.”
 
 After the accepted fixes are merged into `dev`, the final QA report passes, and the release is
@@ -196,10 +196,9 @@ wallet on Arbitrum can open Claim, and that the response carries the security he
 
 ### 8. Domain **(human: Vercel and DNS)**
 
-Assign `cookies.greengoods.app` to the stipend project's `main` production branch and
-`beta.cookies.greengoods.app` to its `dev` preview branch. Follow the DNS records Vercel shows
-for each domain and verify both assignments before launch. Keep `cookies.greenpill.app` as a
-redirect. WalletConnect Verify should show the production and beta origins as allowed.
+Assign `cookies.greengoods.app` to the existing `cookie-jar` project's `main` production branch.
+Follow the DNS records Vercel shows and verify the assignment before launch. Keep
+`cookies.greenpill.app` as a redirect. WalletConnect Verify should show the production origin as allowed.
 
 ### 9. First real claim **(human: one hat wearer)**
 

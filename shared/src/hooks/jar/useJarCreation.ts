@@ -288,14 +288,15 @@ export function useJarCreation({
 	}
 
 	useEffect(() => {
-		// Only fill an untouched, empty owner. A connection must never replace the Safe or a deliberate edit.
+		// Custom jars may default to the wallet. A stipend preset requires an explicit Safe owner.
 		if (
 			account.address &&
+			!presetApplied &&
 			!form.getValues("jarOwnerAddress") &&
 			!form.getFieldState("jarOwnerAddress").isDirty
 		)
 			form.setValue("jarOwnerAddress", account.address);
-	}, [account.address, form]);
+	}, [account.address, form, presetApplied]);
 
 	useEffect(() => {
 		if (receiptQuery.error?.message?.toLowerCase().includes("revert")) {

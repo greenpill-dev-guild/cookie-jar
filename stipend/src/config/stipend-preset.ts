@@ -6,7 +6,8 @@ import { DEFAULT_CREATION_VALUES } from "@jar-core/lib/jar/creation-values";
 export const STIPEND_PRESET: JarCreationFormData = {
 	...DEFAULT_CREATION_VALUES,
 	jarName: "Green Goods Stipend Jar",
-	jarOwnerAddress: "0xe09315A86ED0A39862158f5631b928145987fE05",
+	// The Safe owner must be confirmed and entered before a mainnet creation.
+	jarOwnerAddress: "",
 	supportedCurrency: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
 	metadata:
 		"Monthly stipend for Green Goods contributors, backed by Linear-tracked accepted work. Include a Linear link in your note.",
