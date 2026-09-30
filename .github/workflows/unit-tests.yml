@@ -20,6 +20,9 @@ jobs:
         working-directory: client
         run: bun run test:coverage
 
+      - name: Run stipend regression tests
+        run: bun run test:stipend
+
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v5
         if: always()
