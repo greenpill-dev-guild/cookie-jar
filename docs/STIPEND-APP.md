@@ -15,15 +15,16 @@ Use the existing `cookie-jar` Vercel project for the stipend app. The generic Ne
 
 | Setting | Existing `cookie-jar` project value |
 | --- | --- |
-| Root Directory | Repository root (clear the existing `stipend` or `client` value once) |
-| Framework, install, build and output | Defined in the root `vercel.json` |
+| Root Directory | `stipend` |
+| Include source files outside Root Directory | Enabled; required for the root lockfile, `shared/` and generated client contract data |
+| Framework, install, build and output | Defined in `stipend/vercel.json` |
 | Node.js version | 24.x |
 | Production Branch | `main` |
 | Production domain | `cookies.greengoods.app` |
 
 There is no beta environment or beta domain. Unassigned PR preview URLs can be used for build and route QA before a production release.
 
-The checked-in root `vercel.json` installs from the workspace lockfile, runs `bun run build:stipend`, serves `stipend/dist`, and supplies the security headers, SPA rewrites and image aliases. Root Directory, production branch, domain, Node version and environment variables are Vercel project settings; set them once, then keep build commands in Git. `stipend/bunfig.toml` makes build tools use Node, as Vite requires. No contracts or deployment scripts run in a Vercel build. Unknown client routes render the app's not-found page; as a static SPA, the HTTP fallback response is 200.
+The checked-in `stipend/vercel.json` installs the workspace with `bun install --cwd .. --frozen-lockfile --ignore-scripts`, builds the app with `bun run build`, serves `dist`, and supplies the security headers, SPA rewrites and image aliases. Root Directory, production branch, domain, Node version and environment variables are Vercel project settings; set them once, then keep build commands in Git. `stipend/bunfig.toml` makes build tools use Node, as Vite requires. No contracts or deployment scripts run in a Vercel build. Unknown client routes render the app's not-found page; as a static SPA, the HTTP fallback response is 200.
 
 Set these **public build-time** environment variables for Production in the `cookie-jar` project. Vite does not use `NEXT_PUBLIC_*` values. Save changes and rebuild the deployment.
 

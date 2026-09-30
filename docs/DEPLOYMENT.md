@@ -170,10 +170,10 @@ no wearer burns their 28-day interval before launch.
 
 ### 7. Stipend app release **(human: Vercel)**
 
-Use the existing `cookie-jar` Vercel project in team `greenpilldevguild`. Clear its Root
-Directory once so Vercel builds from the repository root, where `bun.lock` and `shared/` live.
-The root `vercel.json` owns the Vite framework, frozen Bun install, stipend build command,
-`stipend/dist` output, headers and routes. Set Node 24 in the project. The generic `client/`
+Use the existing `cookie-jar` Vercel project in team `greenpilldevguild`. Set its Root
+Directory to `stipend` and enable source files outside that directory so the root `bun.lock`,
+`shared/` and generated client contract data are available. `stipend/vercel.json` owns the
+Vite framework, workspace install command, app build, `dist` output, headers and routes. Set Node 24 in the project. The generic `client/`
 remains in the repository.
 [STIPEND-APP.md](STIPEND-APP.md) has the full project settings.
 
