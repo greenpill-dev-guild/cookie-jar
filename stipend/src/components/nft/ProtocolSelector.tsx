@@ -182,7 +182,13 @@ const ConfigurationPanel: React.FC<{
 
 		case "Hats":
 			return (
-				<HatsConfig onConfigChange={onConfigChange} initialConfig={config} />
+				<HatsConfig
+					onConfigChange={onConfigChange}
+					initialConfig={{
+						hatId: config?.hatsId ?? config?.hatId ?? "",
+						hatsContract: config?.hatsAddress ?? config?.hatsContract ?? "",
+					}}
+				/>
 			);
 
 		case "Hypercert":

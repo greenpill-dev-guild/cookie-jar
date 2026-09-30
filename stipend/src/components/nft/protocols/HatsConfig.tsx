@@ -1,7 +1,7 @@
 import { log } from "@jar-core/lib/app/logger";
 import { CheckCircle2, Loader2 } from "lucide-react";
 import type React from "react";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Image from "@/components/app/AppImage";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,6 +55,7 @@ export const HatsConfig: React.FC<HatsConfigProps> = ({
 	const [selectedHat, setSelectedHat] = useState<HatDetails | null>(null);
 	const [isValidating, setIsValidating] = useState(false);
 	const [validationError, setValidationError] = useState<string | null>(null);
+	const validationRequest = useRef(0);
 
 	const validateHat = useCallback(
 		async (hatIdToValidate: string, contractAddress?: string) => {
@@ -63,6 +64,7 @@ export const HatsConfig: React.FC<HatsConfigProps> = ({
 				return;
 			}
 
+			const request = ++validationRequest.current;
 			setIsValidating(true);
 			setValidationError(null);
 
@@ -72,39 +74,50 @@ export const HatsConfig: React.FC<HatsConfigProps> = ({
 					contractAddress
 				);
 
+				if (request !== validationRequest.current) return;
 				if (hatDetails) {
 					setSelectedHat(hatDetails);
-					onConfigChange({
-						hatId: hatIdToValidate,
-						hatsContract: contractAddress,
-						hatsId: hatDetails.id,
-						hatsAddress: contractAddress,
-					});
 				} else {
 					setValidationError("Hat not found. Please check the Hat ID.");
 					setSelectedHat(null);
 				}
 			} catch (err) {
+				if (request !== validationRequest.current) return;
 				log.error("Error validating Hat:", err);
 				setValidationError("Error validating Hat. Please try again.");
 				setSelectedHat(null);
 			} finally {
-				setIsValidating(false);
+				if (request === validationRequest.current) setIsValidating(false);
 			}
 		},
-		[onConfigChange]
+		[]
 	);
 
-	// Load initial hat if provided
+	// Display the stored gate without requiring optional subgraph metadata.
 	useEffect(() => {
-		if (initialConfig?.hatId && !selectedHat) {
-			validateHat(initialConfig.hatId, initialConfig.hatsContract);
-		}
-	}, [initialConfig, selectedHat, validateHat]);
+		++validationRequest.current;
+		setHatId(initialConfig?.hatId || "");
+		setHatsContract(initialConfig?.hatsContract || "");
+		setSelectedHat(null);
+		setValidationError(null);
+		setIsValidating(false);
+	}, [initialConfig?.hatId, initialConfig?.hatsContract]);
+
+	const publishGate = (id: string, contract: string) => {
+		++validationRequest.current;
+		setIsValidating(false);
+		onConfigChange({
+			hatId: id,
+			hatsId: id,
+			hatsContract: contract,
+			hatsAddress: contract,
+		});
+	};
 
 	const handleHatIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const newHatId = e.target.value;
 		setHatId(newHatId);
+		publishGate(newHatId, hatsContract);
 		setSelectedHat(null);
 		setValidationError(null);
 	};
@@ -112,6 +125,7 @@ export const HatsConfig: React.FC<HatsConfigProps> = ({
 	const handleContractChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		const newContract = e.target.value;
 		setHatsContract(newContract);
+		publishGate(hatId, newContract);
 		setSelectedHat(null);
 		setValidationError(null);
 	};

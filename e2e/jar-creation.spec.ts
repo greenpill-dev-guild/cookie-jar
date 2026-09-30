@@ -14,6 +14,9 @@ test("creates a custom jar directly through the local factory and opens the chai
 	await wallet.connectWallet(0);
 	await page.getByRole("link", { name: "Create a jar", exact: true }).click();
 	await page.locator("#jarName").fill("QA direct factory jar");
+	await page
+		.locator("#jarOwner")
+		.fill("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
 	await page.getByRole("button", { name: "Next", exact: true }).click();
 	await page.locator("#fixedAmount").fill("0.1");
 	await page.locator("#withdrawalInterval").fill("28");
@@ -103,9 +106,13 @@ test("preset stays editable and wallet connection returns to review without a wr
 	await page
 		.getByRole("button", { name: "Use Green Goods stipend preset" })
 		.click();
-	await expect(page.locator("#jarOwner")).toHaveValue(
-		"0xe09315A86ED0A39862158f5631b928145987fE05"
-	);
+	await expect(page.locator("#jarOwner")).toHaveValue("");
+	await expect(
+		page.getByRole("button", { name: "Next", exact: true })
+	).toBeDisabled();
+	await page
+		.locator("#jarOwner")
+		.fill("0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266");
 	await expect(
 		page.getByRole("combobox", { name: "Network", exact: true })
 	).toHaveText(/Arbitrum/);
@@ -155,7 +162,7 @@ test("preset stays editable and wallet connection returns to review without a wr
 	await page.getByRole("button", { name: "Previous", exact: true }).click();
 	await page.getByRole("button", { name: "Previous", exact: true }).click();
 	await expect(page.locator("#jarOwner")).toHaveValue(
-		"0xe09315A86ED0A39862158f5631b928145987fE05"
+		"0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266"
 	);
 });
 
