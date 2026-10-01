@@ -24,3 +24,18 @@ jobs:
 
       - name: Type check
         run: bun type-check
+
+  production-builds:
+    name: Client and stipend production builds
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: ./.github/actions/setup-bun
+
+      - name: Build the generic Next client
+        run: bun run --cwd client build:skip-lint
+
+      - name: Build the standalone stipend client
+        run: bun run build:stipend

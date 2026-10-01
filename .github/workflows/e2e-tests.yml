@@ -9,6 +9,10 @@ on:
     - cron: '0 2 * * *' # Nightly 02:00 UTC
   workflow_dispatch:
 
+concurrency:
+  group: e2e-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   # Anvil's public test account #0. Not a secret; never use it outside local chains.
   ANVIL_DEPLOYER: '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
@@ -36,7 +40,7 @@ jobs:
         run: ./scripts/oz-compat.sh
 
       - name: Install Playwright browsers
-        run: bunx playwright install --with-deps
+        run: bunx playwright install --with-deps chromium
 
       - name: Start Anvil and deploy
         run: |
@@ -56,6 +60,7 @@ jobs:
           cd ..
           ./scripts/create-deployment-file.sh
           ./scripts/copy-deployment.sh
+          bun run sync:deployment -- --chain 31337 --script DeployLocal.s.sol
 
       - name: Start the client
         run: |
@@ -64,10 +69,13 @@ jobs:
           NODE_ENV=development bun run dev > ../dev.log 2>&1 &
           cd ..
           for i in $(seq 1 60); do
-            curl -s http://localhost:3000 > /dev/null 2>&1 && { echo "Next.js ready"; exit 0; }
+            curl -fsS http://localhost:3000 > /dev/null 2>&1 && { echo "Next.js ready"; exit 0; }
             sleep 2
           done
           echo "Next.js failed to start"; cat dev.log; exit 1
+
+      - name: Verify E2E runner failure handling
+        run: python3 scripts/tests/test_e2e_runner.py
 
       - name: Run E2E tests
         run: ./scripts/test-e2e.sh --skip-setup --ci

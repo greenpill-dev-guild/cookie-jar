@@ -1,0 +1,762 @@
+
+Running 18 tests using 1 worker
+
+(node:58607) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+🔗 Connecting wallet as Deployer (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266)
+  ✘   1 [Desktop Chrome] › e2e/admin-functions.spec.ts:21:6 › 🔧 Admin Functions E2E › Allowlist management - add and remove users (5.7s)
+(node:59325) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+🔗 Connecting wallet as Deployer (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266)
+  ✘   2 [Desktop Chrome] › e2e/admin-functions.spec.ts:79:6 › 🔧 Admin Functions E2E › NFT gate management (v2 contracts only) (4.2s)
+(node:60011) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+🔗 Connecting wallet as Deployer (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266)
+  ✘   3 [Desktop Chrome] › e2e/admin-functions.spec.ts:143:6 › 🔧 Admin Functions E2E › Jar metadata updates (9.9s)
+(node:61829) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+🔗 Connecting wallet as Deployer (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266)
+  ✘   4 [Desktop Chrome] › e2e/admin-functions.spec.ts:187:6 › 🔧 Admin Functions E2E › Emergency withdrawal (if enabled) (3.4s)
+(node:62627) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+🔗 Connecting wallet as Deployer (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266)
+  ✘   5 [Desktop Chrome] › e2e/admin-functions.spec.ts:225:6 › 🔧 Admin Functions E2E › Admin access control validation (3.6s)
+(node:63393) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+🔗 Connecting wallet as Cookie Monster (0x70997970C51812dc3A010C7d01b50e0d17dc79C8)
+  ✘   6 [Desktop Chrome] › e2e/jar-operations.spec.ts:10:6 › 💰 Jar Operations E2E › Complete deposit and withdrawal flow (3.6s)
+(node:64209) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+🔗 Connecting wallet as Cookie Monster (0x70997970C51812dc3A010C7d01b50e0d17dc79C8)
+  ✘   7 [Desktop Chrome] › e2e/jar-operations.spec.ts:104:6 › 💰 Jar Operations E2E › NFT-gated withdrawal flow (4.0s)
+(node:65005) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+🔗 Connecting wallet as Cookie Monster (0x70997970C51812dc3A010C7d01b50e0d17dc79C8)
+  ✘   8 [Desktop Chrome] › e2e/jar-operations.spec.ts:155:6 › 💰 Jar Operations E2E › Access control enforcement (3.6s)
+(node:65841) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+🔗 Connecting wallet as Cookie Monster (0x70997970C51812dc3A010C7d01b50e0d17dc79C8)
+  ✘   9 [Desktop Chrome] › e2e/jar-operations.spec.ts:184:6 › 💰 Jar Operations E2E › Cooldown period enforcement (4.0s)
+(node:66637) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+🔗 Connecting wallet as Deployer (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266)
+  ✘  10 [Mobile Chrome] › e2e/admin-functions.spec.ts:21:6 › 🔧 Admin Functions E2E › Allowlist management - add and remove users (5.1s)
+(node:67406) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+🔗 Connecting wallet as Deployer (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266)
+  ✘  11 [Mobile Chrome] › e2e/admin-functions.spec.ts:79:6 › 🔧 Admin Functions E2E › NFT gate management (v2 contracts only) (10.1s)
+(node:68838) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+🔗 Connecting wallet as Deployer (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266)
+  ✘  12 [Mobile Chrome] › e2e/admin-functions.spec.ts:143:6 › 🔧 Admin Functions E2E › Jar metadata updates (5.9s)
+(node:69816) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+🔗 Connecting wallet as Deployer (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266)
+  ✘  13 [Mobile Chrome] › e2e/admin-functions.spec.ts:187:6 › 🔧 Admin Functions E2E › Emergency withdrawal (if enabled) (12.1s)
+(node:71257) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+🔗 Connecting wallet as Deployer (0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266)
+  ✘  14 [Mobile Chrome] › e2e/admin-functions.spec.ts:225:6 › 🔧 Admin Functions E2E › Admin access control validation (10.6s)
+(node:72844) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+🔗 Connecting wallet as Cookie Monster (0x70997970C51812dc3A010C7d01b50e0d17dc79C8)
+  ✘  15 [Mobile Chrome] › e2e/jar-operations.spec.ts:10:6 › 💰 Jar Operations E2E › Complete deposit and withdrawal flow (6.3s)
+(node:73762) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+🔗 Connecting wallet as Cookie Monster (0x70997970C51812dc3A010C7d01b50e0d17dc79C8)
+  ✘  16 [Mobile Chrome] › e2e/jar-operations.spec.ts:104:6 › 💰 Jar Operations E2E › NFT-gated withdrawal flow (10.1s)
+(node:75225) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+🔗 Connecting wallet as Cookie Monster (0x70997970C51812dc3A010C7d01b50e0d17dc79C8)
+  ✘  17 [Mobile Chrome] › e2e/jar-operations.spec.ts:155:6 › 💰 Jar Operations E2E › Access control enforcement (10.1s)
+(node:76666) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+🔗 Connecting wallet as Cookie Monster (0x70997970C51812dc3A010C7d01b50e0d17dc79C8)
+  ✘  18 [Mobile Chrome] › e2e/jar-operations.spec.ts:184:6 › 💰 Jar Operations E2E › Cooldown period enforcement (10.6s)
+
+
+  1) [Desktop Chrome] › e2e/admin-functions.spec.ts:21:6 › 🔧 Admin Functions E2E › Allowlist management - add and remove users 
+
+    Error: locator.isVisible: Unexpected token "=" while parsing css selector "[data-testid="connect-wallet-button"], text=Connect Wallet". Did you mean to CSS.escape it?
+    Call log:
+        - checking visibility of [data-testid="connect-wallet-button"], text=Connect Wallet >> nth=0
+
+
+       at utils/wallet-utils.ts:44
+
+      42 | 		// Look for connect wallet button using your existing patterns
+      43 | 		const connectButton = this.page.locator(SELECTORS.wallet.connect).first();
+    > 44 | 		const isVisible = await connectButton.isVisible();
+         | 		                                      ^
+      45 |
+      46 | 		if (isVisible) {
+      47 | 			await connectButton.click();
+        at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:44:41)
+        at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-30e5d-ment---add-and-remove-users-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-30e5d-ment---add-and-remove-users-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-30e5d-ment---add-and-remove-users-Desktop-Chrome/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-30e5d-ment---add-and-remove-users-Desktop-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-30e5d-ment---add-and-remove-users-Desktop-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [Desktop Chrome] › e2e/admin-functions.spec.ts:79:6 › 🔧 Admin Functions E2E › NFT gate management (v2 contracts only) 
+
+    Error: locator.isVisible: Unexpected token "=" while parsing css selector "[data-testid="connect-wallet-button"], text=Connect Wallet". Did you mean to CSS.escape it?
+    Call log:
+        - checking visibility of [data-testid="connect-wallet-button"], text=Connect Wallet >> nth=0
+
+
+       at utils/wallet-utils.ts:44
+
+      42 | 		// Look for connect wallet button using your existing patterns
+      43 | 		const connectButton = this.page.locator(SELECTORS.wallet.connect).first();
+    > 44 | 		const isVisible = await connectButton.isVisible();
+         | 		                                      ^
+      45 |
+      46 | 		if (isVisible) {
+      47 | 			await connectButton.click();
+        at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:44:41)
+        at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-35876-nagement-v2-contracts-only--Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-35876-nagement-v2-contracts-only--Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-35876-nagement-v2-contracts-only--Desktop-Chrome/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-35876-nagement-v2-contracts-only--Desktop-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-35876-nagement-v2-contracts-only--Desktop-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [Desktop Chrome] › e2e/admin-functions.spec.ts:143:6 › 🔧 Admin Functions E2E › Jar metadata updates 
+
+    Error: locator.isVisible: Unexpected token "=" while parsing css selector "[data-testid="connect-wallet-button"], text=Connect Wallet". Did you mean to CSS.escape it?
+    Call log:
+        - checking visibility of [data-testid="connect-wallet-button"], text=Connect Wallet >> nth=0
+
+
+       at utils/wallet-utils.ts:44
+
+      42 | 		// Look for connect wallet button using your existing patterns
+      43 | 		const connectButton = this.page.locator(SELECTORS.wallet.connect).first();
+    > 44 | 		const isVisible = await connectButton.isVisible();
+         | 		                                      ^
+      45 |
+      46 | 		if (isVisible) {
+      47 | 			await connectButton.click();
+        at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:44:41)
+        at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-Functions-E2E-Jar-metadata-updates-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-Functions-E2E-Jar-metadata-updates-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-Functions-E2E-Jar-metadata-updates-Desktop-Chrome/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-Functions-E2E-Jar-metadata-updates-Desktop-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-Functions-E2E-Jar-metadata-updates-Desktop-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [Desktop Chrome] › e2e/admin-functions.spec.ts:187:6 › 🔧 Admin Functions E2E › Emergency withdrawal (if enabled) 
+
+    Error: locator.isVisible: Unexpected token "=" while parsing css selector "[data-testid="connect-wallet-button"], text=Connect Wallet". Did you mean to CSS.escape it?
+    Call log:
+        - checking visibility of [data-testid="connect-wallet-button"], text=Connect Wallet >> nth=0
+
+
+       at utils/wallet-utils.ts:44
+
+      42 | 		// Look for connect wallet button using your existing patterns
+      43 | 		const connectButton = this.page.locator(SELECTORS.wallet.connect).first();
+    > 44 | 		const isVisible = await connectButton.isVisible();
+         | 		                                      ^
+      45 |
+      46 | 		if (isVisible) {
+      47 | 			await connectButton.click();
+        at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:44:41)
+        at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-d5a0f-ency-withdrawal-if-enabled--Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-d5a0f-ency-withdrawal-if-enabled--Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-d5a0f-ency-withdrawal-if-enabled--Desktop-Chrome/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-d5a0f-ency-withdrawal-if-enabled--Desktop-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-d5a0f-ency-withdrawal-if-enabled--Desktop-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [Desktop Chrome] › e2e/admin-functions.spec.ts:225:6 › 🔧 Admin Functions E2E › Admin access control validation 
+
+    Error: locator.isVisible: Unexpected token "=" while parsing css selector "[data-testid="connect-wallet-button"], text=Connect Wallet". Did you mean to CSS.escape it?
+    Call log:
+        - checking visibility of [data-testid="connect-wallet-button"], text=Connect Wallet >> nth=0
+
+
+       at utils/wallet-utils.ts:44
+
+      42 | 		// Look for connect wallet button using your existing patterns
+      43 | 		const connectButton = this.page.locator(SELECTORS.wallet.connect).first();
+    > 44 | 		const isVisible = await connectButton.isVisible();
+         | 		                                      ^
+      45 |
+      46 | 		if (isVisible) {
+      47 | 			await connectButton.click();
+        at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:44:41)
+        at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-afa34-n-access-control-validation-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-afa34-n-access-control-validation-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-afa34-n-access-control-validation-Desktop-Chrome/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-afa34-n-access-control-validation-Desktop-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-afa34-n-access-control-validation-Desktop-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [Desktop Chrome] › e2e/jar-operations.spec.ts:10:6 › 💰 Jar Operations E2E › Complete deposit and withdrawal flow 
+
+    Error: locator.isVisible: Unexpected token "=" while parsing css selector "[data-testid="connect-wallet-button"], text=Connect Wallet". Did you mean to CSS.escape it?
+    Call log:
+        - checking visibility of [data-testid="connect-wallet-button"], text=Connect Wallet >> nth=0
+
+
+       at utils/wallet-utils.ts:44
+
+      42 | 		// Look for connect wallet button using your existing patterns
+      43 | 		const connectButton = this.page.locator(SELECTORS.wallet.connect).first();
+    > 44 | 		const isVisible = await connectButton.isVisible();
+         | 		                                      ^
+      45 |
+      46 | 		if (isVisible) {
+      47 | 			await connectButton.click();
+        at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:44:41)
+        at /Users/afo/Code/greenpill/cookie-jar/e2e/jar-operations.spec.ts:7:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-a5dbc-deposit-and-withdrawal-flow-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-a5dbc-deposit-and-withdrawal-flow-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-a5dbc-deposit-and-withdrawal-flow-Desktop-Chrome/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-a5dbc-deposit-and-withdrawal-flow-Desktop-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-a5dbc-deposit-and-withdrawal-flow-Desktop-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [Desktop Chrome] › e2e/jar-operations.spec.ts:104:6 › 💰 Jar Operations E2E › NFT-gated withdrawal flow 
+
+    Error: locator.isVisible: Unexpected token "=" while parsing css selector "[data-testid="connect-wallet-button"], text=Connect Wallet". Did you mean to CSS.escape it?
+    Call log:
+        - checking visibility of [data-testid="connect-wallet-button"], text=Connect Wallet >> nth=0
+
+
+       at utils/wallet-utils.ts:44
+
+      42 | 		// Look for connect wallet button using your existing patterns
+      43 | 		const connectButton = this.page.locator(SELECTORS.wallet.connect).first();
+    > 44 | 		const isVisible = await connectButton.isVisible();
+         | 		                                      ^
+      45 |
+      46 | 		if (isVisible) {
+      47 | 			await connectButton.click();
+        at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:44:41)
+        at /Users/afo/Code/greenpill/cookie-jar/e2e/jar-operations.spec.ts:7:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-ff0da-E-NFT-gated-withdrawal-flow-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-ff0da-E-NFT-gated-withdrawal-flow-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-ff0da-E-NFT-gated-withdrawal-flow-Desktop-Chrome/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-ff0da-E-NFT-gated-withdrawal-flow-Desktop-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-ff0da-E-NFT-gated-withdrawal-flow-Desktop-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  8) [Desktop Chrome] › e2e/jar-operations.spec.ts:155:6 › 💰 Jar Operations E2E › Access control enforcement 
+
+    Error: locator.isVisible: Unexpected token "=" while parsing css selector "[data-testid="connect-wallet-button"], text=Connect Wallet". Did you mean to CSS.escape it?
+    Call log:
+        - checking visibility of [data-testid="connect-wallet-button"], text=Connect Wallet >> nth=0
+
+
+       at utils/wallet-utils.ts:44
+
+      42 | 		// Look for connect wallet button using your existing patterns
+      43 | 		const connectButton = this.page.locator(SELECTORS.wallet.connect).first();
+    > 44 | 		const isVisible = await connectButton.isVisible();
+         | 		                                      ^
+      45 |
+      46 | 		if (isVisible) {
+      47 | 			await connectButton.click();
+        at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:44:41)
+        at /Users/afo/Code/greenpill/cookie-jar/e2e/jar-operations.spec.ts:7:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-34f6c--Access-control-enforcement-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-34f6c--Access-control-enforcement-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-34f6c--Access-control-enforcement-Desktop-Chrome/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-34f6c--Access-control-enforcement-Desktop-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-34f6c--Access-control-enforcement-Desktop-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  9) [Desktop Chrome] › e2e/jar-operations.spec.ts:184:6 › 💰 Jar Operations E2E › Cooldown period enforcement 
+
+    Error: locator.isVisible: Unexpected token "=" while parsing css selector "[data-testid="connect-wallet-button"], text=Connect Wallet". Did you mean to CSS.escape it?
+    Call log:
+        - checking visibility of [data-testid="connect-wallet-button"], text=Connect Wallet >> nth=0
+
+
+       at utils/wallet-utils.ts:44
+
+      42 | 		// Look for connect wallet button using your existing patterns
+      43 | 		const connectButton = this.page.locator(SELECTORS.wallet.connect).first();
+    > 44 | 		const isVisible = await connectButton.isVisible();
+         | 		                                      ^
+      45 |
+      46 | 		if (isVisible) {
+      47 | 			await connectButton.click();
+        at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:44:41)
+        at /Users/afo/Code/greenpill/cookie-jar/e2e/jar-operations.spec.ts:7:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-89149-Cooldown-period-enforcement-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-89149-Cooldown-period-enforcement-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-89149-Cooldown-period-enforcement-Desktop-Chrome/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-89149-Cooldown-period-enforcement-Desktop-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-89149-Cooldown-period-enforcement-Desktop-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  10) [Mobile Chrome] › e2e/admin-functions.spec.ts:21:6 › 🔧 Admin Functions E2E › Allowlist management - add and remove users 
+
+    Error: locator.isVisible: Unexpected token "=" while parsing css selector "[data-testid="connect-wallet-button"], text=Connect Wallet". Did you mean to CSS.escape it?
+    Call log:
+        - checking visibility of [data-testid="connect-wallet-button"], text=Connect Wallet >> nth=0
+
+
+       at utils/wallet-utils.ts:44
+
+      42 | 		// Look for connect wallet button using your existing patterns
+      43 | 		const connectButton = this.page.locator(SELECTORS.wallet.connect).first();
+    > 44 | 		const isVisible = await connectButton.isVisible();
+         | 		                                      ^
+      45 |
+      46 | 		if (isVisible) {
+      47 | 			await connectButton.click();
+        at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:44:41)
+        at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-30e5d-ment---add-and-remove-users-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-30e5d-ment---add-and-remove-users-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-30e5d-ment---add-and-remove-users-Mobile-Chrome/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-30e5d-ment---add-and-remove-users-Mobile-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-30e5d-ment---add-and-remove-users-Mobile-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  11) [Mobile Chrome] › e2e/admin-functions.spec.ts:79:6 › 🔧 Admin Functions E2E › NFT gate management (v2 contracts only) 
+
+    Error: locator.isVisible: Unexpected token "=" while parsing css selector "[data-testid="connect-wallet-button"], text=Connect Wallet". Did you mean to CSS.escape it?
+    Call log:
+        - checking visibility of [data-testid="connect-wallet-button"], text=Connect Wallet >> nth=0
+
+
+       at utils/wallet-utils.ts:44
+
+      42 | 		// Look for connect wallet button using your existing patterns
+      43 | 		const connectButton = this.page.locator(SELECTORS.wallet.connect).first();
+    > 44 | 		const isVisible = await connectButton.isVisible();
+         | 		                                      ^
+      45 |
+      46 | 		if (isVisible) {
+      47 | 			await connectButton.click();
+        at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:44:41)
+        at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-35876-nagement-v2-contracts-only--Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-35876-nagement-v2-contracts-only--Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-35876-nagement-v2-contracts-only--Mobile-Chrome/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-35876-nagement-v2-contracts-only--Mobile-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-35876-nagement-v2-contracts-only--Mobile-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  12) [Mobile Chrome] › e2e/admin-functions.spec.ts:143:6 › 🔧 Admin Functions E2E › Jar metadata updates 
+
+    Error: locator.isVisible: Unexpected token "=" while parsing css selector "[data-testid="connect-wallet-button"], text=Connect Wallet". Did you mean to CSS.escape it?
+    Call log:
+        - checking visibility of [data-testid="connect-wallet-button"], text=Connect Wallet >> nth=0
+
+
+       at utils/wallet-utils.ts:44
+
+      42 | 		// Look for connect wallet button using your existing patterns
+      43 | 		const connectButton = this.page.locator(SELECTORS.wallet.connect).first();
+    > 44 | 		const isVisible = await connectButton.isVisible();
+         | 		                                      ^
+      45 |
+      46 | 		if (isVisible) {
+      47 | 			await connectButton.click();
+        at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:44:41)
+        at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-Functions-E2E-Jar-metadata-updates-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-Functions-E2E-Jar-metadata-updates-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-Functions-E2E-Jar-metadata-updates-Mobile-Chrome/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-Functions-E2E-Jar-metadata-updates-Mobile-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-Functions-E2E-Jar-metadata-updates-Mobile-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  13) [Mobile Chrome] › e2e/admin-functions.spec.ts:187:6 › 🔧 Admin Functions E2E › Emergency withdrawal (if enabled) 
+
+    Error: locator.isVisible: Unexpected token "=" while parsing css selector "[data-testid="connect-wallet-button"], text=Connect Wallet". Did you mean to CSS.escape it?
+    Call log:
+        - checking visibility of [data-testid="connect-wallet-button"], text=Connect Wallet >> nth=0
+
+
+       at utils/wallet-utils.ts:44
+
+      42 | 		// Look for connect wallet button using your existing patterns
+      43 | 		const connectButton = this.page.locator(SELECTORS.wallet.connect).first();
+    > 44 | 		const isVisible = await connectButton.isVisible();
+         | 		                                      ^
+      45 |
+      46 | 		if (isVisible) {
+      47 | 			await connectButton.click();
+        at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:44:41)
+        at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-d5a0f-ency-withdrawal-if-enabled--Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-d5a0f-ency-withdrawal-if-enabled--Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-d5a0f-ency-withdrawal-if-enabled--Mobile-Chrome/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-d5a0f-ency-withdrawal-if-enabled--Mobile-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-d5a0f-ency-withdrawal-if-enabled--Mobile-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  14) [Mobile Chrome] › e2e/admin-functions.spec.ts:225:6 › 🔧 Admin Functions E2E › Admin access control validation 
+
+    Error: locator.isVisible: Unexpected token "=" while parsing css selector "[data-testid="connect-wallet-button"], text=Connect Wallet". Did you mean to CSS.escape it?
+    Call log:
+        - checking visibility of [data-testid="connect-wallet-button"], text=Connect Wallet >> nth=0
+
+
+       at utils/wallet-utils.ts:44
+
+      42 | 		// Look for connect wallet button using your existing patterns
+      43 | 		const connectButton = this.page.locator(SELECTORS.wallet.connect).first();
+    > 44 | 		const isVisible = await connectButton.isVisible();
+         | 		                                      ^
+      45 |
+      46 | 		if (isVisible) {
+      47 | 			await connectButton.click();
+        at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:44:41)
+        at /Users/afo/Code/greenpill/cookie-jar/e2e/admin-functions.spec.ts:7:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-afa34-n-access-control-validation-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-afa34-n-access-control-validation-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-afa34-n-access-control-validation-Mobile-Chrome/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-afa34-n-access-control-validation-Mobile-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/admin-functions-🔧-Admin-F-afa34-n-access-control-validation-Mobile-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  15) [Mobile Chrome] › e2e/jar-operations.spec.ts:10:6 › 💰 Jar Operations E2E › Complete deposit and withdrawal flow 
+
+    Error: locator.isVisible: Unexpected token "=" while parsing css selector "[data-testid="connect-wallet-button"], text=Connect Wallet". Did you mean to CSS.escape it?
+    Call log:
+        - checking visibility of [data-testid="connect-wallet-button"], text=Connect Wallet >> nth=0
+
+
+       at utils/wallet-utils.ts:44
+
+      42 | 		// Look for connect wallet button using your existing patterns
+      43 | 		const connectButton = this.page.locator(SELECTORS.wallet.connect).first();
+    > 44 | 		const isVisible = await connectButton.isVisible();
+         | 		                                      ^
+      45 |
+      46 | 		if (isVisible) {
+      47 | 			await connectButton.click();
+        at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:44:41)
+        at /Users/afo/Code/greenpill/cookie-jar/e2e/jar-operations.spec.ts:7:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-a5dbc-deposit-and-withdrawal-flow-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-a5dbc-deposit-and-withdrawal-flow-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-a5dbc-deposit-and-withdrawal-flow-Mobile-Chrome/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-a5dbc-deposit-and-withdrawal-flow-Mobile-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-a5dbc-deposit-and-withdrawal-flow-Mobile-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  16) [Mobile Chrome] › e2e/jar-operations.spec.ts:104:6 › 💰 Jar Operations E2E › NFT-gated withdrawal flow 
+
+    Error: locator.isVisible: Unexpected token "=" while parsing css selector "[data-testid="connect-wallet-button"], text=Connect Wallet". Did you mean to CSS.escape it?
+    Call log:
+        - checking visibility of [data-testid="connect-wallet-button"], text=Connect Wallet >> nth=0
+
+
+       at utils/wallet-utils.ts:44
+
+      42 | 		// Look for connect wallet button using your existing patterns
+      43 | 		const connectButton = this.page.locator(SELECTORS.wallet.connect).first();
+    > 44 | 		const isVisible = await connectButton.isVisible();
+         | 		                                      ^
+      45 |
+      46 | 		if (isVisible) {
+      47 | 			await connectButton.click();
+        at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:44:41)
+        at /Users/afo/Code/greenpill/cookie-jar/e2e/jar-operations.spec.ts:7:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-ff0da-E-NFT-gated-withdrawal-flow-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-ff0da-E-NFT-gated-withdrawal-flow-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-ff0da-E-NFT-gated-withdrawal-flow-Mobile-Chrome/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-ff0da-E-NFT-gated-withdrawal-flow-Mobile-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-ff0da-E-NFT-gated-withdrawal-flow-Mobile-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  17) [Mobile Chrome] › e2e/jar-operations.spec.ts:155:6 › 💰 Jar Operations E2E › Access control enforcement 
+
+    Error: locator.isVisible: Unexpected token "=" while parsing css selector "[data-testid="connect-wallet-button"], text=Connect Wallet". Did you mean to CSS.escape it?
+    Call log:
+        - checking visibility of [data-testid="connect-wallet-button"], text=Connect Wallet >> nth=0
+
+
+       at utils/wallet-utils.ts:44
+
+      42 | 		// Look for connect wallet button using your existing patterns
+      43 | 		const connectButton = this.page.locator(SELECTORS.wallet.connect).first();
+    > 44 | 		const isVisible = await connectButton.isVisible();
+         | 		                                      ^
+      45 |
+      46 | 		if (isVisible) {
+      47 | 			await connectButton.click();
+        at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:44:41)
+        at /Users/afo/Code/greenpill/cookie-jar/e2e/jar-operations.spec.ts:7:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-34f6c--Access-control-enforcement-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-34f6c--Access-control-enforcement-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-34f6c--Access-control-enforcement-Mobile-Chrome/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-34f6c--Access-control-enforcement-Mobile-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-34f6c--Access-control-enforcement-Mobile-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18) [Mobile Chrome] › e2e/jar-operations.spec.ts:184:6 › 💰 Jar Operations E2E › Cooldown period enforcement 
+
+    Error: locator.isVisible: Unexpected token "=" while parsing css selector "[data-testid="connect-wallet-button"], text=Connect Wallet". Did you mean to CSS.escape it?
+    Call log:
+        - checking visibility of [data-testid="connect-wallet-button"], text=Connect Wallet >> nth=0
+
+
+       at utils/wallet-utils.ts:44
+
+      42 | 		// Look for connect wallet button using your existing patterns
+      43 | 		const connectButton = this.page.locator(SELECTORS.wallet.connect).first();
+    > 44 | 		const isVisible = await connectButton.isVisible();
+         | 		                                      ^
+      45 |
+      46 | 		if (isVisible) {
+      47 | 			await connectButton.click();
+        at WalletTester.connectWallet (/Users/afo/Code/greenpill/cookie-jar/e2e/utils/wallet-utils.ts:44:41)
+        at /Users/afo/Code/greenpill/cookie-jar/e2e/jar-operations.spec.ts:7:3
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-89149-Cooldown-period-enforcement-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-89149-Cooldown-period-enforcement-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-89149-Cooldown-period-enforcement-Mobile-Chrome/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-89149-Cooldown-period-enforcement-Mobile-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace docs/qa/stipend-2026-09-05/evidence/operations-retry-artifacts/jar-operations-💰-Jar-Oper-89149-Cooldown-period-enforcement-Mobile-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  18 failed
+    [Desktop Chrome] › e2e/admin-functions.spec.ts:21:6 › 🔧 Admin Functions E2E › Allowlist management - add and remove users 
+    [Desktop Chrome] › e2e/admin-functions.spec.ts:79:6 › 🔧 Admin Functions E2E › NFT gate management (v2 contracts only) 
+    [Desktop Chrome] › e2e/admin-functions.spec.ts:143:6 › 🔧 Admin Functions E2E › Jar metadata updates 
+    [Desktop Chrome] › e2e/admin-functions.spec.ts:187:6 › 🔧 Admin Functions E2E › Emergency withdrawal (if enabled) 
+    [Desktop Chrome] › e2e/admin-functions.spec.ts:225:6 › 🔧 Admin Functions E2E › Admin access control validation 
+    [Desktop Chrome] › e2e/jar-operations.spec.ts:10:6 › 💰 Jar Operations E2E › Complete deposit and withdrawal flow 
+    [Desktop Chrome] › e2e/jar-operations.spec.ts:104:6 › 💰 Jar Operations E2E › NFT-gated withdrawal flow 
+    [Desktop Chrome] › e2e/jar-operations.spec.ts:155:6 › 💰 Jar Operations E2E › Access control enforcement 
+    [Desktop Chrome] › e2e/jar-operations.spec.ts:184:6 › 💰 Jar Operations E2E › Cooldown period enforcement 
+    [Mobile Chrome] › e2e/admin-functions.spec.ts:21:6 › 🔧 Admin Functions E2E › Allowlist management - add and remove users 
+    [Mobile Chrome] › e2e/admin-functions.spec.ts:79:6 › 🔧 Admin Functions E2E › NFT gate management (v2 contracts only) 
+    [Mobile Chrome] › e2e/admin-functions.spec.ts:143:6 › 🔧 Admin Functions E2E › Jar metadata updates 
+    [Mobile Chrome] › e2e/admin-functions.spec.ts:187:6 › 🔧 Admin Functions E2E › Emergency withdrawal (if enabled) 
+    [Mobile Chrome] › e2e/admin-functions.spec.ts:225:6 › 🔧 Admin Functions E2E › Admin access control validation 
+    [Mobile Chrome] › e2e/jar-operations.spec.ts:10:6 › 💰 Jar Operations E2E › Complete deposit and withdrawal flow 
+    [Mobile Chrome] › e2e/jar-operations.spec.ts:104:6 › 💰 Jar Operations E2E › NFT-gated withdrawal flow 
+    [Mobile Chrome] › e2e/jar-operations.spec.ts:155:6 › 💰 Jar Operations E2E › Access control enforcement 
+    [Mobile Chrome] › e2e/jar-operations.spec.ts:184:6 › 💰 Jar Operations E2E › Cooldown period enforcement 

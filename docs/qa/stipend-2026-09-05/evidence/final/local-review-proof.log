@@ -1,0 +1,11 @@
+
+Running 2 tests using 1 worker
+
+(node:95001) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [Desktop Chrome] › e2e/jar-creation.spec.ts:56:5 › connecting on the creation network waits for an explicit final submit (16.0s)
+(node:98274) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  2 [Mobile Chrome] › e2e/jar-creation.spec.ts:56:5 › connecting on the creation network waits for an explicit final submit (5.6s)
+
+  2 passed (24.5s)

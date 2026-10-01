@@ -1,6 +1,6 @@
 // Note: Using simplified POAP integration until proper SDK types are available
 // import { PoapSDK, EventDTO, TokenDTO, PaginatedRequest } from '@poap-xyz/poap-sdk';
-import { log } from "@/lib/app/logger";
+import { log } from "@jar-core/lib/app/logger";
 
 export interface POAPEvent {
 	id: number;

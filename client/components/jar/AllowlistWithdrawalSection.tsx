@@ -1,22 +1,22 @@
 "use client";
 
-import { ArrowUpToLine } from "lucide-react";
-import React from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
 import {
 	checkDecimals,
 	ETH_ADDRESS,
 	formatTokenAmount,
 	useTokenInfo,
-} from "@/lib/blockchain/token-utils";
+} from "@jar-core/lib/blockchain/token-utils";
+import { ArrowUpToLine } from "lucide-react";
+import React from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 
 const PURPOSE_MIN_LENGTH = 27;
 const PURPOSE_HINT =
 	"At least 27 characters. Paste the Linear ledger or issue link plus a short note.";
 const PURPOSE_PLACEHOLDER =
-	"July 2026 stipend: https://linear.app/greenpill-dev-guild/... plus a short note";
+	"Work completed: https://linear.app/greenpill-dev-guild/... plus a short note";
 
 /** Count Unicode code points to match Solidity's countUnicodeCodePoints().
  *  Uses the string iterator which yields one value per code point (handles surrogate pairs). */
@@ -74,7 +74,8 @@ export const AllowlistWithdrawalSection: React.FC<
 	handleWithdrawAllowlistVariable,
 }) => {
 	const { symbol: tokenSymbol, decimals: tokenDecimals } = useTokenInfo(
-		config?.currency || ETH_ADDRESS
+		config?.currency || ETH_ADDRESS,
+		config.chainId
 	);
 	const [amountError, setAmountError] = React.useState<string | null>(null);
 
@@ -132,7 +133,7 @@ export const AllowlistWithdrawalSection: React.FC<
 
 				<div className="pt-2 flex justify-center">
 					<Button
-						onClick={handleWithdrawAllowlist}
+						onClick={() => handleWithdrawAllowlist()}
 						className="px-8 py-6 text-lg"
 						disabled={!purposeOk || config.isWithdrawPending}
 					>
@@ -204,7 +205,7 @@ export const AllowlistWithdrawalSection: React.FC<
 
 			<div className="pt-2">
 				<Button
-					onClick={handleWithdrawAllowlistVariable}
+					onClick={() => handleWithdrawAllowlistVariable()}
 					className="w-full"
 					disabled={
 						!withdrawAmount ||

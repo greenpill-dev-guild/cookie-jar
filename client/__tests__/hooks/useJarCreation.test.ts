@@ -5,7 +5,7 @@ import React from "react";
 import { vi } from "vitest";
 
 // Mock the deployments.auto module first
-vi.mock("@/config/deployments.auto", () => ({
+vi.mock("@jar-core/config/deployments.auto", () => ({
 	isV2Chain: vi.fn().mockReturnValue(true),
 	DEPLOYMENTS: {
 		31337: {
@@ -18,7 +18,7 @@ vi.mock("@/config/deployments.auto", () => ({
 	},
 }));
 
-import { ETH_ADDRESS } from "@/lib/blockchain/constants";
+import { ETH_ADDRESS } from "@jar-core/lib/blockchain/constants";
 
 // Mock wagmi hooks
 vi.mock("wagmi", () => ({
@@ -48,7 +48,7 @@ vi.mock("next/navigation", () => ({
 }));
 
 // Mock config
-vi.mock("@/config/supported-networks", () => ({
+vi.mock("@jar-core/config/networks", () => ({
 	contractAddresses: {
 		cookieJarFactory: {
 			8453: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9", // Base
@@ -59,7 +59,7 @@ vi.mock("@/config/supported-networks", () => ({
 }));
 
 // Mock toast
-vi.mock("@/hooks/app/useToast", () => ({
+vi.mock("@jar-core/hooks/app/useToast", () => ({
 	useToast: () => ({
 		toast: vi.fn(),
 	}),
@@ -128,7 +128,7 @@ describeOrSkip("useJarCreation", () => {
 		});
 
 		it("should detect v2 contracts correctly", () => {
-			vi.doMock("@/config/deployments.auto", () => ({
+			vi.doMock("@jar-core/config/deployments.auto", () => ({
 				isV2Chain: vi.fn().mockReturnValue(true),
 				DEPLOYMENTS: {
 					31337: {

@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from "vitest";
 
-vi.mock("@/config/deployments.auto", () => ({
+vi.mock("@jar-core/config/deployments.auto", () => ({
 	isV2Chain: () => true,
 	DEPLOYMENTS: {},
 	FACTORY_ADDRESSES: {},
@@ -9,8 +9,11 @@ vi.mock("@/config/deployments.auto", () => ({
 	getFactoryAddress: () => undefined,
 }));
 
-import { parseJarConfigResults, type ReadResult } from "@/hooks/jar/useJar";
-import { HATS_PROTOCOL_ADDRESS } from "@/lib/blockchain/constants";
+import {
+	parseJarConfigResults,
+	type ReadResult,
+} from "@jar-core/hooks/jar/useJar";
+import { HATS_PROTOCOL_ADDRESS } from "@jar-core/lib/blockchain/constants";
 
 const JAR = "0xF2d6629DeAe335f98AbE540098b64aD55D5fb0Bf" as const;
 const OWNER = "0xe09315A86ED0A39862158f5631b928145987fE05" as const;

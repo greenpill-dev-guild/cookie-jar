@@ -1,0 +1,147 @@
+$ tsc --noEmit && vite build
+vite v7.3.6 building client environment for production...
+transforming...
+../../../../node_modules/.bun/next-themes@0.2.1+9670b92c4444bf5e/node_modules/next-themes/dist/index.module.js (1:1576): A comment
+
+"/*#__PURE__*/"
+
+in "../../../../node_modules/.bun/next-themes@0.2.1+9670b92c4444bf5e/node_modules/next-themes/dist/index.module.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../../../node_modules/.bun/next-themes@0.2.1+9670b92c4444bf5e/node_modules/next-themes/dist/index.module.js (1:2992): A comment
+
+"/*#__PURE__*/"
+
+in "../../../../node_modules/.bun/next-themes@0.2.1+9670b92c4444bf5e/node_modules/next-themes/dist/index.module.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../../../node_modules/.bun/ox@0.6.9+9e930878b0ba546c/node_modules/ox/_esm/core/Address.js (6:21): A comment
+
+"/*#__PURE__*/"
+
+in "../../../../node_modules/.bun/ox@0.6.9+9e930878b0ba546c/node_modules/ox/_esm/core/Address.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../../../node_modules/.bun/ox@0.6.9+9e930878b0ba546c/node_modules/ox/_esm/core/Base64.js (6:27): A comment
+
+"/*#__PURE__*/"
+
+in "../../../../node_modules/.bun/ox@0.6.9+9e930878b0ba546c/node_modules/ox/_esm/core/Base64.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../../../node_modules/.bun/ox@0.9.17+5db9b43c89db4330/node_modules/ox/_esm/core/Base64.js (6:27): A comment
+
+"/*#__PURE__*/"
+
+in "../../../../node_modules/.bun/ox@0.9.17+5db9b43c89db4330/node_modules/ox/_esm/core/Base64.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../../../node_modules/.bun/ox@0.6.9+9e930878b0ba546c/node_modules/ox/_esm/core/internal/cursor.js (2:21): A comment
+
+"/*#__PURE__*/"
+
+in "../../../../node_modules/.bun/ox@0.6.9+9e930878b0ba546c/node_modules/ox/_esm/core/internal/cursor.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../../../node_modules/.bun/zod@4.5.4/node_modules/zod/v4/core/util.js (330:0): A comment
+
+"// Wrapped in a `@__PURE__` IIFE: esbuild never tree-shakes a top-level initializer that contains a member access on `Number`, so the bare object literal survived into every bundle."
+
+in "../../../../node_modules/.bun/zod@4.5.4/node_modules/zod/v4/core/util.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../../../node_modules/.bun/zod@4.5.4/node_modules/zod/v4/core/regexes.js (70:0): A comment
+
+"/** Anchors a pattern source. The interpolation lives here rather than at the call site because
+ * esbuild will not drop a `@__PURE__` call whose own argument interpolates a variable, but it
+ * will drop `anchor(dateSource)`. Keeping it inline pinned `date` into every bundle. */"
+
+in "../../../../node_modules/.bun/zod@4.5.4/node_modules/zod/v4/core/regexes.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../../../node_modules/.bun/ox@0.6.7+9e930878b0ba546c/node_modules/ox/_esm/core/Address.js (6:21): A comment
+
+"/*#__PURE__*/"
+
+in "../../../../node_modules/.bun/ox@0.6.7+9e930878b0ba546c/node_modules/ox/_esm/core/Address.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+../../../../node_modules/.bun/ox@0.6.7+9e930878b0ba546c/node_modules/ox/_esm/core/internal/cursor.js (2:21): A comment
+
+"/*#__PURE__*/"
+
+in "../../../../node_modules/.bun/ox@0.6.7+9e930878b0ba546c/node_modules/ox/_esm/core/internal/cursor.js" contains an annotation that Rollup cannot interpret due to the position of the comment. The comment will be removed to avoid issues.
+✓ 7562 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                                      0.93 kB │ gzip:   0.45 kB
+dist/assets/index-xZlHJY4o.css                      88.06 kB │ gzip:  15.10 kB
+dist/assets/not-found-B0GmmUFN.js                    0.48 kB │ gzip:   0.32 kB
+dist/assets/celo-GEP4TUHG-CenIBYLU.js                0.51 kB │ gzip:   0.31 kB
+dist/assets/Windows-PPTHQER6-BlyV2p7Y.js             0.52 kB │ gzip:   0.29 kB
+dist/assets/zetachain-TLDS5IPW-Udhyw16T.js           0.60 kB │ gzip:   0.38 kB
+dist/assets/base-OAXLRA4F-CoYTVIiL.js                0.60 kB │ gzip:   0.33 kB
+dist/assets/hyperevm-VKPAA4SA-CHwraEsx.js            0.73 kB │ gzip:   0.41 kB
+dist/assets/optimism-HAF2GUT7-ec6Nqxs9.js            0.73 kB │ gzip:   0.38 kB
+dist/assets/monad-4KWC6TSS-DVXSkpiz.js               0.74 kB │ gzip:   0.40 kB
+dist/assets/CreateJarModals-Ds6p0QLw.js              0.78 kB │ gzip:   0.45 kB
+dist/assets/flow-5FQJFCTK-CUie2reO.js                0.86 kB │ gzip:   0.39 kB
+dist/assets/page-DD_Bp2gc.js                         0.93 kB │ gzip:   0.53 kB
+dist/assets/unichain-C5BWO2ZY-BfguYsnu.js            0.98 kB │ gzip:   0.46 kB
+dist/assets/superposition-HG6MMR2Y-bRkgatRO.js       0.99 kB │ gzip:   0.55 kB
+dist/assets/linea-QRMVQ5DY-DuI3vv0d.js               1.05 kB │ gzip:   0.47 kB
+dist/assets/injectedWallet-AWJSZPMG-Df9x-YJA.js      1.05 kB │ gzip:   0.48 kB
+dist/assets/zksync-DH7HK5U4-Dt4usFw6.js              1.11 kB │ gzip:   0.49 kB
+dist/assets/avalanche-KOMJD3XY-Dsn_JPR4.js           1.27 kB │ gzip:   0.66 kB
+dist/assets/xdc-KJ3TDBYO-DNV6zchh.js                 1.31 kB │ gzip:   0.60 kB
+dist/assets/ethereum-RGGVA4PY-SWGOlkuk.js            1.37 kB │ gzip:   0.45 kB
+dist/assets/ink-FZMYZWHG-62p-5IK5.js                 1.38 kB │ gzip:   0.61 kB
+dist/assets/StatusCards-0ML8rJrE.js                  1.44 kB │ gzip:   0.63 kB
+dist/assets/apechain-SX5YFU6N-q5qBv-mp.js            1.46 kB │ gzip:   0.64 kB
+dist/assets/kaia-65D2U3PU-JmuLQ4gC.js                1.48 kB │ gzip:   0.67 kB
+dist/assets/degen-FQQ4XGHB-CeHTs88l.js               1.49 kB │ gzip:   0.72 kB
+dist/assets/cronos-HJPAQTAE-BEOvlOC4.js              1.52 kB │ gzip:   0.61 kB
+dist/assets/polygon-WW6ZI7PM-DXlmm4L1.js             1.53 kB │ gzip:   0.63 kB
+dist/assets/gravity-J5YQHTYH-Bj6B0uod.js             1.54 kB │ gzip:   0.74 kB
+dist/assets/bsc-N647EYR2-B2nLKXWV.js                 1.59 kB │ gzip:   0.61 kB
+dist/assets/blast-V555OVXZ-BbhJh1tj.js               1.67 kB │ gzip:   0.73 kB
+dist/assets/Chrome-65Q5P54Y-DR9MQEVr.js              1.72 kB │ gzip:   0.58 kB
+dist/assets/gnosis-37ZC4RBL-B137OtHZ.js              1.80 kB │ gzip:   0.72 kB
+dist/assets/Opera-KQZLSACL-Cwv5MDFy.js               2.10 kB │ gzip:   0.76 kB
+dist/assets/page-BB2gb5ro.js                         2.40 kB │ gzip:   0.85 kB
+dist/assets/arbitrum-WURIBY6W-CqVkHBr5.js            2.59 kB │ gzip:   0.86 kB
+dist/assets/scroll-5OBGQVOV-DJFECiai.js              2.63 kB │ gzip:   1.02 kB
+dist/assets/ronin-EMCPYXZT-N-QBHZdV.js               2.67 kB │ gzip:   1.20 kB
+dist/assets/zora-FYL5H3IO-iB4wygST.js                2.68 kB │ gzip:   0.59 kB
+dist/assets/ccip-Boj88RPo.js                         2.89 kB │ gzip:   1.33 kB
+dist/assets/refresh-S4T5V5GX-CwqIaaxK.js             3.00 kB │ gzip:   0.95 kB
+dist/assets/manta-SI27YFEJ-CpVOKa06.js               3.20 kB │ gzip:   1.33 kB
+dist/assets/connect-UA7M4XW6-IY3X6Bmr.js             3.55 kB │ gzip:   1.08 kB
+dist/assets/berachain-NJECWIVC-DumxnFvf.js           3.78 kB │ gzip:   1.25 kB
+dist/assets/hardhat-TX56IT5N-CV1FY-wE.js             4.20 kB │ gzip:   1.35 kB
+dist/assets/Brave-BRAKJXDS-mq-Xo37j.js               4.26 kB │ gzip:   1.49 kB
+dist/assets/create-FASO7PVG-D_rvSpre.js              4.33 kB │ gzip:   1.09 kB
+dist/assets/scan-4UYSQ56Q-CjMz6-XC.js                4.59 kB │ gzip:   1.16 kB
+dist/assets/mantle-CKIUT334-DR2WgqzU.js              5.27 kB │ gzip:   2.25 kB
+dist/assets/sign-A7IJEUT5-CGsRnPrd.js                5.55 kB │ gzip:   4.23 kB
+dist/assets/Edge-XSPUTORV-DEoZslQE.js                5.82 kB │ gzip:   1.34 kB
+dist/assets/useJarFactory-DT_brd4e.js                6.53 kB │ gzip:   2.51 kB
+dist/assets/Arc-VDBY7LNS-BChRXCXW.js                 6.62 kB │ gzip:   1.62 kB
+dist/assets/Browser-76IHF3Y2-BMhRaC5Z.js            11.82 kB │ gzip:   2.18 kB
+dist/assets/login-UP3DZBGS-Db_wM5oQ.js              12.00 kB │ gzip:   2.98 kB
+dist/assets/Safari-ZPL37GXR-C4Ggg6rz.js             13.75 kB │ gzip:   3.75 kB
+dist/assets/page-CnS1wHTF.js                        14.26 kB │ gzip:   3.89 kB
+dist/assets/Firefox-AAHGJQIP-Bp_Hm04m.js            15.19 kB │ gzip:   3.39 kB
+dist/assets/sanko-RHQYXGM5-OX010CbN.js              21.93 kB │ gzip:  16.45 kB
+dist/assets/assets-Q6ZU7ZJ5-P8HioiAD.js             23.62 kB │ gzip:   4.10 kB
+dist/assets/JarContentLazy-DOxfQhLu.js              27.39 kB │ gzip:   8.85 kB
+dist/assets/Macos-MW4AE7LN-Vvm8Drw3.js              49.68 kB │ gzip:  35.82 kB
+dist/assets/zh_CN-4XK5YJPR-Bt6Yz5Ek.js              54.62 kB │ gzip:   5.75 kB
+dist/assets/zh_TW-CNCRXH6Z-BNelatfN.js              54.66 kB │ gzip:   5.46 kB
+dist/assets/zh_HK-N4YN2WSI-Cvzl1V16.js              55.52 kB │ gzip:   5.51 kB
+dist/assets/id_ID-SBYANJ7G-Cjpa4ay6.js              60.04 kB │ gzip:   5.50 kB
+dist/assets/ms_MY-EZSGYYYQ-4cPLK-3L.js              60.89 kB │ gzip:   5.15 kB
+dist/assets/pt_BR-JQFQ3P4L-DOHfdcA2.js              61.26 kB │ gzip:   5.29 kB
+dist/assets/es_419-7LMPU7G4-DH7rM0yQ.js             61.61 kB │ gzip:   5.67 kB
+dist/assets/tr_TR-5FKHPPIO-D5jTpIm9.js              63.31 kB │ gzip:   5.74 kB
+dist/assets/ko_KR-FR54RFUG-upinSHjQ.js              65.33 kB │ gzip:   6.52 kB
+dist/assets/de_DE-YE3KOFHU-BRt5ztUe.js              66.81 kB │ gzip:   5.58 kB
+dist/assets/fr_FR-VBJP3ZLL-B-_ocunw.js              67.47 kB │ gzip:   5.60 kB
+dist/assets/vi_VN-5EVRZKLY-x078672g.js              68.84 kB │ gzip:   5.47 kB
+dist/assets/ar_AR-LIPSOZP5-BQrIDibT.js              71.12 kB │ gzip:   6.19 kB
+dist/assets/ja_JP-ZRMWJV3I-DXbifiMm.js              73.59 kB │ gzip:   6.62 kB
+dist/assets/uk_UA-ZD4IBC52-DgnQrpzl.js              89.01 kB │ gzip:   6.36 kB
+dist/assets/ru_RU-Z42UEJBP-Cvb2oWxQ.js              90.64 kB │ gzip:   7.00 kB
+dist/assets/Linux-OO4TNCLJ-B0aw93n9.js              91.13 kB │ gzip:  14.88 kB
+dist/assets/th_TH-4YB4VSB2-BUipNP-V.js             106.23 kB │ gzip:   7.67 kB
+dist/assets/hi_IN-WBVD5XYI-D73g2UFs.js             110.28 kB │ gzip:   8.11 kB
+dist/assets/page-CC9mqMj7.js                       180.37 kB │ gzip:  48.24 kB
+dist/assets/index-Bma-UYDw.js                    1,127.74 kB │ gzip: 345.90 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 46.21s

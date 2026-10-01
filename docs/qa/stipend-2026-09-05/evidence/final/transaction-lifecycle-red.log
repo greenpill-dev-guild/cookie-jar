@@ -1,0 +1,63 @@
+$ vitest run __tests__/hooks/jar/deposit-validation.test.tsx __tests__/hooks/transaction-receipt.test.tsx
+
+ RUN  v3.2.7 /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-create/client
+
+ ❯ __tests__/hooks/transaction-receipt.test.tsx (2 tests | 1 failed) 36ms
+   ✓ reports success only after confirmation and keeps the submitted chain for receipts 22ms
+   × does not report a reverted receipt as success 11ms
+     → expected true to be false // Object.is equality
+ ❯ __tests__/hooks/jar/deposit-validation.test.tsx (6 tests | 1 failed) 37ms
+   ✓ rejects abc without an unhandled error or wallet write 15ms
+   ✓ rejects -1 without an unhandled error or wallet write 2ms
+   ✓ rejects 1.0000001 without an unhandled error or wallet write 2ms
+   ✓ rejects 0 without an unhandled error or wallet write 2ms
+   ✓ rejects 1e3 without an unhandled error or wallet write 3ms
+   × retains a new deposit amount after handling a previous receipt 12ms
+     → expected '' to be '1' // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 2 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  __tests__/hooks/transaction-receipt.test.tsx > does not report a reverted receipt as success
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ __tests__/hooks/transaction-receipt.test.tsx:25:40
+     23|  state.confirmed = true; state.reverted = true;
+     24|  const view = renderHook(() => useTransactionWithRetry({ maxRetries: 0…
+     25|  expect(view.result.current.isSuccess).toBe(false);
+       |                                        ^
+     26|  expect(view.result.current.error.message).toContain("reverted");
+     27| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/2]⎯
+
+ FAIL  __tests__/hooks/jar/deposit-validation.test.tsx > retains a new deposit amount after handling a previous receipt
+AssertionError: expected '' to be '1' // Object.is equality
+
+- Expected
++ Received
+
+- 1
+
+ ❯ __tests__/hooks/jar/deposit-validation.test.tsx:22:37
+     20|  mocks.success = true; mocks.hash = "0x1234"; view.rerender();
+     21|  act(() => view.result.current.setAmount("1"));
+     22|  expect(view.result.current.amount).toBe("1");
+       |                                     ^
+     23| });
+     24| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[2/2]⎯
+
+
+ Test Files  2 failed (2)
+      Tests  2 failed | 6 passed (8)
+   Start at  14:43:42
+   Duration  2.16s (transform 391ms, setup 287ms, collect 1.04s, tests 73ms, environment 894ms, prepare 308ms)
+
+error: script "test" exited with code 1

@@ -1,0 +1,19 @@
+$ vitest run
+
+ RUN  v3.2.7 /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-vite/stipend
+
+ ✓ src/__tests__/boundaries.test.ts (4 tests) 71ms
+ ✓ src/__tests__/creation-values.test.ts (13 tests) 40ms
+ ✓ src/__tests__/jar-image.test.tsx (2 tests) 169ms
+ ✓ src/__tests__/navigation.test.tsx (2 tests) 155ms
+ ✓ src/__tests__/config.test.ts (6 tests) 20ms
+ ✓ src/__tests__/creation-flow.test.tsx (7 tests) 152ms
+stdout | src/__tests__/jar-empty.test.tsx > explains an empty network with plain copy and a usable creation action
+2026-09-06T05:42:45.431Z DEBUG  📭 JarContentLazy: Rendering empty state
+
+ ✓ src/__tests__/jar-empty.test.tsx (1 test) 50ms
+
+ Test Files  7 passed (7)
+      Tests  35 passed (35)
+   Start at  22:42:42
+   Duration  3.02s (transform 469ms, setup 0ms, collect 4.67s, tests 656ms, environment 5.02s, prepare 1.37s)

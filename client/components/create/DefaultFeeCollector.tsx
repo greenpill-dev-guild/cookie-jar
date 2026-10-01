@@ -9,8 +9,10 @@ import { useWriteCookieJarUpdateFeeCollector } from "../../generated";
 
 const DefaultFeeCollector = ({
 	contractAddress,
+	chainId,
 }: {
 	contractAddress: `0x${string}`;
+	chainId: number;
 }) => {
 	const [newFeeCollectorAddress, setNewFeeCollectorAddress] = useState("");
 	const [isSuccess, setIsSuccess] = useState(false);
@@ -45,6 +47,7 @@ const DefaultFeeCollector = ({
 
 		updateFeeCollector({
 			address: contractAddress,
+			chainId,
 			args: [newFeeCollectorAddress as `0x${string}`],
 		});
 	};

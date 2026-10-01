@@ -129,7 +129,9 @@ test.describe("♿ Accessibility Validation", () => {
 		for (let i = 0; i < 10; i++) {
 			await page.keyboard.press("Tab");
 
-			const focusedElement = page.locator(":focus");
+			const focusedElement = page
+				.locator("header :focus, main :focus, footer :focus")
+				.first();
 			const isVisible = await focusedElement.isVisible();
 
 			if (isVisible) {

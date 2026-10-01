@@ -1,0 +1,74 @@
+$ next build --no-lint
+ ⚠ Linting is disabled.
+   ▲ Next.js 15.5.25
+   - Experiments (use with caution):
+     ✓ scrollRestoration
+     ✓ webpackBuildWorker
+     ✓ parallelServerCompiles
+     · optimizePackageImports
+     ✓ parallelServerBuildTraces
+
+   Creating an optimized production build ...
+ ⚠ Compiled with warnings in 34.9s
+
+../../../../node_modules/.bun/ox@0.14.44+9e930878b0ba546c/node_modules/ox/_esm/tempo/internal/virtualMasterPool.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+../../../../node_modules/.bun/ox@0.14.44+9e930878b0ba546c/node_modules/ox/_esm/tempo/internal/virtualMasterPool.js
+../../../../node_modules/.bun/ox@0.14.44+9e930878b0ba546c/node_modules/ox/_esm/tempo/VirtualMaster.js
+../../../../node_modules/.bun/ox@0.14.44+9e930878b0ba546c/node_modules/ox/_esm/tempo/index.js
+../../../../node_modules/.bun/viem@2.56.3+a78afc2fa6b43151/node_modules/viem/_esm/tempo/chainConfig.js
+../../../../node_modules/.bun/viem@2.56.3+a78afc2fa6b43151/node_modules/viem/_esm/chains/definitions/tempo.js
+../../../../node_modules/.bun/viem@2.56.3+a78afc2fa6b43151/node_modules/viem/_esm/chains/index.js
+../../../../node_modules/.bun/wagmi@2.19.5+685f7104dc5fda6d/node_modules/wagmi/dist/esm/exports/chains.js
+../../../../node_modules/.bun/@rainbow-me+rainbowkit@2.2.11+e47cb0a8c181fd1f/node_modules/@rainbow-me/rainbowkit/dist/index.js
+./components/app/header.tsx
+
+ ⚠ Compiled with warnings in 10.5s
+
+../../../../node_modules/.bun/ox@0.14.44+9e930878b0ba546c/node_modules/ox/_esm/tempo/internal/virtualMasterPool.js
+Critical dependency: the request of a dependency is an expression
+
+Import trace for requested module:
+../../../../node_modules/.bun/ox@0.14.44+9e930878b0ba546c/node_modules/ox/_esm/tempo/internal/virtualMasterPool.js
+../../../../node_modules/.bun/ox@0.14.44+9e930878b0ba546c/node_modules/ox/_esm/tempo/VirtualMaster.js
+../../../../node_modules/.bun/ox@0.14.44+9e930878b0ba546c/node_modules/ox/_esm/tempo/index.js
+../../../../node_modules/.bun/viem@2.56.3+a78afc2fa6b43151/node_modules/viem/_esm/tempo/chainConfig.js
+../../../../node_modules/.bun/viem@2.56.3+a78afc2fa6b43151/node_modules/viem/_esm/chains/definitions/tempo.js
+../../../../node_modules/.bun/viem@2.56.3+a78afc2fa6b43151/node_modules/viem/_esm/chains/index.js
+../../../../node_modules/.bun/wagmi@2.19.5+685f7104dc5fda6d/node_modules/wagmi/dist/esm/exports/chains.js
+../../../../node_modules/.bun/@rainbow-me+rainbowkit@2.2.11+e47cb0a8c181fd1f/node_modules/@rainbow-me/rainbowkit/dist/index.js
+./components/app/header.tsx
+
+ ✓ Compiled successfully in 46s
+   Checking validity of types ...
+   Collecting page data ...
+   Generating static pages (0/11) ...
+   Generating static pages (2/11) 
+   Generating static pages (5/11) 
+   Generating static pages (8/11) 
+⏳ JarContentLazy: Rendering loading state
+ ✓ Generating static pages (11/11)
+   Finalizing page optimization ...
+   Collecting build traces ...
+
+Route (app)                                 Size  First Load JS
+┌ ○ /                                    1.72 kB         424 kB
+├ ○ /_not-found                            138 B         105 kB
+├ ○ /apple-icon                            138 B         105 kB
+├ ○ /create                              47.7 kB         443 kB
+├ ○ /icon                                  138 B         105 kB
+├ ƒ /jar/[address]                         565 B         419 kB
+├ ○ /jars                                  882 B         110 kB
+├ ○ /opengraph-image                       138 B         105 kB
+└ ○ /profile                             8.09 kB         367 kB
++ First Load JS shared by all             105 kB
+  ├ chunks/920-aee8655f76108c4d.js       46.5 kB
+  ├ chunks/dad6ee7c-dcd7e6f1e0d6c23d.js  54.2 kB
+  └ other shared chunks (total)          4.55 kB
+
+
+○  (Static)   prerendered as static content
+ƒ  (Dynamic)  server-rendered on demand
+

@@ -1,0 +1,8 @@
+
+Running 1 test using 1 worker
+
+(node:94113) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [Desktop Chrome] › e2e/stipend-ui.spec.ts:96:5 › creation checkboxes have 44 px touch targets (19.8s)
+
+  1 passed (21.4s)

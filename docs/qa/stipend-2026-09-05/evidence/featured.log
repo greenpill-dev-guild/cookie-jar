@@ -1,0 +1,328 @@
+
+Running 6 tests using 1 worker
+
+(node:2008) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  1 [Desktop Chrome] › e2e/featured-jar.spec.ts:6:6 › Featured jar home › renders the featured jar with claim, deposit and history (2.7s)
+  ✓  2 [Desktop Chrome] › e2e/featured-jar.spec.ts:44:6 › Featured jar home › keeps the generic routes reachable (11.0s)
+  ✓  3 [Desktop Chrome] › e2e/featured-jar.spec.ts:51:6 › Featured jar home › has no bottom app bar on mobile (2.6s)
+(node:5527) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  4 [Mobile Chrome] › e2e/featured-jar.spec.ts:6:6 › Featured jar home › renders the featured jar with claim, deposit and history (2.7s)
+  ✓  5 [Mobile Chrome] › e2e/featured-jar.spec.ts:44:6 › Featured jar home › keeps the generic routes reachable (5.7s)
+  ✓  6 [Mobile Chrome] › e2e/featured-jar.spec.ts:51:6 › Featured jar home › has no bottom app bar on mobile (3.7s)
+
+  6 passed (29.7s)
+{
+  "config": {
+    "argv": [
+      "/Users/afo/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/Users/afo/Code/greenpill/cookie-jar/node_modules/.bin/playwright",
+      "test",
+      "e2e/featured-jar.spec.ts",
+      "--reporter=list,json",
+      "--output=docs/qa/stipend-2026-09-05/evidence/featured-artifacts"
+    ],
+    "configFile": "/Users/afo/Code/greenpill/cookie-jar/playwright.config.ts",
+    "rootDir": "/Users/afo/Code/greenpill/cookie-jar/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/featured-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "Desktop Chrome",
+        "name": "Desktop Chrome",
+        "testDir": "/Users/afo/Code/greenpill/cookie-jar/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.{test,spec}.{js,ts}"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/featured-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "Mobile Chrome",
+        "name": "Mobile Chrome",
+        "testDir": "/Users/afo/Code/greenpill/cookie-jar/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.{test,spec}.{js,ts}"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "featured-jar.spec.ts",
+      "file": "featured-jar.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "Featured jar home",
+          "file": "featured-jar.spec.ts",
+          "line": 5,
+          "column": 6,
+          "specs": [
+            {
+              "title": "renders the featured jar with claim, deposit and history",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2722,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:12:15.781Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1a8607c49351bebbc655-a3541154b417024b089e",
+              "file": "featured-jar.spec.ts",
+              "line": 6,
+              "column": 6
+            },
+            {
+              "title": "keeps the generic routes reachable",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 10956,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:12:18.829Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1a8607c49351bebbc655-af1195328370eb88ec71",
+              "file": "featured-jar.spec.ts",
+              "line": 44,
+              "column": 6
+            },
+            {
+              "title": "has no bottom app bar on mobile",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2557,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:12:29.796Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1a8607c49351bebbc655-e654507f31694eb9ee89",
+              "file": "featured-jar.spec.ts",
+              "line": 51,
+              "column": 6
+            },
+            {
+              "title": "renders the featured jar with claim, deposit and history",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 2652,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:12:32.846Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1a8607c49351bebbc655-97c303890e81d33b94d5",
+              "file": "featured-jar.spec.ts",
+              "line": 6,
+              "column": 6
+            },
+            {
+              "title": "keeps the generic routes reachable",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5745,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:12:35.677Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1a8607c49351bebbc655-ac0701d13fc09f56c647",
+              "file": "featured-jar.spec.ts",
+              "line": 44,
+              "column": 6
+            },
+            {
+              "title": "has no bottom app bar on mobile",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 3676,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:12:41.435Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "1a8607c49351bebbc655-8426c287ef83f37caae8",
+              "file": "featured-jar.spec.ts",
+              "line": 51,
+              "column": 6
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-05T20:12:15.484Z",
+    "duration": 29706.521999999997,
+    "expected": 6,
+    "skipped": 0,
+    "unexpected": 0,
+    "flaky": 0
+  }
+}

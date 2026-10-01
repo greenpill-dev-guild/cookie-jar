@@ -1,5 +1,12 @@
 "use client";
 
+import { useToast } from "@jar-core/hooks/app/useToast";
+import { useCookieJarConfig } from "@jar-core/hooks/jar/useJar";
+import { useJarMetadata } from "@jar-core/hooks/jar/useJarMetadata";
+import { useJarPermissions } from "@jar-core/hooks/jar/useJarPermissions";
+import { useJarTransactions } from "@jar-core/hooks/jar/useJarTransactions";
+import { useJarWithdrawalHistory } from "@jar-core/hooks/jar/useJarWithdrawalHistory";
+import { ETH_ADDRESS } from "@jar-core/lib/blockchain/token-utils";
 import { useEffect, useRef } from "react";
 import { ProtocolErrorBoundary } from "@/components/app/ProtocolErrorBoundary";
 import { WrongNetworkBanner } from "@/components/app/WrongNetworkBanner";
@@ -16,13 +23,6 @@ import {
 	CardTitle,
 } from "@/components/ui/card";
 import { useNavigateToTop } from "@/hooks/app/useNavigateToTop";
-import { useToast } from "@/hooks/app/useToast";
-import { useCookieJarConfig } from "@/hooks/jar/useJar";
-import { useJarMetadata } from "@/hooks/jar/useJarMetadata";
-import { useJarPermissions } from "@/hooks/jar/useJarPermissions";
-import { useJarTransactions } from "@/hooks/jar/useJarTransactions";
-import { useJarWithdrawalHistory } from "@/hooks/jar/useJarWithdrawalHistory";
-import { ETH_ADDRESS } from "@/lib/blockchain/token-utils";
 
 interface JarPageContentProps {
 	address: `0x${string}`;
@@ -51,7 +51,7 @@ export function JarPageContent({
 		chainId
 	);
 	const permissions = useJarPermissions(address, config, chainId);
-	const metadata = useJarMetadata(config);
+	const metadata = useJarMetadata(config, chainId);
 	const transactions = useJarTransactions(config, address, { chainId });
 	const history = useJarWithdrawalHistory({
 		jarAddress: address,
@@ -84,9 +84,9 @@ export function JarPageContent({
 	if (hasError || config.accessType === undefined) {
 		return (
 			<div className="container max-w-3xl mx-auto mt-8 p-6 bg-destructive/10 border border-destructive/40 rounded-lg">
-				<h2 className="text-xl font-bold text-destructive mb-4">
+				<h1 className="text-xl font-bold text-destructive mb-4">
 					Could not load this jar
-				</h2>
+				</h1>
 				<p className="text-foreground text-sm">
 					The jar at {address} did not answer on this network. Check the address
 					and the network, then try again.
@@ -107,7 +107,11 @@ export function JarPageContent({
 	const isERC20 = !!config.currency && config.currency !== ETH_ADDRESS;
 
 	return (
-		<ProtocolErrorBoundary protocolName="Cookie Jar" maxRetries={2}>
+		<ProtocolErrorBoundary
+			protocolName="Cookie Jar"
+			maxRetries={2}
+			onRetry={refetch}
+		>
 			<div className="container max-w-full px-0 md:px-4 py-4" ref={pageRef}>
 				<WrongNetworkBanner chainId={chainId} />
 

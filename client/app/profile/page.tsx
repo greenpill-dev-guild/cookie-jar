@@ -1,6 +1,17 @@
 "use client";
 
 import {
+	type CookieJarInfo,
+	useCookieJarFactory,
+} from "@jar-core/hooks/jar/useJarFactory";
+import { shortenAddress } from "@jar-core/lib/app/utils";
+import {
+	getExplorerAddressUrl,
+	getNetworkName,
+} from "@jar-core/lib/blockchain/networks";
+import { ETH_ADDRESS } from "@jar-core/lib/blockchain/token-utils";
+import { getAccessTypeName } from "@jar-core/lib/jar/access-types";
+import {
 	ArrowUpRight,
 	Clock,
 	Cookie,
@@ -29,17 +40,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getNativeCurrency } from "@/config/supported-networks";
 import { useIsMobile } from "@/hooks/app/useMobile";
 import { useNavigateToTop } from "@/hooks/app/useNavigateToTop";
-import {
-	type CookieJarInfo,
-	useCookieJarFactory,
-} from "@/hooks/jar/useJarFactory";
-import { shortenAddress } from "@/lib/app/utils";
-import {
-	getExplorerAddressUrl,
-	getNetworkName,
-} from "@/lib/blockchain/networks";
-import { ETH_ADDRESS } from "@/lib/blockchain/token-utils";
-import { getAccessTypeName } from "@/lib/jar/access-types";
 
 export default function ProfilePage() {
 	const isMobile = useIsMobile();
@@ -265,7 +265,9 @@ function DesktopProfile() {
 
 									<CardFooter className="flex justify-end pt-4 border-t border-border">
 										<Button
-											onClick={() => router.push(`/jar/${jar.jarAddress}`)}
+											onClick={() =>
+												router.push(`/jar/${jar.jarAddress}?chainId=${chainId}`)
+											}
 											className="cj-btn-primary hover:bg-card hover:text-[hsl(var(--cj-brand-orange))] hover:border-[hsl(var(--cj-brand-orange))] border transition-all"
 										>
 											<ArrowUpRight className="h-4 w-4 mr-2" /> Manage Jar

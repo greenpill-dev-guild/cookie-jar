@@ -1,0 +1,42 @@
+$ vitest run __tests__/hooks/jar/useJarCreationFlow.test.tsx
+
+ RUN  v3.2.7 /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-create/client
+
+ ❯ __tests__/hooks/jar/useJarCreationFlow.test.tsx (7 tests | 1 failed) 159ms
+   ✓ direct factory creation > keeps the preset owner and edits when the wallet changes 30ms
+   ✓ direct factory creation > blocks creation on wrong network 17ms
+   ✓ direct factory creation > blocks creation on missing decimals 8ms
+   ✓ direct factory creation > simulates reviewed values on the selected chain and prevents duplicate submissions 71ms
+   ✓ direct factory creation > preserves the form after a wallet rejection 7ms
+   ✓ keeps a submitted configuration locked when confirmation reads fail 8ms
+   × unlocks review after a confirmed creation revert 13ms
+     → expected true to be false // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  __tests__/hooks/jar/useJarCreationFlow.test.tsx > unlocks review after a confirmed creation revert
+AssertionError: expected true to be false // Object.is equality
+
+- Expected
++ Received
+
+- false
++ true
+
+ ❯ __tests__/hooks/jar/useJarCreationFlow.test.tsx:187:35
+    185|  await act(async () => { await view.result.current.confirmSubmit(); });
+    186|  state.hash = "0x1234"; state.receiptError = new Error("Transaction re…
+    187|  expect(view.result.current.busy).toBe(false);
+       |                                   ^
+    188|  expect(view.result.current.formErrors.join(" ")).toContain("reverted"…
+    189| });
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed | 6 passed (7)
+   Start at  14:53:39
+   Duration  2.15s (transform 267ms, setup 216ms, collect 658ms, tests 159ms, environment 470ms, prepare 141ms)
+
+error: script "test" exited with code 1

@@ -4,7 +4,7 @@ import type { SVGProps } from "react";
  * Inline jar glyph used for the header and generated icons (no binary asset needed).
  */
 export function BrandMark({
-	title = "Green Goods Stipend Jar",
+	title = "Cookie Jar",
 	...props
 }: SVGProps<SVGSVGElement> & { title?: string }) {
 	return (

@@ -1,5 +1,6 @@
 "use client";
 
+import { useToast } from "@jar-core/hooks/app/useToast";
 import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
@@ -14,7 +15,6 @@ import {
 	DialogHeader,
 	DialogTitle,
 } from "@/components/ui/dialog";
-import { useToast } from "@/hooks/app/useToast";
 import { CustomConnectModal } from "./CustomConnectModal";
 
 // Terms and conditions message that users will sign

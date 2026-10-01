@@ -1,19 +1,19 @@
-import { decodeFunctionData, encodeFunctionData } from "viem";
-import { describe, expect, it, vi } from "vitest";
-import { cookieJarFactoryAbi } from "@/generated";
 import {
 	buildV2CreateCookieJarArgs,
 	FACTORY_DEFAULT_FEE_SENTINEL,
 	getAccessConfigValidationError,
 	getFeePercentageOnDeposit,
-} from "@/hooks/jar/createV2CreateArgs";
+} from "@jar-core/hooks/jar/createV2CreateArgs";
 import {
 	ETH_ADDRESS,
 	HATS_PROTOCOL_ADDRESS,
 	POAP_TOKEN_ADDRESS,
-} from "@/lib/blockchain/constants";
+} from "@jar-core/lib/blockchain/constants";
+import { decodeFunctionData, encodeFunctionData } from "viem";
+import { describe, expect, it, vi } from "vitest";
+import { cookieJarFactoryAbi } from "@/generated";
 
-vi.mock("@/hooks/jar/schemas/jarCreationSchema", () => ({
+vi.mock("@jar-core/hooks/jar/schemas/jarCreationSchema", () => ({
 	AccessType: {
 		Allowlist: 0,
 		NFTGated: 1,
@@ -57,6 +57,8 @@ type MakeValuesOverrides = Partial<
 
 function makeValues(overrides: MakeValuesOverrides = {}): JarCreationFormData {
 	const baseValues: JarCreationFormData = {
+		chainId: 31337,
+		minDeposit: "0",
 		jarName: "Test Jar",
 		jarOwnerAddress: "0x1234567890123456789012345678901234567890",
 		supportedCurrency: ETH_ADDRESS,
@@ -131,6 +133,15 @@ describe("buildV2CreateCookieJarArgs", () => {
 			makeValues({ enableCustomFee: true, customFee: "2.5" })
 		);
 		expect(fee).toBe(250n);
+	});
+
+	it("rejects an empty explicit fee instead of selecting the factory default", () => {
+		expect(() =>
+			getFeePercentageOnDeposit({
+				enableCustomFee: true,
+				customFee: "",
+			} as JarCreationFormData)
+		).toThrow();
 	});
 
 	it("supports explicit zero-percent fee", () => {

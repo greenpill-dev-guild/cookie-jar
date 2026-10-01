@@ -6,7 +6,7 @@ test.describe("Featured jar home", () => {
 	test("renders the featured jar with claim, deposit and history", async ({
 		page,
 	}) => {
-		await page.goto("/");
+		await page.goto("/", { waitUntil: "domcontentloaded" });
 
 		// Header brand and connect button
 		await expect(page.getByRole("banner")).toContainText(
@@ -42,15 +42,15 @@ test.describe("Featured jar home", () => {
 	});
 
 	test("keeps the generic routes reachable", async ({ page }) => {
-		await page.goto("/jars");
+		await page.goto("/jars", { waitUntil: "domcontentloaded" });
 		await expect(page).toHaveURL(/\/jars/);
-		await page.goto("/create");
+		await page.goto("/create", { waitUntil: "domcontentloaded" });
 		await expect(page).toHaveURL(/\/create/);
 	});
 
 	test("has no bottom app bar on mobile", async ({ page }) => {
 		await page.setViewportSize({ width: 375, height: 812 });
-		await page.goto("/");
+		await page.goto("/", { waitUntil: "domcontentloaded" });
 		await expect(page.locator(".mobile-app-bar")).toHaveCount(0);
 	});
 });

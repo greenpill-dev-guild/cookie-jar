@@ -1,0 +1,12 @@
+$ vitest run __tests__/WalletConnectors.test.ts __tests__/WalletTheme.test.tsx
+
+ RUN  v3.2.7 /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-ui/client
+
+ ✓ __tests__/WalletTheme.test.tsx (1 test) 24ms
+ ✓ __tests__/WalletConnectors.test.ts (1 test) 3ms
+
+ Test Files  2 passed (2)
+      Tests  2 passed (2)
+   Start at  15:15:44
+   Duration  2.97s (transform 619ms, setup 321ms, collect 2.56s, tests 27ms, environment 805ms, prepare 212ms)
+

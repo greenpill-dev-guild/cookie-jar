@@ -1,0 +1,89 @@
+{
+  "card": {
+    "tag": "DIV",
+    "tabIndex": -1,
+    "role": null,
+    "focusableDescendants": 1
+  },
+  "keyboard": [
+    {
+      "tag": "A",
+      "text": "Green Goods Stipend JarGreen Goods Stipend JarMonthly contributor stip",
+      "placeholder": null,
+      "role": null
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Connect",
+      "placeholder": null,
+      "role": null
+    },
+    {
+      "tag": "INPUT",
+      "text": "",
+      "placeholder": "Search jars...",
+      "role": null
+    },
+    {
+      "tag": "BUTTON",
+      "text": "All Jars",
+      "placeholder": null,
+      "role": "combobox"
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Refresh",
+      "placeholder": null,
+      "role": null
+    },
+    {
+      "tag": "BUTTON",
+      "text": "ERC721",
+      "placeholder": null,
+      "role": null
+    },
+    {
+      "tag": "BUTTON",
+      "text": "ERC721",
+      "placeholder": null,
+      "role": null
+    },
+    {
+      "tag": "BUTTON",
+      "text": "ERC1155",
+      "placeholder": null,
+      "role": null
+    },
+    {
+      "tag": "NEXTJS-PORTAL",
+      "text": "",
+      "placeholder": null,
+      "role": null
+    },
+    {
+      "tag": "BODY",
+      "text": "!function(){try{var d=document.documentElement,c=d.classList;c.remove(",
+      "placeholder": null,
+      "role": null
+    },
+    {
+      "tag": "A",
+      "text": "Green Goods Stipend JarGreen Goods Stipend JarMonthly contributor stip",
+      "placeholder": null,
+      "role": null
+    },
+    {
+      "tag": "BUTTON",
+      "text": "Connect",
+      "placeholder": null,
+      "role": null
+    }
+  ],
+  "mouseDestination": "http://localhost:3000/jar/0x5ef012c81ABC229Df10037b9001937E55671E36E",
+  "createFirstStep": "Create Cookie Jar\n🚀 v2 Contract\n\nSet up your new cookie jar\n\nStep 1 of 4\n25% complete\nBasic Configuration\nFill with Random Data (Dev Only)\nJar Name *\nJar Owner Address *\n\nThe address that will own and manage this jar\n\nCurrency *\nDescription\nImage URL\nExternal Link\nNext",
+  "buttons": [
+    "Fill with Random Data (Dev Only)",
+    "",
+    "Next"
+  ]
+}

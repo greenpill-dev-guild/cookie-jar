@@ -83,16 +83,26 @@ jobs:
       - name: Apply OpenZeppelin compatibility shims
         run: ./scripts/oz-compat.sh
 
-      - name: Run Slither
-        id: slither
-        uses: crytic/slither-action@v0.4.1
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
         with:
-          target: contracts/
-          sarif: results.sarif
-          fail-on: none
+          version: v1.7.1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Slither
+        run: python -m pip install slither-analyzer==0.11.4
+
+      # Keep compilation and source lookup in the same directory. The Docker action
+      # changed directories only for Forge, breaking imports from ../lib.
+      - name: Run Slither
+        working-directory: contracts
+        run: slither . --sarif ../results.sarif --fail-none
 
       - name: Upload SARIF
-        if: always() && steps.slither.outputs.sarif != ''
+        if: always() && hashFiles('results.sarif') != ''
         uses: github/codeql-action/upload-sarif@v3
         with:
-          sarif_file: ${{ steps.slither.outputs.sarif }}
+          sarif_file: results.sarif

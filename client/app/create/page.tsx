@@ -2,12 +2,17 @@
 
 import { lazy, Suspense, useEffect, useState } from "react";
 import { FormProvider } from "react-hook-form";
-import { useAccount, useChainId } from "wagmi";
+import { useAccount } from "wagmi";
 import { ProtocolErrorBoundary } from "@/components/app/ProtocolErrorBoundary";
+import { WrongNetworkBanner } from "@/components/app/WrongNetworkBanner";
 import { CreateJarForm } from "@/components/create/CreateJarForm";
 import { CreateJarHeader } from "@/components/create/CreateJarHeader";
+import {
+	CreationReview,
+	CreationSetup,
+} from "@/components/create/CreationSetup";
 import { ProgressIndicator } from "@/components/create/ProgressIndicator";
-import { isV2Chain } from "@/config/supported-networks";
+import { Button } from "@/components/ui/button";
 import { useStepNavigation } from "@/hooks/app/useStepNavigation";
 import { useJarCreation } from "@/hooks/jar/useJarCreation";
 
@@ -23,9 +28,9 @@ const CreateJarModals = lazy(() =>
 );
 
 export default function CreateCookieJarForm() {
-	const { isConnected, address } = useAccount();
-	const chainId = useChainId();
-	const isV2Contract = isV2Chain(chainId);
+	const { isConnected } = useAccount();
+	const creation = useJarCreation();
+	const { chainId, isV2Contract } = creation;
 
 	const {
 		form,
@@ -40,13 +45,15 @@ export default function CreateCookieJarForm() {
 		formErrors,
 		isFormError,
 		ETH_ADDRESS,
-	} = useJarCreation();
+	} = creation;
 
 	const { currentStep, totalSteps, nextStep, prevStep } =
 		useStepNavigation(isV2Contract);
 
 	const [showWalletModal, setShowWalletModal] = useState(false);
-	const [pendingSubmission, setPendingSubmission] = useState(false);
+	useEffect(() => {
+		if (isConnected) setShowWalletModal(false);
+	}, [isConnected]);
 
 	const isCurrentStepValid = () => {
 		switch (currentStep) {
@@ -63,21 +70,9 @@ export default function CreateCookieJarForm() {
 		}
 	};
 
-	// Auto-retry jar creation when wallet connects
-	useEffect(() => {
-		if (isConnected && address && pendingSubmission && showWalletModal) {
-			setShowWalletModal(false);
-			setPendingSubmission(false);
-			setTimeout(() => {
-				confirmSubmit();
-			}, 100);
-		}
-	}, [isConnected, address, pendingSubmission, showWalletModal, confirmSubmit]);
-
 	const handleSubmit = () => {
 		if (!isConnected) {
 			setShowWalletModal(true);
-			setPendingSubmission(true);
 			return;
 		}
 		confirmSubmit();
@@ -91,25 +86,47 @@ export default function CreateCookieJarForm() {
 		>
 			<FormProvider {...form}>
 				<div className="max-w-2xl mx-auto">
-					<CreateJarHeader isV2Contract={isV2Contract} />
-					<ProgressIndicator
-						currentStep={currentStep}
-						totalSteps={totalSteps}
-						isV2Contract={isV2Contract}
-					/>
+					<WrongNetworkBanner chainId={chainId} />
+					<fieldset disabled={creation.busy} className="min-w-0">
+						<CreationSetup
+							creation={{
+								...creation,
+							}}
+						/>
+						<CreateJarHeader isV2Contract={isV2Contract} />
+						<ProgressIndicator
+							currentStep={currentStep}
+							totalSteps={totalSteps}
+							isV2Contract={isV2Contract}
+						/>
 
-					<CreateJarForm
-						currentStep={currentStep}
-						totalSteps={totalSteps}
-						isV2Contract={isV2Contract}
-						nextStep={nextStep}
-						prevStep={prevStep}
-						handleSubmit={handleSubmit}
-						isCurrentStepValid={isCurrentStepValid}
-						isCreating={isCreating}
-						isWaitingForTx={isWaitingForTx}
-					/>
-
+						{currentStep === 4 && <CreationReview creation={creation} />}
+						<CreateJarForm
+							currentStep={currentStep}
+							totalSteps={totalSteps}
+							isV2Contract={isV2Contract}
+							nextStep={nextStep}
+							prevStep={prevStep}
+							handleSubmit={handleSubmit}
+							isCurrentStepValid={isCurrentStepValid}
+							isCreating={isCreating}
+							isWaitingForTx={isWaitingForTx}
+						/>
+					</fieldset>
+					{creation.confirmationError && (
+						<div
+							role="alert"
+							className="mt-4 rounded-lg border border-border bg-card p-4 space-y-2"
+						>
+							<p>{creation.confirmationError}</p>
+							<p className="break-all text-sm">
+								Transaction: {creation.submittedHash}
+							</p>
+							<Button onClick={() => creation.retryConfirmation()}>
+								Retry confirmation check
+							</Button>
+						</div>
+					)}
 					<Suspense
 						fallback={
 							<div className="h-32 bg-gray-100 dark:bg-gray-800 rounded-lg animate-pulse" />
@@ -127,9 +144,8 @@ export default function CreateCookieJarForm() {
 
 			<Suspense fallback={null}>
 				<CreateJarModals
-					showWalletModal={showWalletModal}
+					showWalletModal={showWalletModal && !isConnected}
 					setShowWalletModal={setShowWalletModal}
-					setPendingSubmission={setPendingSubmission}
 					isCreating={isCreating}
 					isWaitingForTx={isWaitingForTx}
 				/>

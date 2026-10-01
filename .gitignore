@@ -73,3 +73,8 @@ Thumbs.db
 
 # Next.js build output inside the client workspace (Biome reads only the root ignore file)
 client/.next/
+
+# Standalone stipend build and browser evidence
+stipend/dist/
+stipend/test-results/
+stipend/playwright-report/

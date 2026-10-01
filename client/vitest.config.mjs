@@ -47,6 +47,7 @@ export default defineConfig({
 	resolve: {
 		alias: {
 			"@": path.resolve(__dirname, "."),
+			"@jar-core": path.resolve(__dirname, "../shared/src"),
 		},
 	},
 });

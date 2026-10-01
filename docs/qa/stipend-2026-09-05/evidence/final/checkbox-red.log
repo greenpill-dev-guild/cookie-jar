@@ -1,0 +1,44 @@
+
+Running 1 test using 1 worker
+
+(node:81134) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [Desktop Chrome] › e2e/stipend-ui.spec.ts:96:5 › creation checkboxes have 44 px touch targets (11.1s)
+
+
+  1) [Desktop Chrome] › e2e/stipend-ui.spec.ts:96:5 › creation checkboxes have 44 px touch targets ─
+
+    Error: expect(received).toBeGreaterThanOrEqual(expected)
+
+    Expected: >= 44
+    Received:    16
+
+      101 |  await page.getByRole("button",{name:"Next",exact:true}).click();
+      102 |  for(const checkbox of await page.getByRole("checkbox").all()) {
+    > 103 |   const rect=await checkbox.boundingBox();expect(rect?.width).toBeGreaterThanOrEqual(44);expect(rect?.height).toBeGreaterThanOrEqual(44);
+          |                                                               ^
+      104 |  }
+      105 |  await page.screenshot({path:info.outputPath("creation-touch-targets.png"),fullPage:true});
+      106 | });
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-ui/e2e/stipend-ui.spec.ts:103:63
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../../../tmp/stipend-checkbox-red-results/stipend-ui-creation-checkboxes-have-44-px-touch-targets-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../../../tmp/stipend-checkbox-red-results/stipend-ui-creation-checkboxes-have-44-px-touch-targets-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../../../tmp/stipend-checkbox-red-results/stipend-ui-creation-checkboxes-have-44-px-touch-targets-Desktop-Chrome/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../../../tmp/stipend-checkbox-red-results/stipend-ui-creation-checkboxes-have-44-px-touch-targets-Desktop-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../../../../../tmp/stipend-checkbox-red-results/stipend-ui-creation-checkboxes-have-44-px-touch-targets-Desktop-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [Desktop Chrome] › e2e/stipend-ui.spec.ts:96:5 › creation checkboxes have 44 px touch targets ──

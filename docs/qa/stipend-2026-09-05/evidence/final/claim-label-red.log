@@ -1,0 +1,51 @@
+
+Running 1 test using 1 worker
+
+(node:74537) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✘  1 [Desktop Chrome] › e2e/stipend-ui.spec.ts:96:5 › creation checkboxes have 44 px touch targets (13.4s)
+
+
+  1) [Desktop Chrome] › e2e/stipend-ui.spec.ts:96:5 › creation checkboxes have 44 px touch targets ─
+
+    Error: expect(locator).toBeVisible() failed
+
+    Locator: getByRole('combobox', { name: /[Cc]laim type|Withdrawal type/ })
+    Expected: visible
+    Timeout: 10000ms
+    Error: element(s) not found
+
+    Call log:
+      - Expect "toBeVisible" with timeout 10000ms
+      - waiting for getByRole('combobox', { name: /[Cc]laim type|Withdrawal type/ })
+
+
+      107 | 		.fill("0x1111111111111111111111111111111111111111");
+      108 | 	await page.getByRole("button", { name: "Next", exact: true }).click();
+    > 109 | 	await expect(page.getByRole("combobox", { name: /[Cc]laim type|Withdrawal type/ })).toBeVisible();
+          | 	                                                                                    ^
+      110 | 	for (const checkbox of await page.getByRole("checkbox").all()) {
+      111 | 		const rect = await checkbox.boundingBox();
+      112 | 		expect(rect?.width).toBeGreaterThanOrEqual(44);
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-ui/e2e/stipend-ui.spec.ts:109:86
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../../../tmp/stipend-claim-label-red-results/stipend-ui-creation-checkboxes-have-44-px-touch-targets-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../../../tmp/stipend-claim-label-red-results/stipend-ui-creation-checkboxes-have-44-px-touch-targets-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../../../tmp/stipend-claim-label-red-results/stipend-ui-creation-checkboxes-have-44-px-touch-targets-Desktop-Chrome/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../../../tmp/stipend-claim-label-red-results/stipend-ui-creation-checkboxes-have-44-px-touch-targets-Desktop-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../../../../../tmp/stipend-claim-label-red-results/stipend-ui-creation-checkboxes-have-44-px-touch-targets-Desktop-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [Desktop Chrome] › e2e/stipend-ui.spec.ts:96:5 › creation checkboxes have 44 px touch targets ──

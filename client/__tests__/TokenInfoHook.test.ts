@@ -1,5 +1,5 @@
 // Test for the token info resolution functionality
-import { ETH_ADDRESS } from "@/lib/blockchain/constants";
+import { ETH_ADDRESS } from "@jar-core/lib/blockchain/constants";
 
 describe("Token Info Hook Logic", () => {
 	// Mock the hook behavior for testing

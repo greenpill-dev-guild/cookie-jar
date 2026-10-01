@@ -8,7 +8,7 @@ points live in `CLAUDE.md`; path-scoped rules in `.claude/rules/`; deep referenc
 
 Cookie Jar is a funding-pool protocol: a factory creates jars that allowlisted or token-gated
 members withdraw from under fixed rules. The guild runs one live jar for the contributor stipend
-on Arbitrum One (USDC, gated by the Green Goods "Team" hat, owned by the Working Capital multi-sig)
+on Arbitrum One (USDC, gated by the Green Goods "Team" hat, owned by a confirmed Green Goods Safe)
 and serves it at `cookies.greengoods.app`. Everything else in the client is secondary to that jar
 working correctly.
 
@@ -49,8 +49,10 @@ bun create-jar:arbitrum         # jar creation from .env.local inputs (keystore,
 - Funds enter jars only through `deposit()`; the UI never suggests a plain transfer.
 - Solidity never writes client files; `scripts/sync-deployments.ts` owns the registry.
 - Immutable jar rules are never "patched": a wrong jar is abandoned and re-created.
-- Secrets never enter files, workflows or chat; mainnet transactions are signed by a human from a
-  Foundry keystore after a dry run.
+- Secrets never enter files, workflows or chat; mainnet transactions are signed by a human after
+  a no-broadcast simulation and final review. The Foundry keystore is the default script path;
+  the stipend app may submit directly to the existing factory from a human-controlled wallet.
+  Agents never sign or send mainnet transactions.
 - Semantic Tailwind tokens only (no raw hex classes); `log` from `@/lib/app/logger`, no `console`.
 - Conventional commits; PRs target `dev`; `main` only receives release merges and deploys to Vercel.
 
