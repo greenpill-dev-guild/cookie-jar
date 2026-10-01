@@ -1,0 +1,36 @@
+$ vitest run __tests__/WalletConnectors.test.ts
+
+ RUN  v3.2.7 /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-ui/client
+
+ ❯ __tests__/WalletConnectors.test.ts (1 test | 1 failed) 9ms
+   × registers a browser wallet that RainbowKit can show on mobile 8ms
+     → expected false to be true // Object.is equality
+
+⎯⎯⎯⎯⎯⎯⎯ Failed Tests 1 ⎯⎯⎯⎯⎯⎯⎯
+
+ FAIL  __tests__/WalletConnectors.test.ts > registers a browser wallet that RainbowKit can show on mobile
+AssertionError: expected false to be true // Object.is equality
+
+- Expected
++ Received
+
+- true
++ false
+
+ ❯ __tests__/WalletConnectors.test.ts:4:163
+      2| import { wagmiConfig } from "@/config/supported-networks";
+      3| it("registers a browser wallet that RainbowKit can show on mobile", ()…
+      4|  expect(wagmiConfig.connectors.some(connector => (connector as any).rk…
+       |                                                                                                                                                                   ^
+      5| });
+      6| 
+
+⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯⎯[1/1]⎯
+
+
+ Test Files  1 failed (1)
+      Tests  1 failed (1)
+   Start at  15:14:57
+   Duration  2.79s (transform 155ms, setup 204ms, collect 1.64s, tests 9ms, environment 416ms, prepare 85ms)
+
+error: script "test" exited with code 1

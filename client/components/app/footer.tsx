@@ -1,102 +1,111 @@
 "use client";
 
+import {
+	getExplorerAddressUrl,
+	hasExplorer,
+} from "@jar-core/lib/blockchain/networks";
 import Link from "next/link";
+import { FEATURED_JAR, SITE_NAME } from "@/config/featured-jar";
 
 export function Footer() {
+	const explorerHref =
+		FEATURED_JAR.address && hasExplorer(FEATURED_JAR.chainId)
+			? getExplorerAddressUrl(FEATURED_JAR.address, FEATURED_JAR.chainId)
+			: undefined;
+
 	return (
-		<footer className="cj-bg-main py-16 md:py-20 mt-32">
+		<footer className="mt-16 py-10 border-t border-border">
 			<div className="container mx-auto px-4 md:px-6 lg:px-8">
-				<div className="grid grid-cols-1 md:grid-cols-4 gap-8 md:gap-12">
-					{/* Brand */}
-					<div className="md:col-span-2">
-						<h2 className="text-2xl font-bold text-[#4a3520] mb-4">
-							Cookie Jar
+				<div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+					<div>
+						<h2 className="text-lg font-semibold text-foreground mb-2">
+							{SITE_NAME}
 						</h2>
-						<p className="text-[#4a3520] max-w-md leading-relaxed">
-							Share resources with customizable access rules, withdrawal limits,
-							and transparent tracking. Built for communities, teams, and
-							organizations.
+						<p className="text-sm text-muted-foreground max-w-sm leading-relaxed">
+							Shared funding pools with clear rules for claims, deposits and
+							access.
 						</p>
 					</div>
 
-					{/* Navigation */}
 					<div>
-						<h3 className="font-semibold text-xl mb-4 text-[#4a3520]">
-							Navigate
+						<h3 className="text-sm font-semibold text-foreground mb-3">
+							More jars
 						</h3>
-						<ul className="space-y-3">
-							<li>
-								<Link
-									href="/"
-									className="text-[#4a3520] hover:text-primary transition-colors"
-								>
-									Home
-								</Link>
-							</li>
+						<ul className="space-y-2 text-sm">
 							<li>
 								<Link
 									href="/jars"
-									className="text-[#4a3520] hover:text-primary transition-colors"
+									className="inline-flex min-h-11 items-center rounded-md text-muted-foreground hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
 								>
-									Explore Jars
+									All jars on this network
 								</Link>
 							</li>
 							<li>
 								<Link
 									href="/create"
-									className="text-[#4a3520] hover:text-primary transition-colors"
+									className="inline-flex min-h-11 items-center rounded-md text-muted-foreground hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
 								>
-									Create Jar
+									Create a jar
 								</Link>
 							</li>
 							<li>
 								<Link
-									href="/docs"
-									className="text-[#4a3520] hover:text-primary transition-colors"
+									href="/profile"
+									className="inline-flex min-h-11 items-center rounded-md text-muted-foreground hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
 								>
-									Documentation
+									Your profile
 								</Link>
 							</li>
 						</ul>
 					</div>
 
-					{/* Resources */}
 					<div>
-						<h3 className="font-semibold text-xl mb-4 text-[#4a3520]">
+						<h3 className="text-sm font-semibold text-foreground mb-3">
 							Resources
 						</h3>
-						<ul className="space-y-3">
+						<ul className="space-y-2 text-sm">
 							<li>
-								<Link
-									href="/profile"
-									className="text-[#4a3520] hover:text-primary transition-colors"
+								<a
+									href="https://github.com/greenpill-dev-guild/cookie-jar#readme"
+									target="_blank"
+									rel="noopener noreferrer"
+									className="inline-flex min-h-11 items-center rounded-md text-muted-foreground hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
 								>
-									Profile
-								</Link>
+									Documentation
+								</a>
 							</li>
+							{explorerHref && (
+								<li>
+									<a
+										href={explorerHref}
+										target="_blank"
+										rel="noopener noreferrer"
+										className="inline-flex min-h-11 items-center rounded-md text-muted-foreground hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
+									>
+										Jar contract on the explorer
+									</a>
+								</li>
+							)}
 							<li>
 								<a
 									href="https://github.com/greenpill-dev-guild/cookie-jar"
 									target="_blank"
 									rel="noopener noreferrer"
-									className="text-[#4a3520] hover:text-primary transition-colors"
+									className="inline-flex min-h-11 items-center rounded-md text-muted-foreground hover:text-primary focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
 								>
-									GitHub
+									Source on GitHub
 								</a>
 							</li>
 						</ul>
 					</div>
 				</div>
 
-				{/* Bottom Bar */}
-				<div className="mt-12 pt-8 border-t border-[#4a3520]/20 flex flex-col md:flex-row items-center justify-between">
-					<p className="text-[#4a3520] text-sm">
-						© {new Date().getFullYear()} Cookie Jar. Built by Greenpill Dev
-						Guild.
+				<div className="mt-8 pt-6 border-t border-border flex flex-col md:flex-row items-center justify-between gap-2 text-xs text-muted-foreground">
+					<p>
+						{new Date().getFullYear()} Greenpill Dev Guild. Built on the Cookie
+						Jar protocol.
 					</p>
-					<p className="text-[#4a3520] text-sm mt-4 md:mt-0">
-						Decentralized resource sharing for communities.
-					</p>
+					<p>Funding managed by each jar’s owner.</p>
 				</div>
 			</div>
 		</footer>

@@ -87,7 +87,7 @@ describe("ErrorBoundary", () => {
 		render(
 			<TestErrorBoundary>
 				<ThrowError shouldThrow={false} />
-			</TestErrorBoundary>,
+			</TestErrorBoundary>
 		);
 
 		expect(screen.getByTestId("success")).toBeInTheDocument();
@@ -97,12 +97,12 @@ describe("ErrorBoundary", () => {
 		render(
 			<TestErrorBoundary>
 				<ThrowError />
-			</TestErrorBoundary>,
+			</TestErrorBoundary>
 		);
 
 		expect(screen.getByText("Something went wrong")).toBeInTheDocument();
 		expect(
-			screen.getByText("An unexpected error occurred."),
+			screen.getByText("An unexpected error occurred.")
 		).toBeInTheDocument();
 		expect(screen.getByTestId("reset-button")).toBeInTheDocument();
 	});
@@ -113,7 +113,7 @@ describe("ErrorBoundary", () => {
 		render(
 			<TestErrorBoundary>
 				<ThrowError />
-			</TestErrorBoundary>,
+			</TestErrorBoundary>
 		);
 
 		expect(screen.getByTestId("error-details")).toBeInTheDocument();
@@ -128,7 +128,7 @@ describe("ErrorBoundary", () => {
 		render(
 			<TestErrorBoundary>
 				<ThrowError />
-			</TestErrorBoundary>,
+			</TestErrorBoundary>
 		);
 
 		expect(screen.queryByTestId("error-details")).not.toBeInTheDocument();
@@ -140,7 +140,7 @@ describe("ErrorBoundary", () => {
 		const { rerender: _rerender } = render(
 			<TestErrorBoundary>
 				<ThrowError />
-			</TestErrorBoundary>,
+			</TestErrorBoundary>
 		);
 
 		expect(screen.getByTestId("error-fallback")).toBeInTheDocument();
@@ -169,12 +169,12 @@ describe("ErrorBoundary", () => {
 		render(
 			<TestErrorBoundary fallback={CustomFallback}>
 				<ThrowError />
-			</TestErrorBoundary>,
+			</TestErrorBoundary>
 		);
 
 		expect(screen.getByTestId("custom-fallback")).toBeInTheDocument();
 		expect(
-			screen.getByText("Custom error: Test error message"),
+			screen.getByText("Custom error: Test error message")
 		).toBeInTheDocument();
 		expect(screen.getByTestId("custom-reset")).toBeInTheDocument();
 	});
@@ -183,7 +183,7 @@ describe("ErrorBoundary", () => {
 		render(
 			<TestErrorBoundary>
 				<ThrowError />
-			</TestErrorBoundary>,
+			</TestErrorBoundary>
 		);
 
 		expect(console.error).toHaveBeenCalled();

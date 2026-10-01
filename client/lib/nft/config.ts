@@ -66,23 +66,23 @@ export function getNFTProviderConfig(): NFTProviderConfig {
 			useMockData: process.env.NEXT_PUBLIC_USE_MOCK_NFT_DATA === "true",
 			cacheDuration: parseInt(
 				process.env.NEXT_PUBLIC_NFT_CACHE_DURATION || "60",
-				10,
+				10
 			),
 			maxNftsPerCollection: parseInt(
 				process.env.NEXT_PUBLIC_MAX_NFTS_PER_COLLECTION || "1000",
-				10,
+				10
 			),
 			apiRateLimit: parseInt(
 				process.env.NEXT_PUBLIC_API_RATE_LIMIT || "60",
-				10,
+				10
 			),
 			fetchTimeout: parseInt(
 				process.env.NEXT_PUBLIC_NFT_FETCH_TIMEOUT || "10000",
-				10,
+				10
 			),
 			maxConcurrentValidations: parseInt(
 				process.env.NEXT_PUBLIC_MAX_CONCURRENT_VALIDATIONS || "5",
-				10,
+				10
 			),
 			enableAnalytics: process.env.NEXT_PUBLIC_ENABLE_NFT_ANALYTICS !== "false",
 		},
@@ -95,7 +95,7 @@ export function getNFTProviderConfig(): NFTProviderConfig {
  * Get the best available Alchemy API key for a given network
  */
 export function getAlchemyApiKey(
-	network: "mainnet" | "base" | "sepolia" | "base-sepolia",
+	network: "mainnet" | "base" | "sepolia" | "base-sepolia"
 ): string {
 	const config = getNFTProviderConfig();
 
@@ -115,7 +115,7 @@ export function getAlchemyApiKey(
 	// Development warning
 	if (process.env.NODE_ENV === "development") {
 		console.warn(
-			`No Alchemy API key found for network: ${network}. Some NFT features may not work.`,
+			`No Alchemy API key found for network: ${network}. Some NFT features may not work.`
 		);
 	}
 
@@ -150,7 +150,7 @@ export function validateNFTProviderConfig(): {
 	// Optional but recommended
 	if (!config.opensea) {
 		warnings.push(
-			"NEXT_PUBLIC_OPENSEA_API_KEY not set - collection verification may be limited",
+			"NEXT_PUBLIC_OPENSEA_API_KEY not set - collection verification may be limited"
 		);
 	}
 

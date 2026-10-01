@@ -157,15 +157,15 @@ describe("Create Form Integration", () => {
 		await user.type(screen.getByTestId("jar-name"), "My Test Jar");
 		await user.type(
 			screen.getByTestId("image-url"),
-			"https://example.com/image.png",
+			"https://example.com/image.png"
 		);
 		await user.type(
 			screen.getByTestId("external-link"),
-			"https://myproject.com",
+			"https://myproject.com"
 		);
 		await user.type(
 			screen.getByTestId("description"),
-			"This is a comprehensive test description",
+			"This is a comprehensive test description"
 		);
 
 		await waitFor(() => {
@@ -186,16 +186,16 @@ describe("Create Form Integration", () => {
 
 		await waitFor(() => {
 			expect(screen.getByTestId("jar-name-error")).toHaveTextContent(
-				"Jar name must be at least 3 characters",
+				"Jar name must be at least 3 characters"
 			);
 			expect(screen.getByTestId("image-url-error")).toHaveTextContent(
-				"Please enter a valid URL",
+				"Please enter a valid URL"
 			);
 			expect(screen.getByTestId("external-link-error")).toHaveTextContent(
-				"Please enter a valid URL",
+				"Please enter a valid URL"
 			);
 			expect(screen.getByTestId("description-error")).toHaveTextContent(
-				"Description must be at least 10 characters",
+				"Description must be at least 10 characters"
 			);
 		});
 
@@ -209,7 +209,7 @@ describe("Create Form Integration", () => {
 		await user.type(screen.getByTestId("jar-name"), "Test Jar");
 		await user.type(
 			screen.getByTestId("description"),
-			"Valid description with enough characters",
+			"Valid description with enough characters"
 		);
 
 		// Enable custom fee
@@ -222,7 +222,7 @@ describe("Create Form Integration", () => {
 
 		await waitFor(() => {
 			expect(screen.getByTestId("custom-fee-error")).toHaveTextContent(
-				"Fee percentage must be between 0 and 100",
+				"Fee percentage must be between 0 and 100"
 			);
 		});
 
@@ -244,15 +244,15 @@ describe("Create Form Integration", () => {
 		await user.type(screen.getByTestId("jar-name"), "My Special Jar");
 		await user.type(
 			screen.getByTestId("image-url"),
-			"https://example.com/special.png",
+			"https://example.com/special.png"
 		);
 		await user.type(
 			screen.getByTestId("external-link"),
-			"https://special-project.com",
+			"https://special-project.com"
 		);
 		await user.type(
 			screen.getByTestId("description"),
-			"A very special jar for testing purposes",
+			"A very special jar for testing purposes"
 		);
 
 		await waitFor(() => {
@@ -261,7 +261,7 @@ describe("Create Form Integration", () => {
 
 			expect(parsed.name).toBe("My Special Jar");
 			expect(parsed.description).toBe(
-				"A very special jar for testing purposes",
+				"A very special jar for testing purposes"
 			);
 			expect(parsed.image).toBe("https://example.com/special.png");
 			expect(parsed.link).toBe("https://special-project.com");
@@ -275,7 +275,7 @@ describe("Create Form Integration", () => {
 		await user.type(screen.getByTestId("jar-name"), "Minimal Jar");
 		await user.type(
 			screen.getByTestId("description"),
-			"Just the required description",
+			"Just the required description"
 		);
 
 		await waitFor(() => {

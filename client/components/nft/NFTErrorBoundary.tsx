@@ -1,5 +1,6 @@
 "use client";
 
+import { log } from "@jar-core/lib/app/logger";
 import { AlertTriangle, Bug, Home, RefreshCw } from "lucide-react";
 import React from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -11,7 +12,6 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { log } from "@/lib/app/logger";
 
 interface NFTErrorBoundaryState {
 	hasError: boolean;
@@ -214,7 +214,7 @@ export class NFTErrorBoundary extends React.Component<
 	}
 
 	static getDerivedStateFromError(
-		error: Error,
+		error: Error
 	): Partial<NFTErrorBoundaryState> {
 		const errorId = `nft-error-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 
@@ -256,7 +256,7 @@ export class NFTErrorBoundary extends React.Component<
 	private async sendErrorToMonitoring(
 		error: Error,
 		errorInfo: React.ErrorInfo,
-		errorId: string,
+		errorId: string
 	) {
 		try {
 			// Example: Send to Sentry, LogRocket, or custom error service
@@ -326,7 +326,7 @@ export class NFTErrorBoundary extends React.Component<
 // Higher-order component for wrapping NFT components with error boundary
 export function withNFTErrorBoundary<P extends object>(
 	Component: React.ComponentType<P>,
-	errorBoundaryProps?: Omit<NFTErrorBoundaryProps, "children">,
+	errorBoundaryProps?: Omit<NFTErrorBoundaryProps, "children">
 ) {
 	const WrappedComponent = (props: P) => (
 		<NFTErrorBoundary {...errorBoundaryProps}>
@@ -361,7 +361,7 @@ export function useNFTErrorHandler() {
 	const retryWithErrorHandling = React.useCallback(
 		async <T,>(
 			asyncFn: () => Promise<T>,
-			fallback?: T,
+			fallback?: T
 		): Promise<T | undefined> => {
 			try {
 				clearError();
@@ -371,7 +371,7 @@ export function useNFTErrorHandler() {
 				return fallback;
 			}
 		},
-		[handleError, clearError],
+		[handleError, clearError]
 	);
 
 	return {
@@ -386,7 +386,7 @@ export function useNFTErrorHandler() {
 export class NFTNetworkError extends Error {
 	constructor(
 		message: string,
-		public originalError?: Error,
+		public originalError?: Error
 	) {
 		super(message);
 		this.name = "NFTNetworkError";
@@ -397,7 +397,7 @@ export class NFTAPIError extends Error {
 	constructor(
 		message: string,
 		public statusCode?: number,
-		public originalError?: Error,
+		public originalError?: Error
 	) {
 		super(message);
 		this.name = "NFTAPIError";
@@ -407,7 +407,7 @@ export class NFTAPIError extends Error {
 export class NFTParsingError extends Error {
 	constructor(
 		message: string,
-		public data?: any,
+		public data?: any
 	) {
 		super(message);
 		this.name = "NFTParsingError";
@@ -417,7 +417,7 @@ export class NFTParsingError extends Error {
 export class NFTValidationError extends Error {
 	constructor(
 		message: string,
-		public field?: string,
+		public field?: string
 	) {
 		super(message);
 		this.name = "NFTValidationError";

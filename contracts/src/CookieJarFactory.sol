@@ -145,9 +145,12 @@ contract CookieJarFactory {
         CookieJarLib.MultiTokenConfig calldata multiTokenConfig
     ) external returns (address jarAddress) {
         // Inline config building with validation
-        uint256 minDep = params.supportedCurrency == CookieJarLib.ETH_ADDRESS
+        // Use type(uint256).max as sentinel for "use factory default min deposit".
+        // This allows callers to explicitly set 0 min deposit (e.g., Green Goods jars).
+        uint256 factoryMinDep = params.supportedCurrency == CookieJarLib.ETH_ADDRESS
             ? uint256(MIN_ETH_DEPOSIT)
             : uint256(MIN_ERC20_DEPOSIT);
+        uint256 minDep = params.minDeposit == type(uint256).max ? factoryMinDep : params.minDeposit;
 
         // Validate ERC20 if not ETH
         if (params.supportedCurrency != CookieJarLib.ETH_ADDRESS) {

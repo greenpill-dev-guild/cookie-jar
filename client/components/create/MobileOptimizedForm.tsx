@@ -76,7 +76,7 @@ export function MobileOptimizedForm({
 			return () =>
 				window.visualViewport?.removeEventListener(
 					"resize",
-					handleViewportChange,
+					handleViewportChange
 				);
 		}
 	}, [isMobile]);
@@ -166,9 +166,7 @@ export function MobileOptimizedForm({
 									Step {currentStep} of {totalSteps}
 								</Badge>
 							</div>
-							{!isMobile && (
-								<Progress value={progressPercentage} className="h-2 mt-2" />
-							)}
+							<Progress value={progressPercentage} className="h-2 mt-2" />
 						</CardHeader>
 					)}
 
@@ -200,10 +198,7 @@ export function MobileOptimizedForm({
 
 						{/* Step Content */}
 						<div className={isMobile ? "" : "min-h-[400px]"}>
-							<StepContent
-								step={currentStep}
-								isV2Contract={isV2Contract}
-							/>
+							<StepContent step={currentStep} isV2Contract={isV2Contract} />
 						</div>
 					</CardContent>
 
@@ -294,7 +289,7 @@ export function useMobileFormOptimizations() {
 	const [isMobile, setIsMobile] = useState(false);
 	const [keyboardVisible, setKeyboardVisible] = useState(false);
 	const [orientation, setOrientation] = useState<"portrait" | "landscape">(
-		"portrait",
+		"portrait"
 	);
 
 	useEffect(() => {
@@ -304,7 +299,7 @@ export function useMobileFormOptimizations() {
 
 			if (mobile) {
 				setOrientation(
-					window.innerWidth > window.innerHeight ? "landscape" : "portrait",
+					window.innerWidth > window.innerHeight ? "landscape" : "portrait"
 				);
 			}
 		};

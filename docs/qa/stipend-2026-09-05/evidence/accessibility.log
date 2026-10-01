@@ -1,0 +1,17 @@
+$ playwright test --grep 'accessibility' "--reporter=list,json" "--output=docs/qa/stipend-2026-09-05/evidence/accessibility-artifacts"
+14 |   ].concat(process.env.CI ? [['github']] : []) as any[],
+                                                    ^
+error: Expected "}" but found "as"
+    at /Users/afo/Code/greenpill/cookie-jar/playwright.config.ts:14:48
+
+14 |   ].concat(process.env.CI ? [['github']] : []) as any[],
+                                                       ^
+error: Expected ")" but found "any"
+    at /Users/afo/Code/greenpill/cookie-jar/playwright.config.ts:14:51
+
+14 |   ].concat(process.env.CI ? [['github']] : []) as any[],
+                                                           ^
+error: Unexpected ]
+    at /Users/afo/Code/greenpill/cookie-jar/playwright.config.ts:14:55
+
+error: script "test:accessibility" exited with code 1

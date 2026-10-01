@@ -22,7 +22,7 @@ import { useReadContracts } from "wagmi";
  * ```
  */
 export function useMultipleTokenDecimals(
-	currencies: string[],
+	currencies: string[]
 ): Record<string, number> {
 	const { data: decimalsData } = useReadContracts({
 		contracts: currencies.map((currency) => ({

@@ -1,0 +1,112 @@
+[
+  {
+    "width": 375,
+    "theme": "light",
+    "text": "In the jar\n\n160.0000 USDC\n\nUp to 160.0000 USDC per claim, 30 days between claims\n\nYour status\n\nConnect your wallet to check your status\n\nNext claim\n\nAvailable once you're eligible\n\nCookie Jar\n\nThe Green Goods Earth Week Cookie Jar supports Green Goods gardens carrying out regenerative activities during Earth Week, helping communities care for land, grow food, restore biodiversity, and celebrate local stewardship.\n\nAvailable Balance\n\n160.0000 USDC\n\nAccess\n\nAllowlist\n\nStatus\n\nConnect to check\n\nRules\n\nFixed Amount\n\nContract\n\n0x2f8F...2b74\n\nClaim\nDeposit\nClaim\n\nClaim your share from this jar\n\nWallet not connected\n\nConnect your wallet to see whether you can claim.\n\nClaim history\n\nEvery claim from this jar, with the note that backed it\n\nReading claims from the chain...\nGreen Goods Stipend Jar\n\nThe Green Goods contributor stipend, paid from a Cookie Jar on Arbitrum and backed by work tracked and accepted on Linear.\n\nMore jars\nAll jars on this network\nCreate a jar\nYour profile\nResources\nStipend playbook\nJar contract on the explorer\nSource on GitHub\n\n2026 Greenpill Dev Guild. Built on the Cookie Jar protocol.\n\nClaims require a Linear link in the note.",
+    "errors": [],
+    "failed": [
+      "POST https://arb-pokt.nodies.app/ net::ERR_FAILED",
+      "POST https://arb-mainnet.g.alchemy.com/v2/ net::ERR_FAILED",
+      "POST https://arb-pokt.nodies.app/ net::ERR_FAILED",
+      "POST https://arb-mainnet.g.alchemy.com/v2/ net::ERR_FAILED"
+    ],
+    "rpcMethods": [
+      "eth_call",
+      "eth_call",
+      "eth_call",
+      "eth_blockNumber",
+      "eth_call",
+      "eth_call",
+      "eth_call",
+      "eth_getLogs",
+      "eth_getLogs",
+      "eth_getLogs",
+      "eth_getLogs"
+    ],
+    "hasWallet": false
+  },
+  {
+    "width": 375,
+    "theme": "dark",
+    "text": "In the jar\n\n160.0000 USDC\n\nUp to 160.0000 USDC per claim, 30 days between claims\n\nYour status\n\nConnect your wallet to check your status\n\nNext claim\n\nAvailable once you're eligible\n\nCookie Jar\n\nThe Green Goods Earth Week Cookie Jar supports Green Goods gardens carrying out regenerative activities during Earth Week, helping communities care for land, grow food, restore biodiversity, and celebrate local stewardship.\n\nAvailable Balance\n\n160.0000 USDC\n\nAccess\n\nAllowlist\n\nStatus\n\nConnect to check\n\nRules\n\nFixed Amount\n\nContract\n\n0x2f8F...2b74\n\nClaim\nDeposit\nClaim\n\nClaim your share from this jar\n\nWallet not connected\n\nConnect your wallet to see whether you can claim.\n\nClaim history\n\nEvery claim from this jar, with the note that backed it\n\nReading claims from the chain...\nGreen Goods Stipend Jar\n\nThe Green Goods contributor stipend, paid from a Cookie Jar on Arbitrum and backed by work tracked and accepted on Linear.\n\nMore jars\nAll jars on this network\nCreate a jar\nYour profile\nResources\nStipend playbook\nJar contract on the explorer\nSource on GitHub\n\n2026 Greenpill Dev Guild. Built on the Cookie Jar protocol.\n\nClaims require a Linear link in the note.",
+    "errors": [],
+    "failed": [
+      "POST https://arb-pokt.nodies.app/ net::ERR_FAILED",
+      "POST https://arb-mainnet.g.alchemy.com/v2/ net::ERR_FAILED",
+      "POST https://arb-pokt.nodies.app/ net::ERR_FAILED",
+      "POST https://arb-mainnet.g.alchemy.com/v2/ net::ERR_FAILED",
+      "POST https://arb-pokt.nodies.app/ net::ERR_FAILED"
+    ],
+    "rpcMethods": [
+      "eth_call",
+      "eth_call",
+      "eth_call",
+      "eth_blockNumber",
+      "eth_call",
+      "eth_call",
+      "eth_call",
+      "eth_getLogs",
+      "eth_getLogs",
+      "eth_getLogs",
+      "eth_getLogs",
+      "eth_getLogs"
+    ],
+    "hasWallet": false
+  },
+  {
+    "width": 1440,
+    "theme": "light",
+    "text": "In the jar\n\n160.0000 USDC\n\nUp to 160.0000 USDC per claim, 30 days between claims\n\nYour status\n\nConnect your wallet to check your status\n\nNext claim\n\nAvailable once you're eligible\n\nCookie Jar\n\nThe Green Goods Earth Week Cookie Jar supports Green Goods gardens carrying out regenerative activities during Earth Week, helping communities care for land, grow food, restore biodiversity, and celebrate local stewardship.\n\nAvailable Balance\n\n160.0000 USDC\n\nAccess\n\nAllowlist\n\nStatus\n\nConnect to check\n\nRules\n\nFixed Amount\n\nContract\n\n0x2f8F...2b74\n\nClaim\nDeposit\nClaim\n\nClaim your share from this jar\n\nWallet not connected\n\nConnect your wallet to see whether you can claim.\n\nClaim history\n\nEvery claim from this jar, with the note that backed it\n\nReading claims from the chain...\nGreen Goods Stipend Jar\n\nThe Green Goods contributor stipend, paid from a Cookie Jar on Arbitrum and backed by work tracked and accepted on Linear.\n\nMore jars\nAll jars on this network\nCreate a jar\nYour profile\nResources\nStipend playbook\nJar contract on the explorer\nSource on GitHub\n\n2026 Greenpill Dev Guild. Built on the Cookie Jar protocol.\n\nClaims require a Linear link in the note.",
+    "errors": [],
+    "failed": [
+      "POST https://arb-pokt.nodies.app/ net::ERR_FAILED",
+      "POST https://arb-mainnet.g.alchemy.com/v2/ net::ERR_FAILED",
+      "POST https://arb-pokt.nodies.app/ net::ERR_FAILED",
+      "POST https://arb-mainnet.g.alchemy.com/v2/ net::ERR_FAILED"
+    ],
+    "rpcMethods": [
+      "eth_call",
+      "eth_call",
+      "eth_call",
+      "eth_blockNumber",
+      "eth_call",
+      "eth_call",
+      "eth_call",
+      "eth_getLogs",
+      "eth_getLogs",
+      "eth_getLogs",
+      "eth_getLogs"
+    ],
+    "hasWallet": false
+  },
+  {
+    "width": 1440,
+    "theme": "dark",
+    "text": "In the jar\n\n160.0000 USDC\n\nUp to 160.0000 USDC per claim, 30 days between claims\n\nYour status\n\nConnect your wallet to check your status\n\nNext claim\n\nAvailable once you're eligible\n\nCookie Jar\n\nThe Green Goods Earth Week Cookie Jar supports Green Goods gardens carrying out regenerative activities during Earth Week, helping communities care for land, grow food, restore biodiversity, and celebrate local stewardship.\n\nAvailable Balance\n\n160.0000 USDC\n\nAccess\n\nAllowlist\n\nStatus\n\nConnect to check\n\nRules\n\nFixed Amount\n\nContract\n\n0x2f8F...2b74\n\nClaim\nDeposit\nClaim\n\nClaim your share from this jar\n\nWallet not connected\n\nConnect your wallet to see whether you can claim.\n\nClaim history\n\nEvery claim from this jar, with the note that backed it\n\nReading claims from the chain...\nGreen Goods Stipend Jar\n\nThe Green Goods contributor stipend, paid from a Cookie Jar on Arbitrum and backed by work tracked and accepted on Linear.\n\nMore jars\nAll jars on this network\nCreate a jar\nYour profile\nResources\nStipend playbook\nJar contract on the explorer\nSource on GitHub\n\n2026 Greenpill Dev Guild. Built on the Cookie Jar protocol.\n\nClaims require a Linear link in the note.",
+    "errors": [],
+    "failed": [
+      "POST https://arb-pokt.nodies.app/ net::ERR_FAILED",
+      "POST https://arb-mainnet.g.alchemy.com/v2/ net::ERR_FAILED",
+      "POST https://arb-pokt.nodies.app/ net::ERR_FAILED",
+      "POST https://arb-mainnet.g.alchemy.com/v2/ net::ERR_FAILED",
+      "POST https://arb-pokt.nodies.app/ net::ERR_FAILED",
+      "POST https://arb-mainnet.g.alchemy.com/v2/ net::ERR_FAILED"
+    ],
+    "rpcMethods": [
+      "eth_call",
+      "eth_call",
+      "eth_call",
+      "eth_blockNumber",
+      "eth_call",
+      "eth_call",
+      "eth_call",
+      "eth_getLogs",
+      "eth_getLogs",
+      "eth_getLogs",
+      "eth_getLogs",
+      "eth_getLogs",
+      "eth_getLogs"
+    ],
+    "hasWallet": false
+  }
+]

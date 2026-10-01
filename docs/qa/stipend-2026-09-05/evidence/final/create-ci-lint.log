@@ -1,0 +1,17 @@
+Lint, format and types	Type check	﻿2026-09-05T22:10:28.9258811Z ##[group]Run bun type-check
+Lint, format and types	Type check	2026-09-05T22:10:28.9259177Z ^[[36;1mbun type-check^[[0m
+Lint, format and types	Type check	2026-09-05T22:10:28.9280241Z shell: /usr/bin/bash -e {0}
+Lint, format and types	Type check	2026-09-05T22:10:28.9280651Z ##[endgroup]
+Lint, format and types	Type check	2026-09-05T22:10:28.9735781Z $ cd client && bun type-check
+Lint, format and types	Type check	2026-09-05T22:10:28.9757418Z $ tsc --noEmit
+Lint, format and types	Type check	2026-09-05T22:10:40.4419431Z ##[error]__tests__/ErrorRecovery.test.tsx(40,51): error TS2769: No overload matches this call.
+Lint, format and types	Type check	2026-09-05T22:10:40.4426703Z   Overload 1 of 2, '(role: ByRoleMatcher, options?: ByRoleOptions | undefined): HTMLElement', gave the following error.
+Lint, format and types	Type check	2026-09-05T22:10:40.4427486Z     Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+Lint, format and types	Type check	2026-09-05T22:10:40.4428474Z   Overload 2 of 2, '(role: ByRoleMatcher, options?: ByRoleOptions | undefined): HTMLElement', gave the following error.
+Lint, format and types	Type check	2026-09-05T22:10:40.4429594Z     Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+Lint, format and types	Type check	2026-09-05T22:10:40.4430783Z ##[error]__tests__/ErrorRecovery.test.tsx(58,51): error TS2769: No overload matches this call.
+Lint, format and types	Type check	2026-09-05T22:10:40.4432094Z   Overload 1 of 2, '(role: ByRoleMatcher, options?: ByRoleOptions | undefined): HTMLElement', gave the following error.
+Lint, format and types	Type check	2026-09-05T22:10:40.4432845Z     Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+Lint, format and types	Type check	2026-09-05T22:10:40.4434428Z   Overload 2 of 2, '(role: ByRoleMatcher, options?: ByRoleOptions | undefined): HTMLElement', gave the following error.
+Lint, format and types	Type check	2026-09-05T22:10:40.4435207Z     Object literal may only specify known properties, and 'exact' does not exist in type 'ByRoleOptions'.
+Lint, format and types	Type check	2026-09-05T22:10:40.5351843Z ##[error]Process completed with exit code 2.

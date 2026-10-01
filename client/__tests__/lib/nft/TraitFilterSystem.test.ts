@@ -139,7 +139,7 @@ describe("TraitFilterSystem", () => {
 			// All remaining NFTs should not have Element=Fire
 			result.forEach((nft) => {
 				const elementTrait = nft.attributes?.find(
-					(attr) => attr.trait_type === "Element",
+					(attr) => attr.trait_type === "Element"
 				);
 				if (elementTrait) {
 					expect(elementTrait.value).not.toBe("Fire");
@@ -164,14 +164,14 @@ describe("TraitFilterSystem", () => {
 			expect(
 				result.every((nft) => {
 					const levelAttr = nft.attributes?.find(
-						(attr) => attr.trait_type === "Level",
+						(attr) => attr.trait_type === "Level"
 					);
 					return (
 						levelAttr &&
 						typeof levelAttr.value === "number" &&
 						levelAttr.value > 50
 					);
-				}),
+				})
 			).toBe(true);
 		});
 
@@ -194,7 +194,7 @@ describe("TraitFilterSystem", () => {
 			expect(
 				result.every((nft) => {
 					const levelAttr = nft.attributes?.find(
-						(attr) => attr.trait_type === "Level",
+						(attr) => attr.trait_type === "Level"
 					);
 					return (
 						levelAttr &&
@@ -202,7 +202,7 @@ describe("TraitFilterSystem", () => {
 						levelAttr.value >= 40 &&
 						levelAttr.value <= 70
 					);
-				}),
+				})
 			).toBe(true);
 		});
 
@@ -308,7 +308,7 @@ describe("TraitFilterSystem", () => {
 
 			expect(result).toHaveLength(4); // All except Basic Warrior (missing Element)
 			expect(
-				result.find((nft) => nft.name === "Basic Warrior"),
+				result.find((nft) => nft.name === "Basic Warrior")
 			).toBeUndefined();
 		});
 
@@ -336,7 +336,7 @@ describe("TraitFilterSystem", () => {
 
 			expect(result).toHaveLength(4); // All from 10k collection
 			expect(
-				result.find((nft) => nft.name === "Basic Warrior"),
+				result.find((nft) => nft.name === "Basic Warrior")
 			).toBeUndefined();
 		});
 	});
@@ -441,7 +441,7 @@ describe("TraitFilterSystem", () => {
 			const suggestions = filterSystem.getTraitSuggestions(
 				mockNFTs,
 				currentFilters,
-				3, // limit
+				3 // limit
 			);
 
 			expect(suggestions).toHaveLength(3);
@@ -550,7 +550,7 @@ describe("TraitFilterSystem", () => {
 						values: ["Fire"],
 						operator: "in",
 					},
-				]),
+				])
 			);
 			params.set("rarity_rank", JSON.stringify({ min: 1, max: 100 }));
 			params.set("sort_by", "price");

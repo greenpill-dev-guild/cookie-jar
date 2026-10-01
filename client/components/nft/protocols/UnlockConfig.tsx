@@ -33,7 +33,7 @@ export const UnlockConfig: React.FC<UnlockConfigProps> = ({
 	className,
 }) => {
 	const [unlockAddress, setUnlockAddress] = useState(
-		initialConfig?.unlockAddress || "",
+		initialConfig?.unlockAddress || ""
 	);
 	const [selectedLock, setSelectedLock] = useState<LockDetails | null>(null);
 	const [isValidating, setIsValidating] = useState(false);
@@ -195,7 +195,7 @@ export const UnlockConfig: React.FC<UnlockConfigProps> = ({
 											Price:{" "}
 											{formatPrice(
 												selectedLock.price,
-												selectedLock.currencySymbol,
+												selectedLock.currencySymbol
 											)}
 										</Badge>
 										<Badge variant="outline" className="text-xs">

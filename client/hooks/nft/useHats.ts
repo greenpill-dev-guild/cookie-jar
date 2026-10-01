@@ -1,7 +1,7 @@
+import { log } from "@jar-core/lib/app/logger";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { isAddress } from "viem";
 import { useAccount, useChainId, useReadContract } from "wagmi";
-import { log } from "@/lib/app/logger";
 import {
 	hatsProvider,
 	type HatDetails as ProviderHatDetails,
@@ -260,7 +260,7 @@ export function useHats(options: UseHatsOptions = {}): UseHatsResult {
 				}
 			}
 		},
-		[chainId],
+		[chainId]
 	);
 
 	/**
@@ -306,7 +306,7 @@ export function useHats(options: UseHatsOptions = {}): UseHatsResult {
 				}
 			}
 		},
-		[chainId],
+		[chainId]
 	);
 
 	/**
@@ -327,7 +327,7 @@ export function useHats(options: UseHatsOptions = {}): UseHatsResult {
 				return [];
 			}
 		},
-		[chainId],
+		[chainId]
 	);
 
 	/** Public validateHatId API exposed to consumers. */
@@ -335,7 +335,7 @@ export function useHats(options: UseHatsOptions = {}): UseHatsResult {
 		async (hatId: string): Promise<HatInfo | null> => {
 			return validateHatIdImpl(hatId);
 		},
-		[validateHatIdImpl],
+		[validateHatIdImpl]
 	);
 
 	/** Refetch all data with AbortController guards for in-flight calls. */

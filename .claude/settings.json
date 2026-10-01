@@ -1,0 +1,37 @@
+{
+	"hooks": {
+		"PreToolUse": [
+			{
+				"matcher": "Bash",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bash \"$CLAUDE_PROJECT_DIR/.claude/scripts/guard-bash.sh\""
+					}
+				]
+			}
+		],
+		"PostToolUse": [
+			{
+				"matcher": "Edit|Write",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "bash \"$CLAUDE_PROJECT_DIR/.claude/scripts/format-on-write.sh\""
+					}
+				]
+			}
+		],
+		"SessionStart": [
+			{
+				"matcher": "startup|resume",
+				"hooks": [
+					{
+						"type": "command",
+						"command": "echo 'Cookie Jar session. Read CLAUDE.md, then AGENTS.md. Skills: /review /ship /audit /deploy are user-invoked; tdd, debug and research fire on their own. Tests: bun run test, never bun test.'"
+					}
+				]
+			}
+		]
+	}
+}

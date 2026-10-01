@@ -47,14 +47,14 @@ describeOrSkip("Unlock Protocol SDK Integration Test", () => {
 			try {
 				const lock = await web3Service.getLock(
 					REAL_LOCK_ADDRESS,
-					ETHEREUM_CHAIN_ID,
+					ETHEREUM_CHAIN_ID
 				);
 
 				// Verify the lock data structure
 				expect(lock).toHaveProperty("address");
 				expect(lock).toHaveProperty("name");
 				expect(lock.address.toLowerCase()).toBe(
-					REAL_LOCK_ADDRESS.toLowerCase(),
+					REAL_LOCK_ADDRESS.toLowerCase()
 				);
 
 				console.log("Successfully fetched lock:", {
@@ -76,7 +76,7 @@ describeOrSkip("Unlock Protocol SDK Integration Test", () => {
 			const invalidAddress = "0x1234567890123456789012345678901234567890";
 
 			await expect(
-				web3Service.getLock(invalidAddress, ETHEREUM_CHAIN_ID),
+				web3Service.getLock(invalidAddress, ETHEREUM_CHAIN_ID)
 			).rejects.toThrow();
 		});
 	});

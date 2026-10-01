@@ -59,7 +59,7 @@ async function waitForServices() {
 
 			if (attempts >= maxAttempts) {
 				throw new Error(
-					`❌ ${service.name} failed to start within 2 minutes. Make sure 'bun dev' is running.`,
+					`❌ ${service.name} failed to start within 2 minutes. Make sure 'bun dev' is running.`
 				);
 			}
 		}
@@ -70,12 +70,12 @@ async function verifyContracts() {
 	try {
 		// Check if deployment file exists (created by your DeployLocal.s.sol)
 		const response = await fetch(
-			"http://localhost:3000/contracts/local-deployment.json",
+			"http://localhost:3000/contracts/local-deployment.json"
 		);
 
 		if (!response.ok) {
 			throw new Error(
-				"Deployment file not found. Ensure contracts are deployed with `bun dev`.",
+				"Deployment file not found. Ensure contracts are deployed with `bun dev`."
 			);
 		}
 
@@ -98,7 +98,7 @@ async function verifyContracts() {
 		console.error("❌ Contract verification failed:", error);
 		console.log("\n💡 Make sure to run `bun dev` before running E2E tests");
 		console.log(
-			"   This will start Anvil, deploy contracts, and start the client",
+			"   This will start Anvil, deploy contracts, and start the client"
 		);
 		throw error;
 	}

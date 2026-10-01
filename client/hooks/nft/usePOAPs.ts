@@ -175,7 +175,7 @@ export function usePOAPs(options: usePOAPsOptions = {}): usePOAPsResult {
 		} catch (error) {
 			console.error("Error fetching user POAPs:", error);
 			setUserPOAPsError(
-				"Failed to fetch your POAP collection. Please check your API key.",
+				"Failed to fetch your POAP collection. Please check your API key."
 			);
 		} finally {
 			setIsLoadingUserPOAPs(false);
@@ -232,7 +232,7 @@ export function usePOAPs(options: usePOAPsOptions = {}): usePOAPsResult {
 
 	// Validate specific event ID
 	const validateEventId = async (
-		eventId: string,
+		eventId: string
 	): Promise<POAPEvent | null> => {
 		try {
 			if (!/^\d+$/.test(eventId)) {

@@ -1,3 +1,10 @@
+import { anvilLocal, supportedChains } from "@jar-core/config/networks";
+import { connectorsForWallets } from "@rainbow-me/rainbowkit";
+import {
+	injectedWallet,
+	walletConnectWallet,
+} from "@rainbow-me/rainbowkit/wallets";
+import { createConfig, fallback, http } from "wagmi";
 import {
 	arbitrum,
 	base,
@@ -10,182 +17,9 @@ import {
 	optimismSepolia,
 	sepolia,
 } from "wagmi/chains";
-import { ETH_ADDRESS } from "@/lib/blockchain/constants";
+import { FEATURED_JAR, SITE_DESCRIPTION, SITE_NAME } from "./featured-jar";
 
-// Import auto-generated deployment configuration
-// This file is automatically updated when contracts are deployed
-import {
-	FACTORY_ADDRESSES as AUTO_FACTORY_ADDRESSES,
-	V2_CHAINS as AUTO_V2_CHAINS,
-	isV2Chain as autoIsV2Chain,
-} from "./deployments.auto";
-
-// Re-export auto-generated configuration
-export const V2_CHAINS = AUTO_V2_CHAINS;
-
-// Helper function to check if a chain uses v2 contracts (auto-generated)
-export function isV2Chain(chainId: number): boolean {
-	return autoIsV2Chain(chainId);
-}
-
-// POAP token contract is only supported on Gnosis Chain for on-chain gating.
-const POAP_SUPPORTED_CHAINS = new Set<number>([gnosis.id]);
-
-export function isPoapSupportedChain(chainId: number): boolean {
-	return POAP_SUPPORTED_CHAINS.has(chainId);
-}
-
-// Local Anvil chain (Pure local development without fork)
-export const anvilLocal = {
-	id: 31337,
-	name: "Anvil Local",
-	network: "anvil-local",
-	nativeCurrency: {
-		decimals: 18,
-		name: "Ether",
-		symbol: "ETH",
-	},
-	rpcUrls: {
-		default: { http: ["http://127.0.0.1:8545"] },
-		public: { http: ["http://127.0.0.1:8545"] },
-	},
-	blockExplorers: {
-		default: { name: "Local", url: "http://127.0.0.1:8545" },
-	},
-	// No multicall3 contract in pure local mode - wagmi will fallback to individual calls
-	testnet: true,
-} as const;
-
-import type { Chain } from "@rainbow-me/rainbowkit";
-import type { Address } from "viem";
-import { createConfig, fallback, http } from "wagmi";
-import { injected, walletConnect } from "wagmi/connectors";
-
-// For RainbowKit provider (include local only in dev)
-const chains = [
-	base,
-	celo,
-	gnosis,
-	optimism,
-	baseSepolia,
-	optimismSepolia,
-	// celoSepolia,
-	// Mainnets
-	// mainnet,
-];
-
-// Add local development chain in dev mode
-export const supportedChains = (
-	process.env.NODE_ENV === "development" ? [anvilLocal, ...chains] : chains
-) as readonly [Chain, ...Chain[]];
-
-interface ContractAddresses {
-	cookieJarFactory: Record<number, Address>;
-}
-
-// Chain-specific native currency configuration
-export interface NativeCurrency {
-	symbol: string;
-	name: string;
-	decimals: number;
-	address: Address; // Special address to represent native currency
-}
-
-export const nativeCurrencies: Record<number, NativeCurrency> = {
-	[mainnet.id]: {
-		symbol: "ETH",
-		name: "Ethereum",
-		decimals: 18,
-		address: ETH_ADDRESS,
-	},
-	[base.id]: {
-		symbol: "ETH",
-		name: "Ethereum",
-		decimals: 18,
-		address: ETH_ADDRESS,
-	},
-	[optimism.id]: {
-		symbol: "ETH",
-		name: "Ethereum",
-		decimals: 18,
-		address: ETH_ADDRESS,
-	},
-	[arbitrum.id]: {
-		symbol: "ETH",
-		name: "Ethereum",
-		decimals: 18,
-		address: ETH_ADDRESS,
-	},
-	[gnosis.id]: {
-		symbol: "xDAI",
-		name: "xDAI",
-		decimals: 18,
-		address: ETH_ADDRESS,
-	},
-	[baseSepolia.id]: {
-		symbol: "ETH",
-		name: "Ethereum",
-		decimals: 18,
-		address: ETH_ADDRESS,
-	},
-	[sepolia.id]: {
-		symbol: "ETH",
-		name: "Ethereum",
-		decimals: 18,
-		address: ETH_ADDRESS,
-	},
-	[optimismSepolia.id]: {
-		symbol: "ETH",
-		name: "Ethereum",
-		decimals: 18,
-		address: ETH_ADDRESS,
-	},
-	[celoSepolia.id]: {
-		symbol: "CELO",
-		name: "Celo",
-		decimals: 18,
-		address: ETH_ADDRESS,
-	},
-	[celo.id]: {
-		symbol: "CELO",
-		name: "Celo",
-		decimals: 18,
-		address: ETH_ADDRESS,
-	},
-	[anvilLocal.id]: {
-		symbol: "ETH",
-		name: "Ethereum",
-		decimals: 18,
-		address: ETH_ADDRESS,
-	},
-};
-
-export function getNativeCurrency(chainId: number): NativeCurrency {
-	return nativeCurrencies[chainId] || nativeCurrencies[mainnet.id];
-}
-
-// Auto-generated factory addresses from deployments
-export const contractAddresses: ContractAddresses = {
-	cookieJarFactory: {
-		// Legacy addresses (manually maintained)
-		[gnosis.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9" as Address,
-		[base.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9" as Address,
-		[optimism.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9" as Address,
-		[celo.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9" as Address,
-		[optimismSepolia.id]:
-			"0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9" as Address,
-		[mainnet.id]: "0x86dBf7076202FDf89792038B97e41aC8A4A8Bef9" as Address,
-
-		// Auto-generated addresses - DO NOT EDIT MANUALLY!
-		// These are automatically updated by the deployment script
-		...Object.fromEntries(
-			Object.entries(AUTO_FACTORY_ADDRESSES).map(([chainId, address]) => [
-				parseInt(chainId, 10),
-				address as Address,
-			]),
-		),
-	},
-};
+export * from "@jar-core/config/networks";
 
 // Get environment variables
 const projectId = process.env.NEXT_PUBLIC_WALLET_CONNECT_PROJECT_ID || "";
@@ -212,42 +46,29 @@ function createFallbackTransport(primary: string[], fallbackUrls: string[]) {
 	return fallback(transports);
 }
 
-// Client-side only connectors to avoid SSR issues
+// RainbowKit's mobile chooser requires its wallet metadata, including for injected wallets.
 function getConnectors() {
-	// Check if we're on the client side
-	if (typeof window === "undefined") {
-		// Server-side: only return injected connector without WalletConnect
-		return [
-			injected({
-				shimDisconnect: true,
-			}),
-		];
-	}
-
-	// Client-side: return all connectors including WalletConnect
-	const connectors: any[] = [
-		injected({
-			shimDisconnect: true,
-		}),
-	];
-
-	// Only add WalletConnect if projectId is available
-	if (projectId) {
-		connectors.push(
-			walletConnect({
-				projectId,
-				metadata: {
-					name: "Cookie Jar",
-					description:
-						"Decentralized funding jars with flexible access controls",
-					url: "https://cookiejar.greenpill.network",
-					icons: ["https://cookiejar.greenpill.network/logo.png"],
-				},
-			}),
-		);
-	}
-
-	return connectors;
+	return connectorsForWallets(
+		[
+			{
+				groupName: "Wallets",
+				wallets: [
+					injectedWallet,
+					...(projectId && typeof window !== "undefined"
+						? [walletConnectWallet]
+						: []),
+				],
+			},
+		],
+		{
+			appName: SITE_NAME,
+			appDescription: SITE_DESCRIPTION,
+			appUrl: FEATURED_JAR.siteUrl,
+			appIcon: `${FEATURED_JAR.siteUrl}/icon`,
+			// No WalletConnect connector is constructed when its project ID is absent.
+			projectId: projectId || "",
+		}
+	);
 }
 
 // Export the Wagmi config
@@ -264,7 +85,7 @@ export const wagmiConfig = createConfig({
 				"https://mainnet.base.org",
 				"https://base.blockpi.network/v1/rpc/public",
 				"https://1rpc.io/base",
-			],
+			]
 		),
 		// Optimism Mainnet
 		[optimism.id]: createFallbackTransport(
@@ -276,7 +97,7 @@ export const wagmiConfig = createConfig({
 				"https://mainnet.optimism.io",
 				"https://optimism.blockpi.network/v1/rpc/public",
 				"https://1rpc.io/op",
-			],
+			]
 		),
 		// Arbitrum Mainnet
 		[arbitrum.id]: createFallbackTransport(
@@ -288,7 +109,7 @@ export const wagmiConfig = createConfig({
 				"https://arb1.arbitrum.io/rpc",
 				"https://arbitrum.blockpi.network/v1/rpc/public",
 				"https://1rpc.io/arb",
-			],
+			]
 		),
 		// Gnosis Chain
 		[gnosis.id]: createFallbackTransport(
@@ -297,7 +118,7 @@ export const wagmiConfig = createConfig({
 				"https://rpc.gnosischain.com",
 				"https://gnosis.blockpi.network/v1/rpc/public",
 				"https://1rpc.io/gnosis",
-			],
+			]
 		),
 		// Base Sepolia Testnet - POKT not available, keep as is
 		[baseSepolia.id]: createFallbackTransport(
@@ -305,7 +126,7 @@ export const wagmiConfig = createConfig({
 			[
 				"https://base-sepolia.blockpi.network/v1/rpc/public",
 				"https://1rpc.io/base-sepolia",
-			],
+			]
 		),
 		// Sepolia Testnet - POKT not available, use Alchemy as secondary
 		[sepolia.id]: createFallbackTransport(
@@ -314,7 +135,7 @@ export const wagmiConfig = createConfig({
 				"https://rpc.sepolia.org",
 				"https://sepolia.blockpi.network/v1/rpc/public",
 				"https://1rpc.io/eth-sepolia",
-			],
+			]
 		),
 		// Mainnet (Ethereum)
 		[mainnet.id]: createFallbackTransport(
@@ -326,28 +147,28 @@ export const wagmiConfig = createConfig({
 				"https://eth.llamarpc.com",
 				"https://rpc.ankr.com/eth",
 				"https://ethereum.blockpi.network/v1/rpc/public",
-			],
+			]
 		),
 		// Optimism Sepolia Testnet
 		[optimismSepolia.id]: createFallbackTransport(
 			[
 				"https://op-sepolia-pokt.nodies.app",
-				"https://opt-sepolia.g.alchemy.com/v2/${alchemyId}",
+				`https://opt-sepolia.g.alchemy.com/v2/${alchemyId}`,
 			],
 			[
 				"https://optimism-sepolia.blockpi.network/v1/rpc/public",
 				"https://1rpc.io/op-sepolia",
-			],
+			]
 		),
 		// Celo Alfajores Testnet - POKT not available, keep as is
 		[celoSepolia.id]: createFallbackTransport(
 			["https://alfajores-forno.celo-testnet.org"],
-			["https://celo-alfajores.blockpi.network/v1/rpc/public"],
+			["https://celo-alfajores.blockpi.network/v1/rpc/public"]
 		),
 		// Celo Mainnet - POKT not available, keep as is
 		[celo.id]: createFallbackTransport(
 			["https://forno.celo.org"],
-			["https://celo.blockpi.network/v1/rpc/public", "https://1rpc.io/celo"],
+			["https://celo.blockpi.network/v1/rpc/public", "https://1rpc.io/celo"]
 		),
 		// Local Anvil network (only in development)
 		...(process.env.NODE_ENV === "development"

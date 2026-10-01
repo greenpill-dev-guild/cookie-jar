@@ -1,0 +1,587 @@
+
+Running 28 tests using 1 worker
+
+(node:97301) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+♿ Testing homepage accessibility...
+⚠️ Critical accessibility violations found: [
+  {
+    id: 'button-name',
+    impact: 'critical',
+    description: 'Ensure buttons have discernible text',
+    nodes: 1
+  }
+]
+📊 Total violations: 4, Critical: 1
+✅ Accessibility scan completed
+  ✓   1 [Desktop Chrome] › e2e/accessibility-validation.spec.ts:5:6 › ♿ Accessibility Validation › Homepage accessibility compliance (21.7s)
+🔗 Testing wallet button accessibility...
+✅ Connect wallet button accessibility verified
+  ✓   2 [Desktop Chrome] › e2e/accessibility-validation.spec.ts:44:6 › ♿ Accessibility Validation › Connect wallet button accessibility (12.4s)
+📝 Testing form accessibility...
+🔍 Checking 5 form inputs for accessibility...
+✅ Form input accessibility verified
+  ✓   3 [Desktop Chrome] › e2e/accessibility-validation.spec.ts:74:6 › ♿ Accessibility Validation › Form labels and inputs accessibility (28.7s)
+⌨️ Testing keyboard navigation...
+⌨️ Found 10 focusable elements
+✅ Keyboard navigation testing complete
+  ✓   4 [Desktop Chrome] › e2e/accessibility-validation.spec.ts:120:6 › ♿ Accessibility Validation › Keyboard navigation works (12.5s)
+🎨 Testing color contrast...
+✅ No color contrast violations detected
+✅ Color contrast testing complete
+  ✓   5 [Desktop Chrome] › e2e/accessibility-validation.spec.ts:163:6 › ♿ Accessibility Validation › Color contrast check on key elements (21.6s)
+  ✘   6 [Desktop Chrome] › e2e/accessibility.spec.ts:5:6 › ♿ Accessibility Testing › Homepage accessibility compliance (16.2s)
+(node:14385) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+📝 Note: Found buttons without accessible names (likely icon buttons need aria-label)
+  ✓   7 [Desktop Chrome] › e2e/accessibility.spec.ts:33:6 › ♿ Accessibility Testing › Create jar form accessibility (13.3s)
+📋 Interactive elements found: [
+  { tagName: 'a', text: 'Green Goods Stipend ' },
+  { tagName: 'button', text: 'Connect' },
+  { tagName: 'a', text: '' },
+  { tagName: 'button', text: '' },
+  { tagName: 'button', text: 'Claim' },
+  { tagName: 'div', text: 'ClaimClaim your shar' },
+  { tagName: 'a', text: 'All jars on this net' },
+  { tagName: 'a', text: 'Create a jar' },
+  { tagName: 'a', text: 'Your profile' },
+  { tagName: 'a', text: 'Stipend playbook' }
+]
+  ✓   8 [Desktop Chrome] › e2e/accessibility.spec.ts:63:6 › ♿ Accessibility Testing › Keyboard navigation support (35.2s)
+  ✘   9 [Desktop Chrome] › e2e/accessibility.spec.ts:107:6 › ♿ Accessibility Testing › Create jar form labels and accessibility (31.6s)
+(node:23573) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 [Desktop Chrome] › e2e/accessibility.spec.ts:171:6 › ♿ Accessibility Testing › Color contrast compliance (28.9s)
+  ✘  11 [Desktop Chrome] › e2e/accessibility.spec.ts:199:6 › ♿ Accessibility Testing › ARIA roles and landmarks (10.2s)
+(node:26591) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+⚠️ Button 0 size: 93.359375x40px (should be >= 44x44px)
+⚠️ Button 1 size: 20x20px (should be >= 44x44px)
+⚠️ Button 2 size: 167.5x32px (should be >= 44x44px)
+⚠️ Button 3 size: 167.5x32px (should be >= 44x44px)
+⚠️ Button 4 size: 32x32px (should be >= 44x44px)
+📱 Touch targets: 0/5 buttons are properly sized
+  ✓  12 [Desktop Chrome] › e2e/accessibility.spec.ts:238:6 › ♿ Accessibility Testing › Mobile accessibility (19.4s)
+🔊 Testing mobile screen reader compatibility...
+  ✘  13 [Desktop Chrome] › e2e/mobile-experience.spec.ts:523:7 › 📱 Mobile Experience E2E › Mobile Accessibility › Mobile screen reader compatibility (16.7s)
+(node:29721) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+⌨️ Testing mobile keyboard navigation...
+  ✓  14 [Desktop Chrome] › e2e/mobile-experience.spec.ts:554:7 › 📱 Mobile Experience E2E › Mobile Accessibility › Mobile keyboard navigation works correctly (13.5s)
+(node:31242) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+♿ Testing homepage accessibility...
+⚠️ Critical accessibility violations found: [
+  {
+    id: 'button-name',
+    impact: 'critical',
+    description: 'Ensure buttons have discernible text',
+    nodes: 1
+  }
+]
+📊 Total violations: 4, Critical: 1
+✅ Accessibility scan completed
+  ✓  15 [Mobile Chrome] › e2e/accessibility-validation.spec.ts:5:6 › ♿ Accessibility Validation › Homepage accessibility compliance (12.8s)
+🔗 Testing wallet button accessibility...
+✅ Connect wallet button accessibility verified
+  ✓  16 [Mobile Chrome] › e2e/accessibility-validation.spec.ts:44:6 › ♿ Accessibility Validation › Connect wallet button accessibility (8.7s)
+📝 Testing form accessibility...
+🔍 Checking 5 form inputs for accessibility...
+✅ Form input accessibility verified
+  ✓  17 [Mobile Chrome] › e2e/accessibility-validation.spec.ts:74:6 › ♿ Accessibility Validation › Form labels and inputs accessibility (5.7s)
+⌨️ Testing keyboard navigation...
+⌨️ Found 10 focusable elements
+✅ Keyboard navigation testing complete
+  ✓  18 [Mobile Chrome] › e2e/accessibility-validation.spec.ts:120:6 › ♿ Accessibility Validation › Keyboard navigation works (4.5s)
+🎨 Testing color contrast...
+✅ No color contrast violations detected
+✅ Color contrast testing complete
+  ✓  19 [Mobile Chrome] › e2e/accessibility-validation.spec.ts:163:6 › ♿ Accessibility Validation › Color contrast check on key elements (5.1s)
+  ✘  20 [Mobile Chrome] › e2e/accessibility.spec.ts:5:6 › ♿ Accessibility Testing › Homepage accessibility compliance (5.9s)
+(node:38397) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+📝 Note: Found buttons without accessible names (likely icon buttons need aria-label)
+  ✓  21 [Mobile Chrome] › e2e/accessibility.spec.ts:33:6 › ♿ Accessibility Testing › Create jar form accessibility (9.4s)
+📋 Interactive elements found: [
+  { tagName: 'a', text: 'Green Goods Stipend ' },
+  { tagName: 'button', text: 'Connect' },
+  { tagName: 'a', text: '' },
+  { tagName: 'button', text: '' },
+  { tagName: 'button', text: 'Claim' },
+  { tagName: 'div', text: 'ClaimClaim your shar' },
+  { tagName: 'a', text: 'All jars on this net' },
+  { tagName: 'a', text: 'Create a jar' },
+  { tagName: 'a', text: 'Your profile' },
+  { tagName: 'a', text: 'Stipend playbook' }
+]
+  ✓  22 [Mobile Chrome] › e2e/accessibility.spec.ts:63:6 › ♿ Accessibility Testing › Keyboard navigation support (6.6s)
+🔍 Checking 5 form inputs for accessibility...
+  ✓  23 [Mobile Chrome] › e2e/accessibility.spec.ts:107:6 › ♿ Accessibility Testing › Create jar form labels and accessibility (9.1s)
+  ✓  24 [Mobile Chrome] › e2e/accessibility.spec.ts:171:6 › ♿ Accessibility Testing › Color contrast compliance (7.9s)
+  ✘  25 [Mobile Chrome] › e2e/accessibility.spec.ts:199:6 › ♿ Accessibility Testing › ARIA roles and landmarks (9.4s)
+(node:43253) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+⚠️ Button 0 size: 93.359375x40px (should be >= 44x44px)
+⚠️ Button 1 size: 20x20px (should be >= 44x44px)
+⚠️ Button 2 size: 167.5x32px (should be >= 44x44px)
+⚠️ Button 3 size: 167.5x32px (should be >= 44x44px)
+⚠️ Button 4 size: 32x32px (should be >= 44x44px)
+📱 Touch targets: 0/5 buttons are properly sized
+  ✓  26 [Mobile Chrome] › e2e/accessibility.spec.ts:238:6 › ♿ Accessibility Testing › Mobile accessibility (10.9s)
+🔊 Testing mobile screen reader compatibility...
+  ✘  27 [Mobile Chrome] › e2e/mobile-experience.spec.ts:523:7 › 📱 Mobile Experience E2E › Mobile Accessibility › Mobile screen reader compatibility (8.0s)
+(node:44956) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+⌨️ Testing mobile keyboard navigation...
+  ✓  28 [Mobile Chrome] › e2e/mobile-experience.spec.ts:554:7 › 📱 Mobile Experience E2E › Mobile Accessibility › Mobile keyboard navigation works correctly (13.1s)
+
+
+  1) [Desktop Chrome] › e2e/accessibility.spec.ts:5:6 › ♿ Accessibility Testing › Homepage accessibility compliance 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 95
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure buttons have discernible text",
+    +     "help": "Buttons must have discernible text",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/button-name?application=playwright",
+    +     "id": "button-name",
+    +     "impact": "critical",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "button-has-visible-text",
+    +             "impact": "critical",
+    +             "message": "Element does not have inner text that is visible to screen readers",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "aria-label",
+    +             "impact": "critical",
+    +             "message": "aria-label attribute does not exist or is empty",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "aria-labelledby",
+    +             "impact": "critical",
+    +             "message": "aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": Object {
+    +               "messageKey": "noAttr",
+    +             },
+    +             "id": "non-empty-title",
+    +             "impact": "critical",
+    +             "message": "Element has no title attribute",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "implicit-label",
+    +             "impact": "critical",
+    +             "message": "Element does not have an implicit (wrapped) <label>",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "explicit-label",
+    +             "impact": "critical",
+    +             "message": "Element does not have an explicit <label>",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "presentational-role",
+    +             "impact": "critical",
+    +             "message": "Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element does not have inner text that is visible to screen readers
+    +   aria-label attribute does not exist or is empty
+    +   aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty
+    +   Element has no title attribute
+    +   Element does not have an implicit (wrapped) <label>
+    +   Element does not have an explicit <label>
+    +   Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",
+    +         "html": "<button class=\"inline-flex items-ce...\">",
+    +         "impact": "critical",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".\\[\\&_svg\\]\\:pointer-events-none",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.name-role-value",
+    +       "wcag2a",
+    +       "wcag412",
+    +       "section508",
+    +       "section508.22.a",
+    +       "TTv5",
+    +       "TT6.a",
+    +       "EN-301-549",
+    +       "EN-9.4.1.2",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-11.9.1",
+    +     ],
+    +   },
+    + ]
+
+      16 | 		);
+      17 |
+    > 18 | 		expect(criticalViolations).toEqual([]);
+         | 		                           ^
+      19 |
+      20 | 		if (accessibilityScanResults.violations.length > 0) {
+      21 | 			console.log(
+        at /Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts:18:30
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-f9f3a-ge-accessibility-compliance-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-f9f3a-ge-accessibility-compliance-Desktop-Chrome/video-1.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-f9f3a-ge-accessibility-compliance-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-f9f3a-ge-accessibility-compliance-Desktop-Chrome/error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-f9f3a-ge-accessibility-compliance-Desktop-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-f9f3a-ge-accessibility-compliance-Desktop-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  2) [Desktop Chrome] › e2e/accessibility.spec.ts:107:6 › ♿ Accessibility Testing › Create jar form labels and accessibility 
+
+    TimeoutError: page.goto: Timeout 30000ms exceeded.
+    Call log:
+      - navigating to "http://localhost:3000/create", waiting until "load"
+
+
+      106 |
+      107 | 	test("Create jar form labels and accessibility", async ({ page }) => {
+    > 108 | 		await page.goto("/create");
+          | 		           ^
+      109 | 		await page.waitForLoadState("networkidle");
+      110 |
+      111 | 		// Check that all form inputs have proper labels
+        at /Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts:108:14
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-75a0c-rm-labels-and-accessibility-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-75a0c-rm-labels-and-accessibility-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-75a0c-rm-labels-and-accessibility-Desktop-Chrome/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-75a0c-rm-labels-and-accessibility-Desktop-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-75a0c-rm-labels-and-accessibility-Desktop-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  3) [Desktop Chrome] › e2e/accessibility.spec.ts:199:6 › ♿ Accessibility Testing › ARIA roles and landmarks 
+
+    Error: Button 1 should have accessible name
+
+    expect(received).toBeTruthy()
+
+    Received: null
+
+      231 | 					accessibleName,
+      232 | 					`Button ${i} should have accessible name`
+    > 233 | 				).toBeTruthy();
+          | 				  ^
+      234 | 			}
+      235 | 		}
+      236 | 	});
+        at /Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts:233:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-4385d-ng-ARIA-roles-and-landmarks-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-4385d-ng-ARIA-roles-and-landmarks-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-4385d-ng-ARIA-roles-and-landmarks-Desktop-Chrome/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-4385d-ng-ARIA-roles-and-landmarks-Desktop-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-4385d-ng-ARIA-roles-and-landmarks-Desktop-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  4) [Desktop Chrome] › e2e/mobile-experience.spec.ts:523:7 › 📱 Mobile Experience E2E › Mobile Accessibility › Mobile screen reader compatibility 
+
+    Error: expect(received).toBeTruthy()
+
+    Received: null
+
+      547 | 						(await button.textContent()) ||
+      548 | 						(await button.getAttribute("aria-label"));
+    > 549 | 					expect(accessibleName).toBeTruthy();
+          | 					                       ^
+      550 | 				}
+      551 | 			}
+      552 | 		});
+        at /Users/afo/Code/greenpill/cookie-jar/e2e/mobile-experience.spec.ts:549:29
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/mobile-experience-📱-Mobil-835b8-screen-reader-compatibility-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/mobile-experience-📱-Mobil-835b8-screen-reader-compatibility-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/mobile-experience-📱-Mobil-835b8-screen-reader-compatibility-Desktop-Chrome/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/mobile-experience-📱-Mobil-835b8-screen-reader-compatibility-Desktop-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/mobile-experience-📱-Mobil-835b8-screen-reader-compatibility-Desktop-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  5) [Mobile Chrome] › e2e/accessibility.spec.ts:5:6 › ♿ Accessibility Testing › Homepage accessibility compliance 
+
+    Error: expect(received).toEqual(expected) // deep equality
+
+    - Expected  -  1
+    + Received  + 95
+
+    - Array []
+    + Array [
+    +   Object {
+    +     "description": "Ensure buttons have discernible text",
+    +     "help": "Buttons must have discernible text",
+    +     "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/button-name?application=playwright",
+    +     "id": "button-name",
+    +     "impact": "critical",
+    +     "nodes": Array [
+    +       Object {
+    +         "all": Array [],
+    +         "any": Array [
+    +           Object {
+    +             "data": null,
+    +             "id": "button-has-visible-text",
+    +             "impact": "critical",
+    +             "message": "Element does not have inner text that is visible to screen readers",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "aria-label",
+    +             "impact": "critical",
+    +             "message": "aria-label attribute does not exist or is empty",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "aria-labelledby",
+    +             "impact": "critical",
+    +             "message": "aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": Object {
+    +               "messageKey": "noAttr",
+    +             },
+    +             "id": "non-empty-title",
+    +             "impact": "critical",
+    +             "message": "Element has no title attribute",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "implicit-label",
+    +             "impact": "critical",
+    +             "message": "Element does not have an implicit (wrapped) <label>",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "explicit-label",
+    +             "impact": "critical",
+    +             "message": "Element does not have an explicit <label>",
+    +             "relatedNodes": Array [],
+    +           },
+    +           Object {
+    +             "data": null,
+    +             "id": "presentational-role",
+    +             "impact": "critical",
+    +             "message": "Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",
+    +             "relatedNodes": Array [],
+    +           },
+    +         ],
+    +         "failureSummary": "Fix any of the following:
+    +   Element does not have inner text that is visible to screen readers
+    +   aria-label attribute does not exist or is empty
+    +   aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty
+    +   Element has no title attribute
+    +   Element does not have an implicit (wrapped) <label>
+    +   Element does not have an explicit <label>
+    +   Element's default semantics were not overridden with role=\"none\" or role=\"presentation\"",
+    +         "html": "<button class=\"inline-flex items-ce...\">",
+    +         "impact": "critical",
+    +         "none": Array [],
+    +         "target": Array [
+    +           ".\\[\\&_svg\\]\\:pointer-events-none",
+    +         ],
+    +       },
+    +     ],
+    +     "tags": Array [
+    +       "cat.name-role-value",
+    +       "wcag2a",
+    +       "wcag412",
+    +       "section508",
+    +       "section508.22.a",
+    +       "TTv5",
+    +       "TT6.a",
+    +       "EN-301-549",
+    +       "EN-9.4.1.2",
+    +       "ACT",
+    +       "RGAAv4",
+    +       "RGAA-11.9.1",
+    +     ],
+    +   },
+    + ]
+
+      16 | 		);
+      17 |
+    > 18 | 		expect(criticalViolations).toEqual([]);
+         | 		                           ^
+      19 |
+      20 | 		if (accessibilityScanResults.violations.length > 0) {
+      21 | 			console.log(
+        at /Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts:18:30
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-f9f3a-ge-accessibility-compliance-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-f9f3a-ge-accessibility-compliance-Mobile-Chrome/video-1.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-f9f3a-ge-accessibility-compliance-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-f9f3a-ge-accessibility-compliance-Mobile-Chrome/error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-f9f3a-ge-accessibility-compliance-Mobile-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-f9f3a-ge-accessibility-compliance-Mobile-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  6) [Mobile Chrome] › e2e/accessibility.spec.ts:199:6 › ♿ Accessibility Testing › ARIA roles and landmarks 
+
+    Error: Button 1 should have accessible name
+
+    expect(received).toBeTruthy()
+
+    Received: null
+
+      231 | 					accessibleName,
+      232 | 					`Button ${i} should have accessible name`
+    > 233 | 				).toBeTruthy();
+          | 				  ^
+      234 | 			}
+      235 | 		}
+      236 | 	});
+        at /Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts:233:7
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-4385d-ng-ARIA-roles-and-landmarks-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-4385d-ng-ARIA-roles-and-landmarks-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-4385d-ng-ARIA-roles-and-landmarks-Mobile-Chrome/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-4385d-ng-ARIA-roles-and-landmarks-Mobile-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-4385d-ng-ARIA-roles-and-landmarks-Mobile-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7) [Mobile Chrome] › e2e/mobile-experience.spec.ts:523:7 › 📱 Mobile Experience E2E › Mobile Accessibility › Mobile screen reader compatibility 
+
+    Error: expect(received).toBeTruthy()
+
+    Received: null
+
+      547 | 						(await button.textContent()) ||
+      548 | 						(await button.getAttribute("aria-label"));
+    > 549 | 					expect(accessibleName).toBeTruthy();
+          | 					                       ^
+      550 | 				}
+      551 | 			}
+      552 | 		});
+        at /Users/afo/Code/greenpill/cookie-jar/e2e/mobile-experience.spec.ts:549:29
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/mobile-experience-📱-Mobil-835b8-screen-reader-compatibility-Mobile-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #2: video (video/webm) ──────────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/mobile-experience-📱-Mobil-835b8-screen-reader-compatibility-Mobile-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/mobile-experience-📱-Mobil-835b8-screen-reader-compatibility-Mobile-Chrome/error-context.md
+
+    attachment #4: trace (application/zip) ─────────────────────────────────────────────────────────
+    docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/mobile-experience-📱-Mobil-835b8-screen-reader-compatibility-Mobile-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/mobile-experience-📱-Mobil-835b8-screen-reader-compatibility-Mobile-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  7 failed
+    [Desktop Chrome] › e2e/accessibility.spec.ts:5:6 › ♿ Accessibility Testing › Homepage accessibility compliance 
+    [Desktop Chrome] › e2e/accessibility.spec.ts:107:6 › ♿ Accessibility Testing › Create jar form labels and accessibility 
+    [Desktop Chrome] › e2e/accessibility.spec.ts:199:6 › ♿ Accessibility Testing › ARIA roles and landmarks 
+    [Desktop Chrome] › e2e/mobile-experience.spec.ts:523:7 › 📱 Mobile Experience E2E › Mobile Accessibility › Mobile screen reader compatibility 
+    [Mobile Chrome] › e2e/accessibility.spec.ts:5:6 › ♿ Accessibility Testing › Homepage accessibility compliance 
+    [Mobile Chrome] › e2e/accessibility.spec.ts:199:6 › ♿ Accessibility Testing › ARIA roles and landmarks 
+    [Mobile Chrome] › e2e/mobile-experience.spec.ts:523:7 › 📱 Mobile Experience E2E › Mobile Accessibility › Mobile screen reader compatibility 
+  21 passed (7.1m)

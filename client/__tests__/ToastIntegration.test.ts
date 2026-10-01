@@ -175,7 +175,7 @@ describe("Toast Integration", () => {
 
 			expect(toastCalls).toHaveLength(3);
 			expect(toastCalls.every((call) => call.description === "Success")).toBe(
-				true,
+				true
 			);
 		});
 	});

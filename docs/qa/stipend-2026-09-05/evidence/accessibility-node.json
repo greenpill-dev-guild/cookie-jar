@@ -1,0 +1,1604 @@
+{
+  "config": {
+    "argv": [
+      "/Users/afo/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/bin/node",
+      "/Users/afo/Code/greenpill/cookie-jar/node_modules/.bin/playwright",
+      "test",
+      "--grep",
+      "accessibility",
+      "--reporter=list,json",
+      "--output=docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts"
+    ],
+    "configFile": "/Users/afo/Code/greenpill/cookie-jar/playwright.config.ts",
+    "rootDir": "/Users/afo/Code/greenpill/cookie-jar/e2e",
+    "failOnFlakyTests": false,
+    "forbidOnly": false,
+    "fullyParallel": false,
+    "globalSetup": null,
+    "globalTeardown": null,
+    "globalTimeout": 0,
+    "grep": {},
+    "grepInvert": null,
+    "maxFailures": 0,
+    "metadata": {
+      "actualWorkers": 1
+    },
+    "preserveOutput": "always",
+    "projects": [
+      {
+        "outputDir": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "Desktop Chrome",
+        "name": "Desktop Chrome",
+        "testDir": "/Users/afo/Code/greenpill/cookie-jar/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.{test,spec}.{js,ts}"
+        ],
+        "timeout": 60000
+      },
+      {
+        "outputDir": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts",
+        "repeatEach": 1,
+        "retries": 0,
+        "metadata": {
+          "actualWorkers": 1
+        },
+        "id": "Mobile Chrome",
+        "name": "Mobile Chrome",
+        "testDir": "/Users/afo/Code/greenpill/cookie-jar/e2e",
+        "testIgnore": [],
+        "testMatch": [
+          "**/*.{test,spec}.{js,ts}"
+        ],
+        "timeout": 60000
+      }
+    ],
+    "quiet": false,
+    "reporter": [
+      [
+        "list"
+      ],
+      [
+        "json"
+      ]
+    ],
+    "reportSlowTests": {
+      "max": 5,
+      "threshold": 300000
+    },
+    "shard": null,
+    "tags": [],
+    "updateSnapshots": "missing",
+    "updateSourceMethod": "patch",
+    "version": "1.62.1",
+    "workers": 1,
+    "webServer": null
+  },
+  "suites": [
+    {
+      "title": "accessibility-validation.spec.ts",
+      "file": "accessibility-validation.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "♿ Accessibility Validation",
+          "file": "accessibility-validation.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Homepage accessibility compliance",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 21668,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "♿ Testing homepage accessibility...\n"
+                        },
+                        {
+                          "text": "⚠️ Critical accessibility violations found: [\n  {\n    id: \u001b[32m'button-name'\u001b[39m,\n    impact: \u001b[32m'critical'\u001b[39m,\n    description: \u001b[32m'Ensure buttons have discernible text'\u001b[39m,\n    nodes: \u001b[33m1\u001b[39m\n  }\n]\n"
+                        },
+                        {
+                          "text": "📊 Total violations: 4, Critical: 1\n"
+                        },
+                        {
+                          "text": "✅ Accessibility scan completed\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:21:01.085Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "bd99b738c26c083c7ec5-4dfead172f4a1f664e53",
+              "file": "accessibility-validation.spec.ts",
+              "line": 5,
+              "column": 6
+            },
+            {
+              "title": "Connect wallet button accessibility",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 12387,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🔗 Testing wallet button accessibility...\n"
+                        },
+                        {
+                          "text": "✅ Connect wallet button accessibility verified\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:21:23.041Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "bd99b738c26c083c7ec5-8d21612586c2a65b3bab",
+              "file": "accessibility-validation.spec.ts",
+              "line": 44,
+              "column": 6
+            },
+            {
+              "title": "Form labels and inputs accessibility",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 28718,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📝 Testing form accessibility...\n"
+                        },
+                        {
+                          "text": "🔍 Checking 5 form inputs for accessibility...\n"
+                        },
+                        {
+                          "text": "✅ Form input accessibility verified\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:21:35.459Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "bd99b738c26c083c7ec5-87ba7ea5b67f26101369",
+              "file": "accessibility-validation.spec.ts",
+              "line": 74,
+              "column": 6
+            },
+            {
+              "title": "Keyboard navigation works",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 12495,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⌨️ Testing keyboard navigation...\n"
+                        },
+                        {
+                          "text": "⌨️ Found 10 focusable elements\n"
+                        },
+                        {
+                          "text": "✅ Keyboard navigation testing complete\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:22:04.200Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "bd99b738c26c083c7ec5-cf62b67ceccf35e5e4e1",
+              "file": "accessibility-validation.spec.ts",
+              "line": 120,
+              "column": 6
+            },
+            {
+              "title": "Color contrast check on key elements",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 21564,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🎨 Testing color contrast...\n"
+                        },
+                        {
+                          "text": "✅ No color contrast violations detected\n"
+                        },
+                        {
+                          "text": "✅ Color contrast testing complete\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:22:16.743Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "bd99b738c26c083c7ec5-8797a92f902a54955703",
+              "file": "accessibility-validation.spec.ts",
+              "line": 163,
+              "column": 6
+            },
+            {
+              "title": "Homepage accessibility compliance",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 12838,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "♿ Testing homepage accessibility...\n"
+                        },
+                        {
+                          "text": "⚠️ Critical accessibility violations found: [\n  {\n    id: \u001b[32m'button-name'\u001b[39m,\n    impact: \u001b[32m'critical'\u001b[39m,\n    description: \u001b[32m'Ensure buttons have discernible text'\u001b[39m,\n    nodes: \u001b[33m1\u001b[39m\n  }\n]\n"
+                        },
+                        {
+                          "text": "📊 Total violations: 4, Critical: 1\n"
+                        },
+                        {
+                          "text": "✅ Accessibility scan completed\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:25:56.616Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "bd99b738c26c083c7ec5-b85f5de844e9c975443a",
+              "file": "accessibility-validation.spec.ts",
+              "line": 5,
+              "column": 6
+            },
+            {
+              "title": "Connect wallet button accessibility",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 8708,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🔗 Testing wallet button accessibility...\n"
+                        },
+                        {
+                          "text": "✅ Connect wallet button accessibility verified\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:26:09.771Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "bd99b738c26c083c7ec5-7f18e10387b1bbe0424d",
+              "file": "accessibility-validation.spec.ts",
+              "line": 44,
+              "column": 6
+            },
+            {
+              "title": "Form labels and inputs accessibility",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5711,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📝 Testing form accessibility...\n"
+                        },
+                        {
+                          "text": "🔍 Checking 5 form inputs for accessibility...\n"
+                        },
+                        {
+                          "text": "✅ Form input accessibility verified\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:26:18.500Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "bd99b738c26c083c7ec5-9880cb3f80a6cf3a1d51",
+              "file": "accessibility-validation.spec.ts",
+              "line": 74,
+              "column": 6
+            },
+            {
+              "title": "Keyboard navigation works",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 4541,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⌨️ Testing keyboard navigation...\n"
+                        },
+                        {
+                          "text": "⌨️ Found 10 focusable elements\n"
+                        },
+                        {
+                          "text": "✅ Keyboard navigation testing complete\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:26:24.236Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "bd99b738c26c083c7ec5-dd56819a2d6f447546c2",
+              "file": "accessibility-validation.spec.ts",
+              "line": 120,
+              "column": 6
+            },
+            {
+              "title": "Color contrast check on key elements",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 5109,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🎨 Testing color contrast...\n"
+                        },
+                        {
+                          "text": "✅ No color contrast violations detected\n"
+                        },
+                        {
+                          "text": "✅ Color contrast testing complete\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:26:28.791Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "bd99b738c26c083c7ec5-182d7a3f878f5e6d001b",
+              "file": "accessibility-validation.spec.ts",
+              "line": 163,
+              "column": 6
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "accessibility.spec.ts",
+      "file": "accessibility.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "♿ Accessibility Testing",
+          "file": "accessibility.spec.ts",
+          "line": 4,
+          "column": 6,
+          "specs": [
+            {
+              "title": "Homepage accessibility compliance",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 0,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 16177,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  -  1\u001b[39m\n\u001b[31m+ Received  + 95\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"description\": \"Ensure buttons have discernible text\",\u001b[39m\n\u001b[31m+     \"help\": \"Buttons must have discernible text\",\u001b[39m\n\u001b[31m+     \"helpUrl\": \"https://dequeuniversity.com/rules/axe/4.13/button-name?application=playwright\",\u001b[39m\n\u001b[31m+     \"id\": \"button-name\",\u001b[39m\n\u001b[31m+     \"impact\": \"critical\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"all\": Array [],\u001b[39m\n\u001b[31m+         \"any\": Array [\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"button-has-visible-text\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element does not have inner text that is visible to screen readers\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"aria-label\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"aria-label attribute does not exist or is empty\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"aria-labelledby\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": Object {\u001b[39m\n\u001b[31m+               \"messageKey\": \"noAttr\",\u001b[39m\n\u001b[31m+             },\u001b[39m\n\u001b[31m+             \"id\": \"non-empty-title\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element has no title attribute\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"implicit-label\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element does not have an implicit (wrapped) <label>\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"explicit-label\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element does not have an explicit <label>\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"presentational-role\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element's default semantics were not overridden with role=\\\"none\\\" or role=\\\"presentation\\\"\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+         \"failureSummary\": \"Fix any of the following:\u001b[39m\n\u001b[31m+   Element does not have inner text that is visible to screen readers\u001b[39m\n\u001b[31m+   aria-label attribute does not exist or is empty\u001b[39m\n\u001b[31m+   aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\u001b[39m\n\u001b[31m+   Element has no title attribute\u001b[39m\n\u001b[31m+   Element does not have an implicit (wrapped) <label>\u001b[39m\n\u001b[31m+   Element does not have an explicit <label>\u001b[39m\n\u001b[31m+   Element's default semantics were not overridden with role=\\\"none\\\" or role=\\\"presentation\\\"\",\u001b[39m\n\u001b[31m+         \"html\": \"<button class=\\\"inline-flex items-ce...\\\">\",\u001b[39m\n\u001b[31m+         \"impact\": \"critical\",\u001b[39m\n\u001b[31m+         \"none\": Array [],\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \".\\\\[\\\\&_svg\\\\]\\\\:pointer-events-none\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+     \"tags\": Array [\u001b[39m\n\u001b[31m+       \"cat.name-role-value\",\u001b[39m\n\u001b[31m+       \"wcag2a\",\u001b[39m\n\u001b[31m+       \"wcag412\",\u001b[39m\n\u001b[31m+       \"section508\",\u001b[39m\n\u001b[31m+       \"section508.22.a\",\u001b[39m\n\u001b[31m+       \"TTv5\",\u001b[39m\n\u001b[31m+       \"TT6.a\",\u001b[39m\n\u001b[31m+       \"EN-301-549\",\u001b[39m\n\u001b[31m+       \"EN-9.4.1.2\",\u001b[39m\n\u001b[31m+       \"ACT\",\u001b[39m\n\u001b[31m+       \"RGAAv4\",\u001b[39m\n\u001b[31m+       \"RGAA-11.9.1\",\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+ ]\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  -  1\u001b[39m\n\u001b[31m+ Received  + 95\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"description\": \"Ensure buttons have discernible text\",\u001b[39m\n\u001b[31m+     \"help\": \"Buttons must have discernible text\",\u001b[39m\n\u001b[31m+     \"helpUrl\": \"https://dequeuniversity.com/rules/axe/4.13/button-name?application=playwright\",\u001b[39m\n\u001b[31m+     \"id\": \"button-name\",\u001b[39m\n\u001b[31m+     \"impact\": \"critical\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"all\": Array [],\u001b[39m\n\u001b[31m+         \"any\": Array [\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"button-has-visible-text\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element does not have inner text that is visible to screen readers\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"aria-label\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"aria-label attribute does not exist or is empty\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"aria-labelledby\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": Object {\u001b[39m\n\u001b[31m+               \"messageKey\": \"noAttr\",\u001b[39m\n\u001b[31m+             },\u001b[39m\n\u001b[31m+             \"id\": \"non-empty-title\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element has no title attribute\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"implicit-label\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element does not have an implicit (wrapped) <label>\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"explicit-label\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element does not have an explicit <label>\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"presentational-role\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element's default semantics were not overridden with role=\\\"none\\\" or role=\\\"presentation\\\"\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+         \"failureSummary\": \"Fix any of the following:\u001b[39m\n\u001b[31m+   Element does not have inner text that is visible to screen readers\u001b[39m\n\u001b[31m+   aria-label attribute does not exist or is empty\u001b[39m\n\u001b[31m+   aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\u001b[39m\n\u001b[31m+   Element has no title attribute\u001b[39m\n\u001b[31m+   Element does not have an implicit (wrapped) <label>\u001b[39m\n\u001b[31m+   Element does not have an explicit <label>\u001b[39m\n\u001b[31m+   Element's default semantics were not overridden with role=\\\"none\\\" or role=\\\"presentation\\\"\",\u001b[39m\n\u001b[31m+         \"html\": \"<button class=\\\"inline-flex items-ce...\\\">\",\u001b[39m\n\u001b[31m+         \"impact\": \"critical\",\u001b[39m\n\u001b[31m+         \"none\": Array [],\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \".\\\\[\\\\&_svg\\\\]\\\\:pointer-events-none\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+     \"tags\": Array [\u001b[39m\n\u001b[31m+       \"cat.name-role-value\",\u001b[39m\n\u001b[31m+       \"wcag2a\",\u001b[39m\n\u001b[31m+       \"wcag412\",\u001b[39m\n\u001b[31m+       \"section508\",\u001b[39m\n\u001b[31m+       \"section508.22.a\",\u001b[39m\n\u001b[31m+       \"TTv5\",\u001b[39m\n\u001b[31m+       \"TT6.a\",\u001b[39m\n\u001b[31m+       \"EN-301-549\",\u001b[39m\n\u001b[31m+       \"EN-9.4.1.2\",\u001b[39m\n\u001b[31m+       \"ACT\",\u001b[39m\n\u001b[31m+       \"RGAAv4\",\u001b[39m\n\u001b[31m+       \"RGAA-11.9.1\",\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+ ]\u001b[39m\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts:18:30",
+                        "location": {
+                          "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts",
+                          "column": 30,
+                          "line": 18
+                        },
+                        "snippet": "  16 | \t\t);\n  17 |\n> 18 | \t\texpect(criticalViolations).toEqual([]);\n     | \t\t                           ^\n  19 |\n  20 | \t\tif (accessibilityScanResults.violations.length > 0) {\n  21 | \t\t\tconsole.log("
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts",
+                            "column": 30,
+                            "line": 18
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  -  1\u001b[39m\n\u001b[31m+ Received  + 95\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"description\": \"Ensure buttons have discernible text\",\u001b[39m\n\u001b[31m+     \"help\": \"Buttons must have discernible text\",\u001b[39m\n\u001b[31m+     \"helpUrl\": \"https://dequeuniversity.com/rules/axe/4.13/button-name?application=playwright\",\u001b[39m\n\u001b[31m+     \"id\": \"button-name\",\u001b[39m\n\u001b[31m+     \"impact\": \"critical\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"all\": Array [],\u001b[39m\n\u001b[31m+         \"any\": Array [\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"button-has-visible-text\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element does not have inner text that is visible to screen readers\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"aria-label\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"aria-label attribute does not exist or is empty\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"aria-labelledby\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": Object {\u001b[39m\n\u001b[31m+               \"messageKey\": \"noAttr\",\u001b[39m\n\u001b[31m+             },\u001b[39m\n\u001b[31m+             \"id\": \"non-empty-title\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element has no title attribute\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"implicit-label\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element does not have an implicit (wrapped) <label>\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"explicit-label\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element does not have an explicit <label>\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"presentational-role\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element's default semantics were not overridden with role=\\\"none\\\" or role=\\\"presentation\\\"\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+         \"failureSummary\": \"Fix any of the following:\u001b[39m\n\u001b[31m+   Element does not have inner text that is visible to screen readers\u001b[39m\n\u001b[31m+   aria-label attribute does not exist or is empty\u001b[39m\n\u001b[31m+   aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\u001b[39m\n\u001b[31m+   Element has no title attribute\u001b[39m\n\u001b[31m+   Element does not have an implicit (wrapped) <label>\u001b[39m\n\u001b[31m+   Element does not have an explicit <label>\u001b[39m\n\u001b[31m+   Element's default semantics were not overridden with role=\\\"none\\\" or role=\\\"presentation\\\"\",\u001b[39m\n\u001b[31m+         \"html\": \"<button class=\\\"inline-flex items-ce...\\\">\",\u001b[39m\n\u001b[31m+         \"impact\": \"critical\",\u001b[39m\n\u001b[31m+         \"none\": Array [],\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \".\\\\[\\\\&_svg\\\\]\\\\:pointer-events-none\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+     \"tags\": Array [\u001b[39m\n\u001b[31m+       \"cat.name-role-value\",\u001b[39m\n\u001b[31m+       \"wcag2a\",\u001b[39m\n\u001b[31m+       \"wcag412\",\u001b[39m\n\u001b[31m+       \"section508\",\u001b[39m\n\u001b[31m+       \"section508.22.a\",\u001b[39m\n\u001b[31m+       \"TTv5\",\u001b[39m\n\u001b[31m+       \"TT6.a\",\u001b[39m\n\u001b[31m+       \"EN-301-549\",\u001b[39m\n\u001b[31m+       \"EN-9.4.1.2\",\u001b[39m\n\u001b[31m+       \"ACT\",\u001b[39m\n\u001b[31m+       \"RGAAv4\",\u001b[39m\n\u001b[31m+       \"RGAA-11.9.1\",\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n  16 | \t\t);\n  17 |\n> 18 | \t\texpect(criticalViolations).toEqual([]);\n     | \t\t                           ^\n  19 |\n  20 | \t\tif (accessibilityScanResults.violations.length > 0) {\n  21 | \t\t\tconsole.log(\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts:18:30"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:22:38.352Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-f9f3a-ge-accessibility-compliance-Desktop-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-f9f3a-ge-accessibility-compliance-Desktop-Chrome/video-1.webm"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-f9f3a-ge-accessibility-compliance-Desktop-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-f9f3a-ge-accessibility-compliance-Desktop-Chrome/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-f9f3a-ge-accessibility-compliance-Desktop-Chrome/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts",
+                        "column": 30,
+                        "line": 18
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ddd864604af8a6a0198f-e6f944868752e99262eb",
+              "file": "accessibility.spec.ts",
+              "line": 5,
+              "column": 6
+            },
+            {
+              "title": "Create jar form accessibility",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 13267,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📝 Note: Found buttons without accessible names (likely icon buttons need aria-label)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:22:56.818Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ddd864604af8a6a0198f-1821883face5a41c472e",
+              "file": "accessibility.spec.ts",
+              "line": 33,
+              "column": 6
+            },
+            {
+              "title": "Keyboard navigation support",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 35152,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📋 Interactive elements found: [\n  { tagName: \u001b[32m'a'\u001b[39m, text: \u001b[32m'Green Goods Stipend '\u001b[39m },\n  { tagName: \u001b[32m'button'\u001b[39m, text: \u001b[32m'Connect'\u001b[39m },\n  { tagName: \u001b[32m'a'\u001b[39m, text: \u001b[32m''\u001b[39m },\n  { tagName: \u001b[32m'button'\u001b[39m, text: \u001b[32m''\u001b[39m },\n  { tagName: \u001b[32m'button'\u001b[39m, text: \u001b[32m'Claim'\u001b[39m },\n  { tagName: \u001b[32m'div'\u001b[39m, text: \u001b[32m'ClaimClaim your shar'\u001b[39m },\n  { tagName: \u001b[32m'a'\u001b[39m, text: \u001b[32m'All jars on this net'\u001b[39m },\n  { tagName: \u001b[32m'a'\u001b[39m, text: \u001b[32m'Create a jar'\u001b[39m },\n  { tagName: \u001b[32m'a'\u001b[39m, text: \u001b[32m'Your profile'\u001b[39m },\n  { tagName: \u001b[32m'a'\u001b[39m, text: \u001b[32m'Stipend playbook'\u001b[39m }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:23:10.466Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ddd864604af8a6a0198f-434c19a0c8d404ae92cd",
+              "file": "accessibility.spec.ts",
+              "line": 63,
+              "column": 6
+            },
+            {
+              "title": "Create jar form labels and accessibility",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 1,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 31596,
+                      "error": {
+                        "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/create\", waiting until \"load\"\u001b[22m\n",
+                        "stack": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/create\", waiting until \"load\"\u001b[22m\n\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts:108:14",
+                        "location": {
+                          "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts",
+                          "column": 14,
+                          "line": 108
+                        },
+                        "snippet": "  106 |\n  107 | \ttest(\"Create jar form labels and accessibility\", async ({ page }) => {\n> 108 | \t\tawait page.goto(\"/create\");\n      | \t\t           ^\n  109 | \t\tawait page.waitForLoadState(\"networkidle\");\n  110 |\n  111 | \t\t// Check that all form inputs have proper labels"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts",
+                            "column": 14,
+                            "line": 108
+                          },
+                          "message": "TimeoutError: page.goto: Timeout 30000ms exceeded.\nCall log:\n\u001b[2m  - navigating to \"http://localhost:3000/create\", waiting until \"load\"\u001b[22m\n\n\n  106 |\n  107 | \ttest(\"Create jar form labels and accessibility\", async ({ page }) => {\n> 108 | \t\tawait page.goto(\"/create\");\n      | \t\t           ^\n  109 | \t\tawait page.waitForLoadState(\"networkidle\");\n  110 |\n  111 | \t\t// Check that all form inputs have proper labels\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts:108:14"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:23:45.665Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-75a0c-rm-labels-and-accessibility-Desktop-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-75a0c-rm-labels-and-accessibility-Desktop-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-75a0c-rm-labels-and-accessibility-Desktop-Chrome/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-75a0c-rm-labels-and-accessibility-Desktop-Chrome/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts",
+                        "column": 14,
+                        "line": 108
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ddd864604af8a6a0198f-bb2cd0dcedad83742d8d",
+              "file": "accessibility.spec.ts",
+              "line": 107,
+              "column": 6
+            },
+            {
+              "title": "Color contrast compliance",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 28883,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:24:21.340Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ddd864604af8a6a0198f-6d9b4c2beb9af850897b",
+              "file": "accessibility.spec.ts",
+              "line": 171,
+              "column": 6
+            },
+            {
+              "title": "ARIA roles and landmarks",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 2,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 10226,
+                      "error": {
+                        "message": "Error: Button 1 should have accessible name\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mnull\u001b[39m",
+                        "stack": "Error: Button 1 should have accessible name\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mnull\u001b[39m\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts:233:7",
+                        "location": {
+                          "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts",
+                          "column": 7,
+                          "line": 233
+                        },
+                        "snippet": "  231 | \t\t\t\t\taccessibleName,\n  232 | \t\t\t\t\t`Button ${i} should have accessible name`\n> 233 | \t\t\t\t).toBeTruthy();\n      | \t\t\t\t  ^\n  234 | \t\t\t}\n  235 | \t\t}\n  236 | \t});"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts",
+                            "column": 7,
+                            "line": 233
+                          },
+                          "message": "Error: Button 1 should have accessible name\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mnull\u001b[39m\n\n  231 | \t\t\t\t\taccessibleName,\n  232 | \t\t\t\t\t`Button ${i} should have accessible name`\n> 233 | \t\t\t\t).toBeTruthy();\n      | \t\t\t\t  ^\n  234 | \t\t\t}\n  235 | \t\t}\n  236 | \t});\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts:233:7"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:24:51.182Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-4385d-ng-ARIA-roles-and-landmarks-Desktop-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-4385d-ng-ARIA-roles-and-landmarks-Desktop-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-4385d-ng-ARIA-roles-and-landmarks-Desktop-Chrome/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-4385d-ng-ARIA-roles-and-landmarks-Desktop-Chrome/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts",
+                        "column": 7,
+                        "line": 233
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ddd864604af8a6a0198f-94664e43b5c94fdcb146",
+              "file": "accessibility.spec.ts",
+              "line": 199,
+              "column": 6
+            },
+            {
+              "title": "Mobile accessibility",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Desktop Chrome",
+                  "projectName": "Desktop Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 3,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 19417,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠️ Button 0 size: 93.359375x40px (should be >= 44x44px)\n"
+                        },
+                        {
+                          "text": "⚠️ Button 1 size: 20x20px (should be >= 44x44px)\n"
+                        },
+                        {
+                          "text": "⚠️ Button 2 size: 167.5x32px (should be >= 44x44px)\n"
+                        },
+                        {
+                          "text": "⚠️ Button 3 size: 167.5x32px (should be >= 44x44px)\n"
+                        },
+                        {
+                          "text": "⚠️ Button 4 size: 32x32px (should be >= 44x44px)\n"
+                        },
+                        {
+                          "text": "📱 Touch targets: 0/5 buttons are properly sized\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:25:03.741Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ddd864604af8a6a0198f-6004ca2000ab4acd19ca",
+              "file": "accessibility.spec.ts",
+              "line": 238,
+              "column": 6
+            },
+            {
+              "title": "Homepage accessibility compliance",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 5,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 5869,
+                      "error": {
+                        "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  -  1\u001b[39m\n\u001b[31m+ Received  + 95\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"description\": \"Ensure buttons have discernible text\",\u001b[39m\n\u001b[31m+     \"help\": \"Buttons must have discernible text\",\u001b[39m\n\u001b[31m+     \"helpUrl\": \"https://dequeuniversity.com/rules/axe/4.13/button-name?application=playwright\",\u001b[39m\n\u001b[31m+     \"id\": \"button-name\",\u001b[39m\n\u001b[31m+     \"impact\": \"critical\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"all\": Array [],\u001b[39m\n\u001b[31m+         \"any\": Array [\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"button-has-visible-text\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element does not have inner text that is visible to screen readers\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"aria-label\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"aria-label attribute does not exist or is empty\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"aria-labelledby\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": Object {\u001b[39m\n\u001b[31m+               \"messageKey\": \"noAttr\",\u001b[39m\n\u001b[31m+             },\u001b[39m\n\u001b[31m+             \"id\": \"non-empty-title\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element has no title attribute\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"implicit-label\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element does not have an implicit (wrapped) <label>\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"explicit-label\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element does not have an explicit <label>\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"presentational-role\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element's default semantics were not overridden with role=\\\"none\\\" or role=\\\"presentation\\\"\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+         \"failureSummary\": \"Fix any of the following:\u001b[39m\n\u001b[31m+   Element does not have inner text that is visible to screen readers\u001b[39m\n\u001b[31m+   aria-label attribute does not exist or is empty\u001b[39m\n\u001b[31m+   aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\u001b[39m\n\u001b[31m+   Element has no title attribute\u001b[39m\n\u001b[31m+   Element does not have an implicit (wrapped) <label>\u001b[39m\n\u001b[31m+   Element does not have an explicit <label>\u001b[39m\n\u001b[31m+   Element's default semantics were not overridden with role=\\\"none\\\" or role=\\\"presentation\\\"\",\u001b[39m\n\u001b[31m+         \"html\": \"<button class=\\\"inline-flex items-ce...\\\">\",\u001b[39m\n\u001b[31m+         \"impact\": \"critical\",\u001b[39m\n\u001b[31m+         \"none\": Array [],\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \".\\\\[\\\\&_svg\\\\]\\\\:pointer-events-none\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+     \"tags\": Array [\u001b[39m\n\u001b[31m+       \"cat.name-role-value\",\u001b[39m\n\u001b[31m+       \"wcag2a\",\u001b[39m\n\u001b[31m+       \"wcag412\",\u001b[39m\n\u001b[31m+       \"section508\",\u001b[39m\n\u001b[31m+       \"section508.22.a\",\u001b[39m\n\u001b[31m+       \"TTv5\",\u001b[39m\n\u001b[31m+       \"TT6.a\",\u001b[39m\n\u001b[31m+       \"EN-301-549\",\u001b[39m\n\u001b[31m+       \"EN-9.4.1.2\",\u001b[39m\n\u001b[31m+       \"ACT\",\u001b[39m\n\u001b[31m+       \"RGAAv4\",\u001b[39m\n\u001b[31m+       \"RGAA-11.9.1\",\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+ ]\u001b[39m",
+                        "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  -  1\u001b[39m\n\u001b[31m+ Received  + 95\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"description\": \"Ensure buttons have discernible text\",\u001b[39m\n\u001b[31m+     \"help\": \"Buttons must have discernible text\",\u001b[39m\n\u001b[31m+     \"helpUrl\": \"https://dequeuniversity.com/rules/axe/4.13/button-name?application=playwright\",\u001b[39m\n\u001b[31m+     \"id\": \"button-name\",\u001b[39m\n\u001b[31m+     \"impact\": \"critical\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"all\": Array [],\u001b[39m\n\u001b[31m+         \"any\": Array [\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"button-has-visible-text\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element does not have inner text that is visible to screen readers\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"aria-label\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"aria-label attribute does not exist or is empty\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"aria-labelledby\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": Object {\u001b[39m\n\u001b[31m+               \"messageKey\": \"noAttr\",\u001b[39m\n\u001b[31m+             },\u001b[39m\n\u001b[31m+             \"id\": \"non-empty-title\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element has no title attribute\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"implicit-label\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element does not have an implicit (wrapped) <label>\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"explicit-label\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element does not have an explicit <label>\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"presentational-role\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element's default semantics were not overridden with role=\\\"none\\\" or role=\\\"presentation\\\"\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+         \"failureSummary\": \"Fix any of the following:\u001b[39m\n\u001b[31m+   Element does not have inner text that is visible to screen readers\u001b[39m\n\u001b[31m+   aria-label attribute does not exist or is empty\u001b[39m\n\u001b[31m+   aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\u001b[39m\n\u001b[31m+   Element has no title attribute\u001b[39m\n\u001b[31m+   Element does not have an implicit (wrapped) <label>\u001b[39m\n\u001b[31m+   Element does not have an explicit <label>\u001b[39m\n\u001b[31m+   Element's default semantics were not overridden with role=\\\"none\\\" or role=\\\"presentation\\\"\",\u001b[39m\n\u001b[31m+         \"html\": \"<button class=\\\"inline-flex items-ce...\\\">\",\u001b[39m\n\u001b[31m+         \"impact\": \"critical\",\u001b[39m\n\u001b[31m+         \"none\": Array [],\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \".\\\\[\\\\&_svg\\\\]\\\\:pointer-events-none\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+     \"tags\": Array [\u001b[39m\n\u001b[31m+       \"cat.name-role-value\",\u001b[39m\n\u001b[31m+       \"wcag2a\",\u001b[39m\n\u001b[31m+       \"wcag412\",\u001b[39m\n\u001b[31m+       \"section508\",\u001b[39m\n\u001b[31m+       \"section508.22.a\",\u001b[39m\n\u001b[31m+       \"TTv5\",\u001b[39m\n\u001b[31m+       \"TT6.a\",\u001b[39m\n\u001b[31m+       \"EN-301-549\",\u001b[39m\n\u001b[31m+       \"EN-9.4.1.2\",\u001b[39m\n\u001b[31m+       \"ACT\",\u001b[39m\n\u001b[31m+       \"RGAAv4\",\u001b[39m\n\u001b[31m+       \"RGAA-11.9.1\",\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+ ]\u001b[39m\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts:18:30",
+                        "location": {
+                          "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts",
+                          "column": 30,
+                          "line": 18
+                        },
+                        "snippet": "  16 | \t\t);\n  17 |\n> 18 | \t\texpect(criticalViolations).toEqual([]);\n     | \t\t                           ^\n  19 |\n  20 | \t\tif (accessibilityScanResults.violations.length > 0) {\n  21 | \t\t\tconsole.log("
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts",
+                            "column": 30,
+                            "line": 18
+                          },
+                          "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoEqual\u001b[2m(\u001b[22m\u001b[32mexpected\u001b[39m\u001b[2m) // deep equality\u001b[22m\n\n\u001b[32m- Expected  -  1\u001b[39m\n\u001b[31m+ Received  + 95\u001b[39m\n\n\u001b[32m- Array []\u001b[39m\n\u001b[31m+ Array [\u001b[39m\n\u001b[31m+   Object {\u001b[39m\n\u001b[31m+     \"description\": \"Ensure buttons have discernible text\",\u001b[39m\n\u001b[31m+     \"help\": \"Buttons must have discernible text\",\u001b[39m\n\u001b[31m+     \"helpUrl\": \"https://dequeuniversity.com/rules/axe/4.13/button-name?application=playwright\",\u001b[39m\n\u001b[31m+     \"id\": \"button-name\",\u001b[39m\n\u001b[31m+     \"impact\": \"critical\",\u001b[39m\n\u001b[31m+     \"nodes\": Array [\u001b[39m\n\u001b[31m+       Object {\u001b[39m\n\u001b[31m+         \"all\": Array [],\u001b[39m\n\u001b[31m+         \"any\": Array [\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"button-has-visible-text\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element does not have inner text that is visible to screen readers\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"aria-label\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"aria-label attribute does not exist or is empty\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"aria-labelledby\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": Object {\u001b[39m\n\u001b[31m+               \"messageKey\": \"noAttr\",\u001b[39m\n\u001b[31m+             },\u001b[39m\n\u001b[31m+             \"id\": \"non-empty-title\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element has no title attribute\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"implicit-label\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element does not have an implicit (wrapped) <label>\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"explicit-label\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element does not have an explicit <label>\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+           Object {\u001b[39m\n\u001b[31m+             \"data\": null,\u001b[39m\n\u001b[31m+             \"id\": \"presentational-role\",\u001b[39m\n\u001b[31m+             \"impact\": \"critical\",\u001b[39m\n\u001b[31m+             \"message\": \"Element's default semantics were not overridden with role=\\\"none\\\" or role=\\\"presentation\\\"\",\u001b[39m\n\u001b[31m+             \"relatedNodes\": Array [],\u001b[39m\n\u001b[31m+           },\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+         \"failureSummary\": \"Fix any of the following:\u001b[39m\n\u001b[31m+   Element does not have inner text that is visible to screen readers\u001b[39m\n\u001b[31m+   aria-label attribute does not exist or is empty\u001b[39m\n\u001b[31m+   aria-labelledby attribute does not exist, references elements that do not exist or references elements that are empty\u001b[39m\n\u001b[31m+   Element has no title attribute\u001b[39m\n\u001b[31m+   Element does not have an implicit (wrapped) <label>\u001b[39m\n\u001b[31m+   Element does not have an explicit <label>\u001b[39m\n\u001b[31m+   Element's default semantics were not overridden with role=\\\"none\\\" or role=\\\"presentation\\\"\",\u001b[39m\n\u001b[31m+         \"html\": \"<button class=\\\"inline-flex items-ce...\\\">\",\u001b[39m\n\u001b[31m+         \"impact\": \"critical\",\u001b[39m\n\u001b[31m+         \"none\": Array [],\u001b[39m\n\u001b[31m+         \"target\": Array [\u001b[39m\n\u001b[31m+           \".\\\\[\\\\&_svg\\\\]\\\\:pointer-events-none\",\u001b[39m\n\u001b[31m+         ],\u001b[39m\n\u001b[31m+       },\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+     \"tags\": Array [\u001b[39m\n\u001b[31m+       \"cat.name-role-value\",\u001b[39m\n\u001b[31m+       \"wcag2a\",\u001b[39m\n\u001b[31m+       \"wcag412\",\u001b[39m\n\u001b[31m+       \"section508\",\u001b[39m\n\u001b[31m+       \"section508.22.a\",\u001b[39m\n\u001b[31m+       \"TTv5\",\u001b[39m\n\u001b[31m+       \"TT6.a\",\u001b[39m\n\u001b[31m+       \"EN-301-549\",\u001b[39m\n\u001b[31m+       \"EN-9.4.1.2\",\u001b[39m\n\u001b[31m+       \"ACT\",\u001b[39m\n\u001b[31m+       \"RGAAv4\",\u001b[39m\n\u001b[31m+       \"RGAA-11.9.1\",\u001b[39m\n\u001b[31m+     ],\u001b[39m\n\u001b[31m+   },\u001b[39m\n\u001b[31m+ ]\u001b[39m\n\n  16 | \t\t);\n  17 |\n> 18 | \t\texpect(criticalViolations).toEqual([]);\n     | \t\t                           ^\n  19 |\n  20 | \t\tif (accessibilityScanResults.violations.length > 0) {\n  21 | \t\t\tconsole.log(\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts:18:30"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:26:33.928Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-f9f3a-ge-accessibility-compliance-Mobile-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-f9f3a-ge-accessibility-compliance-Mobile-Chrome/video-1.webm"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-f9f3a-ge-accessibility-compliance-Mobile-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-f9f3a-ge-accessibility-compliance-Mobile-Chrome/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-f9f3a-ge-accessibility-compliance-Mobile-Chrome/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts",
+                        "column": 30,
+                        "line": 18
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ddd864604af8a6a0198f-ee01feb10f3b6d6eaf59",
+              "file": "accessibility.spec.ts",
+              "line": 5,
+              "column": 6
+            },
+            {
+              "title": "Create jar form accessibility",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9412,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📝 Note: Found buttons without accessible names (likely icon buttons need aria-label)\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:26:41.568Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ddd864604af8a6a0198f-626163b7c33800335281",
+              "file": "accessibility.spec.ts",
+              "line": 33,
+              "column": 6
+            },
+            {
+              "title": "Keyboard navigation support",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 6613,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "📋 Interactive elements found: [\n  { tagName: \u001b[32m'a'\u001b[39m, text: \u001b[32m'Green Goods Stipend '\u001b[39m },\n  { tagName: \u001b[32m'button'\u001b[39m, text: \u001b[32m'Connect'\u001b[39m },\n  { tagName: \u001b[32m'a'\u001b[39m, text: \u001b[32m''\u001b[39m },\n  { tagName: \u001b[32m'button'\u001b[39m, text: \u001b[32m''\u001b[39m },\n  { tagName: \u001b[32m'button'\u001b[39m, text: \u001b[32m'Claim'\u001b[39m },\n  { tagName: \u001b[32m'div'\u001b[39m, text: \u001b[32m'ClaimClaim your shar'\u001b[39m },\n  { tagName: \u001b[32m'a'\u001b[39m, text: \u001b[32m'All jars on this net'\u001b[39m },\n  { tagName: \u001b[32m'a'\u001b[39m, text: \u001b[32m'Create a jar'\u001b[39m },\n  { tagName: \u001b[32m'a'\u001b[39m, text: \u001b[32m'Your profile'\u001b[39m },\n  { tagName: \u001b[32m'a'\u001b[39m, text: \u001b[32m'Stipend playbook'\u001b[39m }\n]\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:26:51.337Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ddd864604af8a6a0198f-05e1a6a7ea15cc40d6e2",
+              "file": "accessibility.spec.ts",
+              "line": 63,
+              "column": 6
+            },
+            {
+              "title": "Create jar form labels and accessibility",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 9064,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "🔍 Checking 5 form inputs for accessibility...\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:26:58.004Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ddd864604af8a6a0198f-a4975d8f1ec296cbd106",
+              "file": "accessibility.spec.ts",
+              "line": 107,
+              "column": 6
+            },
+            {
+              "title": "Color contrast compliance",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 7881,
+                      "errors": [],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:27:07.085Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ddd864604af8a6a0198f-af66c8ef55e6a9aa41b7",
+              "file": "accessibility.spec.ts",
+              "line": 171,
+              "column": 6
+            },
+            {
+              "title": "ARIA roles and landmarks",
+              "ok": false,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 6,
+                      "parallelIndex": 0,
+                      "status": "failed",
+                      "duration": 9373,
+                      "error": {
+                        "message": "Error: Button 1 should have accessible name\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mnull\u001b[39m",
+                        "stack": "Error: Button 1 should have accessible name\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mnull\u001b[39m\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts:233:7",
+                        "location": {
+                          "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts",
+                          "column": 7,
+                          "line": 233
+                        },
+                        "snippet": "  231 | \t\t\t\t\taccessibleName,\n  232 | \t\t\t\t\t`Button ${i} should have accessible name`\n> 233 | \t\t\t\t).toBeTruthy();\n      | \t\t\t\t  ^\n  234 | \t\t\t}\n  235 | \t\t}\n  236 | \t});"
+                      },
+                      "errors": [
+                        {
+                          "location": {
+                            "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts",
+                            "column": 7,
+                            "line": 233
+                          },
+                          "message": "Error: Button 1 should have accessible name\n\n\u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mnull\u001b[39m\n\n  231 | \t\t\t\t\taccessibleName,\n  232 | \t\t\t\t\t`Button ${i} should have accessible name`\n> 233 | \t\t\t\t).toBeTruthy();\n      | \t\t\t\t  ^\n  234 | \t\t\t}\n  235 | \t\t}\n  236 | \t});\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts:233:7"
+                        }
+                      ],
+                      "stdout": [],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:27:14.987Z",
+                      "annotations": [],
+                      "attachments": [
+                        {
+                          "name": "screenshot",
+                          "contentType": "image/png",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-4385d-ng-ARIA-roles-and-landmarks-Mobile-Chrome/test-failed-1.png"
+                        },
+                        {
+                          "name": "video",
+                          "contentType": "video/webm",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-4385d-ng-ARIA-roles-and-landmarks-Mobile-Chrome/video.webm"
+                        },
+                        {
+                          "name": "error-context",
+                          "contentType": "text/markdown",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-4385d-ng-ARIA-roles-and-landmarks-Mobile-Chrome/error-context.md"
+                        },
+                        {
+                          "name": "trace",
+                          "contentType": "application/zip",
+                          "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/accessibility-♿-Accessibil-4385d-ng-ARIA-roles-and-landmarks-Mobile-Chrome/trace.zip"
+                        }
+                      ],
+                      "errorLocation": {
+                        "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/accessibility.spec.ts",
+                        "column": 7,
+                        "line": 233
+                      }
+                    }
+                  ],
+                  "status": "unexpected"
+                }
+              ],
+              "id": "ddd864604af8a6a0198f-6ee1293227239047511e",
+              "file": "accessibility.spec.ts",
+              "line": 199,
+              "column": 6
+            },
+            {
+              "title": "Mobile accessibility",
+              "ok": true,
+              "tags": [],
+              "tests": [
+                {
+                  "timeout": 60000,
+                  "annotations": [],
+                  "expectedStatus": "passed",
+                  "projectId": "Mobile Chrome",
+                  "projectName": "Mobile Chrome",
+                  "results": [
+                    {
+                      "workerIndex": 7,
+                      "parallelIndex": 0,
+                      "status": "passed",
+                      "duration": 10934,
+                      "errors": [],
+                      "stdout": [
+                        {
+                          "text": "⚠️ Button 0 size: 93.359375x40px (should be >= 44x44px)\n"
+                        },
+                        {
+                          "text": "⚠️ Button 1 size: 20x20px (should be >= 44x44px)\n"
+                        },
+                        {
+                          "text": "⚠️ Button 2 size: 167.5x32px (should be >= 44x44px)\n"
+                        },
+                        {
+                          "text": "⚠️ Button 3 size: 167.5x32px (should be >= 44x44px)\n"
+                        },
+                        {
+                          "text": "⚠️ Button 4 size: 32x32px (should be >= 44x44px)\n"
+                        },
+                        {
+                          "text": "📱 Touch targets: 0/5 buttons are properly sized\n"
+                        }
+                      ],
+                      "stderr": [],
+                      "retry": 0,
+                      "startTime": "2026-09-05T20:27:28.126Z",
+                      "annotations": [],
+                      "attachments": []
+                    }
+                  ],
+                  "status": "expected"
+                }
+              ],
+              "id": "ddd864604af8a6a0198f-3bd9bbb66e1b6c9ff54f",
+              "file": "accessibility.spec.ts",
+              "line": 238,
+              "column": 6
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "title": "mobile-experience.spec.ts",
+      "file": "mobile-experience.spec.ts",
+      "column": 0,
+      "line": 0,
+      "specs": [],
+      "suites": [
+        {
+          "title": "📱 Mobile Experience E2E",
+          "file": "mobile-experience.spec.ts",
+          "line": 3,
+          "column": 6,
+          "specs": [],
+          "suites": [
+            {
+              "title": "Mobile Accessibility",
+              "file": "mobile-experience.spec.ts",
+              "line": 522,
+              "column": 7,
+              "specs": [
+                {
+                  "title": "Mobile screen reader compatibility",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Desktop Chrome",
+                      "projectName": "Desktop Chrome",
+                      "results": [
+                        {
+                          "workerIndex": 3,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 16660,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mnull\u001b[39m",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mnull\u001b[39m\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/mobile-experience.spec.ts:549:29",
+                            "location": {
+                              "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/mobile-experience.spec.ts",
+                              "column": 29,
+                              "line": 549
+                            },
+                            "snippet": "  547 | \t\t\t\t\t\t(await button.textContent()) ||\n  548 | \t\t\t\t\t\t(await button.getAttribute(\"aria-label\"));\n> 549 | \t\t\t\t\texpect(accessibleName).toBeTruthy();\n      | \t\t\t\t\t                       ^\n  550 | \t\t\t\t}\n  551 | \t\t\t}\n  552 | \t\t});"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/mobile-experience.spec.ts",
+                                "column": 29,
+                                "line": 549
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mnull\u001b[39m\n\n  547 | \t\t\t\t\t\t(await button.textContent()) ||\n  548 | \t\t\t\t\t\t(await button.getAttribute(\"aria-label\"));\n> 549 | \t\t\t\t\texpect(accessibleName).toBeTruthy();\n      | \t\t\t\t\t                       ^\n  550 | \t\t\t\t}\n  551 | \t\t\t}\n  552 | \t\t});\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/mobile-experience.spec.ts:549:29"
+                            }
+                          ],
+                          "stdout": [
+                            {
+                              "text": "🔊 Testing mobile screen reader compatibility...\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-09-05T20:25:23.717Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/mobile-experience-📱-Mobil-835b8-screen-reader-compatibility-Desktop-Chrome/test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/mobile-experience-📱-Mobil-835b8-screen-reader-compatibility-Desktop-Chrome/video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/mobile-experience-📱-Mobil-835b8-screen-reader-compatibility-Desktop-Chrome/error-context.md"
+                            },
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/mobile-experience-📱-Mobil-835b8-screen-reader-compatibility-Desktop-Chrome/trace.zip"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/mobile-experience.spec.ts",
+                            "column": 29,
+                            "line": 549
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "d0e828948376f89f9963-63df84cbdf14170539b0",
+                  "file": "mobile-experience.spec.ts",
+                  "line": 523,
+                  "column": 7
+                },
+                {
+                  "title": "Mobile keyboard navigation works correctly",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Desktop Chrome",
+                      "projectName": "Desktop Chrome",
+                      "results": [
+                        {
+                          "workerIndex": 4,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 13525,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "⌨️ Testing mobile keyboard navigation...\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-09-05T20:25:41.651Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "d0e828948376f89f9963-4d145657d94435416cc9",
+                  "file": "mobile-experience.spec.ts",
+                  "line": 554,
+                  "column": 7
+                },
+                {
+                  "title": "Mobile screen reader compatibility",
+                  "ok": false,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Chrome",
+                      "projectName": "Mobile Chrome",
+                      "results": [
+                        {
+                          "workerIndex": 7,
+                          "parallelIndex": 0,
+                          "status": "failed",
+                          "duration": 7950,
+                          "error": {
+                            "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mnull\u001b[39m",
+                            "stack": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mnull\u001b[39m\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/mobile-experience.spec.ts:549:29",
+                            "location": {
+                              "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/mobile-experience.spec.ts",
+                              "column": 29,
+                              "line": 549
+                            },
+                            "snippet": "  547 | \t\t\t\t\t\t(await button.textContent()) ||\n  548 | \t\t\t\t\t\t(await button.getAttribute(\"aria-label\"));\n> 549 | \t\t\t\t\texpect(accessibleName).toBeTruthy();\n      | \t\t\t\t\t                       ^\n  550 | \t\t\t\t}\n  551 | \t\t\t}\n  552 | \t\t});"
+                          },
+                          "errors": [
+                            {
+                              "location": {
+                                "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/mobile-experience.spec.ts",
+                                "column": 29,
+                                "line": 549
+                              },
+                              "message": "Error: \u001b[2mexpect(\u001b[22m\u001b[31mreceived\u001b[39m\u001b[2m).\u001b[22mtoBeTruthy\u001b[2m()\u001b[22m\n\nReceived: \u001b[31mnull\u001b[39m\n\n  547 | \t\t\t\t\t\t(await button.textContent()) ||\n  548 | \t\t\t\t\t\t(await button.getAttribute(\"aria-label\"));\n> 549 | \t\t\t\t\texpect(accessibleName).toBeTruthy();\n      | \t\t\t\t\t                       ^\n  550 | \t\t\t\t}\n  551 | \t\t\t}\n  552 | \t\t});\n    at /Users/afo/Code/greenpill/cookie-jar/e2e/mobile-experience.spec.ts:549:29"
+                            }
+                          ],
+                          "stdout": [
+                            {
+                              "text": "🔊 Testing mobile screen reader compatibility...\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-09-05T20:27:40.207Z",
+                          "annotations": [],
+                          "attachments": [
+                            {
+                              "name": "screenshot",
+                              "contentType": "image/png",
+                              "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/mobile-experience-📱-Mobil-835b8-screen-reader-compatibility-Mobile-Chrome/test-failed-1.png"
+                            },
+                            {
+                              "name": "video",
+                              "contentType": "video/webm",
+                              "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/mobile-experience-📱-Mobil-835b8-screen-reader-compatibility-Mobile-Chrome/video.webm"
+                            },
+                            {
+                              "name": "error-context",
+                              "contentType": "text/markdown",
+                              "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/mobile-experience-📱-Mobil-835b8-screen-reader-compatibility-Mobile-Chrome/error-context.md"
+                            },
+                            {
+                              "name": "trace",
+                              "contentType": "application/zip",
+                              "path": "/Users/afo/Code/greenpill/cookie-jar/docs/qa/stipend-2026-09-05/evidence/accessibility-node-artifacts/mobile-experience-📱-Mobil-835b8-screen-reader-compatibility-Mobile-Chrome/trace.zip"
+                            }
+                          ],
+                          "errorLocation": {
+                            "file": "/Users/afo/Code/greenpill/cookie-jar/e2e/mobile-experience.spec.ts",
+                            "column": 29,
+                            "line": 549
+                          }
+                        }
+                      ],
+                      "status": "unexpected"
+                    }
+                  ],
+                  "id": "d0e828948376f89f9963-829cd5d70b7255785482",
+                  "file": "mobile-experience.spec.ts",
+                  "line": 523,
+                  "column": 7
+                },
+                {
+                  "title": "Mobile keyboard navigation works correctly",
+                  "ok": true,
+                  "tags": [],
+                  "tests": [
+                    {
+                      "timeout": 60000,
+                      "annotations": [],
+                      "expectedStatus": "passed",
+                      "projectId": "Mobile Chrome",
+                      "projectName": "Mobile Chrome",
+                      "results": [
+                        {
+                          "workerIndex": 8,
+                          "parallelIndex": 0,
+                          "status": "passed",
+                          "duration": 13090,
+                          "errors": [],
+                          "stdout": [
+                            {
+                              "text": "⌨️ Testing mobile keyboard navigation...\n"
+                            }
+                          ],
+                          "stderr": [],
+                          "retry": 0,
+                          "startTime": "2026-09-05T20:27:50.411Z",
+                          "annotations": [],
+                          "attachments": []
+                        }
+                      ],
+                      "status": "expected"
+                    }
+                  ],
+                  "id": "d0e828948376f89f9963-b39ce875fa53716c9eca",
+                  "file": "mobile-experience.spec.ts",
+                  "line": 554,
+                  "column": 7
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "errors": [],
+  "stats": {
+    "startTime": "2026-09-05T20:20:59.225Z",
+    "duration": 425356.995,
+    "expected": 21,
+    "skipped": 0,
+    "unexpected": 7,
+    "flaky": 0
+  }
+}

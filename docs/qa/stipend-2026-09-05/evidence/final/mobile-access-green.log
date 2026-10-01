@@ -1,0 +1,12 @@
+$ vitest run __tests__/ProtocolSelectorMobile.test.tsx
+
+ RUN  v3.2.7 /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-ui/client
+
+ ✓ __tests__/ProtocolSelectorMobile.test.tsx (1 test) 443ms
+   ✓ mobile access configuration > renders an operable accordion and keeps its help link separate  438ms
+
+ Test Files  1 passed (1)
+      Tests  1 passed (1)
+   Start at  15:22:10
+   Duration  4.81s (transform 453ms, setup 210ms, collect 1.03s, tests 443ms, environment 1.42s, prepare 316ms)
+

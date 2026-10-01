@@ -1,93 +1,51 @@
+# Foundry configuration for the Cookie Jar contracts.
+# Run forge from this directory (the bun scripts do): `cd contracts && forge build`.
+# Production builds use the default profile (size-optimised, solc pinned);
+# tests and local development use the dev profile (same solc, faster compile).
+
 [profile.default]
-evm_version = "cancun"  # Required for Uniswap v4 transient storage
+solc_version = "0.8.30"   # Pinned: production bytecode must be reproducible
+evm_version = "cancun"    # Required for Uniswap v4 transient storage
 via_ir = true
 optimizer = true
-optimizer_runs = 1    # Aggressively optimize for size to stay under 24KB limit
-bytecode_hash = "none"  # Remove metadata hash to save ~53 bytes
-cbor_metadata = false   # Disable CBOR metadata encoding
-# Additional optimizations for faster compilation
-solc_version = "0.8.30"  # Pin to specific version for consistent compilation
-cache = true            # Enable compilation cache for faster subsequent builds
-parallel = 4            # Use 4 parallel threads for compilation
-# Prioritize contract size to keep functionality
-src = "src"
-out = "out"
-libs = ["../lib"]
-test = "test"  # Re-enabled tests
-script = "script"
-# Skip certora harness files that have missing dependencies
-skip = ["**/certora/**/*.sol", "../lib/openzeppelin-contracts/certora/**"]
-# Load environment variables from root directory
-env_file = "../.env"
-
-# File system permissions for auto-generated configuration updates
-fs_permissions = [
-    { access = "read-write", path = "./" },
-    { access = "read-write", path = "../client/config/" },
-    { access = "read-write", path = "../client/public/contracts/" },
-    { access = "read", path = "../" }
-]
-
-# Fast development profile - prioritizes compilation speed
-[profile.dev]
-evm_version = "cancun"
-via_ir = true            # Required for complex contracts
-optimizer = true
-optimizer_runs = 200     # Higher runs = faster compilation (trade-off: larger bytecode)
+optimizer_runs = 1        # Aggressively optimise for size to stay under the EIP-170 limit
+bytecode_hash = "none"    # Drop the metadata hash to save ~53 bytes
+cbor_metadata = false
 cache = true
-parallel = 4
 src = "src"
 out = "out"
 libs = ["../lib"]
 test = "test"
 script = "script"
 skip = ["**/certora/**/*.sol", "../lib/openzeppelin-contracts/certora/**"]
-env_file = "../.env"
-fs_permissions = [
-    { access = "read-write", path = "./" },
-    { access = "read-write", path = "../client/config/" },
-    { access = "read-write", path = "../client/public/contracts/" },
-    { access = "read", path = "../" }
-]
+# Scripts only read jar configs under ./config; nothing writes to the client tree any more.
+fs_permissions = [{ access = "read", path = "./" }]
 
-# Size-optimized profile for deployment
-[profile.size]
+[profile.dev]
+solc_version = "0.8.30"   # Same compiler as production so tests exercise the shipped semantics
+evm_version = "cancun"
 via_ir = true
 optimizer = true
-optimizer_runs = 1
-bytecode_hash = "none"
-cbor_metadata = false
-# Additional optimizations for faster compilation
-solc_version = "0.8.30"  # Pin to specific version for consistent compilation
-cache = true            # Enable compilation cache for faster subsequent builds
-parallel = 4            # Use 4 parallel threads for compilation
-# Disable some features for smaller bytecode
+optimizer_runs = 200      # Faster compiles; bytecode size is checked with the default profile
+cache = true
 src = "src"
 out = "out"
 libs = ["../lib"]
-remappings = [
-    "openzeppelin-contracts/=../lib/openzeppelin-contracts/contracts/"
-]
-# Load environment variables from root directory
-env_file = "../.env.local"
-dot_env = "../.env.local"
-PRIVATE_KEY = "${PRIVATE_KEY}"
-RPC_URL = "${RPC_URL}"
-# Allow writing deployment files for local development
-fs_permissions = [
-    { access = "read-write", path = "./" },
-    { access = "read-write", path = "." },
-    { access = "read-write", path = "local-deployment.json" }
-]
+test = "test"
+script = "script"
+skip = ["**/certora/**/*.sol", "../lib/openzeppelin-contracts/certora/**"]
+fs_permissions = [{ access = "read", path = "./" }]
 
 [rpc_endpoints]
+arbitrum = "https://arb1.arbitrum.io/rpc"
+arbitrum-sepolia = "https://sepolia-rollup.arbitrum.io/rpc"
 base-sepolia = "${BASE_SEPOLIA_RPC_URL}"
 sepolia = "${ETHEREUM_SEPOLIA_RPC_URL}"
 celo-alfajores = "${CELO_ALFAJORES_RPC_URL}"
 
-# Single API key for all chains
+# One Etherscan V2 key covers every explorer in the Etherscan family (Arbiscan included).
 [etherscan]
+arbitrum = { key = "${ETHERSCAN_API_KEY}", chain = 42161 }
+arbitrum-sepolia = { key = "${ETHERSCAN_API_KEY}", chain = 421614 }
 base-sepolia = { key = "${ETHERSCAN_API_KEY}" }
 sepolia = { key = "${ETHERSCAN_API_KEY}" }
-
-# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options

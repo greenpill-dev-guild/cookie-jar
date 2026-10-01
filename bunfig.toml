@@ -16,9 +16,8 @@ registry = "https://registry.npmjs.org/"
 cache = true
 exact = false
 
-# Frozen lockfile in CI (similar to pnpm's --frozen-lockfile)
-# Set to true in CI environments
-frozenLockfile = false
+# Frozen lockfile everywhere: bun.lock is the source of truth; update it with `bun install` on purpose
+frozenLockfile = true
 
 [install.scopes]
 # Use npm registry for all scopes

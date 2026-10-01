@@ -92,13 +92,13 @@ interface UseHypercertsResult {
 	/** Function to validate a specific hypercert */
 	validateHypercert: (
 		contract: string,
-		tokenId: string,
+		tokenId: string
 	) => Promise<HypercertClaim | null>;
 	/** Function to check if user has minimum balance */
 	checkUserBalance: (
 		contract: string,
 		tokenId: string,
-		minBalance: string,
+		minBalance: string
 	) => boolean;
 	/** Function to refetch all data */
 	refetch: () => void;
@@ -184,12 +184,12 @@ const ERC1155_ABI = [
  * ```
  */
 export function useHypercerts(
-	options: UseHypercertsOptions = {},
+	options: UseHypercertsOptions = {}
 ): UseHypercertsResult {
 	const { address: userAddress } = useAccount();
 	const [userHypercerts, setUserHypercerts] = useState<HypercertClaim[]>([]);
 	const [hypercertInfo, setHypercertInfo] = useState<HypercertClaim | null>(
-		null,
+		null
 	);
 	const [isLoadingHypercerts, setIsLoadingHypercerts] = useState(false);
 	const [isLoadingBalance, setIsLoadingBalance] = useState(false);
@@ -317,7 +317,7 @@ export function useHypercerts(
 	// Validate specific hypercert
 	const validateHypercert = async (
 		contract: string,
-		tokenId: string,
+		tokenId: string
 	): Promise<HypercertClaim | null> => {
 		if (!isAddress(contract) || Number.isNaN(Number(tokenId))) {
 			throw new Error("Invalid contract address or token ID");
@@ -393,7 +393,7 @@ export function useHypercerts(
 	const checkUserBalance = (
 		_contract: string,
 		_tokenId: string,
-		minBalance: string,
+		minBalance: string
 	): boolean => {
 		if (!userBalance || !minBalance) return false;
 		return userBalance >= BigInt(minBalance);

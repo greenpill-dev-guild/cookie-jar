@@ -224,7 +224,7 @@ describe("Protocol Validation Utilities", () => {
 		it("validates withdrawal amounts for different token types", () => {
 			const validateAmount = (
 				amount: string,
-				decimals: number,
+				decimals: number
 			): bigint | null => {
 				try {
 					const num = parseFloat(amount);
@@ -255,7 +255,7 @@ describe("Protocol Validation Utilities", () => {
 		it("validates withdrawal purposes", () => {
 			const validatePurpose = (
 				purpose: string,
-				isRequired: boolean,
+				isRequired: boolean
 			): { isValid: boolean; error?: string } => {
 				if (!isRequired) return { isValid: true };
 
@@ -277,7 +277,7 @@ describe("Protocol Validation Utilities", () => {
 			expect(validatePurpose("", true).isValid).toBe(false);
 			expect(validatePurpose("Short", true).isValid).toBe(false);
 			expect(
-				validatePurpose("This is a valid purpose description", true).isValid,
+				validatePurpose("This is a valid purpose description", true).isValid
 			).toBe(true);
 
 			// Test optional purposes

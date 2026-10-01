@@ -1,0 +1,122 @@
+$ playwright test --grep 'accessibility'
+
+Running 50 tests using 1 worker
+
+(node:66959) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+♿ Testing homepage accessibility...
+📊 Total violations: 0, Critical: 0
+✅ Accessibility scan completed
+  ✓   1 [Desktop Chrome] › e2e/accessibility-validation.spec.ts:5:6 › ♿ Accessibility Validation › Homepage accessibility compliance (2.6s)
+🔗 Testing wallet button accessibility...
+✅ Connect wallet button accessibility verified
+  ✓   2 [Desktop Chrome] › e2e/accessibility-validation.spec.ts:44:6 › ♿ Accessibility Validation › Connect wallet button accessibility (1.8s)
+📝 Testing form accessibility...
+🔍 Checking 5 form inputs for accessibility...
+✅ Form input accessibility verified
+  ✓   3 [Desktop Chrome] › e2e/accessibility-validation.spec.ts:74:6 › ♿ Accessibility Validation › Form labels and inputs accessibility (2.2s)
+⌨️ Testing keyboard navigation...
+⌨️ Found 9 focusable elements
+✅ Keyboard navigation testing complete
+  ✓   4 [Desktop Chrome] › e2e/accessibility-validation.spec.ts:120:6 › ♿ Accessibility Validation › Keyboard navigation works (2.1s)
+🎨 Testing color contrast...
+✅ No color contrast violations detected
+✅ Color contrast testing complete
+  ✓   5 [Desktop Chrome] › e2e/accessibility-validation.spec.ts:163:6 › ♿ Accessibility Validation › Color contrast check on key elements (2.3s)
+  ✓   6 [Desktop Chrome] › e2e/accessibility.spec.ts:5:6 › ♿ Accessibility Testing › Homepage accessibility compliance (3.2s)
+  ✓   7 [Desktop Chrome] › e2e/accessibility.spec.ts:33:6 › ♿ Accessibility Testing › Create jar form accessibility (4.8s)
+📋 Interactive elements found: [
+  { tagName: 'a', text: 'Cookie JarCookie Jar' },
+  { tagName: 'button', text: 'Connect' },
+  { tagName: 'a', text: 'Browse jars' },
+  { tagName: 'a', text: 'Create a jar' },
+  { tagName: 'a', text: 'All jars on this net' },
+  { tagName: 'a', text: 'Create a jar' },
+  { tagName: 'a', text: 'Your profile' },
+  { tagName: 'a', text: 'Documentation' },
+  { tagName: 'a', text: 'Source on GitHub' }
+]
+  ✓   8 [Desktop Chrome] › e2e/accessibility.spec.ts:63:6 › ♿ Accessibility Testing › Keyboard navigation support (1.9s)
+🔍 Checking 5 form inputs for accessibility...
+  ✓   9 [Desktop Chrome] › e2e/accessibility.spec.ts:107:6 › ♿ Accessibility Testing › Create jar form labels and accessibility (1.9s)
+  ✓  10 [Desktop Chrome] › e2e/accessibility.spec.ts:171:6 › ♿ Accessibility Testing › Color contrast compliance (2.0s)
+  ✓  11 [Desktop Chrome] › e2e/accessibility.spec.ts:199:6 › ♿ Accessibility Testing › ARIA roles and landmarks (1.7s)
+📱 Touch targets: 1/1 buttons are properly sized
+  ✓  12 [Desktop Chrome] › e2e/accessibility.spec.ts:238:6 › ♿ Accessibility Testing › Mobile accessibility (1.3s)
+🔊 Testing mobile screen reader compatibility...
+  ✓  13 [Desktop Chrome] › e2e/mobile-experience.spec.ts:523:7 › 📱 Mobile Experience E2E › Mobile Accessibility › Mobile screen reader compatibility (662ms)
+⌨️ Testing mobile keyboard navigation...
+  ✓  14 [Desktop Chrome] › e2e/mobile-experience.spec.ts:554:7 › 📱 Mobile Experience E2E › Mobile Accessibility › Mobile keyboard navigation works correctly (776ms)
+(node:69128) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+♿ Testing homepage accessibility...
+📊 Total violations: 0, Critical: 0
+✅ Accessibility scan completed
+  ✓  15 [Mobile Chrome] › e2e/accessibility-validation.spec.ts:5:6 › ♿ Accessibility Validation › Homepage accessibility compliance (2.3s)
+🔗 Testing wallet button accessibility...
+✅ Connect wallet button accessibility verified
+  ✓  16 [Mobile Chrome] › e2e/accessibility-validation.spec.ts:44:6 › ♿ Accessibility Validation › Connect wallet button accessibility (1.3s)
+📝 Testing form accessibility...
+🔍 Checking 5 form inputs for accessibility...
+✅ Form input accessibility verified
+  ✓  17 [Mobile Chrome] › e2e/accessibility-validation.spec.ts:74:6 › ♿ Accessibility Validation › Form labels and inputs accessibility (1.6s)
+⌨️ Testing keyboard navigation...
+⌨️ Found 9 focusable elements
+✅ Keyboard navigation testing complete
+  ✓  18 [Mobile Chrome] › e2e/accessibility-validation.spec.ts:120:6 › ♿ Accessibility Validation › Keyboard navigation works (2.1s)
+🎨 Testing color contrast...
+✅ No color contrast violations detected
+✅ Color contrast testing complete
+  ✓  19 [Mobile Chrome] › e2e/accessibility-validation.spec.ts:163:6 › ♿ Accessibility Validation › Color contrast check on key elements (1.8s)
+  ✓  20 [Mobile Chrome] › e2e/accessibility.spec.ts:5:6 › ♿ Accessibility Testing › Homepage accessibility compliance (2.1s)
+  ✓  21 [Mobile Chrome] › e2e/accessibility.spec.ts:33:6 › ♿ Accessibility Testing › Create jar form accessibility (2.5s)
+📋 Interactive elements found: [
+  { tagName: 'a', text: 'Cookie JarCookie Jar' },
+  { tagName: 'button', text: 'Connect' },
+  { tagName: 'a', text: 'Browse jars' },
+  { tagName: 'a', text: 'Create a jar' },
+  { tagName: 'a', text: 'All jars on this net' },
+  { tagName: 'a', text: 'Create a jar' },
+  { tagName: 'a', text: 'Your profile' },
+  { tagName: 'a', text: 'Documentation' },
+  { tagName: 'a', text: 'Source on GitHub' }
+]
+  ✓  22 [Mobile Chrome] › e2e/accessibility.spec.ts:63:6 › ♿ Accessibility Testing › Keyboard navigation support (1.7s)
+🔍 Checking 5 form inputs for accessibility...
+  ✓  23 [Mobile Chrome] › e2e/accessibility.spec.ts:107:6 › ♿ Accessibility Testing › Create jar form labels and accessibility (2.2s)
+  ✓  24 [Mobile Chrome] › e2e/accessibility.spec.ts:171:6 › ♿ Accessibility Testing › Color contrast compliance (1.8s)
+  ✓  25 [Mobile Chrome] › e2e/accessibility.spec.ts:199:6 › ♿ Accessibility Testing › ARIA roles and landmarks (1.3s)
+📱 Touch targets: 1/1 buttons are properly sized
+  ✓  26 [Mobile Chrome] › e2e/accessibility.spec.ts:238:6 › ♿ Accessibility Testing › Mobile accessibility (1.3s)
+🔊 Testing mobile screen reader compatibility...
+  ✓  27 [Mobile Chrome] › e2e/mobile-experience.spec.ts:523:7 › 📱 Mobile Experience E2E › Mobile Accessibility › Mobile screen reader compatibility (858ms)
+⌨️ Testing mobile keyboard navigation...
+  ✓  28 [Mobile Chrome] › e2e/mobile-experience.spec.ts:554:7 › 📱 Mobile Experience E2E › Mobile Accessibility › Mobile keyboard navigation works correctly (1.1s)
+(node:71367) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  29 [Stipend desktop] › e2e/jar-creation.spec.ts:162:5 › custom creation review has no unsupported streaming controls and passes accessibility (5.7s)
+  ✓  30 [Stipend desktop] › e2e/stipend-ui.spec.ts:6:7 › stipend readability and accessibility light 375 (3.1s)
+  ✓  31 [Stipend desktop] › e2e/stipend-ui.spec.ts:6:7 › stipend readability and accessibility light 1440 (3.2s)
+  ✓  32 [Stipend desktop] › e2e/stipend-ui.spec.ts:6:7 › stipend readability and accessibility dark 375 (3.4s)
+  ✓  33 [Stipend desktop] › e2e/stipend-ui.spec.ts:6:7 › stipend readability and accessibility dark 1440 (3.2s)
+  ✓  34 [Stipend desktop] › e2e/stipend-ui.spec.ts:74:7 › route accessibility /jars light (3.4s)
+  ✓  35 [Stipend desktop] › e2e/stipend-ui.spec.ts:74:7 › route accessibility /jars dark (5.0s)
+  ✓  36 [Stipend desktop] › e2e/stipend-ui.spec.ts:74:7 › route accessibility /profile light (3.1s)
+  ✓  37 [Stipend desktop] › e2e/stipend-ui.spec.ts:74:7 › route accessibility /profile dark (2.6s)
+  ✓  38 [Stipend desktop] › e2e/stipend-ui.spec.ts:74:7 › route accessibility /create light (3.0s)
+  ✓  39 [Stipend desktop] › e2e/stipend-ui.spec.ts:74:7 › route accessibility /create dark (4.3s)
+(node:74519) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  40 [Stipend mobile] › e2e/jar-creation.spec.ts:162:5 › custom creation review has no unsupported streaming controls and passes accessibility (6.3s)
+  ✓  41 [Stipend mobile] › e2e/stipend-ui.spec.ts:6:7 › stipend readability and accessibility light 375 (3.9s)
+  ✓  42 [Stipend mobile] › e2e/stipend-ui.spec.ts:6:7 › stipend readability and accessibility light 1440 (5.3s)
+  ✓  43 [Stipend mobile] › e2e/stipend-ui.spec.ts:6:7 › stipend readability and accessibility dark 375 (4.8s)
+  ✓  44 [Stipend mobile] › e2e/stipend-ui.spec.ts:6:7 › stipend readability and accessibility dark 1440 (4.8s)
+  ✓  45 [Stipend mobile] › e2e/stipend-ui.spec.ts:74:7 › route accessibility /jars light (3.0s)
+  ✓  46 [Stipend mobile] › e2e/stipend-ui.spec.ts:74:7 › route accessibility /jars dark (3.0s)
+  ✓  47 [Stipend mobile] › e2e/stipend-ui.spec.ts:74:7 › route accessibility /profile light (2.3s)
+  ✓  48 [Stipend mobile] › e2e/stipend-ui.spec.ts:74:7 › route accessibility /profile dark (2.3s)
+  ✓  49 [Stipend mobile] › e2e/stipend-ui.spec.ts:74:7 › route accessibility /create light (2.5s)
+  ✓  50 [Stipend mobile] › e2e/stipend-ui.spec.ts:74:7 › route accessibility /create dark (2.8s)
+
+  50 passed (2.5m)

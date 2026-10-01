@@ -49,7 +49,7 @@ export const HatsConfig: React.FC<HatsConfigProps> = ({
 }) => {
 	const [hatId, setHatId] = useState(initialConfig?.hatId || "");
 	const [hatsContract, setHatsContract] = useState(
-		initialConfig?.hatsContract || "",
+		initialConfig?.hatsContract || ""
 	);
 	const [selectedHat, setSelectedHat] = useState<HatDetails | null>(null);
 	const [isValidating, setIsValidating] = useState(false);
@@ -68,7 +68,7 @@ export const HatsConfig: React.FC<HatsConfigProps> = ({
 			try {
 				const hatDetails = await HatsProvider.getHatById(
 					hatIdToValidate,
-					contractAddress,
+					contractAddress
 				);
 
 				if (hatDetails) {
@@ -91,7 +91,7 @@ export const HatsConfig: React.FC<HatsConfigProps> = ({
 				setIsValidating(false);
 			}
 		},
-		[onConfigChange],
+		[onConfigChange]
 	);
 
 	// Load initial hat if provided

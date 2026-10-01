@@ -138,7 +138,7 @@ export class FloorPriceProvider {
 	 */
 	async getFloorPrice(
 		contractAddress: string,
-		chainId: number = 1,
+		chainId: number = 1
 	): Promise<FloorPriceData | null> {
 		const cacheKey = `${contractAddress}-${chainId}`;
 
@@ -181,7 +181,7 @@ export class FloorPriceProvider {
 	 */
 	async getCollectionStats(
 		contractAddress: string,
-		chainId: number = 1,
+		chainId: number = 1
 	): Promise<CollectionStats | null> {
 		const cacheKey = `stats-${contractAddress}-${chainId}`;
 
@@ -194,7 +194,7 @@ export class FloorPriceProvider {
 		try {
 			const stats = await this.fetchComprehensiveStats(
 				contractAddress,
-				chainId,
+				chainId
 			);
 			if (stats) {
 				this.statsCache.set(cacheKey, { data: stats, timestamp: Date.now() });
@@ -212,7 +212,7 @@ export class FloorPriceProvider {
 	 */
 	private async getOpenSeaFloorPrice(
 		contractAddress: string,
-		chainId: number,
+		chainId: number
 	): Promise<FloorPriceData | null> {
 		if (!this.apiKeys.opensea) return null;
 
@@ -224,7 +224,7 @@ export class FloorPriceProvider {
 					headers: {
 						"X-API-KEY": this.apiKeys.opensea,
 					},
-				},
+				}
 			);
 
 			if (!response.ok) return null;
@@ -263,7 +263,7 @@ export class FloorPriceProvider {
 	 */
 	private async getReservoirFloorPrice(
 		contractAddress: string,
-		chainId: number,
+		chainId: number
 	): Promise<FloorPriceData | null> {
 		try {
 			const baseUrl = this.getReservoirBaseUrl(chainId);
@@ -273,7 +273,7 @@ export class FloorPriceProvider {
 					headers: {
 						"x-api-key": this.apiKeys.reservoir || "",
 					},
-				},
+				}
 			);
 
 			if (!response.ok) return null;
@@ -288,10 +288,10 @@ export class FloorPriceProvider {
 				contractAddress,
 				collectionName: collection.name || "Unknown Collection",
 				floorPrice: parseFloat(
-					collection.floorAsk?.price?.amount?.native || "0",
+					collection.floorAsk?.price?.amount?.native || "0"
 				),
 				floorPriceUSD: parseFloat(
-					collection.floorAsk?.price?.amount?.usd || "0",
+					collection.floorAsk?.price?.amount?.usd || "0"
 				),
 				currency: "ETH",
 				volume24h: parseFloat(collection.volume?.["1day"] || "0"),
@@ -316,7 +316,7 @@ export class FloorPriceProvider {
 	 */
 	private async getAlchemyFloorPrice(
 		contractAddress: string,
-		chainId: number,
+		chainId: number
 	): Promise<FloorPriceData | null> {
 		if (!this.apiKeys.alchemy) return null;
 
@@ -329,7 +329,7 @@ export class FloorPriceProvider {
 					headers: {
 						accept: "application/json",
 					},
-				},
+				}
 			);
 
 			if (!response.ok) return null;
@@ -357,7 +357,7 @@ export class FloorPriceProvider {
 	 */
 	private async getMoralisFloorPrice(
 		contractAddress: string,
-		chainId: number,
+		chainId: number
 	): Promise<FloorPriceData | null> {
 		if (!this.apiKeys.moralis) return null;
 
@@ -369,7 +369,7 @@ export class FloorPriceProvider {
 					headers: {
 						"X-API-Key": this.apiKeys.moralis,
 					},
-				},
+				}
 			);
 
 			if (!response.ok) return null;
@@ -400,7 +400,7 @@ export class FloorPriceProvider {
 	 */
 	private async fetchComprehensiveStats(
 		contractAddress: string,
-		chainId: number,
+		chainId: number
 	): Promise<CollectionStats | null> {
 		// This would combine data from multiple sources to create comprehensive stats
 		// For now, we'll use the floor price data as a base and extend it
@@ -451,7 +451,7 @@ export class FloorPriceProvider {
 	 */
 	async getBatchFloorPrices(
 		contractAddresses: string[],
-		chainId: number = 1,
+		chainId: number = 1
 	): Promise<Map<string, FloorPriceData>> {
 		const results = new Map<string, FloorPriceData>();
 
@@ -484,7 +484,7 @@ export class FloorPriceProvider {
 	private async getETHPrice(): Promise<number> {
 		try {
 			const response = await fetch(
-				"https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd",
+				"https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd"
 			);
 			const data = await response.json();
 			return data.ethereum?.usd || 2000; // Fallback price

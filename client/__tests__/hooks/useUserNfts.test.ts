@@ -173,7 +173,7 @@ describe("useUserNFTs Hook Logic", () => {
 			expect(collections[0].nfts).toHaveLength(2);
 			expect(collections[0].name).toBe("Test Collection");
 			expect(collections[0].contractAddress).toBe(
-				"0x1234567890123456789012345678901234567890",
+				"0x1234567890123456789012345678901234567890"
 			);
 		});
 
@@ -250,7 +250,7 @@ describe("useUserNFTs Hook Logic", () => {
 
 			const filtered = nfts.filter(
 				(nft) =>
-					nft.contract.address.toLowerCase() === contractFilter.toLowerCase(),
+					nft.contract.address.toLowerCase() === contractFilter.toLowerCase()
 			);
 
 			expect(filtered).toHaveLength(2);
@@ -299,7 +299,7 @@ describe("useUserNFTs Hook Logic", () => {
 			expect(params.get("withMetadata")).toBe("true");
 			expect(params.get("pageSize")).toBe("50");
 			expect(params.get("contractAddresses")).toBe(
-				"0x1234567890123456789012345678901234567890",
+				"0x1234567890123456789012345678901234567890"
 			);
 		});
 	});
@@ -329,7 +329,7 @@ describe("useUserNFTs Hook Logic", () => {
 	describe("Token Type Mapping", () => {
 		it("maps token types correctly", () => {
 			const mapTokenType = (
-				alchemyType: string,
+				alchemyType: string
 			): "ERC721" | "ERC1155" | "UNKNOWN" => {
 				switch (alchemyType?.toUpperCase()) {
 					case "ERC721":

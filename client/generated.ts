@@ -1225,6 +1225,23 @@ export const cookieJarFactoryAbi = [
 ] as const
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// IPOAP
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+export const ipoapAbi = [
+  {
+    type: 'function',
+    inputs: [
+      { name: 'owner', internalType: 'address', type: 'address' },
+      { name: 'eventId', internalType: 'uint256', type: 'uint256' },
+    ],
+    name: 'tokenDetailsOfOwnerByEvent',
+    outputs: [{ name: '', internalType: 'uint256[]', type: 'uint256[]' }],
+    stateMutability: 'view',
+  },
+] as const
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 // erc20
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -2355,6 +2372,22 @@ export const useWatchCookieJarFactoryMetadataUpdatedEvent =
   /*#__PURE__*/ createUseWatchContractEvent({
     abi: cookieJarFactoryAbi,
     eventName: 'MetadataUpdated',
+  })
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link ipoapAbi}__
+ */
+export const useReadIpoap = /*#__PURE__*/ createUseReadContract({
+  abi: ipoapAbi,
+})
+
+/**
+ * Wraps __{@link useReadContract}__ with `abi` set to __{@link ipoapAbi}__ and `functionName` set to `"tokenDetailsOfOwnerByEvent"`
+ */
+export const useReadIpoapTokenDetailsOfOwnerByEvent =
+  /*#__PURE__*/ createUseReadContract({
+    abi: ipoapAbi,
+    functionName: 'tokenDetailsOfOwnerByEvent',
   })
 
 /**

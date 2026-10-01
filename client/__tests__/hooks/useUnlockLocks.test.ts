@@ -44,7 +44,7 @@ const mockWeb3Service = {
 beforeEach(() => {
 	vi.clearAllMocks();
 	(Web3Service as ReturnType<typeof vi.fn>).mockImplementation(
-		() => mockWeb3Service as any,
+		() => mockWeb3Service as any
 	);
 });
 
@@ -77,7 +77,7 @@ describeOrSkip("useUnlock Hook - Real SDK Integration", () => {
 				useUnlock({
 					lockAddress: testLockAddress,
 					checkValidity: true,
-				}),
+				})
 			);
 
 			// Trigger lock validation
@@ -86,7 +86,7 @@ describeOrSkip("useUnlock Hook - Real SDK Integration", () => {
 			await waitFor(() => {
 				expect(mockWeb3Service.getLock).toHaveBeenCalledWith(
 					testLockAddress,
-					expect.any(Number),
+					expect.any(Number)
 				);
 			});
 
@@ -105,14 +105,14 @@ describeOrSkip("useUnlock Hook - Real SDK Integration", () => {
 			mockWeb3Service.getLock.mockRejectedValue(new Error("Lock not found"));
 
 			const { result } = renderHook(() =>
-				useUnlock({ lockAddress: testLockAddress }),
+				useUnlock({ lockAddress: testLockAddress })
 			);
 
 			await result.current.validateLockAddress(testLockAddress);
 
 			await waitFor(() => {
 				expect(result.current.lockError).toBe(
-					"Invalid Unlock Protocol lock contract",
+					"Invalid Unlock Protocol lock contract"
 				);
 			});
 
@@ -125,7 +125,7 @@ describeOrSkip("useUnlock Hook - Real SDK Integration", () => {
 			const { result } = renderHook(() => useUnlock());
 
 			await expect(
-				result.current.validateLockAddress(invalidAddress),
+				result.current.validateLockAddress(invalidAddress)
 			).rejects.toThrow("Invalid contract address format");
 
 			expect(mockWeb3Service.getLock).not.toHaveBeenCalled();
@@ -146,7 +146,7 @@ describeOrSkip("useUnlock Hook - Real SDK Integration", () => {
 				useUnlock({
 					lockAddress: testLockAddress,
 					checkValidity: true,
-				}),
+				})
 			);
 
 			const isValid =
@@ -154,7 +154,7 @@ describeOrSkip("useUnlock Hook - Real SDK Integration", () => {
 
 			expect(mockWeb3Service.getKeyByLockForOwner).toHaveBeenCalledWith(
 				testLockAddress,
-				testUserAddress,
+				testUserAddress
 			);
 			expect(isValid).toBe(true);
 		});
@@ -172,7 +172,7 @@ describeOrSkip("useUnlock Hook - Real SDK Integration", () => {
 				useUnlock({
 					lockAddress: testLockAddress,
 					checkValidity: true,
-				}),
+				})
 			);
 
 			const isValid =
@@ -188,7 +188,7 @@ describeOrSkip("useUnlock Hook - Real SDK Integration", () => {
 				useUnlock({
 					lockAddress: testLockAddress,
 					checkValidity: true,
-				}),
+				})
 			);
 
 			const isValid =
@@ -199,11 +199,11 @@ describeOrSkip("useUnlock Hook - Real SDK Integration", () => {
 
 		it("handles key validation errors", async () => {
 			mockWeb3Service.getKeyByLockForOwner.mockRejectedValue(
-				new Error("RPC Error"),
+				new Error("RPC Error")
 			);
 
 			const { result } = renderHook(() =>
-				useUnlock({ lockAddress: testLockAddress }),
+				useUnlock({ lockAddress: testLockAddress })
 			);
 
 			const isValid =
@@ -228,7 +228,7 @@ describeOrSkip("useUnlock Hook - Real SDK Integration", () => {
 					lockAddress: testLockAddress,
 					fetchUserKeys: true,
 					checkValidity: true,
-				}),
+				})
 			);
 
 			await waitFor(() => {
@@ -251,7 +251,7 @@ describeOrSkip("useUnlock Hook - Real SDK Integration", () => {
 				useUnlock({
 					lockAddress: testLockAddress,
 					fetchUserKeys: true,
-				}),
+				})
 			);
 
 			await waitFor(() => {
@@ -269,7 +269,7 @@ describeOrSkip("useUnlock Hook - Real SDK Integration", () => {
 					1: expect.objectContaining({
 						unlockAddress: expect.stringMatching(/^0x[0-9a-fA-F]{40}$/),
 					}),
-				}),
+				})
 			);
 		});
 
@@ -281,7 +281,7 @@ describeOrSkip("useUnlock Hook - Real SDK Integration", () => {
 			(useChainId as ReturnType<typeof vi.fn>).mockReturnValueOnce(999999);
 
 			const { result: _result } = renderHook(() =>
-				useUnlock({ lockAddress: testLockAddress }),
+				useUnlock({ lockAddress: testLockAddress })
 			);
 
 			// Should still create Web3Service with fallback to mainnet
@@ -302,7 +302,7 @@ describeOrSkip("useUnlock Hook - Real SDK Integration", () => {
 			mockWeb3Service.getLock.mockReturnValue(delayedPromise);
 
 			const { result } = renderHook(() =>
-				useUnlock({ lockAddress: testLockAddress }),
+				useUnlock({ lockAddress: testLockAddress })
 			);
 
 			// Start validation
@@ -333,39 +333,39 @@ describeOrSkip("useUnlock Hook - Real SDK Integration", () => {
 			mockWeb3Service.getLock.mockRejectedValue(new Error("Network error"));
 
 			const { result } = renderHook(() =>
-				useUnlock({ lockAddress: testLockAddress }),
+				useUnlock({ lockAddress: testLockAddress })
 			);
 
 			await result.current.validateLockAddress(testLockAddress);
 
 			await waitFor(() => {
 				expect(result.current.lockError).toBe(
-					"Invalid Unlock Protocol lock contract",
+					"Invalid Unlock Protocol lock contract"
 				);
 				expect(result.current.error).toBe(
-					"Invalid Unlock Protocol lock contract",
+					"Invalid Unlock Protocol lock contract"
 				);
 			});
 		});
 
 		it("sets keys error when key fetch fails", async () => {
 			mockWeb3Service.getKeyByLockForOwner.mockRejectedValue(
-				new Error("Keys fetch failed"),
+				new Error("Keys fetch failed")
 			);
 
 			const { result } = renderHook(() =>
 				useUnlock({
 					lockAddress: testLockAddress,
 					fetchUserKeys: true,
-				}),
+				})
 			);
 
 			await waitFor(() => {
 				expect(result.current.keysError).toBe(
-					"Failed to fetch your membership keys",
+					"Failed to fetch your membership keys"
 				);
 				expect(result.current.error).toBe(
-					"Failed to fetch your membership keys",
+					"Failed to fetch your membership keys"
 				);
 			});
 		});
@@ -396,7 +396,7 @@ describeOrSkip("useUnlock Hook - Real SDK Integration", () => {
 			mockWeb3Service.getLock.mockResolvedValue(mockLockData);
 
 			const { result } = renderHook(() =>
-				useUnlock({ lockAddress: testLockAddress }),
+				useUnlock({ lockAddress: testLockAddress })
 			);
 
 			await result.current.validateLockAddress(testLockAddress);
@@ -423,7 +423,7 @@ describeOrSkip("useUnlock Hook - Real SDK Integration", () => {
 			mockWeb3Service.getLock.mockResolvedValue(mockERC20Lock);
 
 			const { result } = renderHook(() =>
-				useUnlock({ lockAddress: testLockAddress }),
+				useUnlock({ lockAddress: testLockAddress })
 			);
 
 			await result.current.validateLockAddress(testLockAddress);
@@ -445,7 +445,7 @@ describeOrSkip("useUnlock Hook - Real SDK Integration", () => {
 				useUnlock({
 					lockAddress: testLockAddress,
 					fetchUserKeys: true,
-				}),
+				})
 			);
 
 			// Clear previous calls

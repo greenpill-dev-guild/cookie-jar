@@ -1,6 +1,6 @@
 // Note: Using simplified POAP integration until proper SDK types are available
 // import { PoapSDK, EventDTO, TokenDTO, PaginatedRequest } from '@poap-xyz/poap-sdk';
-import { log } from "@/lib/app/logger";
+import { log } from "@jar-core/lib/app/logger";
 
 export interface POAPEvent {
 	id: number;
@@ -57,7 +57,7 @@ export class POAPProvider {
 			sortDirection?: "asc" | "desc";
 			from?: string; // Date string
 			to?: string; // Date string
-		} = {},
+		} = {}
 	): Promise<POAPSearchResult> {
 		try {
 			const { limit = 20, offset = 0 } = options;
@@ -71,7 +71,7 @@ export class POAPProvider {
 								"X-API-Key": this.apiKey,
 							}
 						: {},
-				},
+				}
 			);
 
 			if (!response.ok) {
@@ -176,7 +176,7 @@ export class POAPProvider {
 		options: {
 			limit?: number;
 			offset?: number;
-		} = {},
+		} = {}
 	): Promise<POAPSearchResult> {
 		try {
 			const { limit = 20, offset = 0 } = options;
@@ -190,7 +190,7 @@ export class POAPProvider {
 								"X-API-Key": this.apiKey,
 							}
 						: {},
-				},
+				}
 			);
 
 			if (!response.ok) {
@@ -320,7 +320,7 @@ export class POAPProvider {
 								"X-API-Key": this.apiKey,
 							}
 						: {},
-				},
+				}
 			);
 
 			if (!response.ok) {

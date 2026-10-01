@@ -1,0 +1,9 @@
+{
+  "timestamp": "2026-09-05T20:37:26.098Z",
+  "url": "http://localhost:3000/",
+  "text": "Green Goods Stipend Jar\nMonthly contributor stipend\nConnect\n\nIn the jar\n\n3.0000 ETH\n\nUp to 0.5000 ETH per claim, 28 days between claims\n\nYour status\n\nConnect your wallet to check your status\n\nNext claim\n\nAvailable once you're eligible\n\nTeam Hat Stipend (demo)\n\nLocal stand-in for the Green Goods stipend jar. Claims are gated by holding badge #1 of the demo ERC1155 (Hats Protocol hats are ERC1155 tokens). The claim note must carry a Linear link.\n\nAvailable Balance\n\n3.0000 ETH\n\nAccess\n\nERC1155\n\nStatus\n\nConnect to check\n\nRules\n\nVariable Amount\n\nContract\n\n0x5ef0...E36E\n\nClaim\nDeposit\nClaim\n\nClaim your share from this jar\n\nWallet not connected\n\nConnect your wallet to see whether you can claim.\n\nClaim history\n\nEvery claim from this jar, with the note that backed it\n\nClaim history is only reconstructed for token jars. Check the local chain logs instead.\nGreen Goods Stipend Jar\n\nThe Green Goods contributor stipend, paid from a Cookie Jar on Arbitrum and backed by work tracked and accepted on Linear.\n\nMore jars\nAll jars on this network\nCreate a jar\nYour profile\nResources\nStipend playbook\nSource on GitHub\n\n2026 Greenpill Dev Guild. Built on the Cookie Jar protocol.\n\nClaims require a Linear link in the note.",
+  "noFeaturedStateCount": 0,
+  "postOrigins": [
+    "http://127.0.0.1:8545"
+  ]
+}

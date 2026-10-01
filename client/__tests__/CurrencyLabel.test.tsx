@@ -1,7 +1,7 @@
+import { ETH_ADDRESS } from "@jar-core/lib/blockchain/constants";
 import { render, screen } from "@testing-library/react";
 import type React from "react";
 import { vi } from "vitest";
-import { ETH_ADDRESS } from "@/lib/blockchain/constants";
 
 // CurrencyLabel component logic for testing
 const CurrencyLabel: React.FC<{
@@ -40,7 +40,7 @@ describe("CurrencyLabel", () => {
 		const mockFormat = vi.fn().mockReturnValue("0x1234...5678");
 
 		render(
-			<CurrencyLabel address="0x123456789abcdef" formatAddress={mockFormat} />,
+			<CurrencyLabel address="0x123456789abcdef" formatAddress={mockFormat} />
 		);
 		expect(screen.getByText("0x1234...5678")).toBeInTheDocument();
 		expect(mockFormat).toHaveBeenCalledWith("0x123456789abcdef");
@@ -53,10 +53,7 @@ describe("CurrencyLabel", () => {
 
 	it("handles different ETH address formats", () => {
 		render(
-			<CurrencyLabel
-				address={ETH_ADDRESS}
-				tokenSymbol="SHOULD_NOT_SHOW"
-			/>,
+			<CurrencyLabel address={ETH_ADDRESS} tokenSymbol="SHOULD_NOT_SHOW" />
 		);
 		expect(screen.getByText("ETH")).toBeInTheDocument();
 		expect(screen.queryByText("SHOULD_NOT_SHOW")).not.toBeInTheDocument();

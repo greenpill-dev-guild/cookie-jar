@@ -1,5 +1,5 @@
 // Test for the token info resolution functionality
-import { ETH_ADDRESS } from "@/lib/blockchain/constants";
+import { ETH_ADDRESS } from "@jar-core/lib/blockchain/constants";
 
 describe("Token Info Hook Logic", () => {
 	// Mock the hook behavior for testing
@@ -55,7 +55,7 @@ describe("Token Info Hook Logic", () => {
 
 			const result = mockTokenInfo(
 				"0xA0b86a33E6441c0C4CC2E6C7B8B0B2C4B8C4F8E1",
-				mockData,
+				mockData
 			);
 
 			expect(result).toEqual(mockData);

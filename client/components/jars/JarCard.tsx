@@ -1,6 +1,19 @@
 "use client";
 
 import {
+	ACCESS_TYPES,
+	getAccessTypeName,
+	isNFTAccess,
+	isProtocolAccess,
+} from "@jar-core/lib/jar/access-types";
+import {
+	getCurrencyAmount,
+	getCurrencySymbol,
+	getJarName,
+	getWithdrawalAmountDisplay,
+	type JarData,
+} from "@jar-core/lib/jar/utils";
+import {
 	Award,
 	CheckCircle2,
 	Crown,
@@ -10,6 +23,7 @@ import {
 	Users,
 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -19,19 +33,6 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { NativeCurrency } from "@/config/supported-networks";
-import {
-	ACCESS_TYPES,
-	getAccessTypeName,
-	isNFTAccess,
-	isProtocolAccess,
-} from "@/lib/jar/access-types";
-import {
-	getCurrencyAmount,
-	getCurrencySymbol,
-	getJarName,
-	getWithdrawalAmountDisplay,
-	type JarData,
-} from "@/lib/jar/utils";
 import { JarImage } from "./JarImage";
 import { JarStatusBadge } from "./JarStatusBadge";
 
@@ -70,6 +71,7 @@ interface EnhancedJarData extends JarData {
 }
 
 interface JarCardProps {
+	chainId: number;
 	jar: EnhancedJarData;
 	nativeCurrency: NativeCurrency;
 	tokenSymbols: Record<string, string>;
@@ -149,6 +151,7 @@ const getUserAccessStatus = (jar: EnhancedJarData) => {
 
 export function JarCard({
 	jar,
+	chainId,
 	nativeCurrency,
 	tokenSymbols,
 	onClick,
@@ -166,7 +169,7 @@ export function JarCard({
 			return (
 				<TooltipProvider>
 					<Tooltip>
-						<TooltipTrigger>
+						<TooltipTrigger className="relative z-10 min-h-11 min-w-11">
 							<div className="flex items-center gap-1">
 								{protocolIcon}
 								<span className="text-xs">{accessTypeName}</span>
@@ -228,7 +231,7 @@ export function JarCard({
 			return (
 				<TooltipProvider>
 					<Tooltip>
-						<TooltipTrigger>
+						<TooltipTrigger className="relative z-10 min-h-11 min-w-11">
 							<div className="flex items-center gap-1">
 								{protocolIcon}
 								<span className="text-xs">{accessTypeName}</span>
@@ -277,14 +280,29 @@ export function JarCard({
 
 	return (
 		<Card
-			className={`cj-card-primary hover:shadow-lg transition-all duration-200 cursor-pointer group transform hover:-translate-y-1 overflow-hidden p-0 ${className || ""}`}
-			onClick={() => onClick(jar.jarAddress)}
+			className={`relative cj-card-primary hover:shadow-lg transition-all duration-200 cursor-pointer group transform hover:-translate-y-1 overflow-hidden p-0 ${className || ""}`}
 		>
 			<JarImage metadata={jar.metadata} jarName={jarName} />
 
 			<CardHeader className="pb-3 px-6 pt-6">
 				<CardTitle className="content-title text-[hsl(var(--cj-dark-brown))] group-hover:text-[hsl(var(--cj-brand-orange))] transition-colors">
-					{jarName}
+					<Link
+						href={`/jar/${jar.jarAddress}?chainId=${chainId}`}
+						className="inline-flex min-h-11 items-center rounded-md after:absolute after:inset-0 focus-visible:outline focus-visible:outline-2 focus-visible:outline-ring"
+						onClick={(event) => {
+							if (
+								event.metaKey ||
+								event.ctrlKey ||
+								event.shiftKey ||
+								event.altKey
+							)
+								return;
+							event.preventDefault();
+							onClick(jar.jarAddress);
+						}}
+					>
+						{jarName}
+					</Link>
 				</CardTitle>
 
 				<div className="flex items-center justify-between mt-1">

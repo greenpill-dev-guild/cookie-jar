@@ -58,7 +58,7 @@ export interface UseEnhancedNFTValidationOptions {
  */
 export function useEnhancedNFTValidation(
 	contractAddress: string | undefined,
-	options: UseEnhancedNFTValidationOptions = {},
+	options: UseEnhancedNFTValidationOptions = {}
 ) {
 	const {
 		onValidationComplete,
@@ -385,10 +385,10 @@ export function useEnhancedNFTValidation(
  */
 export function useBatchNFTValidation(
 	contractAddresses: string[],
-	options: UseEnhancedNFTValidationOptions = {},
+	options: UseEnhancedNFTValidationOptions = {}
 ) {
 	const [results, setResults] = useState<Record<string, NFTValidationResult>>(
-		{},
+		{}
 	);
 	const [isValidating, setIsValidating] = useState(false);
 
@@ -456,7 +456,7 @@ export function useNFTValidationStats() {
 				blockNumber: value.blockNumber,
 			})),
 		}),
-		[],
+		[]
 	);
 
 	const [stats, setStats] = useState(getStats());

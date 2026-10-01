@@ -1,0 +1,73 @@
+
+Running 18 tests using 1 worker
+
+(node:63733) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [Desktop Chrome] › e2e/admin-functions.spec.ts:9:5 › owner updates the maximum and interval, pauses, and withdraws emergency funds (6.8s)
+  ✓   2 [Desktop Chrome] › e2e/featured-jar.spec.ts:6:6 › Featured jar home › renders the featured jar with claim, deposit and history (4.1s)
+  ✓   3 [Desktop Chrome] › e2e/featured-jar.spec.ts:44:6 › Featured jar home › keeps the generic routes reachable (722ms)
+  ✓   4 [Desktop Chrome] › e2e/featured-jar.spec.ts:51:6 › Featured jar home › has no bottom app bar on mobile (331ms)
+  ✓   5 [Desktop Chrome] › e2e/jar-creation.spec.ts:9:5 › creates a custom jar directly through the local factory and opens the chain-aware link (10.3s)
+  ✘   6 [Desktop Chrome] › e2e/jar-creation.spec.ts:54:5 › connecting on the creation network waits for an explicit final submit (16.6s)
+(node:68805) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   7 [Desktop Chrome] › e2e/jar-creation.spec.ts:95:5 › preset stays editable and wallet connection returns to review without a write (5.8s)
+  ✓   8 [Desktop Chrome] › e2e/jar-operations.spec.ts:10:5 › claim and deposit update the seeded stipend jar and enforce the interval (5.6s)
+  ✓   9 [Desktop Chrome] › e2e/jar-operations.spec.ts:69:5 › wrong network disables local jar writes (4.0s)
+(node:71277) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓  10 [Mobile Chrome] › e2e/admin-functions.spec.ts:9:5 › owner updates the maximum and interval, pauses, and withdraws emergency funds (5.2s)
+  ✓  11 [Mobile Chrome] › e2e/featured-jar.spec.ts:6:6 › Featured jar home › renders the featured jar with claim, deposit and history (3.1s)
+  ✓  12 [Mobile Chrome] › e2e/featured-jar.spec.ts:44:6 › Featured jar home › keeps the generic routes reachable (601ms)
+  ✓  13 [Mobile Chrome] › e2e/featured-jar.spec.ts:51:6 › Featured jar home › has no bottom app bar on mobile (446ms)
+  ✓  14 [Mobile Chrome] › e2e/jar-creation.spec.ts:9:5 › creates a custom jar directly through the local factory and opens the chain-aware link (7.1s)
+  ✓  15 [Mobile Chrome] › e2e/jar-creation.spec.ts:54:5 › connecting on the creation network waits for an explicit final submit (5.8s)
+  ✓  16 [Mobile Chrome] › e2e/jar-creation.spec.ts:95:5 › preset stays editable and wallet connection returns to review without a write (4.5s)
+  ✓  17 [Mobile Chrome] › e2e/jar-operations.spec.ts:10:5 › claim and deposit update the seeded stipend jar and enforce the interval (4.4s)
+  ✓  18 [Mobile Chrome] › e2e/jar-operations.spec.ts:69:5 › wrong network disables local jar writes (3.7s)
+
+
+  1) [Desktop Chrome] › e2e/jar-creation.spec.ts:54:5 › connecting on the creation network waits for an explicit final submit 
+
+    Error: expect(page).toHaveURL(expected) failed
+
+    Expected pattern: /\/jar\/0x[0-9a-fA-F]{40}\?chainId=31337/
+    Received string:  "http://localhost:3040/create"
+    Timeout: 10000ms
+
+    Call log:
+      - Expect "toHaveURL" with timeout 10000ms
+        23 × locator resolved to <html lang="en" class="__variable_f367f3 light">…</html>
+           - unexpected value "http://localhost:3040/create"
+
+
+      89 | 	await page.getByRole("button", { name: "Create Jar", exact: true }).click();
+      90 | 	await wallet.signTransaction();
+    > 91 | 	await expect(page).toHaveURL(/\/jar\/0x[0-9a-fA-F]{40}\?chainId=31337/);
+         | 	                   ^
+      92 | 	expect(wallet.hashes).toHaveLength(1);
+      93 | });
+      94 |
+        at /Users/afo/Code/greenpill/cookie-jar/.claude/worktrees/stipend-e2e/e2e/jar-creation.spec.ts:91:21
+
+    attachment #1: screenshot (image/png) ──────────────────────────────────────────────────────────
+    ../../../../../../../../tmp/stipend-wallet-final-proof/jar-creation-connecting-on-303b5-or-an-explicit-final-submit-Desktop-Chrome/test-failed-1.png
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    attachment #3: video (video/webm) ──────────────────────────────────────────────────────────────
+    ../../../../../../../../tmp/stipend-wallet-final-proof/jar-creation-connecting-on-303b5-or-an-explicit-final-submit-Desktop-Chrome/video.webm
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+    Error Context: ../../../../../../../../tmp/stipend-wallet-final-proof/jar-creation-connecting-on-303b5-or-an-explicit-final-submit-Desktop-Chrome/error-context.md
+
+    attachment #5: trace (application/zip) ─────────────────────────────────────────────────────────
+    ../../../../../../../../tmp/stipend-wallet-final-proof/jar-creation-connecting-on-303b5-or-an-explicit-final-submit-Desktop-Chrome/trace.zip
+    Usage:
+
+        npx playwright show-trace ../../../../../../../../tmp/stipend-wallet-final-proof/jar-creation-connecting-on-303b5-or-an-explicit-final-submit-Desktop-Chrome/trace.zip
+
+    ────────────────────────────────────────────────────────────────────────────────────────────────
+
+  1 failed
+    [Desktop Chrome] › e2e/jar-creation.spec.ts:54:5 › connecting on the creation network waits for an explicit final submit 
+  17 passed (1.6m)

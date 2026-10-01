@@ -108,6 +108,7 @@ fi
 # Copy deployment files to client (from project root)
 echo "📄 Copying deployment files..."
 ./scripts/copy-deployment.sh
+bun scripts/sync-deployments.ts --chain 31337 --script DeployLocal.s.sol
 
 if [ $? -ne 0 ]; then
     echo "❌ Failed to copy deployment files"
@@ -154,9 +155,13 @@ else
     echo "⚠️  No deployment file found, client may not connect properly"
 fi
 
+# The home page features the jar at this index; 4 is the ERC1155 demo jar that mirrors the stipend jar.
+export NEXT_PUBLIC_FEATURED_JAR_INDEX="${NEXT_PUBLIC_FEATURED_JAR_INDEX:-4}"
+echo "🏠 Featured jar index: $NEXT_PUBLIC_FEATURED_JAR_INDEX"
+
 # Start Next.js dev server directly with Turbo for faster builds
 echo "🚀 Starting Next.js development server (Turbo mode - faster builds & hot reload)..."
-NODE_ENV=development npx next dev --turbo 2>&1 | tee ../contracts/client-dev.log &
+NODE_ENV=development bun run dev -- --turbo 2>&1 | tee ../contracts/client-dev.log &
 CLIENT_PID=$!
 
 # Wait for client to start and check if it's running

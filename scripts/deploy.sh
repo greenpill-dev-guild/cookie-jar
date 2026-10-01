@@ -14,6 +14,8 @@ NC='\033[0m' # No Color
 
 # Default network if none specified
 NETWORK=${1:-"celo-alfajores"}
+# Optional script override, e.g. "CreateJar.s.sol:CreateJar" (defaults to the factory deploy)
+SCRIPT_OVERRIDE=${2:-}
 
 echo -e "${BLUE}🚀 Cookie Jar Multi-Network Deployment${NC}"
 echo -e "${BLUE}======================================${NC}"
@@ -92,6 +94,9 @@ fi
 
 # Parse network configuration
 IFS=',' read -r NETWORK_RPC_URL CHAIN_ID DEPLOYER_SCRIPT ENV_NAME <<< "$NETWORK_CONFIG"
+if [ -n "$SCRIPT_OVERRIDE" ]; then
+    DEPLOYER_SCRIPT="$SCRIPT_OVERRIDE"
+fi
 
 # Load environment variables FIRST
 if [ -f ".env.local" ]; then
@@ -175,6 +180,11 @@ if [ "$USE_PRIVATE_KEY" = false ]; then
     export BASESCAN_API_KEY
     export CELOSCAN_API_KEY
     export ARBISCAN_API_KEY
+    # CreateJar.s.sol inputs (harmless when unset)
+    export FACTORY_ADDRESS JAR_OWNER CURRENCY ACCESS_TYPE NFT_CONTRACT NFT_TOKEN_ID NFT_MIN_BALANCE POAP_EVENT_GATE
+    export ALLOWLIST WITHDRAWAL_OPTION FIXED_AMOUNT MAX_WITHDRAWAL WITHDRAWAL_INTERVAL STRICT_PURPOSE
+    export EMERGENCY_WITHDRAWAL_ENABLED ONE_TIME_WITHDRAWAL FEE_PERCENTAGE_ON_DEPOSIT MAX_WITHDRAWAL_PER_PERIOD
+    export METADATA_FILE DRY_RUN
 fi
 
 # Change to contracts directory
@@ -248,16 +258,24 @@ if [ $? -eq 0 ]; then
     echo -e "${GREEN}Chain ID: $CHAIN_ID${NC}"
     echo -e "${GREEN}RPC URL: $RPC_URL${NC}"
     
-    # Copy deployment files for frontend
-    echo -e "${BLUE}📄 Copying deployment files...${NC}"
-    cd .. && ./scripts/copy-deployment.sh
-    
-    echo -e "${GREEN}✅ Deployment files copied${NC}"
-    echo ""
-    echo -e "${YELLOW}💡 Next steps:${NC}"
-    echo -e "  1. Verify contracts on block explorer (if not auto-verified)"
-    echo -e "  2. Update frontend configuration if needed"
-    echo -e "  3. Test contract interactions"
+    cd ..
+    if [ -n "$SCRIPT_OVERRIDE" ]; then
+        echo ""
+        echo -e "${YELLOW}💡 Next steps:${NC}"
+        echo -e "  1. Note the jar address printed above and verify it on the block explorer"
+        echo -e "  2. Set NEXT_PUBLIC_FEATURED_JAR_ADDRESS for the client if this is the featured jar"
+    elif [ "${DRY_RUN:-false}" = "true" ]; then
+        echo -e "${YELLOW}DRY_RUN=true: registry not updated${NC}"
+    else
+        # Merge the new factory into the client registry (keeps the other chains)
+        echo -e "${BLUE}📄 Syncing client deployment registry...${NC}"
+        bun scripts/sync-deployments.ts --chain "$CHAIN_ID"
+        echo ""
+        echo -e "${YELLOW}💡 Next steps:${NC}"
+        echo -e "  1. Verify the factory on the block explorer (if not auto-verified)"
+        echo -e "  2. Commit client/config/deployments.json, deployments.auto.ts and the broadcast"
+        echo -e "  3. bun generate if the ABI changed, then bun check && bun run build:client"
+    fi
     
 else
     echo -e "${RED}❌ Deployment failed${NC}"
