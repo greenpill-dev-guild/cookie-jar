@@ -35,6 +35,7 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { isPoapSupportedChain } from "@/config/supported-networks";
+import { JarImageInput } from "./JarImageInput";
 
 interface StepContentProps {
 	step: number;
@@ -98,6 +99,26 @@ const BasicConfigStep: React.FC = () => {
 				description: "Use native Ethereum",
 			},
 		];
+
+		if (chainId === 42161) {
+			options.push(
+				{
+					value: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+					label: "USDC",
+					description: "USD Coin on Arbitrum",
+				},
+				{
+					value: "0xda10009cbd5d07dd0cecc66161fc93d7c9000da1",
+					label: "DAI",
+					description: "Dai on Arbitrum",
+				},
+				{
+					value: "0x82af49447d8a07e3bd95bd0d56f35241523fbab1",
+					label: "WETH",
+					description: "Wrapped ETH on Arbitrum",
+				}
+			);
+		}
 
 		if (chainId === 31337) {
 			options.push({
@@ -255,7 +276,7 @@ const BasicConfigStep: React.FC = () => {
 						<Input
 							id="jarOwner"
 							data-testid="jar-owner-input"
-							placeholder="0x... (enter the owner Safe address)"
+							placeholder="0x... (wallet or Safe address)"
 							className="pr-12"
 							aria-label="Enter the Ethereum address that will own this jar"
 							aria-invalid={!!errors.jarOwnerAddress}
@@ -271,7 +292,7 @@ const BasicConfigStep: React.FC = () => {
 								try {
 									const text = await navigator.clipboard.readText();
 									if (text && isAddress(text)) {
-										setValue("jarOwnerAddress", text);
+										setValue("jarOwnerAddress", text, { shouldDirty: true });
 									}
 								} catch (err) {
 									log.error("Failed to read clipboard:", err);
@@ -297,7 +318,7 @@ const BasicConfigStep: React.FC = () => {
 						{jarOwnerAddress &&
 						jarOwnerAddress !== "0x0000000000000000000000000000000000000000"
 							? `Currently set to: ${shortenAddress(jarOwnerAddress, 10)}`
-							: "Enter the Safe that will own and administer this jar. Connecting a wallet will not choose it for you."}
+							: "Connect your wallet to fill the owner address. You can change it to another wallet or Safe."}
 					</p>
 				</div>
 
@@ -376,14 +397,7 @@ const BasicConfigStep: React.FC = () => {
 					/>
 				</div>
 
-				<div>
-					<Label htmlFor="imageUrl">Image URL</Label>
-					<Input
-						id="imageUrl"
-						placeholder="https://example.com/image.jpg"
-						{...register("imageUrl")}
-					/>
-				</div>
+				<JarImageInput />
 
 				<div>
 					<Label htmlFor="externalLink">External Link</Label>
@@ -641,6 +655,7 @@ const AccessControlStep: React.FC = () => {
 			)}
 
 			<ProtocolSelector
+				chainId={chainId}
 				onConfigChange={handleProtocolConfigChange}
 				initialConfig={protocolConfig}
 				showViewToggle={false}

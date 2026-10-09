@@ -71,7 +71,8 @@
 		"dev:stipend": "bun run --cwd stipend dev",
 		"build:stipend": "bun run --cwd stipend build",
 		"test:stipend": "bash -c 'cd stipend && PATH=\"${PATH#*:}\" node node_modules/.bin/vitest run'",
-		"test:e2e:stipend": "playwright test --config=playwright.stipend.config.ts"
+		"test:e2e:stipend": "playwright test --config=playwright.stipend.config.ts",
+		"test:dependency-security": "bash -c 'PATH=\"${PATH#*:}\" node --test vendor/braces/security.test.cjs'"
 	},
 	"devDependencies": {
 		"@axe-core/playwright": "^4.13.0",
@@ -83,7 +84,8 @@
 		"oxlint": "1.19.0",
 		"prettier": "^3.9.6",
 		"prettier-plugin-solidity": "^1.2.0",
-		"solhint": "^4.1.1"
+		"solhint": "^4.1.1",
+		"braces": "file:vendor/braces"
 	},
 	"engines": {
 		"node": ">=20",
@@ -97,7 +99,12 @@
 		"shell-quote": ">=1.10.0",
 		"tar": ">=7.5.22",
 		"ws": ">=8.21.0",
-		"postcss": ">=8.5.26"
+		"postcss": ">=8.5.26",
+		"http-cache-semantics": "4.3.0",
+		"source-map-js": "1.2.2",
+		"tinypool": "2.2.0",
+		"sharp": "0.35.5",
+		"braces": "file:vendor/braces"
 	},
 	"workspaces": [
 		"client",

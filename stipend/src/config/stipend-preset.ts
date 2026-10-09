@@ -6,7 +6,7 @@ import { DEFAULT_CREATION_VALUES } from "@jar-core/lib/jar/creation-values";
 export const STIPEND_PRESET: JarCreationFormData = {
 	...DEFAULT_CREATION_VALUES,
 	jarName: "Green Goods Stipend Jar",
-	// The Safe owner must be confirmed and entered before a mainnet creation.
+	// The creation hook fills the connected wallet; an owner may override it.
 	jarOwnerAddress: "",
 	supportedCurrency: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
 	metadata:
@@ -14,8 +14,8 @@ export const STIPEND_PRESET: JarCreationFormData = {
 	imageUrl: "https://cookies.greengoods.app/opengraph-image",
 	externalLink:
 		"https://github.com/greenpill-dev-guild/.github/blob/main/routines/scoped-work-compensation.md",
-	showCustomCurrency: true,
-	customCurrencyAddress: "0xaf88d065e77c8cC2239327C5EDb3A432268e5831",
+	showCustomCurrency: false,
+	customCurrencyAddress: "",
 	withdrawalOption: 1,
 	maxWithdrawal: "800",
 	minDeposit: "1",

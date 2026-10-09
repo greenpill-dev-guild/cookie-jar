@@ -2,7 +2,14 @@
 // import { HatsSubgraphClient, Hat, Tree, Wearer } from '@hatsprotocol/sdk-v1-subgraph';
 
 import { log } from "@jar-core/lib/app/logger";
-import type { Chain } from "viem";
+import { HATS_PROTOCOL_ADDRESS } from "@jar-core/lib/blockchain/constants";
+import {
+	type Chain,
+	isAddress,
+	type PublicClient,
+	parseAbi,
+	zeroAddress,
+} from "viem";
 import { arbitrum, gnosis, mainnet, optimism, polygon } from "viem/chains";
 
 export interface HatDetails {
@@ -72,66 +79,62 @@ export class HatsProvider {
 	 */
 	static async getHatById(
 		hatId: string,
-		_contractAddress?: string
+		contractAddress: string = HATS_PROTOCOL_ADDRESS,
+		client?: PublicClient
 	): Promise<HatDetails | null> {
-		try {
-			const provider = new HatsProvider();
-
-			const query = `
-        query GetHatById($hatId: ID!) {
-          hat(id: $hatId) {
-            id
-            prettyId
-            status
-            createdAt
-            details
-            maxSupply
-            eligibility
-            toggle
-            mutable
-            imageUri
-            levelAtLocalTree
-            currentSupply
-            tree {
-              id
-              domain
-              requestType
-            }
-            wearers {
-              id
-            }
-          }
-        }
-      `;
-
-			const data = await provider.executeGraphQLQuery(query, { hatId });
-
-			if (!data?.hat) {
-				return null;
-			}
-
-			const hat = data.hat;
-			return {
-				id: hat.id,
-				prettyId: hat.prettyId,
-				status: hat.status,
-				createdAt: hat.createdAt,
-				details: hat.details,
-				maxSupply: hat.maxSupply,
-				eligibility: hat.eligibility,
-				toggle: hat.toggle,
-				mutable: hat.mutable,
-				imageUri: hat.imageUri,
-				levelAtLocalTree: hat.levelAtLocalTree,
-				currentSupply: hat.currentSupply,
-				tree: hat.tree,
-				wearers: hat.wearers || [],
-				subHats: [], // Not needed for single hat lookup
-			};
-		} catch (error) {
-			log.error("Error fetching hat by ID", { error, hatId });
+		const input = hatId.trim();
+		if (!/^(0x[0-9a-fA-F]+|[0-9]+)$/.test(input))
+			throw new Error("Enter a decimal or hexadecimal Hat ID.");
+		const id = BigInt(input);
+		if (id <= 0n || id >= 2n ** 256n)
+			throw new Error("Hat ID must be a non-zero uint256.");
+		const address = contractAddress.trim() || HATS_PROTOCOL_ADDRESS;
+		if (!isAddress(address))
+			throw new Error("Enter a valid Hats contract address.");
+		if (!client)
+			throw new Error("The selected network is unavailable. Please try again.");
+		const [
+			details,
+			maxSupply,
+			supply,
+			eligibility,
+			toggle,
+			imageUri,
+			,
+			mutable,
+			active,
+		] = await client.readContract({
+			address,
+			abi: parseAbi([
+				"function viewHat(uint256) view returns (string,uint32,uint32,address,address,string,uint16,bool,bool)",
+			]),
+			functionName: "viewHat",
+			args: [id],
+		});
+		if (
+			maxSupply === 0 &&
+			eligibility === zeroAddress &&
+			toggle === zeroAddress
+		)
 			return null;
-		}
+		return {
+			id: id.toString(),
+			prettyId: `0x${id.toString(16).padStart(64, "0")}`,
+			status: active,
+			details,
+			maxSupply: String(maxSupply),
+			currentSupply: String(supply),
+			eligibility,
+			toggle,
+			mutable,
+			imageUri,
+			// Optional indexed metadata is unavailable in the onchain validation path.
+			createdAt: "",
+			levelAtLocalTree: 0,
+			tree: { id: "", domain: "", requestType: "" },
+			wearers: [],
+			subHats: [],
+		};
 	}
 
 	private getSubgraphEndpoint(chainId: number): string {
