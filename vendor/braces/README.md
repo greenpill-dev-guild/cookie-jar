@@ -1,6 +1,6 @@
 # Local braces security remediation
 
-This is the MIT-licensed runtime source from `braces@3.0.3`, originally published by Jon Schlinkert at https://github.com/micromatch/braces. The upstream LICENSE and public API are retained. The package is private and is installed only through the root `braces` file override.
+This is the MIT-licensed runtime source from `braces@3.0.3`, originally published by Jon Schlinkert at https://github.com/micromatch/braces. The upstream LICENSE and public API are retained. The package is private and is installed through the root `braces` file override. The matching direct development dependency lets Bun resolve its declared `fill-range` dependency on a fresh install.
 
 GHSA-vfj7-8cjw-p6xm has no published patched release as of 2026-10-09. The local change bounds parser nesting at 128 stack entries before recursive AST walkers can run. Compile, expand and stringify also validate externally supplied ASTs using an iterative depth check, including cyclic ASTs. Ordinary patterns, nesting, ranges and escapes retain upstream behavior.
 

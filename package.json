@@ -84,7 +84,8 @@
 		"oxlint": "1.19.0",
 		"prettier": "^3.9.6",
 		"prettier-plugin-solidity": "^1.2.0",
-		"solhint": "^4.1.1"
+		"solhint": "^4.1.1",
+		"braces": "file:vendor/braces"
 	},
 	"engines": {
 		"node": ">=20",
