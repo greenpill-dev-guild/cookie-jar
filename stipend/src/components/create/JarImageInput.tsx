@@ -16,6 +16,7 @@ export function JarImageInput() {
 		formState: { errors },
 	} = useFormContext<JarCreationFormData>();
 	const imageUrl = watch("imageUrl");
+	const remotePreview = imageUrl?.startsWith("https://") ? imageUrl : undefined;
 	const [file, setFile] = useState<File>();
 	const [preview, setPreview] = useState<string>();
 	const [uploading, setUploading] = useState(false);
@@ -90,9 +91,9 @@ export function JarImageInput() {
 			<p id="jar-image-help" className="text-sm text-muted-foreground">
 				Upload a PNG, JPEG or WebP image up to 10 MB.
 			</p>
-			{(preview || imageUrl) && (
+			{(preview || remotePreview) && (
 				<img
-					src={preview || imageUrl}
+					src={preview || remotePreview}
 					alt="Jar image preview"
 					className="h-32 w-32 rounded-lg object-cover"
 				/>

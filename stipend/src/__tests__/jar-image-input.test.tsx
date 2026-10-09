@@ -16,9 +16,9 @@ vi.mock("@/lib/jar-image-upload", () => ({
 	uploadJarImage: upload,
 	validateJarImage: () => {},
 }));
-function Form() {
+function Form({ imageUrl = "" }: { imageUrl?: string }) {
 	const form = useForm<JarCreationFormData>({
-		defaultValues: { imageUrl: "" },
+		defaultValues: { imageUrl },
 	});
 	return (
 		<FormProvider {...form}>
@@ -88,4 +88,20 @@ it("cancels a pending upload without accepting its later result", async () => {
 		expect(screen.getByTestId("saved-image").textContent).toBe("")
 	);
 	expect(upload.mock.calls.at(-1)?.[1].aborted).toBe(true);
+});
+
+it.each(["javascript:alert(1)", "data:text/html,<script>alert(1)</script>"])(
+	"does not render an unsafe remote preview: %s",
+	(imageUrl) => {
+		render(<Form imageUrl={imageUrl} />);
+		expect(screen.queryByRole("img", { name: "Jar image preview" })).toBeNull();
+	}
+);
+it("previews an existing HTTPS image URL", () => {
+	render(
+		<Form imageUrl="https://www.greengoods.app/images/hero-cookie.webp" />
+	);
+	expect(
+		screen.getByRole("img", { name: "Jar image preview" }).getAttribute("src")
+	).toBe("https://www.greengoods.app/images/hero-cookie.webp");
 });
