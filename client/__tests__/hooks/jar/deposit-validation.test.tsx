@@ -11,6 +11,7 @@ const mocks = vi.hoisted(() => ({
 }));
 vi.mock("wagmi", () => ({
 	useChainId: () => 31337,
+	usePublicClient: () => ({ readContract: async () => 0n }),
 	useAccount: () => ({
 		isConnected: true,
 		address: "0x1111111111111111111111111111111111111111",

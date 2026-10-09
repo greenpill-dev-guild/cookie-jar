@@ -15,7 +15,7 @@ import {
 } from "@jar-core/lib/jar/deposit-args";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { erc20Abi } from "viem";
-import { useAccount, useChainId } from "wagmi";
+import { useAccount, useChainId, usePublicClient } from "wagmi";
 import { useToast } from "../app/useToast";
 
 /**
@@ -31,6 +31,15 @@ export interface JarConfig {
 	/** Access type label or enum value, used to pick the claim function */
 	accessType?: string | number;
 	accessTypeIndex?: number;
+}
+
+interface PendingDeposit {
+	identity: string;
+	owner: `0x${string}`;
+	currency: `0x${string}`;
+	amount: bigint;
+	previousApprovalHash?: string;
+	phase: "checking" | "approving" | "depositing";
 }
 
 interface TransactionOptions {
@@ -99,15 +108,35 @@ export const useJarTransactions = (
 	const [withdrawPurpose, setWithdrawPurpose] = useState<string>("");
 	const [gateAddress, setGateAddress] = useState<string>("");
 	const [tokenId, setTokenId] = useState<string>("");
-	const [pendingDepositAmount, setPendingDepositAmount] = useState<bigint>(
-		BigInt(0)
-	);
-	const [approvalCompleted, setApprovalCompleted] = useState(false);
-
-	// Multi-step transaction tracking
+	const publicClient = usePublicClient({ chainId });
+	const pendingDeposit = useRef<PendingDeposit>();
+	const identity = `${account.isConnected}:${account.address?.toLowerCase()}:${account.chainId}:${chainId}:${addressString.toLowerCase()}:${config?.currency?.toLowerCase()}`;
+	const identityRef = useRef(identity);
+	identityRef.current = identity;
 	const [transactionStep, setTransactionStep] = useState<
-		"idle" | "approving" | "depositing" | "withdrawing"
+		"idle" | "checking" | "approving" | "depositing" | "withdrawing"
 	>("idle");
+	const clearDeposit = useCallback(() => {
+		pendingDeposit.current = undefined;
+		setTransactionStep("idle");
+	}, []);
+	useEffect(() => {
+		if (
+			pendingDeposit.current &&
+			pendingDeposit.current.identity !== identity
+		) {
+			clearDeposit();
+			depositETH.reset();
+			depositCurrency.reset();
+			approve.reset();
+		}
+	}, [identity, clearDeposit]);
+	useEffect(
+		() => () => {
+			pendingDeposit.current = undefined;
+		},
+		[]
+	);
 
 	// Version-aware ABI and function selection
 	const isV2 = isV2Chain(chainId);
@@ -148,20 +177,9 @@ export const useJarTransactions = (
 		depositError = "Switch to the jar network to deposit.";
 
 	// Enhanced transaction hooks with retry logic
-	const depositETH = useTransactionWithRetry({
-		maxRetries: enableRetry ? maxRetries : 1,
-		retryDelay: enableRetry ? retryDelay : 0,
-	});
-
-	const depositCurrency = useTransactionWithRetry({
-		maxRetries: enableRetry ? maxRetries : 1,
-		retryDelay: enableRetry ? retryDelay : 0,
-	});
-
-	const approve = useTransactionWithRetry({
-		maxRetries: enableRetry ? Math.min(maxRetries, 2) : 1, // Fewer retries for approvals
-		retryDelay: enableRetry ? retryDelay : 0,
-	});
+	const depositETH = useTransactionWithRetry({ maxRetries: 0 });
+	const depositCurrency = useTransactionWithRetry({ maxRetries: 0 });
+	const approve = useTransactionWithRetry({ maxRetries: 0 });
 
 	const withdrawAllowlist = useTransactionWithRetry({
 		maxRetries: enableRetry ? maxRetries : 1,
@@ -182,14 +200,21 @@ export const useJarTransactions = (
 	].find(Boolean)?.message as string | undefined;
 	useEffect(() => {
 		if (
-			approve.error?.message?.toLowerCase().includes("revert") &&
-			transactionStep === "approving"
+			(approve.error?.message?.toLowerCase().includes("revert") &&
+				transactionStep === "approving") ||
+			((depositETH.error?.message?.toLowerCase().includes("revert") ||
+				depositCurrency.error?.message?.toLowerCase().includes("revert")) &&
+				transactionStep === "depositing")
 		) {
-			setTransactionStep("idle");
-			setApprovalCompleted(false);
-			setPendingDepositAmount(0n);
+			clearDeposit();
 		}
-	}, [approve.error, transactionStep]);
+	}, [
+		approve.error,
+		depositETH.error,
+		depositCurrency.error,
+		transactionStep,
+		clearDeposit,
+	]);
 	const retryConfirmation = async () => {
 		for (const transaction of [
 			approve,
@@ -202,116 +227,187 @@ export const useJarTransactions = (
 				await transaction.retryConfirmation();
 		}
 	};
-	// Handle approval completion for ERC20 deposits
+	const isCurrentDeposit = (pending: PendingDeposit) =>
+		pendingDeposit.current === pending &&
+		identityRef.current === pending.identity;
+	const readAllowance = async (pending: PendingDeposit) => {
+		if (!publicClient)
+			throw new Error("Unable to check token approval. Please try again.");
+		return publicClient.readContract({
+			address: pending.currency,
+			abi: erc20Abi,
+			functionName: "allowance",
+			args: [pending.owner, addressString],
+		});
+	};
+	const sendDeposit = async (pending: PendingDeposit) => {
+		if (!isCurrentDeposit(pending)) return;
+		pending.phase = "depositing";
+		setTransactionStep("depositing");
+		const call = buildDepositCall({
+			isV2,
+			currency: pending.currency,
+			amount: pending.amount,
+		});
+		await (pending.currency === ETH_ADDRESS
+			? depositETH
+			: depositCurrency
+		).writeContract({
+			address: addressString,
+			abi,
+			functionName: call.functionName,
+			args: call.args,
+			account: pending.owner,
+			...(call.value === undefined ? {} : { value: call.value }),
+			chainId,
+		});
+	};
+	const reportDepositError = (error: unknown, pending: PendingDeposit) => {
+		if (!isCurrentDeposit(pending)) return;
+		toast({
+			title: "Deposit failed",
+			description: (error as Error).message,
+			variant: "destructive",
+		});
+		clearDeposit();
+	};
+
+	// A Safe proposal is not an executed approval. Read actual allowance after the receipt.
 	useEffect(() => {
+		const pending = pendingDeposit.current;
 		if (
-			approve.isSuccess &&
-			approvalCompleted &&
-			transactionStep === "approving"
-		) {
-			setTransactionStep("depositing");
-
-			const executeDeposit = async () => {
-				try {
-					const call = buildDepositCall({
-						isV2,
-						currency: config?.currency ?? ETH_ADDRESS,
-						amount: pendingDepositAmount,
-					});
-					await depositCurrency.writeContract({
-						address: addressString,
-						abi,
-						functionName: call.functionName,
-						args: call.args,
-						chainId,
-					});
-				} catch {
-					setTransactionStep("idle");
-					setApprovalCompleted(false);
-					setPendingDepositAmount(BigInt(0));
-				}
-			};
-
-			executeDeposit();
-		}
-	}, [
-		approve.isSuccess,
-		approvalCompleted,
-		transactionStep,
-		depositCurrency,
-		addressString,
-		abi,
-		pendingDepositAmount,
-		isV2,
-		config?.currency,
-		chainId,
-	]);
-
-	// Deposit submission handler
-	const onSubmit = useCallback(
-		async (value: string) => {
-			if (!config?.currency) return;
-
+			!pending ||
+			pending.phase !== "approving" ||
+			!approve.isSuccess ||
+			!approve.hash ||
+			approve.hash === pending.previousApprovalHash ||
+			!isCurrentDeposit(pending)
+		)
+			return;
+		pending.phase = "checking";
+		setTransactionStep("checking");
+		void (async () => {
 			try {
-				const amountBigInt = parseTokenAmount(value, verifiedDecimals);
-				if (amountBigInt <= 0n)
-					throw new Error("Enter an amount greater than zero.");
-				if (!account.isConnected || account.chainId !== chainId)
-					throw new Error("Connect your wallet on the jar network to deposit.");
-
-				if (config.currency === ETH_ADDRESS) {
-					setTransactionStep("depositing");
-					const call = buildDepositCall({
-						isV2,
-						currency: ETH_ADDRESS,
-						amount: amountBigInt,
-					});
-					await depositETH.writeContract({
-						address: addressString,
-						abi,
-						functionName: call.functionName,
-						args: call.args,
-						value: call.value,
-						chainId,
-					});
-				} else {
+				const allowance = await readAllowance(pending);
+				if (!isCurrentDeposit(pending)) return;
+				if (allowance < pending.amount) {
+					pending.phase = "approving";
+					pending.previousApprovalHash = approve.hash;
 					setTransactionStep("approving");
-					setApprovalCompleted(true);
-					setPendingDepositAmount(amountBigInt);
-
-					await approve.writeContract({
-						address: config.currency as `0x${string}`,
-						abi: erc20Abi,
-						functionName: "approve",
-						args: [addressString, amountBigInt],
-						chainId,
-					});
+					return;
 				}
+				await sendDeposit(pending);
 			} catch (error) {
+				if (!isCurrentDeposit(pending)) return;
+				if (pending.phase === "depositing") {
+					reportDepositError(error, pending);
+					return;
+				}
+				pending.phase = "approving";
+				pending.previousApprovalHash = approve.hash;
+				setTransactionStep("approving");
+				toast({
+					title: "Approval check failed",
+					description: "Check approval again once the network is available.",
+					variant: "destructive",
+				});
+			}
+		})();
+	});
+
+	// Allows a multisig user to resume after execution in Safe, without proposing approval again.
+	const checkApproval = async () => {
+		const pending = pendingDeposit.current;
+		if (!pending || pending.phase !== "approving") return;
+		pending.phase = "checking";
+		setTransactionStep("checking");
+		try {
+			const allowance = await readAllowance(pending);
+			if (!isCurrentDeposit(pending)) return;
+			if (allowance >= pending.amount) {
+				approve.reset();
+				clearDeposit();
+				toast({
+					title: "Token approval confirmed",
+					description: "You can now deposit the funds.",
+				});
+			} else {
+				pending.phase = "approving";
+				setTransactionStep("approving");
+				toast({
+					title: "Waiting for approval execution",
+					description:
+						"Execute the approval in your multisig, then check again.",
+				});
+			}
+		} catch {
+			if (!isCurrentDeposit(pending)) return;
+			pending.phase = "approving";
+			setTransactionStep("approving");
+			toast({
+				title: "Approval check failed",
+				description: "Check approval again once the network is available.",
+				variant: "destructive",
+			});
+		}
+	};
+
+	const onSubmit = async (value: string) => {
+		if (!config?.currency || pendingDeposit.current) return;
+		let pending: PendingDeposit | undefined;
+		try {
+			const amountBigInt = parseTokenAmount(value, verifiedDecimals);
+			if (amountBigInt <= 0n)
+				throw new Error("Enter an amount greater than zero.");
+			if (
+				!account.isConnected ||
+				!account.address ||
+				account.chainId !== chainId
+			)
+				throw new Error("Connect your wallet on the jar network to deposit.");
+			pending = {
+				identity,
+				owner: account.address,
+				currency: config.currency as `0x${string}`,
+				amount: amountBigInt,
+				phase: "checking",
+				previousApprovalHash: approve.hash,
+			};
+			depositETH.reset();
+			depositCurrency.reset();
+			approve.reset();
+			pendingDeposit.current = pending;
+			setTransactionStep("checking");
+			if (pending.currency === ETH_ADDRESS) {
+				await sendDeposit(pending);
+				return;
+			}
+			const allowance = await readAllowance(pending);
+			if (!isCurrentDeposit(pending)) return;
+			if (allowance >= amountBigInt) {
+				await sendDeposit(pending);
+				return;
+			}
+			pending.phase = "approving";
+			setTransactionStep("approving");
+			await approve.writeContract({
+				address: pending.currency,
+				abi: erc20Abi,
+				functionName: "approve",
+				account: pending.owner,
+				args: [addressString, amountBigInt],
+				chainId,
+			});
+		} catch (error) {
+			if (pending) reportDepositError(error, pending);
+			else
 				toast({
 					title: "Deposit failed",
 					description: (error as Error).message,
 					variant: "destructive",
 				});
-				setTransactionStep("idle");
-				setApprovalCompleted(false);
-				setPendingDepositAmount(BigInt(0));
-			}
-		},
-		[
-			config?.currency,
-			verifiedDecimals,
-			account.isConnected,
-			account.chainId,
-			addressString,
-			abi,
-			depositETH,
-			approve,
-			toast,
-			isV2,
-			chainId,
-		]
-	);
+		}
+	};
 
 	// Allowlist withdrawal handlers
 	const handleWithdrawAllowlist = useCallback(async () => {
@@ -460,7 +556,11 @@ export const useJarTransactions = (
 			: depositCurrency.isSuccess
 				? depositCurrency.hash
 				: undefined;
-		if (confirmed && handledDeposit.current !== confirmed) {
+		if (
+			confirmed &&
+			transactionStep === "depositing" &&
+			handledDeposit.current !== confirmed
+		) {
 			handledDeposit.current = confirmed;
 			toast({
 				title: "Deposit Successful",
@@ -468,9 +568,7 @@ export const useJarTransactions = (
 			});
 
 			setAmount("");
-			setTransactionStep("idle");
-			setApprovalCompleted(false);
-			setPendingDepositAmount(BigInt(0));
+			clearDeposit();
 		}
 	}, [
 		depositETH.hash,
@@ -480,6 +578,8 @@ export const useJarTransactions = (
 		amount,
 		tokenSymbol,
 		toast,
+		transactionStep,
+		clearDeposit,
 	]);
 
 	// Handle withdrawal completion
@@ -518,10 +618,15 @@ export const useJarTransactions = (
 		approve.reset();
 		withdrawAllowlist.reset();
 		withdrawNFT.reset();
-		setTransactionStep("idle");
-		setApprovalCompleted(false);
-		setPendingDepositAmount(BigInt(0));
-	}, [depositETH, depositCurrency, approve, withdrawAllowlist, withdrawNFT]);
+		clearDeposit();
+	}, [
+		depositETH,
+		depositCurrency,
+		approve,
+		withdrawAllowlist,
+		withdrawNFT,
+		clearDeposit,
+	]);
 
 	// Combined loading states
 	const isApprovalPending = approve.isPending || approve.isLoading;
@@ -530,7 +635,9 @@ export const useJarTransactions = (
 		depositCurrency.isPending ||
 		depositETH.isLoading ||
 		depositCurrency.isLoading ||
-		transactionStep === "approving";
+		transactionStep === "checking" ||
+		transactionStep === "approving" ||
+		transactionStep === "depositing";
 	const isWithdrawPending =
 		withdrawAllowlist.isPending ||
 		withdrawNFT.isPending ||
@@ -563,6 +670,7 @@ export const useJarTransactions = (
 
 		// Transaction handlers
 		onSubmit,
+		checkApproval,
 		handleWithdrawAllowlist,
 		handleWithdrawAllowlistVariable,
 		handleWithdrawNFT,
@@ -582,13 +690,11 @@ export const useJarTransactions = (
 		withdrawNFT,
 
 		// Retry capabilities
-		canRetryDeposit:
-			depositETH.retryState.canRetry || depositCurrency.retryState.canRetry,
+		canRetryDeposit: false,
 		canRetryWithdrawal:
 			withdrawAllowlist.retryState.canRetry || withdrawNFT.retryState.canRetry,
 		retryDeposit: () => {
-			if (depositETH.retryState.canRetry) depositETH.retry();
-			if (depositCurrency.retryState.canRetry) depositCurrency.retry();
+			void retryConfirmation();
 		},
 		retryWithdrawal: () => {
 			if (withdrawAllowlist.retryState.canRetry) withdrawAllowlist.retry();

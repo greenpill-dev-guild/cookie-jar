@@ -29,6 +29,8 @@ export function JarDepositSection({
 		setAmount,
 		onSubmit,
 		isApprovalPending,
+		transactionStep,
+		checkApproval,
 		isDepositPending,
 		tokenSymbol,
 		tokenDecimals,
@@ -94,23 +96,39 @@ export function JarDepositSection({
 						className="w-full h-10"
 						disabled={!amount || !!depositError || isDepositPending}
 					>
-						{isDepositPending ? "Depositing..." : "Deposit"}
+						{transactionStep === "checking"
+							? "Checking approval…"
+							: transactionStep === "approving"
+								? "Waiting for approval…"
+								: isDepositPending
+									? "Depositing..."
+									: "Deposit"}
 					</Button>
 				</div>
 			</div>
 
 			{!isNativeCurrency && (
 				<p className="text-sm text-muted-foreground">
-					Token deposits take two signatures: an approval, then the deposit. A
-					multi-sig can batch both calls (approve, then deposit) in one
-					transaction.
+					An approval is requested only when the depositing wallet’s allowance
+					is too low. For a multisig, execute the approval in Safe before
+					depositing.
 				</p>
 			)}
 
-			{isApprovalPending && (
+			{(isApprovalPending || transactionStep === "approving") && (
 				<div className="p-3 bg-muted rounded-lg text-foreground text-sm">
-					Waiting for the token approval. Confirm it in your wallet.
+					Waiting for token approval to execute. Confirm it in your wallet or
+					multisig.
 				</div>
+			)}
+			{transactionStep === "approving" && (
+				<Button
+					type="button"
+					variant="outline"
+					onClick={() => void checkApproval()}
+				>
+					Check approval
+				</Button>
 			)}
 		</div>
 	);

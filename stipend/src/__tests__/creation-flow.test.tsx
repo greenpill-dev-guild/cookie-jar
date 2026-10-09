@@ -71,6 +71,7 @@ afterEach(cleanup);
 beforeEach(() => {
 	vi.clearAllMocks();
 	state.chainId = 42161;
+	state.address = "0x1111111111111111111111111111111111111111";
 	state.decimals = 6;
 	state.receipt = undefined;
 	state.receiptError = undefined;
@@ -80,18 +81,17 @@ beforeEach(() => {
 });
 
 describe("direct factory creation", () => {
-	it("requires an explicit stipend owner and keeps edits when the wallet changes", async () => {
+	it("defaults the stipend owner to the wallet and keeps manual edits when it changes", async () => {
 		const view = renderHook(useJarCreation);
 		act(() => view.result.current.applyStipendPreset());
-		expect(view.result.current.form.getValues("jarOwnerAddress")).toBe("");
-		await act(async () => {
-			await view.result.current.confirmSubmit();
-		});
-		expect(view.result.current.formErrors.join(" ")).toContain("owner address");
-		expect(state.write).not.toHaveBeenCalled();
+		expect(view.result.current.form.getValues("jarOwnerAddress")).toBe(
+			state.address
+		);
 		state.address = "0x2222222222222222222222222222222222222222";
 		view.rerender();
-		expect(view.result.current.form.getValues("jarOwnerAddress")).toBe("");
+		expect(view.result.current.form.getValues("jarOwnerAddress")).toBe(
+			state.address
+		);
 		act(() =>
 			view.result.current.form.setValue(
 				"jarOwnerAddress",
@@ -110,6 +110,14 @@ describe("direct factory creation", () => {
 			"0x3333333333333333333333333333333333333333"
 		);
 		expect(view.result.current.form.getValues("maxWithdrawal")).toBe("400");
+		act(() => view.result.current.applyStipendPreset());
+		state.address = "0x5555555555555555555555555555555555555555";
+		view.rerender();
+		act(() => view.result.current.applyStipendPreset());
+		expect(view.result.current.form.getValues("jarOwnerAddress")).toBe(
+			"0x3333333333333333333333333333333333333333"
+		);
+
 		expect(state.write).not.toHaveBeenCalled();
 	});
 	it.each(["wrong network", "missing decimals"])(

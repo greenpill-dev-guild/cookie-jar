@@ -119,3 +119,120 @@ test("creation checkboxes have 44 px touch targets", async ({ page }, info) => {
 		fullPage: true,
 	});
 });
+
+test("creation offers promoted Arbitrum tokens and a custom ERC-20", async ({
+	page,
+}) => {
+	await page.goto("/create");
+	await page
+		.getByRole("combobox", { name: "Select currency type for your jar" })
+		.click();
+	for (const name of ["USDC", "DAI", "WETH", "Custom ERC-20"])
+		await expect(
+			page.getByRole("option", { name: new RegExp(`^${name}`) })
+		).toBeVisible();
+	await page.getByRole("option", { name: /^Custom ERC-20/ }).click();
+	await expect(
+		page.getByLabel("ERC-20 Token Address", { exact: true })
+	).toBeVisible();
+	await page
+		.getByLabel("ERC-20 Token Address", { exact: true })
+		.fill("0xaf88d065e77c8cC2239327C5EDb3A432268e5831");
+	await page.getByRole("button", { name: "Set", exact: true }).click();
+	await expect(page.getByText(/Custom ERC-20 set:/)).toBeVisible();
+});
+
+test("image upload recovers from failure and blocks advancing while pending", async ({
+	page,
+}, info) => {
+	const { readFile } = await import("node:fs/promises");
+	const image = await readFile("stipend/public/opengraph-image.png");
+	const cid = "bafkreiciqpf375f4jtrwtacn2mqrjqlf5upjvbyaclx7zvevajurkprsoy";
+	let failSigning = true;
+	let finishUpload: (() => void) | undefined;
+	await page.route(
+		"https://agent.greengoods.app/api/uploads/sign",
+		async (route) => {
+			if (route.request().method() === "OPTIONS") {
+				await route.fulfill({
+					status: 204,
+					headers: {
+						"access-control-allow-origin": "*",
+						"access-control-allow-methods": "POST, OPTIONS",
+						"access-control-allow-headers": "Content-Type",
+					},
+				});
+				return;
+			}
+			expect(route.request().postDataJSON()).toMatchObject({
+				filename: "qa-image.png",
+				mimeType: "image/png",
+				source: "cookie-jar-image",
+			});
+			await route.fulfill({
+				status: failSigning ? 503 : 200,
+				headers: { "access-control-allow-origin": "*" },
+				json: failSigning
+					? { ok: false }
+					: {
+							ok: true,
+							url: "https://uploads.pinata.cloud/v3/files?signature=local-qa",
+						},
+			});
+			failSigning = false;
+		}
+	);
+	await page.route("https://uploads.pinata.cloud/**", async (route) => {
+		await new Promise<void>((resolve) => {
+			finishUpload = resolve;
+		});
+		expect(route.request().postDataBuffer()?.length).toBeGreaterThan(
+			image.length
+		);
+		await route.fulfill({
+			headers: { "access-control-allow-origin": "*" },
+			json: { data: { cid } },
+		});
+	});
+	await page.route(`https://ipfs.io/ipfs/${cid}`, (route) =>
+		route.fulfill({ contentType: "image/png", body: image })
+	);
+	await page.goto("/create");
+	await page.getByLabel("Jar name").fill("Image upload QA");
+	await page
+		.locator("#jarOwner")
+		.fill("0x1111111111111111111111111111111111111111");
+	const next = page.getByRole("button", { name: "Next", exact: true });
+	await expect(next).toBeEnabled();
+	await page.getByLabel("Jar image", { exact: true }).setInputFiles({
+		name: "qa-image.png",
+		mimeType: "image/png",
+		buffer: image,
+	});
+	await expect(page.getByRole("status")).toContainText(
+		"Image uploads are unavailable"
+	);
+	await expect(next).toBeDisabled();
+	await page.getByRole("button", { name: "Retry upload" }).click();
+	await expect(page.getByRole("status")).toContainText("Uploading image");
+	await expect(next).toBeDisabled();
+	await expect.poll(() => Boolean(finishUpload)).toBe(true);
+	finishUpload!();
+	await expect(page.getByRole("status")).toContainText("Image ready.");
+	await expect(next).toBeEnabled();
+	await page.getByText("Use an image URL", { exact: true }).click();
+	await expect(page.getByLabel("Image URL")).toHaveValue(
+		`https://ipfs.io/ipfs/${cid}`
+	);
+	await page.screenshot({
+		path: info.outputPath("image-upload-success.png"),
+		fullPage: true,
+	});
+	const accessibility = await new AxeBuilder({ page })
+		.withTags(["wcag2a", "wcag2aa"])
+		.analyze();
+	expect(accessibility.violations).toEqual([]);
+	await page.getByRole("button", { name: "Remove image" }).click();
+	await expect(page.getByLabel("Image URL")).toHaveValue("");
+	await expect(next).toBeEnabled();
+});

@@ -119,6 +119,7 @@ export function useJarCreation({
 		/* Validation below explains invalid fees. */
 	}
 	const [formErrors, setFormErrors] = useState<string[]>([]);
+	const automaticOwner = useRef<string>();
 	const [presetApplied, setPresetApplied] = useState(false);
 	const [busy, setBusy] = useState(false);
 	const busyRef = useRef(false);
@@ -141,6 +142,11 @@ export function useJarCreation({
 		const errors: string[] = [];
 		if (step === undefined || step === 1) {
 			if (!v.jarName.trim()) errors.push("Jar name is required.");
+			const imageError = form.getFieldState("imageUrl").error;
+			if (imageError?.type === "upload")
+				errors.push(
+					imageError.message ?? "Finish the image upload before continuing."
+				);
 			if (!isAddress(v.jarOwnerAddress) || /^0x0{40}$/i.test(v.jarOwnerAddress))
 				errors.push("Enter a non-zero owner address.");
 			if (!factoryAddress)
@@ -189,9 +195,22 @@ export function useJarCreation({
 	}
 
 	function applyStipendPreset() {
-		if (busyRef.current) return;
+		if (
+			busyRef.current ||
+			form.getFieldState("imageUrl").error?.type === "upload"
+		)
+			return;
 		if (!preset) return;
-		form.reset(structuredClone(preset));
+		const currentOwner = form.getValues("jarOwnerAddress");
+		const ownerEdited =
+			form.getFieldState("jarOwnerAddress").isDirty ||
+			(!!currentOwner && currentOwner !== automaticOwner.current);
+		const owner = ownerEdited ? currentOwner : (account.address ?? "");
+		form.reset({ ...structuredClone(preset), jarOwnerAddress: owner });
+		if (ownerEdited) {
+			automaticOwner.current = undefined;
+			form.setValue("jarOwnerAddress", owner, { shouldDirty: true });
+		} else automaticOwner.current = owner;
 		setPresetApplied(true);
 		setFormErrors([]);
 	}
@@ -288,14 +307,15 @@ export function useJarCreation({
 	}
 
 	useEffect(() => {
-		// Custom jars may default to the wallet. A stipend preset requires an explicit Safe owner.
+		const current = form.getValues("jarOwnerAddress");
 		if (
-			account.address &&
-			!presetApplied &&
-			!form.getValues("jarOwnerAddress") &&
-			!form.getFieldState("jarOwnerAddress").isDirty
-		)
-			form.setValue("jarOwnerAddress", account.address);
+			!form.getFieldState("jarOwnerAddress").isDirty &&
+			(!current || current === automaticOwner.current)
+		) {
+			const owner = account.address ?? "";
+			automaticOwner.current = owner;
+			form.setValue("jarOwnerAddress", owner, { shouldDirty: false });
+		}
 	}, [account.address, form, presetApplied]);
 
 	useEffect(() => {

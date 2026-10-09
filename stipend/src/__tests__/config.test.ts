@@ -2,10 +2,10 @@ import { describe, expect, it } from "vitest";
 import { parseStipendEnv } from "../config/environment";
 
 describe("standalone stipend environment", () => {
-	it("defaults to Arbitrum with no implicitly selected production jar", () => {
+	it("defaults to the configured Arbitrum stipend jar", () => {
 		const config = parseStipendEnv({});
 		expect(config.chainId).toBe(42161);
-		expect(config.address).toBeUndefined();
+		expect(config.address).toBe("0xfCA00fC7E287419F200840364fd9b7DC84E83e01");
 		expect(config.fromBlock).toBe(435607756n);
 		expect(config.siteUrl).toBe("https://cookies.greengoods.app");
 	});

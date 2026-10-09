@@ -35,6 +35,7 @@ export interface ProtocolConfig {
 }
 
 export interface ProtocolSelectorProps {
+	chainId?: number;
 	onConfigChange: (config: ProtocolConfig) => void;
 	initialConfig?: Partial<ProtocolConfig>;
 	className?: string;
@@ -147,10 +148,11 @@ const ACCESS_METHODS: MethodDefinition[] = [
  * instead of basic input stubs.
  */
 const ConfigurationPanel: React.FC<{
+	chainId?: number;
 	method: AccessMethod;
 	config?: any;
 	onConfigChange: (config: any) => void;
-}> = ({ method, config, onConfigChange }) => {
+}> = ({ method, config, onConfigChange, chainId }) => {
 	switch (method) {
 		case "Allowlist":
 			return (
@@ -183,6 +185,7 @@ const ConfigurationPanel: React.FC<{
 		case "Hats":
 			return (
 				<HatsConfig
+					chainId={chainId}
 					onConfigChange={onConfigChange}
 					initialConfig={{
 						hatId: config?.hatsId ?? config?.hatId ?? "",
@@ -210,6 +213,7 @@ const ConfigurationPanel: React.FC<{
 };
 
 export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
+	chainId,
 	onConfigChange,
 	initialConfig,
 	className,
@@ -374,6 +378,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 									<CardContent className="pt-0 border-t">
 										<div className="pt-4">
 											<ConfigurationPanel
+												chainId={chainId}
 												method={selectedMethod}
 												config={initialConfig}
 												onConfigChange={handleConfigUpdate}
@@ -530,6 +535,7 @@ export const ProtocolSelector: React.FC<ProtocolSelectorProps> = ({
 					</CardHeader>
 					<CardContent>
 						<ConfigurationPanel
+							chainId={chainId}
 							method={selectedMethod}
 							config={initialConfig}
 							onConfigChange={handleConfigUpdate}
