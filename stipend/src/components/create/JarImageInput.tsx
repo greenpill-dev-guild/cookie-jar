@@ -28,7 +28,7 @@ export function JarImageInput() {
 			return;
 		}
 		const url = URL.createObjectURL(file);
-		setPreview(url);
+		setPreview(encodeURI(url));
 		return () => URL.revokeObjectURL(url);
 	}, [file]);
 	useEffect(

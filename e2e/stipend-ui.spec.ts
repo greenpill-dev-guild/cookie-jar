@@ -124,6 +124,8 @@ test("creation offers promoted Arbitrum tokens and a custom ERC-20", async ({
 	page,
 }) => {
 	await page.goto("/create");
+	await page.getByRole("combobox", { name: "Network", exact: true }).click();
+	await page.getByRole("option", { name: "Arbitrum One", exact: true }).click();
 	await page
 		.getByRole("combobox", { name: "Select currency type for your jar" })
 		.click();
