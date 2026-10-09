@@ -38,8 +38,8 @@ export const ProtocolConfigBase: React.FC<ProtocolConfigBaseProps> = ({
 			style={{ borderLeftColor: color.replace("bg-", "#") }}
 		>
 			<CardHeader className="pb-3">
-				<div className="flex items-center justify-between">
-					<div className="flex items-center gap-3">
+				<div className="flex flex-wrap items-start justify-between gap-2">
+					<div className="flex min-w-0 items-center gap-3">
 						{icon && (
 							<div
 								className={cn(
@@ -51,10 +51,12 @@ export const ProtocolConfigBase: React.FC<ProtocolConfigBaseProps> = ({
 							</div>
 						)}
 						<div>
-							<CardTitle className="text-lg font-semibold text-[#3c2a14]">
+							<CardTitle className="text-lg font-semibold text-foreground">
 								{title}
 							</CardTitle>
-							<p className="text-sm text-[#8b7355] mt-1">{description}</p>
+							<p className="text-sm text-muted-foreground mt-1">
+								{description}
+							</p>
 						</div>
 					</div>
 					{learnMoreUrl && (
@@ -62,7 +64,7 @@ export const ProtocolConfigBase: React.FC<ProtocolConfigBaseProps> = ({
 							href={learnMoreUrl}
 							target="_blank"
 							rel="noopener noreferrer"
-							className="text-blue-500 hover:text-blue-600 text-sm flex items-center gap-1"
+							className="text-primary hover:underline text-sm inline-flex min-h-11 min-w-11 items-center gap-1 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
 						>
 							Learn More <ExternalLink className="h-3 w-3" />
 						</a>

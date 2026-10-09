@@ -14,7 +14,11 @@ export function parseStipendEnv(env: StipendEnv) {
 	const chainId = integer("DEFAULT_CHAIN_ID", 42161)!;
 	if (![42161, 31337].includes(chainId))
 		throw new Error("The stipend supports Arbitrum One and local Anvil.");
-	const address = env.VITE_FEATURED_JAR_ADDRESS?.trim() || undefined;
+	const address =
+		env.VITE_FEATURED_JAR_ADDRESS?.trim() ||
+		(chainId === 42161
+			? "0xfCA00fC7E287419F200840364fd9b7DC84E83e01"
+			: undefined);
 	if (address && !isAddress(address))
 		throw new Error("Invalid VITE_FEATURED_JAR_ADDRESS");
 	const siteUrl = env.VITE_SITE_URL?.trim() || "https://cookies.greengoods.app";
