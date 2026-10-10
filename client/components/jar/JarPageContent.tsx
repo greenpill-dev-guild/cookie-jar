@@ -56,6 +56,7 @@ export function JarPageContent({
 	const history = useJarWithdrawalHistory({
 		jarAddress: address,
 		currency: config.currency,
+		createdAt: config.createdAt,
 		chainId,
 		fromBlock,
 	});

@@ -2,7 +2,9 @@
 
 import { cookieJarAbi } from "@jar-core/generated";
 import { ETH_ADDRESS } from "@jar-core/lib/blockchain/constants";
+import { findFirstBlockAtTimestamp } from "@jar-core/lib/blockchain/find-block-by-timestamp";
 import { getLogsChunked } from "@jar-core/lib/blockchain/get-logs-chunked";
+import { depositFeeLogIndexes } from "@jar-core/lib/jar/fee-transfer-logs";
 import { useQuery } from "@tanstack/react-query";
 import { decodeFunctionData, parseAbiItem } from "viem";
 import { usePublicClient } from "wagmi";
@@ -47,9 +49,18 @@ export function useJarWithdrawalHistory(params: {
 	currency?: `0x${string}`;
 	chainId: number;
 	fromBlock?: bigint;
+	/** Factory-recorded creation timestamp, used to avoid scanning the chain from genesis. */
+	createdAt?: bigint;
 	enabled?: boolean;
 }): JarWithdrawalHistory {
-	const { jarAddress, currency, chainId, fromBlock, enabled = true } = params;
+	const {
+		jarAddress,
+		currency,
+		chainId,
+		fromBlock,
+		createdAt,
+		enabled = true,
+	} = params;
 	const client = usePublicClient({ chainId });
 	const isErc20 =
 		!!currency && currency.toLowerCase() !== ETH_ADDRESS.toLowerCase();
@@ -62,12 +73,23 @@ export function useJarWithdrawalHistory(params: {
 			jarAddress,
 			currency,
 			fromBlock?.toString() ?? "0",
+			createdAt?.toString(),
 		],
 		enabled: canQuery,
 		staleTime: 30_000,
 		queryFn: async (): Promise<JarWithdrawalRecord[]> => {
 			if (!client || !jarAddress || !currency) return [];
 			const latest = await client.getBlockNumber();
+			const start =
+				createdAt && createdAt > 0n
+					? await findFirstBlockAtTimestamp(
+							async (blockNumber) =>
+								(await client.getBlock({ blockNumber })).timestamp,
+							createdAt,
+							fromBlock ?? 0n,
+							latest
+						)
+					: (fromBlock ?? 0n);
 			const logs = await getLogsChunked(
 				(from, to) =>
 					client.getLogs({
@@ -77,7 +99,7 @@ export function useJarWithdrawalHistory(params: {
 						fromBlock: from,
 						toBlock: to,
 					}),
-				fromBlock ?? 0n,
+				start,
 				latest
 			);
 			const recent = logs.slice(-MAX_RECORDS);
@@ -102,6 +124,15 @@ export function useJarWithdrawalHistory(params: {
 							}
 						} catch {
 							// not a direct jar call (for example a multi-sig batch); keep the transfer
+						}
+						if (functionName === "") {
+							const receipt = await client.getTransactionReceipt({
+								hash: log.transactionHash,
+							});
+							if (
+								depositFeeLogIndexes(receipt.logs, jarAddress).has(log.logIndex)
+							)
+								return null;
 						}
 						const kind: JarWithdrawalRecord["kind"] | null =
 							functionName === "emergencyWithdraw"

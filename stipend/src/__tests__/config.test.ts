@@ -5,8 +5,8 @@ describe("standalone stipend environment", () => {
 	it("defaults to the configured Arbitrum stipend jar", () => {
 		const config = parseStipendEnv({});
 		expect(config.chainId).toBe(42161);
-		expect(config.address).toBe("0xfCA00fC7E287419F200840364fd9b7DC84E83e01");
-		expect(config.fromBlock).toBe(435607756n);
+		expect(config.address).toBe("0xE1FCdbea80569B7e9193713ECA333ba7c4Af7947");
+		expect(config.fromBlock).toBe(513385037n);
 		expect(config.siteUrl).toBe("https://cookies.greengoods.app");
 	});
 	it("accepts its own Vite configuration for local Anvil", () => {
@@ -21,6 +21,16 @@ describe("standalone stipend environment", () => {
 			index: 4,
 			siteUrl: "http://localhost:3041",
 		});
+	});
+	it("uses factory history bounds for another jar and preserves explicit overrides", () => {
+		expect(
+			parseStipendEnv({
+				VITE_FEATURED_JAR_ADDRESS: "0xfCA00fC7E287419F200840364fd9b7DC84E83e01",
+			}).fromBlock
+		).toBe(435607756n);
+		expect(
+			parseStipendEnv({ VITE_FEATURED_JAR_BLOCK: "513385000" }).fromBlock
+		).toBe(513385000n);
 	});
 	it.each([
 		{ VITE_DEFAULT_CHAIN_ID: "oops" },

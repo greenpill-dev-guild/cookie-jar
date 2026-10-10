@@ -44,8 +44,10 @@ export const WithdrawalHistorySection: React.FC<
 	chainId,
 	tokenAddress = ETH_ADDRESS,
 }) => {
-	const { symbol: tokenSymbol, decimals: tokenDecimals } =
-		useTokenInfo(tokenAddress);
+	const { symbol: tokenSymbol, decimals: tokenDecimals } = useTokenInfo(
+		tokenAddress,
+		chainId
+	);
 	const explorer = hasExplorer(chainId);
 
 	if (!isSupported) {

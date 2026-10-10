@@ -1,6 +1,5 @@
 import {
 	buildV2CreateCookieJarArgs,
-	FACTORY_DEFAULT_FEE_SENTINEL,
 	getAccessConfigValidationError,
 	getFeePercentageOnDeposit,
 } from "@jar-core/hooks/jar/createV2CreateArgs";
@@ -119,13 +118,14 @@ describe("buildV2CreateCookieJarArgs", () => {
 		});
 		expect(decoded.functionName).toBe("createCookieJar");
 		expect(decoded.args?.length).toBe(3);
+		expect(decoded.args?.[0]).toMatchObject({ feePercentageOnDeposit: 0n });
 	});
 
-	it("uses default fee sentinel when custom fee is disabled", () => {
+	it("uses zero fee when custom fee is disabled", () => {
 		const fee = getFeePercentageOnDeposit(
-			makeValues({ enableCustomFee: false })
+			makeValues({ enableCustomFee: false, customFee: "1" })
 		);
-		expect(fee).toBe(FACTORY_DEFAULT_FEE_SENTINEL);
+		expect(fee).toBe(0n);
 	});
 
 	it("uses explicit custom fee when provided", () => {

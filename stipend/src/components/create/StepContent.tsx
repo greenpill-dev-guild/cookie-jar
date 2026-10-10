@@ -804,7 +804,12 @@ const FinalSettingsStep: React.FC<{ isV2Contract: boolean }> = ({
 			<div className="space-y-6">
 				{/* Custom Fee Settings */}
 				<div className="space-y-4">
-					<h4 className="font-medium text-base">Fee Configuration</h4>
+					<h4 className="font-medium text-base">Deposit fee</h4>
+					{isV2Contract && !enableCustomFee && (
+						<p className="text-sm text-muted-foreground">
+							No deposit fee (0%). Deposits are credited in full.
+						</p>
+					)}
 					<div className="flex items-center space-x-2">
 						<Checkbox
 							id="enableCustomFee"
@@ -818,7 +823,7 @@ const FinalSettingsStep: React.FC<{ isV2Contract: boolean }> = ({
 							htmlFor="enableCustomFee"
 							className={`text-sm ${!isV2Contract ? "text-gray-400" : ""}`}
 						>
-							Set custom deposit fee percentage
+							Charge a deposit fee
 							{!isV2Contract && (
 								<span className="ml-2 text-xs bg-orange-100 text-orange-800 px-2 py-1 rounded">
 									v2 only
@@ -829,7 +834,7 @@ const FinalSettingsStep: React.FC<{ isV2Contract: boolean }> = ({
 
 					{enableCustomFee && (
 						<div>
-							<Label htmlFor="customFee">Custom Fee Percentage</Label>
+							<Label htmlFor="customFee">Deposit fee percentage</Label>
 							<Input
 								id="customFee"
 								type="number"
@@ -944,11 +949,16 @@ const FinalSettingsStep: React.FC<{ isV2Contract: boolean }> = ({
 					<div>
 						<strong>One-time Only:</strong> {oneTimeWithdrawal ? "Yes" : "No"}
 					</div>
-					{enableCustomFee && (
-						<div>
-							<strong>Custom Fee:</strong> {customFee}%
-						</div>
-					)}
+					<div>
+						<strong>Deposit fee:</strong>{" "}
+						{!isV2Contract
+							? "Factory default (legacy jar)"
+							: !enableCustomFee
+								? "0% (no fee)"
+								: customFee?.trim()
+									? `${customFee}%`
+									: "Enter a percentage"}
+					</div>
 					{isV2Contract && (
 						<>
 							<div>
