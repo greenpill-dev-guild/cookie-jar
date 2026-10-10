@@ -118,7 +118,7 @@ describe("buildV2CreateCookieJarArgs", () => {
 		});
 		expect(decoded.functionName).toBe("createCookieJar");
 		expect(decoded.args?.length).toBe(3);
-		expect(decoded.args?.[0].feePercentageOnDeposit).toBe(0n);
+		expect(decoded.args?.[0]).toMatchObject({ feePercentageOnDeposit: 0n });
 	});
 
 	it("uses zero fee when custom fee is disabled", () => {
