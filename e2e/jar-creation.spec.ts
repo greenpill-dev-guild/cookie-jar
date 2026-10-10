@@ -23,8 +23,8 @@ test("creates a custom jar directly through the local factory and opens the chai
 	await page.getByRole("button", { name: "Next", exact: true }).click();
 	await page.getByRole("button", { name: "Next", exact: true }).click();
 	await page.getByLabel("Minimum deposit (tokens)").fill("0.01");
-	await page.getByLabel("Set custom deposit fee percentage").check();
-	await page.getByLabel("Custom Fee Percentage", { exact: true }).fill("0");
+	await expect(page.getByLabel("Charge a deposit fee")).not.toBeChecked();
+	await expect(page.getByText("0% (no fee)", { exact: true })).toBeVisible();
 	await page.getByRole("button", { name: "Create Jar", exact: true }).click();
 	await wallet.signTransaction();
 	await expect(page).toHaveURL(/\/jar\/0x[0-9a-fA-F]{40}\?chainId=31337/, {
