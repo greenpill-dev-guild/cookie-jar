@@ -89,7 +89,7 @@ function protocolValue(
 
 export function getFeePercentageOnDeposit(values: JarCreationFormData): bigint {
 	if (!values.enableCustomFee) {
-		return FACTORY_DEFAULT_FEE_SENTINEL;
+		return 0n;
 	}
 	const customFeePercent = values.customFee?.trim();
 	if (!customFeePercent)

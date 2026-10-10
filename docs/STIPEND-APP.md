@@ -31,13 +31,13 @@ Set these **public build-time** environment variables for Production in the `coo
 | Variable | Production |
 | --- | --- |
 | `VITE_DEFAULT_CHAIN_ID` | `42161` |
-| `VITE_FEATURED_JAR_ADDRESS` | Optional override; defaults to `0xfCA00fC7E287419F200840364fd9b7DC84E83e01` |
+| `VITE_FEATURED_JAR_ADDRESS` | Optional override; defaults to `0xE1FCdbea80569B7e9193713ECA333ba7c4Af7947` |
 | `VITE_FEATURED_JAR_BLOCK` | Optional jar creation block, to limit history reads |
 | `VITE_SITE_URL` | `https://cookies.greengoods.app` |
 | `VITE_WALLET_CONNECT_PROJECT_ID` | Your public WalletConnect project ID |
 | `VITE_ALCHEMY_API_KEY` | Optional public Arbitrum RPC key restricted to the production origin |
 
-Do not put a private key, mnemonic or server credential into a `VITE_*` variable. The factory address is already in the generated registry: `0x294d222eDE6DF6625B43544F1C634322467528Da`. **Do not use the factory address as `VITE_FEATURED_JAR_ADDRESS`.** Arbitrum defaults to the configured Green Goods stipend jar, `0xfCA00fC7E287419F200840364fd9b7DC84E83e01`. An explicit address overrides this default.
+Do not put a private key, mnemonic or server credential into a `VITE_*` variable. The factory address is already in the generated registry: `0x294d222eDE6DF6625B43544F1C634322467528Da`. **Do not use the factory address as `VITE_FEATURED_JAR_ADDRESS`.** Arbitrum defaults to the configured Green Goods stipend jar, `0xE1FCdbea80569B7e9193713ECA333ba7c4Af7947`. An explicit address overrides this default.
 
 The Green Goods preset creates a jar directly with that factory. It does not call the Green Goods protocol. The owner defaults to the connected wallet, including when applying the preset. It remains editable; enter the intended Safe address when another account will administer the jar. USDC, the Team hat, 800 USDC maximum, 28 days, explicit 0% deposit fee and 1 USDC minimum are documented in [the deployment runbook](DEPLOYMENT.md). These settings remain editable and are reviewed before a wallet signature. The launch amount does not change with the date.
 

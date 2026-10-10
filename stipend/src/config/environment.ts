@@ -17,7 +17,7 @@ export function parseStipendEnv(env: StipendEnv) {
 	const address =
 		env.VITE_FEATURED_JAR_ADDRESS?.trim() ||
 		(chainId === 42161
-			? "0xfCA00fC7E287419F200840364fd9b7DC84E83e01"
+			? "0xE1FCdbea80569B7e9193713ECA333ba7c4Af7947"
 			: undefined);
 	if (address && !isAddress(address))
 		throw new Error("Invalid VITE_FEATURED_JAR_ADDRESS");
@@ -34,7 +34,10 @@ export function parseStipendEnv(env: StipendEnv) {
 		throw new Error("VITE_SITE_URL must be an HTTP(S) origin.");
 	const block = integer(
 		"FEATURED_JAR_BLOCK",
-		getDeploymentInfo(chainId)?.blockNumber
+		chainId === 42161 &&
+			address?.toLowerCase() === "0xe1fcdbea80569b7e9193713eca333ba7c4af7947"
+			? 513385037
+			: getDeploymentInfo(chainId)?.blockNumber
 	);
 	return {
 		chainId,
