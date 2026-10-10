@@ -24,7 +24,11 @@ test("creates a custom jar directly through the local factory and opens the chai
 	await page.getByRole("button", { name: "Next", exact: true }).click();
 	await page.getByLabel("Minimum deposit (tokens)").fill("0.01");
 	await expect(page.getByLabel("Charge a deposit fee")).not.toBeChecked();
-	await expect(page.getByText("0% (no fee)", { exact: true })).toBeVisible();
+	await expect(
+		page.getByText("No deposit fee (0%). Deposits are credited in full.", {
+			exact: true,
+		})
+	).toBeVisible();
 	await page.getByRole("button", { name: "Create Jar", exact: true }).click();
 	await wallet.signTransaction();
 	await expect(page).toHaveURL(/\/jar\/0x[0-9a-fA-F]{40}\?chainId=31337/, {
@@ -136,7 +140,9 @@ test("preset stays editable and wallet connection returns to review without a wr
 	await page.getByRole("button", { name: "Next", exact: true }).click();
 	await expect(page.getByLabel("Minimum deposit (tokens)")).toHaveValue("1");
 	await expect(
-		page.getByText("Deposit fee: 0%", { exact: true })
+		page
+			.getByLabel("Deployment review")
+			.getByText("Deposit fee: 0%", { exact: true })
 	).toBeVisible();
 	await captureThemes(page, info, "preset-review");
 	await page
